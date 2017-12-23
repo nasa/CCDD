@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary common constants.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -32,9 +31,9 @@ import CCDD.CcddClasses.ModifiableFont;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary common constants class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddConstants
 {
     // CCDD version number and version date
@@ -53,8 +52,7 @@ public class CcddConstants
     // Maximum database, table, and column name length, characters
     protected static final int MAX_SQL_NAME_LENGTH = 64;
 
-    // String used as a comment on the database to identify it as a CCDD
-    // project
+    // String used as a comment on the database to identify it as a CCDD project
     protected static final String CCDD_PROJECT_IDENTIFIER = "Core Flight Software Command and Data Dictionary";
 
     // User's guide file name
@@ -89,12 +87,12 @@ public class CcddConstants
     protected static final String TYPE_DATA_FIELD_IDENT = "Type:";
     protected static final String GROUP_DATA_FIELD_IDENT = "Group:";
 
-    // Number of columns in a data table that are not displayed (these columns
-    // are the primary key and row index)
+    // Number of columns in a data table that are not displayed (these columns are the primary key
+    // and row index)
     protected static final int NUM_HIDDEN_COLUMNS = 2;
 
-    // Table type and path column index offsets from the last column of the
-    // table data array used for script access
+    // Table type and path column index offsets from the last column of the table data array used
+    // for script access
     protected static final int TYPE_COLUMN_DELTA = 2;
     protected static final int PATH_COLUMN_DELTA = 1;
 
@@ -122,21 +120,20 @@ public class CcddConstants
     // Separator for the table description list database query
     protected static final String TABLE_DESCRIPTION_SEPARATOR = "\\\\";
 
-    // Separator for rate values and table names in the telemetry scheduler
-    // table
+    // Separator for rate values and table names in the telemetry scheduler table
     protected static final String TLM_SCH_SEPARATOR = "\\";
 
-    // Characters used to separate individual remembered strings that are
-    // stored as a single string in the program preferences
+    // Characters used to separate individual remembered strings that are stored as a single string
+    // in the program preferences
     protected static final String AUTO_COMPLETE_TEXT_SEPARATOR = "%~%";
 
-    // Characters used to separate the data field owner and name that is
-    // assigned as the text field name for the undo handler
+    // Characters used to separate the data field owner and name that is assigned as the text field
+    // name for the undo handler
     protected static final String DATA_FIELD_IDENTIFIER_SEPARATOR = "%~%";
 
-    // Special character to denote that a child data table cell value is to be
-    // replaced with the corresponding entry in its prototype table, and that
-    // its entry in the custom values table is to be removed
+    // Special character to denote that a child data table cell value is to be replaced with the
+    // corresponding entry in its prototype table, and that its entry in the custom values table is
+    // to be removed
     protected static final String REPLACE_INDICATOR = "\u00d8";
 
     // Radio button, and check box change event names
@@ -146,24 +143,21 @@ public class CcddConstants
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
-    // Regular expression to detect reserved characters. The backslash
-    // character as a reserved character isn't included here
+    // Regular expression to detect reserved characters. The backslash character as a reserved
+    // character isn't included here
     protected static final String POSTGRESQL_RESERVED_CHARS = "(.*?)([\\[\\]\\(\\)\\{\\}\\.\\+\\*\\^\\$\\|\\?\\-])(.*?)";
 
-    // Regular expression patterns for matching trailing zeroes (with or
-    // without a leading decimal)
+    // Regular expression patterns for matching trailing zeroes (with or without a leading decimal)
     protected static final String TRAILING_ZEROES = "\\.??0*$";
 
-    // Regular expression for separating text string at a specified separator
-    // character. Separator characters between double quotes are ignored so
-    // that an erroneous separation doesn't occur
+    // Regular expression for separating text string at a specified separator character. Separator
+    // characters between double quotes are ignored so that an erroneous separation doesn't occur
     protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
-    // Regular expression that detects the strings 'true' or 'false' (case
-    // insensitive)
+    // Regular expression that detects the strings 'true' or 'false' (case insensitive)
     protected static final String TRUE_OR_FALSE = "(?i:true|false)";
 
     // Regular expression for detecting sizeof(data type) calls
@@ -173,8 +167,7 @@ public class CcddConstants
     protected static final String DEFAULT_PROTOTYPE_NODE_NAME = "Prototypes";
     protected static final String DEFAULT_INSTANCE_NODE_NAME = "Parents & Children";
 
-    // Node name for the linked and unlinked variables in trees displaying
-    // (un)linked variables
+    // Node name for the linked and unlinked variables in trees displaying (un)linked variables
     protected static final String LINKED_VARIABLES_NODE_NAME = "Linked Variables";
     protected static final String UNLINKED_VARIABLES_NODE_NAME = "Unlinked Variables";
 
@@ -246,8 +239,7 @@ public class CcddConstants
     protected static final String WARNING_ICON = "/images/warning.png";
     protected static final String ERROR_ICON = "/images/error.png";
 
-    // Width, in pixels, of a vertical scroll bar. This is used when sizing
-    // tables in dialogs
+    // Width, in pixels, of a vertical scroll bar. This is used when sizing tables in dialogs
     protected static int LAF_SCROLL_BAR_WIDTH = 38;
 
     // Size of a check box icon (width and height) in pixels
@@ -275,8 +267,8 @@ public class CcddConstants
         SELECT_BY_CELL
     }
 
-    // Arrow keys focus options - used for determining keyboard traversal
-    // actions in response to arrow key presses
+    // Arrow keys focus options - used for determining keyboard traversal actions in response to
+    // arrow key presses
     protected static enum ArrowFocusOption
     {
         USE_DEFAULT_HANDLER,
@@ -341,6 +333,14 @@ public class CcddConstants
         SEQUENCE
     }
 
+    // Database comment parts
+    protected static enum DatabaseComment
+    {
+        LOCK_STATUS,
+        PROJECT_NAME,
+        DESCRIPTION
+    }
+
     // Manager dialog types
     protected static enum ManagerDialogType
     {
@@ -368,27 +368,23 @@ public class CcddConstants
         // Prototype and instance tables, all types
         TABLES,
 
-        // Prototype and instance tables, structure types only, with primitive
-        // variables
+        // Prototype and instance tables, structure types only, with primitive variables
         STRUCTURES_WITH_PRIMITIVES,
 
-        // Prototype tables only, structure types only, with primitive
-        // variables
+        // Prototype tables only, structure types only, with primitive variables
         PROTOTYPE_STRUCTURES_WITH_PRIMITIVES,
 
         // Instance tables only, structure types only, with primitive variables
         INSTANCE_STRUCTURES_WITH_PRIMITIVES,
 
-        // Instance tables only, structure types only, with primitive variables
-        // and their sample rates
+        // Instance tables only, structure types only, with primitive variables and their sample
+        // rates
         INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
 
-        // Prototype and instance tables, all types, with primitive variables
-        // (for structures)
+        // Prototype and instance tables, all types, with primitive variables (for structures)
         TABLES_WITH_PRIMITIVES,
 
-        // Instance tables only, all types, with primitive variables (for
-        // structures)
+        // Instance tables only, all types, with primitive variables (for structures)
         INSTANCE_TABLES_WITH_PRIMITIVES
     }
 
@@ -522,7 +518,7 @@ public class CcddConstants
         private final int defaultSize;
         private ModifiableFont font;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Modifiable font information constructor
          *
          * @param name
@@ -542,7 +538,7 @@ public class CcddConstants
          *
          * @param defaultSize
          *            default font size
-         *********************************************************************/
+         *****************************************************************************************/
         ModifiableFontInfo(String name,
                            String description,
                            String preferenceKey,
@@ -564,87 +560,85 @@ public class CcddConstants
                                       defaultSize);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font name
          *
          * @return Modifiable font name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font description
          *
          * @return Modifiable font description
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font program preferences key
          *
          * @return Modifiable font program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPreferenceKey()
         {
             return preferenceKey;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font's default family
          *
          * @return Modifiable font's default family
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDefaultFamily()
         {
             return defaultFamily;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font's default style
          *
          * @return Modifiable font's default style
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultStyle()
         {
             return defaultStyle;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font's default size
          *
          * @return Modifiable font's default size
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultSize()
         {
             return defaultSize;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable font
          *
          * @return Modifiable font
-         *********************************************************************/
+         *****************************************************************************************/
         protected ModifiableFont getFont()
         {
             return font;
         }
 
-        /**********************************************************************
-         * Get the modifiable font information reference with the specified
-         * program preferences key
+        /******************************************************************************************
+         * Get the modifiable font information reference with the specified program preferences key
          *
          * @param prefKey
          *            modifiable font program preferences key
          *
-         * @return Modifiable font information reference that has a program
-         *         preferences key matching the one specified; null if no
-         *         modifiable font's key matches
-         *********************************************************************/
+         * @return Modifiable font information reference that has a program preferences key
+         *         matching the one specified; null if no modifiable font's key matches
+         *****************************************************************************************/
         protected static ModifiableFontInfo getModifiableFontInfo(String prefKey)
         {
             ModifiableFontInfo modifiableFont = null;
@@ -652,12 +646,10 @@ public class CcddConstants
             // Step through each modifiable font
             for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
             {
-                // Check if the font's program preferences key matches the one
-                // supplied
+                // Check if the font's program preferences key matches the one supplied
                 if (modFont.preferenceKey.equals(prefKey))
                 {
-                    // Store the modifiable font information reference and stop
-                    // searching
+                    // Store the modifiable font information reference and stop searching
                     modifiableFont = modFont;
                     break;
                 }
@@ -666,9 +658,9 @@ public class CcddConstants
             return modifiableFont;
         }
 
-        /**********************************************************************
-         * Set the modifiable font to the new font values and store the changes
-         * in the program preferences
+        /******************************************************************************************
+         * Set the modifiable font to the new font values and store the changes in the program
+         * preferences
          *
          * @param family
          *            font family
@@ -681,7 +673,7 @@ public class CcddConstants
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected void setFont(String family,
                                int style,
                                int size,
@@ -691,20 +683,19 @@ public class CcddConstants
             progPrefs.put(preferenceKey, family + "," + style + "," + size);
         }
 
-        /**********************************************************************
-         * Set the modifiable fonts to the values stored in the program
-         * preferences
+        /******************************************************************************************
+         * Set the modifiable fonts to the values stored in the program preferences
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void setModifiableFonts(Preferences progPrefs)
         {
             // Step through each modifiable font
             for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
             {
-                // Retrieve the font information from the program preferences
-                // and use this information to set the modifiable font
+                // Retrieve the font information from the program preferences and use this
+                // information to set the modifiable font
                 String[] fontInfo = progPrefs.get(modFont.getPreferenceKey(),
                                                   modFont.getDefaultFamily()
                                                                               + ","
@@ -719,20 +710,20 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
-         * Update the components of the specified container that use a
-         * modifiable font to the updated font
+        /******************************************************************************************
+         * Update the components of the specified container that use a modifiable font to the
+         * updated font
          *
          * @param container
          *            container in which to check the fonts of the components
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void updateFonts(Container container)
         {
             // Step through each component in the container
             for (Component comp : container.getComponents())
             {
-                // Check if the component represents a Swing component and that
-                // it has child components
+                // Check if the component represents a Swing component and that it has child
+                // components
                 if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
                 {
                     // Update the child's components
@@ -745,8 +736,8 @@ public class CcddConstants
                     // Step through each column in the table
                     for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
                     {
-                        // Set the font for the header specified by the column
-                        // to the modifiable font
+                        // Set the font for the header specified by the column to the modifiable
+                        // font
                         setModifiableFont(((JTable) comp).getColumnModel().getColumn(column).getHeaderRenderer().getTableCellRendererComponent((JTable) comp,
                                                                                                                                                "",
                                                                                                                                                false,
@@ -757,8 +748,8 @@ public class CcddConstants
                         // Step through each row in the table
                         for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
                         {
-                            // Set the font for the cell specified by the row
-                            // and column to the modifiable font
+                            // Set the font for the cell specified by the row and column to the
+                            // modifiable font
                             setModifiableFont(((JTable) comp).getCellRenderer(row, column).getTableCellRendererComponent((JTable) comp,
                                                                                                                          "",
                                                                                                                          false,
@@ -774,14 +765,13 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
-         * Compare the font for the component to the modifiable fonts. If a
-         * match is found set the component's font to the current preferred
-         * font setting
+        /******************************************************************************************
+         * Compare the font for the component to the modifiable fonts. If a match is found set the
+         * component's font to the current preferred font setting
          *
          * @param comp
          *            component for which to check the font
-         *********************************************************************/
+         *****************************************************************************************/
         private static void setModifiableFont(Component comp)
         {
             // Check if the component is using a modifiable font
@@ -793,8 +783,8 @@ public class CcddConstants
                     // Check if the component is using this font
                     if (((ModifiableFont) comp.getFont()).getModifiableFontIdentifier().equals(modFont.getPreferenceKey()))
                     {
-                        // Set the component's font to the one specified by the
-                        // modifiable font and stop searching
+                        // Set the component's font to the one specified by the modifiable font and
+                        // stop searching
                         comp.setFont(modFont.getFont());
                         break;
                     }
@@ -838,7 +828,7 @@ public class CcddConstants
         private final int defaultBlue;
         private ModifiableColor color;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Modifiable color information constructor
          *
          * @param name
@@ -858,7 +848,7 @@ public class CcddConstants
          *
          * @param defaultBlue
          *            default blue color component
-         *********************************************************************/
+         *****************************************************************************************/
         ModifiableColorInfo(String name,
                             String description,
                             String preferenceKey,
@@ -880,87 +870,86 @@ public class CcddConstants
                                         defaultBlue);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the size name (for display)
          *
          * @return Size value name (for display)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color description
          *
          * @return Modifiable color description
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color program preferences key
          *
          * @return Modifiable color program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPreferenceKey()
         {
             return preferenceKey;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color's default red component
          *
          * @return Modifiable color's default red component
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultRed()
         {
             return defaultRed;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color's default green component
          *
          * @return Modifiable color's default green component
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultGreen()
         {
             return defaultGreen;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color's default blue component
          *
          * @return Modifiable color's default blue component
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultBlue()
         {
             return defaultBlue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the modifiable color
          *
          * @return Modifiable color
-         *********************************************************************/
+         *****************************************************************************************/
         protected ModifiableColor getColor()
         {
             return color;
         }
 
-        /**********************************************************************
-         * Get the modifiable color information reference with the specified
-         * program preferences key
+        /******************************************************************************************
+         * Get the modifiable color information reference with the specified program preferences
+         * key
          *
          * @param prefKey
          *            modifiable color program preferences key
          *
-         * @return Modifiable color information reference that has a program
-         *         preferences key matching the one specified; null if no
-         *         modifiable color's key matches
-         *********************************************************************/
+         * @return Modifiable color information reference that has a program preferences key
+         *         matching the one specified; null if no modifiable color's key matches
+         *****************************************************************************************/
         protected static ModifiableColorInfo getModifiableColorInfo(String prefKey)
         {
             ModifiableColorInfo modifiableColor = null;
@@ -968,12 +957,10 @@ public class CcddConstants
             // Step through each modifiable color
             for (ModifiableColorInfo modFont : ModifiableColorInfo.values())
             {
-                // Check if the color's program preferences key matches the one
-                // supplied
+                // Check if the color's program preferences key matches the one supplied
                 if (modFont.preferenceKey.equals(prefKey))
                 {
-                    // Store the modifiable color information reference and
-                    // stop searching
+                    // Store the modifiable color information reference and stop searching
                     modifiableColor = modFont;
                     break;
                 }
@@ -982,9 +969,9 @@ public class CcddConstants
             return modifiableColor;
         }
 
-        /**********************************************************************
-         * Set the modifiable color to the new color values and store the
-         * changes in the program preferences
+        /******************************************************************************************
+         * Set the modifiable color to the new color values and store the changes in the program
+         * preferences
          *
          * @param red
          *            red color component
@@ -997,7 +984,7 @@ public class CcddConstants
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected void setModifiableColor(int red,
                                           int green,
                                           int blue,
@@ -1007,20 +994,19 @@ public class CcddConstants
             progPrefs.put(preferenceKey, red + "," + green + "," + blue);
         }
 
-        /**********************************************************************
-         * Set the modifiable colors to the values stored in the program
-         * preferences
+        /******************************************************************************************
+         * Set the modifiable colors to the values stored in the program preferences
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void setModifiableColors(Preferences progPrefs)
         {
             // Step through each modifiable color
             for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
             {
-                // Retrieve the color information from the program preferences
-                // and use this information to set the modifiable color
+                // Retrieve the color information from the program preferences and use this
+                // information to set the modifiable color
                 String[] fontInfo = progPrefs.get(modColor.getPreferenceKey(),
                                                   modColor.getDefaultRed()
                                                                                + ","
@@ -1035,20 +1021,20 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
-         * Update the components of the specified container that use a
-         * modifiable color to the updated color
+        /******************************************************************************************
+         * Update the components of the specified container that use a modifiable color to the
+         * updated color
          *
          * @param container
          *            container in which to check the colors of the components
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void updateColors(Container container)
         {
             // Step through each component in the container
             for (Component comp : container.getComponents())
             {
-                // Check if the component represents a Swing component and that
-                // it has child components
+                // Check if the component represents a Swing component and that it has child
+                // components
                 if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
                 {
                     // Update the child's components
@@ -1064,8 +1050,8 @@ public class CcddConstants
                         // Step through each column in the table
                         for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
                         {
-                            // Set the font for the cell specified by the row
-                            // and column to the modifiable color
+                            // Set the font for the cell specified by the row and column to the
+                            // modifiable color
                             setModifiableColor(((JTable) comp).getCellRenderer(row, column).getTableCellRendererComponent((JTable) comp,
                                                                                                                           "",
                                                                                                                           false,
@@ -1081,18 +1067,16 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
-         * Compare the color for the component to the modifiable colors. If a
-         * match is found set the component's color to the current preferred
-         * color setting
+        /******************************************************************************************
+         * Compare the color for the component to the modifiable colors. If a match is found set
+         * the component's color to the current preferred color setting
          *
          * @param comp
          *            component for which to check the color
-         *********************************************************************/
+         *****************************************************************************************/
         private static void setModifiableColor(Component comp)
         {
-            // Check if the component is using a modifiable color as a
-            // foreground color
+            // Check if the component is using a modifiable color as a foreground color
             if (comp.getForeground() instanceof ModifiableColor)
             {
                 // Step through the defined modifiable colors
@@ -1101,16 +1085,15 @@ public class CcddConstants
                     // Check if the component is using this color
                     if (((ModifiableColor) comp.getForeground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
                     {
-                        // Set the component's color to the one specified by
-                        // the modifiable color and stop searching
+                        // Set the component's color to the one specified by the modifiable color
+                        // and stop searching
                         comp.setForeground(modColor.getColor());
                         break;
                     }
                 }
             }
 
-            // Check if the component is using a modifiable color as a
-            // background color
+            // Check if the component is using a modifiable color as a background color
             if (comp.getBackground() instanceof ModifiableColor)
             {
                 // Step through the defined modifiable colors
@@ -1119,8 +1102,8 @@ public class CcddConstants
                     // Check if the component is using this color
                     if (((ModifiableColor) comp.getBackground()).getModifiableColorIdentifier().equals(modColor.getPreferenceKey()))
                     {
-                        // Set the component's color to the one specified by
-                        // the modifiable color and stop searching
+                        // Set the component's color to the one specified by the modifiable color
+                        // and stop searching
                         comp.setBackground(modColor.getColor());
                         break;
                     }
@@ -1156,7 +1139,7 @@ public class CcddConstants
         private final int maximumValue;
         private int size;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Modifiable size information constructor
          *
          * @param name
@@ -1176,7 +1159,7 @@ public class CcddConstants
          *
          * @param maximumValue
          *            maximum size value
-         *********************************************************************/
+         *****************************************************************************************/
         ModifiableSizeInfo(String name,
                            String description,
                            String preferenceKey,
@@ -1193,77 +1176,77 @@ public class CcddConstants
             size = defaultValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the size name (for display)
          *
          * @return Size value name (for display)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the size description (for tool tip)
          *
          * @return Size value description (for tool tip)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the size value program preferences key
          *
          * @return Size value program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPreferenceKey()
         {
             return preferenceKey;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default size value
          *
          * @return Default size value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefault()
         {
             return defaultValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the minimum size value
          *
          * @return Minimum size value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getMinimum()
         {
             return minimumValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the maximum size value
          *
          * @return Maximum size value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getMaximum()
         {
             return maximumValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the current size value
          *
          * @return Current size value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getSize()
         {
             return size;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the size value
          *
          * @param size
@@ -1271,24 +1254,22 @@ public class CcddConstants
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected void setSize(int size, Preferences progPrefs)
         {
             this.size = size;
             progPrefs.putInt(preferenceKey, size);
         }
 
-        /**********************************************************************
-         * Get the modifiable size information reference with the specified
-         * program preferences key
+        /******************************************************************************************
+         * Get the modifiable size information reference with the specified program preferences key
          *
          * @param prefKey
          *            modifiable size program preferences key
          *
-         * @return Modifiable size information reference that has a program
-         *         preferences key matching the one specified; null if no
-         *         modifiable size's key matches
-         *********************************************************************/
+         * @return Modifiable size information reference that has a program preferences key
+         *         matching the one specified; null if no modifiable size's key matches
+         *****************************************************************************************/
         protected static ModifiableSizeInfo getModifiableSizeInfo(String prefKey)
         {
             ModifiableSizeInfo modifiableSize = null;
@@ -1296,12 +1277,10 @@ public class CcddConstants
             // Step through each modifiable size
             for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
             {
-                // Check if the size's program preferences key matches the one
-                // supplied
+                // Check if the size's program preferences key matches the one supplied
                 if (modSize.preferenceKey.equals(prefKey))
                 {
-                    // Store the modifiable size information reference and
-                    // stop searching
+                    // Store the modifiable size information reference and stop searching
                     modifiableSize = modSize;
                     break;
                 }
@@ -1310,20 +1289,19 @@ public class CcddConstants
             return modifiableSize;
         }
 
-        /**********************************************************************
-         * Set the modifiable sizes to the values stored in the program
-         * preferences
+        /******************************************************************************************
+         * Set the modifiable sizes to the values stored in the program preferences
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void setSizes(Preferences progPrefs)
         {
             // Step through each modifiable size value
             for (ModifiableSizeInfo modSize : ModifiableSizeInfo.values())
             {
-                // Retrieve the size value from the program preferences and use
-                // this information to set the modifiable size value
+                // Retrieve the size value from the program preferences and use this information to
+                // set the modifiable size value
                 String sizeInfo = progPrefs.get(modSize.getPreferenceKey(),
                                                 String.valueOf(modSize.getDefault()));
                 modSize.size = Integer.valueOf(sizeInfo);
@@ -1354,7 +1332,7 @@ public class CcddConstants
         private final int maximumValue;
         private int spacing;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Modifiable spacing information constructor
          *
          * @param name
@@ -1374,7 +1352,7 @@ public class CcddConstants
          *
          * @param maximumValue
          *            maximum spacing value
-         *********************************************************************/
+         *****************************************************************************************/
         ModifiableSpacingInfo(String name,
                               String description,
                               String preferenceKey,
@@ -1391,77 +1369,77 @@ public class CcddConstants
             spacing = defaultValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the spacing name (for display)
          *
          * @return Spacing value name (for display)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the spacing description (for tool tip)
          *
          * @return Spacing value description (for tool tip)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the spacing value program preferences key
          *
          * @return Spacing value program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPreferenceKey()
         {
             return preferenceKey;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default spacing value
          *
          * @return Default spacing value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefault()
         {
             return defaultValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the minimum spacing value
          *
          * @return Minimum spacing value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getMinimum()
         {
             return minimumValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the maximum spacing value
          *
          * @return Maximum spacing value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getMaximum()
         {
             return maximumValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the current spacing value
          *
          * @return Current spacing value
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getSpacing()
         {
             return spacing;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the spacing value
          *
          * @param spacing
@@ -1469,24 +1447,23 @@ public class CcddConstants
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected void setSpacing(int spacing, Preferences progPrefs)
         {
             this.spacing = spacing;
             progPrefs.putInt(preferenceKey, spacing);
         }
 
-        /**********************************************************************
-         * Get the modifiable spacing information reference with the specified
-         * program preferences key
+        /******************************************************************************************
+         * Get the modifiable spacing information reference with the specified program preferences
+         * key
          *
          * @param prefKey
          *            modifiable spacing program preferences key
          *
-         * @return Modifiable spacing information reference that has a program
-         *         preferences key matching the one specified; null if no
-         *         modifiable spacing's key matches
-         *********************************************************************/
+         * @return Modifiable spacing information reference that has a program preferences key
+         *         matching the one specified; null if no modifiable spacing's key matches
+         *****************************************************************************************/
         protected static ModifiableSpacingInfo getModifiableSpacingInfo(String prefKey)
         {
             ModifiableSpacingInfo modifiableSpacing = null;
@@ -1494,12 +1471,10 @@ public class CcddConstants
             // Step through each modifiable spacing
             for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
             {
-                // Check if the spacing's program preferences key matches the
-                // one supplied
+                // Check if the spacing's program preferences key matches the one supplied
                 if (modSpacing.preferenceKey.equals(prefKey))
                 {
-                    // Store the modifiable spacing information reference and
-                    // stop searching
+                    // Store the modifiable spacing information reference and stop searching
                     modifiableSpacing = modSpacing;
                     break;
                 }
@@ -1508,20 +1483,19 @@ public class CcddConstants
             return modifiableSpacing;
         }
 
-        /**********************************************************************
-         * Set the modifiable spacings to the values stored in the program
-         * preferences
+        /******************************************************************************************
+         * Set the modifiable spacings to the values stored in the program preferences
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void setSpacings(Preferences progPrefs)
         {
             // Step through each modifiable spacing value
             for (ModifiableSpacingInfo modSpacing : ModifiableSpacingInfo.values())
             {
-                // Retrieve the spacing value from the program preferences and
-                // use this information to set the modifiable spacing value
+                // Retrieve the spacing value from the program preferences and use this information
+                // to set the modifiable spacing value
                 String spacingInfo = progPrefs.get(modSpacing.getPreferenceKey(),
                                                    String.valueOf(modSpacing.getDefault()));
                 modSpacing.spacing = Integer.valueOf(spacingInfo);
@@ -1544,7 +1518,7 @@ public class CcddConstants
         private final String preferenceKey;
         private String path;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Modifiable path information constructor
          *
          * @param name
@@ -1555,7 +1529,7 @@ public class CcddConstants
          *
          * @param preferenceKey
          *            path program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         ModifiablePathInfo(String name,
                            String description,
                            String preferenceKey)
@@ -1566,47 +1540,47 @@ public class CcddConstants
             path = "";
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the path name (for display)
          *
          * @return Path name (for display)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the path description (for tool tip)
          *
          * @return Path value description (for tool tip)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the path program preferences key
          *
          * @return Path program preferences key
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPreferenceKey()
         {
             return preferenceKey;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the current path
          *
          * @return Current path
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getPath()
         {
             return path;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the path
          *
          * @param ccddMain
@@ -1614,7 +1588,7 @@ public class CcddConstants
          *
          * @param path
          *            new path
-         *********************************************************************/
+         *****************************************************************************************/
         protected void setPath(CcddMain ccddMain, String path)
         {
             this.path = path;
@@ -1623,29 +1597,28 @@ public class CcddConstants
             ccddMain.getProgPrefs().put(preferenceKey, path);
         }
 
-        /**********************************************************************
-         * Set the modifiable paths to the values stored in the program
-         * preferences
+        /******************************************************************************************
+         * Set the modifiable paths to the values stored in the program preferences
          *
          * @param progPrefs
          *            reference to the program preferences
-         *********************************************************************/
+         *****************************************************************************************/
         protected static void setPaths(Preferences progPrefs)
         {
             // Step through each modifiable path
             for (ModifiablePathInfo modPath : ModifiablePathInfo.values())
             {
-                // Retrieve the path from the program preferences and use this
-                // information to set the modifiable path
+                // Retrieve the path from the program preferences and use this information to set
+                // the modifiable path
                 String pathInfo = progPrefs.get(modPath.getPreferenceKey(), "");
                 modPath.path = pathInfo;
             }
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * File extensions
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum FileExtension
     {
         LOG("log", "CCDD project event logs"),
@@ -1658,7 +1631,7 @@ public class CcddConstants
         private final String entensionName;
         private final String description;
 
-        /**********************************************************************
+        /******************************************************************************************
          * File extensions constructor
          *
          * @param extensionName
@@ -1666,47 +1639,47 @@ public class CcddConstants
          *
          * @param description
          *            file extension description
-         *********************************************************************/
+         *****************************************************************************************/
         FileExtension(String extensionName, String description)
         {
             this.entensionName = extensionName;
             this.description = description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the file extension name
          *
          * @return File extension name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getExtensionName()
         {
             return entensionName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the file extension description
          *
          * @return File extension description
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the file extension
          *
          * @return File extension
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getExtension()
         {
             return "." + entensionName;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Base data type information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum BaseDataTypeInfo
     {
         SIGNED_INT("signed integer"),
@@ -1717,35 +1690,35 @@ public class CcddConstants
 
         private final String name;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Base data type information constructor
          *
          * @param name
          *            base data type name
-         *********************************************************************/
+         *****************************************************************************************/
         BaseDataTypeInfo(String name)
         {
             this.name = name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the base data type name
          *
          * @return Base data type name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the base data type with the specified name
          *
          * @param baseTypeName
          *            base data type name
          *
          * @return Base data type with the specified name
-         *********************************************************************/
+         *****************************************************************************************/
         protected static BaseDataTypeInfo getBaseType(String baseTypeName)
         {
             BaseDataTypeInfo baseType = null;
@@ -1766,9 +1739,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Default primitive data type information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DefaultPrimitiveTypeInfo
     {
         INT8("int8_t", "signed char", 1, BaseDataTypeInfo.SIGNED_INT),
@@ -1790,7 +1763,7 @@ public class CcddConstants
         private final int bytes;
         private final BaseDataTypeInfo baseType;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Default primitive data type information constructor
          *
          * @param bytes
@@ -1804,7 +1777,7 @@ public class CcddConstants
          *
          * @param baseType
          *            base data type
-         *********************************************************************/
+         *****************************************************************************************/
         DefaultPrimitiveTypeInfo(String userName,
                                  String cType,
                                  int bytes,
@@ -1816,52 +1789,52 @@ public class CcddConstants
             this.baseType = baseType;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type user-defined name
          *
          * @return Data type user-defined name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getUserName()
         {
             return userName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type C language name
          *
          * @return Data type C language name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getCType()
         {
             return cType;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type size in bytes
          *
          * @return Data type size in bytes
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getSizeInBytes()
         {
             return bytes;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the base data type
          *
          * @return Base data type
-         *********************************************************************/
+         *****************************************************************************************/
         protected BaseDataTypeInfo getBaseType()
         {
             return baseType;
         }
 
-        /**********************************************************************
-         * Get the default data type definitions for use in building the data
-         * type definitions table in the database
+        /******************************************************************************************
+         * Get the default data type definitions for use in building the data type definitions
+         * table in the database
          *
          * @return Default column definitions statement
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String getDataTypeDefinitions()
         {
             String columnDefn = "";
@@ -1886,9 +1859,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Input data types. The Break and Separator types are used by data fields
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum InputDataType
     {
         ALPHANUMERIC("Alphanumeric",
@@ -2120,7 +2093,7 @@ public class CcddConstants
         private final String inputFormat;
         private final String inputDescription;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Input data types constructor
          *
          * @param inputName
@@ -2134,7 +2107,7 @@ public class CcddConstants
          *
          * @param inputDescription
          *            input type description
-         *********************************************************************/
+         *****************************************************************************************/
         InputDataType(String inputName,
                       String inputMatch,
                       String inputFormat,
@@ -2146,70 +2119,67 @@ public class CcddConstants
             this.inputDescription = inputDescription;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the input data type
          *
          * @return Input data type
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getInputName()
         {
             return inputName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the input type matching regular expression
          *
          * @return Input type matching regular expression
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getInputMatch()
         {
             return inputMatch;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the input type description
          *
          * @return Input type description
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getInputDescription()
         {
             return inputDescription;
         }
 
-        /**********************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero
-         * to floating point values if the first character is a decimal, and
-         * removes '+' signs and unneeded leading zeroes from integer and
-         * floating point values. Leading zeroes are preserved for hexadecimal
-         * values
+        /******************************************************************************************
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values. Leading zeroes are preserved for
+         * hexadecimal values
          *
          * @param valueS
          *            value, represented as a string, to reformat
          *
          * @return Input value reformatted based on its input type
-         *********************************************************************/
+         *****************************************************************************************/
         protected String formatInput(String valueS)
         {
             return formatInput(valueS, true);
         }
 
-        /**********************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero
-         * to floating point values if the first character is a decimal, and
-         * removes '+' signs and unneeded leading zeroes from integer and
-         * floating point values
+        /******************************************************************************************
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values
          *
          * @param valueS
          *            value, represented as a string, to reformat
          *
          * @param preserveZeroes
-         *            true to preserve leading zeroes in hexadecimal values;
-         *            false to eliminate the extra zeroes (this is useful when
-         *            comparing the text representation of two hexadecimal
-         *            values)
+         *            true to preserve leading zeroes in hexadecimal values; false to eliminate the
+         *            extra zeroes (this is useful when comparing the text representation of two
+         *            hexadecimal values)
          *
          * @return Input value reformatted based on its input type
-         *********************************************************************/
+         *****************************************************************************************/
         protected String formatInput(String valueS, boolean preserveZeroes)
         {
             // Check that the value is not blank
@@ -2230,8 +2200,8 @@ public class CcddConstants
                 // Check if the value is in hexadecimal
                 else if (inputFormat.equals("hexadecimal"))
                 {
-                    // Remove leading hexadecimal identifier if present, then
-                    // convert the value to an integer (base 16)
+                    // Remove leading hexadecimal identifier if present, then convert the value to
+                    // an integer (base 16)
                     valueS = valueS.replaceFirst("^0x|^0X", "");
                     int value = Integer.valueOf(valueS, 16);
 
@@ -2241,15 +2211,13 @@ public class CcddConstants
                     // Check if the value is zero
                     if (value == 0)
                     {
-                        // Remove the first leading zero so it isn't
-                        // duplicated, but retain any extra zeroes added by the
-                        // user so these can be restored
+                        // Remove the first leading zero so it isn't duplicated, but retain any
+                        // extra zeroes added by the user so these can be restored
                         leadZeroes = leadZeroes.substring(0, leadZeroes.length() - 1);
                     }
 
-                    // Format the string as a hexadecimal, adding the
-                    // hexadecimal identifier, if needed, and preserving any
-                    // leading zeroes
+                    // Format the string as a hexadecimal, adding the hexadecimal identifier, if
+                    // needed, and preserving any leading zeroes
                     valueS = String.format("0x%s%x",
                                            (preserveZeroes
                                                            ? leadZeroes
@@ -2265,8 +2233,7 @@ public class CcddConstants
                 // Check if the values represents array index values
                 else if (inputFormat.equals("array"))
                 {
-                    // Remove all spaces and replace any commas with a comma
-                    // and space
+                    // Remove all spaces and replace any commas with a comma and space
                     valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
                 }
             }
@@ -2274,15 +2241,15 @@ public class CcddConstants
             return valueS;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the input data type with the name that matches the one specified
          *
          * @param name
          *            input data type name to match (case insensitive)
          *
-         * @return Input data type with the name that matches the one
-         *         specified; returns null if the input type doesn't exist
-         *********************************************************************/
+         * @return Input data type with the name that matches the one specified; returns null if
+         *         the input type doesn't exist
+         *****************************************************************************************/
         protected static InputDataType getInputTypeByName(String name)
         {
             InputDataType inputType = null;
@@ -2290,8 +2257,7 @@ public class CcddConstants
             // Step through each input data type
             for (InputDataType type : InputDataType.values())
             {
-                // Check if the input type name matches the target name,
-                // ignoring case
+                // Check if the input type name matches the target name, ignoring case
                 if (type.inputName.equalsIgnoreCase(name))
                 {
                     // Store the matching input type and stop searching
@@ -2303,16 +2269,15 @@ public class CcddConstants
             return inputType;
         }
 
-        /**********************************************************************
-         * Get an array of all of the input data type names, excluding
-         * separators and breaks
+        /******************************************************************************************
+         * Get an array of all of the input data type names, excluding separators and breaks
          *
          * @param includeSpecialTypes
-         *            true to include special input types (data type,
-         *            enumeration, and variable path); false to exclude
+         *            true to include special input types (data type, enumeration, and variable
+         *            path); false to exclude
          *
          * @return Array of all of the input data type names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getInputNames(boolean includeSpecialTypes)
         {
             // Create an array to hold the input type names
@@ -2321,8 +2286,8 @@ public class CcddConstants
             // Step through each input type
             for (InputDataType inputType : InputDataType.values())
             {
-                // Check that this isn't a page format type and, if special
-                // types are to be excluded, that this isn't one of those types
+                // Check that this isn't a page format type and, if special types are to be
+                // excluded, that this isn't one of those types
                 if (!inputType.inputFormat.equals("page format")
                     && (includeSpecialTypes
                         || (!inputType.inputFormat.equals("data type")
@@ -2340,17 +2305,16 @@ public class CcddConstants
             return inputNames.toArray(new String[0]);
         }
 
-        /**********************************************************************
-         * Get an array of all of the input data type descriptions, sorted
-         * based on the alphabetically sorted input names, excluding separators
-         * and breaks
+        /******************************************************************************************
+         * Get an array of all of the input data type descriptions, sorted based on the
+         * alphabetically sorted input names, excluding separators and breaks
          *
          * @param includeSpecialTypes
-         *            true to include special input types (data type and
-         *            enumeration); false to exclude
+         *            true to include special input types (data type and enumeration); false to
+         *            exclude
          *
          * @return Array of all of the input data type descriptions
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getDescriptions(boolean includeSpecialTypes)
         {
             // Get the list of input names, sorted alphabetically
@@ -2368,8 +2332,8 @@ public class CcddConstants
                     // Check if the input type names match
                     if (inputNames[nameIndex].equals(InputDataType.values()[index].getInputName()))
                     {
-                        // Store the description corresponding to this input
-                        // name and stop searching
+                        // Store the description corresponding to this input name and stop
+                        // searching
                         inputDescriptions[nameIndex] = InputDataType.values()[index].getInputDescription();
                         break;
                     }
@@ -2380,9 +2344,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data field applicability types
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum ApplicabilityType
     {
         ALL("All tables"),
@@ -2391,37 +2355,36 @@ public class CcddConstants
 
         private final String applicabilityName;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Applicability types constructor
          *
          * @param applicabilityName
          *            applicability type name
-         *********************************************************************/
+         *****************************************************************************************/
         ApplicabilityType(String applicabilityName)
         {
             this.applicabilityName = applicabilityName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the applicability type name
          *
          * @return Applicability type name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getApplicabilityName()
         {
             return applicabilityName;
         }
 
-        /**********************************************************************
-         * Get the ApplicabilityType with the same name as the one specified,
-         * ignoring case
+        /******************************************************************************************
+         * Get the ApplicabilityType with the same name as the one specified, ignoring case
          *
          * @param name
          *            applicability type name
          *
-         * @return ApplicabilityType with the name matching the one specified;
-         *         null if the name isn't recognized
-         *********************************************************************/
+         * @return ApplicabilityType with the name matching the one specified; null if the name
+         *         isn't recognized
+         *****************************************************************************************/
         protected static ApplicabilityType getApplicabilityByName(String name)
         {
             ApplicabilityType type = null;
@@ -2429,8 +2392,7 @@ public class CcddConstants
             // Step through each applicability type
             for (ApplicabilityType applicabilityType : ApplicabilityType.values())
             {
-                // Check if the applicability type name matches the supplied
-                // name, ignoring case
+                // Check if the applicability type name matches the supplied name, ignoring case
                 if (applicabilityType.applicabilityName.equalsIgnoreCase(name))
                 {
                     // Store the applicability type and stop searching
@@ -2442,11 +2404,11 @@ public class CcddConstants
             return type;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get an array of all of the applicability type names
          *
          * @return Array of all of the applicability type names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getApplicabilityNames()
         {
             // Create an array to hold the applicability type names
@@ -2463,17 +2425,14 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
-     * Default table types and column names. The column names flagged as
-     * protected are inherent to the specified table type and are not allowed
-     * to be altered by the user
-     *************************************************************************/
+    /**********************************************************************************************
+     * Default table types and column names. The column names flagged as protected are inherent to
+     * the specified table type and are not allowed to be altered by the user
+     *********************************************************************************************/
     protected static enum DefaultColumn
     {
-        // Format: Table type, Column name, Column description (tool tip),
-        // protected flag, required flag
-
-        // Common columns
+        // Format: Table type, Column name, Column description (tool tip), protected flag, required
+        // flag Common columns
         PRIMARY_KEY("",
                     "_Key_",
                     "Primary key",
@@ -2700,7 +2659,7 @@ public class CcddConstants
         private final boolean isPointerAllowed;
         private final boolean isInputTypeUnique;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Default table types and column names constructor
          *
          * @param tableType
@@ -2710,41 +2669,36 @@ public class CcddConstants
          *            table column name
          *
          * @param description
-         *            column description; this is used as the column's tool tip
-         *            text
+         *            column description; this is used as the column's tool tip text
          *
          * @param inputType
          *            column input data type
          *
          * @param isRequiredForType
-         *            true if this column is required in order to define a
-         *            table type. Tables that include all of the required
-         *            columns for a table type are considered a table of this
-         *            type
+         *            true if this column is required in order to define a table type. Tables that
+         *            include all of the required columns for a table type are considered a table
+         *            of this type
          *
          * @param isRowValueUnique
-         *            true if this parameter must be unique in this column of
-         *            this table. The user can change this flag in the type
-         *            editor
+         *            true if this parameter must be unique in this column of this table. The user
+         *            can change this flag in the type editor
          *
          * @param isInputRequired
-         *            true if this parameter requires a data value. This flag
-         *            is used to determine if the cell in the table is
-         *            highlighted when empty; it does not enforce entering a
-         *            value. The user can change this flag in the type editor
+         *            true if this parameter requires a data value. This flag is used to determine
+         *            if the cell in the table is highlighted when empty; it does not enforce
+         *            entering a value. The user can change this flag in the type editor
          *
          * @param isStructureAllowed
-         *            true if the the column applies to structure data types.
-         *            The user can change this flag in the type editor
+         *            true if the the column applies to structure data types. The user can change
+         *            this flag in the type editor
          *
          * @param isPointerAllowed
-         *            true if the the column applies to pointer data types. The
-         *            user can change this flag in the type editor
+         *            true if the the column applies to pointer data types. The user can change
+         *            this flag in the type editor
          *
          * @param isInputTypeUnique
-         *            true if this parameter's input type must be unique in its
-         *            table type
-         *********************************************************************/
+         *            true if this parameter's input type must be unique in its table type
+         *****************************************************************************************/
         DefaultColumn(String tableType,
                       String columnName,
                       String description,
@@ -2768,112 +2722,111 @@ public class CcddConstants
             this.isInputTypeUnique = isInputTypeUnique;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default column name
          *
          * @return Default column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getName()
         {
             return columnName;
         }
 
-        /**********************************************************************
-         * Get the default column database name. The conversion sets the name
-         * to all lower case text and replaces any spaces with underlines
+        /******************************************************************************************
+         * Get the default column database name. The conversion sets the name to all lower case
+         * text and replaces any spaces with underlines
          *
          * @return Default column database name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDbName()
         {
             return columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default column description
          *
          * @return Default column description
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getDescription()
         {
             return description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the column protected status
          *
          * @return true if the column is protected
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isProtected()
         {
             return isRequiredForType;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the row value unique status
          *
          * @return true if the row value must be unique in this column
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRowValueUnique()
         {
             return isRowValueUnique;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the column input required status
          *
          * @return true if a value is required to be entered in this column
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isInputRequired()
         {
             return isInputRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the structure data type allowed status
          *
          * @return true if the column applies to structure data types
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isStructureAllowed()
         {
             return isStructureAllowed;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the pointer data type allowed status
          *
          * @return true if the column applies to pointer data types
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isPointerAllowed()
         {
             return isPointerAllowed;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default column input type
          *
          * @return Default column input type
-         *********************************************************************/
+         *****************************************************************************************/
         protected InputDataType getInputType()
         {
             return inputType;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the table type
          *
          * @return Table type
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTableType()
         {
             return tableType;
         }
 
-        /**************************************************************************
-         * Convert the visible column name to its database equivalent by
-         * replacing all characters that are invalid in a database column name
-         * with underscores. If the column belongs to a table representing a
-         * structure the specific input types use predefined names in place of
+        /**********************************************************************************************
+         * Convert the visible column name to its database equivalent by replacing all characters
+         * that are invalid in a database column name with underscores. If the column belongs to a
+         * table representing a structure the specific input types use predefined names in place of
          * the conversion name
          *
          * @param columnName
@@ -2882,9 +2835,8 @@ public class CcddConstants
          * @param inputType
          *            column input type (InputDataType)
          *
-         * @return Database column name corresponding to the visible column
-         *         name
-         *************************************************************************/
+         * @return Database column name corresponding to the visible column name
+         *********************************************************************************************/
         protected static String convertVisibleToDatabase(String columnName,
                                                          InputDataType inputType,
                                                          boolean isStructure)
@@ -2897,51 +2849,47 @@ public class CcddConstants
                 switch (inputType)
                 {
                     case VARIABLE:
-                        // Use the default database name for the variable name
-                        // column
+                        // Use the default database name for the variable name column
                         dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
                         break;
 
                     case ARRAY_INDEX:
-                        // Use the default database name for the array size
-                        // column
+                        // Use the default database name for the array size column
                         dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
                         break;
 
                     case BIT_LENGTH:
-                        // Use the default database name for the bit length
-                        // column
+                        // Use the default database name for the bit length column
                         dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
                         break;
 
                     case PRIM_AND_STRUCT:
-                        // Use the default database name for the data type
-                        // column
+                        // Use the default database name for the data type column
                         dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
                         break;
 
                     default:
-                        // Replace any characters that aren't allowed in a
-                        // database column name with underscores
+                        // Replace any characters that aren't allowed in a database column name
+                        // with underscores
                         dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
                 }
             }
             // The column doesn't belong to a structure type table
             else
             {
-                // Replace any characters that aren't allowed in a database
-                // column name with underscores
+                // Replace any characters that aren't allowed in a database column name with
+                // underscores
                 dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
             }
 
             return dbColumnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the array of default table types
          *
          * @return Array containing the default table types
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getTableTypes()
         {
             List<String> tableTypes = new ArrayList<String>();
@@ -2949,8 +2897,8 @@ public class CcddConstants
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the table type is not already in the list and that
-                // it's not a common column
+                // Check if the table type is not already in the list and that it's not a common
+                // column
                 if (!tableTypes.contains(defCol.tableType)
                     && !defCol.tableType.isEmpty())
                 {
@@ -2962,16 +2910,14 @@ public class CcddConstants
             return tableTypes.toArray(new String[0]);
         }
 
-        /**********************************************************************
-         * Get the number of columns that are required to define the specified
-         * table type
+        /******************************************************************************************
+         * Get the number of columns that are required to define the specified table type
          *
          * @param type
          *            table type
          *
-         * @return Number of the columns that are required to define the
-         *         specified table type
-         *********************************************************************/
+         * @return Number of the columns that are required to define the specified table type
+         *****************************************************************************************/
         protected static int getTypeRequiredColumnCount(String type)
         {
             int numRequiredColumns = 0;
@@ -2979,8 +2925,8 @@ public class CcddConstants
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the column is required by this type and that the
-                // column's table type matches the specified type
+                // Check if the column is required by this type and that the column's table type
+                // matches the specified type
                 if (defCol.isRequiredForType && type.equals(defCol.tableType))
                 {
                     // Increment the required column counter
@@ -2991,9 +2937,9 @@ public class CcddConstants
             return numRequiredColumns;
         }
 
-        /**********************************************************************
-         * Check if the supplied table type and column input type match that
-         * for a column required to define the specified type
+        /******************************************************************************************
+         * Check if the supplied table type and column input type match that for a column required
+         * to define the specified type
          *
          * @param compareTableType
          *            table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER
@@ -3001,9 +2947,9 @@ public class CcddConstants
          * @param compareInputType
          *            column input type
          *
-         * @return true if the supplied table type and column input type match
-         *         that for a column required to define the specified type
-         *********************************************************************/
+         * @return true if the supplied table type and column input type match that for a column
+         *         required to define the specified type
+         *****************************************************************************************/
         protected static boolean isTypeRequiredColumn(String compareTableType,
                                                       InputDataType compareInputType)
         {
@@ -3012,13 +2958,12 @@ public class CcddConstants
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the table type and column input type match the one
-                // in the table
+                // Check if the table type and column input type match the one in the table
                 if (defCol.tableType.equals(compareTableType)
                     && defCol.inputType.equals(compareInputType))
                 {
-                    // Set the flag based on this parameter's required by table
-                    // type status and stop searching
+                    // Set the flag based on this parameter's required by table type status and
+                    // stop searching
                     isColumnRequired = defCol.isRequiredForType;
                     break;
                 }
@@ -3027,9 +2972,9 @@ public class CcddConstants
             return isColumnRequired;
         }
 
-        /**********************************************************************
-         * Check if the supplied table type and input data type match one of
-         * the default table type & input type pairs
+        /******************************************************************************************
+         * Check if the supplied table type and input data type match one of the default table type
+         * & input type pairs
          *
          * @param compareTableType
          *            table type
@@ -3037,10 +2982,9 @@ public class CcddConstants
          * @param compareColumnName
          *            column name
          *
-         * @return true if the supplied table type and input data type match a
-         *         protected table type and input type combination, and if this
-         *         pair is flagged as protected
-         *********************************************************************/
+         * @return true if the supplied table type and input data type match a protected table type
+         *         and input type combination, and if this pair is flagged as protected
+         *****************************************************************************************/
         protected static boolean isInputTypeUnique(String compareTableType,
                                                    String compareInputType)
         {
@@ -3049,13 +2993,11 @@ public class CcddConstants
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {
-                // Check if the table type and input type matches the one in
-                // the table
+                // Check if the table type and input type matches the one in the table
                 if (defCol.tableType.equals(compareTableType)
                     && defCol.inputType.inputName.equals(compareInputType))
                 {
-                    // Set the flag based on this parameter's input type status
-                    // and stop searching
+                    // Set the flag based on this parameter's input type status and stop searching
                     isUniqueInputType = defCol.isInputTypeUnique;
                     break;
                 }
@@ -3064,12 +3006,12 @@ public class CcddConstants
             return isUniqueInputType;
         }
 
-        /**********************************************************************
-         * Get the default column definitions for use in building the table
-         * definitions table in the database
+        /******************************************************************************************
+         * Get the default column definitions for use in building the table definitions table in
+         * the database
          *
          * @return Default column definitions statement
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String getColumnDefinitions()
         {
             String columnDefn = "";
@@ -3085,30 +3027,27 @@ public class CcddConstants
                 // Step through the default columns
                 for (DefaultColumn defCol : DefaultColumn.values())
                 {
-                    // Check if the table type matches the current column's
-                    // type or if it's a column common to all tables
+                    // Check if the table type matches the current column's type or if it's a
+                    // column common to all tables
                     if (type.equals(defCol.tableType)
                         || defCol.tableType.isEmpty())
                     {
                         String typeDescription = defCol.description;
 
-                        // Check if this is the primary key column. The
-                        // description for this column is used to hold the
-                        // table type's description
+                        // Check if this is the primary key column. The description for this column
+                        // is used to hold the table type's description
                         if (defCol.columnName.equals(PRIMARY_KEY.columnName))
                         {
                             // Check if this is a structure table type
                             if (type.equals(TYPE_STRUCTURE))
                             {
-                                // Set the description of the structure table
-                                // type
+                                // Set the description of the structure table type
                                 typeDescription = "Telemetry and data structure table definition";
                             }
                             // Check if this is a command table type
                             else if (type.equals(TYPE_COMMAND))
                             {
-                                // Set the description of the command table
-                                // type
+                                // Set the description of the command table type
                                 typeDescription = "Command table definition";
                             }
                             // Not a structure or command table type
@@ -3151,17 +3090,16 @@ public class CcddConstants
             return CcddUtilities.removeTrailer(columnDefn, ", ");
         }
 
-        /**********************************************************************
-         * Get the default column definitions for the specified table type for
-         * use in populating new table type definitions
+        /******************************************************************************************
+         * Get the default column definitions for the specified table type for use in populating
+         * new table type definitions
          *
          * @param type
          *            Default table type name
          *
-         * @return Default column definitions array for the specified table
-         *         type; and empty array if the type is not one of the default
-         *         types
-         *********************************************************************/
+         * @return Default column definitions array for the specified table type; and empty array
+         *         if the type is not one of the default types
+         *****************************************************************************************/
         protected static Object[][] getDefaultColumnDefinitions(String type)
         {
             List<Object[]> typeData = new ArrayList<Object[]>();
@@ -3187,13 +3125,13 @@ public class CcddConstants
             return typeData.toArray(new Object[0][0]);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the column database data type based on the column index
          *
          * @column column index
          *
          * @return Column database data type
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String getColumnDbType(int column)
         {
             String columnType;
@@ -3218,9 +3156,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Database internal table definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum InternalTable
     {
         // Application scheduler
@@ -3382,9 +3320,8 @@ public class CcddConstants
                                  + INTERNAL_TABLE_PREFIX
                                  + "table_types (type, index); "
 
-                                 // Create default table definition for the
-                                 // telemetry
-                                 // and command table types
+                                 // Create default table definition for the telemetry and command
+                                 // table types
                                  + "INSERT INTO "
                                  + INTERNAL_TABLE_PREFIX
                                  + "table_types VALUES "
@@ -3420,9 +3357,9 @@ public class CcddConstants
                "",
                "");
 
-        /**********************************************************************
+        /******************************************************************************************
          * Application scheduler table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum AppSchedulerColumn
         {
             TIME_SLOT("time_slot", "text"),
@@ -3431,7 +3368,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Scheduler table columns constructor
              *
              * @param columnName
@@ -3439,27 +3376,27 @@ public class CcddConstants
              *
              * @param dataType
              *            scheduler table column data type
-             *****************************************************************/
+             *************************************************************************************/
             AppSchedulerColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the scheduler table column name
              *
              * @return Scheduler table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Script associations table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum AssociationsColumn
         {
             NAME("name", "text"),
@@ -3470,7 +3407,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Scripts associations table columns constructor
              *
              * @param columnName
@@ -3478,27 +3415,27 @@ public class CcddConstants
              *
              * @param dataType
              *            scripts table column data type
-             *****************************************************************/
+             *************************************************************************************/
             AssociationsColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the scripts table column name
              *
              * @return Scripts table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Data types table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum DataTypesColumn
         {
             USER_NAME("user_name", "text"),
@@ -3510,7 +3447,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Macro values table columns constructor
              *
              * @param columnName
@@ -3518,27 +3455,27 @@ public class CcddConstants
              *
              * @param dataType
              *            data types table column data type
-             *****************************************************************/
+             *************************************************************************************/
             DataTypesColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the data types table column name
              *
              * @return Data types table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Data fields table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum FieldsColumn
         {
             OWNER_NAME("owner_name", "text"),
@@ -3553,7 +3490,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Data fields table columns constructor
              *
              * @param columnName
@@ -3561,27 +3498,27 @@ public class CcddConstants
              *
              * @param dataType
              *            data fields table column data type
-             *****************************************************************/
+             *************************************************************************************/
             FieldsColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the data fields table column name
              *
              * @return Data fields table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Groups table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum GroupsColumn
         {
             GROUP_NAME("group_name", "text"),
@@ -3590,7 +3527,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Groups table columns constructor
              *
              * @param columnName
@@ -3598,27 +3535,27 @@ public class CcddConstants
              *
              * @param dataType
              *            groups table column data type
-             *****************************************************************/
+             *************************************************************************************/
             GroupsColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the groups table column name
              *
              * @return Groups table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Links table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum LinksColumn
         {
             RATE_NAME("rate_name", "text"),
@@ -3628,7 +3565,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Links table columns constructor
              *
              * @param columnName
@@ -3636,27 +3573,27 @@ public class CcddConstants
              *
              * @param dataType
              *            links table column data type
-             *****************************************************************/
+             *************************************************************************************/
             LinksColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the links table column name
              *
              * @return Links table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Macro values table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum MacrosColumn
         {
             MACRO_NAME("macro_name", "text"),
@@ -3666,7 +3603,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Macro values table columns constructor
              *
              * @param columnName
@@ -3674,27 +3611,27 @@ public class CcddConstants
              *
              * @param dataType
              *            macros table column data type
-             *****************************************************************/
+             *************************************************************************************/
             MacrosColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the macros table column name
              *
              * @return Macros table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Column order table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum OrdersColumn
         {
             USER_NAME("user_name", "text"),
@@ -3704,7 +3641,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Column order table columns constructor
              *
              * @param columnName
@@ -3712,27 +3649,27 @@ public class CcddConstants
              *
              * @param dataType
              *            orders table column data type
-             *****************************************************************/
+             *************************************************************************************/
             OrdersColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the orders table column name
              *
              * @return Orders table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Reserved message ID table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum ReservedMsgIDsColumn
         {
             MSG_ID("msg_id", "text"),
@@ -3742,7 +3679,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Reserved message IDs table columns constructor
              *
              * @param columnName
@@ -3750,7 +3687,7 @@ public class CcddConstants
              *
              * @param dataType
              *            reserved message IDs table column data type
-             *****************************************************************/
+             *************************************************************************************/
             ReservedMsgIDsColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
@@ -3758,9 +3695,9 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Script table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum ScriptColumn
         {
             LINE_NUM("line_number", "text"),
@@ -3769,7 +3706,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Script table columns constructor
              *
              * @param columnName
@@ -3777,7 +3714,7 @@ public class CcddConstants
              *
              * @param dataType
              *            scripts table column data type
-             *****************************************************************/
+             *************************************************************************************/
             ScriptColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
@@ -3785,9 +3722,9 @@ public class CcddConstants
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Table type definitions table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum TableTypesColumn
         {
             TYPE_NAME("type", "text"),
@@ -3804,7 +3741,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Table type definitions table columns constructor
              *
              * @param columnName
@@ -3812,27 +3749,27 @@ public class CcddConstants
              *
              * @param dataType
              *            table types table column data type
-             *****************************************************************/
+             *************************************************************************************/
             TableTypesColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the table type column name
              *
              * @return Table type column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Telemetry scheduler table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum TlmSchedulerColumn
         {
             RATE_NAME("rate_name", "text"),
@@ -3843,7 +3780,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Messages table columns constructor
              *
              * @param columnName
@@ -3851,27 +3788,27 @@ public class CcddConstants
              *
              * @param dataType
              *            messages table column data type
-             *****************************************************************/
+             *************************************************************************************/
             TlmSchedulerColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the messages table column name
              *
              * @return Messages table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Custom values table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected static enum ValuesColumn
         {
             TABLE_PATH("table_path", "text"),
@@ -3881,7 +3818,7 @@ public class CcddConstants
             private final String columnName;
             private final String dataType;
 
-            /******************************************************************
+            /**************************************************************************************
              * Custom values table columns constructor
              *
              * @param columnName
@@ -3889,18 +3826,18 @@ public class CcddConstants
              *
              * @param dataType
              *            custom values table column data type
-             *****************************************************************/
+             *************************************************************************************/
             ValuesColumn(String columnName, String dataType)
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Get the custom values table column name
              *
              * @return Custom values table column name
-             *****************************************************************/
+             *************************************************************************************/
             protected String getColumnName()
             {
                 return columnName;
@@ -3912,7 +3849,7 @@ public class CcddConstants
         private final String initCommand;
         private String command;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Database internal table names constructor
          *
          * @param tableName
@@ -3922,27 +3859,23 @@ public class CcddConstants
          *            array of internal table column names and data types
          *
          * @param createCommand
-         *            any special database command(s) required when creating
-         *            this internal table
+         *            any special database command(s) required when creating this internal table
          *
          * @param initCommand
-         *            table initialization command(s) when creating this
-         *            internal table, if any
-         *********************************************************************/
+         *            table initialization command(s) when creating this internal table, if any
+         *****************************************************************************************/
         InternalTable(String tableName,
                       String[][] columns,
                       String createCommand,
                       String initCommand)
         {
-            // Prepend the character(s) that flag this as a non-data table to
-            // create the table name
+            // Prepend the character(s) that flag this as a non-data table to create the table name
             this.tableName = INTERNAL_TABLE_PREFIX + tableName;
 
             this.columns = columns;
             this.initCommand = initCommand;
 
-            // Create the command substring for building the columns for the
-            // internal table
+            // Create the command substring for building the columns for the internal table
             command = "(";
 
             // Step through each column definition
@@ -3959,25 +3892,25 @@ public class CcddConstants
                       + ";";
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the internal table name
          *
          * @return Internal table name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTableName()
         {
             return tableName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the internal table name
          *
          * @param scriptComment
-         *            script file comment from which to extract the script's
-         *            original name (only applicable to script file tables)
+         *            script file comment from which to extract the script's original name (only
+         *            applicable to script file tables)
          *
          * @return Internal table name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTableName(String scriptComment)
         {
             String fullName = tableName;
@@ -3985,31 +3918,29 @@ public class CcddConstants
             // Check if this is a script file
             if (this == SCRIPT)
             {
-                // Append the script file name, which is the first element of
-                // the table comment, converted to use as a database table
-                // name, to the internal table name
+                // Append the script file name, which is the first element of the table comment,
+                // converted to use as a database table name, to the internal table name
                 fullName += scriptComment.split(",", 2)[0].toLowerCase().replaceAll("[ .]", "_");
             }
 
             return fullName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the number of internal table columns
          *
          * @return Number of internal table columns
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getNumColumns()
         {
             return columns.length;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the internal table column name by index
          *
-         * @return Internal table column name for the specified index; null if
-         *         the index is invalid
-         *********************************************************************/
+         * @return Internal table column name for the specified index; null if the index is invalid
+         *****************************************************************************************/
         protected String getColumnName(int index)
         {
             String columnName = null;
@@ -4024,12 +3955,12 @@ public class CcddConstants
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the internal table column data type by index
          *
-         * @return Internal table column data type for the specified index;
-         *         null if the index is invalid
-         *********************************************************************/
+         * @return Internal table column data type for the specified index; null if the index is
+         *         invalid
+         *****************************************************************************************/
         protected String getColumnType(int index)
         {
             String columnType = null;
@@ -4044,17 +3975,16 @@ public class CcddConstants
             return columnType;
         }
 
-        /**********************************************************************
-         * Get the command substring the defines the table columns and any
-         * special command(s) required to build this internal table
+        /******************************************************************************************
+         * Get the command substring the defines the table columns and any special command(s)
+         * required to build this internal table
          *
          * @param includeInitCmd
-         *            true to include the table initialization command(s);
-         *            false to only include the column definition and create
-         *            commands
+         *            true to include the table initialization command(s); false to only include
+         *            the column definition and create commands
          *
          * @return Table columns command substring and special command(s)
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnCommand(boolean includeInitCmd)
         {
             return command
@@ -4065,9 +3995,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Table type editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum TableTypeEditorColumnInfo
     {
         INDEX("Column Index", "Column index", "", true),
@@ -4099,7 +4029,7 @@ public class CcddConstants
         private final Object initialValue;
         private final boolean isRequired;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Table type editor column information constructor
          *
          * @param columnName
@@ -4113,7 +4043,7 @@ public class CcddConstants
          *
          * @param isRequired
          *            true if a value is required in this column
-         *********************************************************************/
+         *****************************************************************************************/
         TableTypeEditorColumnInfo(String columnName,
                                   String toolTip,
                                   Object initialValue,
@@ -4125,31 +4055,31 @@ public class CcddConstants
             this.isRequired = isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the type editor column required flag
          *
          * @return Type editor column required flag
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the type editor column name
          *
          * @return Type editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the type editor column names
          *
          * @return Array containing the type editor column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[TableTypeEditorColumnInfo.values().length];
@@ -4166,11 +4096,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the type editor column tool tips
          *
          * @return Array containing the type editor column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[TableTypeEditorColumnInfo.values().length];
@@ -4187,11 +4117,11 @@ public class CcddConstants
             return toolTips;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get a row with initialized values for the type editor
          *
          * @return Array containing initial values for a row in the type editor
-         *********************************************************************/
+         *****************************************************************************************/
         protected static Object[] getEmptyRow()
         {
             Object[] emptyRow = new Object[TableTypeEditorColumnInfo.values().length];
@@ -4209,9 +4139,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Scheduler table columns
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum SchedulerColumn
     {
         NAME("Message Name", "Time Slot", "Column A"),
@@ -4222,7 +4152,7 @@ public class CcddConstants
         private final String appColumn;
         private final String otherColumn;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Scheduler table columns constructor
          *
          * @param tlmColumn
@@ -4233,7 +4163,7 @@ public class CcddConstants
          *
          * @param otherColumn
          *            unknown scheduler type column name
-         *********************************************************************/
+         *****************************************************************************************/
         SchedulerColumn(String tlmColumn, String appColumn, String otherColumn)
         {
             this.tlmColumn = tlmColumn;
@@ -4241,14 +4171,14 @@ public class CcddConstants
             this.otherColumn = otherColumn;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the scheduler column name based on the scheduler type
          *
          * @param schType
          *            scheduler type
          *
          * @return Scheduler column name for the specified scheduler type
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumn(SchedulerType schType)
         {
             String columnName;
@@ -4272,9 +4202,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Default application data fields
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DefaultApplicationField
     {
         SCHEDULE_RATE("Schedule Rate",
@@ -4356,7 +4286,7 @@ public class CcddConstants
         private final ApplicabilityType applicability;
         private final String initialValue;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Default application data fields constructor
          *
          * @param fieldName
@@ -4379,7 +4309,7 @@ public class CcddConstants
          *
          * @param initialValue
          *            initial value for the data field
-         *********************************************************************/
+         *****************************************************************************************/
         DefaultApplicationField(String fieldName,
                                 String description,
                                 int size,
@@ -4397,34 +4327,34 @@ public class CcddConstants
             this.initialValue = initialValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default application field name
          *
          * @return Default application field name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getFieldName()
         {
             return fieldName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the default application field initial value
          *
          * @return Default application field initial value
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getInitialValue()
         {
             return initialValue;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Create the default data field's information for the specified owner
          *
          * @param ownerName
          *            table or group name to which the field belongs
          *
          * @return FieldInformation for the default data field
-         *********************************************************************/
+         *****************************************************************************************/
         protected FieldInformation createFieldInformation(String ownerName)
         {
             return new FieldInformation(ownerName,
@@ -4438,9 +4368,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Macro editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum MacroEditorColumnInfo
     {
         NAME("Macro Name", "Macro name", "", true),
@@ -4452,7 +4382,7 @@ public class CcddConstants
         private final String initialValue;
         private final boolean isRequired;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Macro editor column information constructor
          *
          * @param columnName
@@ -4466,7 +4396,7 @@ public class CcddConstants
          *
          * @param isRequired
          *            true if a value is required in this column
-         *********************************************************************/
+         *****************************************************************************************/
         MacroEditorColumnInfo(String columnName,
                               String toolTip,
                               String initialValue,
@@ -4478,31 +4408,31 @@ public class CcddConstants
             this.isRequired = isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the macro editor column name
          *
          * @return Macro editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the macro editor column required flag
          *
          * @return Macro editor column required flag
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the macro editor column names
          *
          * @return Array containing the macro editor column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[MacroEditorColumnInfo.values().length];
@@ -4519,11 +4449,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the macro editor column tool tips
          *
          * @return Array containing the macro editor column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[MacroEditorColumnInfo.values().length];
@@ -4540,12 +4470,11 @@ public class CcddConstants
             return toolTips;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get a row with initialized values for the macro editor
          *
-         * @return Array containing initial values for a row in the macro
-         *         editor
-         *********************************************************************/
+         * @return Array containing initial values for a row in the macro editor
+         *****************************************************************************************/
         protected static String[] getEmptyRow()
         {
             String[] emptyRow = new String[MacroEditorColumnInfo.values().length];
@@ -4563,9 +4492,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data type editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DataTypeEditorColumnInfo
     {
         USER_NAME("Type Name", "User-defined data type name", "", false),
@@ -4579,7 +4508,7 @@ public class CcddConstants
         private final String initialValue;
         private final boolean isRequired;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Data type editor column information constructor
          *
          * @param columnName
@@ -4593,7 +4522,7 @@ public class CcddConstants
          *
          * @param isRequired
          *            true if a value is required in this column
-         *********************************************************************/
+         *****************************************************************************************/
         DataTypeEditorColumnInfo(String columnName,
                                  String toolTip,
                                  String initialValue,
@@ -4605,31 +4534,31 @@ public class CcddConstants
             this.isRequired = isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type editor column name
          *
          * @return Data type editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type editor column required flag
          *
          * @return Data type editor column required flag
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type editor column names
          *
          * @return Array containing the data type editor column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[DataTypeEditorColumnInfo.values().length];
@@ -4646,11 +4575,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type editor column tool tips
          *
          * @return Array containing the data type editor column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[DataTypeEditorColumnInfo.values().length];
@@ -4667,12 +4596,11 @@ public class CcddConstants
             return toolTips;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get a row with initialized values for the data type editor
          *
-         * @return Array containing initial values for a row in the data type
-         *         editor
-         *********************************************************************/
+         * @return Array containing initial values for a row in the data type editor
+         *****************************************************************************************/
         protected static String[] getEmptyRow()
         {
             String[] emptyRow = new String[DataTypeEditorColumnInfo.values().length];
@@ -4690,9 +4618,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data field editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum FieldEditorColumnInfo
     {
         NAME("Field Name", "Data field name", "", true),
@@ -4714,7 +4642,7 @@ public class CcddConstants
         private final Object initialValue;
         private final boolean isRequired;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Data field editor column information constructor
          *
          * @param columnName
@@ -4728,7 +4656,7 @@ public class CcddConstants
          *
          * @param isRequired
          *            true if a value is required in this column
-         *********************************************************************/
+         *****************************************************************************************/
         FieldEditorColumnInfo(String columnName,
                               String toolTip,
                               Object initialValue,
@@ -4740,31 +4668,31 @@ public class CcddConstants
             this.isRequired = isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the field editor column name
          *
          * @return Field editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the field editor column required flag
          *
          * @return Field editor column required flag
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the field editor column names
          *
          * @return Array containing the field editor column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[FieldEditorColumnInfo.values().length];
@@ -4781,11 +4709,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the field editor column tool tips
          *
          * @return Array containing the field editor column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[FieldEditorColumnInfo.values().length];
@@ -4802,12 +4730,11 @@ public class CcddConstants
             return toolTips;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get a row with initialized values for the field editor
          *
-         * @return Array containing initial values for a row in the field
-         *         editor
-         *********************************************************************/
+         * @return Array containing initial values for a row in the field editor
+         *****************************************************************************************/
         protected static Object[] getEmptyRow()
         {
             Object[] emptyRow = new Object[FieldEditorColumnInfo.values().length];
@@ -4825,9 +4752,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data field table editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum FieldTableEditorColumnInfo
     {
         OWNER("Field Owner", "Data field owner (table or group name)"),
@@ -4836,7 +4763,7 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Data field table editor column information constructor
          *
          * @param columnName
@@ -4844,37 +4771,37 @@ public class CcddConstants
          *
          * @param toolTip
          *            tool tip text to display for the column
-         *********************************************************************/
+         *****************************************************************************************/
         FieldTableEditorColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data field table editor column name
          *
          * @return Data field table editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data field table editor column tool tip
          *
          * @return Data field table editor column tool tip
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getToolTip()
         {
             return toolTip;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Reserved message ID editor column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum ReservedMsgIDEditorColumnInfo
     {
         MSG_ID("Message ID(s)", "Message ID or range of IDs", "", true),
@@ -4886,12 +4813,11 @@ public class CcddConstants
         private final String initialValue;
         private final boolean isRequired;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Reserved message ID editor column information constructor
          *
          * @param columnName
-         *            text to display for the reserved message ID editor column
-         *            header
+         *            text to display for the reserved message ID editor column header
          *
          * @param toolTip
          *            tool tip text to display for the column
@@ -4901,7 +4827,7 @@ public class CcddConstants
          *
          * @param isRequired
          *            true if a value is required in this column
-         *********************************************************************/
+         *****************************************************************************************/
         ReservedMsgIDEditorColumnInfo(String columnName,
                                       String toolTip,
                                       String initialValue,
@@ -4913,31 +4839,31 @@ public class CcddConstants
             this.isRequired = isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reserved message ID editor column name
          *
          * @return Reserved message ID editor column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reserved message ID editor column required flag
          *
          * @return Reserved message ID editor column required flag
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reserved message ID editor column names
          *
          * @return Array containing the reserved message ID editor column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[ReservedMsgIDEditorColumnInfo.values().length];
@@ -4954,12 +4880,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reserved message ID editor column tool tips
          *
-         * @return Array containing the reserved message ID editor column tool
-         *         tips
-         *********************************************************************/
+         * @return Array containing the reserved message ID editor column tool tips
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[ReservedMsgIDEditorColumnInfo.values().length];
@@ -4976,12 +4901,11 @@ public class CcddConstants
             return toolTips;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get a row with initialized values for the reserved message ID editor
          *
-         * @return Array containing initial values for a row in the reserved
-         *         message ID editor
-         *********************************************************************/
+         * @return Array containing initial values for a row in the reserved message ID editor
+         *****************************************************************************************/
         protected static String[] getEmptyRow()
         {
             String[] emptyRow = new String[ReservedMsgIDEditorColumnInfo.values().length];
@@ -4999,9 +4923,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Script associations table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum AssociationsTableColumnInfo
     {
         NAME("Name", "Script association name"),
@@ -5013,16 +4937,15 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Script association table column information constructor
          *
          * @param columnName
          *            text to display for the table verification column name
          *
          * @param toolTip
-         *            tool tip text to display for the table verification
-         *            column
-         *********************************************************************/
+         *            tool tip text to display for the table verification column
+         *****************************************************************************************/
         AssociationsTableColumnInfo(String columnName,
                                     String toolTip)
         {
@@ -5030,11 +4953,11 @@ public class CcddConstants
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the script association table column names
          *
          * @return Array containing the script association table column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[AssociationsTableColumnInfo.values().length];
@@ -5051,12 +4974,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the script association table column tool tips
          *
-         * @return Array containing the script association table column tool
-         *         tips
-         *********************************************************************/
+         * @return Array containing the script association table column tool tips
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[AssociationsTableColumnInfo.values().length];
@@ -5074,9 +4996,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search results table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum SearchResultsColumnInfo
     {
         OWNER("Owner",
@@ -5105,31 +5027,27 @@ public class CcddConstants
         private final String logColumnName;
         private final String logToolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Search results table column information constructor
          *
          * @param tableColumnName
          *            text to display for the table search results column name
          *
          * @param tableToolTip
-         *            tool tip text to display for the table search results
-         *            column
+         *            tool tip text to display for the table search results column
          *
          * @param scriptColumnName
          *            text to display for the script search results column name
          *
          * @param scriptToolTip
-         *            tool tip text to display for the script search results
-         *            column
+         *            tool tip text to display for the script search results column
          *
          * @param logColumnName
-         *            text to display for the event log search results column
-         *            name
+         *            text to display for the event log search results column name
          *
          * @param logToolTip
-         *            tool tip text to display for the event log search results
-         *            column
-         *********************************************************************/
+         *            tool tip text to display for the event log search results column
+         *****************************************************************************************/
         SearchResultsColumnInfo(String tableColumnName,
                                 String tableToolTip,
                                 String scriptColumnName,
@@ -5145,15 +5063,14 @@ public class CcddConstants
             this.logToolTip = logToolTip;
         }
 
-        /**********************************************************************
-         * Get the search results table column header for the specified search
-         * dialog type
+        /******************************************************************************************
+         * Get the search results table column header for the specified search dialog type
          *
          * @param searchType
          *            search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Search results table column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName(SearchDialogType searchType)
         {
             String columnName = null;
@@ -5176,15 +5093,14 @@ public class CcddConstants
             return columnName;
         }
 
-        /**********************************************************************
-         * Get the search results table column names for the specified search
-         * dialog type
+        /******************************************************************************************
+         * Get the search results table column names for the specified search dialog type
          *
          * @param searchType
          *            search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Array containing the search results table column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames(SearchDialogType searchType)
         {
             String[] names = new String[SearchResultsColumnInfo.values().length];
@@ -5214,15 +5130,14 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
-         * Get the search results column tool tips for the specified search
-         * dialog type
+        /******************************************************************************************
+         * Get the search results column tool tips for the specified search dialog type
          *
          * @param searchType
          *            search dialog type: TABLES, SCRIPTS, or LOG
          *
          * @return Array containing the search results column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips(SearchDialogType searchType)
         {
             String[] toolTips = new String[SearchResultsColumnInfo.values().length];
@@ -5253,9 +5168,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Duplicate message ID table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DuplicateMsgIDColumnInfo
     {
         OWNERS("Owners", "Message ID owners (tables and telemetry messages)"),
@@ -5264,27 +5179,26 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Duplicate message ID table column information constructor
          *
          * @param columnName
          *            text to display for the duplicate message ID table column
          *
          * @param toolTip
-         *            tool tip text to display for the duplicate message ID
-         *            table column
-         *********************************************************************/
+         *            tool tip text to display for the duplicate message ID table column
+         *****************************************************************************************/
         DuplicateMsgIDColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the duplicate message ID table column names
          *
          * @return Array containing the duplicate message ID table column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[DuplicateMsgIDColumnInfo.values().length];
@@ -5301,12 +5215,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the duplicate message ID table column tool tips
          *
-         * @return Array containing the duplicate message ID table column tool
-         *         tips
-         *********************************************************************/
+         * @return Array containing the duplicate message ID table column tool tips
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[DuplicateMsgIDColumnInfo.values().length];
@@ -5324,9 +5237,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Message ID list column order
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum MsgIDListColumnIndex
     {
         OWNER,
@@ -5334,9 +5247,9 @@ public class CcddConstants
         MESSAGE_ID
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Message ID table owner, name, and ID table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum MsgIDTableColumnInfo
     {
         OWNER("Owner", "Message ID owner (table, group, or telemetry message)"),
@@ -5347,30 +5260,26 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
-         * Message table ID owner, name, and ID table column information
-         * constructor
+        /******************************************************************************************
+         * Message table ID owner, name, and ID table column information constructor
          *
          * @param columnName
-         *            text to display for the message ID owner, name, and ID
-         *            table column
+         *            text to display for the message ID owner, name, and ID table column
          *
          * @param toolTip
-         *            tool tip text to display for the message ID owner, name,
-         *            and ID table column
-         *********************************************************************/
+         *            tool tip text to display for the message ID owner, name, and ID table column
+         *****************************************************************************************/
         MsgIDTableColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the message ID table owner, name, and ID table column names
          *
-         * @return Array containing the message ID table owner, name, and ID
-         *         table column names
-         *********************************************************************/
+         * @return Array containing the message ID table owner, name, and ID table column names
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[MsgIDTableColumnInfo.values().length];
@@ -5387,12 +5296,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the message ID table owner, name, and ID table column tool tips
          *
-         * @return Array containing the message ID table owner, name, and ID
-         *         table column tool tips
-         *********************************************************************/
+         * @return Array containing the message ID table owner, name, and ID table column tool tips
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[MsgIDTableColumnInfo.values().length];
@@ -5410,9 +5318,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Link copy error table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum LinkCopyErrorColumnInfo
     {
         LINK("Link", "Name of link that failed to copy"),
@@ -5423,27 +5331,26 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Link copy error table column information constructor
          *
          * @param columnName
          *            text to display for the link copy error table column
          *
          * @param toolTip
-         *            tool tip text to display for the link copy error table
-         *            column
-         *********************************************************************/
+         *            tool tip text to display for the link copy error table column
+         *****************************************************************************************/
         LinkCopyErrorColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the link copy error table column names
          *
          * @return Array containing the link copy error table column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[LinkCopyErrorColumnInfo.values().length];
@@ -5460,11 +5367,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the link copy error table column tool tips
          *
          * @return Array containing the link copy error table column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[LinkCopyErrorColumnInfo.values().length];
@@ -5482,9 +5389,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Database verification table column information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum VerificationColumnInfo
     {
         FIX("Action", "Action to perform concerning the issue"),
@@ -5494,16 +5401,15 @@ public class CcddConstants
         private final String columnName;
         private final String toolTip;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Verification table column information constructor
          *
          * @param columnName
          *            text to display for the table verification column name
          *
          * @param toolTip
-         *            tool tip text to display for the table verification
-         *            column
-         *********************************************************************/
+         *            tool tip text to display for the table verification column
+         *****************************************************************************************/
         VerificationColumnInfo(String columnName,
                                String toolTip)
         {
@@ -5511,11 +5417,11 @@ public class CcddConstants
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the verification table column names
          *
          * @return Array containing the verification table column names
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] names = new String[VerificationColumnInfo.values().length];
@@ -5532,11 +5438,11 @@ public class CcddConstants
             return names;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the verification table column tool tips
          *
          * @return Array containing the verification table column tool tips
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getToolTips()
         {
             String[] toolTips = new String[VerificationColumnInfo.values().length];
@@ -5554,17 +5460,16 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Database table comment indices
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum TableCommentIndex
     {
         NAME,
         TYPE;
 
-        /**********************************************************************
-         * Build the comment by arranging the comment parameters in the correct
-         * order
+        /******************************************************************************************
+         * Build the comment by arranging the comment parameters in the correct order
          *
          * @param tableName
          *            table name
@@ -5573,7 +5478,7 @@ public class CcddConstants
          *            table type
          *
          * @return Table comment parameters, separated by commas
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String buildComment(String tableName, String tableType)
         {
             String comment = "";
@@ -5602,9 +5507,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Copy table entries
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum CopyTableEntry
     {
         INPUT_MSG_ID("Input Message ID"),
@@ -5617,31 +5522,31 @@ public class CcddConstants
 
         private final String columnName;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Copy table entries constructor
          *
          * @param name
          *            copy table column name
-         *********************************************************************/
+         *****************************************************************************************/
         CopyTableEntry(String columnName)
         {
             this.columnName = columnName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the copy table column name
          *
          * @Return Copy table column name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getColumnName()
         {
             return columnName;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * JSON data type tags
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum JSONTags
     {
         FILE_DESCRIPTION("File Description"),
@@ -5680,35 +5585,35 @@ public class CcddConstants
 
         private final String tag;
 
-        /**********************************************************************
+        /******************************************************************************************
          * JSON data type tags constructor
          *
          * @param tag
          *            text describing the data
-         *********************************************************************/
+         *****************************************************************************************/
         JSONTags(String tag)
         {
             this.tag = tag;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type tag
          *
          * @return Text describing the data
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTag()
         {
             return tag;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Database list query commands
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DatabaseListCommand
     {
-        // Get the list of data tables only, extracted from the table comments
-        // to retain their original capitalization, sorted alphabetically
+        // Get the list of data tables only, extracted from the table comments to retain their
+        // original capitalization, sorted alphabetically
         DATA_TABLES("SELECT name FROM (SELECT split_part(obj_description, ',', "
                     + (TableCommentIndex.NAME.ordinal() + 1)
                     + ") AS name FROM (SELECT obj_description(oid) "
@@ -5720,8 +5625,8 @@ public class CcddConstants
                     + "AND obj_description(oid) != '') AS alias1) AS alias2 "
                     + "ORDER BY name ASC;"),
 
-        // Get the list containing the user-viewable table name, database table
-        // name, and table type for all data tables, sorted alphabetically
+        // Get the list containing the user-viewable table name, database table name, and table
+        // type for all data tables, sorted alphabetically
         DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type FROM "
                               + "(SELECT split_part(obj_description, ',', 1) AS name, "
                               + "lower(split_part(obj_description, ',', 2)) AS type,"
@@ -5736,8 +5641,8 @@ public class CcddConstants
         // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
-        // Get the list of CCDD databases (in the form 'database name,lock
-        // status,visible name,description'), sorted alphabetically
+        // Get the list of CCDD databases (in the form 'database name,lock status,visible
+        // name,description'), sorted alphabetically
         DATABASES("SELECT datname || E'"
                   + DATABASE_COMMENT_SEPARATOR
                   + "' || split_part(description, '"
@@ -5758,9 +5663,9 @@ public class CcddConstants
                   + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
 
-        // Get the list of CCDD databases (in the form 'database name,lock
-        // status,visible name,description'), sorted alphabetically, for which
-        // the user has access. '_user_' must be replaced by the user name
+        // Get the list of CCDD databases (in the form 'database name,lock status,visible
+        // name,description'), sorted alphabetically, for which the user has access. '_user_' must
+        // be replaced by the user name
         DATABASES_BY_USER("SELECT datname || E'"
                           + DATABASE_COMMENT_SEPARATOR
                           + "' || split_part(description, '"
@@ -5782,9 +5687,8 @@ public class CcddConstants
                           + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
                           + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
 
-        // Get the list of active database connections by user. The database
-        // and user names are concatenated (separated by a comma) in order to
-        // use the getList method
+        // Get the list of active database connections by user. The database and user names are
+        // concatenated (separated by a comma) in order to use the getList method
         ACTIVE_BY_USER("select distinct datname || ',' || usename "
                        + "AS names from pg_stat_activity ORDER BY names ASC;"),
 
@@ -5802,9 +5706,8 @@ public class CcddConstants
         // Get the list of PostgreSQL keywords
         KEYWORDS("SELECT * FROM pg_get_keywords()"),
 
-        // Get the list of tables of type '_type_', sorted alphabetically.
-        // '_type_' must be replaced by the type of table for which to search.
-        // _type_ is case insensitive
+        // Get the list of tables of type '_type_', sorted alphabetically. '_type_' must be
+        // replaced by the type of table for which to search. _type_ is case insensitive
         TABLES_OF_TYPE("SELECT name FROM (SELECT split_part(obj_description, ',', "
                        + (TableCommentIndex.NAME.ordinal() + 1)
                        + ") AS name, lower(split_part(obj_description, ',', "
@@ -5822,8 +5725,8 @@ public class CcddConstants
                     + TableTypesColumn.TYPE_NAME.getColumnName()
                     + ";"),
 
-        // Get the list of table names, variable paths, and descriptions (only
-        // for those tables with descriptions), sorted alphabetically
+        // Get the list of table names, variable paths, and descriptions (only for those tables
+        // with descriptions), sorted alphabetically
         TABLE_DESCRIPTIONS("SELECT "
                            + ValuesColumn.TABLE_PATH.getColumnName()
                            + " || E'"
@@ -5840,8 +5743,7 @@ public class CcddConstants
                            + ValuesColumn.TABLE_PATH.getColumnName()
                            + " ASC;"),
 
-        // Get the list of data tables and their comments, sorted
-        // alphabetically
+        // Get the list of data tables and their comments, sorted alphabetically
         TABLE_COMMENTS("SELECT description FROM (SELECT obj_description "
                        + "AS description FROM (SELECT obj_description(oid) "
                        + "FROM pg_class WHERE relkind = 'r' AND "
@@ -5861,9 +5763,8 @@ public class CcddConstants
                 + InternalTable.SCRIPT.getTableName()
                 + "') alias1) alias2 ORDER BY script_name ASC;"),
 
-        // Get the list of table and column names that contain the specified
-        // search text. '___' should be replaced by the text for which to
-        // search
+        // Get the list of table and column names that contain the specified search text. '___'
+        // should be replaced by the text for which to search
         SEARCH("SELECT table_name::text || E'"
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || column_name || E'"
@@ -5876,21 +5777,20 @@ public class CcddConstants
                + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
 
-        // ////////////////////////////////////////////////////////////////////
-        // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
-        // ////////////////////////////////////////////////////////////////////
-        // Get the list of all tables (data and information), sorted
-        // alphabetically
+        // //////////////////////////////////////////////////////////////////// THE REMAINING
+        // COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
+        // //////////////////////////////////////////////////////////////////// Get the list of all
+        // tables (data and information), sorted alphabetically
         ALL_TABLES("SELECT tablename FROM pg_tables "
                    + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),
 
-        // Get the list of columns for a table, sorted alphabetically. '___'
-        // should be replaced by the table to search
+        // Get the list of columns for a table, sorted alphabetically. '___' should be replaced by
+        // the table to search
         TABLE_COLUMNS("SELECT column_name FROM information_schema.columns "
                       + "WHERE table_name = '___' ORDER BY column_name ASC;"),
 
-        // Get the tables that are members of the specified table. '___' should
-        // be replaced by the table to search
+        // Get the tables that are members of the specified table. '___' should be replaced by the
+        // table to search
         TABLE_MEMBERS("SELECT DISTINCT ON (data_type) "
                       + "CASE WHEN EXISTS "
                       + "(SELECT 1 FROM pg_catalog.pg_attribute "
@@ -5902,26 +5802,25 @@ public class CcddConstants
 
         private final String listCommand;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Database list query commands constructor
          *
          * @param listCommand
          *            postgreSQL query command
-         *********************************************************************/
+         *****************************************************************************************/
         DatabaseListCommand(String listCommand)
         {
             this.listCommand = listCommand;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the list command
          *
          * @param listOption
-         *            array containing replacement text for those commands that
-         *            must be tailored
+         *            array containing replacement text for those commands that must be tailored
          *
          * @return List command string
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getListCommand(String[][] listOptions)
         {
             String command = listCommand;
@@ -5941,9 +5840,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Event log table columns
-     *************************************************************************/
+     *********************************************************************************************/
     // Event log table header indices
     protected static enum EventColumns
     {
@@ -5957,22 +5856,22 @@ public class CcddConstants
 
         private final String columnName;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Event log table columns constructor
          *
          * @param name
          *            column name
-         *********************************************************************/
+         *****************************************************************************************/
         EventColumns(String name)
         {
             columnName = name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the event log column name array
          *
          * @return Event log column name array
-         *********************************************************************/
+         *****************************************************************************************/
         protected static String[] getColumnNames()
         {
             String[] columnNames = new String[EventColumns.values().length];
@@ -5990,13 +5889,13 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Event log message types
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum EventLogMessageType
     {
-        // Master filter; this creates a check box that, when selected, toggles
-        // all of the other filters below
+        // Master filter; this creates a check box that, when selected, toggles all of the other
+        // filters below
         SELECT_ALL("All ", "#000000"),
 
         // Database command message filter
@@ -6017,41 +5916,40 @@ public class CcddConstants
         private final String typeName;
         private final String typeColor;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Event log message type constructor
          *
          * @param typeName
-         *            filter name for display beside the check box and in the
-         *            event log Type column
+         *            filter name for display beside the check box and in the event log Type column
          *
          * @param typeColor
          *            color in which to display the filter name
-         *********************************************************************/
+         *****************************************************************************************/
         EventLogMessageType(String typeName, String typeColor)
         {
             this.typeName = typeName;
             this.typeColor = typeColor;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Event log message type name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTypeName()
         {
             return typeName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Event log message type color
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTypeColor()
         {
             return typeColor;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Event log message type message
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTypeMsg()
         {
             return "<html><span style=\"color:" + typeColor
@@ -6061,9 +5959,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search target names
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum SearchTarget
     {
         TABLE("Table"),
@@ -6080,25 +5978,25 @@ public class CcddConstants
 
         private final String tgtName;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Search target names constructor
          *
          * @param tgtName
          *            target name
-         *********************************************************************/
+         *****************************************************************************************/
         SearchTarget(String tgtName)
         {
             this.tgtName = tgtName;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get search target name
          *
          * @param isFormat
          *            true to format the target name
          *
          * @return Target name
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTargetName(boolean isFormat)
         {
             String name = tgtName;
@@ -6114,9 +6012,9 @@ public class CcddConstants
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Dialog option types
-     *************************************************************************/
+     *********************************************************************************************/
     protected static enum DialogOption
     {
         OK_CANCEL_OPTION("Okay", 'O', "Cancel", OK_ICON, 2, 0),
@@ -6144,15 +6042,14 @@ public class CcddConstants
         private final int numButtons;
         private final int defaultButton;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Dialog option types constructor
          *
          * @param buttonText
          *            text to display on the primary button
          *
          * @param buttonMnemonic
-         *            character for actuating the primary button via the
-         *            keyboard
+         *            character for actuating the primary button via the keyboard
          *
          * @param secondaryButtonText
          *            text to display on the secondary button (if present)
@@ -6165,7 +6062,7 @@ public class CcddConstants
          *
          * @param defaultButton
          *            index of the button selected by default
-         *********************************************************************/
+         *****************************************************************************************/
         DialogOption(String buttonText,
                      char buttonMnemonic,
                      String secondaryButtonText,
@@ -6181,61 +6078,61 @@ public class CcddConstants
             this.defaultButton = defaultButton;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the primary button text
          *
          * @return Text to display on the primary button
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getButtonText()
         {
             return buttonText;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the primary button mnemonic
          *
          * @return Character to actuate the primary button via the keyboard
-         *********************************************************************/
+         *****************************************************************************************/
         protected char getButtonMnemonic()
         {
             return buttonMnemonic;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the secondary button text
          *
          * @return Text to display on the secondary button
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getSecondaryButtonText()
         {
             return secondaryButtonText;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the primary button icon reference
          *
          * @return Reference for the icon to display on the primary button
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getButtonIcon()
         {
             return buttonIcon;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the number of buttons to display in the dialog
          *
          * @return Number of buttons to display in the dialog
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getNumButtons()
         {
             return numButtons;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the index of the default button
          *
          * @return Index of the default button
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getDefaultButton()
         {
             return defaultButton;
@@ -6243,28 +6140,26 @@ public class CcddConstants
 
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set GUI adjustment(s) based on the selected look & feel
      *
      * @param lookAndFeel
      *            name of the look & feel in effect
-     *************************************************************************/
+     *********************************************************************************************/
     protected static void setLaFAdjustments(String lookAndFeel)
     {
-        // Find the width, in pixels, needed to display a vertical scroll bar
-        // by creating a dummy scroll bar. Set the scroll bar to null
-        // afterwards to free up its memory
+        // Find the width, in pixels, needed to display a vertical scroll bar by creating a dummy
+        // scroll bar. Set the scroll bar to null afterwards to free up its memory
         JScrollPane sp = new JScrollPane(null,
                                          ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                                          ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         LAF_SCROLL_BAR_WIDTH = sp.getPreferredSize().width * 2 + 2;
         sp = null;
 
-        // Determine the height, in pixels, of a check box and check box icon.
-        // The correct height is not returned by the UI manager for all look &
-        // feels unless the check box is first realized, so an invisible window
-        // is created, a check box instantiated, then the window removed. The
-        // check box height returned by the UI manager is now correct
+        // Determine the height, in pixels, of a check box and check box icon. The correct height
+        // is not returned by the UI manager for all look & feels unless the check box is first
+        // realized, so an invisible window is created, a check box instantiated, then the window
+        // removed. The check box height returned by the UI manager is now correct
         JWindow wndw = new JWindow();
         JCheckBox chbx = new JCheckBox();
         chbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());

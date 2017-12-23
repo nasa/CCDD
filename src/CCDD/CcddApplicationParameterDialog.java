@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary application parameter assignment dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -30,9 +29,9 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary application parameter assignment dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationParameterDialog extends CcddDialogHandler
 {
@@ -46,12 +45,12 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
     private JTextField maxMsgsPerSecFld;
     private JTextField maxMsgsPerCycleFld;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Application parameter assignment dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddApplicationParameterDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -63,9 +62,9 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the application parameter assignment dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Get the application parameters
@@ -181,11 +180,11 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {

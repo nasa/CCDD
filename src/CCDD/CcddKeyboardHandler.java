@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary keyboard handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -49,9 +48,9 @@ import CCDD.CcddUndoHandler.UndoableCheckBox;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary keyboard handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddKeyboardHandler
 {
     // Class references
@@ -63,12 +62,12 @@ public class CcddKeyboardHandler
     private CcddInputFieldPanelHandler editPnlHandler;
     private KeyboardFocusManager focusManager;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Keyboard handler class constructor
      *
      * @param ccddMain
      *            reference to main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddKeyboardHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -77,32 +76,29 @@ public class CcddKeyboardHandler
         setKeyboardHandler();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the reference to the macro and data type handler classes
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setHandlers()
     {
         macroHandler = ccddMain.getMacroHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
     }
 
-    /**************************************************************************
-     * Set the references for the undo manager and table (if applicable) to
-     * those of the active modal dialog (e.g., the group manager or macro
-     * editor dialogs). Since the modal dialogs lock the user interface while
-     * active a reference to them cannot be set for the code to access as it
-     * can with the non-modal dialogs (i.e., the table editors and table type
-     * editor). The modal undo manager must be set to null after the dialog
-     * closes so that the non-modal dialogs (e.g., table and table type
-     * editors) undo managers can handle undo/redo operations
+    /**********************************************************************************************
+     * Set the references for the undo manager and table (if applicable) to those of the active
+     * modal dialog (e.g., the group manager or macro editor dialogs). Since the modal dialogs lock
+     * the user interface while active a reference to them cannot be set for the code to access as
+     * it can with the non-modal dialogs (i.e., the table editors and table type editor). The modal
+     * undo manager must be set to null after the dialog closes so that the non-modal dialogs
+     * (e.g., table and table type editors) undo managers can handle undo/redo operations
      *
      * @param undoManager
      *            modal dialog undo manager; null to disable
      *
      * @param table
-     *            modal dialog table reference; null if the modal dialog has no
-     *            table
-     *************************************************************************/
+     *            modal dialog table reference; null if the modal dialog has no table
+     *********************************************************************************************/
     protected void setModalDialogReference(CcddUndoManager undoManager,
                                            CcddJTableHandler table)
     {
@@ -110,11 +106,10 @@ public class CcddKeyboardHandler
         modalTable = table;
     }
 
-    /**************************************************************************
-     * Adjust the handling of Enter and space key inputs in order to activate
-     * dialog controls, and keyboard focus changes in order to use the arrow
-     * keys like Tab keys
-     *************************************************************************/
+    /**********************************************************************************************
+     * Adjust the handling of Enter and space key inputs in order to activate dialog controls, and
+     * keyboard focus changes in order to use the arrow keys like Tab keys
+     *********************************************************************************************/
     private void setKeyboardHandler()
     {
         // Get the keyboard focus manager
@@ -126,29 +121,26 @@ public class CcddKeyboardHandler
             boolean isShowMacros = false;
             Timer releaseTimer = null;
 
-            /******************************************************************
-             * Alter the response to the Enter key to act like the Space key to
-             * activate button and check box controls, and the arrow keys so as
-             * to mimic the Tab and Shift+Tab keys, unless the key press
-             * originates within a table or combo box. For a tabbed pane the
-             * left/right arrows are left unchanged so that these are used for
-             * traversing the tabbed panes, but the down and up arrows act like
-             * Tab and Shift+Tab respectively
-             *****************************************************************/
+            /**************************************************************************************
+             * Alter the response to the Enter key to act like the Space key to activate button and
+             * check box controls, and the arrow keys so as to mimic the Tab and Shift+Tab keys,
+             * unless the key press originates within a table or combo box. For a tabbed pane the
+             * left/right arrows are left unchanged so that these are used for traversing the
+             * tabbed panes, but the down and up arrows act like Tab and Shift+Tab respectively
+             *************************************************************************************/
             @Override
             public boolean dispatchKeyEvent(final KeyEvent ke)
             {
-                // Flag that indicates if the key event has been handled by
-                // this method (true) or that it still needs to be processed
-                // (false)
+                // Flag that indicates if the key event has been handled by this method (true) or
+                // that it still needs to be processed (false)
                 boolean handled = false;
 
-                // Get a reference to the component with the focus in order
-                // to shorten the subsequent calls
+                // Get a reference to the component with the focus in order to shorten the
+                // subsequent calls
                 Component comp = ke.getComponent();
 
-                // Check if this is a key press event, and the Ctrl, Shift, or
-                // Alt key is not pressed
+                // Check if this is a key press event, and the Ctrl, Shift, or Alt key is not
+                // pressed
                 if (ke.getID() == KeyEvent.KEY_PRESSED
                     && !ke.isControlDown()
                     && !ke.isShiftDown()
@@ -160,8 +152,7 @@ public class CcddKeyboardHandler
                         // Check if this is a button
                         if (comp instanceof JButton)
                         {
-                            // Activate the control (same as if Space key is
-                            // pressed)
+                            // Activate the control (same as if Space key is pressed)
                             ((AbstractButton) comp).doClick();
                             handled = true;
                         }
@@ -191,41 +182,37 @@ public class CcddKeyboardHandler
                             handled = true;
                         }
                     }
-                    // Check if the key pressed is an "action" key (i.e., a key
-                    // that doesn't produce a character and is not a modifier;
-                    // this covers the arrow keys)
+                    // Check if the key pressed is an "action" key (i.e., a key that doesn't
+                    // produce a character and is not a modifier; this covers the arrow keys)
                     else if (ke.isActionKey())
                     {
-                        // Assume that the default handling will be used with
-                        // an arrow key
+                        // Assume that the default handling will be used with an arrow key
                         ArrowFocusOption arrowResponse = USE_DEFAULT_HANDLER;
 
-                        // Check if the focus is on a tabbed pane's tab or on a
-                        // slider
+                        // Check if the focus is on a tabbed pane's tab or on a slider
                         if (comp instanceof JTabbedPane
                             || comp instanceof JSlider)
                         {
-                            // The left and right arrows traverse the tabs, and
-                            // the up and down arrows behave like (Shift+)Tab
+                            // The left and right arrows traverse the tabs, and the up and down
+                            // arrows behave like (Shift+)Tab
                             arrowResponse = HANDLE_UP_AND_DOWN_ARROWS;
                         }
                         // Check if the focus is in a text field within a table
                         else if (comp instanceof JTextField
                                  && comp.getParent() instanceof CcddJTableHandler)
                         {
-                            // The up and down arrows are ignored. This
-                            // prevents accidently exiting edit mode on a table
-                            // cell and losing any changes
+                            // The up and down arrows are ignored. This prevents accidently exiting
+                            // edit mode on a table cell and losing any changes
                             arrowResponse = IGNORE_UP_AND_DOWN_ARROWS;
                         }
-                        // Check if the focus is on a button (including a color
-                        // button), radio button, or check box
+                        // Check if the focus is on a button (including a color button), radio
+                        // button, or check box
                         else if (comp instanceof JButton
                                  || comp instanceof JRadioButton
                                  || comp instanceof JCheckBox)
                         {
-                            // The up and left arrow keys behave as Shift+Tab,
-                            // and the down and right arrow keys behave as Tab
+                            // The up and left arrow keys behave as Shift+Tab, and the down and
+                            // right arrow keys behave as Tab
                             arrowResponse = HANDLE_ALL_ARROWS;
                         }
                         // Check if the focus is within a table
@@ -234,23 +221,21 @@ public class CcddKeyboardHandler
                             // Get the reference to the table with the focus
                             CcddJTableHandler table = (CcddJTableHandler) comp;
 
-                            // Get the row containing the cell with the focus
-                            // in order to shorten the subsequent calls
+                            // Get the row containing the cell with the focus in order to shorten
+                            // the subsequent calls
                             int row = table.getSelectedRow();
 
                             // Check if the table has no rows
                             if (row == -1)
                             {
-                                // Treat the table as if it wasn't there; i.e.,
-                                // the left and right arrows behave like the
-                                // (Shift+)Tab key
+                                // Treat the table as if it wasn't there; i.e., the left and right
+                                // arrows behave like the (Shift+)Tab key
                                 arrowResponse = HANDLE_ALL_ARROWS;
                             }
                             // Check if the table has only a single row
                             else if (table.getRowCount() == 1)
                             {
-                                // The up and down arrows behave like the
-                                // (Shift+)Tab key
+                                // The up and down arrows behave like the (Shift+)Tab key
                                 arrowResponse = HANDLE_UP_AND_DOWN_ARROWS;
                             }
                             // Check if the top row is selected
@@ -267,19 +252,16 @@ public class CcddKeyboardHandler
                             }
                         }
 
-                        // Check if the key pressed is an arrow key and if so
-                        // adjust its behavior
+                        // Check if the key pressed is an arrow key and if so adjust its behavior
                         switch (ke.getKeyCode())
                         {
                             case KeyEvent.VK_LEFT:
                             case KeyEvent.VK_KP_LEFT:
-                                // Check if the left arrow key should be
-                                // handled
+                                // Check if the left arrow key should be handled
                                 if (arrowResponse == HANDLE_ALL_ARROWS)
                                 {
-                                    // Treat the left arrow as a Shift+Tab key
-                                    // and indicate that the key has been
-                                    // handled
+                                    // Treat the left arrow as a Shift+Tab key and indicate that
+                                    // the key has been handled
                                     focusManager.focusPreviousComponent();
                                     handled = true;
                                 }
@@ -293,9 +275,8 @@ public class CcddKeyboardHandler
                                     || arrowResponse == HANDLE_UP_ARROW
                                     || arrowResponse == HANDLE_UP_AND_DOWN_ARROWS)
                                 {
-                                    // Treat the up arrow as a Shift+Tab key
-                                    // and indicate that the key has been
-                                    // handled
+                                    // Treat the up arrow as a Shift+Tab key and indicate that the
+                                    // key has been handled
                                     focusManager.focusPreviousComponent();
                                     handled = true;
                                 }
@@ -310,12 +291,11 @@ public class CcddKeyboardHandler
 
                             case KeyEvent.VK_RIGHT:
                             case KeyEvent.VK_KP_RIGHT:
-                                // Check if the right arrow key should be
-                                // handled
+                                // Check if the right arrow key should be handled
                                 if (arrowResponse == HANDLE_ALL_ARROWS)
                                 {
-                                    // Treat the right arrow as a Tab key and
-                                    // indicate that the key has been handled
+                                    // Treat the right arrow as a Tab key and indicate that the key
+                                    // has been handled
                                     focusManager.focusNextComponent();
                                     handled = true;
                                 }
@@ -324,14 +304,13 @@ public class CcddKeyboardHandler
 
                             case KeyEvent.VK_DOWN:
                             case KeyEvent.VK_KP_DOWN:
-                                // Check if the down arrow key should be
-                                // handled
+                                // Check if the down arrow key should be handled
                                 if (arrowResponse == HANDLE_ALL_ARROWS
                                     || arrowResponse == HANDLE_DOWN_ARROW
                                     || arrowResponse == HANDLE_UP_AND_DOWN_ARROWS)
                                 {
-                                    // Treat the down arrow as a Tab key and
-                                    // indicate that the key has been handled
+                                    // Treat the down arrow as a Tab key and indicate that the key
+                                    // has been handled
                                     focusManager.focusNextComponent();
                                     handled = true;
                                 }
@@ -363,35 +342,30 @@ public class CcddKeyboardHandler
                             // Create a runnable object to be executed
                             SwingUtilities.invokeLater(new Runnable()
                             {
-                                /**********************************************
-                                 * Execute after all pending Swing events are
-                                 * finished so that the events occur in the
-                                 * desired order
-                                 *********************************************/
+                                /******************************************************************
+                                 * Execute after all pending Swing events are finished so that the
+                                 * events occur in the desired order
+                                 *****************************************************************/
                                 @Override
                                 public void run()
                                 {
                                     // Undo the previous edit action
                                     undoManager.undo();
 
-                                    // Check if an edit panel handler (i.e.,
-                                    // data fields) is associated with the
-                                    // component
+                                    // Check if an edit panel handler (i.e., data fields) is
+                                    // associated with the component
                                     if (editPnlHandler != null)
                                     {
-                                        // Update the data field background
-                                        // colors
+                                        // Update the data field background colors
                                         editPnlHandler.setFieldBackgound();
                                     }
 
-                                    // Force the component to repaint so that
-                                    // the change is visible
+                                    // Force the component to repaint so that the change is visible
                                     ke.getComponent().repaint();
                                 }
                             });
 
-                            // Set the flag to indicate this key press was
-                            // handled
+                            // Set the flag to indicate this key press was handled
                             handled = true;
                         }
                     }
@@ -407,40 +381,35 @@ public class CcddKeyboardHandler
                             // Create a runnable object to be executed
                             SwingUtilities.invokeLater(new Runnable()
                             {
-                                /**********************************************
-                                 * Execute after all pending Swing events are
-                                 * finished so that the events occur in the
-                                 * desired order
-                                 *********************************************/
+                                /******************************************************************
+                                 * Execute after all pending Swing events are finished so that the
+                                 * events occur in the desired order
+                                 *****************************************************************/
                                 @Override
                                 public void run()
                                 {
                                     // Redo the previous undo action
                                     undoManager.redo();
 
-                                    // Check if an edit panel handler (i.e.,
-                                    // data fields) is associated with the
-                                    // component
+                                    // Check if an edit panel handler (i.e., data fields) is
+                                    // associated with the component
                                     if (editPnlHandler != null)
                                     {
-                                        // Update the data field background
-                                        // colors
+                                        // Update the data field background colors
                                         editPnlHandler.setFieldBackgound();
                                     }
 
-                                    // Force the component to repaint so that
-                                    // the change is visible
+                                    // Force the component to repaint so that the change is visible
                                     ke.getComponent().repaint();
                                 }
                             });
 
-                            // Set the flag to indicate this key press was
-                            // handled
+                            // Set the flag to indicate this key press was handled
                             handled = true;
                         }
                     }
-                    // Check if the Ctrl-F key is pressed while the main
-                    // application window has the focus
+                    // Check if the Ctrl-F key is pressed while the main application window has the
+                    // focus
                     else if (ke.getKeyCode() == KeyEvent.VK_F
                              && ccddMain.getMainFrame().isFocused())
                     {
@@ -453,15 +422,15 @@ public class CcddKeyboardHandler
                         // Set the flag to indicate this key press was handled
                         handled = true;
                     }
-                    // Check if the Ctrl-S key is pressed. The following
-                    // handles structure name insertion
+                    // Check if the Ctrl-S key is pressed. The following handles structure name
+                    // insertion
                     else if (ke.getKeyCode() == KeyEvent.VK_S)
                     {
                         // Get the table editor dialog with the focus
                         CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
 
-                        // Check if a table editor dialog has the focus and
-                        // that the cell doesn't contain a combo box
+                        // Check if a table editor dialog has the focus and that the cell doesn't
+                        // contain a combo box
                         if (editorDialog != null && !(comp instanceof JComboBox))
                         {
                             // Get references to shorten subsequent calls
@@ -471,9 +440,8 @@ public class CcddKeyboardHandler
                             // Check if a cell in the table is being edited
                             if (table.isEditing())
                             {
-                                // Insert the structure name chosen by the user
-                                // into the text field at the current text
-                                // insertion point
+                                // Insert the structure name chosen by the user into the text field
+                                // at the current text insertion point
                                 dataTypeHandler.insertDataTypeName((JFrame) editorDialog,
                                                                    (JTextArea) comp,
                                                                    true,
@@ -484,24 +452,21 @@ public class CcddKeyboardHandler
                         else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddDataTypeEditorDialog
                                  && modalTable.isEditing())
                         {
-                            // Get the row and column being edited in the
-                            // table, and the contents of the edited row's base
-                            // data type
+                            // Get the row and column being edited in the table, and the contents
+                            // of the edited row's base data type
                             int row = modalTable.getEditingRow();
                             int column = modalTable.convertColumnIndexToModel(modalTable.getEditingColumn());
                             String baseType = modalTable.getValueAt(row, DataTypeEditorColumnInfo.BASE_TYPE.ordinal()).toString();
 
-                            // Check if the type name or C name columns are
-                            // being edited and the base data type is empty or
-                            // a pointer
+                            // Check if the type name or C name columns are being edited and the
+                            // base data type is empty or a pointer
                             if ((column == DataTypeEditorColumnInfo.USER_NAME.ordinal()
                                  || column == DataTypeEditorColumnInfo.C_NAME.ordinal())
                                 && (baseType.isEmpty()
                                     || baseType.equals(BaseDataTypeInfo.POINTER.getName())))
                             {
-                                // Insert the structure name chosen by the user
-                                // into the text field at the current text
-                                // insertion point
+                                // Insert the structure name chosen by the user into the text field
+                                // at the current text insertion point
                                 dataTypeHandler.insertDataTypeName((JDialog) SwingUtilities.getWindowAncestor(comp),
                                                                    (JTextArea) comp,
                                                                    false,
@@ -512,9 +477,8 @@ public class CcddKeyboardHandler
                         else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
                                  && modalTable.isEditing())
                         {
-                            // Insert the structure name chosen by the user
-                            // into the text field at the current text
-                            // insertion point
+                            // Insert the structure name chosen by the user into the text field at
+                            // the current text insertion point
                             dataTypeHandler.insertDataTypeName((JDialog) SwingUtilities.getWindowAncestor(comp),
                                                                (JTextArea) comp,
                                                                true,
@@ -524,12 +488,11 @@ public class CcddKeyboardHandler
                         // Set the flag to indicate this key press was handled
                         handled = true;
                     }
-                    // Check if the Ctrl-M key is pressed. The following
-                    // handles macro insertion and expansion
+                    // Check if the Ctrl-M key is pressed. The following handles macro insertion
+                    // and expansion
                     else if (ke.getKeyCode() == KeyEvent.VK_M)
                     {
-                        // Check if the shift key is also pressed
-                        // (Ctrl-Shift-M)
+                        // Check if the shift key is also pressed (Ctrl-Shift-M)
                         if (ke.isShiftDown())
                         {
                             // Check if the macros aren't already expanded
@@ -541,31 +504,28 @@ public class CcddKeyboardHandler
                                 // Check if a table editor dialog has the focus
                                 if (editorDialog != null)
                                 {
-                                    // Replace the macro names with their
-                                    // corresponding values in the currently
-                                    // selected table in this editor
+                                    // Replace the macro names with their corresponding values in
+                                    // the currently selected table in this editor
                                     editorDialog.getTableEditor().expandMacros(true, true);
                                     isShowMacros = true;
                                 }
                                 // Check if this is the macro editor
                                 else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog)
                                 {
-                                    // Expand the macros in the macro value
-                                    // column
+                                    // Expand the macros in the macro value column
                                     ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(comp)).expandMacros(true);
                                     isShowMacros = true;
                                 }
                             }
                         }
-                        // The shift key isn't pressed (Ctrl-M only). Check if
-                        // this is a table cell
+                        // The shift key isn't pressed (Ctrl-M only). Check if this is a table cell
                         else if (comp.getParent() instanceof CcddJTableHandler)
                         {
                             // Get the table editor dialog with the focus
                             CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
 
-                            // Check if a table editor dialog has the focus and
-                            // that the cell doesn't contain a combo box
+                            // Check if a table editor dialog has the focus and that the cell
+                            // doesn't contain a combo box
                             if (editorDialog != null && !(comp instanceof JComboBox))
                             {
                                 // Get references to shorten subsequent calls
@@ -575,32 +535,29 @@ public class CcddKeyboardHandler
                                 // Check if a cell in the table is being edited
                                 if (table.isEditing())
                                 {
-                                    // Get the index of the column being edited
-                                    // in model coordinates
+                                    // Get the index of the column being edited in model
+                                    // coordinates
                                     int column = table.convertColumnIndexToModel(table.getEditingColumn());
 
-                                    // Get the input type for the column being
-                                    // edited
+                                    // Get the input type for the column being edited
                                     InputDataType inputType = ccddMain.getTableTypeHandler().getTypeDefinition(editor.getTableInformation().getType()).getInputTypes()[column];
 
-                                    // Insert the macro name chosen by the user
-                                    // into the text component at the current
-                                    // text insertion point
+                                    // Insert the macro name chosen by the user into the text
+                                    // component at the current text insertion point
                                     macroHandler.insertMacroName(editorDialog,
                                                                  (JTextComponent) comp,
                                                                  inputType,
                                                                  editor.getDataTypes());
                                 }
                             }
-                            // Check if this is the macro editor, editing is
-                            // active, and the values column is being edited
+                            // Check if this is the macro editor, editing is active, and the values
+                            // column is being edited
                             else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
                                      && modalTable.isEditing()
                                      && modalTable.convertColumnIndexToModel(modalTable.getEditingColumn()) == MacroEditorColumnInfo.VALUE.ordinal())
                             {
-                                // Insert the macro name chosen by the user
-                                // into the text component at the current text
-                                // insertion point
+                                // Insert the macro name chosen by the user into the text component
+                                // at the current text insertion point
                                 macroHandler.insertMacroName((JDialog) SwingUtilities.getWindowAncestor(comp),
                                                              (JTextComponent) comp,
                                                              InputDataType.TEXT,
@@ -611,8 +568,7 @@ public class CcddKeyboardHandler
                         // Set the flag to indicate this key press was handled
                         handled = true;
                     }
-                    // Check if the Ctrl-E key is pressed while the focus is on
-                    // a tree
+                    // Check if the Ctrl-E key is pressed while the focus is on a tree
                     else if (ke.getKeyCode() == KeyEvent.VK_E
                              && comp instanceof CcddCommonTreeHandler)
                     {
@@ -620,8 +576,8 @@ public class CcddKeyboardHandler
                         ((CcddCommonTreeHandler) comp).expandCollapseSelectedNodes();
                     }
                 }
-                // Check if the Alt-Enter keys are pressed in a table cell that
-                // displays multi-line text
+                // Check if the Alt-Enter keys are pressed in a table cell that displays multi-line
+                // text
                 else if (ke.getID() == KeyEvent.KEY_PRESSED
                          && ke.isAltDown()
                          && !ke.isControlDown()
@@ -650,21 +606,19 @@ public class CcddKeyboardHandler
                             // Get the starting position of the selected text
                             int caretPosn = textComp.getSelectionStart();
 
-                            // Replace the currently selected text with a line
-                            // feed
+                            // Replace the currently selected text with a line feed
                             textComp.setText(cellValue.substring(0, caretPosn)
                                              + "\n"
                                              + cellValue.substring(textComp.getSelectionEnd()));
 
-                            // Position the cursor after the newly inserted
-                            // line feed
+                            // Position the cursor after the newly inserted line feed
                             textComp.setCaretPosition(caretPosn + 1);
                         }
                     }
                 }
 
-                // Check if the macros are currently expanded for a table and
-                // that the expansion key sequence is no longer active
+                // Check if the macros are currently expanded for a table and that the expansion
+                // key sequence is no longer active
                 if (isShowMacros
                     && ke.getID() == KeyEvent.KEY_RELEASED
                     && ke.getKeyCode() == KeyEvent.VK_M)
@@ -672,16 +626,15 @@ public class CcddKeyboardHandler
                     // Check if the key release action timer doesn't exist
                     if (releaseTimer == null)
                     {
-                        // Create the key release action timer. In Linux if a
-                        // key is held it generates continuous key release
-                        // events. This timer is used to ignore the key release
-                        // events that are close together time-wise
+                        // Create the key release action timer. In Linux if a key is held it
+                        // generates continuous key release events. This timer is used to ignore
+                        // the key release events that are close together time-wise
                         releaseTimer = new Timer(75, new ActionListener()
                         {
 
-                            /**************************************************
+                            /**********************************************************************
                              * Handle the key release action
-                             *************************************************/
+                             *********************************************************************/
                             @Override
                             public void actionPerformed(ActionEvent ae)
                             {
@@ -691,24 +644,22 @@ public class CcddKeyboardHandler
                                 // Check if a table editor dialog has the focus
                                 if (editorDialog != null)
                                 {
-                                    // Restore the macro names in the currently
-                                    // selected table in this editor
+                                    // Restore the macro names in the currently selected table in
+                                    // this editor
                                     editorDialog.getTableEditor().expandMacros(false, true);
                                     isShowMacros = false;
                                 }
                                 // Check if this is the macro editor
                                 else if (SwingUtilities.getWindowAncestor(modalTable) instanceof CcddMacroEditorDialog)
                                 {
-                                    // Expand the macros in the macro value
-                                    // column
+                                    // Expand the macros in the macro value column
                                     ((CcddMacroEditorDialog) SwingUtilities.getWindowAncestor(modalTable)).expandMacros(false);
                                     isShowMacros = false;
                                 }
                             }
                         });
 
-                        // Allow the timer to send only a single expiration
-                        // event
+                        // Allow the timer to send only a single expiration event
                         releaseTimer.setRepeats(false);
                     }
 
@@ -724,12 +675,12 @@ public class CcddKeyboardHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the active table editor dialog
      *
-     * @return The active table editor dialog; null if no table editor dialog
-     *         is active or no editor dialog has focus
-     *************************************************************************/
+     * @return The active table editor dialog; null if no table editor dialog is active or no
+     *         editor dialog has focus
+     *********************************************************************************************/
     private CcddTableEditorDialog getFocusedTableEditorDialog()
     {
         CcddTableEditorDialog editor = null;
@@ -749,12 +700,11 @@ public class CcddKeyboardHandler
         return editor;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the active component's undo manager
      *
-     * @return The active undo manager; null if no undo manager is active or no
-     *         editor has focus
-     *************************************************************************/
+     * @return The active undo manager; null if no undo manager is active or no editor has focus
+     *********************************************************************************************/
     private CcddUndoManager getActiveUndoManager()
     {
         CellEditor cellEditor = null;
@@ -774,8 +724,7 @@ public class CcddKeyboardHandler
                 cellEditor = modalTable.getCellEditor();
             }
 
-            // Get a reference to the group manager dialog to shorten
-            // subsequent calls
+            // Get a reference to the group manager dialog to shorten subsequent calls
             CcddGroupManagerDialog groupManager = ccddMain.getGroupManager();
 
             // Check if the group manager is open and has focus
@@ -794,8 +743,8 @@ public class CcddKeyboardHandler
                 // // Check if this editor dialog has the keyboard focus
                 if (editorDialog.isFocused())
                 {
-                    // Get the undo manager, cell editor, and editor panel
-                    // handler for the active table editor
+                    // Get the undo manager, cell editor, and editor panel handler for the active
+                    // table editor
                     undoManager = editorDialog.getTableEditor().getFieldPanelUndoManager();
                     cellEditor = editorDialog.getTableEditor().getTable().getCellEditor();
                     editPnlHandler = editorDialog.getTableEditor().getInputFieldPanelHandler();
@@ -809,45 +758,40 @@ public class CcddKeyboardHandler
                 }
             }
 
-            // Get a reference to the type editor dialog to shorten subsequent
-            // calls
+            // Get a reference to the type editor dialog to shorten subsequent calls
             CcddTableTypeEditorDialog editorDialog = ccddMain.getTableTypeEditor();
 
-            // Check if no table undo manager is applicable and the table type
-            // editor is open
+            // Check if no table undo manager is applicable and the table type editor is open
             if (undoManager == null && editorDialog != null)
             {
                 // // Check if the table type editor has the keyboard focus
                 if (editorDialog.isFocused())
                 {
-                    // Get the undo manager, cell editor, and editor panel
-                    // handler for the active table type editor
+                    // Get the undo manager, cell editor, and editor panel handler for the active
+                    // table type editor
                     undoManager = editorDialog.getTypeEditor().getFieldPanelUndoManager();
                     cellEditor = editorDialog.getTypeEditor().getTable().getCellEditor();
                     editPnlHandler = editorDialog.getTypeEditor().getInputFieldPanelHandler();
                 }
             }
 
-            // Get a reference to the data field table editor dialog to shorten
-            // subsequent calls
+            // Get a reference to the data field table editor dialog to shorten subsequent calls
             CcddFieldTableEditorDialog fieldEditor = ccddMain.getFieldTableEditor();
 
-            // Check if no table or table type undo manager is applicable,
-            // the data field table editor is open, and the editor has focus
+            // Check if no table or table type undo manager is applicable, the data field table
+            // editor is open, and the editor has focus
             if (undoManager == null && fieldEditor != null && fieldEditor.isFocused())
             {
-                // Get the undo manager and cell editor for the data field
-                // table editor
+                // Get the undo manager and cell editor for the data field table editor
                 undoManager = fieldEditor.getTable().getUndoManager();
                 cellEditor = fieldEditor.getTable().getCellEditor();
             }
 
-            // Get a reference to the script manager dialog to shorten
-            // subsequent calls
+            // Get a reference to the script manager dialog to shorten subsequent calls
             CcddScriptManagerDialog scriptManager = ccddMain.getScriptManager();
 
-            // Check if no table or table type undo manager is applicable,
-            // the script manager is open, and the editor has focus
+            // Check if no table or table type undo manager is applicable, the script manager is
+            // open, and the editor has focus
             if (undoManager == null && scriptManager != null && scriptManager.isFocused())
             {
                 // Get the undo manager and cell editor for the script manager
@@ -867,8 +811,7 @@ public class CcddKeyboardHandler
         {
             // Get the current owner of the keyboard focus
             Component focusOwner = focusManager.getFocusOwner();
-            // Check if the focus is in an edit panel's description or data
-            // field
+            // Check if the focus is in an edit panel's description or data field
             if (focusOwner != null
                 && (focusOwner instanceof UndoableTextField
                     || focusOwner instanceof UndoableTextArea
@@ -877,13 +820,12 @@ public class CcddKeyboardHandler
                 // Check if the focus owner is a text field data field
                 if (focusOwner instanceof UndoableTextField)
                 {
-                    // Force the text to update so that an undo command starts
-                    // with this field
+                    // Force the text to update so that an undo command starts with this field
                     ((JTextField) focusOwner).setText(((JTextField) focusOwner).getText());
                 }
 
-                // Clear the keyboard focus so that the current data field
-                // value is registered as an edit
+                // Clear the keyboard focus so that the current data field value is registered as
+                // an edit
                 focusManager.clearGlobalFocusOwner();
             }
         }
@@ -891,19 +833,17 @@ public class CcddKeyboardHandler
         return undoManager;
     }
 
-    /**************************************************************************
-     * Handle Enter and space key press events in a table in order to activate
-     * check box controls and initiate editing for editable fields. The space
-     * key would do these without this method; it is included in order to
-     * eliminate the cell background color 'flash' that occurs when a check box
-     * is toggled
+    /**********************************************************************************************
+     * Handle Enter and space key press events in a table in order to activate check box controls
+     * and initiate editing for editable fields. The space key would do these without this method;
+     * it is included in order to eliminate the cell background color 'flash' that occurs when a
+     * check box is toggled
      *
      * @param table
      *            reference to the table where the key press event occurred
      *
-     * @return true if the key press event is handled by this method; false
-     *         otherwise
-     *************************************************************************/
+     * @return true if the key press event is handled by this method; false otherwise
+     *********************************************************************************************/
     private boolean tableEditCellHandler(Component comp)
     {
         boolean handled = false;
@@ -927,9 +867,8 @@ public class CcddKeyboardHandler
                 // Check if this is not a check box within a table cell
                 if (!(cellObject instanceof Boolean))
                 {
-                    // Initiate editing on the cell and indicate that the event
-                    // has been handled. Note that this has no effect on
-                    // non-editable cells
+                    // Initiate editing on the cell and indicate that the event has been handled.
+                    // Note that this has no effect on non-editable cells
                     table.editCellAt(row, column);
                 }
                 // This cell displays a check box; check if it's editable
@@ -943,8 +882,8 @@ public class CcddKeyboardHandler
                 // Set the flag to indicate that the event has been handled
                 handled = true;
             }
-            // No cell is selected; check if the table contains at least one
-            // row so that a row can be selected
+            // No cell is selected; check if the table contains at least one row so that a row can
+            // be selected
             else if (table.getRowCount() > 0)
             {
                 // Assume the top row will be selected
@@ -960,8 +899,8 @@ public class CcddKeyboardHandler
                     row = table.rowAtPoint(vp.getViewPosition());
                 }
 
-                // Select the topmost visible row and set the focus to the
-                // first column in the selected row
+                // Select the topmost visible row and set the focus to the first column in the
+                // selected row
                 table.setRowSelectionInterval(row, 0);
                 table.requestFocusInWindow();
                 table.changeSelection(row, 0, false, false);
@@ -979,8 +918,8 @@ public class CcddKeyboardHandler
             // Terminate editing in this cell
             table.getCellEditor().stopCellEditing();
 
-            // Select the next editable cell. If the last column in the last
-            // row is reached then terminate editing, leaving the cell selected
+            // Select the next editable cell. If the last column in the last row is reached then
+            // terminate editing, leaving the cell selected
             do
             {
                 // Check if this is not the last column
@@ -1002,8 +941,7 @@ public class CcddKeyboardHandler
             // Initiate editing on the new cell, if valid
             if (table.editCellAt(row, col))
             {
-                // Editing initiated on the new cell; change the focus to this
-                // cell
+                // Editing initiated on the new cell; change the focus to this cell
                 table.changeSelection(row, col, false, false);
                 comp.requestFocus();
             }
@@ -1015,8 +953,7 @@ public class CcddKeyboardHandler
         // Check if the event was handled above
         if (handled)
         {
-            // Deselect the default button since it's no longer valid after
-            // editing is initiated
+            // Deselect the default button since it's no longer valid after editing is initiated
             table.getRootPane().setDefaultButton(null);
         }
 

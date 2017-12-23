@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary table type editor handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -192,11 +191,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the reference to the table type definition as it exists prior to
-     * making the updates
+     * Get the reference to the table type definition as it exists prior to making the updates
      *
-     * @return Reference to the table type definition as it exists prior to
-     *         making the updates
+     * @return Reference to the table type definition as it exists prior to making the updates
      *************************************************************************/
     protected TypeDefinition getTypeDefinition()
     {
@@ -230,8 +227,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Set the committed table information
      *
      * @param info
-     *            table information class for extracting the current table
-     *            name, type, column order, and description
+     *            table information class for extracting the current table name, type, column
+     *            order, and description
      *************************************************************************/
     private void setCommittedInformation(CcddFieldHandler handler)
     {
@@ -303,8 +300,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Perform the steps needed following execution of table type changes
      *
      * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
+     *            false if the database commands successfully completed; true if an error occurred
+     *            and the changes were not made
      *************************************************************************/
     protected void doTypeUpdatesComplete(boolean commandError)
     {
@@ -442,8 +439,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
-             * Override isDataAlterable to determine which table data values
-             * can be changed
+             * Override isDataAlterable to determine which table data values can be changed
              *
              * @param rowData
              *            array containing the table row data
@@ -483,8 +479,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
-             * Override the CcddJTableHandler method to prevent deleting the
-             * contents of the cell at the specified row and column
+             * Override the CcddJTableHandler method to prevent deleting the contents of the cell
+             * at the specified row and column
              *
              * @param row
              *            table row index in view coordinates
@@ -519,13 +515,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              *            new cell contents
              *
              * @param showMessage
-             *            true to display the invalid input dialog, if
-             *            applicable
+             *            true to display the invalid input dialog, if applicable
              *
              * @param isMultiple
-             *            true if this is one of multiple cells to be entered
-             *            and checked; false if only a single input is being
-             *            entered
+             *            true if this is one of multiple cells to be entered and checked; false if
+             *            only a single input is being entered
              *
              * @return Always returns false
              ****************************************************************/
@@ -678,8 +672,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
-             * Load the table type definition values into the table and format
-             * the table cells
+             * Load the table type definition values into the table and format the table cells
              *****************************************************************/
             @Override
             protected void loadAndFormatData()
@@ -712,8 +705,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
-             * Override prepareRenderer to allow adjusting the background
-             * colors of table cells
+             * Override prepareRenderer to allow adjusting the background colors of table cells
              *****************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer,
@@ -794,8 +786,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /******************************************************************
-             * Override the CcddJTableHandler method to produce an array
-             * containing empty values for a new row in this table
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
              *****************************************************************/
@@ -966,15 +958,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the input types that are defined as unique, but are referenced by
-     * more than one column definition
+     * Get the input types that are defined as unique, but are referenced by more than one column
+     * definition
      *
      * @param tableTypeInd
      *            TableTypeIndicator, indicating the type of table to check
      *
-     * @return Blank if there are no duplicated input type that are defined as
-     *         unique; otherwise, a text message indicating the invalid input
-     *         types
+     * @return Blank if there are no duplicated input type that are defined as unique; otherwise, a
+     *         text message indicating the invalid input types
      *************************************************************************/
     private String getInvalidInputTypes(TableTypeIndicator tableTypeInd)
     {
@@ -1048,14 +1039,12 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the item names for the combo box containing the available table type
-     * input data types for display in the table's Input Type cells.
-     * Enable/disable the items based on the current usage in the table type
-     * and the type's input type flag settings
+     * Get the item names for the combo box containing the available table type input data types
+     * for display in the table's Input Type cells. Enable/disable the items based on the current
+     * usage in the table type and the type's input type flag settings
      *
-     * @return Array of item names for the combo box containing the available
-     *         table type input data types for display in the table's Input
-     *         Type cells
+     * @return Array of item names for the combo box containing the available table type input data
+     *         types for display in the table's Input Type cells
      *************************************************************************/
     private String[] getInputTypeNames()
     {
@@ -1101,8 +1090,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set up the combo box containing the available table type input data
-     * types for display in the table's Input Type cells
+     * Set up the combo box containing the available table type input data types for display in the
+     * table's Input Type cells
      *************************************************************************/
     private void setUpInputTypeColumn()
     {
@@ -1112,8 +1101,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont())
         {
             /******************************************************************
-             * Override so that items flagged as disabled (grayed out) are
-             * correctly identified and selected
+             * Override so that items flagged as disabled (grayed out) are correctly identified and
+             * selected
              *****************************************************************/
             @Override
             public void setSelectedItem(Object anObject)
@@ -1137,8 +1126,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         comboBox.addFocusListener(new FocusAdapter()
         {
             /******************************************************************
-             * Handle a focus gained event so that the combo box automatically
-             * expands when selected
+             * Handle a focus gained event so that the combo box automatically expands when
+             * selected
              *****************************************************************/
             @Override
             public void focusGained(FocusEvent fe)
@@ -1158,11 +1147,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Determine if any changes have been made compared to the most recently
-     * committed table data
+     * Determine if any changes have been made compared to the most recently committed table data
      *
-     * @return true if any cell in the table has been changed, if the column
-     *         order has changed, or if the table description has changed
+     * @return true if any cell in the table has been changed, if the column order has changed, or
+     *         if the table description has changed
      *************************************************************************/
     protected boolean isTableChanged()
     {
@@ -1170,9 +1158,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Compare the current table type data to the committed table type data and
-     * create lists of the changed values necessary to update the table
-     * definitions table in the database to match the current values
+     * Compare the current table type data to the committed table type data and create lists of the
+     * changed values necessary to update the table definitions table in the database to match the
+     * current values
      *************************************************************************/
     protected void buildUpdates()
     {
@@ -1348,8 +1336,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Update the tab for this table in the table editor dialog change
-     * indicator
+     * Update the tab for this table in the table editor dialog change indicator
      *************************************************************************/
     @Override
     protected void updateOwnerChangeIndicator()

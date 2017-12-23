@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary script association manager dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -71,9 +70,9 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTreeType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary script association manager dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddScriptManagerDialog extends CcddFrameHandler
 {
@@ -102,12 +101,12 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     // Dialog title
     private static final String DIALOG_TITLE = "Manage Script Associations";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Script association manager dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddScriptManagerDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -117,22 +116,20 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         dbControl = ccddMain.getDbControlHandler();
         scriptHandler = ccddMain.getScriptHandler();
 
-        // Set the reference to the script associations manager in the script
-        // handler
+        // Set the reference to the script associations manager in the script handler
         scriptHandler.setScriptDialog(this);
 
         // Create the script association manager dialog
         initialize();
     }
 
-    /**************************************************************************
-     * Perform the steps needed following execution of script association
-     * updates to the database
+    /**********************************************************************************************
+     * Perform the steps needed following execution of script association updates to the database
      *
      * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
-     *************************************************************************/
+     *            false if the database commands successfully completed; true if an error occurred
+     *            and the changes were not made
+     *********************************************************************************************/
     protected void doAssnUpdatesComplete(boolean commandError)
     {
         // Check that no error occurred performing the database commands
@@ -149,17 +146,16 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         setControlsEnabled(true);
     }
 
-    /**************************************************************************
-     * Create the script association manager dialog. This is executed in a
-     * separate thread since it can take a noticeable amount time to complete,
-     * and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the script association manager dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
-        // Check if there are any open editors with uncommitted changes and if
-        // so check that the user confirms ignoring the changes
+        // Check if there are any open editors with uncommitted changes and if so check that the
+        // user confirms ignoring the changes
         if (ccddMain.ignoreUncommittedChanges("Script Manager",
                                               "Ignore changes?",
                                               false,
@@ -173,9 +169,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 JPanel dialogPnl = new JPanel(new GridBagLayout());
                 JPanel buttonPnl = new JPanel();
 
-                /**************************************************************
+                /**********************************************************************************
                  * Build the script association manager dialog
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 protected void execute()
                 {
@@ -209,17 +205,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
                     dialogPnl.setBorder(emptyBorder);
 
-                    // Create a panel to contain the script file name,
-                    // association name, and association description labels and
-                    // fields
+                    // Create a panel to contain the script file name, association name, and
+                    // association description labels and fields
                     JPanel inputPnl = new JPanel(new GridBagLayout());
 
-                    // Add the script file selection components to the input
-                    // panel
+                    // Add the script file selection components to the input panel
                     inputPnl.add(createScriptSelectionPanel(), gbc);
 
-                    // Create the name label and field, and add these to the
-                    // input panel
+                    // Create the name label and field, and add these to the input panel
                     JLabel nameLbl = new JLabel("Script association name");
                     nameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -237,8 +230,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     gbc.gridy++;
                     inputPnl.add(nameFld, gbc);
 
-                    // Create the description label and field, and add these to
-                    // the input panel
+                    // Create the description label and field, and add these to the input panel
                     JLabel descriptionLbl = new JLabel("Script association description");
                     descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -268,9 +260,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     gbc.gridy++;
                     inputPnl.add(scrollPane, gbc);
 
-                    // Add the input panel and the table selection components
-                    // to the inputs pane within a horizontally split pane. Use
-                    // a separator to denote the split pane's drag component
+                    // Add the input panel and the table selection components to the inputs pane
+                    // within a horizontally split pane. Use a separator to denote the split pane's
+                    // drag component
                     JSeparator inputSep = new JSeparator(SwingConstants.VERTICAL);
                     inputSep.setForeground(dialogPnl.getBackground().darker());
                     CustomSplitPane inputsPane = new CustomSplitPane(inputPnl,
@@ -279,10 +271,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                      inputSep,
                                                                      JSplitPane.HORIZONTAL_SPLIT);
 
-                    // Add the inputs pane and the script association table
-                    // components to the dialog within a vertically split pane.
-                    // Use a separator to denote the split pane's drag
-                    // component
+                    // Add the inputs pane and the script association table components to the
+                    // dialog within a vertically split pane. Use a separator to denote the split
+                    // pane's drag component
                     JSeparator assnSep = new JSeparator();
                     assnSep.setForeground(dialogPnl.getBackground().darker());
                     gbc.weighty = 1.0;
@@ -297,29 +288,26 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                       JSplitPane.VERTICAL_SPLIT),
                                   gbc);
 
-                    // Get a reference to the script associations table to
-                    // shorten subsequent calls
+                    // Get a reference to the script associations table to shorten subsequent calls
                     assnsTable = scriptHandler.getAssociationsTable();
 
                     // Store the initial table data
                     doAssnUpdatesComplete(false);
 
-                    // Add a listener for script association table row
-                    // selection changes
+                    // Add a listener for script association table row selection changes
                     assnsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
                     {
-                        /******************************************************
-                         * Handle a table row selection change. Populate the
-                         * script description field, file field, and table tree
-                         * based on the first selected associations table row
-                         *****************************************************/
+                        /**************************************************************************
+                         * Handle a table row selection change. Populate the script description
+                         * field, file field, and table tree based on the first selected
+                         * associations table row
+                         *************************************************************************/
                         @Override
                         public void valueChanged(ListSelectionEvent lse)
                         {
-                            // Check if a selection is made (for mouse button
-                            // selection this returns true when the button is
-                            // pressed, then false when released; for a
-                            // keyboard input this returns false)
+                            // Check if a selection is made (for mouse button selection this
+                            // returns true when the button is pressed, then false when released;
+                            // for a keyboard input this returns false)
                             if (!lse.getValueIsAdjusting())
                             {
                                 // Get the first selected table row
@@ -328,29 +316,27 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                 // Check if a table row item is selected
                                 if (row != -1)
                                 {
-                                    // Store the association name in the the
-                                    // name field
+                                    // Store the association name in the the name field
                                     nameFld.setText(assnsTable.getValueAt(row,
                                                                           assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.NAME.ordinal()))
                                                               .toString());
 
-                                    // Store the association description in the
-                                    // the description field
+                                    // Store the association description in the the description
+                                    // field
                                     descriptionFld.setText(assnsTable.getValueAt(row,
                                                                                  assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.DESCRIPTION.ordinal()))
                                                                      .toString());
 
-                                    // Store the script file name with path in
-                                    // the the script file field
+                                    // Store the script file name with path in the the script file
+                                    // field
                                     scriptFld.setText(assnsTable.getValueAt(row,
                                                                             assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()))
                                                                 .toString());
 
-                                    // Separate the table member portion into
-                                    // the individual table names. The line
-                                    // breaks used for HTML formatting must be
-                                    // replaced by line feed characters so that
-                                    // the split is made correctly
+                                    // Separate the table member portion into the individual table
+                                    // names. The line breaks used for HTML formatting must be
+                                    // replaced by line feed characters so that the split is made
+                                    // correctly
                                     String[] tableNames = CcddUtilities.removeHTMLTags(assnsTable.getValueAt(row,
                                                                                                              assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.MEMBERS.ordinal()))
                                                                                                  .toString()
@@ -367,21 +353,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         // Check if the name refers to a group
                                         if (tableName.startsWith(GROUP_DATA_FIELD_IDENT))
                                         {
-                                            // Get the node in the table tree
-                                            // for this group
+                                            // Get the node in the table tree for this group
                                             node = tableTree.getNodeByNodeName(tableName.substring(GROUP_DATA_FIELD_IDENT.length()));
                                         }
                                         // The name refers to a table
                                         else
                                         {
 
-                                            // Get the node in the table tree
-                                            // for this table name
+                                            // Get the node in the table tree for this table name
                                             node = tableTree.getNodeByNodePath(tableName);
                                         }
 
-                                        // Check if the table name is in the
-                                        // tree
+                                        // Check if the table name is in the tree
                                         if (node != null)
                                         {
                                             // Add the path to the list
@@ -389,16 +372,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         }
                                     }
 
-                                    // Select the associated tables in the
-                                    // table tree
+                                    // Select the associated tables in the table tree
                                     tableTree.setSelectionPaths(paths.toArray(new TreePath[0]));
                                 }
                             }
                         }
                     });
 
-                    // Define the buttons for the lower panel:
-                    // Add association button
+                    // Define the buttons for the lower panel: Add association button
                     JButton btnAddAssn = CcddButtonPanelHandler.createButton("Add",
                                                                              INSERT_ICON,
                                                                              KeyEvent.VK_A,
@@ -407,9 +388,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Add button
                     btnAddAssn.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Add a new script association
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
@@ -421,8 +402,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                             // The script file field is blank
                             else
                             {
-                                // Inform the user that a script must be
-                                // selected
+                                // Inform the user that a script must be selected
                                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                           "<html><b>Must enter or select a script",
                                                                           "Script Missing",
@@ -441,9 +421,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Remove button
                     btnRemoveAssn.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Remove the selected script association(s)
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
@@ -460,9 +440,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Replace button
                     btnReplaceAssn.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Replace the selected script association
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
@@ -479,18 +459,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Create a listener for the Move Up command
                     btnMoveUp.addActionListener(new ValidateCellActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Move the selected row(s) up in the table
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         protected void performAction(ActionEvent ae)
                         {
                             assnsTable.moveRowUp();
                         }
 
-                        /******************************************************
+                        /**************************************************************************
                          * Get the reference to the currently displayed table
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         protected CcddJTableHandler getTable()
                         {
@@ -507,18 +487,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Create a listener for the Move Down command
                     btnMoveDown.addActionListener(new ValidateCellActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Move the selected row(s) down in the table
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         protected void performAction(ActionEvent ae)
                         {
                             assnsTable.moveRowDown();
                         }
 
-                        /******************************************************
+                        /**************************************************************************
                          * Get the reference to the currently displayed table
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         protected CcddJTableHandler getTable()
                         {
@@ -535,19 +515,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Create a listener for the Undo command
                     btnUndo.addActionListener(new ValidateCellActionListener()
                     {
-                        /******************************************************
-                         * Undo the last addition to the script association
-                         * table
-                         *****************************************************/
+                        /**************************************************************************
+                         * Undo the last addition to the script association table
+                         *************************************************************************/
                         @Override
                         protected void performAction(ActionEvent ae)
                         {
                             assnsTable.getUndoManager().undo();
                         }
 
-                        /******************************************************
+                        /**************************************************************************
                          * Get the reference to the currently displayed table
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         protected CcddJTableHandler getTable()
                         {
@@ -564,19 +543,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Create a listener for the Redo command
                     btnRedo.addActionListener(new ValidateCellActionListener()
                     {
-                        /******************************************************
-                         * Redo the last addition to the script association
-                         * table that was undone
-                         *****************************************************/
+                        /**************************************************************************
+                         * Redo the last addition to the script association table that was undone
+                         *************************************************************************/
                         @Override
                         protected void performAction(ActionEvent ae)
                         {
                             assnsTable.getUndoManager().redo();
                         }
 
-                        /******************************************************************
+                        /**************************************************************************************
                          * Get the reference to the currently displayed table
-                         *****************************************************************/
+                         *************************************************************************************/
                         @Override
                         protected CcddJTableHandler getTable()
                         {
@@ -593,9 +571,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Execute button
                     btnExecute.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Execute the selected script association(s)
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
@@ -614,15 +592,15 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Store button
                     btnStoreAssns.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Store the script associations in the database
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
-                            // Check if the script associations have changed
-                            // since the last database commit and that the user
-                            // confirms storing the script associations
+                            // Check if the script associations have changed since the last
+                            // database commit and that the user confirms storing the script
+                            // associations
                             if (assnsTable.isTableChanged(committedAssnsData,
                                                           Arrays.asList(new Integer[] {AssociationsTableColumnInfo.AVAILABLE.ordinal()}))
                                 && new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
@@ -631,12 +609,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                              JOptionPane.QUESTION_MESSAGE,
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
-                                // Disable the dialog buttons until the updates
-                                // complete
+                                // Disable the dialog buttons until the updates complete
                                 setControlsEnabled(false);
 
-                                // Store the script associations list into the
-                                // database
+                                // Store the script associations list into the database
                                 dbTable.storeInformationTableInBackground(InternalTable.ASSOCIATIONS,
                                                                           createAssociationsFromTable(),
                                                                           null,
@@ -654,15 +630,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Add a listener for the Close button
                     btnClose.addActionListener(new ActionListener()
                     {
-                        /******************************************************
+                        /**************************************************************************
                          * Close the script association dialog
-                         *****************************************************/
+                         *************************************************************************/
                         @Override
                         public void actionPerformed(ActionEvent ae)
                         {
-                            // Check if there are no changes to the script
-                            // associations or if the user elects to discard
-                            // the changes
+                            // Check if there are no changes to the script associations or if the
+                            // user elects to discard the changes
                             if (!isAssociationsChanged()
                                 || new CcddDialogHandler().showMessageDialog(CcddScriptManagerDialog.this,
                                                                              "<html><b>Discard changes?",
@@ -670,9 +645,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                              JOptionPane.QUESTION_MESSAGE,
                                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                             {
-                                // Reset the reference to the script
-                                // associations manager in the script handler
-                                // since the handler remains active)
+                                // Reset the reference to the script associations manager in the
+                                // script handler since the handler remains active)
                                 scriptHandler.setScriptDialog(null);
 
                                 // Close the dialog
@@ -681,8 +655,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         }
                     });
 
-                    // Add buttons in the order in which they'll appear (left
-                    // to right, top to bottom)
+                    // Add buttons in the order in which they'll appear (left to right, top to
+                    // bottom)
                     buttonPnl.add(btnAddAssn);
                     buttonPnl.add(btnReplaceAssn);
                     buttonPnl.add(btnMoveUp);
@@ -698,9 +672,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     setButtonRows(2);
                 }
 
-                /**************************************************************
+                /**********************************************************************************
                  * Script association manager dialog creation complete
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 protected void complete()
                 {
@@ -716,11 +690,11 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the script selection panel
      *
      * @return JPanel containing the script selection panel
-     *************************************************************************/
+     *********************************************************************************************/
     private JPanel createScriptSelectionPanel()
     {
         // Set the initial layout manager characteristics
@@ -769,9 +743,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Add a listener for the Select script button
         btnSelectScript.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Select a script
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -790,8 +764,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 // Check if a script file is selected
                 if (scriptFile != null && scriptFile[0] != null)
                 {
-                    // Store the script file path in the program preferences
-                    // backing store
+                    // Store the script file path in the program preferences backing store
                     CcddFileIOHandler.storePath(ccddMain,
                                                 scriptFile[0].getAbsolutePath(),
                                                 true,
@@ -812,7 +785,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         return scriptPnl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the table tree selection panel
      *
      * @param labeltext
@@ -822,7 +795,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *            table tree item selection model
      *
      * @return JPanel containing the selection panel
-     *************************************************************************/
+     *********************************************************************************************/
     private JPanel createSelectionPanel(String labelText,
                                         int tableSelect)
     {
@@ -845,8 +818,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Create a panel to hold the table selection components of the dialog
         JPanel tablePnl = null;
 
-        // Build the table tree showing only table parents with their child
-        // tables
+        // Build the table tree showing only table parents with their child tables
         tableTree = new CcddTableTreeHandler(ccddMain,
                                              new CcddGroupHandler(ccddMain,
                                                                   null,
@@ -856,9 +828,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                              false,
                                              ccddMain.getMainFrame())
         {
-            /******************************************************************
+            /**************************************************************************************
              * Respond to changes in selection of a table in the table tree
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void updateTableSelection()
             {
@@ -906,7 +878,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Inform the user that no table exists in this database
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>Project '"
-                                                                               + dbControl.getDatabase()
+                                                                               + dbControl.getDatabaseName()
                                                                                + "' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
@@ -916,20 +888,17 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         return tablePnl;
     }
 
-    /**************************************************************************
-     * Add an association to the script associations list based on the script
-     * and table selections
+    /**********************************************************************************************
+     * Add an association to the script associations list based on the script and table selections
      *
      * @param insertPoint
-     *            insertion point for the added row into the associations
-     *            table: TableInsertionPoint.START to insert as the first row
-     *            in the table, TableInsertionPoint.SELECTION to insert below
-     *            the currently selected row, or TableInsertionPoint.END to
-     *            insert as the last row in the table
+     *            insertion point for the added row into the associations table:
+     *            TableInsertionPoint.START to insert as the first row in the table,
+     *            TableInsertionPoint.SELECTION to insert below the currently selected row, or
+     *            TableInsertionPoint.END to insert as the last row in the table
      *
-     * @return true if the association inputs are valid and the association is
-     *         successfully added
-     *************************************************************************/
+     * @return true if the association inputs are valid and the association is successfully added
+     *********************************************************************************************/
     private boolean addAssociation(TableInsertionPoint insertPoint)
     {
         boolean isAdded = false;
@@ -944,8 +913,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 // Step through each selected group
                 for (String group : tableTree.getSelectedGroups())
                 {
-                    // Add the group to the list. Any table belonging to the
-                    // group is deselected
+                    // Add the group to the list. Any table belonging to the group is deselected
                     members.add(GROUP_DATA_FIELD_IDENT + group);
                 }
             }
@@ -957,20 +925,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Check if the name field isn't blank
             if (!nameFld.getText().isEmpty())
             {
-                // Check if the association name does not match the
-                // alphanumeric input type
+                // Check if the association name does not match the alphanumeric input type
                 if (!nameFld.getText().matches(InputDataType.ALPHANUMERIC.getInputMatch()))
                 {
                     throw new CCDDException("Illegal character(s) in association name");
                 }
 
-                // Compare this association name to the others in the table in
-                // order to avoid creating a duplicate
+                // Compare this association name to the others in the table in order to avoid
+                // creating a duplicate
                 for (int row = 0; row < assnsTable.getRowCount(); row++)
                 {
-                    // Check if this row isn't the one being edited, and if the
-                    // association name matches the one being added (case
-                    // insensitive)
+                    // Check if this row isn't the one being edited, and if the association name
+                    // matches the one being added (case insensitive)
                     if (nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row, AssociationsTableColumnInfo.NAME.ordinal()).toString()))
                     {
                         throw new CCDDException("Association name already in use");
@@ -978,8 +944,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 }
             }
 
-            // Add the selected table names, skipping child tables if an
-            // ancestor of the table is selected
+            // Add the selected table names, skipping child tables if an ancestor of the table is
+            // selected
             members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
             // Get a file descriptor for the script file name
@@ -1006,8 +972,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Remove the trailing table separator
             assn = CcddUtilities.removeTrailer(assn, ASSN_TABLE_SEPARATOR);
 
-            // Insert the new script association at the end of the associations
-            // table, then select it and scroll to it
+            // Insert the new script association at the end of the associations table, then select
+            // it and scroll to it
             assnsTable.insertRow(true,
                                  insertPoint,
                                  new Object[] {nameFld.getText(),
@@ -1031,17 +997,17 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         return isAdded;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the selected association(s) from the script associations table
-     *************************************************************************/
+     *********************************************************************************************/
     private void removeAssociations()
     {
         assnsTable.removeRows(assnsTable.getSelectedRows());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Replace the selected association in the script associations table
-     *************************************************************************/
+     *********************************************************************************************/
     private void replaceAssociation()
     {
         // Check if a single association is selected in the associations table
@@ -1053,20 +1019,19 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Check if adding the new row below the selected row succeeded
             if (addAssociation(TableInsertionPoint.SELECTION))
             {
-                // Remove the selected association and set the selection to the
-                // newly added association
+                // Remove the selected association and set the selection to the newly added
+                // association
                 assnsTable.removeRows(new int[] {selectedRow});
                 assnsTable.setSelectedRow(selectedRow);
             }
         }
     }
 
-    /**************************************************************************
-     * Create the script association definitions from the script association
-     * table
+    /**********************************************************************************************
+     * Create the script association definitions from the script association table
      *
      * @return List containing the script associations
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> createAssociationsFromTable()
     {
         List<String[]> currentAssociations = new ArrayList<>();
@@ -1074,8 +1039,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Step through each defined script association
         for (Object[] assn : assnsTable.getTableData(true))
         {
-            // Get the script association information from the table and add it
-            // to the list
+            // Get the script association information from the table and add it to the list
             currentAssociations.add(new String[] {assn[AssociationsTableColumnInfo.NAME.ordinal()].toString(),
                                                   assn[AssociationsTableColumnInfo.DESCRIPTION.ordinal()].toString(),
                                                   assn[AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()].toString(),
@@ -1085,7 +1049,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         return currentAssociations;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Compare a script association to the existing ones in the table
      *
      * @param scriptName
@@ -1095,7 +1059,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *            array of tables referenced by the script association
      *
      * @return true if the script association already exists in the table
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean isAssociationExists(String scriptName, String[] tables)
     {
         boolean isExists = false;
@@ -1105,8 +1069,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         {
             String members = assn[AssociationsColumn.MEMBERS.ordinal()].toString();
 
-            // Check if the script and tables match between the two script
-            // associations
+            // Check if the script and tables match between the two script associations
             if (scriptName.equals(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
                 && CcddUtilities.isArraySetsEqual(tables,
                                                   members.isEmpty()
@@ -1122,21 +1085,21 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         return isExists;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Check if the script associations have changed
      *
      * @return true if a change exists
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isAssociationsChanged()
     {
         return assnsTable.isTableChanged(committedAssnsData,
                                          Arrays.asList(new Integer[] {AssociationsTableColumnInfo.AVAILABLE.ordinal()}));
     }
 
-    /**************************************************************************
-     * Update the table tree and the associations table with the latest table
-     * and script associations information
-     *************************************************************************/
+    /**********************************************************************************************
+     * Update the table tree and the associations table with the latest table and script
+     * associations information
+     *********************************************************************************************/
     protected void reloadAssociationsTable()
     {
         tableTree.buildTableTreeFromDatabase(CcddScriptManagerDialog.this);
@@ -1144,20 +1107,18 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         assnsTable.getUndoManager().discardAllEdits();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the change indicator for the script associations manager
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateChangeIndicator()
     {
-        // Add or remove the change indicator based on whether or not any
-        // unstored changes exist
+        // Add or remove the change indicator based on whether or not any unstored changes exist
         setTitle(DIALOG_TITLE
                  + (isAssociationsChanged()
                                             ? "*"
                                             : ""));
 
-        // Force the table to redraw so that changes to the cells are
-        // displayed
+        // Force the table to redraw so that changes to the cells are displayed
         repaint();
     }
 }

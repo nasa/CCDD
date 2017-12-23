@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary variable link tree handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -52,9 +51,9 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddUndoHandler.UndoableArrayList;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary link tree handler class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 {
@@ -69,13 +68,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     // Flag indicating if the link tree nodes are expanded or not
     private boolean isExpanded;
 
-    // List to contain the link definitions (links and variable paths)
-    // retrieved from the database
+    // List to contain the link definitions (links and variable paths) retrieved from the database
     private List<String[]> linkDefinitions;
 
-    // List containing the information for each defined link (name, rate, size,
-    // and description). Link member variables are stored in the
-    // linkDefinitions
+    // List containing the information for each defined link (name, rate, size, and description).
+    // Link member variables are stored in the linkDefinitions
     private UndoableArrayList<LinkInformation> linkInformation;
 
     // Flag to indicate if the link tree is being built
@@ -84,7 +81,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     // Currently selected link rate
     private String selectedRate;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Link tree handler class constructor
      *
      * @param ccddMain
@@ -94,12 +91,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            reference to the undo handler
      *
      * @param rateName
-     *            data stream rate column name associated with the tree; used
-     *            to filter the links added to the link tree
+     *            data stream rate column name associated with the tree; used to filter the links
+     *            added to the link tree
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     CcddLinkTreeHandler(CcddMain ccddMain,
                         CcddUndoHandler undoHandler,
                         String rateName,
@@ -112,29 +109,29 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         invalidLinkIcon = new ImageIcon(getClass().getResource(CANCEL_ICON));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the link handler
      *
      * @return Reference to the link handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddLinkHandler getLinkHandler()
     {
         return linkHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the currently selected sample rate and force the link tree to redraw
      *
      * @param rate
      *            sample rate in samples per second
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setSelectedRate(String rate)
     {
         selectedRate = rate;
         repaint();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform initialization steps prior to building the link tree
      *
      * @param ccddMain
@@ -145,7 +142,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *
      * @param linkDefinitions
      *            list containing the link definitions
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain,
                               CcddUndoHandler undoHandler,
@@ -154,8 +151,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Check if no undo handler is specified
         if (undoHandler == null)
         {
-            // Create a 'dummy' undo handler and set the flag to not allow undo
-            // operations
+            // Create a 'dummy' undo handler and set the flag to not allow undo operations
             undoHandler = new CcddUndoHandler(new CcddUndoManager());
             undoHandler.setAllowUndo(false);
         }
@@ -173,29 +169,28 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         selectedRate = "";
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the link definitions to match the current link tree information
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateLinkDefinitions()
     {
         // Recreate the link definitions from the current link tree
         linkDefinitions = createDefinitionsFromTree();
 
-        // Set the updated definitions in the link handler so that the link
-        // size can be calculated
+        // Set the updated definitions in the link handler so that the link size can be calculated
         linkHandler.setLinkDefinitions(linkDefinitions);
     }
 
-    /**************************************************************************
-     * Create a list of variables, including their paths, that are referenced
-     * by the specified link, or of any link if no link name is provided
+    /**********************************************************************************************
+     * Create a list of variables, including their paths, that are referenced by the specified
+     * link, or of any link if no link name is provided
      *
      * @param name
      *            link name; null to include all links
      *
-     * @return List of variables, including their paths, that are referenced by
-     *         the specified link, of any link if no link name is provided
-     *************************************************************************/
+     * @return List of variables, including their paths, that are referenced by the specified link,
+     *         of any link if no link name is provided
+     *********************************************************************************************/
     protected List<String> getLinkVariables(String name)
     {
         // Create a list to hold the link members
@@ -217,15 +212,14 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         return linkVariables;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to a specified link's information
      *
      * @param name
      *            link name
      *
-     * @return Reference to the link's information; null if the link doesn't
-     *         exist
-     *************************************************************************/
+     * @return Reference to the link's information; null if the link doesn't exist
+     *********************************************************************************************/
     protected LinkInformation getLinkInformation(String name)
     {
         LinkInformation linkInfo = null;
@@ -248,7 +242,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         return linkInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a new link to the link information class
      *
      * @param rateName
@@ -262,7 +256,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *
      * @param description
      *            link description
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addLinkInformation(String rateName,
                                       String linkName,
                                       String sampleRate,
@@ -278,30 +272,28 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         updateLinkDefinitions();
     }
 
-    /**************************************************************************
-     * Remove the selected link(s) from the link information class and links
-     * tree
-     *************************************************************************/
+    /**********************************************************************************************
+     * Remove the selected link(s) from the link information class and links tree
+     *********************************************************************************************/
     protected void removeSelectedLinks()
     {
         List<String> links = new ArrayList<String>();
 
-        // Store the paths of the links selected for deletion. The paths are
-        // 'lost' when the nodes are removed in the next step
+        // Store the paths of the links selected for deletion. The paths are 'lost' when the nodes
+        // are removed in the next step
         TreePath[] paths = getSelectionPaths();
 
-        // Remove the selected links(s) from the link tree. This is performed
-        // before removal of the link information so that an undo operation
-        // restores the link information prior to restoration of the tree
-        // node(s); this way if only a single link is restored via an undo then
-        // the link's description is displayed in the link manager
+        // Remove the selected links(s) from the link tree. This is performed before removal of the
+        // link information so that an undo operation restores the link information prior to
+        // restoration of the tree node(s); this way if only a single link is restored via an undo
+        // then the link's description is displayed in the link manager
         removeSelectedTopLevelNodes();
 
         // Step through each selected path
         for (TreePath path : paths)
         {
-            // Get the link node for this path. Extract the link name from the
-            // node (minus the HTML tags and rate/size information
+            // Get the link node for this path. Extract the link name from the node (minus the HTML
+            // tags and rate/size information
             String name = removeExtraText(path.getPathComponent(1).toString());
 
             // Check if this link has already been removed
@@ -328,30 +320,27 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         updateLinkDefinitions();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the link tree from the database
      *
      * @param filterByType
-     *            true if the tree is filtered by table type. This is not
-     *            applicable to the link tree, which can only contain structure
-     *            references
+     *            true if the tree is filtered by table type. This is not applicable to the link
+     *            tree, which can only contain structure references
      *
      * @param filterByApp
-     *            true if the tree is filtered by application. This is not
-     *            applicable to the link tree, which can only contain structure
-     *            references
+     *            true if the tree is filtered by application. This is not applicable to the link
+     *            tree, which can only contain structure references
      *
      * @param filterValue
-     *            string value that may be used to modify the tree building
-     *            method; null or blank if not filtering
+     *            string value that may be used to modify the tree building method; null or blank
+     *            if not filtering
      *
      * @param filterFlag
-     *            flag used to filter the tree content. Not used for the link
-     *            tree
+     *            flag used to filter the tree content. Not used for the link tree
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void buildTree(boolean filterByType,
                              boolean filterByApp,
@@ -367,23 +356,21 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Create the storage for the link information
         linkInformation = undoHandler.new UndoableArrayList<LinkInformation>();
 
-        // Register the tool tip manager for the link tree (otherwise the tool
-        // tips aren't displayed)
+        // Register the tool tip manager for the link tree (otherwise the tool tips aren't
+        // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
-        // Set the flag to indicate that the link tree is being built. This
-        // flag is used to inhibit actions involving tree selection value
-        // changes during the build process
+        // Set the flag to indicate that the link tree is being built. This flag is used to inhibit
+        // actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Set the renderer for the tree so that the link information can be
-        // displayed, and so that custom icons can be used for the various node
-        // types
+        // Set the renderer for the tree so that the link information can be displayed, and so that
+        // custom icons can be used for the various node types
         setCellRenderer(new TableTreeCellRenderer()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the variable nodes using a special icon in the tree
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public Component getTreeCellRendererComponent(JTree tree,
                                                           Object value,
@@ -405,13 +392,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                 // Get the tree level for this node
                 int level = ((ToolTipTreeNode) value).getLevel();
 
-                // Check that the tree has any levels. When the tree is first
-                // created this method is called when no nodes exist
+                // Check that the tree has any levels. When the tree is first created this method
+                // is called when no nodes exist
                 if (level != 0)
                 {
-                    // Get the reference to the link's information. The link
-                    // name
-                    // is the second node in the path for this node
+                    // Get the reference to the link's information. The link name is the second
+                    // node in the path for this node
                     LinkInformation linkInfo = getLinkInformation(((ToolTipTreeNode) value).getPath()[1].toString());
 
                     // Check that the link information exists
@@ -423,8 +409,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                             // Get the rate for this link
                             String linkRate = linkInfo.getSampleRate();
 
-                            // Check if the link rate matches the currently
-                            // selected rate or if it has no assigned rate
+                            // Check if the link rate matches the currently selected rate or if it
+                            // has no assigned rate
                             if (linkRate.equals("0") || selectedRate.equals(linkRate))
                             {
                                 setIcon(validLinkIcon);
@@ -451,19 +437,16 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Step through each link
         for (String[] linkDefn : linkDefinitions)
         {
-            // Check if the link definition matches the target data stream rate
-            // column name
+            // Check if the link definition matches the target data stream rate column name
             if (linkDefn[LinksColumn.RATE_NAME.ordinal()].equals(filterValue))
             {
-                // Extract the rate name, link name, and rate/description or
-                // member
+                // Extract the rate name, link name, and rate/description or member
                 String linkRate = linkDefn[LinksColumn.RATE_NAME.ordinal()];
                 String linkName = linkDefn[LinksColumn.LINK_NAME.ordinal()];
                 String linkMember = linkDefn[LinksColumn.MEMBER.ordinal()];
 
-                // Check if this is a link description entry. These are
-                // indicated if the first character is a digit, which is the
-                // link rate
+                // Check if this is a link description entry. These are indicated if the first
+                // character is a digit, which is the link rate
                 if (linkMember.matches(InputDataType.RATE.getInputMatch() + ",.*"))
                 {
                     // Split the entry into the rate and description
@@ -505,16 +488,15 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         isBuilding = false;
     }
 
-    /**************************************************************************
-     * Add a copy of the specified link information object to the link
-     * information list
+    /**********************************************************************************************
+     * Add a copy of the specified link information object to the link information list
      *
      * @param linkToCopy
      *            link information object to copy
      *
      * @param nameOfCopy
      *            name of the copy of the link
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void addInformation(Object linkToCopy, String nameOfCopy)
     {
@@ -524,13 +506,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                                 ((LinkInformation) linkToCopy).getDescription()));
     }
 
-    /**************************************************************************
-     * Initialize the link definition list with the link names, rates, and
-     * descriptions
+    /**********************************************************************************************
+     * Initialize the link definition list with the link names, rates, and descriptions
      *
-     * @return List containing the links with their names, rates, and
-     *         descriptions
-     *************************************************************************/
+     * @return List containing the links with their names, rates, and descriptions
+     *********************************************************************************************/
     @Override
     protected List<String[]> createDefinitionsFromInformation()
     {
@@ -551,10 +531,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         return definitions;
     }
 
-    /**************************************************************************
-     * Add the specified leaf definition to the tree definition list. Override
-     * this method to insert the data stream rate column name into the leaf
-     * definition
+    /**********************************************************************************************
+     * Add the specified leaf definition to the tree definition list. Override this method to
+     * insert the data stream rate column name into the leaf definition
      *
      * @param treeDefns
      *            list to which to add the leaf definition
@@ -564,7 +543,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *
      * @param filterValue
      *            data stream rate name
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void addLeafDefinition(List<String[]> treeDefns,
                                      List<String> leafDefn,
@@ -577,15 +556,15 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         treeDefns.add(leafDefn.toArray(new String[0]));
     }
 
-    /**************************************************************************
-     * Remove the HTML tags and rate/size text from the node names. The object
-     * array is converted to a string array
+    /**********************************************************************************************
+     * Remove the HTML tags and rate/size text from the node names. The object array is converted
+     * to a string array
      *
      * @param node
      *            path array
      *
      * @return Node path array with any HTML tags and rate/size text removed
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected String[] cleanNodePath(Object[] nodePath)
     {
@@ -602,31 +581,30 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         return path;
     }
 
-    /**************************************************************************
-     * Override so that HTML tag(s) and text within parentheses (inclusive)
-     * preceded by a space (the rate and size) is removed
+    /**********************************************************************************************
+     * Override so that HTML tag(s) and text within parentheses (inclusive) preceded by a space
+     * (the rate and size) is removed
      *
      * @param text
      *            string from which to remove the extra text
      *
-     * @return Input string minus any HTML tag(s) and text within parentheses
-     *         (inclusive) preceded by a space
-     *************************************************************************/
+     * @return Input string minus any HTML tag(s) and text within parentheses (inclusive) preceded
+     *         by a space
+     *********************************************************************************************/
     @Override
     protected String removeExtraText(String text)
     {
         return CcddUtilities.removeHTMLTags(text).replaceAll(" \\([^)]*\\)", "");
     }
 
-    /**************************************************************************
-     * Append the sample rate and size in bytes to the nodes representing a
-     * link name. Set the node text color based on the currently selected
-     * sample rate and the rate of the link to which the node belongs: black
-     * for a match and gray for a mismatch
+    /**********************************************************************************************
+     * Append the sample rate and size in bytes to the nodes representing a link name. Set the node
+     * text color based on the currently selected sample rate and the rate of the link to which the
+     * node belongs: black for a match and gray for a mismatch
      *
      * @param startNode
      *            starting node for which to adjust the text and color
-     *************************************************************************/
+     *********************************************************************************************/
     protected void adjustNodeText(ToolTipTreeNode startNode)
     {
         // Step through the elements and children of this node
@@ -638,15 +616,15 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             // Get the tree level for this node
             int level = node.getLevel();
 
-            // Check that the tree has any levels. When the tree is first
-            // created this method is called when no nodes exist
+            // Check that the tree has any levels. When the tree is first created this method is
+            // called when no nodes exist
             if (level > 0)
             {
                 // Get the link name from the node path
                 String linkName = removeExtraText(node.getPath()[1].toString());
 
-                // Get the reference to the link's information. The link name
-                // is the second node in the path for this node
+                // Get the reference to the link's information. The link name is the second node in
+                // the path for this node
                 LinkInformation linkInfo = getLinkInformation(linkName);
 
                 // Check that the node references a link
@@ -665,8 +643,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                         int sizeInBytes = linkHandler.getLinkSizeInBytes(linkInfo.getRateName(),
                                                                          linkName);
 
-                        // Check if the size is non-zero; i.e., variables are
-                        // assigned to this link
+                        // Check if the size is non-zero; i.e., variables are assigned to this link
                         if (sizeInBytes != 0)
                         {
                             // Append the link size to the link name
@@ -685,8 +662,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                         }
                     }
 
-                    // Check if the selected sample rate doesn't match the
-                    // link's rate
+                    // Check if the selected sample rate doesn't match the link's rate
                     if (!linkInfo.getSampleRate().equals("0")
                         && !selectedRate.equals(linkInfo.getSampleRate()))
                     {
@@ -694,8 +670,8 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                         nodeName = DISABLED_TEXT_COLOR + nodeName;
                     }
 
-                    // Update the node name. Indicate that the node changed so
-                    // that the tree redraws the name
+                    // Update the node name. Indicate that the node changed so that the tree
+                    // redraws the name
                     node.setUserObject(nodeName);
                     ((UndoableTreeModel) getModel()).nodeChanged(node);
                 }
@@ -703,9 +679,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Create a subtree with only the links that contain variables with sample
-     * rates matching the selected rate
+    /**********************************************************************************************
+     * Create a subtree with only the links that contain variables with sample rates matching the
+     * selected rate
      *
      * @param rootNodeName
      *            name of the root node for the matching links
@@ -713,9 +689,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * @param rootNodeDescription
      *            tool tip text for the root node
      *
-     * @return Node with only the links that contain variables with sample
-     *         rates matching the selected rate
-     *************************************************************************/
+     * @return Node with only the links that contain variables with sample rates matching the
+     *         selected rate
+     *********************************************************************************************/
     protected ToolTipTreeNode getLinksMatchingRate(String rootNodeName,
                                                    String rootNodeDescription)
     {
@@ -726,15 +702,14 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Copy the current links tree to the new node
         copySubTree(getRootNode(), validLinks);
 
-        // Step through each child node. This must be done in reverse order
-        // since node may be removed during the processing
+        // Step through each child node. This must be done in reverse order since node may be
+        // removed during the processing
         for (int index = validLinks.getChildCount() - 1; index >= 0; index--)
         {
             // Get the link information for this link
             LinkInformation linkInfo = getLinkInformation(validLinks.getChildAt(index).toString());
 
-            // Check if the link exists and if the link's rate doesn't match
-            // the selected rate
+            // Check if the link exists and if the link's rate doesn't match the selected rate
             if (linkInfo != null
                 && !linkInfo.getSampleRate().equals(selectedRate))
             {
@@ -746,9 +721,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         return validLinks;
     }
 
-    /**************************************************************************
-     * Create a link tree panel. The table tree is placed in a scroll pane. A
-     * check box is added that allows tree expansion/collapse
+    /**********************************************************************************************
+     * Create a link tree panel. The table tree is placed in a scroll pane. A check box is added
+     * that allows tree expansion/collapse
      *
      * @param label
      *            link tree title
@@ -757,15 +732,15 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            tree item selection mode (single versus multiple)
      *
      * @return JPanel containing the link tree components
-     *************************************************************************/
+     *********************************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode)
     {
         return createTreePanel(label, selectionMode, 0);
     }
 
-    /**************************************************************************
-     * Create a link tree panel. The table tree is placed in a scroll pane. A
-     * check box is added that allows tree expansion/collapse
+    /**********************************************************************************************
+     * Create a link tree panel. The table tree is placed in a scroll pane. A check box is added
+     * that allows tree expansion/collapse
      *
      * @param label
      *            link tree title
@@ -774,11 +749,11 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            tree item selection mode (single versus multiple)
      *
      * @param prefTreeWidth
-     *            preferred initial width of the tree in pixels; 0 to let the
-     *            layout manager determine the preferred width
+     *            preferred initial width of the tree in pixels; 0 to let the layout manager
+     *            determine the preferred width
      *
      * @return JPanel containing the link tree components
-     *************************************************************************/
+     *********************************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode, int prefTreeWidth)
     {
         // Create an empty border
@@ -842,15 +817,14 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // Add a listener for changes to the link tree
         addTreeSelectionListener(new TreeSelectionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the link tree selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void valueChanged(TreeSelectionEvent lse)
             {
-                // Check that a link tree (re)build isn't in progress.
-                // Building the tree triggers tree selection value changes that
-                // should not be processed
+                // Check that a link tree (re)build isn't in progress. Building the tree triggers
+                // tree selection value changes that should not be processed
                 if (!isBuilding)
                 {
                     // Update the link dialog based on the link(s) selected
@@ -869,13 +843,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         gbc.gridy++;
         treePnl.add(expandChkBx, gbc);
 
-        // Create a listener for changes in selection of the tree expansion
-        // check box
+        // Create a listener for changes in selection of the tree expansion check box
         expandChkBx.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the tree expansion check box selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -898,13 +871,12 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         gbc.gridy++;
         treePnl.add(hideTypeChkBx, gbc);
 
-        // Create a listener for changes in selection of the hide data type
-        // check box
+        // Create a listener for changes in selection of the hide data type check box
         hideTypeChkBx.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the hide data type check box selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -920,9 +892,9 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
             }
         });
 
-        // In order to align the link and variable trees a phantom check box
-        // must be added to the link tree panel. To prevent display of the
-        // check box components an empty panel is placed over it
+        // In order to align the link and variable trees a phantom check box must be added to the
+        // link tree panel. To prevent display of the check box components an empty panel is placed
+        // over it
         JPanel hiddenPnl = new JPanel(new FlowLayout(FlowLayout.LEFT));
         hiddenPnl.setBorder(emptyBorder);
         JCheckBox hiddenChkBx = new JCheckBox(" ");

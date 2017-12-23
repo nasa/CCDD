@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary rate parameter assignment dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -31,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -45,9 +45,9 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary rate parameter assignment dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddRateParameterDialog extends CcddDialogHandler
 {
@@ -70,12 +70,12 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     // Reference to the rate parameter input verifier
     private InputVerifier verifyInputs;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Rate parameter assignment dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddRateParameterDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -85,19 +85,18 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the rate parameter assignment dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
-        // Create an input verifier so that the rate parameters can be verified
-        // and the available rates calculated
+        // Create an input verifier so that the rate parameters can be verified and the available
+        // rates calculated
         verifyInputs = new InputVerifier()
         {
-            /******************************************************************
-             * Verify the contents of a rate parameter and update the available
-             * rates
-             *****************************************************************/
+            /**************************************************************************************
+             * Verify the contents of a rate parameter and update the available rates
+             *************************************************************************************/
             @Override
             public boolean verify(JComponent input)
             {
@@ -106,8 +105,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                 // Check if the rate parameters are valid
                 if (isValid)
                 {
-                    // Display the available rates for the currently selected
-                    // rate column
+                    // Display the available rates for the currently selected rate column
                     updateAvailableRates();
                 }
 
@@ -188,9 +186,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         maxBytesPerSecFld = new JTextField[rateInformation.size()];
         availRatesFld = new JTextArea[rateInformation.size()];
 
-        // Create a tabbed pane to contain the rate parameters that are
-        // stream-specific
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        // Create a tabbed pane to contain the rate parameters that are stream-specific
+        tabbedPane = new JTabbedPane(SwingConstants.TOP);
         tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Create a tab for each stream
@@ -210,8 +207,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                      0));
         unevenPnl.setBorder(emptyBorder);
 
-        // Create a check box for including/excluding unevenly time-spaced
-        // sample rates
+        // Create a check box for including/excluding unevenly time-spaced sample rates
         unevenCb = new JCheckBox("Include unevenly time-spaced rates");
         unevenCb.setBorder(emptyBorder);
         unevenCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -220,9 +216,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                            : false);
         unevenCb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change in the include uneven rates check box status
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -240,14 +236,13 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         // Listen for tab selection changes
         tabbedPane.addChangeListener(new ChangeListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Update the available rates using the values in the selected tab
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void stateChanged(ChangeEvent ce)
             {
-                // Display the available rates for the currently selected rate
-                // column
+                // Display the available rates for the currently selected rate column
                 updateAvailableRates();
             }
         });
@@ -273,8 +268,8 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             // Step through each stream
             for (int index = 0; index < tabbedPane.getTabCount(); index++)
             {
-                // Store the stream name, convert the rate parameters to
-                // numeric form, and calculate the available rates
+                // Store the stream name, convert the rate parameters to numeric form, and
+                // calculate the available rates
                 streamNames[index] = streamNameFld[index].getText();
                 maxMsgsPerCycle[index] = Integer.valueOf(maxMsgsPerCycleFld[index].getText());
                 maxBytesPerSec[index] = Integer.valueOf(maxBytesPerSecFld[index].getText());
@@ -300,10 +295,9 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
-     * Calculate and display the available rates for the currently selected
-     * rate column
-     *************************************************************************/
+    /**********************************************************************************************
+     * Calculate and display the available rates for the currently selected rate column
+     *********************************************************************************************/
     private void updateAvailableRates()
     {
         // Get the rate column to calculate and display its valid rates
@@ -316,12 +310,12 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         availRatesFld[index].setCaretPosition(0);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the tabs for the stream specific input fields
      *
      * @param rateInfo
      *            list containing the rate information
-     *************************************************************************/
+     *********************************************************************************************/
     private void addStreamTabs(List<RateInformation> rateInfo)
     {
         // Step through each stream
@@ -439,35 +433,32 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Check if any rate parameter changed
      *
      * @param maxSecPerMsg
-     *            maximum number of seconds allowed between downlinking two of
-     *            the same message
+     *            maximum number of seconds allowed between downlinking two of the same message
      *
      * @param maxMsgsPerSec
-     *            maximum number of messages that can be downlinked in one
-     *            second
+     *            maximum number of messages that can be downlinked in one second
      *
      * @param streamName
      *            array containing the stream name per stream
      *
      * @param maxMsgsPerCycle
-     *            array containing the maximum number of messages that can be
-     *            downlinked before repeating the message list per stream
+     *            array containing the maximum number of messages that can be downlinked before
+     *            repeating the message list per stream
      *
      * @param maxBytesPerSec
-     *            array containing the maximum number of bytes that can be
-     *            downlinked in one second per stream
+     *            array containing the maximum number of bytes that can be downlinked in one second
+     *            per stream
      *
      * @param includeUneven
-     *            true to include unevenly time-spaced sample rate values;
-     *            false to only include sample rates that are evenly
-     *            time-spaced
+     *            true to include unevenly time-spaced sample rate values; false to only include
+     *            sample rates that are evenly time-spaced
      *
      * @return true if any of the rate parameters changed
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean isRateChanges(int maxSecPerMsg,
                                   int maxMsgsPerSec,
                                   String[] streamName,
@@ -510,11 +501,11 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         return isChanges;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
@@ -558,8 +549,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                 // Get the rate information index using this stream name
                 int streamIndex = rateHandler.getRateInformationIndexByStreamName(streamNameFld[index].getText());
 
-                // Check if this stream name exists and if it duplicates
-                // another rate's stream name
+                // Check if this stream name exists and if it duplicates another rate's stream name
                 if (streamIndex != -1 && index != streamIndex)
                 {
                     // Select the tab with the error
@@ -580,8 +570,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                     throw new CCDDException("All rate parameters must be entered");
                 }
 
-                // Check if the any rate parameter is not a positive integer
-                // value
+                // Check if the any rate parameter is not a positive integer value
                 if (!maxMsgsPerCycleFld[index].getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
                     || !maxBytesPerSecFld[index].getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
                 {

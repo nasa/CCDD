@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary script storage dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -38,9 +37,9 @@ import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary script storage dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddScriptStorageDialog extends CcddDialogHandler
 {
@@ -54,14 +53,14 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     // Components referenced by multiple methods
     private final ScriptIOType dialogType;
 
-    // Array of file references containing the selected script file(s)
-    // (store) or the selected script file path (retrieve)
+    // Array of file references containing the selected script file(s) (store) or the selected
+    // script file path (retrieve)
     private File[] scriptFile;
 
     // Path selection field
     private JTextField pathFld;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Script storage dialog class constructor
      *
      * @param ccddMain
@@ -69,7 +68,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
      *
      * @param dialogType
      *            ScriptIOType.STORE or ScriptIOType.RETRIEVE
-     *************************************************************************/
+     *********************************************************************************************/
     CcddScriptStorageDialog(CcddMain ccddMain,
                             ScriptIOType dialogType)
     {
@@ -86,9 +85,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the script storage dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Create the dialog based on the supplied dialog type
@@ -116,8 +115,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         // Get the script file path + name
                         String pathName = scriptFile[0].getAbsolutePath();
 
-                        // Remove the script file name and store the script
-                        // file path in the program preferences backing store
+                        // Remove the script file name and store the script file path in the
+                        // program preferences backing store
                         CcddFileIOHandler.storePath(ccddMain,
                                                     pathName,
                                                     true,
@@ -179,8 +178,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     index++;
                 }
 
-                // Create a panel containing a grid of check boxes representing
-                // the scripts from which to choose
+                // Create a panel containing a grid of check boxes representing the scripts from
+                // which to choose
                 if (addCheckBoxes(null,
                                   checkBoxData,
                                   null,
@@ -196,23 +195,21 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         selectAllCb.setBorder(BorderFactory.createEmptyBorder());
 
-                        // Create a listener for changes to the Select All
-                        // check box selection status
+                        // Create a listener for changes to the Select All check box selection
+                        // status
                         selectAllCb.addActionListener(new ActionListener()
                         {
-                            /**************************************************
-                             * Handle a change to the Select All check box
-                             * selection status
-                             *************************************************/
+                            /**********************************************************************
+                             * Handle a change to the Select All check box selection status
+                             *********************************************************************/
                             @Override
                             public void actionPerformed(ActionEvent ae)
                             {
                                 // Step through each data field name check box
                                 for (JCheckBox scriptCb : getCheckBoxes())
                                 {
-                                    // Set the check box selection status to
-                                    // match the Select All check box selection
-                                    // status
+                                    // Set the check box selection status to match the Select All
+                                    // check box selection status
                                     scriptCb.setSelected(selectAllCb.isSelected());
                                 }
                             }
@@ -228,8 +225,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     // Check if one or more scripts is to be retrieved
                     if (dialogType == ScriptIOType.RETRIEVE)
                     {
-                        // Add the script path selection components to the
-                        // dialog
+                        // Add the script path selection components to the dialog
                         gbc.gridy++;
                         gbc.insets.bottom = 0;
                         dialogPnl.add(createPathSelectionPanel(), gbc);
@@ -241,35 +237,31 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                               DialogOption.RETRIEVE_OPTION,
                                               true) == OK_BUTTON)
                         {
-                            // Check if no script file path is selected via the
-                            // selection button
+                            // Check if no script file path is selected via the selection button
                             if (scriptFile == null)
                             {
-                                // Get a file reference using the last accessed
-                                // file path
+                                // Get a file reference using the last accessed file path
                                 scriptFile = new File[] {new File(ModifiablePathInfo.SCRIPT_PATH.getPath())};
                             }
                             // A script file path is selected
                             else
                             {
-                                // Store the script file path in the program
-                                // preferences backing store
+                                // Store the script file path in the program preferences backing
+                                // store
                                 CcddFileIOHandler.storePath(ccddMain,
                                                             scriptFile[0].getAbsolutePath(),
                                                             false,
                                                             ModifiablePathInfo.SCRIPT_PATH);
                             }
 
-                            // Get an array containing the selected script
-                            // names
+                            // Get an array containing the selected script names
                             String[] selectedScripts = getCheckBoxSelected();
 
                             // Step through each selected script file
                             for (String script : selectedScripts)
                             {
-                                // Retrieve the selected scripts from the
-                                // database and save them to the selected
-                                // folder
+                                // Retrieve the selected scripts from the database and save them to
+                                // the selected folder
                                 fileIOHandler.retrieveScriptFromDatabase(script,
                                                                          new File(scriptFile[0].getAbsolutePath()
                                                                                   + File.separator
@@ -293,8 +285,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             // Step through each script selected
                             for (index = 0; index < selectedScripts.length; index++)
                             {
-                                // Prepend the database script file identifier
-                                // to the script name
+                                // Prepend the database script file identifier to the script name
                                 selectedScripts[index] = InternalTable.SCRIPT.getTableName(selectedScripts[index]);
                             }
 
@@ -308,11 +299,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                 // No scripts are stored in the database
                 else
                 {
-                    // Inform the user that the project database contains no
-                    // script to retrieve/delete
+                    // Inform the user that the project database contains no script to
+                    // retrieve/delete
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Project '</b>"
-                                                                                       + dbControl.getDatabase()
+                                                                                       + dbControl.getDatabaseName()
                                                                                        + "<b>' has no scripts",
                                                               (dialogType == ScriptIOType.RETRIEVE
                                                                                                    ? "Retrieve"
@@ -326,11 +317,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the path selection panel
      *
      * @return JPanel containing the script selection panel
-     *************************************************************************/
+     *********************************************************************************************/
     private JPanel createPathSelectionPanel()
     {
         // Set the initial layout manager characteristics
@@ -369,9 +360,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                                                                              Color.LIGHT_GRAY,
                                                                                              Color.GRAY),
                                                              BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
@@ -385,9 +376,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         // Add a listener for the Select path button
         btnSelectPath.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Select a script storage path
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -417,11 +408,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         return pathPnl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {

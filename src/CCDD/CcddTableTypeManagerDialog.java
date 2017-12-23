@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary table type manager dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -36,9 +35,9 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary table type manager dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableTypeManagerDialog extends CcddDialogHandler
 {
@@ -54,11 +53,10 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     // Name of the currently active data type
     private final String activeTypeName;
 
-    // Storage for the type definition in the event it must be restored after
-    // being deleted
+    // Storage for the type definition in the event it must be restored after being deleted
     private TypeDefinition savedDefn;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Table type manager dialog class constructor
      *
      * @param ccddMain
@@ -69,7 +67,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *
      * @param dialogType
      *            type manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
-     *************************************************************************/
+     *********************************************************************************************/
     CcddTableTypeManagerDialog(CcddMain ccddMain,
                                CcddTableTypeEditorDialog editorDialog,
                                ManagerDialogType dialogType)
@@ -97,22 +95,19 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
-     * Perform the steps needed following execution of a table type management
-     * operation
+    /**********************************************************************************************
+     * Perform the steps needed following execution of a table type management operation
      *
      * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
+     *            false if the database commands successfully completed; true if an error occurred
+     *            and the changes were not made
      *
      * @param fieldDefinitions
-     *            list of field definitions; null if this is not a copy
-     *            operation
+     *            list of field definitions; null if this is not a copy operation
      *
      * @param tableNames
-     *            array of deleted table names; null if this is not a delete
-     *            operation
-     *************************************************************************/
+     *            array of deleted table names; null if this is not a delete operation
+     *********************************************************************************************/
     protected void doTypeOperationComplete(boolean commandError,
                                            List<String[]> fieldDefinitions,
                                            String[] tableNames)
@@ -135,20 +130,18 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     break;
 
                 case DELETE:
-                    // Create a list to store the names of tables that are no
-                    // longer valid
+                    // Create a list to store the names of tables that are no longer valid
                     List<String[]> invalidatedEditors = new ArrayList<String[]>();
 
                     // Step through each deleted prototype table name
                     for (String name : tableNames)
                     {
-                        // Add the pattern for the data type path of tables
-                        // matching the deleted prototype table
+                        // Add the pattern for the data type path of tables matching the deleted
+                        // prototype table
                         invalidatedEditors.add(new String[] {name, null});
                     }
 
-                    // Close the table editor for each table of the deleted
-                    // type
+                    // Close the table editor for each table of the deleted type
                     dbTable.closeDeletedTableEditors(invalidatedEditors,
                                                      editorDialog);
 
@@ -187,9 +180,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the table type management dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Set the initial layout manager characteristics
@@ -215,12 +208,11 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         switch (dialogType)
         {
             case NEW:
-                // Create the type creation dialog label and field and add it
-                // to the dialog panel
+                // Create the type creation dialog label and field and add it to the dialog panel
                 addTypeNameField("Enter the new type's name", "", dialogPnl, gbc);
 
-                // Create a panel containing allowing addition of default
-                // columns to the new table type and add it to the dialog
+                // Create a panel containing allowing addition of default columns to the new table
+                // type and add it to the dialog
                 JPanel radioBtns = new JPanel(new GridBagLayout());
                 addRadioButtons("None",
                                 true,
@@ -269,8 +261,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Rename the type
                     tableTypeHandler.getTypeDefinition(activeTypeName).setName(typeNameFld.getText());
 
-                    // Update the existing tables of this type to the new type
-                    // name
+                    // Update the existing tables of this type to the new type name
                     dbTable.renameTableType(activeTypeName,
                                             typeNameFld.getText(),
                                             CcddTableTypeManagerDialog.this);
@@ -294,10 +285,9 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Check if the type exists
                     if (tableTypeHandler.getTypeDefinition(activeTypeName) != null)
                     {
-                        // Copy the selected type using the supplied name. The
-                        // current type data and description is copied, which
-                        // may differ from the committed data and description
-                        // if the user has made uncommitted changes
+                        // Copy the selected type using the supplied name. The current type data
+                        // and description is copied, which may differ from the committed data and
+                        // description if the user has made uncommitted changes
                         tableTypeHandler.createTypeDefinition(typeNameFld.getText(),
                                                               editorDialog.getTypeEditor().getTable().getTableData(true),
                                                               editorDialog.getTypeEditor().getDescription());
@@ -321,12 +311,11 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                       JOptionPane.QUESTION_MESSAGE,
                                       DialogOption.DELETE_OPTION) == OK_BUTTON)
                 {
-                    // Store a copy of the deleted type definition in the event
-                    // an error occurs or the user cancels the operation
+                    // Store a copy of the deleted type definition in the event an error occurs or
+                    // the user cancels the operation
                     savedDefn = tableTypeHandler.getTypeDefinition(activeTypeName);
 
-                    // Delete the type definition and tables of the deleted
-                    // type
+                    // Delete the type definition and tables of the deleted type
                     dbTable.deleteTableType(activeTypeName,
                                             savedDefn.isStructure(),
                                             CcddTableTypeManagerDialog.this,
@@ -340,7 +329,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a type name field to the dialog
      *
      * @param labelText
@@ -354,7 +343,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
-     *************************************************************************/
+     *********************************************************************************************/
     private void addTypeNameField(String labelText,
                                   String intialName,
                                   JPanel dialogPanel,
@@ -411,11 +400,11 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         dialogPanel.add(pnl, dialogGbc);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
@@ -446,8 +435,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Step through each of the type names
                     for (String type : types)
                     {
-                        // Check if the user-supplied name matches an existing
-                        // type name (with the text forced to lower case)
+                        // Check if the user-supplied name matches an existing type name (with the
+                        // text forced to lower case)
                         if (type.equalsIgnoreCase(typeNameFld.getText()))
                         {
                             // Inform the user that the name is already in use

@@ -1,39 +1,36 @@
 /**
  * CFS Command & Data Dictionary static script data access handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
 import java.io.PrintWriter;
 
-/******************************************************************************
- * CFS Command & Data Dictionary static script data access class. This class
- * contains static public methods that are accessible to the data output
- * scripts
- *****************************************************************************/
+/**************************************************************************************************
+ * CFS Command & Data Dictionary static script data access class. This class contains static public
+ * methods that are accessible to the data output scripts
+ *************************************************************************************************/
 public class CcddScriptDataAccessHandlerStatic
 {
     private static CcddScriptDataAccessHandler accessHandler;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Static script data access class constructor
      *
      * @param accessHandler
      *            reference to the script data access handler (non-static)
-     *************************************************************************/
+     *********************************************************************************************/
     CcddScriptDataAccessHandlerStatic(CcddScriptDataAccessHandler accessHandler)
     {
         CcddScriptDataAccessHandlerStatic.accessHandler = accessHandler;
     }
 
-    /**************************************************************************
-     * Following are the static calls to the non-static versions of the public
-     * access methods
-     *************************************************************************/
+    /**********************************************************************************************
+     * Following are the static calls to the non-static versions of the public access methods
+     *********************************************************************************************/
     public static String getScriptName()
     {
         return accessHandler.getScriptName();
@@ -42,6 +39,11 @@ public class CcddScriptDataAccessHandlerStatic
     public static String getUser()
     {
         return accessHandler.getUser();
+    }
+
+    public static String getDatabase()
+    {
+        return accessHandler.getDatabase();
     }
 
     public static String getProject()

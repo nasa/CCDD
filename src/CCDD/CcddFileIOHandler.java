@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary file I/O handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -52,6 +51,7 @@ import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -69,9 +69,9 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary file I/O handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddFileIOHandler
 {
     // Class references
@@ -89,12 +89,12 @@ public class CcddFileIOHandler
     // Flag indicating if table importing is canceled by user input
     private boolean cancelImport;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * File I/O handler class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddFileIOHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -106,9 +106,9 @@ public class CcddFileIOHandler
         eventLog = ccddMain.getSessionEventLog();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the references to the table type and macro handler classes
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setHandlers()
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -117,49 +117,45 @@ public class CcddFileIOHandler
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
     }
 
-    /**************************************************************************
-     * Display the user's guide. The guide file must be located in the same
-     * folder as the .jar file. This command is executed in a separate thread
-     * since it may take a noticeable amount time to complete, and by using a
-     * separate thread the GUI is allowed to continue to update
-     *************************************************************************/
+    /**********************************************************************************************
+     * Display the user's guide. The guide file must be located in the same folder as the .jar
+     * file. This command is executed in a separate thread since it may take a noticeable amount
+     * time to complete, and by using a separate thread the GUI is allowed to continue to update
+     *********************************************************************************************/
     protected void displayUsersGuide()
     {
         // Extract and display the help file in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Extract (if not already extracted) and display the help file
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
                 try
                 {
-                    // Check if the Desktop class is not supported by the
-                    // platform
+                    // Check if the Desktop class is not supported by the platform
                     if (!Desktop.isDesktopSupported())
                     {
                         // Set the error type message
                         throw new CCDDException("Desktop class unsupported");
                     }
 
-                    // Get the path+name of the .jar file in a format
-                    // acceptable to all OS's. The user's guide is expected to
-                    // be found in the same folder as the .jar file
+                    // Get the path+name of the .jar file in a format acceptable to all OS's. The
+                    // user's guide is expected to be found in the same folder as the .jar file
                     String path = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
                                                     "UTF-8");
 
-                    // Display the user's guide - replace the .jar file name
-                    // with the user's guide name
+                    // Display the user's guide - replace the .jar file name with the user's guide
+                    // name
                     Desktop.getDesktop().open(new File(path.substring(0,
                                                                       path.lastIndexOf(File.separator) + 1)
                                                        + USERS_GUIDE));
                 }
                 catch (Exception e)
                 {
-                    // Inform the user that an error occurred opening the
-                    // user's guide
+                    // Inform the user that an error occurred opening the user's guide
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>User's guide '"
                                                                                        + USERS_GUIDE
@@ -174,18 +170,18 @@ public class CcddFileIOHandler
         });
     }
 
-    /**************************************************************************
-     * Backup the currently open project's database to a user-selected file
-     * using the pg_dump utility. The backup data is stored in plain text
-     * format
+    /**********************************************************************************************
+     * Backup the currently open project's database to a user-selected file using the pg_dump
+     * utility. The backup data is stored in plain text format
      *
      * @param doInBackground
      *            true to perform the operation in a background process
-     *************************************************************************/
+     *********************************************************************************************/
     protected void backupDatabaseToFile(boolean doInBackground)
     {
         // Get the name of the currently open database
-        String databaseName = dbControl.getDatabase();
+        String databaseName = dbControl.getDatabaseName();
+        String projectName = dbControl.getProjectName();
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -217,9 +213,9 @@ public class CcddFileIOHandler
         {
             String timeStamp = "";
 
-            /******************************************************************
+            /**************************************************************************************
              * Handle check box selection actions
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -256,7 +252,7 @@ public class CcddFileIOHandler
                                                                                                         FileExtension.DBU.getExtensionName())},
                                              false,
                                              false,
-                                             "Backup Project " + databaseName,
+                                             "Backup Project " + projectName,
                                              ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
                                              DialogOption.BACKUP_OPTION,
                                              stampPnl);
@@ -279,8 +275,7 @@ public class CcddFileIOHandler
                     // Check if the file can be deleted
                     if (!dataFile[0].delete())
                     {
-                        // Inform the user that the existing backup file cannot
-                        // be replaced
+                        // Inform the user that the existing backup file cannot be replaced
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot replace existing backup file<br>'</b>"
                                                                                            + dataFile[0].getAbsolutePath()
@@ -299,31 +294,29 @@ public class CcddFileIOHandler
                 }
             }
 
-            // Check that no errors occurred and that the user didn't cancel
-            // the backup
+            // Check that no errors occurred and that the user didn't cancel the backup
             if (!cancelBackup)
             {
                 // Check if the operation should be performed in the background
                 if (doInBackground)
                 {
                     // Create a backup of the current database
-                    dbControl.backupDatabaseInBackground(databaseName, dataFile[0]);
+                    dbControl.backupDatabaseInBackground(projectName, dataFile[0]);
                 }
                 // Perform the operation in the foreground
                 else
                 {
                     // Create a backup of the current database
-                    dbControl.backupDatabase(databaseName, dataFile[0]);
+                    dbControl.backupDatabase(projectName, dataFile[0]);
                 }
             }
         }
     }
 
-    /**************************************************************************
-     * Restore a project's database from a user-selected backup file. The
-     * backup is a plain text file containing the PostgreSQL commands necessary
-     * to rebuild the database
-     *************************************************************************/
+    /**********************************************************************************************
+     * Restore a project's database from a user-selected backup file. The backup is a plain text
+     * file containing the PostgreSQL commands necessary to rebuild the database
+     *********************************************************************************************/
     protected void restoreDatabaseFromFile()
     {
         File tempFile = null;
@@ -363,54 +356,50 @@ public class CcddFileIOHandler
                 String projectOwner = null;
                 String projectDescription = null;
 
-                // Create a temporary file in which to copy the backup file
-                // contents
+                // Create a temporary file in which to copy the backup file contents
                 tempFile = File.createTempFile(dataFile[0].getName(), "");
 
-                // Create a buffered reader to read the file and a buffered
-                // writer to write the file
+                // Create a buffered reader to read the file and a buffered writer to write the
+                // file
                 br = new BufferedReader(new FileReader(dataFile[0]));
                 bw = new BufferedWriter(new FileWriter(tempFile));
 
                 // Read each line in the backup file
                 while ((line = br.readLine()) != null)
                 {
-                    // Check if the database owner hasn't been found already
-                    // and that the line contains the owner information
+                    // Check if the database owner hasn't been found already and that the line
+                    // contains the owner information
                     if (!ownerFound
                         && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
                     {
-                        // Get the owner and store it, and set the flag
-                        // indicating the owner is located
+                        // Get the owner and store it, and set the flag indicating the owner is
+                        // located
                         projectOwner = line.replaceFirst(".*Owner: ", "");
                         ownerFound = true;
                     }
 
-                    // Check if the database comment hasn't been found already
-                    // and that the line contains the comment information
+                    // Check if the database comment hasn't been found already and that the line
+                    // contains the comment information
                     if (!commentFound
                         && line.matches("COMMENT ON DATABASE .+ IS '"
                                         + CCDD_PROJECT_IDENTIFIER
                                         + ".+"))
                     {
-                        // Split the line read from the file in order to get
-                        // the project name and description
-                        String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 4);
+                        // Split the line read from the file in order to get the project name and
+                        // description
+                        String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 3);
 
-                        // Check if the necessary components of the comment
-                        // exist
-                        if (parts.length == 4)
+                        // Check if the necessary components of the comment exist
+                        if (parts.length == 3)
                         {
-                            // Extract the project name (with case
-                            // preserved) and description, and set the flag
-                            // indicating the comment is located
-                            projectName = parts[1];
-                            projectDescription = CcddUtilities.removeTrailer(parts[2], "'");
+                            // Extract the project name (with case preserved) and description, and
+                            // set the flag indicating the comment is located
+                            projectName = parts[DatabaseComment.PROJECT_NAME.ordinal()];
+                            projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "'");
                             commentFound = true;
 
-                            // Insert a comment indicator into the file so that
-                            // this line isn't executed when the database is
-                            // restored
+                            // Insert a comment indicator into the file so that this line isn't
+                            // executed when the database is restored
                             line = "-- " + line;
                         }
                     }
@@ -422,14 +411,19 @@ public class CcddFileIOHandler
                 // Check if the project owner, name, and description exist
                 if (ownerFound && commentFound)
                 {
-                    // Restore the database from the temporary file. This file
-                    // has the line that disables creation of the database
-                    // comment, which is handled when the restored database is
-                    // created
+                    // Restore the database from the temporary file. This file has the line that
+                    // disables creation of the database comment, which is handled when the
+                    // restored database is created
                     dbControl.restoreDatabase(projectName,
                                               projectOwner,
                                               projectDescription,
                                               tempFile);
+
+                    // Store the data file path in the program preferences backing store
+                    storePath(ccddMain,
+                              dataFile[0].getAbsolutePath(),
+                              true,
+                              ModifiablePathInfo.DATABASE_BACKUP_PATH);
                 }
                 // The project owner, name, and description don't exist
                 else
@@ -496,8 +490,7 @@ public class CcddFileIOHandler
                     }
                     catch (IOException ioe)
                     {
-                        // Inform the user that the output file cannot be
-                        // closed
+                        // Inform the user that the output file cannot be closed
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot close backup file<br>'</b>"
                                                                                            + tempFile.getAbsolutePath()
@@ -511,37 +504,33 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Import one or more files, creating new tables and optionally replacing
-     * existing ones. The file(s) may contain definitions for more than one
-     * table. This method is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the
-     * GUI is allowed to continue to update. The GUI menu commands, however,
+    /**********************************************************************************************
+     * Import one or more files, creating new tables and optionally replacing existing ones. The
+     * file(s) may contain definitions for more than one table. This method is executed in a
+     * separate thread since it can take a noticeable amount time to complete, and by using a
+     * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
      * are disabled until the database method completes execution
      *
      * @param dataFile
      *            array of files to import
      *
      * @param backupFirst
-     *            true to create a backup of the database before importing
-     *            tables
+     *            true to create a backup of the database before importing tables
      *
      * @param replaceExisting
      *            true to replace a table that already exists in the database
      *
      * @param appendExistingFields
-     *            true to append the existing data fields for a table (if any)
-     *            to the imported ones (if any). Only valid when
-     *            replaceExisting is true
+     *            true to append the existing data fields for a table (if any) to the imported ones
+     *            (if any). Only valid when replaceExisting is true
      *
      * @param useExistingFields
-     *            true to replace an existing data field with the imported ones
-     *            if the field names match. Only valid when replaceExisting and
-     *            appendExistingFields are true
+     *            true to replace an existing data field with the imported ones if the field names
+     *            match. Only valid when replaceExisting and appendExistingFields are true
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     protected void importFile(final File[] dataFile,
                               final boolean backupFirst,
                               final boolean replaceExisting,
@@ -552,8 +541,8 @@ public class CcddFileIOHandler
         // Create a data field handler
         final CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
 
-        // Store the current table type, data type, macro, reserved message ID,
-        // and data field information in case it needs to be restored
+        // Store the current table type, data type, macro, reserved message ID, and data field
+        // information in case it needs to be restored
         final List<TypeDefinition> originalTableTypes = new ArrayList<TypeDefinition>(tableTypeHandler.getTypeDefinitions());
         final List<String[]> originalDataTypes = new ArrayList<String[]>(dataTypeHandler.getDataTypeData());
         final List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
@@ -568,9 +557,9 @@ public class CcddFileIOHandler
 
             boolean errorFlag = false;
 
-            /******************************************************************
+            /**************************************************************************************
              * Import the selected table(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -579,8 +568,7 @@ public class CcddFileIOHandler
                 // Create a reference to a table editor dialog
                 tableEditorDlg = null;
 
-                // Check if the user elected to back up the project before
-                // importing tables
+                // Check if the user elected to back up the project before importing tables
                 if (backupFirst)
                 {
                     // Back up the project database
@@ -600,29 +588,25 @@ public class CcddFileIOHandler
                                                     + "<b>'");
                         }
 
-                        // Check if the file to import is in CSV format based
-                        // on the extension
+                        // Check if the file to import is in CSV format based on the extension
                         if (file.getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
                         {
                             // Create a CSV handler
                             ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
                         }
-                        // Check if the file to import is in EDS XML format
-                        // based on the extension
+                        // Check if the file to import is in EDS XML format based on the extension
                         else if (file.getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
                         {
                             // Create an EDS handler
                             ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
                         }
-                        // Check if the file to import is in JSON format based
-                        // on the extension
+                        // Check if the file to import is in JSON format based on the extension
                         else if (file.getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                         {
                             // Create a JSON handler
                             ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
                         }
-                        // Check if the file to import is in XTCE XML format
-                        // based on the extension
+                        // Check if the file to import is in XTCE XML format based on the extension
                         else if (file.getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
                         {
                             // Create an XTCE handler
@@ -636,92 +620,78 @@ public class CcddFileIOHandler
                                                     + "'; unrecognized file type");
                         }
 
-                        // Check that no error occurred creating the format
-                        // conversion handler
+                        // Check that no error occurred creating the format conversion handler
                         if (!ioHandler.getErrorStatus())
                         {
                             // Import the table definition(s) from the file
                             ioHandler.importFromFile(file, ImportType.IMPORT_ALL);
 
-                            // Check if the user elected to append any new data
-                            // fields to any existing ones for a table
+                            // Check if the user elected to append any new data fields to any
+                            // existing ones for a table
                             if (appendExistingFields)
                             {
                                 // Step through each table definition
                                 for (TableDefinition tableDefn : ioHandler.getTableDefinitions())
                                 {
-                                    // Build the field information for this
-                                    // table
+                                    // Build the field information for this table
                                     fieldHandler.buildFieldInformation(tableDefn.getName());
 
-                                    // Step through the imported data fields.
-                                    // The order is reversed so that field
-                                    // definitions can be removed if needed
+                                    // Step through the imported data fields. The order is reversed
+                                    // so that field definitions can be removed if needed
                                     for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--)
                                     {
                                         String[] fieldDefn = tableDefn.getDataFields().get(index);
 
-                                        // Get the reference to the data field
-                                        // based on the table name and field
-                                        // name
+                                        // Get the reference to the data field based on the table
+                                        // name and field name
                                         FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
                                                                                                             fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
-                                        // Check if the data field already
-                                        // exists
+                                        // Check if the data field already exists
                                         if (fieldInfo != null)
                                         {
-                                            // Check if the original data field
-                                            // information supersedes the
-                                            // imported one
+                                            // Check if the original data field information
+                                            // supersedes the imported one
                                             if (useExistingFields)
                                             {
-                                                // Remove the new data field
-                                                // definition
+                                                // Remove the new data field definition
                                                 tableDefn.getDataFields().remove(index);
                                             }
-                                            // The imported data field
-                                            // information replaces the
+                                            // The imported data field information replaces the
                                             // original
                                             else
                                             {
-                                                // Remove the original data
-                                                // field definition
+                                                // Remove the original data field definition
                                                 fieldHandler.getFieldInformation().remove(fieldInfo);
                                             }
                                         }
                                     }
 
-                                    // Combine the imported and existing data
-                                    // fields
+                                    // Combine the imported and existing data fields
                                     tableDefn.getDataFields().addAll(fieldHandler.getFieldDefinitionList());
                                 }
                             }
 
-                            // Step through each table definition from the
-                            // import file
+                            // Step through each table definition from the import file
                             for (TableDefinition newDefn : ioHandler.getTableDefinitions())
                             {
                                 boolean isFound = false;
 
-                                // Step through each table definition already
-                                // in the list
+                                // Step through each table definition already in the list
                                 for (TableDefinition existingDefn : allTableDefinitions)
                                 {
-                                    // Check if the table is already defined in
-                                    // the list
+                                    // Check if the table is already defined in the list
                                     if (newDefn.getName().equals(existingDefn.getName()))
                                     {
-                                        // Add the table name and associated
-                                        // file name to the list of duplicates
+                                        // Add the table name and associated file name to the list
+                                        // of duplicates
                                         duplicateDefinitions.add(newDefn.getName()
                                                                  + " (file: "
                                                                  + file.getName()
                                                                  + ")");
 
-                                        // Set the flag indicating the table
-                                        // definition is a duplicate and stop
-                                        // searching
+                                        // Set the flag indicating the table definition is a
+                                        // duplicate and stop searching
                                         isFound = true;
                                         break;
                                     }
@@ -735,8 +705,7 @@ public class CcddFileIOHandler
                                 }
                             }
                         }
-                        // An error occurred creating the format conversion
-                        // handler
+                        // An error occurred creating the format conversion handler
                         else
                         {
                             errorFlag = true;
@@ -759,8 +728,7 @@ public class CcddFileIOHandler
                         // Check if an error message is provided
                         if (!ce.getMessage().isEmpty())
                         {
-                            // Inform the user that an error occurred reading
-                            // the import file
+                            // Inform the user that an error occurred reading the import file
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
                                                                               + ce.getMessage(),
@@ -773,17 +741,16 @@ public class CcddFileIOHandler
                     }
                     catch (Exception e)
                     {
-                        // Display a dialog providing details on the
-                        // unanticipated error
+                        // Display a dialog providing details on the unanticipated error
                         CcddUtilities.displayException(e, parent);
                         errorFlag = true;
                     }
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Import table(s) command complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -792,14 +759,13 @@ public class CcddFileIOHandler
                 {
                     try
                     {
-                        // Enable creation of a save point in case an error
-                        // occurs while creating or modifying a table. This
-                        // prevents committing the changes to the database
-                        // until after all database transactions are complete
+                        // Enable creation of a save point in case an error occurs while creating
+                        // or modifying a table. This prevents committing the changes to the
+                        // database until after all database transactions are complete
                         dbCommand.setSavePointEnable(true);
 
-                        // Create the data tables from the imported table
-                        // definitions from all files
+                        // Create the data tables from the imported table definitions from all
+                        // files
                         createTablesFromDefinitions(allTableDefinitions,
                                                     replaceExisting,
                                                     parent);
@@ -811,12 +777,11 @@ public class CcddFileIOHandler
                     {
                         errorFlag = true;
 
-                        // Check if this is an internally generated exception
-                        // and that an error message is provided
+                        // Check if this is an internally generated exception and that an error
+                        // message is provided
                         if (cse instanceof CCDDException && !cse.getMessage().isEmpty())
                         {
-                            // Inform the user that an error occurred reading
-                            // the import file
+                            // Inform the user that an error occurred reading the import file
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
                                                                               + cse.getMessage(),
@@ -827,8 +792,8 @@ public class CcddFileIOHandler
 
                         try
                         {
-                            // Revert the changes to the tables that were
-                            // successfully updated prior the current table
+                            // Revert the changes to the tables that were successfully updated
+                            // prior the current table
                             dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
                                                        + DB_SAVE_POINT_NAME
                                                        + ";",
@@ -836,8 +801,7 @@ public class CcddFileIOHandler
                         }
                         catch (SQLException se)
                         {
-                            // Inform the user that the reversion to the save
-                            // point failed
+                            // Inform the user that the reversion to the save point failed
                             eventLog.logFailEvent(parent,
                                                   "Cannot revert changes to table(s); cause '"
                                                           + se.getMessage()
@@ -852,23 +816,21 @@ public class CcddFileIOHandler
                     }
                 }
 
-                // Check if no errors occurred importing and creating the
-                // table(s)
+                // Check if no errors occurred importing and creating the table(s)
                 if (!errorFlag)
                 {
-                    // Store the data file path in the program preferences
-                    // backing store
+                    // Store the data file path in the program preferences backing store
                     storePath(ccddMain,
                               dataFile[0].getAbsolutePath(),
                               true,
                               ModifiablePathInfo.TABLE_EXPORT_PATH);
 
-                    // Update any open editor's data type columns to include
-                    // the new table(s), if applicable
+                    // Update any open editor's data type columns to include the new table(s), if
+                    // applicable
                     dbTable.updateDataTypeColumns(parent);
 
-                    // Update any open editor's message ID names columns to
-                    // include any new message ID names, if applicable
+                    // Update any open editor's message ID names columns to include any new message
+                    // ID names, if applicable
                     dbTable.updateMessageIDNamesColumns(parent);
 
                     eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
@@ -877,8 +839,8 @@ public class CcddFileIOHandler
                     // Check if any duplicate table definitions were detected
                     if (!duplicateDefinitions.isEmpty())
                     {
-                        // Inform the user that one or more duplicate table
-                        // definitions were detected
+                        // Inform the user that one or more duplicate table definitions were
+                        // detected
                         new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Ignored the following duplicate table definition(s):</b><br>"
                                                                           + dbTable.getShortenedTableNames(duplicateDefinitions.toArray(new String[0])),
@@ -890,9 +852,8 @@ public class CcddFileIOHandler
                 // An error occurred while importing the table(s)
                 else
                 {
-                    // Restore the table types, data types, macros, reserved
-                    // message IDs, and data fields to the values prior to the
-                    // import operation
+                    // Restore the table types, data types, macros, reserved message IDs, and data
+                    // fields to the values prior to the import operation
                     tableTypeHandler.setTypeDefinitions(originalTableTypes);
                     dataTypeHandler.setDataTypeData(originalDataTypes);
                     macroHandler.setMacroData(originalMacros);
@@ -911,7 +872,7 @@ public class CcddFileIOHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create one or more data tables from the supplied table definitions
      *
      * @param tableDefinitions
@@ -924,9 +885,9 @@ public class CcddFileIOHandler
      *            GUI component calling this method
      *
      * @throws CCDDException
-     *             If the table path name is invalid or the table cannot be
-     *             created from the table definition
-     *************************************************************************/
+     *             If the table path name is invalid or the table cannot be created from the table
+     *             definition
+     *********************************************************************************************/
     private void createTablesFromDefinitions(List<TableDefinition> tableDefinitions,
                                              boolean replaceExisting,
                                              final Component parent) throws CCDDException
@@ -935,15 +896,14 @@ public class CcddFileIOHandler
         boolean prototypesOnly = true;
         List<String> skippedTables = new ArrayList<String>();
 
-        // Get the list of all tables, including the paths for child structure
-        // tables
+        // Get the list of all tables, including the paths for child structure tables
         CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
                                                                   TableTreeType.TABLES,
                                                                   parent);
         List<String> allTables = tableTree.getTableTreePathList(null);
 
-        // Perform two passes; first to process prototype tables, and second to
-        // process child tables
+        // Perform two passes; first to process prototype tables, and second to process child
+        // tables
         for (int loop = 1; loop <= 2 && !cancelImport; loop++)
         {
             // Step through each table definition
@@ -957,8 +917,7 @@ public class CcddFileIOHandler
                                                  + InputDataType.VARIABLE.getInputMatch()
                                                  + ")+)"))
                 {
-                    // Inform the user the table path/name isn't in the correct
-                    // format
+                    // Inform the user the table path/name isn't in the correct format
                     throw new CCDDException("Invalid table path/name '</b>"
                                             + tableDefn.getName()
                                             + "<b>' format");
@@ -972,10 +931,9 @@ public class CcddFileIOHandler
                     continue;
                 }
 
-                // Check if cell data is provided in the import file. Creation
-                // of empty tables is not allowed. Also check if this is a
-                // prototype table and this is the first pass, or if this is a
-                // child table and this is the second pass
+                // Check if cell data is provided in the import file. Creation of empty tables is
+                // not allowed. Also check if this is a prototype table and this is the first pass,
+                // or if this is a child table and this is the second pass
                 if (!tableDefn.getData().isEmpty()
                     && (!tableDefn.getName().contains(",") != !prototypesOnly))
                 {
@@ -997,25 +955,22 @@ public class CcddFileIOHandler
                     // Check if the new table is not a prototype
                     if (!tableInfo.isPrototype())
                     {
-                        // Break the path into the individual structure
-                        // variable references
+                        // Break the path into the individual structure variable references
                         String[] ancestors = tableInfo.getTablePath().split(",");
 
-                        // Step through each structure table referenced in the
-                        // path of the new table
+                        // Step through each structure table referenced in the path of the new
+                        // table
                         for (int index = ancestors.length - 1; index >= 0 && !cancelImport; index--)
                         {
-                            // Split the ancestor into the data type (i.e.,
-                            // structure name) and variable name
+                            // Split the ancestor into the data type (i.e., structure name) and
+                            // variable name
                             String[] typeAndVar = ancestors[index].split("\\.");
 
-                            // Check if the ancestor prototype table doesn't
-                            // exist
+                            // Check if the ancestor prototype table doesn't exist
                             if (!dbTable.isTableExists(typeAndVar[0].toLowerCase(),
                                                        ccddMain.getMainFrame()))
                             {
-                                // Create the table information for the new
-                                // prototype table
+                                // Create the table information for the new prototype table
                                 TableInformation ancestorInfo = new TableInformation(tableDefn.getTypeName(),
                                                                                      typeAndVar[0],
                                                                                      new String[0][0],
@@ -1024,12 +979,10 @@ public class CcddFileIOHandler
                                                                                      true,
                                                                                      tableDefn.getDataFields().toArray(new Object[0][0]));
 
-                                // Check if this is the child table and not one
-                                // of its ancestors
+                                // Check if this is the child table and not one of its ancestors
                                 if (index == ancestors.length - 1)
                                 {
-                                    // Create a list to store a copy of the
-                                    // cell data
+                                    // Create a list to store a copy of the cell data
                                     List<String> protoData = new ArrayList<String>(tableDefn.getData());
 
                                     // Step through each row of the cell data
@@ -1038,8 +991,8 @@ public class CcddFileIOHandler
                                         // Step through each column in the row
                                         for (int colIndex = 0; colIndex < numColumns; colIndex++)
                                         {
-                                            // Check if the column is not
-                                            // required by the table type
+                                            // Check if the column is not required by the table
+                                            // type
                                             if (!DefaultColumn.isTypeRequiredColumn((typeDefn.isStructure()
                                                                                                             ? TYPE_STRUCTURE
                                                                                                             : (typeDefn.isCommand()
@@ -1047,19 +1000,16 @@ public class CcddFileIOHandler
                                                                                                                                     : TYPE_OTHER)),
                                                                                     typeDefn.getInputTypesVisible()[colIndex]))
                                             {
-                                                // Replace the non-required
-                                                // column value with a blank.
-                                                // The child's non-required
-                                                // values are therefore not
-                                                // inherited from the prototype
+                                                // Replace the non-required column value with a
+                                                // blank. The child's non-required values are
+                                                // therefore not inherited from the prototype
                                                 protoData.set(cellIndex + colIndex, "");
                                             }
                                         }
                                     }
 
-                                    // Create the prototype of the child table
-                                    // and populate it with the protected
-                                    // column data
+                                    // Create the prototype of the child table and populate it with
+                                    // the protected column data
                                     if (!createImportedTable(ancestorInfo,
                                                              protoData,
                                                              numColumns,
@@ -1077,20 +1027,18 @@ public class CcddFileIOHandler
                                 // This is an ancestor of the child table
                                 else
                                 {
-                                    // Split the ancestor into the data type
-                                    // (i.e., structure name) and variable name
+                                    // Split the ancestor into the data type (i.e., structure name)
+                                    // and variable name
                                     typeAndVar = ancestors[index + 1].split("\\.|$", -1);
 
-                                    // Add the variable reference to the new
-                                    // table
+                                    // Add the variable reference to the new table
                                     String[] rowData = new String[typeDefn.getColumnCountVisible()];
                                     Arrays.fill(rowData, "");
                                     rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE))] = typeAndVar[1];
                                     rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT))] = typeAndVar[0];
 
-                                    // Create the prototype of the child table
-                                    // and populate it with the protected
-                                    // column data
+                                    // Create the prototype of the child table and populate it with
+                                    // the protected column data
                                     if (!createImportedTable(ancestorInfo,
                                                              Arrays.asList(rowData),
                                                              numColumns,
@@ -1108,8 +1056,8 @@ public class CcddFileIOHandler
                             }
                         }
 
-                        // Load the table's prototype data from the database
-                        // and copy the prototype's data to the table
+                        // Load the table's prototype data from the database and copy the
+                        // prototype's data to the table
                         TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
                                                                            true,
                                                                            false,
@@ -1188,9 +1136,8 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Create a new data table or replace an existing one and paste the
-     * supplied cell data into it
+    /**********************************************************************************************
+     * Create a new data table or replace an existing one and paste the supplied cell data into it
      *
      * @param tableInfo
      *            table information for the table to create
@@ -1213,14 +1160,13 @@ public class CcddFileIOHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return true if the table is successfully imported; false if the table
-     *         is exists and the replaceExisting flag is not true
+     * @return true if the table is successfully imported; false if the table is exists and the
+     *         replaceExisting flag is not true
      *
      * @throws CCDDException
-     *             The existing table that the new table replaces cannot be
-     *             removed, the new table cannot be created, or the data cannot
-     *             be added to the newly created table
-     *************************************************************************/
+     *             The existing table that the new table replaces cannot be removed, the new table
+     *             cannot be created, or the data cannot be added to the newly created table
+     *********************************************************************************************/
     private boolean createImportedTable(TableInformation tableInfo,
                                         List<String> cellData,
                                         int numColumns,
@@ -1236,15 +1182,14 @@ public class CcddFileIOHandler
         // Set the flag if the table already is present in the database
         boolean isExists = allTables.contains(tableInfo.getTablePath());
 
-        // Check if the table already exists and if the user didn't elect to
-        // replace existing tables
+        // Check if the table already exists and if the user didn't elect to replace existing
+        // tables
         if (isExists && !replaceExisting)
         {
             // Set the flag to indicate the table wasn't imported
             isImported = false;
         }
-        // The table doesn't exist or the user elected to overwrite the
-        // existing table
+        // The table doesn't exist or the user elected to overwrite the existing table
         else
         {
             // Check if this table is a prototype
@@ -1261,8 +1206,7 @@ public class CcddFileIOHandler
                         throw new CCDDException();
                     }
 
-                    // Add the prototype table name to the list of table
-                    // editors to close
+                    // Add the prototype table name to the list of table editors to close
                     tableName.add(new String[] {tableInfo.getPrototypeName(), null});
                 }
 
@@ -1278,15 +1222,14 @@ public class CcddFileIOHandler
             // Not a prototype table. Check if the child structure table exists
             else if (isExists)
             {
-                // Add the parent and prototype table name to the list of table
-                // editors to close
+                // Add the parent and prototype table name to the list of table editors to close
                 tableName.add(new String[] {tableInfo.getParentTable(),
                                             tableInfo.getPrototypeName()});
             }
         }
 
-        // Check if the prototype was successfully created, or if the table
-        // isn't a prototype and doesn't already exist
+        // Check if the prototype was successfully created, or if the table isn't a prototype and
+        // doesn't already exist
         if (isImported)
         {
             // Close any editors associated with this prototype table
@@ -1296,13 +1239,11 @@ public class CcddFileIOHandler
             List<TableInformation> tableInformation = new ArrayList<TableInformation>();
             tableInformation.add(tableInfo);
 
-            // Check if a table editor dialog has not already been created for
-            // the added tables. All of the new tables are opened in this
-            // editor dialog
+            // Check if a table editor dialog has not already been created for the added tables.
+            // All of the new tables are opened in this editor dialog
             if (tableEditorDlg == null)
             {
-                // Create a table editor dialog and open the new table editor
-                // in it
+                // Create a table editor dialog and open the new table editor in it
                 tableEditorDlg = new CcddTableEditorDialog(ccddMain, tableInformation);
                 ccddMain.getTableEditorDialogs().add(tableEditorDlg);
             }
@@ -1316,16 +1257,16 @@ public class CcddFileIOHandler
             // Get the reference to the table's editor
             CcddTableEditorHandler tableEditor = tableEditorDlg.getTableEditor();
 
-            // Paste the data into the table; check if the user canceled
-            // importing the table following a cell validation error
+            // Paste the data into the table; check if the user canceled importing the table
+            // following a cell validation error
             if (tableEditor.getTable().pasteData(cellData.toArray(new String[0]),
                                                  numColumns,
                                                  false,
                                                  true,
                                                  true))
             {
-                // Set the flags to indicate that importing should stop and
-                // that this table is not imported
+                // Set the flags to indicate that importing should stop and that this table is not
+                // imported
                 cancelImport = true;
                 isImported = false;
             }
@@ -1346,7 +1287,6 @@ public class CcddFileIOHandler
                                             true,
                                             true,
                                             null,
-                                            null,
                                             parent))
                 {
                     throw new CCDDException();
@@ -1357,14 +1297,12 @@ public class CcddFileIOHandler
         return isImported;
     }
 
-    /**************************************************************************
-     * Import the contents of a file selected by the user into the specified
-     * existing table
+    /**********************************************************************************************
+     * Import the contents of a file selected by the user into the specified existing table
      *
      * @param tableHandler
-     *            reference to the table handler for the table into which to
-     *            import the data
-     *************************************************************************/
+     *            reference to the table handler for the table into which to import the data
+     *********************************************************************************************/
     protected void importSelectedFileIntoTable(CcddTableEditorHandler tableHandler)
     {
         // Allow the user to select the data file path + name to import from
@@ -1393,8 +1331,7 @@ public class CcddFileIOHandler
                 List<TableDefinition> tableDefinitions = null;
                 CcddImportExportInterface ioHandler = null;
 
-                // Check if the file to import is in CSV format based on the
-                // extension
+                // Check if the file to import is in CSV format based on the extension
                 if (dataFile[0].getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
@@ -1402,8 +1339,7 @@ public class CcddFileIOHandler
                                                    tableHandler.getFieldHandler(),
                                                    tableHandler.getOwner());
                 }
-                // Check if the file to import is in EDS XML format based on
-                // the extension
+                // Check if the file to import is in EDS XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create an EDS handler
@@ -1411,8 +1347,7 @@ public class CcddFileIOHandler
                                                    tableHandler.getFieldHandler(),
                                                    tableHandler.getOwner());
                 }
-                // Check if the file to import is in JSON format based on the
-                // extension
+                // Check if the file to import is in JSON format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
@@ -1420,8 +1355,7 @@ public class CcddFileIOHandler
                                                     tableHandler.getFieldHandler(),
                                                     tableHandler.getOwner());
                 }
-                // Check if the file to import is in XTCE XML format based on
-                // the extension
+                // Check if the file to import is in XTCE XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
                 {
                     // Create an XTCE handler
@@ -1437,12 +1371,10 @@ public class CcddFileIOHandler
                                             + "' into table; unrecognized file type");
                 }
 
-                // Check that no error occurred creating the format conversion
-                // handler
+                // Check that no error occurred creating the format conversion handler
                 if (!ioHandler.getErrorStatus())
                 {
-                    // Store the current table type information so that it can
-                    // be restored
+                    // Store the current table type information so that it can be restored
                     List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
 
                     // Import the data file into a table definition
@@ -1452,18 +1384,15 @@ public class CcddFileIOHandler
                     // Check if a table definition was successfully created
                     if (tableDefinitions != null && !tableDefinitions.isEmpty())
                     {
-                        // Paste the data from the table definition into the
-                        // specified table
+                        // Paste the data from the table definition into the specified table
                         pasteIntoTableFromDefinition(tableHandler,
                                                      tableDefinitions.get(0),
                                                      tableHandler.getOwner());
 
-                        // Restore the table types to the values prior to the
-                        // import operation
+                        // Restore the table types to the values prior to the import operation
                         tableTypeHandler.setTypeDefinitions(originalTableTypes);
 
-                        // Store the data file path in the program preferences
-                        // backing store
+                        // Store the data file path in the program preferences backing store
                         storePath(ccddMain,
                                   dataFile[0].getAbsolutePath(),
                                   false,
@@ -1487,8 +1416,7 @@ public class CcddFileIOHandler
                 // Check if an error message is provided
                 if (!ce.getMessage().isEmpty())
                 {
-                    // Inform the user that an error occurred reading the
-                    // import file
+                    // Inform the user that an error occurred reading the import file
                     new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                               "<html><b>"
                                                                                        + ce.getMessage(),
@@ -1499,26 +1427,24 @@ public class CcddFileIOHandler
             }
             catch (Exception e)
             {
-                // Display a dialog providing details on the unanticipated
-                // error
+                // Display a dialog providing details on the unanticipated error
                 CcddUtilities.displayException(e, tableHandler.getOwner());
             }
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Paste the data in a table definition into the specified table
      *
      * @param tableHandler
-     *            reference to the table handler for the table into which to
-     *            import the data
+     *            reference to the table handler for the table into which to import the data
      *
      * @param tableDefn
      *            table definition containing the data to paste
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     private void pasteIntoTableFromDefinition(CcddTableEditorHandler tableHandler,
                                               TableDefinition tableDefn,
                                               final Component parent)
@@ -1540,8 +1466,8 @@ public class CcddFileIOHandler
             // Get the original number of rows in the table
             int numRows = tableHandler.getTableModel().getRowCount();
 
-            // Paste the data into the table; check if the user hasn't canceled
-            // importing the table following a cell validation error
+            // Paste the data into the table; check if the user hasn't canceled importing the table
+            // following a cell validation error
             if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
                                                    tableHandler.getTable().getColumnCount(),
                                                    true,
@@ -1561,53 +1487,48 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Export the contents of one or more tables selected by the user to one or
-     * more files in the specified format. The export file names are based on
-     * the table name if each table is stored in a separate file. The user
-     * supplied file name is used if multiple tables are stored in a single
-     * file. This method is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the
-     * GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the database method completes execution
+    /**********************************************************************************************
+     * Export the contents of one or more tables selected by the user to one or more files in the
+     * specified format. The export file names are based on the table name if each table is stored
+     * in a separate file. The user supplied file name is used if multiple tables are stored in a
+     * single file. This method is executed in a separate thread since it can take a noticeable
+     * amount time to complete, and by using a separate thread the GUI is allowed to continue to
+     * update. The GUI menu commands, however, are disabled until the database method completes
+     * execution
      *
      * @param filePath
-     *            path to the folder in which to store the exported tables.
-     *            Includes the name if storing the tables to a single file
+     *            path to the folder in which to store the exported tables. Includes the name if
+     *            storing the tables to a single file
      *
      * @param tablePaths
      *            table path for each table to load
      *
      * @param overwriteFile
-     *            true to store overwrite an existing file; false skip
-     *            exporting a table to a file that already exists
+     *            true to store overwrite an existing file; false skip exporting a table to a file
+     *            that already exists
      *
      * @param singleFile
-     *            true to store multiple tables in a single file; false to
-     *            store each table in a separate file
+     *            true to store multiple tables in a single file; false to store each table in a
+     *            separate file
      *
      * @param replaceMacros
-     *            true to replace macros with their corresponding values; false
-     *            to leave the macros intact
+     *            true to replace macros with their corresponding values; false to leave the macros
+     *            intact
      *
      * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table
-     *            in the export file
+     *            true to include the contents of the reserved message ID table in the export file
      *
      * @param includeVariablePaths
-     *            true to include the variable path for each variable in a
-     *            structure table, both in application format and using the
-     *            user-defined separator characters
+     *            true to include the variable path for each variable in a structure table, both in
+     *            application format and using the user-defined separator characters
      *
      * @param variableHandler
-     *            variable handler class reference; null if
-     *            includeVariablePaths is false
+     *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator
-     *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s); null if
-     *            includeVariablePaths is false
+     *            string array containing the variable path separator character(s), show/hide data
+     *            types flag ('true' or 'false'), and data type/variable name separator
+     *            character(s); null if includeVariablePaths is false
      *
      * @param fileExtn
      *            file extension type
@@ -1632,7 +1553,7 @@ public class CcddFileIOHandler
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     protected void exportSelectedTables(final String filePath,
                                         final String[] tablePaths,
                                         final boolean overwriteFile,
@@ -1659,9 +1580,9 @@ public class CcddFileIOHandler
             // Remove the trailing period if present
             String path = CcddUtilities.removeTrailer(filePath, ".");
 
-            /******************************************************************
+            /**************************************************************************************
              * Export the selected table(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1674,12 +1595,11 @@ public class CcddFileIOHandler
                                                                      null,
                                                                      parent);
 
-                // Check if the user elected to store all tables in a single
-                // file. The path must include a file name
+                // Check if the user elected to store all tables in a single file. The path must
+                // include a file name
                 if (singleFile)
                 {
-                    // Check if the file name doesn't end with the expected
-                    // extension
+                    // Check if the file name doesn't end with the expected extension
                     if (!path.endsWith(fileExtn.getExtension()))
                     {
                         // Append the extension to the file name
@@ -1689,9 +1609,8 @@ public class CcddFileIOHandler
                     // Create the file using the supplied name
                     file = new File(path);
                 }
-                // The table(s) are to be stored in individual files, so
-                // the path doesn't include a file name. Check if the path
-                // doesn't terminate with a name separator character
+                // The table(s) are to be stored in individual files, so the path doesn't include a
+                // file name. Check if the path doesn't terminate with a name separator character
                 else if (!path.endsWith(File.separator))
                 {
                     // Append the name separator character to the path
@@ -1723,21 +1642,19 @@ public class CcddFileIOHandler
                     ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, parent);
                 }
 
-                // Check that no error occurred creating the format conversion
-                // handler
+                // Check that no error occurred creating the format conversion handler
                 if (!ioHandler.getErrorStatus())
                 {
                     // Check if the tables are to be exported to a single file
                     if (singleFile)
                     {
-                        // Check if the file doesn't exist, or if it does and
-                        // the user elects to overwrite it
+                        // Check if the file doesn't exist, or if it does and the user elects to
+                        // overwrite it
                         if (isOverwriteExportFileIfExists(file,
                                                           overwriteFile,
                                                           parent))
                         {
-                            // Export the formatted table data to the specified
-                            // file
+                            // Export the formatted table data to the specified file
                             if (ioHandler.exportToFile(file,
                                                        tablePaths,
                                                        replaceMacros,
@@ -1767,20 +1684,19 @@ public class CcddFileIOHandler
                         // Step through each table
                         for (String tablePath : tablePaths)
                         {
-                            // Create the file using a name derived from the
-                            // table name
+                            // Create the file using a name derived from the table name
                             file = new File(path
                                             + tablePath.replaceAll("[,\\.\\[\\]]", "_")
                                             + fileExtn.getExtension());
 
-                            // Check if the file doesn't exist, or if it does
-                            // and the user elects to overwrite it
+                            // Check if the file doesn't exist, or if it does and the user elects
+                            // to overwrite it
                             if (isOverwriteExportFileIfExists(file,
                                                               overwriteFile,
                                                               parent))
                             {
-                                // Export the formatted table data; the file
-                                // name is derived from the table name
+                                // Export the formatted table data; the file name is derived from
+                                // the table name
                                 if (ioHandler.exportToFile(file,
                                                            new String[] {tablePath},
                                                            replaceMacros,
@@ -1810,8 +1726,7 @@ public class CcddFileIOHandler
                     // Check if any tables were skipped
                     if (!skippedTables.isEmpty())
                     {
-                        // Inform the user that one or more tables were not
-                        // exported
+                        // Inform the user that one or more tables were not exported
                         new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>Table(s) not exported<br>'</b>"
                                                                           + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
@@ -1821,8 +1736,7 @@ public class CcddFileIOHandler
                                                                   DialogOption.OK_OPTION);
                     }
 
-                    // Store the export file path in the program preferences
-                    // backing store
+                    // Store the export file path in the program preferences backing store
                     storePath(ccddMain,
                               filePath,
                               singleFile,
@@ -1835,9 +1749,9 @@ public class CcddFileIOHandler
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Export selected table(s) command complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -1859,9 +1773,9 @@ public class CcddFileIOHandler
         });
     }
 
-    /**************************************************************************
-     * Check if the specified data file exists and, if so, whether or not the
-     * user elects to overwrite it
+    /**********************************************************************************************
+     * Check if the specified data file exists and, if so, whether or not the user elects to
+     * overwrite it
      *
      * @param exportFile
      *            reference to the file
@@ -1872,11 +1786,10 @@ public class CcddFileIOHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return true if the file doesn't exist, or if it does exist and the user
-     *         elects to overwrite it; false if the file exists and the user
-     *         elects not to overwrite it, or if an error occurs deleting the
-     *         existing file or creating a new one
-     *************************************************************************/
+     * @return true if the file doesn't exist, or if it does exist and the user elects to overwrite
+     *         it; false if the file exists and the user elects not to overwrite it, or if an error
+     *         occurs deleting the existing file or creating a new one
+     *********************************************************************************************/
     private boolean isOverwriteExportFileIfExists(File exportFile,
                                                   boolean overwriteFile,
                                                   Component parent)
@@ -1886,8 +1799,7 @@ public class CcddFileIOHandler
 
         try
         {
-            // Check if the data file exists and the user has elected to
-            // overwriting existing files
+            // Check if the data file exists and the user has elected to overwriting existing files
             if (exportFile.exists() && overwriteFile)
             {
                 // Check if the file can't be deleted
@@ -1934,12 +1846,12 @@ public class CcddFileIOHandler
         return continueExport;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the contents of the specified script file into the database
      *
      * @param file
      *            reference to the file to store
-     *************************************************************************/
+     *********************************************************************************************/
     protected void storeScriptInDatabase(File file)
     {
         BufferedReader br = null;
@@ -1964,8 +1876,8 @@ public class CcddFileIOHandler
                 // Check if no script description has been found
                 if (description.isEmpty())
                 {
-                    // Get the index of the description tag (-1 if not found).
-                    // Force to lower case to remove case sensitivity
+                    // Get the index of the description tag (-1 if not found). Force to lower case
+                    // to remove case sensitivity
                     int index = line.toLowerCase().indexOf(SCRIPT_DESCRIPTION_TAG);
 
                     // Check if the description tag is found
@@ -2028,16 +1940,15 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Retrieve the contents of the specified script from the database and save
-     * it to a file
+    /**********************************************************************************************
+     * Retrieve the contents of the specified script from the database and save it to a file
      *
      * @param script
      *            name of the script to retrieve
      *
      * @param file
      *            reference to the script file
-     *************************************************************************/
+     *********************************************************************************************/
     protected void retrieveScriptFromDatabase(String script, File file)
     {
         PrintWriter pw = null;
@@ -2133,7 +2044,7 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the specified file path in the program preferences backing store
      *
      * @param ccddMain
@@ -2143,12 +2054,12 @@ public class CcddFileIOHandler
      *            file path
      *
      * @param hasFileName
-     *            true if the file path includes a file name. The file name is
-     *            removed before storing the path
+     *            true if the file path includes a file name. The file name is removed before
+     *            storing the path
      *
      * @param modPath
      *            ModifiablePathInfo reference for the path being updated
-     ************************************************************************/
+     ********************************************************************************************/
     protected static void storePath(CcddMain ccddMain,
                                     String pathName,
                                     boolean hasFileName,
@@ -2164,8 +2075,7 @@ public class CcddFileIOHandler
         // Check if the path name ends with a period
         if (pathName.endsWith("."))
         {
-            // Remove file separator (if present) and the period the at the end
-            // of the path
+            // Remove file separator (if present) and the period the at the end of the path
             pathName = pathName.replaceFirst(File.separator + "?\\.", "");
         }
 
@@ -2173,14 +2083,14 @@ public class CcddFileIOHandler
         modPath.setPath(ccddMain, pathName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Open the specified file for writing
      *
      * @param outputFileName
      *            output file path + name
      *
      * @return PrintWriter object; null if the file could not be opened
-     *************************************************************************/
+     *********************************************************************************************/
     public PrintWriter openOutputFile(String outputFileName)
     {
         PrintWriter printWriter = null;
@@ -2190,8 +2100,7 @@ public class CcddFileIOHandler
             // Create the file object
             File outputFile = new File(outputFileName);
 
-            // Check if the file already exists, and if so that it is
-            // successfully deleted
+            // Check if the file already exists, and if so that it is successfully deleted
             if (outputFile.exists() && !outputFile.delete())
             {
                 throw new CCDDException("Cannot replace");
@@ -2236,7 +2145,7 @@ public class CcddFileIOHandler
         return printWriter;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Write the supplied text to the specified output file PrintWriter object
      *
      * @param printWriter
@@ -2244,7 +2153,7 @@ public class CcddFileIOHandler
      *
      * @param text
      *            text to write to the output file
-     *************************************************************************/
+     *********************************************************************************************/
     public void writeToFile(PrintWriter printWriter, String text)
     {
         // Check if the PrintWriter object exists
@@ -2255,16 +2164,16 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Write the supplied text to the specified output file PrintWriter object
-     * and append a line feed character
+    /**********************************************************************************************
+     * Write the supplied text to the specified output file PrintWriter object and append a line
+     * feed character
      *
      * @param printWriter
      *            output file PrintWriter object
      *
      * @param text
      *            text to write to the output file
-     *************************************************************************/
+     *********************************************************************************************/
     public void writeToFileLn(PrintWriter printWriter, String text)
     {
         // Check if the PrintWriter object exists
@@ -2275,9 +2184,9 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
-     * Write the supplied text in the indicated format to the specified output
-     * file PrintWriter object
+    /**********************************************************************************************
+     * Write the supplied text in the indicated format to the specified output file PrintWriter
+     * object
      *
      * @param printWriter
      *            output file PrintWriter object
@@ -2286,9 +2195,8 @@ public class CcddFileIOHandler
      *            print format
      *
      * @param args
-     *            arguments referenced by the format specifiers in the format
-     *            string
-     *************************************************************************/
+     *            arguments referenced by the format specifiers in the format string
+     *********************************************************************************************/
     public void writeToFileFormat(PrintWriter printWriter,
                                   String format,
                                   Object... args)
@@ -2301,12 +2209,12 @@ public class CcddFileIOHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Close the specified output file
      *
      * @param printWriter
      *            output file PrintWriter object
-     *************************************************************************/
+     *********************************************************************************************/
     public void closeFile(PrintWriter printWriter)
     {
         // Check if the PrintWriter object exists

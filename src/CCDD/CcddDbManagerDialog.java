@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary project database manager dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -44,14 +43,13 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary project database manager dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddDbManagerDialog extends CcddDialogHandler
 {
@@ -69,29 +67,28 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     // Array containing the radio button or check box text and descriptions
     private String[][] arrayItemData;
 
-    // List of radio button or check box item indices for items that appear in
-    // the dialog but aren't selectable
+    // List of radio button or check box item indices for items that appear in the dialog but
+    // aren't selectable
     private List<Integer> disabledItems;
 
     // Indices into the array of arrayItemData when initially split
     private final int DB_DBNAME = 0;
-    private final int DB_NAME = 1;
+    private final int DB_PRJNAME = 1;
     private final int DB_LOCK = 2;
     private final int DB_DESC = 3;
 
     // Text to automatically append to the end of a project name when copying
     private final String COPY_APPEND = "_copy";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Project database manager dialog class constructor
      *
      * @param ccddMain
      *            main class
      *
      * @param dialogType
-     *            database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or
-     *            UNLOCK
-     *************************************************************************/
+     *            database dialog type: LOGIN, SERVER, CREATE, OPEN, DELETE, or UNLOCK
+     *********************************************************************************************/
     CcddDbManagerDialog(CcddMain ccddMain, DbManagerDialogType dialogType)
     {
         this.ccddMain = ccddMain;
@@ -104,13 +101,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
-     * Create the project database manager dialog. This is executed in a
-     * separate thread since it can take a noticeable amount time to complete,
-     * and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the project database manager dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the project database manager dialog in the background
@@ -137,9 +133,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                             0,
                                                             0);
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the project database manager dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -161,8 +157,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             roleInfo[index][0] = roles[index];
                         }
 
-                        // Create a panel containing a grid of radio buttons
-                        // representing the roles from which to choose
+                        // Create a panel containing a grid of radio buttons representing the roles
+                        // from which to choose
                         if (!addRadioButtons(null,
                                              false,
                                              roleInfo,
@@ -171,8 +167,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                              selectPnl,
                                              gbc))
                         {
-                            // Inform the user that no roles exist on the
-                            // server
+                            // Inform the user that no roles exist on the server
                             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                       "<html><b>No role exists",
                                                                       "Create Project",
@@ -184,14 +179,14 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         break;
 
                     case OPEN:
-                        // Get the database names and descriptions
+                        // Get the project names and descriptions
                         getDatabaseInformation(true, false, null);
 
-                        // Create a panel containing a grid of radio buttons
-                        // representing the databases from which to choose
-                        if (!addRadioButtons((dbControl.getDatabase() == DEFAULT_DATABASE
-                                                                                          ? null
-                                                                                          : dbControl.getDatabase()),
+                        // Create a panel containing a grid of radio buttons representing the
+                        // projects from which to choose
+                        if (!addRadioButtons((dbControl.getDatabaseName() == DEFAULT_DATABASE
+                                                                                              ? null
+                                                                                              : dbControl.getDatabaseName()),
                                              false,
                                              arrayItemData,
                                              disabledItems,
@@ -199,8 +194,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                              selectPnl,
                                              gbc))
                         {
-                            // Inform the user that no database exists on the
-                            // server for which the current user has access
+                            // Inform the user that no project exists on the server for which the
+                            // current user has access
                             displayDatabaseError("Open");
                             errorFlag = true;
                         }
@@ -208,11 +203,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         break;
 
                     case RENAME:
-                        // Get the database names and descriptions
-                        getDatabaseInformation(true, false, dbControl.getDatabase());
+                        // Get the project names and descriptions
+                        getDatabaseInformation(true, false, dbControl.getDatabaseName());
 
-                        // Create a panel containing a grid of radio buttons
-                        // representing the databases from which to choose
+                        // Create a panel containing a grid of radio buttons representing the
+                        // projects from which to choose
                         if (addRadioButtons(null,
                                             false,
                                             arrayItemData,
@@ -221,18 +216,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             selectPnl,
                                             gbc))
                         {
-                            // Create the rename database name and description
-                            // labels and fields
+                            // Create the rename project name and description labels and fields
                             addDatabaseInputFields("New project name",
                                                    selectPnl,
                                                    false,
                                                    gbc);
                         }
-                        // No database exists to choose
+                        // No project exists to choose
                         else
                         {
-                            // Inform the user that no database exists on the
-                            // server
+                            // Inform the user that no project exists on the server
                             displayDatabaseError("Rename");
                             errorFlag = true;
                         }
@@ -240,11 +233,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         break;
 
                     case COPY:
-                        // Get the database names and descriptions
+                        // Get the project names and descriptions
                         getDatabaseInformation(false, false, null);
 
-                        // Create a panel containing a grid of radio buttons
-                        // representing the databases from which to choose
+                        // Create a panel containing a grid of radio buttons representing the
+                        // projects from which to choose
                         if (addRadioButtons(null,
                                             false,
                                             arrayItemData,
@@ -253,8 +246,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             selectPnl,
                                             gbc))
                         {
-                            // Create the copy database name and description
-                            // labels and fields
+                            // Create the copy project name and description labels and fields
                             addDatabaseInputFields("Project copy name",
                                                    selectPnl,
                                                    false,
@@ -267,21 +259,19 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             stampChkBx.setSelected(false);
                             stampChkBx.setEnabled(false);
 
-                            // Create a listener for check box selection
-                            // actions
+                            // Create a listener for check box selection actions
                             stampChkBx.addActionListener(new ActionListener()
                             {
                                 String timeStamp = "";
                                 boolean isCopy = false;
 
-                                /**********************************************
+                                /******************************************************************
                                  * Handle check box selection actions
-                                 *********************************************/
+                                 *****************************************************************/
                                 @Override
                                 public void actionPerformed(ActionEvent ae)
                                 {
-                                    // Check if the data and time stamp check
-                                    // box is selected
+                                    // Check if the data and time stamp check box is selected
                                     if (((JCheckBox) ae.getSource()).isSelected())
                                     {
                                         // Get the current date and time stamp
@@ -289,8 +279,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                                         isCopy = nameFld.getText().endsWith(COPY_APPEND);
 
-                                        // Append the date and time stamp to
-                                        // the file name
+                                        // Append the date and time stamp to the file name
                                         nameFld.setText(nameFld.getText().replaceFirst("(?:"
                                                                                        + COPY_APPEND
                                                                                        + "$|$)",
@@ -313,11 +302,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             selectPnl.add(stampChkBx, gbc);
                             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                         }
-                        // No database exists to choose
+                        // No project exists to choose
                         else
                         {
-                            // Inform the user that no database exists on the
-                            // server
+                            // Inform the user that no project exists on the server
                             displayDatabaseError("Copy");
                             errorFlag = true;
                         }
@@ -325,19 +313,18 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         break;
 
                     case DELETE:
-                        // Get the database names and descriptions
+                        // Get the project names and descriptions
                         getDatabaseInformation(true, false, null);
 
-                        // Create a panel containing a grid of check boxes
-                        // representing the databases from which to choose
+                        // Create a panel containing a grid of check boxes representing the
+                        // projects from which to choose
                         if (!addCheckBoxes(null,
                                            arrayItemData,
                                            disabledItems,
                                            "Select a project to delete",
                                            selectPnl))
                         {
-                            // Inform the user that no database exists on the
-                            // server
+                            // Inform the user that no project exists on the server
                             displayDatabaseError("Delete");
                             errorFlag = true;
                         }
@@ -345,19 +332,18 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         break;
 
                     case UNLOCK:
-                        // Get the database names and descriptions
+                        // Get the project names and descriptions
                         getDatabaseInformation(false, true, null);
 
-                        // Create a panel containing a grid of check boxes
-                        // representing the databases from which to choose
+                        // Create a panel containing a grid of check boxes representing the
+                        // projects from which to choose
                         if (!addCheckBoxes(null,
                                            arrayItemData,
                                            disabledItems,
                                            "Select a project to unlock",
                                            selectPnl))
                         {
-                            // Inform the user that no database exists on the
-                            // server
+                            // Inform the user that no project exists on the server
                             displayDatabaseError("Unlock");
                             errorFlag = true;
                         }
@@ -366,9 +352,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Project database manager dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -379,20 +365,19 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     switch (dialogType)
                     {
                         case CREATE:
-                            // Create the project name and description labels
-                            // and fields
+                            // Create the project name and description labels and fields
                             addDatabaseInputFields("New project name",
                                                    selectPnl,
                                                    true,
                                                    gbc);
 
-                            // Display the database creation dialog
+                            // Display the project creation dialog
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
                                                   "Create Project",
                                                   DialogOption.CREATE_OPTION) == OK_BUTTON)
                             {
-                                // Create the database
+                                // Create the project
                                 dbControl.createDatabaseInBackground(nameFld.getText(),
                                                                      getRadioButtonSelected(),
                                                                      descriptionFld.getText());
@@ -401,9 +386,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case OPEN:
-                            // Display the database selection dialog. If the
-                            // currently open database has uncommitted changes
-                            // then confirm discarding the changes before
+                            // Display the project selection dialog. If the currently open project
+                            // has uncommitted changes then confirm discarding the changes before
                             // proceeding
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
@@ -416,29 +400,28 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                      null,
                                                                      CcddDbManagerDialog.this))
                             {
-                                // Open the selected database
+                                // Open the selected project
                                 dbControl.openDatabaseInBackground(getRadioButtonSelected());
                             }
 
                             break;
 
                         case RENAME:
-                            // Display the rename database dialog. Only the
-                            // description can be altered for the currently
-                            // open database
+                            // Display the rename project dialog. Only the description can be
+                            // altered for the currently open project
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
                                                   "Rename Project",
                                                   DialogOption.RENAME_OPTION,
                                                   true) == OK_BUTTON
-                                && (!getRadioButtonSelected().equals(dbControl.getDatabase())
-                                    || ccddMain.ignoreUncommittedChanges("Open Project",
+                                && (!getRadioButtonSelected().equals(dbControl.getDatabaseName())
+                                    || ccddMain.ignoreUncommittedChanges("Rename Project",
                                                                          "Discard changes?",
                                                                          true,
                                                                          null,
                                                                          CcddDbManagerDialog.this)))
                             {
-                                // Rename the database
+                                // Rename the project
                                 dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
                                                                      nameFld.getText(),
                                                                      descriptionFld.getText());
@@ -447,24 +430,23 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case COPY:
-                            // Display the copy database dialog. If the
-                            // currently open database is being renamed and
-                            // there are uncommitted changes then confirm
+                            // Display the copy project dialog. If the currently open database is
+                            // being copied and there are uncommitted changes then confirm
                             // discarding the changes before proceeding
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
                                                   "Copy Project",
                                                   DialogOption.COPY_OPTION,
                                                   true) == OK_BUTTON
-                                && (!getRadioButtonSelected().equals(dbControl.getDatabase())
-                                    || (getRadioButtonSelected().equals(dbControl.getDatabase())
+                                && (!getRadioButtonSelected().equals(dbControl.getDatabaseName())
+                                    || (getRadioButtonSelected().equals(dbControl.getDatabaseName())
                                         && ccddMain.ignoreUncommittedChanges("Copy Project",
                                                                              "Discard changes?",
                                                                              true,
                                                                              null,
                                                                              CcddDbManagerDialog.this))))
                             {
-                                // Copy the database
+                                // Copy the project
                                 dbControl.copyDatabaseInBackground(getRadioButtonSelected(),
                                                                    nameFld.getText(),
                                                                    descriptionFld.getText());
@@ -473,17 +455,17 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case DELETE:
-                            // Display the database deletion dialog
+                            // Display the project deletion dialog
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
                                                   "Delete Project(s)",
                                                   DialogOption.DELETE_OPTION,
                                                   true) == OK_BUTTON)
                             {
-                                // Step through each selected database name
+                                // Step through each selected project name
                                 for (String name : getCheckBoxSelected())
                                 {
-                                    // Delete the database
+                                    // Delete the project
                                     dbControl.deleteDatabaseInBackground(name);
                                 }
                             }
@@ -491,17 +473,17 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case UNLOCK:
-                            // Display the database unlock dialog
+                            // Display the project unlock dialog
                             if (showOptionsDialog(ccddMain.getMainFrame(),
                                                   selectPnl,
                                                   "Unlock Project(s)",
                                                   DialogOption.UNLOCK_OPTION,
                                                   true) == OK_BUTTON)
                             {
-                                // Step through each selected database name
+                                // Step through each selected project name
                                 for (String name : getCheckBoxSelected())
                                 {
-                                    // Unlock the database
+                                    // Unlock the project
                                     dbControl.setDatabaseLockStatus(name, false);
                                 }
                             }
@@ -513,16 +495,16 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Display the project database selection error dialog
      *
      * @param action
      *            database operation
-     *************************************************************************/
+     *********************************************************************************************/
     private void displayDatabaseError(String action)
     {
-        // Inform the user that no project database exists on the server for
-        // which the user has access
+        // Inform the user that no project database exists on the server for which the user has
+        // access
         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                   "<html><b>No project exists for which user '</b>"
                                                                            + dbControl.getUser()
@@ -532,7 +514,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                   DialogOption.OK_OPTION);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add database name and description labels and fields to the dialog
      *
      * @param nameText
@@ -546,7 +528,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
-     *************************************************************************/
+     *********************************************************************************************/
     private void addDatabaseInputFields(String nameText,
                                         JPanel dialogPanel,
                                         boolean enabled,
@@ -557,9 +539,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                                            Color.LIGHT_GRAY,
                                                                                            Color.GRAY),
                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -636,9 +618,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Add a listener for radio button selection change events
         addPropertyChangeListener(new PropertyChangeListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a radio button selection change event
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void propertyChange(PropertyChangeEvent pce)
             {
@@ -649,8 +631,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     if (dialogType == DbManagerDialogType.RENAME
                         || dialogType == DbManagerDialogType.COPY)
                     {
-                        // Get the name of the selected database and assume the
-                        // description is blank
+                        // Get the name of the selected database and assume the description is
+                        // blank
                         String name = pce.getNewValue().toString();
                         String desc = "";
 
@@ -658,10 +640,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         for (String[] data : arrayItemData)
                         {
                             // Check if the item matches the selected one
-                            if (data[DB_NAME - 1].equals(name))
+                            if (data[DB_PRJNAME - 1].equals(name))
                             {
-                                // Store the item description and stop
-                                // searching
+                                // Store the item description and stop searching
                                 desc = data[DB_DESC - 1];
                                 break;
                             }
@@ -670,13 +651,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         // Check if this is a copy type dialog
                         if (dialogType == DbManagerDialogType.COPY)
                         {
-                            // Append text to the name to differentiate the
-                            // copy from the original
+                            // Append text to the name to differentiate the copy from the original
                             name += COPY_APPEND;
                         }
 
-                        // Place the type name in the name field and the
-                        // description in the description field
+                        // Place the type name in the name field and the description in the
+                        // description field
                         nameFld.setText(name);
                         descriptionFld.setText(desc);
 
@@ -699,11 +679,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
@@ -724,14 +704,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     // Check that a project or owner is selected
                     if (getRadioButtonSelected() == null)
                     {
-                        // Set the target, project or owner, depending on the
-                        // dialog type
+                        // Set the target, project or owner, depending on the dialog type
                         String target = (dialogType == DbManagerDialogType.CREATE)
                                                                                    ? " Owner"
                                                                                    : "";
 
-                        // Inform the user that the project or owner isn't
-                        // selected
+                        // Inform the user that the project or owner isn't selected
                         throw new CCDDException("Project"
                                                 + target.toLowerCase()
                                                 + " must be selected");
@@ -744,26 +722,28 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         throw new CCDDException("Project name must be entered");
                     }
 
-                    // Check if the name is too long
-                    if (nameFld.getText().length() >= MAX_SQL_NAME_LENGTH)
-                    {
-                        // Inform the user that the name is too long
-                        throw new CCDDException("Project name too long ("
-                                                + (MAX_SQL_NAME_LENGTH - 1)
-                                                + " characters maximum)");
-                    }
-
                     // Check if the name contains an illegal character
-                    if (!nameFld.getText().matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                    if (nameFld.getText().contains(DATABASE_COMMENT_SEPARATOR))
                     {
                         // Inform the user that the name is invalid
                         throw new CCDDException("Illegal character(s) in project name");
                     }
 
-                    // Check that the selected database is not the currently
-                    // open one (only the description can be altered for this
-                    // case)
-                    if (!getRadioButtonSelected().equals(dbControl.getDatabase()))
+                    // Convert the project name into its database form
+                    String databaseName = dbControl.convertProjectNameToDatabase(nameFld.getText());
+
+                    // Check if the name is too long
+                    if (databaseName.length() >= MAX_SQL_NAME_LENGTH)
+                    {
+                        // Inform the user that the name is too long
+                        throw new CCDDException("Project database name too long ("
+                                                + (MAX_SQL_NAME_LENGTH - 1)
+                                                + " characters maximum)");
+                    }
+
+                    // Check that the selected database is not the currently open one (only the
+                    // description can be altered for this case)
+                    if (!getRadioButtonSelected().equals(dbControl.getProjectName()))
                     {
                         // Get the list of available databases
                         String[] databases = dbControl.queryDatabaseList(CcddDbManagerDialog.this);
@@ -771,12 +751,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         // Step through each of the database names
                         for (int index = 0; index < databases.length; index++)
                         {
-                            // Check if the user-supplied name matches an
-                            // existing database name
-                            if (databases[index].split(",")[0].equals(nameFld.getText().toLowerCase()))
+                            // Check if the user-supplied name matches an existing database name
+                            if (databases[index].split(",")[0].equals(databaseName))
                             {
-                                // Inform the user that the name is already in
-                                // use
+                                // Inform the user that the name is already in use
                                 throw new CCDDException("Project name already in use");
                             }
                         }
@@ -785,10 +763,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     break;
 
                 case OPEN:
-                    // Check that a database other than the currently open one
-                    // is selected
+                    // Check that a database other than the currently open one is selected
                     if (getRadioButtonSelected() == null
-                        || getRadioButtonSelected().equals(dbControl.getDatabase()))
+                        || getRadioButtonSelected().equals(dbControl.getDatabaseName()))
                     {
                         // Inform the user that a project must be selected
                         throw new CCDDException("Must select a project to open");
@@ -831,7 +808,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         return isValid;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the project database names and descriptions
      *
      * @param isOnlyUnlocked
@@ -842,7 +819,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *
      * @param enabledItem
      *            name of an item to be enabled; null if none
-     *************************************************************************/
+     *********************************************************************************************/
     private void getDatabaseInformation(boolean isOnlyUnlocked,
                                         boolean isOnlyLocked,
                                         String enabledItem)
@@ -858,8 +835,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             activeUsers = dbControl.queryActiveList(CcddDbManagerDialog.this);
         }
 
-        // Get the array containing the database names, lock statuses, and
-        // descriptions
+        // Get the array containing the database names, lock statuses, and descriptions
         String[] databases = dbControl.queryDatabaseByUserList(CcddDbManagerDialog.this,
                                                                dbControl.getUser());
         arrayItemData = new String[databases.length][];
@@ -867,27 +843,23 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Step through each database
         for (String database : databases)
         {
-            // Separate and store the database name, lock status, and
-            // description
+            // Separate and store the database name, lock status, and description
             arrayItemData[index] = database.split(DATABASE_COMMENT_SEPARATOR, 4);
 
-            // Check if the visible name is empty, indicating that the project
-            // database's comment hasn't been updated to the new format. This
-            // code section enables the application to parse the old format for
-            // compatibility purposes. The patch manager updates the comment
-            // format when a project database is opened that uses the old
-            // format
-            if (arrayItemData[index][DB_NAME].isEmpty())
+            // Check if the visible name is empty, indicating that the project database's comment
+            // hasn't been updated to the new format. This code section enables the application to
+            // parse the old format for compatibility purposes. The patch manager updates the
+            // comment format when a project database is opened that uses the old format
+            if (arrayItemData[index][DB_PRJNAME].isEmpty())
             {
-                // Use the database version of the project name for the visible
-                // name
-                arrayItemData[index][DB_NAME] = arrayItemData[index][DB_DBNAME];
+                // Use the database version of the project name for the visible name
+                arrayItemData[index][DB_PRJNAME] = arrayItemData[index][DB_DBNAME];
 
                 // Check if a description follows the lock status
                 if (arrayItemData[index][DB_LOCK].length() > 1)
                 {
-                    // Copy the description to the description field and remove
-                    // it from the lock status
+                    // Copy the description to the description field and remove it from the lock
+                    // status
                     arrayItemData[index][DB_DESC] = arrayItemData[index][DB_LOCK].substring(1);
                     arrayItemData[index][DB_LOCK] = arrayItemData[index][DB_LOCK].substring(0, 1);
                 }
@@ -896,21 +868,19 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // Get the lock status
             boolean isLocked = !arrayItemData[index][DB_LOCK].equals("0");
 
-            // Check if the database is locked and that locked databases are to
-            // be disabled, if the database is unlocked and that unlocked
-            // databases are to be disabled, and if the item is not specified
-            // as enabled
+            // Check if the database is locked and that locked databases are to be disabled, if the
+            // database is unlocked and that unlocked databases are to be disabled, and if the item
+            // is not specified as enabled
             if (((isOnlyUnlocked && isLocked)
                  || (isOnlyLocked && !isLocked))
-                && !arrayItemData[index][DB_NAME].equals(enabledItem))
+                && !arrayItemData[index][DB_PRJNAME].equals(enabledItem))
             {
                 // Add the index of the item to the disabled list
                 disabledItems.add(index);
             }
 
-            // Check if this is an unlock dialog. The database description is
-            // replaced by the database locked/unlocked status and the attached
-            // users
+            // Check if this is an unlock dialog. The database description is replaced by the
+            // database locked/unlocked status and the attached users
             if (dialogType == DbManagerDialogType.UNLOCK)
             {
                 String status = "";
@@ -922,7 +892,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     String[] databaseAndUser = active.split(",");
 
                     // Check if the database name matches the one in the list
-                    if (arrayItemData[index][DB_NAME].equalsIgnoreCase(databaseAndUser[0]))
+                    if (arrayItemData[index][DB_PRJNAME].equalsIgnoreCase(databaseAndUser[0]))
                     {
                         // Append the user name to the status text
                         status += databaseAndUser[1] + ", ";
@@ -935,7 +905,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 if (isLocked)
                 {
                     // Check if this is the currently open database
-                    if (arrayItemData[index][DB_NAME].equals(dbControl.getDatabase()))
+                    if (arrayItemData[index][DB_PRJNAME].equals(dbControl.getDatabaseName()))
                     {
                         status = "Current; in use by " + status;
                     }
@@ -945,8 +915,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         status = "Locked by " + status;
                     }
                 }
-                // The database is not locked; check if no users are attached
-                // (via other applications than CCDD)
+                // The database is not locked; check if no users are attached (via other
+                // applications than CCDD)
                 else if (status.isEmpty())
                 {
                     status = "Unlocked";
@@ -970,8 +940,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             index++;
         }
 
-        // Remove the column containing the database version of the project
-        // name
+        // Remove the column containing the database version of the project name
         arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData),
                                                             DB_DBNAME)
                                      .toArray(new String[0][0]);

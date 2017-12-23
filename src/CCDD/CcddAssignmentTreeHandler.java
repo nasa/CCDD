@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary variable assignment tree handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -41,9 +40,9 @@ import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary assignment tree handler class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
 {
@@ -65,7 +64,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
     // List containing the selected variable paths
     private List<Object[]> selectedVariablePaths;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Assignment tree handler class constructor
      *
      * @param ccddMain
@@ -78,13 +77,12 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *            reference to the link handler
      *
      * @param treePathOrder
-     *            list of all paths in the variable tree in the order to be
-     *            maintained in the assignment tree; null to not force the
-     *            order
+     *            list of all paths in the variable tree in the order to be maintained in the
+     *            assignment tree; null to not force the order
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     CcddAssignmentTreeHandler(CcddMain ccddMain,
                               String rateMsgFilter,
                               CcddLinkHandler linkHandler,
@@ -102,32 +100,30 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         this.linkHandler = linkHandler;
     }
 
-    /**************************************************************************
-     * Get the node index that skips the root level (there are no filters for
-     * the assignment tree)
+    /**********************************************************************************************
+     * Get the node index that skips the root level (there are no filters for the assignment tree)
      *
      * @return Node index that skips the root level
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected int getHeaderNodeLevel()
     {
         return 1;
     }
 
-    /**************************************************************************
-     * Get the node level that skips any active filter nodes. The assignment
-     * tree has no extra header nodes, but instead begins with the root
-     * structure tables
+    /**********************************************************************************************
+     * Get the node level that skips any active filter nodes. The assignment tree has no extra
+     * header nodes, but instead begins with the root structure tables
      *
      * @return Node level for root structure tables
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected int getItemNodeLevel()
     {
         return getHeaderNodeLevel();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform initialization steps prior to building the assignment tree
      *
      * @param ccddMain
@@ -138,7 +134,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *
      * @param assignDefinitions
      *            list containing the assignment definitions
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void initialize(CcddMain ccddMain,
                               CcddUndoHandler undoHandler,
@@ -150,30 +146,26 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         isExpanded = false;
     }
 
-    /**************************************************************************
-     * Build the assignment tree from the database. Retain the tree's current
-     * expansion state
+    /**********************************************************************************************
+     * Build the assignment tree from the database. Retain the tree's current expansion state
      *
      * @param filterByType
-     *            true if the tree is filtered by table type. This is not
-     *            applicable to the assignment tree, which can only contain
-     *            structure references
+     *            true if the tree is filtered by table type. This is not applicable to the
+     *            assignment tree, which can only contain structure references
      *
      * @param filterByApp
-     *            true if the tree is filtered by application. This is not
-     *            applicable to the assignment tree, which can only contain
-     *            structure references
+     *            true if the tree is filtered by application. This is not applicable to the
+     *            assignment tree, which can only contain structure references
      *
      * @param filterValue
      *            rate column name and message name, separated by a back slash
      *
      * @param filterFlag
-     *            flag used to filter the tree content. Not used for the
-     *            assignment tree
+     *            flag used to filter the tree content. Not used for the assignment tree
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void buildTree(boolean filterByType,
                              boolean filterByApp,
@@ -189,22 +181,21 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Get the tree's root node
         ToolTipTreeNode root = getRootNode();
 
-        // Register the tool tip manager for the assignment tree (otherwise the
-        // tool tips aren't displayed)
+        // Register the tool tip manager for the assignment tree (otherwise the tool tips aren't
+        // displayed)
         ToolTipManager.sharedInstance().registerComponent(this);
 
-        // Set the flag to indicate that the assignment tree is being built.
-        // This flag is used to inhibit actions involving tree selection value
-        // changes during the build process
+        // Set the flag to indicate that the assignment tree is being built. This flag is used to
+        // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Set the renderer for the tree so that custom icons can be used for
-        // the various node types
+        // Set the renderer for the tree so that custom icons can be used for the various node
+        // types
         setCellRenderer(new TableTreeCellRenderer()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the variable nodes using a special icon in the tree
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public Component getTreeCellRendererComponent(JTree tree,
                                                           Object value,
@@ -241,8 +232,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Check if a filter value is provided
         if (filterValue != null)
         {
-            // Parent message name; remains blank if the definition is not a
-            // sub-message
+            // Parent message name; remains blank if the definition is not a sub-message
             String parentMessage = "";
 
             // Separate the rate and message name from the filter value
@@ -264,8 +254,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             // Step through each assignment definition
             for (String[] assignDefn : assignDefinitions)
             {
-                // Check if the assignment definition matches the target data
-                // stream rate column name
+                // Check if the assignment definition matches the target data stream rate column
+                // name
                 if (assignDefn[TlmSchedulerColumn.RATE_NAME.ordinal()].equals(rateAndMessage[0])
                     && !assignDefn[TlmSchedulerColumn.MEMBER.ordinal()].isEmpty()
                     && (assignDefn[TlmSchedulerColumn.MESSAGE_NAME.ordinal()].equals(rateAndMessage[1])
@@ -291,16 +281,16 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         isBuilding = false;
     }
 
-    /**************************************************************************
-     * Update references to the specified message name with the new name. This
-     * is necessary for the tree to be rebuilt following a message name change
+    /**********************************************************************************************
+     * Update references to the specified message name with the new name. This is necessary for the
+     * tree to be rebuilt following a message name change
      *
      * @param oldName
      *            original message name
      *
      * @param newName
      *            new message name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateMessageName(String oldName, String newName)
     {
         // Step through each assignment definition
@@ -315,12 +305,11 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the parent structure and variable path for the selected node(s)
      *
-     * @return List containing the full path array(s) for the selected
-     *         variable(s)
-     *************************************************************************/
+     * @return List containing the full path array(s) for the selected variable(s)
+     *********************************************************************************************/
     protected List<String> getSelectedVariables()
     {
         selectedVariablePaths = new ArrayList<Object[]>();
@@ -331,8 +320,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
             // Step through each selected node
             for (TreePath path : getSelectionPaths())
             {
-                // Check that this node represents a structure or variable, or
-                // a header node one level above
+                // Check that this node represents a structure or variable, or a header node one
+                // level above
                 if (path.getPathCount() >= getHeaderNodeLevel())
                 {
                     // Check if the selected variable node has children
@@ -349,24 +338,23 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Step through the selected paths
         for (Object[] var : selectedVariablePaths)
         {
-            // Add the variable's full path (with the root table) to the full
-            // path list
+            // Add the variable's full path (with the root table) to the full path list
             selectedFullVariablePaths.add(getFullVariablePath(var));
         }
 
         return selectedFullVariablePaths;
     }
 
-    /**************************************************************************
-     * Update the assignment definition list for the specified rate based on
-     * the supplied message list
+    /**********************************************************************************************
+     * Update the assignment definition list for the specified rate based on the supplied message
+     * list
      *
      * @param messages
      *            list of messages for the specified rate
      *
      * @param rateName
      *            rate column name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateAssignmentDefinitions(List<Message> messages,
                                                String rateName)
     {
@@ -396,9 +384,8 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Add the specified variable to the assignment definition for the
-     * specified rate and message
+    /**********************************************************************************************
+     * Add the specified variable to the assignment definition for the specified rate and message
      *
      * @param message
      *            message for which the variable is a member
@@ -408,7 +395,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *
      * @param variable
      *            variable to add to the assignment definition
-     *************************************************************************/
+     *********************************************************************************************/
     private void addAssignmentDefinition(Message message,
                                          String rateName,
                                          Variable variable)
@@ -416,8 +403,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Create a new array for the row
         String[] msg = new String[TlmSchedulerColumn.values().length];
 
-        // Add the data stream, message name, message ID, and the rate
-        // and variable name
+        // Add the data stream, message name, message ID, and the rate and variable name
         msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = rateName;
         msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
         msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
@@ -429,9 +415,9 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         assignDefinitions.add(msg);
     }
 
-    /**************************************************************************
-     * Create an assignment tree panel. The table tree is placed in a scroll
-     * pane. A check box is added that allows tree expansion/collapse
+    /**********************************************************************************************
+     * Create an assignment tree panel. The table tree is placed in a scroll pane. A check box is
+     * added that allows tree expansion/collapse
      *
      * @param label
      *            assignment tree title
@@ -440,7 +426,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *            tree item selection mode (single versus multiple)
      *
      * @return JPanel containing the assignment tree components
-     *************************************************************************/
+     *********************************************************************************************/
     protected JPanel createTreePanel(int selectionMode)
     {
         // Create an empty border
@@ -489,19 +475,17 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // Add a listener for changes to the assignment tree
         addTreeSelectionListener(new TreeSelectionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the assignment tree selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void valueChanged(TreeSelectionEvent lse)
             {
-                // Check that a assignment tree (re)build isn't in progress.
-                // Building the tree triggers tree selection value changes that
-                // should not be processed
+                // Check that a assignment tree (re)build isn't in progress. Building the tree
+                // triggers tree selection value changes that should not be processed
                 if (!isBuilding)
                 {
-                    // Update the assignment dialog based on the assignment(s)
-                    // selected
+                    // Update the assignment dialog based on the assignment(s) selected
                     updateTableSelection();
                 }
             }
@@ -516,13 +500,12 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         gbc.gridy++;
         treePnl.add(expandChkBx, gbc);
 
-        // Create a listener for changes in selection of the tree expansion
-        // check box
+        // Create a listener for changes in selection of the tree expansion check box
         expandChkBx.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the tree expansion check box selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -545,13 +528,12 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         gbc.gridy++;
         treePnl.add(hideTypeChkBx, gbc);
 
-        // Create a listener for changes in selection of the hide data type
-        // check box
+        // Create a listener for changes in selection of the hide data type check box
         hideTypeChkBx.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the hide data type check box selection
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -570,18 +552,18 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         return treePnl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder - required by information tree but unused in assignment tree
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected List<String[]> createDefinitionsFromInformation()
     {
         return null;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder - required by information tree but unused in assignment tree
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void addInformation(Object information, String nameOfCopy)
     {

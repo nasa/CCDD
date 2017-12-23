@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary custom dialog handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -62,7 +61,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -73,6 +71,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
@@ -84,9 +83,9 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary dialog handler class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddDialogHandler extends JDialog
 {
@@ -105,19 +104,19 @@ public class CcddDialogHandler extends JDialog
     // Check boxes generated from user-supplied list
     private JCheckBox[] checkBox;
 
-    // Component that initially has the focus; null to set the focus to the
-    // first (default) component
+    // Component that initially has the focus; null to set the focus to the first (default)
+    // component
     private Component initialFocusComponent;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * File extension filter class
-     *************************************************************************/
+     *********************************************************************************************/
     private class ExtensionFilter extends FileFilter
     {
         private final String extension;
         private final String description;
 
-        /**********************************************************************
+        /******************************************************************************************
          * File extension filter class constructor
          *
          * @param extension
@@ -125,22 +124,21 @@ public class CcddDialogHandler extends JDialog
          *
          * @param description
          *            file extension description
-         *********************************************************************/
+         *****************************************************************************************/
         ExtensionFilter(String extension, String description)
         {
             this.extension = extension;
             this.description = description;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Determine if the specified file matches the file extension filter
          *
          * @param file
          *            file or directory path
          *
-         * @return true if the file matches the extension or is a directory
-         *         path
-         *********************************************************************/
+         * @return true if the file matches the extension or is a directory path
+         *****************************************************************************************/
         @Override
         public boolean accept(File file)
         {
@@ -158,8 +156,7 @@ public class CcddDialogHandler extends JDialog
                 // Get the file path and name
                 String path = file.getAbsolutePath();
 
-                // Check if the file ends with the extension. Extensions are
-                // case sensitive
+                // Check if the file ends with the extension. Extensions are case sensitive
                 if (path.endsWith(extension))
                 {
                     // Accept the file
@@ -170,21 +167,21 @@ public class CcddDialogHandler extends JDialog
             return isAccepted;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the file extension
          *
          * @return File extension
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getExtension()
         {
             return extension;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the file extension description
          *
          * @return File extension description
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public String getDescription()
         {
@@ -192,9 +189,9 @@ public class CcddDialogHandler extends JDialog
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Dialog box handler constructor
-     *************************************************************************/
+     *********************************************************************************************/
     CcddDialogHandler()
     {
         buttonSelected = JOptionPane.CLOSED_OPTION;
@@ -203,17 +200,17 @@ public class CcddDialogHandler extends JDialog
         // Create a handler for the dialog buttons
         buttonHandler = new CcddButtonPanelHandler()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Override the window closing method
              *
              * @param button
              *            button that initiated dialog closing
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void closeWindow(int button)
             {
-                // Check if the Cancel button was pressed, or if the Okay
-                // button was pressed and the selection is verified
+                // Check if the Cancel button was pressed, or if the Okay button was pressed and
+                // the selection is verified
                 if (button == CANCEL_BUTTON
                     || (button == OK_BUTTON && verifySelection()))
                 {
@@ -224,21 +221,21 @@ public class CcddDialogHandler extends JDialog
         };
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Close the dialog box
-     *************************************************************************/
+     *********************************************************************************************/
     protected void closeDialog()
     {
         setVisible(false);
         dispose();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Close the dialog box and set the button selected
      *
      * @param button
      *            selected button to return
-     *************************************************************************/
+     *********************************************************************************************/
     protected void closeDialog(int button)
     {
         // Set the selected button
@@ -248,73 +245,73 @@ public class CcddDialogHandler extends JDialog
         dispose();
     }
 
-    /**************************************************************************
-     * Handle the frame close button press event. The default is to activate
-     * the last button in the dialog's button panel (close/cancel)
-     *************************************************************************/
+    /**********************************************************************************************
+     * Handle the frame close button press event. The default is to activate the last button in the
+     * dialog's button panel (close/cancel)
+     *********************************************************************************************/
     protected void windowCloseButtonAction()
     {
-        // Send a button press event for the last button in the dialog's button
-        // panel, which is either the close or cancel button
+        // Send a button press event for the last button in the dialog's button panel, which is
+        // either the close or cancel button
         buttonHandler.getExitButton().doClick();
     }
 
-    /**************************************************************************
-     * Placeholder for any actions required when this dialog is closed. This is
-     * intended to handle special actions for non-modal dialogs
-     *************************************************************************/
+    /**********************************************************************************************
+     * Placeholder for any actions required when this dialog is closed. This is intended to handle
+     * special actions for non-modal dialogs
+     *********************************************************************************************/
     protected void windowClosedAction()
     {
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the component to initially have the focus
      *
      * @param component
      *            component to initially have the focus
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setInitialFocusComponent(Component component)
     {
         initialFocusComponent = component;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the currently selected radio button's text component
      *
-     * @return Name associated with the currently selected radio button; null
-     *         if no radio button is selected
-     *************************************************************************/
+     * @return Name associated with the currently selected radio button; null if no radio button is
+     *         selected
+     *********************************************************************************************/
     protected String getRadioButtonSelected()
     {
         return radioButtonSelected;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the file chooser file name text field
      *
      * @return Reference to the file chooser file name text field
-     *************************************************************************/
+     *********************************************************************************************/
     protected JTextField getFileNameField()
     {
         return nameField;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the check box array
      *
      * @return Reference to the check box array
-     *************************************************************************/
+     *********************************************************************************************/
     protected JCheckBox[] getCheckBoxes()
     {
         return checkBox;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the text component for the currently selected check box(es)
      *
-     * @return Array containing the name associated with the currently selected
-     *         check box(es); empty array if no check box is selected
-     *************************************************************************/
+     * @return Array containing the name associated with the currently selected check box(es);
+     *         empty array if no check box is selected
+     *********************************************************************************************/
     protected String[] getCheckBoxSelected()
     {
         List<String> checked = new ArrayList<String>();
@@ -333,9 +330,9 @@ public class CcddDialogHandler extends JDialog
         return checked.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Display a non-resizable, modal message dialog with the provided icon and
-     * return the button type selected
+    /**********************************************************************************************
+     * Display a non-resizable, modal message dialog with the provided icon and return the button
+     * type selected
      *
      * @param parent
      *            window to center the dialog over
@@ -347,15 +344,14 @@ public class CcddDialogHandler extends JDialog
      *            title to display in the dialog window frame
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
      * @param icon
      *            icon to display to the left of the text message
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showMessageDialog(Component parent,
                                     String message,
                                     String title,
@@ -373,9 +369,9 @@ public class CcddDialogHandler extends JDialog
                             true);
     }
 
-    /**************************************************************************
-     * Display a non-resizable, modal message dialog and return the button type
-     * selected. The icon displayed is based on the message type
+    /**********************************************************************************************
+     * Display a non-resizable, modal message dialog and return the button type selected. The icon
+     * displayed is based on the message type
      *
      * @param parent
      *            window to center the dialog over
@@ -387,18 +383,16 @@ public class CcddDialogHandler extends JDialog
      *            title to display in the dialog window frame
      *
      * @param messageType
-     *            message type: JOptionPane.PLAIN_MESSAGE,
-     *            JOptionPane.INFORMATION_MESSAGE,
+     *            message type: JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
      *            JOptionPane.QUESTION_MESSAGE, JOptionPane.WARNING_MESSAGE, or
      *            JOptionPane.ERROR_MESSAGE
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showMessageDialog(Component parent,
                                     String message,
                                     String title,
@@ -413,10 +407,9 @@ public class CcddDialogHandler extends JDialog
                                  true);
     }
 
-    /**************************************************************************
-     * Display a non-resizable message dialog and return the button type
-     * selected. The icon displayed is based on the message type. Dialog
-     * modality is based on the input flag
+    /**********************************************************************************************
+     * Display a non-resizable message dialog and return the button type selected. The icon
+     * displayed is based on the message type. Dialog modality is based on the input flag
      *
      * @param parent
      *            window to center the dialog over
@@ -428,22 +421,20 @@ public class CcddDialogHandler extends JDialog
      *            title to display in the dialog window frame
      *
      * @param messageType
-     *            message type: JOptionPane.PLAIN_MESSAGE,
-     *            JOptionPane.INFORMATION_MESSAGE,
+     *            message type: JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
      *            JOptionPane.QUESTION_MESSAGE, JOptionPane.WARNING_MESSAGE, or
      *            JOptionPane.ERROR_MESSAGE
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
      * @param modal
-     *            false to allow the main application window to still be
-     *            operated while the dialog is open
+     *            false to allow the main application window to still be operated while the dialog
+     *            is open
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showMessageDialog(Component parent,
                                     String message,
                                     String title,
@@ -453,9 +444,8 @@ public class CcddDialogHandler extends JDialog
     {
         Icon icon = null;
 
-        // Get the icon to display beside the text message based on the current
-        // look & feel. If the look & feel doesn't supply icons then revert to
-        // a default set
+        // Get the icon to display beside the text message based on the current look & feel. If the
+        // look & feel doesn't supply icons then revert to a default set
         switch (messageType)
         {
             case JOptionPane.PLAIN_MESSAGE:
@@ -490,10 +480,9 @@ public class CcddDialogHandler extends JDialog
                             modal);
     }
 
-    /**************************************************************************
-     * Display a non-resizable, modal message dialog using user-supplied
-     * buttons, and return the button type selected. The icon displayed is
-     * based on the message type
+    /**********************************************************************************************
+     * Display a non-resizable, modal message dialog using user-supplied buttons, and return the
+     * button type selected. The icon displayed is based on the message type
      *
      * @param parent
      *            window to center the dialog over
@@ -505,20 +494,19 @@ public class CcddDialogHandler extends JDialog
      *            panel containing the dialog buttons
      *
      * @param defaultBtn
-     *            reference to the JButton that is actuated if the Enter key is
-     *            pressed; null to have no default button
+     *            reference to the JButton that is actuated if the Enter key is pressed; null to
+     *            have no default button
      *
      * @param title
      *            title to display in the dialog window frame
      *
      * @param messageType
-     *            message type: JOptionPane.PLAIN_MESSAGE,
-     *            JOptionPane.INFORMATION_MESSAGE,
+     *            message type: JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
      *            JOptionPane.QUESTION_MESSAGE, JOptionPane.WARNING_MESSAGE, or
      *            JOptionPane.ERROR_MESSAGE
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showMessageDialog(Component parent,
                                     String message,
                                     JPanel buttonPnl,
@@ -528,9 +516,8 @@ public class CcddDialogHandler extends JDialog
     {
         Icon icon = null;
 
-        // Get the icon to display beside the text message based on the current
-        // look & feel. If the look & feel doesn't supply icons then revert to
-        // a default set
+        // Get the icon to display beside the text message based on the current look & feel. If the
+        // look & feel doesn't supply icons then revert to a default set
         switch (messageType)
         {
             case JOptionPane.PLAIN_MESSAGE:
@@ -565,9 +552,9 @@ public class CcddDialogHandler extends JDialog
                             true);
     }
 
-    /**************************************************************************
-     * Get the icon associated with the UI key provided. If no icon is
-     * available for the key then substitute a default icon
+    /**********************************************************************************************
+     * Get the icon associated with the UI key provided. If no icon is available for the key then
+     * substitute a default icon
      *
      * @param UIKey
      *            an Object specifying the icon
@@ -576,7 +563,7 @@ public class CcddDialogHandler extends JDialog
      *            icon to use if the icon specified by UIKey cannot be found
      *
      * @return Icon associated with UIKey
-     *************************************************************************/
+     *********************************************************************************************/
     private Icon getIcon(String UIKey, String defaultIcon)
     {
         // Get the icon associated with the UI key
@@ -592,7 +579,7 @@ public class CcddDialogHandler extends JDialog
         return icon;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the Ignore/Ignore All/Cancel dialog
      *
      * @param parent
@@ -605,19 +592,16 @@ public class CcddDialogHandler extends JDialog
      *            title to display in the dialog window frame
      *
      * @param ignoreToolTip
-     *            Ignore button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Ignore button tool tip text; null if no tool tip is to be displayed
      *
      * @param ignoreAllToolTip
-     *            Ignore All button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Ignore All button tool tip text; null if no tool tip is to be displayed
      *
      * @param cancelToolTip
-     *            Cancel button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Cancel button tool tip text; null if no tool tip is to be displayed
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showIgnoreCancelDialog(Component parent,
                                          String message,
                                          String title,
@@ -646,9 +630,9 @@ public class CcddDialogHandler extends JDialog
         // Create a listener for the button actions
         ActionListener listener = new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Indicate the which button was pressed and close the dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -667,8 +651,7 @@ public class CcddDialogHandler extends JDialog
         btnIgnoreAll.addActionListener(listener);
         btnCancel.addActionListener(listener);
 
-        // Create the panel for the dialog buttons and add the dialog buttons
-        // to the panel
+        // Create the panel for the dialog buttons and add the dialog buttons to the panel
         JPanel buttonPnl = new JPanel();
         buttonPnl.add(btnIgnore);
         buttonPnl.add(btnIgnoreAll);
@@ -682,9 +665,9 @@ public class CcddDialogHandler extends JDialog
                                  JOptionPane.QUESTION_MESSAGE);
     }
 
-    /**************************************************************************
-     * Display a modal, non-resizable user-interactive dialog using buttons
-     * defined by the supplied option type. Return the button type selected
+    /**********************************************************************************************
+     * Display a modal, non-resizable user-interactive dialog using buttons defined by the supplied
+     * option type. Return the button type selected
      *
      * @param parent
      *            window to center the dialog over
@@ -699,7 +682,7 @@ public class CcddDialogHandler extends JDialog
      *            DialogOption type
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showOptionsDialog(Component parent,
                                     Component dialogPanel,
                                     String title,
@@ -717,10 +700,10 @@ public class CcddDialogHandler extends JDialog
                             true);
     }
 
-    /**************************************************************************
-     * Display a user-interactive dialog using buttons defined by the supplied
-     * option type. The dialog may be resized, based on the input flag. The
-     * dialog's modality is set by input flag. Return the button type selected
+    /**********************************************************************************************
+     * Display a user-interactive dialog using buttons defined by the supplied option type. The
+     * dialog may be resized, based on the input flag. The dialog's modality is set by input flag.
+     * Return the button type selected
      *
      * @param parent
      *            window to center the dialog over
@@ -738,11 +721,11 @@ public class CcddDialogHandler extends JDialog
      *            true to allow the dialog to be resized
      *
      * @param modal
-     *            false to allow the main application window to still be
-     *            operated while the dialog is open
+     *            false to allow the main application window to still be operated while the dialog
+     *            is open
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showOptionsDialog(Component parent,
                                     Component dialogPanel,
                                     String title,
@@ -762,10 +745,9 @@ public class CcddDialogHandler extends JDialog
                             modal);
     }
 
-    /**************************************************************************
-     * Display a modal, user-interactive dialog using buttons defined by the
-     * supplied option type. The dialog may be resized, based on the input
-     * flag. Return the button type selected
+    /**********************************************************************************************
+     * Display a modal, user-interactive dialog using buttons defined by the supplied option type.
+     * The dialog may be resized, based on the input flag. Return the button type selected
      *
      * @param parent
      *            window to center the dialog over
@@ -783,7 +765,7 @@ public class CcddDialogHandler extends JDialog
      *            true to allow the dialog to be resized
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showOptionsDialog(Component parent,
                                     Component dialogPanel,
                                     String title,
@@ -802,10 +784,9 @@ public class CcddDialogHandler extends JDialog
                             true);
     }
 
-    /**************************************************************************
-     * Display a modal, user-interactive dialog using user-supplied buttons.
-     * The dialog may be resized, based on the input flag. Return the button
-     * type selected
+    /**********************************************************************************************
+     * Display a modal, user-interactive dialog using user-supplied buttons. The dialog may be
+     * resized, based on the input flag. Return the button type selected
      *
      * @param parent
      *            window to center the dialog over
@@ -817,8 +798,8 @@ public class CcddDialogHandler extends JDialog
      *            panel containing the dialog buttons
      *
      * @param defaultBtn
-     *            reference to the JButton that is actuated if the Enter key is
-     *            pressed; null to have no default button
+     *            reference to the JButton that is actuated if the Enter key is pressed; null to
+     *            have no default button
      *
      * @param title
      *            title to display in the dialog window frame
@@ -827,7 +808,7 @@ public class CcddDialogHandler extends JDialog
      *            true to allow the dialog to be resized
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int showOptionsDialog(Component parent,
                                     Object dialogPanel,
                                     JPanel lowerPanel,
@@ -847,7 +828,7 @@ public class CcddDialogHandler extends JDialog
                             true);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Display a dialog that allows the user to select one or more files
      *
      * @param main
@@ -857,18 +838,16 @@ public class CcddDialogHandler extends JDialog
      *            window to center the dialog over
      *
      * @param fileName
-     *            file name to display in the input field chosen; null if no
-     *            file name is initially displayed. Ignored if folderOnly is
-     *            true
+     *            file name to display in the input field chosen; null if no file name is initially
+     *            displayed. Ignored if folderOnly is true
      *
      * @param fileType
-     *            describes the type of files when more than one file extension
-     *            is supplied; null if only one (or no) file extension is
-     *            provided. Ignored if folderOnly is true
+     *            describes the type of files when more than one file extension is supplied; null
+     *            if only one (or no) file extension is provided. Ignored if folderOnly is true
      *
      * @param fileExtensions
-     *            valid file extensions with description. Use null to allow any
-     *            extension. Ignored if folderOnly is true
+     *            valid file extensions with description. Use null to allow any extension. Ignored
+     *            if folderOnly is true
      *
      * @param multipleFiles
      *            true to allow selection of more than one file
@@ -880,14 +859,12 @@ public class CcddDialogHandler extends JDialog
      *            file path to use as the initial folder to display
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
-     * @return Array containing the selected file handle(s). null if the Cancel
-     *         button is selected. The first file reference is null if Okay is
-     *         selected and the file name list is empty
-     *************************************************************************/
+     * @return Array containing the selected file handle(s). null if the Cancel button is selected.
+     *         The first file reference is null if Okay is selected and the file name list is empty
+     *********************************************************************************************/
     protected File[] choosePathFile(CcddMain main,
                                     Component parent,
                                     String fileName,
@@ -911,7 +888,7 @@ public class CcddDialogHandler extends JDialog
                               null);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Display a dialog that allows the user to select a file folder
      *
      * @param main
@@ -927,14 +904,12 @@ public class CcddDialogHandler extends JDialog
      *            file path to use as the initial folder to display
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
-     * @return Array containing the selected file handle(s). null if the Cancel
-     *         button is selected. The first file reference is null if Okay is
-     *         selected and the file name list is empty
-     *************************************************************************/
+     * @return Array containing the selected file handle(s). null if the Cancel button is selected.
+     *         The first file reference is null if Okay is selected and the file name list is empty
+     *********************************************************************************************/
     protected File[] choosePathFile(CcddMain main,
                                     Component parent,
                                     String dialogTitle,
@@ -954,10 +929,9 @@ public class CcddDialogHandler extends JDialog
                               null);
     }
 
-    /**************************************************************************
-     * Display a dialog that allows the user to select one or more files or a
-     * folder. Optionally allow a panel containing other components to be
-     * displayed beneath the file chooser portion
+    /**********************************************************************************************
+     * Display a dialog that allows the user to select one or more files or a folder. Optionally
+     * allow a panel containing other components to be displayed beneath the file chooser portion
      *
      * @param main
      *            main class
@@ -966,25 +940,23 @@ public class CcddDialogHandler extends JDialog
      *            window to center the dialog over
      *
      * @param fileName
-     *            file name to display in the input field chosen; null if no
-     *            file name is initially displayed. Ignored if folderOnly is
-     *            true (may be null)
+     *            file name to display in the input field chosen; null if no file name is initially
+     *            displayed. Ignored if folderOnly is true (may be null)
      *
      * @param fileType
-     *            describes the type of files when more than one file extension
-     *            is supplied; null if only one (or no) file extension is
-     *            provided. Ignored if folderOnly is true (may be null)
+     *            describes the type of files when more than one file extension is supplied; null
+     *            if only one (or no) file extension is provided. Ignored if folderOnly is true
+     *            (may be null)
      *
      * @param fileExtensions
-     *            valid file extensions with description. Use null to allow any
-     *            extension. Ignored if folderOnly is true (may be null)
+     *            valid file extensions with description. Use null to allow any extension. Ignored
+     *            if folderOnly is true (may be null)
      *
      * @param folderOnly
      *            true to allow only folders to be selected
      *
      * @param multipleFiles
-     *            true to allow selection of more than one file. Unused if
-     *            folderOnly is true
+     *            true to allow selection of more than one file. Unused if folderOnly is true
      *
      * @param dialogTitle
      *            title to display in the dialog window frame
@@ -993,19 +965,16 @@ public class CcddDialogHandler extends JDialog
      *            file path to use as the initial folder to display
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
      * @param lowerPanel
-     *            JPanel containing other components to display below the
-     *            JChooser component; null if no lower components are to be
-     *            displayed
+     *            JPanel containing other components to display below the JChooser component; null
+     *            if no lower components are to be displayed
      *
-     * @return Array containing the selected file handle(s). null if the Cancel
-     *         button is selected. The first file reference is null if Okay is
-     *         selected and the file name list is empty
-     *************************************************************************/
+     * @return Array containing the selected file handle(s). null if the Cancel button is selected.
+     *         The first file reference is null if Okay is selected and the file name list is empty
+     *********************************************************************************************/
     protected File[] choosePathFile(CcddMain main,
                                     Component parent,
                                     String fileName,
@@ -1020,9 +989,9 @@ public class CcddDialogHandler extends JDialog
     {
         File[] file = new File[1];
 
-        // Create the file chooser. Set the path to the one from the back store
-        // per the provided key; if no entry exists for the key then use the
-        // default path (the default location is operating system dependent)
+        // Create the file chooser. Set the path to the one from the back store per the provided
+        // key; if no entry exists for the key then use the default path (the default location is
+        // operating system dependent)
         final JFileChooser chooser = new JFileChooser(folder
                                                       + File.separator
                                                       + ".");
@@ -1030,12 +999,11 @@ public class CcddDialogHandler extends JDialog
         // True to allow multiple files to be selected
         chooser.setMultiSelectionEnabled(multipleFiles);
 
-        // Locate the file name input field in the file chooser dialog. In
-        // order to use custom buttons in the file chooser dialog, the file
-        // name input field must be located and the inputs to it listened for
-        // so that the selected file can be updated. Otherwise, changes made to
-        // the file name are ignored and when the Okay button is pressed the
-        // file name used is the highlighted one in the file list box
+        // Locate the file name input field in the file chooser dialog. In order to use custom
+        // buttons in the file chooser dialog, the file name input field must be located and the
+        // inputs to it listened for so that the selected file can be updated. Otherwise, changes
+        // made to the file name are ignored and when the Okay button is pressed the file name used
+        // is the highlighted one in the file list box
         nameField = getFileChooserTextField(chooser);
 
         // Check if only a folder is allowed to be chosen
@@ -1078,17 +1046,15 @@ public class CcddDialogHandler extends JDialog
                     // Step through each file extension
                     for (FileNameExtensionFilter fileExtension : fileExtensions)
                     {
-                        // Build the extension names string and append the
-                        // extension(s) to the list
+                        // Build the extension names string and append the extension(s) to the list
                         extensions += "*."
                                       + CcddUtilities.convertArrayToString(fileExtension.getExtensions())
                                       + ", ";
                         extensionList.addAll(Arrays.asList(fileExtension.getExtensions()));
                     }
 
-                    // Set the filter to the list of all applicable extensions
-                    // so that initially all files of the acceptable types are
-                    // displayed
+                    // Set the filter to the list of all applicable extensions so that initially
+                    // all files of the acceptable types are displayed
                     chooser.setFileFilter(new FileNameExtensionFilter("All "
                                                                       + fileType
                                                                       + " files ("
@@ -1115,8 +1081,7 @@ public class CcddDialogHandler extends JDialog
                 // Check if only a single file extension is applicable
                 if (fileExtensions.length == 1)
                 {
-                    // Set the file filter to show only files with the desired
-                    // extension
+                    // Set the file filter to show only files with the desired extension
                     chooser.setFileFilter(chooser.getChoosableFileFilters()[1]);
                 }
             }
@@ -1124,14 +1089,12 @@ public class CcddDialogHandler extends JDialog
             // Add a listener for changes to the selected file(s)
             chooser.addPropertyChangeListener(new PropertyChangeListener()
             {
-                /**************************************************************
-                 * Handle changes to the file(s) selected. Whenever a file
-                 * selection change strip the path name from the file(s) and
-                 * build a list of just the names. Insert this list into the
-                 * file chooser's file name text field. This is done
-                 * automatically for most look & feels, but not all (e.g.,
-                 * GTK+)
-                 *************************************************************/
+                /**********************************************************************************
+                 * Handle changes to the file(s) selected. Whenever a file selection change strip
+                 * the path name from the file(s) and build a list of just the names. Insert this
+                 * list into the file chooser's file name text field. This is done automatically
+                 * for most look & feels, but not all (e.g., GTK+)
+                 *********************************************************************************/
                 @Override
                 public void propertyChange(PropertyChangeEvent pce)
                 {
@@ -1143,23 +1106,22 @@ public class CcddDialogHandler extends JDialog
                         // Step through the selected files
                         for (int index = 0; index < chooser.getSelectedFiles().length; index++)
                         {
-                            // Append the file name without the path,
-                            // surrounded by quotes, to the name list
+                            // Append the file name without the path, surrounded by quotes, to the
+                            // name list
                             nameList += "\""
                                         + chooser.getSelectedFiles()[index].getName()
                                         + "\" ";
                         }
 
-                        // Insert the file name list into the file chooser's
-                        // file name text field
+                        // Insert the file name list into the file chooser's file name text field
                         nameField.setText(nameList);
                     }
                 }
             });
         }
 
-        // Insert the file name into the file chooser's file name text field.
-        // Most look & feels do this automatically, but not all (e.g., GTK+)
+        // Insert the file name into the file chooser's file name text field. Most look & feels do
+        // this automatically, but not all (e.g., GTK+)
         nameField.setText(fileName);
 
         // Hide the file chooser's default buttons
@@ -1188,23 +1150,22 @@ public class CcddDialogHandler extends JDialog
                          true,
                          true) == OK_BUTTON)
         {
-            // Extract the file name(s) from the file chooser name field.
-            // Spaces may appear in the names only if the name is within double
-            // quotes. The names are split on spaces outside of quotes, at
-            // every second quote, or at commas. First any leading or trailing
-            // white space characters are removed
+            // Extract the file name(s) from the file chooser name field. Spaces may appear in the
+            // names only if the name is within double quotes. The names are split on spaces
+            // outside of quotes, at every second quote, or at commas. First any leading or
+            // trailing white space characters are removed
             String names = nameField.getText().trim();
 
             // Check if only a folder is allowed to be chosen
             if (folderOnly)
             {
-                // Surround the names with quotes, if not already, in order to
-                // preserve any spaces in the path
+                // Surround the names with quotes, if not already, in order to preserve any spaces
+                // in the path
                 names = names.replaceFirst("^\"?([^\"]*)\"?$", "\"$1\"");
             }
 
-            // Create a flag to keep track of whether or not the character
-            // being checked is inside or outside a pair of quotes
+            // Create a flag to keep track of whether or not the character being checked is inside
+            // or outside a pair of quotes
             boolean isQuoted = false;
 
             // Step through the string containing the file name(s)
@@ -1220,23 +1181,21 @@ public class CcddDialogHandler extends JDialog
                     isQuoted = !isQuoted;
                 }
 
-                // Check if the character is a space outside of a pair of
-                // quotes, or is the second quote of a pair of quotes
+                // Check if the character is a space outside of a pair of quotes, or is the second
+                // quote of a pair of quotes
                 if ((c == ' ' || c == '"') && !isQuoted)
                 {
-                    // Replace the character with a comma. Occurrences of
-                    // double commas can result from this operation; these are
-                    // accounted for later
+                    // Replace the character with a comma. Occurrences of double commas can result
+                    // from this operation; these are accounted for later
                     names = names.substring(0, index)
                             + ","
                             + names.substring(index + 1);
                 }
             }
 
-            // Replace every instance of back-to-back commas that may have
-            // resulted in the replacement steps above with a single comma,
-            // remove every remaining quote, then split the string at the
-            // commas, which now delineate the separate file names
+            // Replace every instance of back-to-back commas that may have resulted in the
+            // replacement steps above with a single comma, remove every remaining quote, then
+            // split the string at the commas, which now delineate the separate file names
             String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+",
                                                                          "")
                                       .split(",");
@@ -1249,20 +1208,18 @@ public class CcddDialogHandler extends JDialog
                 // Step through the file names/paths
                 for (int i = 0; i < fileNames.length; i++)
                 {
-                    // Check if a file type was specified and the file name has
-                    // no extension
+                    // Check if a file type was specified and the file name has no extension
                     if (fileExtensions != null && !fileNames[i].contains("."))
                     {
-                        // Add the extension to the file name. If more than one
-                        // extension is provided then use the first one
+                        // Add the extension to the file name. If more than one extension is
+                        // provided then use the first one
                         fileNames[i] = fileNames[i]
                                        + "."
                                        + ((ExtensionFilter) chooser.getFileFilter()).getExtension();
                     }
 
-                    // Create a file handle for each file name or the path
-                    // name. If this is not a folder, prepend the file path to
-                    // the name
+                    // Create a file handle for each file name or the path name. If this is not a
+                    // folder, prepend the file path to the name
                     file[i] = new File((folderOnly
                                                    ? ""
                                                    : chooser.getCurrentDirectory()
@@ -1281,22 +1238,22 @@ public class CcddDialogHandler extends JDialog
         return file;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Locate and return the file name input field in the file chooser dialog
      *
      * @param cont
      *            container containing the JFileChooser
      *
      * @return JFileChooser file name input field
-     *************************************************************************/
+     *********************************************************************************************/
     private JTextField getFileChooserTextField(Container cont)
     {
         JTextField tf = null;
 
-        // Step through the file chooser components. The components are checked
-        // in reverse to account for those look & feels (i.e., Motif) that have
-        // a text field for the path in addition to one for the file name. By
-        // looking in reverse the field with the file name is found first
+        // Step through the file chooser components. The components are checked in reverse to
+        // account for those look & feels (i.e., Motif) that have a text field for the path in
+        // addition to one for the file name. By looking in reverse the field with the file name is
+        // found first
         for (int i = cont.getComponentCount() - 1; i >= 0; i--)
         {
             // Get the file chooser component
@@ -1309,9 +1266,9 @@ public class CcddDialogHandler extends JDialog
                 tf = (JTextField) comp;
                 break;
             }
-            // Component isn't a text field; check if the text field hasn't
-            // been located (to prevent continued searching after the text
-            // field is found) and if this is another container,
+            // Component isn't a text field; check if the text field hasn't been located (to
+            // prevent continued searching after the text field is found) and if this is another
+            // container,
             else if (comp instanceof Container)
             {
                 // Drill down into this container to look for the buttons
@@ -1329,7 +1286,7 @@ public class CcddDialogHandler extends JDialog
         return tf;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a color choice and preview panel
      *
      * @param chooser
@@ -1338,9 +1295,8 @@ public class CcddDialogHandler extends JDialog
      * @param initialColor
      *            color initially selected when the dialog appears
      *
-     * @return Reference to a JPanel containing the color choice and preview
-     *         panels
-     *************************************************************************/
+     * @return Reference to a JPanel containing the color choice and preview panels
+     *********************************************************************************************/
     protected JPanel getColorChoicePanel(final JColorChooser chooser, Color initialColor)
     {
         // Create a panel to hold the color preview text and color boxes
@@ -1348,8 +1304,8 @@ public class CcddDialogHandler extends JDialog
         JLabel previewLabel = new JLabel("Preview", SwingConstants.CENTER);
         previewLabel.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
-        // Calculate the size of the color preview boxes based on the width of
-        // the preview label text
+        // Calculate the size of the color preview boxes based on the width of the preview label
+        // text
         int previewWidth = (int) previewLabel.getFontMetrics(ModifiableFontInfo.LABEL_BOLD.getFont()).getStringBounds(previewLabel.getText(),
                                                                                                                       previewLabel.getGraphics())
                                              .getWidth()
@@ -1373,14 +1329,13 @@ public class CcddDialogHandler extends JDialog
         previewPanel.add(initialPanel, BorderLayout.LINE_START);
         previewPanel.add(newPanel, BorderLayout.LINE_END);
 
-        // Add a listener for changes to the preview panel in order to capture
-        // color change events. These are generated when the user changes the
-        // color in the color chooser panel
+        // Add a listener for changes to the preview panel in order to capture color change events.
+        // These are generated when the user changes the color in the color chooser panel
         previewPanel.addPropertyChangeListener("foreground", new PropertyChangeListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle foreground color change events
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void propertyChange(PropertyChangeEvent pce)
             {
@@ -1392,8 +1347,7 @@ public class CcddDialogHandler extends JDialog
         // Set the color chooser's color preview panel
         chooser.setPreviewPanel(previewPanel);
 
-        // Create the panel for holding the color chooser(s) and the
-        // preview panel
+        // Create the panel for holding the color chooser(s) and the preview panel
         JPanel colorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,
                                                       20,
                                                       5));
@@ -1411,7 +1365,7 @@ public class CcddDialogHandler extends JDialog
         else
         {
             // Create a tabbed pane
-            JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+            JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
             tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             colorPanel.add(tabbedPane);
 
@@ -1421,14 +1375,13 @@ public class CcddDialogHandler extends JDialog
             // Step through the available color chooser panels
             for (int index = 0; index < chooserPanel.length; index++)
             {
-                // Create a panel to hold the chooser so that it's centered in
-                // the tab panel
+                // Create a panel to hold the chooser so that it's centered in the tab panel
                 JPanel pnl = new JPanel(new GridBagLayout());
                 pnl.setBorder(border);
                 pnl.add(chooserPanel[index]);
 
-                // Set the name, component, and tool tip text (if extant) of
-                // the tab for each color chooser panel
+                // Set the name, component, and tool tip text (if extant) of the tab for each color
+                // chooser panel
                 tabbedPane.addTab(chooserPanel[index].getDisplayName(),
                                   null,
                                   pnl,
@@ -1442,37 +1395,34 @@ public class CcddDialogHandler extends JDialog
         return colorPanel;
     }
 
-    /**************************************************************************
-     * Placeholder for method to verify the the dialog box selection(s) prior
-     * to closing
+    /**********************************************************************************************
+     * Placeholder for method to verify the the dialog box selection(s) prior to closing
      *
      * @return true
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean verifySelection()
     {
         return true;
     }
 
-    /**************************************************************************
-     * Add radio buttons, representing the available selections from a supplied
-     * array, in a grid pattern to the dialog panel. Select and gray out the
-     * currently selected item if supplied
+    /**********************************************************************************************
+     * Add radio buttons, representing the available selections from a supplied array, in a grid
+     * pattern to the dialog panel. Select and gray out the currently selected item if supplied
      *
      * @param rbtnSelected
-     *            name of the initially selected item. null if no item is
-     *            initially chosen
+     *            name of the initially selected item. null if no item is initially chosen
      *
      * @param canReselect
-     *            true if the initially selected item can be reselected; false
-     *            to disable reselection of the initial item
+     *            true if the initially selected item can be reselected; false to disable
+     *            reselection of the initial item
      *
      * @param itemInformation
-     *            array of items from which to select. The first column is the
-     *            item name and the second column is the item description
+     *            array of items from which to select. The first column is the item name and the
+     *            second column is the item description
      *
      * @param disabledItems
-     *            list of indices for items that appear in the list but cannot
-     *            be selected; null or empty list if no items are disabled
+     *            list of indices for items that appear in the list but cannot be selected; null or
+     *            empty list if no items are disabled
      *
      * @param rbtnText
      *            text to display above the radio button panel
@@ -1483,10 +1433,10 @@ public class CcddDialogHandler extends JDialog
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
      *
-     * @return true if there is more than one item to display; the dialog is
-     *         populated with the array of radio buttons. false if there are
-     *         less than two items to display; the dialog is unchanged
-     *************************************************************************/
+     * @return true if there is more than one item to display; the dialog is populated with the
+     *         array of radio buttons. false if there are less than two items to display; the
+     *         dialog is unchanged
+     *********************************************************************************************/
     protected boolean addRadioButtons(String rbtnSelected,
                                       boolean canReselect,
                                       String[][] itemInformation,
@@ -1497,8 +1447,7 @@ public class CcddDialogHandler extends JDialog
     {
         boolean rbtnsAdded = false;
 
-        // Store the currently selected item. Use null if no preselected item
-        // list is provided
+        // Store the currently selected item. Use null if no preselected item list is provided
         radioButtonSelected = rbtnSelected;
 
         // Check if any items exist
@@ -1545,25 +1494,23 @@ public class CcddDialogHandler extends JDialog
             // Create a listener for radio button selection changes
             ActionListener listener = new ActionListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Select the item based on the radio button selection
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
                     // Get the text associated with the selected radio button
                     String buttonText = ((JRadioButton) ae.getSource()).getText();
 
-                    // Check if the selected item differs from the one
-                    // currently selected
+                    // Check if the selected item differs from the one currently selected
                     if (radioButtonSelected == null
                         || !radioButtonSelected.equals(buttonText))
                     {
                         // Update the currently selected item
                         radioButtonSelected = buttonText;
 
-                        // Issue an event to any listeners that the radio
-                        // button selection changed
+                        // Issue an event to any listeners that the radio button selection changed
                         firePropertyChange(RADIO_BUTTON_CHANGE_EVENT,
                                            "",
                                            radioButtonSelected);
@@ -1583,16 +1530,15 @@ public class CcddDialogHandler extends JDialog
                 // Check if a description is provided
                 if (itemInformation[index][1] != null)
                 {
-                    // Set the flag indicating descriptions are provided and
-                    // stop searching
+                    // Set the flag indicating descriptions are provided and stop searching
                     isDescriptions = true;
                     break;
                 }
             }
 
-            // Calculate the number of columns in the radio button grid based
-            // on if there are descriptions and the number of items to display,
-            // up to a maximum of x columns (default is 5)
+            // Calculate the number of columns in the radio button grid based on if there are
+            // descriptions and the number of items to display, up to a maximum of x columns
+            // (default is 5)
             int gridWidth = isDescriptions
                                            ? 1
                                            : (int) Math.min(Math.sqrt(itemInformation.length),
@@ -1607,13 +1553,11 @@ public class CcddDialogHandler extends JDialog
                 radioButton[index].setBorder(emptyBorder);
                 radioButton[index].addActionListener(listener);
 
-                // Enable the radio button if the item isn't in the disabled
-                // list
+                // Enable the radio button if the item isn't in the disabled list
                 radioButton[index].setEnabled(disabledItems == null
                                               || !disabledItems.contains(index));
 
-                // Add the radio buttons to a group so that only one is active
-                // at a time
+                // Add the radio buttons to a group so that only one is active at a time
                 rbtnGroup.add(radioButton[index]);
 
                 // Arrange the radio buttons in a grid
@@ -1658,35 +1602,33 @@ public class CcddDialogHandler extends JDialog
                 }
             }
 
-            // Create a scroll pane to house the radio buttons in case there
-            // are a large number to choose from. Set the scroll speed of the
-            // scroll pane based on the row (i.e., radio button) height
+            // Create a scroll pane to house the radio buttons in case there are a large number to
+            // choose from. Set the scroll speed of the scroll pane based on the row (i.e., radio
+            // button) height
             JScrollPane scrollPane = new JScrollPane(rbtnGridPnl);
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(radioButton[0].getPreferredSize().height / 2
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-            // Calculate the maximum desirable height of the panel containing
-            // the radio buttons (= # of rows * row height)
+            // Calculate the maximum desirable height of the panel containing the radio buttons (=
+            // # of rows * row height)
             int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
                                       * rbtnGridPnl.getPreferredSize().getHeight()
                                       / radioButton.length
                                       * gridWidth);
 
-            // Check if the scrollable list exceeds the maximum desirable
-            // height
+            // Check if the scrollable list exceeds the maximum desirable height
             if (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight)
             {
-                // Set the size of the scrollable list; the vertical scroll bar
-                // is displayed
+                // Set the size of the scrollable list; the vertical scroll bar is displayed
                 scrollPane.setPreferredSize(new Dimension((int) rbtnGridPnl.getPreferredSize().getWidth()
                                                           + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
                                                           maxRowHeight));
             }
 
-            // Add the scrollable panel containing the radio buttons to the
-            // outer radio button panel in order for the border to appear
+            // Add the scrollable panel containing the radio buttons to the outer radio button
+            // panel in order for the border to appear
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             rbtnPnl.add(scrollPane, gbc);
@@ -1696,9 +1638,8 @@ public class CcddDialogHandler extends JDialog
             dlgGbc.gridy++;
             dialogPanel.add(rbtnPnl, dlgGbc);
 
-            // Adjust the input layout constraints grid y-coordinate so that
-            // subsequent components using these constraints are placed
-            // correctly
+            // Adjust the input layout constraints grid y-coordinate so that subsequent components
+            // using these constraints are placed correctly
             dialogGbc.gridy = dlgGbc.gridy;
 
             rbtnsAdded = true;
@@ -1707,22 +1648,21 @@ public class CcddDialogHandler extends JDialog
         return rbtnsAdded;
     }
 
-    /**************************************************************************
-     * Add check boxes, representing the available selections from a supplied
-     * array, in a grid pattern to the dialog panel. Select and gray out the
-     * currently selected item if supplied
+    /**********************************************************************************************
+     * Add check boxes, representing the available selections from a supplied array, in a grid
+     * pattern to the dialog panel. Select and gray out the currently selected item if supplied
      *
      * @param cboxSelected
-     *            name of the initially selected item. Null if no item is
-     *            initially chosen. A protected item cannot be selected
+     *            name of the initially selected item. Null if no item is initially chosen. A
+     *            protected item cannot be selected
      *
      * @param itemInformation
-     *            array of items from which to select. The first column is the
-     *            item name and the second column is the item description
+     *            array of items from which to select. The first column is the item name and the
+     *            second column is the item description
      *
      * @param disabledItems
-     *            list of indices for items that appear in the list but cannot
-     *            be selected; null or empty list if no items are disabled
+     *            list of indices for items that appear in the list but cannot be selected; null or
+     *            empty list if no items are disabled
      *
      * @param cboxText
      *            text to display above the check box panel
@@ -1730,10 +1670,10 @@ public class CcddDialogHandler extends JDialog
      * @param dialogPanel
      *            dialog panel on which to place the check boxes
      *
-     * @return true if there is more than one item to display; the dialog is
-     *         populated with the array of check boxes. false if there are less
-     *         than two items to display; the dialog is unchanged
-     *************************************************************************/
+     * @return true if there is more than one item to display; the dialog is populated with the
+     *         array of check boxes. false if there are less than two items to display; the dialog
+     *         is unchanged
+     *********************************************************************************************/
     protected boolean addCheckBoxes(String cboxSelected,
                                     String[][] itemInformation,
                                     List<Integer> disabledItems,
@@ -1794,15 +1734,14 @@ public class CcddDialogHandler extends JDialog
             // Create a listener for radio button selection changes
             ActionListener listener = new ActionListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Select the item based on the check box selection
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    // Issue an event to any listeners that the check box
-                    // selection changed, sending the text associated with the
-                    // selected check box
+                    // Issue an event to any listeners that the check box selection changed,
+                    // sending the text associated with the selected check box
                     firePropertyChange(CHECK_BOX_CHANGE_EVENT,
                                        "",
                                        ((JCheckBox) ae.getSource()).getText());
@@ -1820,16 +1759,15 @@ public class CcddDialogHandler extends JDialog
                 // Check if a description is provided
                 if (itemInformation[index][1] != null)
                 {
-                    // Set the flag indicating descriptions are provided and
-                    // stop searching
+                    // Set the flag indicating descriptions are provided and stop searching
                     isDescriptions = true;
                     break;
                 }
             }
 
-            // Calculate the number of columns in the check box grid based on
-            // if there are descriptions and the number of items to display, up
-            // to a maximum of x columns (default is 5)
+            // Calculate the number of columns in the check box grid based on if there are
+            // descriptions and the number of items to display, up to a maximum of x columns
+            // (default is 5)
             int gridWidth = isDescriptions
                                            ? 1
                                            : (int) Math.min(Math.sqrt(itemInformation.length),
@@ -1883,35 +1821,33 @@ public class CcddDialogHandler extends JDialog
                 }
             }
 
-            // Create a scroll pane to house the check boxes in case there are
-            // a large number to choose from. Set the scroll speed of the
-            // scroll pane based on the row (i.e., check box) height
+            // Create a scroll pane to house the check boxes in case there are a large number to
+            // choose from. Set the scroll speed of the scroll pane based on the row (i.e., check
+            // box) height
             JScrollPane scrollPane = new JScrollPane(cboxGridPnl);
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(checkBox[0].getPreferredSize().height / 2
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
-            // Calculate the maximum desirable height of the panel containing
-            // the check boxes (= # of rows * row height)
+            // Calculate the maximum desirable height of the panel containing the check boxes (= #
+            // of rows * row height)
             int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
                                       * cboxGridPnl.getPreferredSize().getHeight()
                                       / checkBox.length
                                       * gridWidth);
 
-            // Check if the scrollable list exceeds the maximum desirable
-            // height
+            // Check if the scrollable list exceeds the maximum desirable height
             if (cboxGridPnl.getPreferredSize().getHeight() > maxRowHeight)
             {
-                // Set the size of the scrollable list; the vertical scroll bar
-                // is displayed
+                // Set the size of the scrollable list; the vertical scroll bar is displayed
                 scrollPane.setPreferredSize(new Dimension((int) cboxGridPnl.getPreferredSize().getWidth()
                                                           + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
                                                           maxRowHeight));
             }
 
-            // Add the scrollable panel containing the check boxes to the outer
-            // check box panel in order for the border to appear
+            // Add the scrollable panel containing the check boxes to the outer check box panel in
+            // order for the border to appear
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             cboxPanel.add(scrollPane, gbc);
@@ -1929,47 +1865,45 @@ public class CcddDialogHandler extends JDialog
         return cboxesAdded;
     }
 
-    /**************************************************************************
-     * Extract the dialog's button(s) from the supplied panel, then find the
-     * widest button calculated from the button's text and icon. Set the width
-     * of the panel containing the buttons based on the widest button
-     *************************************************************************/
+    /**********************************************************************************************
+     * Extract the dialog's button(s) from the supplied panel, then find the widest button
+     * calculated from the button's text and icon. Set the width of the panel containing the
+     * buttons based on the widest button
+     *********************************************************************************************/
     protected void setButtonWidth()
     {
         buttonHandler.setButtonWidth();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the number of rows occupied by the dialog's buttons
      *
      * @param rows
      *            number of dialog button rows
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setButtonRows(int rows)
     {
         buttonHandler.setButtonRows(rows);
     }
 
-    /**************************************************************************
-     * Enable/disable the button panel buttons. Override to include other
-     * dialog controls
+    /**********************************************************************************************
+     * Enable/disable the button panel buttons. Override to include other dialog controls
      *
      * @param enable
      *            true to enable the buttons; false to disable
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setControlsEnabled(boolean enable)
     {
         buttonHandler.setButtonsEnabled(enable);
     }
 
-    /**************************************************************************
-     * Create the dialog. If no buttons are provided (lower panel) then create
-     * the buttons and button listeners needed based on the dialog type
+    /**********************************************************************************************
+     * Create the dialog. If no buttons are provided (lower panel) then create the buttons and
+     * button listeners needed based on the dialog type
      *
      * @param parent
-     *            window to center the dialog over; set to null to redirect
-     *            message dialog text to the standard output stream (usually
-     *            the command line)
+     *            window to center the dialog over; set to null to redirect message dialog text to
+     *            the standard output stream (usually the command line)
      *
      * @param upperObject
      *            object containing the dialog components or message
@@ -1978,16 +1912,15 @@ public class CcddDialogHandler extends JDialog
      *            panel containing the dialog buttons
      *
      * @param defaultBtn
-     *            reference to the JButton that is actuated if the Enter key is
-     *            pressed; null to have no default button
+     *            reference to the JButton that is actuated if the Enter key is pressed; null to
+     *            have no default button
      *
      * @param title
      *            title to display in the dialog window frame
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION
      *
      * @param icon
      *            icon to display to the left of the text message
@@ -1996,11 +1929,11 @@ public class CcddDialogHandler extends JDialog
      *            true to allow the dialog to be resized
      *
      * @param modal
-     *            false to allow the main application window to still be
-     *            operated while the dialog is open
+     *            false to allow the main application window to still be operated while the dialog
+     *            is open
      *
      * @return Selected button type
-     *************************************************************************/
+     *********************************************************************************************/
     protected int createDialog(Component parent,
                                Object upperObject,
                                JPanel buttonPnl,
@@ -2014,9 +1947,8 @@ public class CcddDialogHandler extends JDialog
         // Check if the parent component doesn't exist
         if (parent == null)
         {
-            // Check if the component is a string and that the dialog is not a
-            // question type; i.e., this is a plain, information, warning, or
-            // error message dialog
+            // Check if the component is a string and that the dialog is not a question type; i.e.,
+            // this is a plain, information, warning, or error message dialog
             if (upperObject instanceof String
                 && !icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
             {
@@ -2040,8 +1972,7 @@ public class CcddDialogHandler extends JDialog
                     System.out.println(message);
                 }
             }
-            // Not a message dialog, or else is a question dialog requiring
-            // user input
+            // Not a message dialog, or else is a question dialog requiring user input
             else
             {
                 // Use the root pane for the parent
@@ -2062,8 +1993,8 @@ public class CcddDialogHandler extends JDialog
                 JPanel textPnl = new JPanel();
                 textPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Create a panel to hold the icon. Add some padding between
-                // the icon and the text message
+                // Create a panel to hold the icon. Add some padding between the icon and the text
+                // message
                 JPanel iconPanel = new JPanel();
                 iconPanel.setBorder(BorderFactory.createEmptyBorder(0,
                                                                     0,
@@ -2071,8 +2002,8 @@ public class CcddDialogHandler extends JDialog
                                                                     ModifiableSpacingInfo.DIALOG_ICON_PAD.getSpacing()));
                 iconPanel.add(new JLabel(icon));
 
-                // Create a label to hold the text message. Format the message
-                // to constrain the character width to a specified maximum
+                // Create a label to hold the text message. Format the message to constrain the
+                // character width to a specified maximum
                 JLabel textLbl = new JLabel(CcddUtilities.wrapText(upperObject.toString(),
                                                                    ModifiableSizeInfo.MAX_DIALOG_LINE_LENGTH.getSize()),
                                             SwingConstants.LEFT);
@@ -2092,8 +2023,7 @@ public class CcddDialogHandler extends JDialog
                 upperComponent = (JComponent) upperObject;
             }
 
-            // Set up button panel related items and combine the button and
-            // upper panels
+            // Set up button panel related items and combine the button and upper panels
             buttonHandler.assembleWindowComponents(buttonPnl,
                                                    defaultBtn,
                                                    upperComponent,
@@ -2104,27 +2034,27 @@ public class CcddDialogHandler extends JDialog
             // Add a listener for dialog focus gain and lost events
             addWindowFocusListener(new WindowFocusListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a dialog focus gained event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowGainedFocus(WindowEvent we)
                 {
-                    // Set the default button to the last button pressed when
-                    // the dialog (re)gains the focus. This enables the special
-                    // highlighting associated with the default button
+                    // Set the default button to the last button pressed when the dialog (re)gains
+                    // the focus. This enables the special highlighting associated with the default
+                    // button
                     getRootPane().setDefaultButton(buttonHandler.getLastButtonPressed());
                 }
 
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a dialog focus lost event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowLostFocus(WindowEvent we)
                 {
-                    // Set so that there is no default button while the dialog
-                    // doesn't have the focus. This removes the special
-                    // highlighting associated with the default button
+                    // Set so that there is no default button while the dialog doesn't have the
+                    // focus. This removes the special highlighting associated with the default
+                    // button
                     getRootPane().setDefaultButton(null);
                 }
             });
@@ -2136,35 +2066,32 @@ public class CcddDialogHandler extends JDialog
                 setTitle(title);
             }
 
-            // Set if operation of the main window is allowed while this dialog
-            // is open
+            // Set if operation of the main window is allowed while this dialog is open
             setModalityType(modal
                                   ? JDialog.ModalityType.APPLICATION_MODAL
                                   : JDialog.ModalityType.MODELESS);
 
-            // Set the default close operation so that the dialog frame's close
-            // button doesn't automatically exit the dialog. Instead, if this
-            // close button is pressed a button press event is sent to the last
-            // button on the dialog's button panel
-            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            // Set the default close operation so that the dialog frame's close button doesn't
+            // automatically exit the dialog. Instead, if this close button is pressed a button
+            // press event is sent to the last button on the dialog's button panel
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
             // Add a listener for dialog window events
             addWindowListener(new WindowAdapter()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle the dialog frame close button press event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowClosing(WindowEvent we)
                 {
-                    // Perform action needed when the window's frame close
-                    // button is pressed
+                    // Perform action needed when the window's frame close button is pressed
                     windowCloseButtonAction();
                 }
 
-                /**************************************************************
+                /**********************************************************************************
                  * Handle the dialog window close event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowClosed(WindowEvent we)
                 {
@@ -2179,23 +2106,19 @@ public class CcddDialogHandler extends JDialog
             // Size the dialog to fit its components
             pack();
 
-            // Set the preferred size so that setRelativeTo call positions
-            // other dialogs relative to this one's position when it's no
-            // longer visible
+            // Set the preferred size so that setRelativeTo call positions other dialogs relative
+            // to this one's position when it's no longer visible
             setPreferredSize(getPreferredSize());
 
             // Check if the dialog is resizable
             if (resizable)
             {
-                // Set the minimum width to the larger of (1) the default
-                // dialog width and (2) the packed dialog width (the pixel
-                // width of a vertical scroll bar is added if the dialog
-                // contains a table so that the horizontal scroll bar isn't
-                // automatically displayed if the table contents exceeds the
-                // initial height, and a pixel is added to this width to
-                // prevent the dialog from being resized smaller than its
-                // original width). Set the minimum height to the packed height
-                // of the dialog components
+                // Set the minimum width to the larger of (1) the default dialog width and (2) the
+                // packed dialog width (the pixel width of a vertical scroll bar is added if the
+                // dialog contains a table so that the horizontal scroll bar isn't automatically
+                // displayed if the table contents exceeds the initial height, and a pixel is added
+                // to this width to prevent the dialog from being resized smaller than its original
+                // width). Set the minimum height to the packed height of the dialog components
                 setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
                                                       getWidth() + (isContainsComponent(this,
                                                                                         JTable.class)
@@ -2208,8 +2131,8 @@ public class CcddDialogHandler extends JDialog
             // Position the dialog frame centered on the parent
             setLocationRelativeTo(parent);
 
-            // Check if a component is selected to initially have the focus
-            // (otherwise default to the first component)
+            // Check if a component is selected to initially have the focus (otherwise default to
+            // the first component)
             if (initialFocusComponent != null)
             {
                 // Set the focus to the specified component
@@ -2223,9 +2146,9 @@ public class CcddDialogHandler extends JDialog
         return buttonSelected;
     }
 
-    /**************************************************************************
-     * Check if the specified container or its children contains a component of
-     * the specified class. This is a recursive method
+    /**********************************************************************************************
+     * Check if the specified container or its children contains a component of the specified
+     * class. This is a recursive method
      *
      * @param <E>
      *
@@ -2235,9 +2158,8 @@ public class CcddDialogHandler extends JDialog
      * @param tgtClass
      *            target class for which to search
      *
-     * @return true if the container contains an component of the specified
-     *         class
-     *************************************************************************/
+     * @return true if the container contains an component of the specified class
+     *********************************************************************************************/
     private <E> boolean isContainsComponent(Container container, Class<E> tgtClass)
     {
         boolean isFound = false;
@@ -2248,8 +2170,7 @@ public class CcddDialogHandler extends JDialog
             // Check if the component is an instance of the target class
             if (tgtClass.isInstance(comp))
             {
-                // Set the flag to indicate a component of the target class is
-                // within the container
+                // Set the flag to indicate a component of the target class is within the container
                 isFound = true;
             }
             // Check if the component is a container
@@ -2270,25 +2191,23 @@ public class CcddDialogHandler extends JDialog
         return isFound;
     }
 
-    /**************************************************************************
-     * Override the setLocationRelativeTo() method so that the dialog can be
-     * positioned relative to a parent that was present, but is no longer
-     * visible. Otherwise, the dialog would be centered on the screen
+    /**********************************************************************************************
+     * Override the setLocationRelativeTo() method so that the dialog can be positioned relative to
+     * a parent that was present, but is no longer visible. Otherwise, the dialog would be centered
+     * on the screen
      *
      * @param comp
-     *            component in relation to which the dialog's location is
-     *            determined
-     *************************************************************************/
+     *            component in relation to which the dialog's location is determined
+     *********************************************************************************************/
     @Override
     public void setLocationRelativeTo(Component comp)
     {
-        // Check if the component to which the dialog is to be positioned
-        // relative to exists
+        // Check if the component to which the dialog is to be positioned relative to exists
         if (comp != null)
         {
-            // Determine the new dialog's position relative to the component,
-            // adjusting the location so that the dialog appears fully on the
-            // screen in which the component resides
+            // Determine the new dialog's position relative to the component, adjusting the
+            // location so that the dialog appears fully on the screen in which the component
+            // resides
             Dimension newDlgSize = getSize();
             Dimension compSize = comp.getSize();
             Point adjLocation = adjustDialogLocationForScreen(new Rectangle(comp.getX()
@@ -2313,20 +2232,18 @@ public class CcddDialogHandler extends JDialog
         }
     }
 
-    /**************************************************************************
-     * Set the component location so that it is completely inside the available
-     * screen(s), if possible. Although the method makes an effort to place the
-     * component so that it is entirely visible, it may end up partially
-     * outside the screen(s), either because it's larger than all available
-     * screens or the screens are arranged badly
+    /**********************************************************************************************
+     * Set the component location so that it is completely inside the available screen(s), if
+     * possible. Although the method makes an effort to place the component so that it is entirely
+     * visible, it may end up partially outside the screen(s), either because it's larger than all
+     * available screens or the screens are arranged badly
      *
      * @param comp
-     *            rectangle representing a component's bounds for which to
-     *            adjust the location
+     *            rectangle representing a component's bounds for which to adjust the location
      *
-     * @return Point giving the x, y coordinates of the component adjusted to
-     *         fit within the screen in which the component resides
-     *************************************************************************/
+     * @return Point giving the x, y coordinates of the component adjusted to fit within the screen
+     *         in which the component resides
+     *********************************************************************************************/
     protected static Point adjustDialogLocationForScreen(Rectangle comp)
     {
         // Set the default location to the component's current location
@@ -2350,8 +2267,8 @@ public class CcddDialogHandler extends JDialog
                     // Set the flag to indicate the location is set
                     notFound = false;
                 }
-                // Check if the the component overlaps the screen bounds (i.e.,
-                // is partially off the screen)
+                // Check if the the component overlaps the screen bounds (i.e., is partially off
+                // the screen)
                 else if (region.intersects(comp))
                 {
                     // Add the screen to those in which the component appears
@@ -2362,38 +2279,34 @@ public class CcddDialogHandler extends JDialog
             // Check if the location hasn't been finalized
             if (notFound)
             {
-                // Base the position on the number of screens in which some
-                // portion of the component appears
+                // Base the position on the number of screens in which some portion of the
+                // component appears
                 switch (intersecting.size())
                 {
                     case 0:
-                        // The component appears entirely in a single screen.
-                        // Adjust the component's location so that it is
-                        // entirely within this screen
+                        // The component appears entirely in a single screen. Adjust the
+                        // component's location so that it is entirely within this screen
                         location = positionInsideRectangle(comp, availableRegions[0]);
                         break;
 
                     case 1:
-                        // The component appears partially in a single screen.
-                        // Adjust the component's location so that it is
-                        // entirely within the first screen in which it
-                        // partially appears
+                        // The component appears partially in a single screen. Adjust the
+                        // component's location so that it is entirely within the first screen in
+                        // which it partially appears
                         location = positionInsideRectangle(comp, intersecting.get(0));
                         break;
 
                     default:
-                        // The component appears partially in more than one
-                        // screens. Build an area containing all of the
-                        // detected intersections and check if the bounds fall
-                        // completely into the intersection area
+                        // The component appears partially in more than one screens. Build an area
+                        // containing all of the detected intersections and check if the bounds
+                        // fall completely into the intersection area
                         Area area = new Area();
 
-                        // Step through each screen in which the component
-                        // appears
+                        // Step through each screen in which the component appears
                         for (Rectangle region : intersecting)
                         {
-                            // Get the bounds for this screen as a 2D rectangle
-                            // object and add it to the total area
+                            // Get the bounds for this screen as a 2D rectangle object and add it
+                            // to the total area
                             area.add(new Area(new Rectangle2D.Double(region.x,
                                                                      region.y,
                                                                      region.width,
@@ -2406,13 +2319,11 @@ public class CcddDialogHandler extends JDialog
                                                                         comp.width,
                                                                         comp.height);
 
-                        // Check if this combined area doesn't contain the
-                        // entire component
+                        // Check if this combined area doesn't contain the entire component
                         if (!area.contains(boundsRect))
                         {
-                            // Since it doesn't fit, position is as best as
-                            // possible within in the first screen in which it
-                            // appears
+                            // Since it doesn't fit, position is as best as possible within in the
+                            // first screen in which it appears
                             location = positionInsideRectangle(comp,
                                                                intersecting.get(0));
                         }
@@ -2425,21 +2336,19 @@ public class CcddDialogHandler extends JDialog
         return location;
     }
 
-    /**************************************************************************
-     * Adjust the location of the specified rectangular boundary such that it
-     * is within the specified rectangle representing the screen's bounds
+    /**********************************************************************************************
+     * Adjust the location of the specified rectangular boundary such that it is within the
+     * specified rectangle representing the screen's bounds
      *
      * @param comp
-     *            rectangle representing a component's bounds for which to
-     *            adjust the location
+     *            rectangle representing a component's bounds for which to adjust the location
      *
      * @param screen
-     *            bounding rectangle, representing a screen, that the component
-     *            is to remain within
+     *            bounding rectangle, representing a screen, that the component is to remain within
      *
-     * @return Point giving the x, y coordinates of the component rectangle
-     *         adjusted to fit within the specified screen's bounds
-     *************************************************************************/
+     * @return Point giving the x, y coordinates of the component rectangle adjusted to fit within
+     *         the specified screen's bounds
+     *********************************************************************************************/
     private static Point positionInsideRectangle(Rectangle comp,
                                                  Rectangle screen)
     {
@@ -2474,13 +2383,12 @@ public class CcddDialogHandler extends JDialog
         return new Point(comp.x, comp.y);
     }
 
-    /**************************************************************************
-     * Get the available display space as an array of rectangles (there is one
-     * rectangle for each screen; if the environment is headless the resulting
-     * array will be empty).
+    /**********************************************************************************************
+     * Get the available display space as an array of rectangles (there is one rectangle for each
+     * screen; if the environment is headless the resulting array will be empty).
      *
      * @return Array of rectangles representing the bounds of the screen(s)
-     *************************************************************************/
+     *********************************************************************************************/
     private static Rectangle[] getScreenRectangles()
     {
         Rectangle[] screenBounds;

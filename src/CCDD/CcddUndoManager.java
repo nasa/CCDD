@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary undo/redo edits manager.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -14,9 +13,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary undo/redo edits manager class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddUndoManager extends UndoManager
 {
@@ -26,9 +25,9 @@ public class CcddUndoManager extends UndoManager
     // Edit sequence stack pointer
     private int pointer;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Undo/redo edits manager class constructor
-     *************************************************************************/
+     *********************************************************************************************/
     CcddUndoManager()
     {
         super();
@@ -43,13 +42,13 @@ public class CcddUndoManager extends UndoManager
         pointer = -1;
     }
 
-    /**************************************************************************
-     * Add an edit action to the compound edit sequence in progress. If no
-     * sequence is active then first create a new sequence
+    /**********************************************************************************************
+     * Add an edit action to the compound edit sequence in progress. If no sequence is active then
+     * first create a new sequence
      *
      * @param editAction
      *            edit action
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addEditSequence(AbstractUndoableEdit editAction)
     {
         // Check if no compound edit sequence is active
@@ -62,8 +61,7 @@ public class CcddUndoManager extends UndoManager
                 compoundEdits.remove(compoundEdits.size() - 1);
             }
 
-            // Initiate a new compound edit sequence and adjust the stack
-            // pointer
+            // Initiate a new compound edit sequence and adjust the stack pointer
             compoundEdits.add(new CompoundEdit());
             pointer++;
 
@@ -75,9 +73,9 @@ public class CcddUndoManager extends UndoManager
         compoundEdits.get(pointer).addEdit(editAction);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * End the current compound edit sequence
-     *************************************************************************/
+     *********************************************************************************************/
     protected void endEditSequence()
     {
         // Check that a sequence exists
@@ -88,30 +86,28 @@ public class CcddUndoManager extends UndoManager
         }
     }
 
-    /**************************************************************************
-     * Override the canUndo method to check if the compound edit stack has an
-     * undo available
-     *************************************************************************/
+    /**********************************************************************************************
+     * Override the canUndo method to check if the compound edit stack has an undo available
+     *********************************************************************************************/
     @Override
     public boolean canUndo()
     {
         return pointer >= 0;
     }
 
-    /**************************************************************************
-     * Override the canRedo method to check if the compound edit stack has a
-     * redo available
-     *************************************************************************/
+    /**********************************************************************************************
+     * Override the canRedo method to check if the compound edit stack has a redo available
+     *********************************************************************************************/
     @Override
     public boolean canRedo()
     {
         return pointer < compoundEdits.size() - 1;
     }
 
-    /**************************************************************************
-     * Undo the last compound edit sequence and remove the action from the
-     * stack so that it can't be redone
-     *************************************************************************/
+    /**********************************************************************************************
+     * Undo the last compound edit sequence and remove the action from the stack so that it can't
+     * be redone
+     *********************************************************************************************/
     protected void undoRemoveEdit()
     {
         // Check if an undo is allowed
@@ -125,10 +121,10 @@ public class CcddUndoManager extends UndoManager
         }
     }
 
-    /**************************************************************************
-     * Override the undo method so that a check can be first performed that
-     * edits are available to undo
-     *************************************************************************/
+    /**********************************************************************************************
+     * Override the undo method so that a check can be first performed that edits are available to
+     * undo
+     *********************************************************************************************/
     @Override
     public void undo()
     {
@@ -138,8 +134,7 @@ public class CcddUndoManager extends UndoManager
         // Check if an undo is allowed
         if (canUndo())
         {
-            // Undo all actions within this compound edit sequence and
-            // adjust the stack pointer
+            // Undo all actions within this compound edit sequence and adjust the stack pointer
             compoundEdits.get(pointer).undo();
             pointer--;
 
@@ -148,10 +143,10 @@ public class CcddUndoManager extends UndoManager
         }
     }
 
-    /**************************************************************************
-     * Override the redo method so that a check can be first performed that
-     * edits are available to redo
-     *************************************************************************/
+    /**********************************************************************************************
+     * Override the redo method so that a check can be first performed that edits are available to
+     * redo
+     *********************************************************************************************/
     @Override
     public void redo()
     {
@@ -161,8 +156,7 @@ public class CcddUndoManager extends UndoManager
         // Check if an redo is allowed
         if (canRedo())
         {
-            // Adjust the stack pointer and redo all actions within this
-            // compound edit sequence
+            // Adjust the stack pointer and redo all actions within this compound edit sequence
             pointer++;
             compoundEdits.get(pointer).redo();
 
@@ -171,9 +165,9 @@ public class CcddUndoManager extends UndoManager
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Override the discard edits method so that the stack pointer can be reset
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void discardAllEdits()
     {
@@ -191,9 +185,9 @@ public class CcddUndoManager extends UndoManager
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder for method to flag changes to the undo manager owner
-     *************************************************************************/
+     *********************************************************************************************/
     protected void ownerHasChanged()
     {
     }

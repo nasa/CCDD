@@ -1,9 +1,8 @@
 /**
- * CFS Command & Data Dictionary search database tables and scripts handler.
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * CFS Command & Data Dictionary search database tables and scripts handler. Copyright 2017 United
+ * States Government as represented by the Administrator of the National Aeronautics and Space
+ * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
+ * Other Rights Reserved.
  */
 package CCDD;
 
@@ -49,10 +48,9 @@ import CCDD.CcddConstants.SearchTarget;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
- * CFS Command & Data Dictionary search database tables, scripts, and event log
- * handler class
- *****************************************************************************/
+/**************************************************************************************************
+ * CFS Command & Data Dictionary search database tables, scripts, and event log handler class
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddSearchHandler extends CcddDialogHandler
 {
@@ -64,7 +62,7 @@ public class CcddSearchHandler extends CcddDialogHandler
     // Search dialog type
     private final SearchDialogType searchDlgType;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search database tables, scripts, and event log handler class constructor
      *
      * @param ccddMain
@@ -74,12 +72,12 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            search dialog type: TABLES, SCRIPTS, or LOG
      *
      * @param targetRow
-     *            row index to match if this is an event log entry search on a
-     *            table that displays only a single log entry; null otherwise
+     *            row index to match if this is an event log entry search on a table that displays
+     *            only a single log entry; null otherwise
      *
      * @param eventLog
      *            event log to search; null if not searching a log
-     *************************************************************************/
+     *********************************************************************************************/
     CcddSearchHandler(CcddMain ccddMain,
                       SearchDialogType searchType,
                       Long targetRow,
@@ -93,7 +91,7 @@ public class CcddSearchHandler extends CcddDialogHandler
         tableTypeHandler = ccddMain.getTableTypeHandler();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search database tables and scripts class constructor
      *
      * @param ccddMain
@@ -101,23 +99,23 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param searchType
      *            search dialog type: TABLES or SCRIPTS
-     *************************************************************************/
+     *********************************************************************************************/
     CcddSearchHandler(CcddMain ccddMain, SearchDialogType searchType)
     {
         this(ccddMain, searchType, null, null);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the reference to the event log to search
      *
      * @return Reference to the event log to search
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setEventLog(CcddEventLogDialog eventLog)
     {
         this.eventLog = eventLog;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search for occurrences of a string in the tables or scripts
      *
      * @param searchText
@@ -130,18 +128,17 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            true to allow a regular expression search string
      *
      * @param dataTablesOnly
-     *            true if only the data tables, and not references in the
-     *            internal tables, are to be searched
+     *            true if only the data tables, and not references in the internal tables, are to
+     *            be searched
      *
      * @param searchColumns
-     *            string containing the names of columns, separated by commas,
-     *            to which to constrain a table search
+     *            string containing the names of columns, separated by commas, to which to
+     *            constrain a table search
      *
-     * @return Search results List containing object arrays providing each
-     *         match's location in the database tables or event log, the column
-     *         within the location, and an extract for the located match
-     *         showing its context
-     *************************************************************************/
+     * @return Search results List containing object arrays providing each match's location in the
+     *         database tables or event log, the column within the location, and an extract for the
+     *         located match showing its context
+     *********************************************************************************************/
     protected List<Object[]> searchTablesOrScripts(String searchText,
                                                    boolean ignoreCase,
                                                    boolean allowRegex,
@@ -151,8 +148,8 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Initialize the list to contain the search results
         List<Object[]> resultsDataList = new ArrayList<Object[]>();
 
-        // Set the search type based on the dialog type and, for a table
-        // search, the state of the 'data tables only' check box
+        // Set the search type based on the dialog type and, for a table search, the state of the
+        // 'data tables only' check box
         String searchType = searchDlgType == SearchDialogType.TABLES
                                                                      ? (dataTablesOnly
                                                                                        ? SearchType.DATA.toString()
@@ -176,31 +173,29 @@ public class CcddSearchHandler extends CcddDialogHandler
         // Step through each table/column containing the search text
         for (String hit : hits)
         {
-            // Split the found item into table, column, description, and
-            // context
+            // Split the found item into table, column, description, and context
             String[] tblColDescAndCntxt = hit.split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
-            // Create a reference to the search result's column name to shorten
-            // comparisons below
+            // Create a reference to the search result's column name to shorten comparisons below
             String hitColumnName = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
 
             // Check that the column isn't the primary key or row index
             if (!hitColumnName.equals(DefaultColumn.PRIMARY_KEY.getDbName())
                 && !hitColumnName.equals(DefaultColumn.ROW_INDEX.getDbName()))
             {
-                // Create references to the the remaining search result columns
-                // to shorten comparisons below
+                // Create references to the the remaining search result columns to shorten
+                // comparisons below
                 String hitTableName = tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()];
                 String hitTableComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
                 String hitContext = tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()];
 
-                // Separate the table comment into the viewable table name and
-                // table type, or for scripts the script name and description
+                // Separate the table comment into the viewable table name and table type, or for
+                // scripts the script name and description
                 String[] nameAndType = hitTableComment.split(",");
 
-                // Split the row in which the match is found into its separate
-                // columns, accounting for quotes around the comma separated
-                // column values (i.e., ignore commas within quotes)
+                // Split the row in which the match is found into its separate columns, accounting
+                // for quotes around the comma separated column values (i.e., ignore commas within
+                // quotes)
                 String[] columnValue = CcddUtilities.splitAndRemoveQuotes(hitContext);
 
                 String target = null;
@@ -213,15 +208,14 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // The reference is to a prototype table
                     if (!hitTableName.startsWith(INTERNAL_TABLE_PREFIX))
                     {
-                        // Get the table's type definition based on its table
-                        // type
+                        // Get the table's type definition based on its table type
                         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(nameAndType[1]);
 
                         // Get the index of the column where the match exists
                         int colIndex = typeDefn.getColumnIndexByDbName(hitColumnName);
 
-                        // Set the row number for the row location if the
-                        // variable name or command name aren't present
+                        // Set the row number for the row location if the variable name or command
+                        // name aren't present
                         String row = "row "
                                      + columnValue[DefaultColumn.ROW_INDEX.ordinal()];
 
@@ -266,31 +260,27 @@ public class CcddSearchHandler extends CcddDialogHandler
                                    + row;
                         context = columnValue[colIndex];
                     }
-                    // Check if the match is in the custom values internal
-                    // table
+                    // Check if the match is in the custom values internal table
                     else if (hitTableName.equals(InternalTable.VALUES.getTableName()))
                     {
                         // Check if the match is in the value column
                         if (hitColumnName.equals(ValuesColumn.VALUE.getColumnName()))
                         {
-                            // Get the column values from the row in which the
-                            // match occurs
+                            // Get the column values from the row in which the match occurs
                             String tablePath = columnValue[ValuesColumn.TABLE_PATH.ordinal()];
                             String columnName = columnValue[ValuesColumn.COLUMN_NAME.ordinal()];
                             String value = columnValue[ValuesColumn.VALUE.ordinal()];
 
-                            // Check if this is a table definition entry in the
-                            // values table
+                            // Check if this is a table definition entry in the values table
                             if (columnName.isEmpty())
                             {
                                 // Set the location
                                 location = "Table description";
                             }
-                            // Column value from a child table stored in the
-                            // internal values table. Since this isn't a table
-                            // description the reference must be to a structure
-                            // table (for other table types the match would be
-                            // in the table prototype)
+                            // Column value from a child table stored in the internal values table.
+                            // Since this isn't a table description the reference must be to a
+                            // structure table (for other table types the match would be in the
+                            // table prototype)
                             else
                             {
                                 // Set the location
@@ -298,15 +288,15 @@ public class CcddSearchHandler extends CcddDialogHandler
                                            + columnName
                                            + "'";
 
-                                // Initialize the variable name and get the
-                                // index where the last variable name begins
+                                // Initialize the variable name and get the index where the last
+                                // variable name begins
                                 int index = tablePath.lastIndexOf(',');
 
                                 // Check if a variable name exists
                                 if (index != -1)
                                 {
-                                    // Extract the variable from the path, then
-                                    // remove it from the variable path
+                                    // Extract the variable from the path, then remove it from the
+                                    // variable path
                                     location += ", variable '"
                                                 + tablePath.substring(index + 1).replaceFirst("^.+\\.", "")
                                                 + "'";
@@ -371,24 +361,21 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // The match is with a group definition or member
                         else
                         {
-                            // Check if the column begins with a number; this
-                            // is the group definition
+                            // Check if the column begins with a number; this is the group
+                            // definition
                             if (columnValue[GroupsColumn.MEMBERS.ordinal()].matches("^\\d+"))
                             {
-                                // Get the group description (remove the dummy
-                                // number and comma that flags this as a group
-                                // definition)
+                                // Get the group description (remove the dummy number and comma
+                                // that flags this as a group definition)
                                 context = columnValue[GroupsColumn.MEMBERS.ordinal()].split(",")[1];
 
-                                // Check if the description contains the search
-                                // text (i.e., the dummy number and comma
-                                // aren't part of the match)
+                                // Check if the description contains the search text (i.e., the
+                                // dummy number and comma aren't part of the match)
                                 if (context.toLowerCase().contains(searchText.toLowerCase()))
                                 {
                                     location += "description";
                                 }
-                                // The match includes the dummy number and
-                                // comma; ignore
+                                // The match includes the dummy number and comma; ignore
                                 else
                                 {
                                     target = null;
@@ -461,8 +448,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             location += "input type";
                             context = columnValue[FieldsColumn.FIELD_TYPE.ordinal()];
                         }
-                        // Check if the match is with the field
-                        // applicability
+                        // Check if the match is with the field applicability
                         else if (hitColumnName.equals(FieldsColumn.FIELD_APPLICABILITY.getColumnName()))
                         {
                             location += "applicability";
@@ -487,8 +473,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                         target = SearchTarget.SCRIPT_ASSN.getTargetName(true)
                                  + columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()];
 
-                        // Check if the match is with the script file path
-                        // and/or name
+                        // Check if the match is with the script file path and/or name
                         if (hitColumnName.equals(AssociationsColumn.SCRIPT_FILE.getColumnName()))
                         {
                             location += "File path and name";
@@ -501,8 +486,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             context = columnValue[AssociationsColumn.MEMBERS.ordinal()];
                         }
                     }
-                    // Check if the match is in the telemetry scheduler
-                    // internal table
+                    // Check if the match is in the telemetry scheduler internal table
                     else if (hitTableName.equals(InternalTable.TLM_SCHEDULER.getTableName()))
                     {
                         target = SearchTarget.TLM_MESSAGE.getTargetName(true)
@@ -531,8 +515,8 @@ public class CcddSearchHandler extends CcddDialogHandler
                         {
                             context = columnValue[TlmSchedulerColumn.MEMBER.ordinal()];
 
-                            // Check if the column begins with a number; this
-                            // is the message definition
+                            // Check if the column begins with a number; this is the message
+                            // definition
                             if (columnValue[TlmSchedulerColumn.MEMBER.ordinal()].matches("^\\d+"))
                             {
                                 location += "rate and description";
@@ -567,8 +551,8 @@ public class CcddSearchHandler extends CcddDialogHandler
                         {
                             context = columnValue[LinksColumn.MEMBER.ordinal()];
 
-                            // Check if the column begins with a number; this
-                            // is the link definition
+                            // Check if the column begins with a number; this is the link
+                            // definition
                             if (columnValue[1].matches("^\\d+"))
                             {
                                 location = "Rate and description";
@@ -623,8 +607,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             target = null;
                         }
                     }
-                    // Check if the match is in the application scheduler
-                    // internal table
+                    // Check if the match is in the application scheduler internal table
                     else if (hitTableName.equals(InternalTable.APP_SCHEDULER.getTableName()))
                     {
                         target = SearchTarget.APP_SCHEDULER.getTargetName(true);
@@ -670,9 +653,8 @@ public class CcddSearchHandler extends CcddDialogHandler
         return sortSearchResults(resultsDataList);
     }
 
-    /**************************************************************************
-     * Search for occurrences of a string in the event log file (session log or
-     * other log file)
+    /**********************************************************************************************
+     * Search for occurrences of a string in the event log file (session log or other log file)
      *
      * @param searchText
      *            text string to search for in the log file
@@ -681,14 +663,13 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            true to ignore case when looking for matching text
      *
      * @param targetRow
-     *            row index to match if this is an event log entry search on a
-     *            table that displays only a single log entry; null otherwise
+     *            row index to match if this is an event log entry search on a table that displays
+     *            only a single log entry; null otherwise
      *
-     * @return Search results List containing object arrays providing each
-     *         match's location in the database tables or event log, the column
-     *         within the location, and an extract for the located match
-     *         showing its context
-     *************************************************************************/
+     * @return Search results List containing object arrays providing each match's location in the
+     *         database tables or event log, the column within the location, and an extract for the
+     *         located match showing its context
+     *********************************************************************************************/
     protected List<Object[]> searchEventLogFile(String searchText,
                                                 boolean ignoreCase,
                                                 Long targetRow)
@@ -721,8 +702,7 @@ public class CcddSearchHandler extends CcddDialogHandler
 
         try
         {
-            // Open a file stream on the event log file and then get a channel
-            // from the stream
+            // Open a file stream on the event log file and then get a channel from the stream
             FileInputStream fis = new FileInputStream(eventLog.getEventLogFile());
             FileChannel fc = fis.getChannel();
 
@@ -742,12 +722,11 @@ public class CcddSearchHandler extends CcddDialogHandler
             // For each line in the file
             while (lineMatch.find())
             {
-                // Check if no target row is provided ,or if one is that it
-                // matches this log entry's row
+                // Check if no target row is provided ,or if one is that it matches this log
+                // entry's row
                 if (targetRow == null || row == targetRow)
                 {
-                    // Get the line from the file and strip any leading or
-                    // trailing white space
+                    // Get the line from the file and strip any leading or trailing white space
                     String line = lineMatch.group().toString();
 
                     // Break the input line into its separate columns
@@ -756,8 +735,8 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Step through each log entry column
                     for (int column = 0; column < parts.length; column++)
                     {
-                        // Create the pattern matcher from the pattern. Ignore
-                        // any HTML tags in the log entry column text
+                        // Create the pattern matcher from the pattern. Ignore any HTML tags in the
+                        // log entry column text
                         Matcher matcher = pattern.matcher(CcddUtilities.removeHTMLTags(parts[column].toString()));
 
                         // Check if a match exists in the text string
@@ -770,8 +749,8 @@ public class CcddSearchHandler extends CcddDialogHandler
                         }
                     }
 
-                    // Check if the end of the file has been reached or if this
-                    // is a single log entry row search
+                    // Check if the end of the file has been reached or if this is a single log
+                    // entry row search
                     if (lineMatch.end() == charBuffer.limit()
                         || targetRow != null)
                     {
@@ -801,24 +780,23 @@ public class CcddSearchHandler extends CcddDialogHandler
         return sortSearchResults(resultsDataList);
     }
 
-    /**************************************************************************
-     * Sort the search results by the first (target) column, and if the same
-     * then by second (location) column. Array variable member references in
-     * the location column are arranged by array dimension value
+    /**********************************************************************************************
+     * Sort the search results by the first (target) column, and if the same then by second
+     * (location) column. Array variable member references in the location column are arranged by
+     * array dimension value
      *
      * @param resultsDataList
      *            list containing the sorted search results
-     *************************************************************************/
+     *********************************************************************************************/
     private List<Object[]> sortSearchResults(List<Object[]> resultsDataList)
     {
         // Sort the results by target, then by location, ignoring case
         Collections.sort(resultsDataList, new Comparator<Object[]>()
         {
-            /******************************************************************
-             * Compare the target names of two search result rows. If the same
-             * compare the locations. Move the tables to the top. Ignore case
-             * when comparing
-             *****************************************************************/
+            /**************************************************************************************
+             * Compare the target names of two search result rows. If the same compare the
+             * locations. Move the tables to the top. Ignore case when comparing
+             *************************************************************************************/
             @Override
             public int compare(Object[] entry1, Object[] entry2)
             {
@@ -841,17 +819,15 @@ public class CcddSearchHandler extends CcddDialogHandler
                 // Check if the first column values are the same
                 if (result == 0)
                 {
-                    // Check if the second column values are both references to
-                    // array variable members. The compareTo() method sorts the
-                    // array members alphabetically, not numerically by array
-                    // dimension (for example, a[10] will be placed immediately
-                    // after a[1]). The following code sorts the array members
+                    // Check if the second column values are both references to array variable
+                    // members. The compareTo() method sorts the array members alphabetically, not
+                    // numerically by array dimension (for example, a[10] will be placed
+                    // immediately after a[1]). The following code sorts the array members
                     // numerically by array dimension
                     if (entry1[1].toString().matches("Column '.*', variable '.*\\]'")
                         && entry2[1].toString().matches("Column '.*', variable '.*\\]'"))
                     {
-                        // Get the array variable references from the second
-                        // column values
+                        // Get the array variable references from the second column values
                         String arrayVariable1 = entry1[1].toString().replaceFirst("Column '.*', variable '(.*\\])'", "$1");
                         String arrayVariable2 = entry2[1].toString().replaceFirst("Column '.*', variable '(.*\\])'", "$1");
 
@@ -859,20 +835,17 @@ public class CcddSearchHandler extends CcddDialogHandler
                         if (ArrayVariable.removeArrayIndex(arrayVariable1)
                                          .equals(ArrayVariable.removeArrayIndex(arrayVariable2)))
                         {
-                            // Compare the two array members by dimension
-                            // value(s)
+                            // Compare the two array members by dimension value(s)
                             result = ArrayVariable.compareTo(arrayVariable1, arrayVariable2);
                         }
-                        // The second column values are not references to the
-                        // same array variable
+                        // The second column values are not references to the same array variable
                         else
                         {
                             // Compare the second column, ignoring case
                             result = entry1[1].toString().toLowerCase().compareTo(entry2[1].toString().toLowerCase());
                         }
                     }
-                    // The second column values are not both references to
-                    // array variable members
+                    // The second column values are not both references to array variable members
                     else
                     {
                         // Compare the second column, ignoring case
@@ -885,5 +858,49 @@ public class CcddSearchHandler extends CcddDialogHandler
         });
 
         return resultsDataList;
+    }
+
+    /**********************************************************************************************
+     * Remove data type or macro search references where the match occurs in an array size column
+     * of an array member (the reference in the array's definition is all that's needed)
+     *
+     * @param matches
+     *            list containing the search results for the data type or macro reference
+     *
+     * @param tbleTypeHndlr
+     *            reference to the table type handler
+     *********************************************************************************************/
+    protected static void removeArrayMemberReferences(List<String> matches, CcddTableTypeHandler tbleTypeHndlr)
+    {
+        // Step through each match (in reverse since an entry in the list may need to be removed)
+        for (int index = matches.size() - 1; index >= 0; index--)
+        {
+            // Separate the match components
+            String[] tblColDescAndCntxt = matches.get(index).split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+            // Separate the user-viewable table name and table type
+            String[] tableAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
+
+            // Get the table's type definition
+            TypeDefinition typeDefn = tbleTypeHndlr.getTypeDefinition(tableAndType[1]);
+
+            // Check if the reference is in an array size column
+            if (typeDefn.getDbColumnNameByInputType(InputDataType.ARRAY_INDEX).equals(tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()]))
+            {
+                // Separate the location into the individual columns. Commas between double quotes
+                // are ignored so that an erroneous column separation doesn't occur
+                String[] columns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                // Get the index of the variable name column
+                int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+
+                // Check if the variable name is an array member
+                if (varNameIndex != -1 && ArrayVariable.isArrayMember(columns[varNameIndex]))
+                {
+                    // Remove the match
+                    matches.remove(index);
+                }
+            }
+        }
     }
 }

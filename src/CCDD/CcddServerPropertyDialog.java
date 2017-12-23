@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary server properties dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -44,9 +43,9 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary server properties dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddServerPropertyDialog extends CcddDialogHandler
 {
@@ -62,24 +61,22 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     private JTextField portFld;
     private AutoCompleteTextField hostFld;
 
-    // Flag indicating if the default database should be used after changing
-    // the log-in credentials
+    // Flag indicating if the default database should be used after changing the log-in credentials
     private final boolean useActiveDatabase;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Server properties dialog class constructor
      *
      * @param ccddMain
      *            main class
      *
      * @param databaseName
-     *            true to use the active database; false to use the default
-     *            database. This is only used when opening the database after
-     *            changing the login credentials
+     *            true to use the active database; false to use the default database. This is only
+     *            used when opening the database after changing the login credentials
      *
      * @param dialogType
      *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
-     *************************************************************************/
+     *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain,
                              boolean useActiveDatabase,
                              ServerPropertyDialogType dialogType)
@@ -95,7 +92,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Server properties dialog class constructor
      *
      * @param ccddMain
@@ -103,16 +100,16 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param dialogType
      *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
-     *************************************************************************/
+     *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain,
                              ServerPropertyDialogType dialogType)
     {
         this(ccddMain, true, dialogType);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the server properties dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Create a border for the input fields
@@ -120,9 +117,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                                                                            Color.LIGHT_GRAY,
                                                                                            Color.GRAY),
                                                            BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                    ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -148,13 +145,13 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         switch (dialogType)
         {
             case LOGIN:
-                // Initialize the flags that indicates if a user name is
-                // available and if the dialog should be resizable
+                // Initialize the flags that indicates if a user name is available and if the
+                // dialog should be resizable
                 boolean isUsers = false;
                 boolean allowResize = false;
 
-                // Add the server host to the dialog so that the user knows
-                // what credentials are required
+                // Add the server host to the dialog so that the user knows what credentials are
+                // required
                 JPanel serverPnl = new JPanel();
                 JLabel serverLbl1 = new JLabel("Enter credentials for server: ");
                 serverLbl1.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -204,9 +201,8 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                               selectPnl,
                                               gbc);
 
-                    // Allow resizing the dialog if the number of users to
-                    // choose from exceeds the initial number of viewable rows
-                    // (i.e., the scroll bar is displayed)
+                    // Allow resizing the dialog if the number of users to choose from exceeds the
+                    // initial number of viewable rows (i.e., the scroll bar is displayed)
                     allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize();
 
                     gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
@@ -272,8 +268,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                         // Check if a connection exists to the server
                         if (dbControl.isServerConnected())
                         {
-                            // Store the user name from the selected radio
-                            // button
+                            // Store the user name from the selected radio button
                             dbControl.setUser(getRadioButtonSelected());
                         }
                         // No server connection exists
@@ -286,11 +281,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                         // Store the password
                         dbControl.setPassword(String.valueOf(passwordFld.getPassword()));
 
-                        // Open the specified database as the new user; use the
-                        // flag to determine if the active or default database
-                        // should be opened
+                        // Open the specified database as the new user; use the flag to determine
+                        // if the active or default database should be opened
                         dbControl.openDatabaseInBackground(useActiveDatabase
-                                                                             ? dbControl.getDatabase()
+                                                                             ? dbControl.getProjectName()
                                                                              : DEFAULT_DATABASE);
                     }
                 }
@@ -308,10 +302,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 break;
 
             case DB_SERVER:
-                // Create the database server host, using the list of
-                // remembered servers from the program preferences, the port
-                // dialog labels and fields, and the check box for enabling an
-                // SSL connection
+                // Create the database server host, using the list of remembered servers from the
+                // program preferences, the port dialog labels and fields, and the check box for
+                // enabling an SSL connection
                 JLabel hostLbl = new JLabel("Host");
                 hostLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.weightx = 0.0;
@@ -368,13 +361,11 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                       "Database Server",
                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
-                    // Update the host list and store it in the program
-                    // preferences
+                    // Update the host list and store it in the program preferences
                     hostFld.updateList(hostFld.getText());
                     ccddMain.getProgPrefs().put(SERVER_STRINGS, hostFld.getListAsString());
 
-                    // Open the default database using the new server
-                    // properties
+                    // Open the default database using the new server properties
                     dbControl.openDatabaseInBackground(DEFAULT_DATABASE,
                                                        hostFld.getText(),
                                                        portFld.getText(),
@@ -424,11 +415,11 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
@@ -478,8 +469,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     if (!portFld.getText().isEmpty()
                         && !portFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
                     {
-                        // Inform the user that the database port field is
-                        // invalid
+                        // Inform the user that the database port field is invalid
                         throw new CCDDException("Server port must be blank or a positive integer");
                     }
 
@@ -492,8 +482,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     // Check if the web server port is invalid
                     if (!portFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
                     {
-                        // Inform the user that the web server port field is
-                        // invalid
+                        // Inform the user that the web server port field is invalid
                         throw new CCDDException("Server port must be a positive integer");
                     }
 

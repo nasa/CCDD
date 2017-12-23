@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary data field table editor dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -69,9 +68,9 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableCellSelection;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary data field table editor dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddFieldTableEditorDialog extends CcddFrameHandler
 {
@@ -99,13 +98,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     // List of columns representing boolean data fields
     private List<Integer> checkBoxColumns;
 
-    // Flag that indicates if any of the tables with data fields to display are
-    // children of another table, and therefore have a structure path
+    // Flag that indicates if any of the tables with data fields to display are children of another
+    // table, and therefore have a structure path
     private boolean isPath;
 
-    // Table instance model data. Committed copy is the table information as it
-    // exists in the database and is used to determine what changes have been
-    // made to the table since the previous database update
+    // Table instance model data. Committed copy is the table information as it exists in the
+    // database and is used to determine what changes have been made to the table since the
+    // previous database update
     private Object[][] committedData;
 
     // List of data field content changes to process
@@ -120,12 +119,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     // Dialog title
     private static final String DIALOG_TITLE = "Show/Edit Data Fields";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data field table editor dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddFieldTableEditorDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -142,19 +141,19 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         selectDataFields();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a reference to the data field table editor's table
      *
      * @return Reference to the data field table editor table
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddJTableHandler getTable()
     {
         return dataFieldTable;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field information from the database
-     *************************************************************************/
+     *********************************************************************************************/
     private void getDataFieldInformation()
     {
         // Get the array containing the data fields
@@ -170,18 +169,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Check if the type doesn't represent a structure
             if (!typeDefn.isStructure())
             {
-                // Add all table names of this type to the list of
-                // non-structure tables
+                // Add all table names of this type to the list of non-structure tables
                 nonStructureTableNames.addAll(Arrays.asList(dbTable.queryTablesOfTypeList(typeDefn.getName(),
                                                                                           CcddFieldTableEditorDialog.this)));
             }
         }
     }
 
-    /**************************************************************************
-     * Get the latest data field information and update the data field editor
-     * table
-     *************************************************************************/
+    /**********************************************************************************************
+     * Get the latest data field information and update the data field editor table
+     *********************************************************************************************/
     protected void reloadDataFieldTable()
     {
         // Load the data field information from the database
@@ -191,12 +188,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         dataFieldTable.loadAndFormatData();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform the steps needed following execution of database table changes
      *
      * @param commandError
      *            false if the database commands successfully completed; true
-     *************************************************************************/
+     *********************************************************************************************/
     protected void doDataFieldUpdatesComplete(boolean commandError)
     {
         // Check that no error occurred performing the database commands
@@ -220,14 +217,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Step through the data field deletions
                     for (String[] del : fieldDeletions)
                     {
-                        // Check if the table names and paths match, and that
-                        // this table hasn't already had a deletion applied
+                        // Check if the table names and paths match, and that this table hasn't
+                        // already had a deletion applied
                         if (del[0].equals(tableInfo.getTablePath())
                             && !redrawnTables.contains(del[0]))
                         {
-                            // Add the table's name and path to the list of
-                            // updated tables. This is used to prevent updating
-                            // the data fields for a table multiple times
+                            // Add the table's name and path to the list of updated tables. This is
+                            // used to prevent updating the data fields for a table multiple times
                             redrawnTables.add(del[0]);
 
                             // Rebuild the table's data field information
@@ -235,13 +231,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             tableInfo.getFieldHandler().buildFieldInformation(del[0],
                                                                               tableInfo.isRootStructure());
 
-                            // Store the data field information in the
-                            // committed information so that this value change
-                            // is ignored when updating or closing the table
+                            // Store the data field information in the committed information so
+                            // that this value change is ignored when updating or closing the table
                             editor.getCommittedTableInformation().getFieldHandler().setFieldInformation(tableInfo.getFieldHandler().getFieldInformationCopy());
 
-                            // Rebuild the table's editor panel which contains
-                            // the data fields
+                            // Rebuild the table's editor panel which contains the data fields
                             editor.createDataFieldPanel(false);
                         }
                     }
@@ -249,9 +243,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Step through the data field value modifications
                     for (String[] mod : fieldModifications)
                     {
-                        // Check if the table names and paths match and that
-                        // this table hasn't already been updated by having a
-                        // deletion applied
+                        // Check if the table names and paths match and that this table hasn't
+                        // already been updated by having a deletion applied
                         if (mod[0].equals(tableInfo.getTablePath())
                             && !redrawnTables.contains(mod[0]))
                         {
@@ -259,17 +252,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             FieldInformation fieldInfo = tableInfo.getFieldHandler().getFieldInformationByName(mod[0],
                                                                                                                mod[1]);
 
-                            // Update the field's value. Also update the value
-                            // in the committed information so that this value
-                            // change is ignored when updating or closing the
-                            // table
+                            // Update the field's value. Also update the value in the committed
+                            // information so that this value change is ignored when updating or
+                            // closing the table
                             fieldInfo.setValue(mod[2]);
                             editor.getCommittedTableInformation().getFieldHandler().getFieldInformationByName(mod[0],
                                                                                                               mod[1])
                                   .setValue(mod[2]);
 
-                            // Check that this isn't a boolean input (check
-                            // box) data field
+                            // Check that this isn't a boolean input (check box) data field
                             if (fieldInfo.getInputType() != InputDataType.BOOLEAN)
                             {
                                 // Display the updated value in the text field
@@ -285,14 +276,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
-     * Display a dialog for the user to select the data fields to display in
-     * the editor table. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate
-     * thread the GUI is allowed to continue to update. The GUI menu commands,
-     * however, are disabled until the telemetry scheduler initialization
-     * completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Display a dialog for the user to select the data fields to display in the editor table. This
+     * is executed in a separate thread since it can take a noticeable amount time to complete, and
+     * by using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the telemetry scheduler initialization completes execution
+     *********************************************************************************************/
     private void selectDataFields()
     {
         // Build the data field selection dialog in the background
@@ -301,9 +290,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Create panels to hold the components of the dialog
             JPanel selectPnl = new JPanel(new GridBagLayout());
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the data field selection dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -329,16 +318,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Load the data field information from the database
                 getDataFieldInformation();
 
-                // Create a selection dialog, a panel for the table
-                // selection tree, and a panel to contain a check box for each
-                // unique data field name
+                // Create a selection dialog, a panel for the table selection tree, and a panel to
+                // contain a check box for each unique data field name
                 selectDlg = new CcddDialogHandler()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Verify input fields
                      *
                      * @return true if the dialog input is valid
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected boolean verifySelection()
                     {
@@ -365,16 +353,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 selectPnl.setBorder(emptyBorder);
                 fieldPnl.setBorder(emptyBorder);
 
-                // Create a panel containing a grid of check boxes
-                // representing the data fields from which to choose
+                // Create a panel containing a grid of check boxes representing the data fields
+                // from which to choose
                 if (selectDlg.addCheckBoxes(null,
                                             getDataFieldNames(),
                                             null,
                                             "Select data fields to display/edit",
                                             fieldPnl))
                 {
-                    // Check if more than one data field name check box
-                    // exists
+                    // Check if more than one data field name check box exists
                     if (selectDlg.getCheckBoxes().length > 2)
                     {
                         // Create a Select All check box
@@ -383,45 +370,40 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         selectAllCb.setBorder(emptyBorder);
 
-                        // Create a listener for changes to the Select All
-                        // check box selection status
+                        // Create a listener for changes to the Select All check box selection
+                        // status
                         selectAllCb.addActionListener(new ActionListener()
                         {
-                            /**************************************************
-                             * Handle a change to the Select All check box
-                             * selection status
-                             *************************************************/
+                            /**********************************************************************
+                             * Handle a change to the Select All check box selection status
+                             *********************************************************************/
                             @Override
                             public void actionPerformed(ActionEvent ae)
                             {
-                                // Step through each data field name check
-                                // box
+                                // Step through each data field name check box
                                 for (JCheckBox fieldCb : selectDlg.getCheckBoxes())
                                 {
-                                    // Set the check box selection status
-                                    // to match the Select All check box
-                                    // selection status
+                                    // Set the check box selection status to match the Select All
+                                    // check box selection status
                                     fieldCb.setSelected(selectAllCb.isSelected());
                                 }
                             }
                         });
 
-                        // Add the Select All checkbox to the field name
-                        // panel
+                        // Add the Select All checkbox to the field name panel
                         gbc.gridy++;
                         fieldPnl.add(selectAllCb, gbc);
                     }
 
-                    // Check if data fields are selected already (i.e.,
-                    // this method is called via the Select button)
+                    // Check if data fields are selected already (i.e., this method is called via
+                    // the Select button)
                     if (columnNames != null)
                     {
-                        // Step through the list of check boxes
-                        // representing the data fields
+                        // Step through the list of check boxes representing the data fields
                         for (JCheckBox cb : selectDlg.getCheckBoxes())
                         {
-                            // Select the data field check box if the field
-                            // was displayed when the Select button was pressed
+                            // Select the data field check box if the field was displayed when the
+                            // Select button was pressed
                             cb.setSelected(Arrays.asList(columnNames).contains(cb.getText()));
                         }
                     }
@@ -433,9 +415,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     gbc.gridy = 0;
                     selectPnl.add(fieldPnl, gbc);
 
-                    // Build the table tree showing both table prototypes and
-                    // table instances; i.e., parent tables with their child
-                    // tables (i.e., parents with children)
+                    // Build the table tree showing both table prototypes and table instances;
+                    // i.e., parent tables with their child tables (i.e., parents with children)
                     tableTree = new CcddTableTreeHandler(ccddMain,
                                                          new CcddGroupHandler(ccddMain,
                                                                               null,
@@ -469,14 +450,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Data field selection dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
-                // Display the data field selection dialog if any fields are
-                // available for display
+                // Display the data field selection dialog if any fields are available for display
                 if (!dataFields.isEmpty()
                     && selectDlg.showOptionsDialog((isVisible()
                                                                 ? CcddFieldTableEditorDialog.this
@@ -486,8 +466,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                    DialogOption.OK_CANCEL_OPTION,
                                                    true) == OK_BUTTON)
                 {
-                    // Create a list for the column names. Add the default
-                    // columns (table name and path)
+                    // Create a list for the column names. Add the default columns (table name and
+                    // path)
                     List<String> columnNamesList = new ArrayList<String>();
                     columnNamesList.add(FieldTableEditorColumnInfo.OWNER.getColumnName());
                     columnNamesList.add(FieldTableEditorColumnInfo.PATH.getColumnName());
@@ -508,22 +488,19 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Clear any removal selections
                     selectedCells.clear();
 
-                    // Check if this is the initial display of the selection
-                    // dialog
+                    // Check if this is the initial display of the selection dialog
                     if (dataFieldTable == null)
                     {
                         // Create the data field editor dialog
                         displayDataFieldTableEditor();
                     }
-                    // The selection dialog is spawned from the data field
-                    // table editor
+                    // The selection dialog is spawned from the data field table editor
                     else
                     {
                         // Reload the data field table
                         dataFieldTable.loadAndFormatData();
 
-                        // Check if the field table editor dialog is already
-                        // open
+                        // Check if the field table editor dialog is already open
                         if (CcddFieldTableEditorDialog.this.isVisible())
                         {
                             // Reposition the field table editor dialog
@@ -535,13 +512,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         });
     }
 
-    /**************************************************************************
-     * Create the data field table editor dialog. This is executed in a
-     * separate thread since it can take a noticeable amount time to complete,
-     * and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the data field table editor dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
+     *********************************************************************************************/
     private void displayDataFieldTableEditor()
     {
         // Build the data field editor table dialog in the background
@@ -552,9 +528,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             JPanel buttonPnl = new JPanel();
             JButton btnClose;
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the data field table editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -589,8 +565,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 dialogPnl.add(tablePnl, gbc);
                 dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Define the buttons for the lower panel:
-                // Select data fields button
+                // Define the buttons for the lower panel: Select data fields button
                 JButton btnSelect = CcddButtonPanelHandler.createButton("Select",
                                                                         OK_ICON,
                                                                         KeyEvent.VK_L,
@@ -599,10 +574,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Select button
                 btnSelect.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
-                     * Select the data fields and update the data field editor
-                     * table
-                     *********************************************************/
+                    /******************************************************************************
+                     * Select the data fields and update the data field editor table
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -614,8 +588,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                           JOptionPane.QUESTION_MESSAGE,
                                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
                         {
-                            // Allow the user to select the data fields to
-                            // display
+                            // Allow the user to select the data fields to display
                             selectDataFields();
                         }
                     }
@@ -630,9 +603,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Remove button
                 btnRemove.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Toggle the removal state of the selected data field(s)
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -649,10 +622,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Open button
                 btnOpen.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
-                     * Open the table(s) associated with the selected data
-                     * field(s)
-                     *********************************************************/
+                    /******************************************************************************
+                     * Open the table(s) associated with the selected data field(s)
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -669,9 +641,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Print button
                 btnPrint.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Print the data field editor table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -691,9 +663,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Create a listener for the Undo command
                 btnUndo.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Undo the last cell edit
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -710,9 +682,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Create a listener for the Redo command
                 btnRedo.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Redo the last cell edit that was undone
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -729,14 +701,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Store changes to the data field values
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Only update the table in the database if a cell's
-                        // content has changed and the user confirms the action
+                        // Only update the table in the database if a cell's content has changed
+                        // and the user confirms the action
                         if (isFieldTableChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
                                                                          "<html><b>Store changes in project database?",
@@ -747,8 +719,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // Build the update lists
                             buildUpdates();
 
-                            // Store the changes to the data fields in the
-                            // database
+                            // Store the changes to the data fields in the database
                             dbTable.modifyDataFields(fieldModifications,
                                                      fieldDeletions,
                                                      CcddFieldTableEditorDialog.this);
@@ -765,9 +736,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(dataFieldTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the data field editor dialog
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -789,9 +760,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 setButtonRows(2);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Data field table editor dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -809,15 +780,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the frame close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that the table has no uncommitted changes. If changes
-        // exist then confirm discarding the changes
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // the table has no uncommitted changes. If changes exist then confirm discarding the
+        // changes
         if (dataFieldTable.isLastCellValid()
             && (!isFieldTableChanged()
                 || new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
@@ -831,10 +802,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
-     * Reposition the field table editor dialog relative to the location of the
-     * (now invisible) field selection dialog
-     *************************************************************************/
+    /**********************************************************************************************
+     * Reposition the field table editor dialog relative to the location of the (now invisible)
+     * field selection dialog
+     *********************************************************************************************/
     private void positionFieldEditorDialog()
     {
         // Get the location of the field selection dialog
@@ -844,16 +815,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         Dimension d1 = selectDlg.getSize();
         Dimension d2 = CcddFieldTableEditorDialog.this.getSize();
 
-        // Move the editor dialog so that it's centered over the selection
-        // dialog's last location
+        // Move the editor dialog so that it's centered over the selection dialog's last location
         CcddFieldTableEditorDialog.this.setLocation(new Point(p1.x + d1.width / 2 - d2.width / 2,
                                                               p1.y + d1.height / 2 - d2.height / 2));
     }
 
-    /**************************************************************************
-     * Toggle the removal state of the selected data field cells in the editor
-     * table
-     *************************************************************************/
+    /**********************************************************************************************
+     * Toggle the removal state of the selected data field cells in the editor table
+     *********************************************************************************************/
     private void toggleRemoveFields()
     {
         // Step through each row in the table
@@ -865,14 +834,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the column index in model coordinates
                 int columnMod = dataFieldTable.convertColumnIndexToModel(column);
 
-                // Check if this is not the table name or path column and if
-                // the cell at these coordinates is selected
+                // Check if this is not the table name or path column and if the cell at these
+                // coordinates is selected
                 if (columnMod != FieldTableEditorColumnInfo.OWNER.ordinal()
                     && columnMod != FieldTableEditorColumnInfo.PATH.ordinal()
                     && dataFieldTable.isCellSelected(row, column))
                 {
-                    // Add (if selecting) or remove (if deselecting) the cell
-                    // from the selection list
+                    // Add (if selecting) or remove (if deselecting) the cell from the selection
+                    // list
                     cellSelect.toggleCellSelection(row, column);
                 }
             }
@@ -885,39 +854,38 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         dataFieldTable.clearSelection();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the data field table editor table
      *
      * @return Reference to the scroll pane in which the table is placed
-     *************************************************************************/
+     *********************************************************************************************/
     private JScrollPane createDataFieldTableEditorTable()
     {
-        // Create the table to display the structure tables and their
-        // corresponding user-selected data fields
+        // Create the table to display the structure tables and their corresponding user-selected
+        // data fields
         dataFieldTable = new CcddJTableHandler()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Allow resizing of the any column unless it displays a check box
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnResizable(int column)
             {
                 return !checkBoxColumns.contains(column);
             }
 
-            /******************************************************************
-             * Allow multiple line display in all columns except those
-             * displaying check boxes
-             *****************************************************************/
+            /**************************************************************************************
+             * Allow multiple line display in all columns except those displaying check boxes
+             *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
                 return !checkBoxColumns.contains(column);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow HTML-formatted text in the specified column(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnHTML(int column)
             {
@@ -925,27 +893,27 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                        || column == FieldTableEditorColumnInfo.PATH.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Hide the specified column(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnHidden(int column)
             {
                 return !isPath && column == FieldTableEditorColumnInfo.PATH.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Display the specified column(s) as check boxes
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnBoolean(int column)
             {
                 return checkBoxColumns.contains(column);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow editing of the table cells in the specified columns only
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
             {
@@ -953,8 +921,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 row = convertRowIndexToModel(row);
                 column = convertColumnIndexToModel(column);
 
-                // Return true if this is not the owner or path column, or if
-                // the table does not have the field specified by the column
+                // Return true if this is not the owner or path column, or if the table does not
+                // have the field specified by the column
                 return column != FieldTableEditorColumnInfo.OWNER.ordinal()
                        && column != FieldTableEditorColumnInfo.PATH.ordinal()
                        && fieldHandler.getFieldInformationByName(getOwnerWithPath(getModel().getValueAt(row,
@@ -966,9 +934,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                  columnNames[column]) != null;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow pasting data into the data field cells
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData,
                                               int row,
@@ -978,9 +946,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                       convertColumnIndexToView(column));
             }
 
-            /******************************************************************
-             * Validate changes to the data field value cells; e.g., verify
-             * cell content and, if found invalid, revert to the original value
+            /**************************************************************************************
+             * Validate changes to the data field value cells; e.g., verify cell content and, if
+             * found invalid, revert to the original value
              *
              * @param tableData
              *            list containing the table data row arrays
@@ -1004,7 +972,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
              *            unused
              *
              * @return Value of ShowMessage
-             ****************************************************************/
+             ************************************************************************************/
             @Override
             protected Boolean validateCellContent(List<Object[]> tableData,
                                                   int row,
@@ -1014,8 +982,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                   Boolean showMessage,
                                                   boolean isMultiple)
             {
-                // Reset the flag that indicates the last edited cell's content
-                // is invalid
+                // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
 
                 // Create a string version of the new value
@@ -1035,28 +1002,25 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Check that the data field was found
                     if (fieldInfo != null)
                     {
-                        // Check if the value entered matches the pattern
-                        // selected by the user for this data field
+                        // Check if the value entered matches the pattern selected by the user for
+                        // this data field
                         if (fieldInfo.getInputType().getInputMatch().isEmpty()
                             || newValueS.matches(fieldInfo.getInputType().getInputMatch()))
                         {
-                            // Store the new value in the table data array
-                            // after formatting the cell value per its input
-                            // type. This is needed primarily to clean up
+                            // Store the new value in the table data array after formatting the
+                            // cell value per its input type. This is needed primarily to clean up
                             // numeric formatting
                             newValueS = fieldInfo.getInputType().formatInput(newValueS);
                             tableData.get(row)[column] = newValueS;
                         }
-                        // The value doesn't match the pattern for this data
-                        // field
+                        // The value doesn't match the pattern for this data field
                         else
                         {
-                            // Set the flag that indicates the last edited
-                            // cell's content is invalid
+                            // Set the flag that indicates the last edited cell's content is
+                            // invalid
                             setLastCellValid(false);
 
-                            // Inform the user that the data field contents is
-                            // invalid
+                            // Inform the user that the data field contents is invalid
                             new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
                                                                       "<html><b>Invalid characters in field '</b>"
                                                                                                        + fieldInfo.getFieldName()
@@ -1078,15 +1042,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 return showMessage;
             }
 
-            /******************************************************************
-             * Load the data field data into the table and format the table
-             * cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Load the data field data into the table and format the table cells
+             *************************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Get the default column names and tool tip text for the
-                // data field editor table
+                // Get the default column names and tool tip text for the data field editor table
                 String[] toolTips = new String[columnNames.length];
                 toolTips[FieldTableEditorColumnInfo.OWNER.ordinal()] = FieldTableEditorColumnInfo.OWNER.getToolTip();
                 toolTips[FieldTableEditorColumnInfo.PATH.ordinal()] = FieldTableEditorColumnInfo.PATH.getToolTip();
@@ -1094,14 +1056,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Create lists for any columns to be displayed as check boxes
                 checkBoxColumns = new ArrayList<Integer>();
 
-                // Get the owners, paths, data field values values, and check
-                // box columns based on the specified data fields
+                // Get the owners, paths, data field values values, and check box columns based on
+                // the specified data fields
                 committedData = getDataFieldsToDisplay();
 
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(committedData,
                                             columnNames,
                                             null,
@@ -1111,10 +1072,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                             true);
             }
 
-            /******************************************************************
-             * Override prepareRenderer to allow adjusting the background
-             * colors of table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Override prepareRenderer to allow adjusting the background colors of table cells
+             *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer,
                                              int row,
@@ -1127,9 +1087,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
 
-                // Check if the cell doesn't have the focus or is selected. The
-                // focus and selection highlight colors override the invalid
-                // highlight color
+                // Check if the cell doesn't have the focus or is selected. The focus and selection
+                // highlight colors override the invalid highlight color
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
                     && columnModel != FieldTableEditorColumnInfo.OWNER.ordinal())
@@ -1137,8 +1096,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Get the row index in model coordinates
                     int rowModel = convertRowIndexToModel(row);
 
-                    // Get a reference to the table model to shorten subsequent
-                    // calls
+                    // Get a reference to the table model to shorten subsequent calls
                     TableModel tableModel = getModel();
 
                     // Get the contents of the owner and path columns
@@ -1152,37 +1110,32 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Check if this is the structure path column
                     if (columnModel == FieldTableEditorColumnInfo.PATH.ordinal())
                     {
-                        // Check if the cell is blank, and that the owner is
-                        // not a structure table or a group
+                        // Check if the cell is blank, and that the owner is not a structure table
+                        // or a group
                         if (pathValue.isEmpty()
                             && (nonStructureTableNames.contains(ownerValue)
                                 || ownerValue.startsWith(CcddFieldHandler.getFieldGroupName(""))))
                         {
-                            // Set the cell's background color to indicate
-                            // the structure path isn't applicable for this
-                            // table
+                            // Set the cell's background color to indicate the structure path isn't
+                            // applicable for this table
                             comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                         }
                     }
-                    // Check if this table has the data field identified by
-                    // the column
+                    // Check if this table has the data field identified by the column
                     else if (fieldHandler.getFieldInformationByName(getOwnerWithPath(ownerValue,
                                                                                      pathValue),
                                                                     columnNames[columnModel]) != null)
                     {
-                        // Check if the cell is a data field selected for
-                        // removal
+                        // Check if the cell is a data field selected for removal
                         if (selectedCells.contains(row, column))
                         {
-                            // Change the cell's colors to indicate the data
-                            // field represented by the cell is selected for
-                            // removal
+                            // Change the cell's colors to indicate the data field represented by
+                            // the cell is selected for removal
                             comp.setForeground(Color.GRAY);
                             comp.setBackground(Color.RED);
                         }
-                        // The cell isn't selected for removal. Check if the
-                        // cell doesn't represent a boolean value (these are
-                        // not compared for duplicate values)
+                        // The cell isn't selected for removal. Check if the cell doesn't represent
+                        // a boolean value (these are not compared for duplicate values)
                         else if (!checkBoxColumns.contains(columnModel))
                         {
                             // Get the input data type for this data field
@@ -1191,9 +1144,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                                              columnNames[columnModel])
                                                                   .getInputType();
 
-                            // Get the text in the cell, formatted per its
-                            // input type, but without preserving the leading
-                            // zeroes for hexadecimal values
+                            // Get the text in the cell, formatted per its input type, but without
+                            // preserving the leading zeroes for hexadecimal values
                             String value = inputType.formatInput(tableModel.getValueAt(rowModel,
                                                                                        columnModel)
                                                                            .toString(),
@@ -1202,9 +1154,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             // Step through each row in the table
                             for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
                             {
-                                // Check if this isn't the same row as the one
-                                // being updated, that the cell isn't blank,
-                                // and that the text matches that in another
+                                // Check if this isn't the same row as the one being updated, that
+                                // the cell isn't blank, and that the text matches that in another
                                 // row of the same column
                                 if (rowModel != checkRow
                                     && !value.isEmpty()
@@ -1214,21 +1165,20 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                              false)
                                                 .equals(value))
                                 {
-                                    // Change the cell's background color to
-                                    // indicate it has the same value as
-                                    // another cell in the same column
+                                    // Change the cell's background color to indicate it has the
+                                    // same value as another cell in the same column
                                     comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
                                     break;
                                 }
                             }
                         }
                     }
-                    // The table indicated by this row does not have a data
-                    // field as identified by the column
+                    // The table indicated by this row does not have a data field as identified by
+                    // the column
                     else
                     {
-                        // Set the cell's background color to indicate the
-                        // data field doesn't exist for this table
+                        // Set the cell's background color to indicate the data field doesn't exist
+                        // for this table
                         comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                     }
                 }
@@ -1236,21 +1186,19 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 return comp;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the table's content
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether any
-                // unstored changes exist
+                // Add or remove the change indicator based on whether any unstored changes exist
                 setTitle(DIALOG_TITLE
                          + (isFieldTableChanged()
                                                   ? "*"
                                                   : ""));
 
-                // Force the table to redraw so that changes to the cells are
-                // displayed
+                // Force the table to redraw so that changes to the cells are displayed
                 repaint();
             }
         };
@@ -1273,8 +1221,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                                true);
 
-        // Set the reference to the cell selection container in the undo
-        // handler, then create a cell selection object
+        // Set the reference to the cell selection container in the undo handler, then create a
+        // cell selection object
         dataFieldTable.getUndoHandler().setSelectedCells(selectedCells);
         cellSelect = dataFieldTable.getUndoHandler().new UndoableCellSelection();
 
@@ -1284,9 +1232,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         return scrollPane;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Open the table(s) associated with the selected data fields
-     *************************************************************************/
+     *********************************************************************************************/
     private void openTables()
     {
         List<String> tablePaths = new ArrayList<String>();
@@ -1302,9 +1250,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                         FieldTableEditorColumnInfo.OWNER.ordinal())
                                                  .toString().trim();
 
-                // Check if the cell at these coordinates is selected and that
-                // the data field for this row belongs to a table (versus a
-                // group or type)
+                // Check if the cell at these coordinates is selected and that the data field for
+                // this row belongs to a table (versus a group or type)
                 if (dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row), column)
                     && !ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
                     && !ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
@@ -1314,8 +1261,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                        FieldTableEditorColumnInfo.PATH.ordinal())
                                                 .toString();
 
-                    // Add the table path to the list and stop checking the
-                    // columns in this row
+                    // Add the table path to the list and stop checking the columns in this row
                     tablePaths.add(getOwnerWithPath(ownerName, path));
                     break;
                 }
@@ -1331,12 +1277,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field array
      *
-     * @return Array containing the data field owner names and corresponding
-     *         user-selected data field values
-     *************************************************************************/
+     * @return Array containing the data field owner names and corresponding user-selected data
+     *         field values
+     *********************************************************************************************/
     private Object[][] getDataFieldsToDisplay()
     {
         isPath = false;
@@ -1378,21 +1324,21 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             filterTables.addAll(ancestorTables);
         }
 
-        // Create a field handler and populate it with the field definitions
-        // for all of the tables and groups in the database
+        // Create a field handler and populate it with the field definitions for all of the tables
+        // and groups in the database
         fieldHandler = new CcddFieldHandler(ccddMain);
         fieldHandler.buildFieldInformation(dataFields.toArray(new String[0][0]),
                                            null);
         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
 
-        // Sort the field information by owner name so that sequence order of
-        // the data field values is based on the owners' alphabetical order
+        // Sort the field information by owner name so that sequence order of the data field values
+        // is based on the owners' alphabetical order
         Collections.sort(fieldInformation, new Comparator<FieldInformation>()
         {
-            /******************************************************************
-             * Compare the owner names of two field definitions. Force lower
-             * case to eliminate case differences in the comparison
-             *****************************************************************/
+            /**************************************************************************************
+             * Compare the owner names of two field definitions. Force lower case to eliminate case
+             * differences in the comparison
+             *************************************************************************************/
             @Override
             public int compare(FieldInformation fld1, FieldInformation fld2)
             {
@@ -1409,17 +1355,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Get the data field owner's name
             String ownerName = fieldInfo.getOwnerName();
 
-            // Check that this is not a default table type field and if the
-            // field is in a table selected by the user (if no table is
-            // selected then all tables are considered to match)
+            // Check that this is not a default table type field and if the field is in a table
+            // selected by the user (if no table is selected then all tables are considered to
+            // match)
             if (!ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
                 && (filterTables.isEmpty()
                     || filterTables.contains(ownerName)))
             {
                 String pathName = "";
 
-                // Get the index of the last comma in the field table path &
-                // name
+                // Get the index of the last comma in the field table path & name
                 int commaIndex = ownerName.lastIndexOf(",");
 
                 // Check if a comma was found in the table path & name
@@ -1428,8 +1373,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Extract the path name from the table path and name
                     pathName = ownerName.substring(0, commaIndex);
 
-                    // Count the number of commas in the path name, which
-                    // indicates the structure nest level
+                    // Count the number of commas in the path name, which indicates the structure
+                    // nest level
                     int depth = pathName.split(",").length;
 
                     // Set the indentation
@@ -1438,8 +1383,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Step through each nest level
                     for (int count = 0; count < depth; count++)
                     {
-                        // Add spaces to the indentation. This aids in
-                        // identifying the structure members
+                        // Add spaces to the indentation. This aids in identifying the structure
+                        // members
                         indent += "  ";
                     }
 
@@ -1461,13 +1406,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Set the index to the matching data field column
                         dataFieldIndex = fieldIndex;
 
-                        // Check if the data field input type is boolean and
-                        // hasn't already been added to the list
+                        // Check if the data field input type is boolean and hasn't already been
+                        // added to the list
                         if (fieldInfo.getInputType() == InputDataType.BOOLEAN
                             && !checkBoxColumns.contains(fieldIndex))
                         {
-                            // Store the column index in the check box column
-                            // list
+                            // Store the column index in the check box column list
                             checkBoxColumns.add(fieldIndex);
                         }
 
@@ -1483,13 +1427,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Step through the owners added to this point
                     for (Object[] ownerDataFld : ownerDataFields)
                     {
-                        // Check if the owner name and path for the data field
-                        // matches
+                        // Check if the owner name and path for the data field matches
                         if (ownerDataFld[FieldTableEditorColumnInfo.OWNER.ordinal()].equals(ownerName)
                             && ownerDataFld[FieldTableEditorColumnInfo.PATH.ordinal()].equals(pathName))
                         {
-                            // Store the data field value in the existing list
-                            // item and stop searching
+                            // Store the data field value in the existing list item and stop
+                            // searching
                             ownerDataFld[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
                                                                                                              ? Boolean.valueOf(fieldInfo.getValue())
                                                                                                              : fieldInfo.getValue();
@@ -1505,8 +1448,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         Object[] newTable = new Object[columnNames.length];
                         Arrays.fill(newTable, "");
 
-                        // Insert the owner name, path, and the data field
-                        // value into the new row
+                        // Insert the owner name, path, and the data field value into the new row
                         newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities.highlightDataType(ownerName);
                         newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = CcddUtilities.highlightDataType(pathName);
                         newTable[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
@@ -1516,12 +1458,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Add the new row to the list
                         ownerDataFields.add(newTable);
 
-                        // Check if this owner has a path (i.e., it's a
-                        // structure table)
+                        // Check if this owner has a path (i.e., it's a structure table)
                         if (!pathName.isEmpty())
                         {
-                            // Set the flag to indicate at least one of the
-                            // owners has a path
+                            // Set the flag to indicate at least one of the owners has a path
                             isPath = true;
                         }
                     }
@@ -1529,9 +1469,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
         }
 
-        // Since all of the check box columns are now determined, step through
-        // each of them so that any that have a blank value can be set to false
-        // (a legal boolean value)
+        // Since all of the check box columns are now determined, step through each of them so that
+        // any that have a blank value can be set to false (a legal boolean value)
         for (int cbxCol : checkBoxColumns)
         {
             // Set through each row in the table
@@ -1549,11 +1488,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         return ownerDataFields.toArray(new Object[0][0]);
     }
 
-    /**************************************************************************
-     * Compare the current table data to the committed table data and create
-     * lists of the changed values necessary to update the table data fields in
-     * the database to match the current values
-     *************************************************************************/
+    /**********************************************************************************************
+     * Compare the current table data to the committed table data and create lists of the changed
+     * values necessary to update the table data fields in the database to match the current values
+     *********************************************************************************************/
     private void buildUpdates()
     {
         // Get the table data array
@@ -1587,8 +1525,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Check if the current and committed column values differ
                     else if (!tableData[row][column].equals(committedData[row][column]))
                     {
-                        // Add the data field modification information to the
-                        // list
+                        // Add the data field modification information to the list
                         fieldModifications.add(new String[] {tableAndPath,
                                                              columnNames[column],
                                                              tableData[row][column].toString()});
@@ -1598,23 +1535,22 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify input fields
      *
      * @return Always return false so that the dialog doesn't close
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
         return false;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the unique project data field names in alphabetical order
      *
-     * @return Array containing the unique project data field names in
-     *         alphabetical order
-     *************************************************************************/
+     * @return Array containing the unique project data field names in alphabetical order
+     *********************************************************************************************/
     private String[][] getDataFieldNames()
     {
         List<String[]> nameList = new ArrayList<String[]>();
@@ -1627,15 +1563,14 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             {
                 boolean found = false;
 
-                // Step through the list of data fields in the list to this
-                // point
+                // Step through the list of data fields in the list to this point
                 for (String[] item : nameList)
                 {
                     // Check if the current data field's name is in the list
                     if (item[0].equals(dataField[FieldsColumn.FIELD_NAME.ordinal()]))
                     {
-                        // Set the flag indicating the data field name is
-                        // already in the list and stop searching
+                        // Set the flag indicating the data field name is already in the list and
+                        // stop searching
                         found = true;
                         break;
                     }
@@ -1644,8 +1579,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Check if the data field name isn't in the list
                 if (!found)
                 {
-                    // Add the data field name to the list. Set the description
-                    // field to null
+                    // Add the data field name to the list. Set the description field to null
                     nameList.add(new String[] {dataField[FieldsColumn.FIELD_NAME.ordinal()],
                                                null});
                 }
@@ -1658,9 +1592,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Sort the data field array based on the field name
         Arrays.sort(nameArray, new Comparator<String[]>()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Sort the data field array based on the field name (first column)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public int compare(final String[] entry1, final String[] entry2)
             {
@@ -1671,9 +1605,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         return nameArray;
     }
 
-    /**************************************************************************
-     * Get the owner name with path, if applicable (child tables of a structure
-     * table have a path)
+    /**********************************************************************************************
+     * Get the owner name with path, if applicable (child tables of a structure table have a path)
      *
      * @param ownerName
      *            table or group owner name
@@ -1682,7 +1615,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *            table path; blank if none
      *
      * @return Table or group name with path, if applicable
-     *************************************************************************/
+     *********************************************************************************************/
     private String getOwnerWithPath(String ownerName, String path)
     {
         // Remove and leading spaces used for indenting child structure names
@@ -1698,12 +1631,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         return ownerName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if any unsaved changes exist in the data field table editor
      *
-     * @return true if changes exist that haven't been saved; false if there
-     *         are no unsaved changes
-     *************************************************************************/
+     * @return true if changes exist that haven't been saved; false if there are no unsaved changes
+     *********************************************************************************************/
     protected boolean isFieldTableChanged()
     {
         return !selectedCells.getSelectedCells().isEmpty()

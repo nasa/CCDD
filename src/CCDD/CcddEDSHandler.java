@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary EDS handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -67,9 +66,9 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary EDS handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
     // Class references
@@ -86,8 +85,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     // GUI component instantiating this class
     private final Component parent;
 
-    // List containing the imported table, table type, data type, and macro
-    // definitions
+    // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
 
     // JAXB and EDS object references
@@ -101,23 +99,22 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     // Name of the data field containing the system name
     private String systemFieldName;
 
-    // Flag indicating that macros should be replaced by their corresponding
-    // values
+    // Flag indicating that macros should be replaced by their corresponding values
     private boolean replaceMacros;
 
     // Conversion setup error flag
     private boolean errorFlag;
 
-    // Lists to contain any references to table types, data types, macros, and
-    // variable paths in the exported tables
+    // Lists to contain any references to table types, data types, macros, and variable paths in
+    // the exported tables
     private List<String> referencedTableTypes;
     private List<String> referencedDataTypes;
     private List<String> referencedMacros;
     private List<String[]> referencedVariablePaths;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * EDS data type tags
-     *************************************************************************/
+     *********************************************************************************************/
     private enum EDSTags
     {
         TABLE("Table"),
@@ -134,28 +131,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         private String tag;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Additional EDS data type tags constructor
          *
          * @param tag
          *            text describing the data
-         *********************************************************************/
+         *****************************************************************************************/
         EDSTags(String tag)
         {
             this.tag = tag;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the data type tag
          *
          * @return Text describing the data
-         *********************************************************************/
+         *****************************************************************************************/
         protected String getTag()
         {
             return tag;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the column tag
          *
          * @param columnName
@@ -164,36 +161,35 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
          * @param row
          *            row number for which the column data applies
          *
-         * @return Text describing the column, using the column name and row
-         *         number
-         *********************************************************************/
+         * @return Text describing the column, using the column name and row number
+         *****************************************************************************************/
         protected String getColumnIdentifier(String columnName, int row)
         {
             return columnName + " : Row: " + String.valueOf(row);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the index of the column name within the column tag string
          *
          * @return Index of the column name within the column tag string
-         *********************************************************************/
+         *****************************************************************************************/
         protected static int getColumnNameIndex()
         {
             return 0;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the index of the row index within the column tag string
          *
          * @return Index of the row index within the column tag string
-         *********************************************************************/
+         *****************************************************************************************/
         protected static int getRowIndex()
         {
             return 2;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * EDS handler class constructor
      *
      * @param ccddMain
@@ -204,7 +200,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param parent
      *            GUI component instantiating this class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddEDSHandler(CcddMain ccddMain,
                    CcddFieldHandler fieldHandler,
                    Component parent)
@@ -225,8 +221,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
-            // Create the XML marshaller used to convert the CCDD project data
-            // into EDS XML format
+            // Create the XML marshaller used to convert the CCDD project data into EDS XML format
             JAXBContext context = JAXBContext.newInstance("org.ccsds.schema.sois.seds");
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
@@ -237,8 +232,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Create the factory for building the data sheet objects
             factory = new ObjectFactory();
 
-            // Create the XML unmarshaller used to convert EDS XML data into
-            // CCDD project data format
+            // Create the XML unmarshaller used to convert EDS XML data into CCDD project data
+            // format
             unmarshaller = context.createUnmarshaller();
         }
         catch (JAXBException je)
@@ -255,50 +250,48 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the status of the conversion setup error flag
      *
      * @return true if an error occurred setting up for the EDS conversion
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public boolean getErrorStatus()
     {
         return errorFlag;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the table definitions
      *
      * @return List of table definitions
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public List<TableDefinition> getTableDefinitions()
     {
         return tableDefinitions;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Import the the table definitions from an EDS XML formatted file
      *
      * @param importFile
      *            reference to the user-specified XML input file
      *
      * @param importAll
-     *            ImportType.IMPORT_ALL to import the table type, data type,
-     *            and macro definitions, and the data from all the table
-     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
-     *            for the first table defined
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
      *
      * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import
-     *             file
+     *             If a data is missing, extraneous, or in error in the import file
      *
      * @throws IOException
      *             If an import file I/O error occurs
      *
      * @throws Exception
      *             For any unanticipated errors
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void importFromFile(File importFile,
                                ImportType importType) throws CCDDException,
@@ -313,8 +306,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Get the project's data sheet
             dataSheet = (DataSheetType) jaxbElement.getValue();
 
-            // Step through the EDS-formatted data and extract the telemetry
-            // and command information
+            // Step through the EDS-formatted data and extract the telemetry and command
+            // information
             unbuildDataSheets(importType, importFile.getAbsolutePath());
         }
         catch (JAXBException je)
@@ -337,7 +330,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Export the project in EDS XML format to the specified file
      *
      * @param exportFile
@@ -347,34 +340,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            array of table names to convert
      *
      * @param replaceMacros
-     *            true to replace any embedded macros with their corresponding
-     *            values
+     *            true to replace any embedded macros with their corresponding values
      *
      * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table
-     *            in the export file
+     *            true to include the contents of the reserved message ID table in the export file
      *
      * @param includeVariablePaths
-     *            true to include the variable path for each variable in a
-     *            structure table, both in application format and using the
-     *            user-defined separator characters
+     *            true to include the variable path for each variable in a structure table, both in
+     *            application format and using the user-defined separator characters
      *
      * @param variableHandler
-     *            variable handler class reference; null if
-     *            includeVariablePaths is false
+     *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator
-     *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s); null if
-     *            includeVariablePaths is false
+     *            string array containing the variable path separator character(s), show/hide data
+     *            types flag ('true' or 'false'), and data type/variable name separator
+     *            character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
      *            [0] name of the data field containing the system name
      *
-     * @return true if an error occurred preventing exporting the project to
-     *         the file
-     *************************************************************************/
+     * @return true if an error occurred preventing exporting the project to the file
+     *********************************************************************************************/
     @Override
     public boolean exportToFile(File exportFile,
                                 String[] tableNames,
@@ -405,7 +392,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                        "\n<!-- Created "
                                                                                + new Date().toString()
                                                                                + " : project = "
-                                                                               + dbControl.getDatabase()
+                                                                               + dbControl.getDatabaseName()
                                                                                + " : host = "
                                                                                + dbControl.getServer()
                                                                                + " : user = "
@@ -414,8 +401,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
             catch (JAXBException je)
             {
-                // Ignore the error if setting this property fails; the comment
-                // is not included
+                // Ignore the error if setting this property fails; the comment is not included
             }
 
             // Output the XML to the specified file
@@ -445,38 +431,33 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return errorFlag;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Convert the project database contents to EDS XML format
      *
      * @param tableNames
      *            array of table names to convert to EDS format
      *
      * @param replaceMacros
-     *            true to replace any embedded macros with their corresponding
-     *            values
+     *            true to replace any embedded macros with their corresponding values
      *
      * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table
-     *            in the export file
+     *            true to include the contents of the reserved message ID table in the export file
      *
      * @param includeVariablePaths
-     *            true to include the variable path for each variable in a
-     *            structure table, both in application format and using the
-     *            user-defined separator characters
+     *            true to include the variable path for each variable in a structure table, both in
+     *            application format and using the user-defined separator characters
      *
      * @param variableHandler
-     *            variable handler class reference; null if
-     *            includeVariablePaths is false
+     *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator
-     *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s); null if
-     *            includeVariablePaths is false
+     *            string array containing the variable path separator character(s), show/hide data
+     *            types flag ('true' or 'false'), and data type/variable name separator
+     *            character(s); null if includeVariablePaths is false
      *
      * @param system
      *            name of the data field containing the system name
-     *************************************************************************/
+     *********************************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
                                     boolean replaceMacros,
                                     boolean includeReservedMsgIDs,
@@ -498,8 +479,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dataSheet = factory.createDataSheetType();
         project = factory.createDataSheet(dataSheet);
         device = factory.createDeviceType();
-        device.setName(dbControl.getDatabase());
-        device.setShortDescription(dbControl.getDatabaseDescription(dbControl.getDatabase()));
+        device.setName(dbControl.getDatabaseName());
+        device.setShortDescription(dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands
@@ -536,22 +517,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
-     * Step through the EDS-formatted data and extract the telemetry and
-     * command information
+    /**********************************************************************************************
+     * Step through the EDS-formatted data and extract the telemetry and command information
      *
      * @param importAll
-     *            ImportType.IMPORT_ALL to import the table type, data type,
-     *            and macro definitions, and the data from all the table
-     *            definitions; ImportType.FIRST_DATA_ONLY to load only the data
-     *            for the first table defined
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
      *
      * @param importFileName
      *            import file name
      *
      * @throws CCDDException
      *             If an input error is detected
-     *************************************************************************/
+     *********************************************************************************************/
     private void unbuildDataSheets(ImportType importType,
                                    String importFileName) throws CCDDException
     {
@@ -561,8 +540,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         List<String[]> macroDefns = new ArrayList<String[]>();
         List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
-        // Flags indicating if importing should continue after an input
-        // error is detected
+        // Flags indicating if importing should continue after an input error is detected
         boolean continueOnTableTypeError = false;
         boolean continueOnDataTypeError = false;
         boolean continueOnMacroError = false;
@@ -577,28 +555,26 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Check if a name space exists
         if (nameSpaces != null)
         {
-            // Make two passes; the first to create the any table types, data
-            // types, macros, and reserved IDs, and the second to create the
-            // table(s)
+            // Make two passes; the first to create the any table types, data types, macros, and
+            // reserved IDs, and the second to create the table(s)
             for (int pass = 1; pass <= 2; pass++)
             {
                 // Step through each name space
                 for (NamespaceType nameSpace : nameSpaces)
                 {
-                    // Check if this is the table type definitions name space
-                    // and if an interface set exists
+                    // Check if this is the table type definitions name space and if an interface
+                    // set exists
                     if (pass == 1
                         && nameSpace.getName().equals(EDSTags.TABLE_TYPE.getTag())
                         && nameSpace.getDeclaredInterfaceSet() != null)
                     {
                         List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
 
-                        // Step through the interfaces in order to locate the
-                        // name space's parameter and command sets
+                        // Step through the interfaces in order to locate the name space's
+                        // parameter and command sets
                         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                         {
-                            // Check if this interface contains a generic type
-                            // set
+                            // Check if this interface contains a generic type set
                             if (intfcDecType.getGenericTypeSet() != null
                                 && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
                             {
@@ -608,47 +584,37 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     // Step through each generic type data
                                     for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                                     {
-                                        // Check if the table type inputs are
-                                        // present
+                                        // Check if the table type inputs are present
                                         if (genType.getName() != null
                                             && genType.getShortDescription() != null)
                                         {
-                                            // Get the table type inputs. If
-                                            // not present use a blank to
-                                            // prevent an error when separating
-                                            // the inputs
+                                            // Get the table type inputs. If not present use a
+                                            // blank to prevent an error when separating the inputs
                                             String inputs = genType.getShortDescription() != null
                                                                                                   ? genType.getShortDescription()
                                                                                                   : "";
 
-                                            // Extract the table type
-                                            // information
+                                            // Extract the table type information
                                             String[] definition = CcddUtilities.splitAndRemoveQuotes("\""
                                                                                                      + genType.getName()
                                                                                                      + "\","
                                                                                                      + inputs);
 
-                                            // Check if the expected number of
-                                            // inputs is present
+                                            // Check if the expected number of inputs is present
                                             if ((definition.length - 2) % (TableTypeEditorColumnInfo.values().length - 1) == 0)
                                             {
-                                                // Create the table type
-                                                // definition, supplying the
+                                                // Create the table type definition, supplying the
                                                 // name and description
                                                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
                                                                                                             definition[1]);
                                                 tableTypeDefns.add(tableTypeDefn);
 
-                                                // Step through each column
-                                                // definition (ignoring the
-                                                // primary key and row index
-                                                // columns)
+                                                // Step through each column definition (ignoring
+                                                // the primary key and row index columns)
                                                 for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
                                                 {
-                                                    // Add the table type
-                                                    // column definition,
-                                                    // checking for (and if
-                                                    // possible, correcting)
+                                                    // Add the table type column definition,
+                                                    // checking for (and if possible, correcting)
                                                     // errors
                                                     continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
                                                                                                               tableTypeDefn,
@@ -664,13 +630,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                               parent);
                                                 }
                                             }
-                                            // The number of inputs is
-                                            // incorrect
+                                            // The number of inputs is incorrect
                                             else
                                             {
-                                                // Check if the error should be
-                                                // ignored or the import
-                                                // canceled
+                                                // Check if the error should be ignored or the
+                                                // import canceled
                                                 continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
                                                                                             "<html><b>Table type '"
                                                                                                                       + genType.getName()
@@ -685,12 +649,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                             parent);
                                             }
                                         }
-                                        // The name and/or description is
-                                        // missing
+                                        // The name and/or description is missing
                                         else
                                         {
-                                            // Check if the error should be
-                                            // ignored or the import canceled
+                                            // Check if the error should be ignored or the import
+                                            // canceled
                                             continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
                                                                                         "<html><b>Missing table type "
                                                                                                                   + "name in import file '</b>"
@@ -704,74 +667,57 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         }
                                     }
                                 }
-                                // Check if this is the table type data field
-                                // definition
+                                // Check if this is the table type data field definition
                                 else if (intfcDecType.getName().startsWith(EDSTags.DATA_FIELD.getTag()))
                                 {
                                     // Step through each generic type data
                                     for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                                     {
-                                        // Check if the table type data field
-                                        // inputs are present
+                                        // Check if the table type data field inputs are present
                                         if (genType.getName() != null
                                             && genType.getShortDescription() != null)
                                         {
-                                            // Extract the table type owner of
-                                            // this data field
+                                            // Extract the table type owner of this data field
                                             String tableTypeName = genType.getName().replaceFirst(".*:", "");
 
-                                            // Step through the table type
-                                            // definitions
+                                            // Step through the table type definitions
                                             for (TableTypeDefinition tableTypeDefn : tableTypeDefns)
                                             {
-                                                // Check if the table type name
-                                                // matches
+                                                // Check if the table type name matches
                                                 if (tableTypeName.equals(tableTypeDefn.getTypeName()))
                                                 {
-                                                    // Get the data field
-                                                    // inputs. If not present
-                                                    // use a blank to prevent
-                                                    // an error when separating
-                                                    // the inputs
+                                                    // Get the data field inputs. If not present
+                                                    // use a blank to prevent an error when
+                                                    // separating the inputs
                                                     String inputs = genType.getShortDescription() != null
                                                                                                           ? genType.getShortDescription()
                                                                                                           : "";
 
-                                                    // Parse data field. The
-                                                    // values are
-                                                    // comma-separated;
-                                                    // however, commas within
-                                                    // quotes are ignored -
-                                                    // this allows commas to be
-                                                    // included in the data
-                                                    // values
+                                                    // Parse data field. The values are
+                                                    // comma-separated; however, commas within
+                                                    // quotes are ignored - this allows commas to
+                                                    // be included in the data values
                                                     String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
                                                                                                             + CcddFieldHandler.getFieldTypeName(tableTypeName)
                                                                                                             + "\","
                                                                                                             + inputs);
 
-                                                    // Check if the expected
-                                                    // number of inputs is
+                                                    // Check if the expected number of inputs is
                                                     // present
                                                     if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
                                                     {
-                                                        // Add the data field
-                                                        // definition, checking
-                                                        // for (and if
-                                                        // possible,
-                                                        // correcting) errors
+                                                        // Add the data field definition, checking
+                                                        // for (and if possible, correcting) errors
                                                         continueOnTableTypeFieldError = addImportedDataFieldDefinition(continueOnTableTypeFieldError,
                                                                                                                        tableTypeDefn,
                                                                                                                        fieldDefn,
                                                                                                                        importFileName,
                                                                                                                        parent);
                                                     }
-                                                    // The number of inputs is
-                                                    // incorrect
+                                                    // The number of inputs is incorrect
                                                     else
                                                     {
-                                                        // Check if the error
-                                                        // should be ignored or
+                                                        // Check if the error should be ignored or
                                                         // the import canceled
                                                         continueOnTableTypeFieldError = getErrorResponse(continueOnTableTypeFieldError,
                                                                                                          "<html><b>Table type '</b>"
@@ -796,14 +742,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
 
-                        // Add the table type if it's new or match it to an
-                        // existing one with the same name if the type
-                        // definitions are the same
+                        // Add the table type if it's new or match it to an existing one with the
+                        // same name if the type definitions are the same
                         String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
                                                                            fieldHandler);
 
-                        // Check if a table type isn't new and doesn't match an
-                        // existing one with the same name
+                        // Check if a table type isn't new and doesn't match an existing one with
+                        // the same name
                         if (badDefn != null)
                         {
                             throw new CCDDException("Imported table type '"
@@ -811,9 +756,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                     + "' doesn't match the existing definition");
                         }
                     }
-                    // Check if all definitions are to be loaded, this is the
-                    // primitive data type definitions name space, and an
-                    // interface set exists
+                    // Check if all definitions are to be loaded, this is the primitive data type
+                    // definitions name space, and an interface set exists
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
                              && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
@@ -825,8 +769,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Step through each data type
                         for (RootDataType rDataType : dataTypes)
                         {
-                            // Set the data type name and initialize the size
-                            // and base type values
+                            // Set the data type name and initialize the size and base type values
                             String dataType = rDataType.getName();
                             String sizeInBytes = "";
                             String baseType = "";
@@ -847,23 +790,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Check if the integer is unsigned
                                 if (intEncode.getEncoding() == IntegerEncodingType.UNSIGNED)
                                 {
-                                    // Set the base type to indicate an
-                                    // unsigned integer
+                                    // Set the base type to indicate an unsigned integer
                                     baseType = BaseDataTypeInfo.UNSIGNED_INT.getName();
                                 }
                                 // The integer is signed
                                 else
                                 {
-                                    // Set the base type to indicate a signed
-                                    // integer
+                                    // Set the base type to indicate a signed integer
                                     baseType = BaseDataTypeInfo.SIGNED_INT.getName();
                                 }
                             }
                             // Check if this is a floating point data type
                             else if (rDataType instanceof FloatDataType)
                             {
-                                // Set the base type to indicate a floating
-                                // point
+                                // Set the base type to indicate a floating point
                                 baseType = BaseDataTypeInfo.FLOATING_POINT.getName();
                             }
                             // Check if this is a string data type
@@ -873,8 +813,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 baseType = BaseDataTypeInfo.CHARACTER.getName();
                             }
 
-                            // Add the data type definition to the list (add a
-                            // blank for the OID column)
+                            // Add the data type definition to the list (add a blank for the OID
+                            // column)
                             dataTypeDefns.add(new String[] {dataType,
                                                             dataType,
                                                             sizeInBytes,
@@ -882,12 +822,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                             ""});
                         }
 
-                        // Step through the interfaces in order to locate the
-                        // name space's parameter and command sets
+                        // Step through the interfaces in order to locate the name space's
+                        // parameter and command sets
                         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                         {
-                            // Check if this interface contains a generic type
-                            // set
+                            // Check if this interface contains a generic type set
                             if (intfcDecType.getGenericTypeSet() != null
                                 && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
                             {
@@ -900,65 +839,55 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     {
                                         boolean isFound = false;
 
-                                        // Build the data type definition from
-                                        // the generic type data
+                                        // Build the data type definition from the generic type
+                                        // data
                                         String[] typeDefn = (genType.getName()
                                                              + ","
                                                              + genType.getShortDescription()
                                                              + ",\"\"").split(",", -1);
 
-                                        // Step through the data type
-                                        // definitions already added
+                                        // Step through the data type definitions already added
                                         for (int index = 0; index < dataTypeDefns.size(); index++)
                                         {
-                                            // Check if the data type in the
-                                            // generic set matches an existing
-                                            // one from the data set
+                                            // Check if the data type in the generic set matches an
+                                            // existing one from the data set
                                             if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
                                             {
-                                                // Set the flag to indicate a
-                                                // match exists
+                                                // Set the flag to indicate a match exists
                                                 isFound = true;
 
-                                                // Check if the user name is
-                                                // empty in either the data set
-                                                // or generic type set. This
-                                                // accounts for definitions
-                                                // with a blank user name
-                                                // (i.e., the C name is used as
-                                                // the data type name)
+                                                // Check if the user name is empty in either the
+                                                // data set or generic type set. This accounts for
+                                                // definitions with a blank user name (i.e., the C
+                                                // name is used as the data type name)
                                                 if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
                                                     || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
                                                 {
-                                                    // Set the user name to the
-                                                    // one from the generic set
+                                                    // Set the user name to the one from the
+                                                    // generic set
                                                     dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
                                                 }
 
-                                                // Check if the data set C name
-                                                // is blank
+                                                // Check if the data set C name is blank
                                                 if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
                                                 {
-                                                    // Set the C name to the
-                                                    // one from the generic set
+                                                    // Set the C name to the one from the generic
+                                                    // set
                                                     dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
                                                 }
 
-                                                // Check if the data set size
-                                                // is blank
+                                                // Check if the data set size is blank
                                                 if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
                                                 {
-                                                    // Set the size to the one
-                                                    // from the generic set
+                                                    // Set the size to the one from the generic set
                                                     dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
                                                 }
 
-                                                // Check if the data set base
-                                                // type is blank
+                                                // Check if the data set base type is blank
                                                 if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
                                                 {
-                                                    // Set the base type to the
-                                                    // one from the generic set
+                                                    // Set the base type to the one from the
+                                                    // generic set
                                                     dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
                                                 }
 
@@ -966,21 +895,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             }
                                         }
 
-                                        // Check if the data type doesn't match
-                                        // one already added from the data set
+                                        // Check if the data type doesn't match one already added
+                                        // from the data set
                                         if (!isFound)
                                         {
-                                            // Add the data type definition to
-                                            // the list (add a blank for the
-                                            // OID column)
+                                            // Add the data type definition to the list (add a
+                                            // blank for the OID column)
                                             dataTypeDefns.add(typeDefn);
                                         }
                                     }
                                     // The name and/or description is missing
                                     else
                                     {
-                                        // Check if the error should be ignored
-                                        // or the import canceled
+                                        // Check if the error should be ignored or the import
+                                        // canceled
                                         continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
                                                                                    "<html><b>Missing or extra data type definition input(s) in import file '</b>"
                                                                                                             + importFileName
@@ -995,20 +923,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
                     }
-                    // Check if all definitions are to be loaded, this is the
-                    // macro definitions name space, and an interface set
-                    // exists
+                    // Check if all definitions are to be loaded, this is the macro definitions
+                    // name space, and an interface set exists
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
                              && nameSpace.getName().equals(EDSTags.MACRO.getTag())
                              && nameSpace.getDeclaredInterfaceSet() != null)
                     {
-                        // Step through the interfaces in order to locate the
-                        // name space's parameter and command sets
+                        // Step through the interfaces in order to locate the name space's
+                        // parameter and command sets
                         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                         {
-                            // Check if this interface contains a generic type
-                            // set
+                            // Check if this interface contains a generic type set
                             if (intfcDecType.getGenericTypeSet() != null
                                 && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
                                 && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
@@ -1019,8 +945,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     // Check that the macro name is present
                                     if (genType.getName() != null)
                                     {
-                                        // Add the macro definition to the list
-                                        // (add a blank for the OID column)
+                                        // Add the macro definition to the list (add a blank for
+                                        // the OID column)
                                         macroDefns.add(new String[] {genType.getName(),
                                                                      (genType.getShortDescription() != null
                                                                                                             ? genType.getShortDescription()
@@ -1030,8 +956,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     // The name is missing
                                     else
                                     {
-                                        // Check if the error should be ignored
-                                        // or the import canceled
+                                        // Check if the error should be ignored or the import
+                                        // canceled
                                         continueOnMacroError = getErrorResponse(continueOnMacroError,
                                                                                 "<html><b>Missing or extra macro definition "
                                                                                                       + "input(s) in import file '</b>"
@@ -1047,20 +973,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
                     }
-                    // Check if all definitions are to be loaded, this is the
-                    // reserved message ID definitions name space, and an
-                    // interface set exists
+                    // Check if all definitions are to be loaded, this is the reserved message ID
+                    // definitions name space, and an interface set exists
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
                              && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag())
                              && nameSpace.getDeclaredInterfaceSet() != null)
                     {
-                        // Step through the interfaces in order to locate the
-                        // name space's parameter and command sets
+                        // Step through the interfaces in order to locate the name space's
+                        // parameter and command sets
                         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                         {
-                            // Check if this interface contains a generic type
-                            // set
+                            // Check if this interface contains a generic type set
                             if (intfcDecType.getGenericTypeSet() != null
                                 && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
                                 && intfcDecType.getName().startsWith(EDSTags.RESERVED_MSG_ID.getTag()))
@@ -1068,13 +992,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Step through each generic type data
                                 for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
                                 {
-                                    // Check that the reserved message ID is
-                                    // present
+                                    // Check that the reserved message ID is present
                                     if (genType.getName() != null)
                                     {
-                                        // Add the reserved message ID
-                                        // definition to the list (add a blank
-                                        // for the OID column)
+                                        // Add the reserved message ID definition to the list (add
+                                        // a blank for the OID column)
                                         reservedMsgIDDefns.add(new String[] {genType.getName(),
                                                                              (genType.getShortDescription() != null
                                                                                                                     ? genType.getShortDescription()
@@ -1084,8 +1006,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     // The name is missing
                                     else
                                     {
-                                        // Check if the error should be ignored
-                                        // or the import canceled
+                                        // Check if the error should be ignored or the import
+                                        // canceled
                                         continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
                                                                                         "<html><b>Missing or extra reserved message ID "
                                                                                                                       + "definition input(s) in import file '</b>"
@@ -1101,11 +1023,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
                     }
-                    // Check if all definitions are to be loaded or that this
-                    // is the first table, this is a table definition name
-                    // space, an interface set exists, and that the name space
-                    // name is in the correct format for a table (table
-                    // identifier : table name< : system name>)
+                    // Check if all definitions are to be loaded or that this is the first table,
+                    // this is a table definition name space, an interface set exists, and that the
+                    // name space name is in the correct format for a table (table identifier :
+                    // table name< : system name>)
                     else if (pass == 2
                              && (importType == ImportType.IMPORT_ALL
                                  || tableDefinitions.size() == 0)
@@ -1123,30 +1044,26 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         String command = "";
                         TableDefinition tableDefn = null;
 
-                        // Separate the name space name into the tag, table
-                        // name, and (optional) system name
+                        // Separate the name space name into the tag, table name, and (optional)
+                        // system name
                         String[] nameParts = nameSpace.getName().split(":");
 
-                        // Create a table definition for this table. The
-                        // nameSpace name begins with the table identifier
-                        // followed by the system and the table name, separated
-                        // by colons
+                        // Create a table definition for this table. The nameSpace name begins with
+                        // the table identifier followed by the system and the table name,
+                        // separated by colons
                         tableDefn = new TableDefinition(nameParts[1].trim(),
                                                         nameSpace.getShortDescription());
 
-                        // Make three passes through the name space interface.
-                        // The first pass processes the telemetry and command
-                        // interfaces, and the generic types not associated
-                        // with table column data. The second pass processes
-                        // the enumerations in the data set. The third pass
-                        // processes the generic type column data, only using
-                        // it if a cell value is still empty after being
+                        // Make three passes through the name space interface. The first pass
+                        // processes the telemetry and command interfaces, and the generic types
+                        // not associated with table column data. The second pass processes the
+                        // enumerations in the data set. The third pass processes the generic type
+                        // column data, only using it if a cell value is still empty after being
                         // populated by the telemetry or command interface data
                         for (int loop = 1; loop <= 3; loop++)
                         {
-                            // Check if this is the second pass, a data set
-                            // exists, and the command name column is present
-                            // in the data type
+                            // Check if this is the second pass, a data set exists, and the command
+                            // name column is present in the data type
                             if (loop == 2
                                 && nameSpace.getDataTypeSet() != null
                                 && commandNameIndex != -1)
@@ -1157,14 +1074,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Step through each data type set
                                 for (RootDataType rDataType : dataTypes)
                                 {
-                                    // Check if this is an enumerated data type
-                                    // set
+                                    // Check if this is an enumerated data type set
                                     if (rDataType instanceof EnumeratedDataType)
                                     {
                                         EnumeratedDataType eDataType = (EnumeratedDataType) rDataType;
 
-                                        // Get the list of enumerated values
-                                        // and associated labels
+                                        // Get the list of enumerated values and associated labels
                                         EnumerationListType enumList = eDataType.getEnumerationList();
 
                                         // Check if any enumerations exist
@@ -1175,8 +1090,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             // Step through each enumeration
                                             for (ValueEnumerationType enumType : enumList.getEnumeration())
                                             {
-                                                // Check if this is the first
-                                                // value
+                                                // Check if this is the first value
                                                 if (enumeration == null)
                                                 {
                                                     enumeration = "";
@@ -1193,43 +1107,36 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                + enumType.getLabel();
                                             }
 
-                                            // Check if the command name
-                                            // changed
+                                            // Check if the command name changed
                                             if (!eDataType.getShortDescription().equals(command))
                                             {
                                                 // Reset the argument index
                                                 cmdArgIndex = -1;
                                             }
 
-                                            // Increment the argument index and
-                                            // store the command name for which
-                                            // this argument is a member
+                                            // Increment the argument index and store the command
+                                            // name for which this argument is a member
                                             cmdArgIndex++;
                                             command = eDataType.getShortDescription();
 
-                                            // Step through each row of table
-                                            // data
+                                            // Step through each row of table data
                                             for (int row = 0; row < tableDefn.getData().size(); row += numColumns)
                                             {
-                                                // Check if the command name
-                                                // matches the one in the table
-                                                // data for this row
+                                                // Check if the command name matches the one in the
+                                                // table data for this row
                                                 if (tableDefn.getData().get(row + commandNameIndex) != null
                                                     && tableDefn.getData().get(row + commandNameIndex).equals(command)
                                                     && cmdArgIndex < commandArguments.size())
                                                 {
-                                                    // Get the command argument
-                                                    // reference
+                                                    // Get the command argument reference
                                                     AssociatedColumns cmdArg = commandArguments.get(cmdArgIndex);
 
-                                                    // Check if the command
-                                                    // argument enumeration is
+                                                    // Check if the command argument enumeration is
                                                     // present
                                                     if (cmdArg.getEnumeration() != -1
                                                         && enumeration != null)
                                                     {
-                                                        // Store the command
-                                                        // argument enumeration
+                                                        // Store the command argument enumeration
                                                         tableDefn.getData().set(row
                                                                                 + cmdArg.getEnumeration(),
                                                                                 enumeration);
@@ -1241,30 +1148,26 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 }
                             }
 
-                            // Step through the interfaces in order to locate
-                            // the name space's parameter, command, and generic
-                            // sets
+                            // Step through the interfaces in order to locate the name space's
+                            // parameter, command, and generic sets
                             for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
                             {
                                 // Check if this is the first pass
                                 if (loop == 1)
                                 {
-                                    /******************************************
+                                    /**************************************************************
                                      * Telemetry processing
-                                     ***************************************/
-                                    // Check if the interface contains a
-                                    // parameter set
+                                     ***********************************************************/
+                                    // Check if the interface contains a parameter set
                                     if (intfcDecType.getParameterSet() != null
                                         && !intfcDecType.getParameterSet().getParameter().isEmpty())
                                     {
                                         // Step through each parameter
                                         for (InterfaceParameterType parmType : intfcDecType.getParameterSet().getParameter())
                                         {
-                                            // Create a new row of data in the
-                                            // table definition to contain this
-                                            // structure's information.
-                                            // Initialize all columns to blanks
-                                            // except for the variable name
+                                            // Create a new row of data in the table definition to
+                                            // contain this structure's information. Initialize all
+                                            // columns to blanks except for the variable name
                                             String[] newRow = new String[typeDefn.getColumnCountVisible()];
                                             Arrays.fill(newRow, "");
                                             newRow[variableNameIndex] = parmType.getName();
@@ -1273,90 +1176,73 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             if (parmType.getType() != null
                                                 && !parmType.getType().isEmpty())
                                             {
-                                                // Store the data type for this
-                                                // variable
+                                                // Store the data type for this variable
                                                 newRow[dataTypeIndex] = parmType.getType().replaceFirst("^[^/]*/",
                                                                                                         "");
                                             }
 
-                                            // Check if the description column
-                                            // exists in the table type
-                                            // definition and that a
-                                            // description exists
+                                            // Check if the description column exists in the table
+                                            // type definition and that a description exists
                                             if (descriptionIndex != -1
                                                 && parmType.getShortDescription() != null)
                                             {
-                                                // Store the description for
-                                                // this variable
+                                                // Store the description for this variable
                                                 newRow[descriptionIndex] = parmType.getShortDescription();
                                             }
 
-                                            // Add the new row to the table
-                                            // definition
+                                            // Add the new row to the table definition
                                             tableDefn.addData(newRow);
                                         }
                                     }
 
-                                    /******************************************
+                                    /**************************************************************
                                      * Command processing
-                                     ***************************************/
-                                    // Check if the interface contains a
-                                    // command set
+                                     ***********************************************************/
+                                    // Check if the interface contains a command set
                                     if (intfcDecType.getCommandSet() != null
                                         && !intfcDecType.getCommandSet().getCommand().isEmpty())
                                     {
                                         // Step through each command
                                         for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
                                         {
-                                            // Create a new row of data in the
-                                            // table definition to contain this
-                                            // command's information.
-                                            // Initialize all columns to blanks
-                                            // except for the command name
+                                            // Create a new row of data in the table definition to
+                                            // contain this command's information. Initialize all
+                                            // columns to blanks except for the command name
                                             String[] newRow = new String[typeDefn.getColumnCountVisible()];
                                             Arrays.fill(newRow, "");
                                             newRow[commandNameIndex] = cmdType.getName();
 
-                                            // Check if the command description
-                                            // is present and the description
-                                            // column exists in the table type
+                                            // Check if the command description is present and the
+                                            // description column exists in the table type
                                             // definition
                                             if (cmdType.getShortDescription() != null
                                                 && cmdDescriptionIndex != -1)
                                             {
-                                                // Store the command
-                                                // description in the row's
+                                                // Store the command description in the row's
                                                 // description column
                                                 newRow[cmdDescriptionIndex] = cmdType.getShortDescription();
                                             }
 
-                                            // Step through each command
-                                            // argument
+                                            // Step through each command argument
                                             for (int index = 0; index < commandArguments.size(); index++)
                                             {
-                                                // Check if this argument is
-                                                // applicable to this command
-                                                // (not all commands may have
-                                                // the same number of
-                                                // arguments)
+                                                // Check if this argument is applicable to this
+                                                // command (not all commands may have the same
+                                                // number of arguments)
                                                 if (index < cmdType.getArgument().size())
                                                 {
-                                                    // Store the command
-                                                    // argument
-                                                    // name and data types
+                                                    // Store the command argument name and data
+                                                    // types
                                                     newRow[commandArguments.get(index).getName()] = cmdType.getArgument().get(index).getName();
 
-                                                    // Check if a data type
-                                                    // exists
+                                                    // Check if a data type exists
                                                     if (cmdType.getArgument().get(index).getType() != null)
                                                     {
                                                         newRow[commandArguments.get(index).getDataType()] = cmdType.getArgument().get(index).getType();
                                                     }
 
-                                                    // Check if a command
-                                                    // argument description
-                                                    // exists and if this is
-                                                    // the command argument
+                                                    // Check if a command argument description
+                                                    // exists and if this is the command argument
                                                     // description column
                                                     if (cmdType.getArgument().get(index).getShortDescription() != null)
                                                     {
@@ -1365,22 +1251,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                 }
                                             }
 
-                                            // Add the new row to the table
-                                            // definition
+                                            // Add the new row to the table definition
                                             tableDefn.addData(newRow);
                                         }
                                     }
                                 }
 
-                                /**********************************************
+                                /******************************************************************
                                  * Generic type processing
-                                 *******************************************/
-                                // Check if this interface contains a generic
-                                // type set. The generic type set is used to
-                                // column data, data fields, and enumeration
-                                // parameters for tables that aren't structure
-                                // or command tables, and to store extra
-                                // columns, data fields, and extra enumeration
+                                 ***************************************************************/
+                                // Check if this interface contains a generic type set. The generic
+                                // type set is used to column data, data fields, and enumeration
+                                // parameters for tables that aren't structure or command tables,
+                                // and to store extra columns, data fields, and extra enumeration
                                 // parameters for structure and command tables
                                 if (intfcDecType.getGenericTypeSet() != null
                                     && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
@@ -1397,13 +1280,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // Store the table's type name
                                                 tableDefn.setTypeName(genType.getShortDescription());
 
-                                                // Get the table's type
-                                                // definition based on the type
-                                                // name
+                                                // Get the table's type definition based on the
+                                                // type name
                                                 typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
-                                                // Check if the table type
-                                                // isn't recognized
+                                                // Check if the table type isn't recognized
                                                 if (typeDefn == null)
                                                 {
                                                     throw new CCDDException("unknown table type '"
@@ -1411,109 +1292,86 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                             + "'");
                                                 }
 
-                                                // Get the number of visible
-                                                // columns for this table type
+                                                // Get the number of visible columns for this table
+                                                // type
                                                 numColumns = typeDefn.getColumnCountVisible();
 
-                                                // Check if this is a structure
-                                                // type table
+                                                // Check if this is a structure type table
                                                 if (typeDefn.isStructure())
                                                 {
-                                                    // Get the structure column
-                                                    // indices, if this is a
-                                                    // structure type
+                                                    // Get the structure column indices, if this is
+                                                    // a structure type
                                                     variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
                                                     dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
                                                     descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
                                                 }
-                                                // Check if this is a command
-                                                // type table
+                                                // Check if this is a command type table
                                                 else if (typeDefn.isCommand())
                                                 {
-                                                    // Get the list containing
-                                                    // command argument name,
-                                                    // data type, enumeration,
-                                                    // minimum, maximum, and
-                                                    // other associated column
-                                                    // indices for each
-                                                    // argument grouping
+                                                    // Get the list containing command argument
+                                                    // name, data type, enumeration, minimum,
+                                                    // maximum, and other associated column indices
+                                                    // for each argument grouping
                                                     commandArguments = typeDefn.getAssociatedCommandArgumentColumns(true);
 
-                                                    // Get the command name
-                                                    // column
+                                                    // Get the command name column
                                                     commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
 
-                                                    // Get the command
-                                                    // description column. If
-                                                    // the default command
-                                                    // description column name
-                                                    // isn't used then the
-                                                    // first column containing
-                                                    // 'description' is
-                                                    // selected that doesn't
-                                                    // refer to a command
-                                                    // argument
+                                                    // Get the command description column. If the
+                                                    // default command description column name
+                                                    // isn't used then the first column containing
+                                                    // 'description' is selected that doesn't refer
+                                                    // to a command argument
                                                     cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
 
-                                                    // Check if the description
-                                                    // column belongs to a
+                                                    // Check if the description column belongs to a
                                                     // command argument
                                                     if (commandArguments.size() != 0
                                                         && cmdDescriptionIndex > commandArguments.get(0).getName())
                                                     {
-                                                        // Reset the command
-                                                        // description index to
-                                                        // indicate no
-                                                        // description exists
+                                                        // Reset the command description index to
+                                                        // indicate no description exists
                                                         cmdDescriptionIndex = -1;
                                                     }
                                                 }
                                             }
-                                            // Check if all definitions are to
-                                            // be loaded and this is a data
-                                            // field definition
+                                            // Check if all definitions are to be loaded and this
+                                            // is a data field definition
                                             else if (importType == ImportType.IMPORT_ALL
                                                      && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
                                             {
-                                                // Get the data field inputs.
-                                                // If not present use a blank
-                                                // to prevent an error when
-                                                // separating the inputs
+                                                // Get the data field inputs. If not present use a
+                                                // blank to prevent an error when separating the
+                                                // inputs
                                                 String inputs = genType.getShortDescription() != null
                                                                                                       ? genType.getShortDescription()
                                                                                                       : "";
 
-                                                // Parse data field. The values
-                                                // are comma-separated;
-                                                // however, commas within
-                                                // quotes are ignored - this
-                                                // allows commas to be included
+                                                // Parse data field. The values are
+                                                // comma-separated; however, commas within quotes
+                                                // are ignored - this allows commas to be included
                                                 // in the data values
                                                 String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
                                                                                                         + tableDefn.getName()
                                                                                                         + "\","
                                                                                                         + inputs);
 
-                                                // Check if the expected number
-                                                // of inputs is present
+                                                // Check if the expected number of inputs is
+                                                // present
                                                 if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
                                                 {
-                                                    // Add the data field
-                                                    // definition, checking for
-                                                    // (and if possible,
-                                                    // correcting) errors
+                                                    // Add the data field definition, checking for
+                                                    // (and if possible, correcting) errors
                                                     continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
                                                                                                               tableDefn,
                                                                                                               fieldDefn,
                                                                                                               importFileName,
                                                                                                               parent);
                                                 }
-                                                // The number of inputs is
-                                                // incorrect
+                                                // The number of inputs is incorrect
                                                 else
                                                 {
-                                                    // Check if the error
-                                                    // should be ignored or the
+                                                    // Check if the error should be ignored or the
                                                     // import canceled
                                                     continueOnDataFieldError = getErrorResponse(continueOnDataFieldError,
                                                                                                 "<html><b>Table '</b>"
@@ -1536,46 +1394,36 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             // Check if this is column data
                                             if (intfcDecType.getName().equals(EDSTags.COLUMN.getTag()))
                                             {
-                                                // Extract the column name and
-                                                // row number, and use the
-                                                // column name to get the
-                                                // column index
+                                                // Extract the column name and row number, and use
+                                                // the column name to get the column index
                                                 String[] parts = genType.getName().split(":");
                                                 String columnName = parts[EDSTags.getColumnNameIndex()].trim();
                                                 int row = Integer.valueOf(parts[EDSTags.getRowIndex()].trim());
                                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
-                                                // Check that the column exists
-                                                // in the table
+                                                // Check that the column exists in the table
                                                 if (column != -1)
                                                 {
-                                                    // Add one or more rows
-                                                    // until the row is created
-                                                    // containing this column
-                                                    // value
+                                                    // Add one or more rows until the row is
+                                                    // created containing this column value
                                                     while (row * numColumns >= tableDefn.getData().size())
                                                     {
-                                                        // Create a row with
-                                                        // empty columns and
-                                                        // add the new row to
-                                                        // the table data
+                                                        // Create a row with empty columns and add
+                                                        // the new row to the table data
                                                         String[] newRow = new String[typeDefn.getColumnCountVisible()];
                                                         Arrays.fill(newRow, "");
                                                         tableDefn.addData(newRow);
                                                     }
 
-                                                    // Check if the cell is
-                                                    // empty (i.e., don't
-                                                    // replace the cell value
-                                                    // if it already is
+                                                    // Check if the cell is empty (i.e., don't
+                                                    // replace the cell value if it already is
                                                     // present)
                                                     if (tableDefn.getData().get(row
                                                                                 * numColumns
                                                                                 + column)
                                                                  .isEmpty())
                                                     {
-                                                        // Replace the value
-                                                        // for the specified
+                                                        // Replace the value for the specified
                                                         // column
                                                         tableDefn.getData().set(row
                                                                                 * numColumns
@@ -1586,8 +1434,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // The column doesn't exist
                                                 else
                                                 {
-                                                    // Check if the error
-                                                    // should be ignored or the
+                                                    // Check if the error should be ignored or the
                                                     // import canceled
                                                     continueOnColumnError = getErrorResponse(continueOnColumnError,
                                                                                              "<html><b>Table '</b>"
@@ -1619,12 +1466,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
-                // Add the data type if it's new or match it to an existing one
-                // with the same name if the type definitions are the same
+                // Add the data type if it's new or match it to an existing one with the same name
+                // if the type definitions are the same
                 String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
 
-                // Check if a data type isn't new and doesn't match an existing
-                // one with the same name
+                // Check if a data type isn't new and doesn't match an existing one with the same
+                // name
                 if (badDefn != null)
                 {
                     throw new CCDDException("data type '"
@@ -1632,12 +1479,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             + "' already exists and doesn't match the import definition");
                 }
 
-                // Add the macro if it's new or match it to an existing one
-                // with the same name if the values are the same
+                // Add the macro if it's new or match it to an existing one with the same name if
+                // the values are the same
                 badDefn = macroHandler.updateMacros(macroDefns);
 
-                // Check if a macro isn't new and doesn't match an existing one
-                // with the same name
+                // Check if a macro isn't new and doesn't match an existing one with the same name
                 if (badDefn != null)
                 {
                     throw new CCDDException("macro '"
@@ -1651,9 +1497,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a name space to contain the referenced table type definitions
-     *************************************************************************/
+     *********************************************************************************************/
     private void buildTableTypesNameSpace()
     {
         List<String[]> tableTypeDefinitions = new ArrayList<String[]>();
@@ -1667,14 +1513,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the table type exists
             if (tableTypeDefn != null)
             {
-                // Create the type definition string beginning with the name,
-                // description, and number of columns
+                // Create the type definition string beginning with the name, description, and
+                // number of columns
                 StringBuilder definition = new StringBuilder("\""
                                                              + tableTypeDefn.getDescription()
                                                              + "\"");
 
-                // Step through each column definition in the table type,
-                // skipping the primary key and row index columns
+                // Step through each column definition in the table type, skipping the primary key
+                // and row index columns
                 for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++)
                 {
                     // Add the column information to the definition
@@ -1729,9 +1575,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a name space to contain the referenced primitive data types
-     *************************************************************************/
+     *********************************************************************************************/
     private void buildDataTypesNameSpace()
     {
         // Check if any data types are referenced
@@ -1746,8 +1592,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             dataTypeNameSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
 
-            // Create a data type set to contain the primitive data type
-            // information
+            // Create a data type set to contain the primitive data type information
             DataTypeSetType dataTypeSet = factory.createDataTypeSetType();
 
             // Step through each referenced primitive data type
@@ -1821,9 +1666,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a name space to contain the referenced macro definitions
-     *************************************************************************/
+     *********************************************************************************************/
     private void buildMacrosNameSpace()
     {
         List<String[]> macroDefinitions = new ArrayList<String[]>();
@@ -1857,16 +1702,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a name space to contain all reserved message IDs
-     *************************************************************************/
+     *********************************************************************************************/
     private void buildReservedMsgIDNameSpace()
     {
         // Check if a reserved message ID is defined
         if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
         {
-            // Create a name space to contain the reserved message ID
-            // definitions
+            // Create a name space to contain the reserved message ID definitions
             NamespaceType reservedMsgIDNameSpace = addNameSpace("",
                                                                 EDSTags.RESERVED_MSG_ID.getTag(),
                                                                 "Reserved message ID definitions");
@@ -1878,19 +1722,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a name space to contain all variable paths
      *
      * @param variableHandler
-     *            variable handler class reference; null if
-     *            includeVariablePaths is false
+     *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator
-     *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s); null if
-     *            includeVariablePaths is false
-     *************************************************************************/
+     *            string array containing the variable path separator character(s), show/hide data
+     *            types flag ('true' or 'false'), and data type/variable name separator
+     *            character(s); null if includeVariablePaths is false
+     *********************************************************************************************/
     private void buildVariablePathNameSpace(CcddVariableConversionHandler variableHandler,
                                             String[] separators)
     {
@@ -1909,27 +1751,24 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the name spaces for the list of tables specified
      *
      * @param tableNames
      *            array of table names
      *
      * @param includeVariablePaths
-     *            true to include the variable path for each variable in a
-     *            structure table, both in application format and using the
-     *            user-defined separator characters
+     *            true to include the variable path for each variable in a structure table, both in
+     *            application format and using the user-defined separator characters
      *
      * @param variableHandler
-     *            variable handler class reference; null if
-     *            includeVariablePaths is false
+     *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator
-     *            character(s), show/hide data types flag ('true' or 'false'),
-     *            and data type/variable name separator character(s); null if
-     *            includeVariablePaths is false
-     *************************************************************************/
+     *            string array containing the variable path separator character(s), show/hide data
+     *            types flag ('true' or 'false'), and data type/variable name separator
+     *            character(s); null if includeVariablePaths is false
+     *********************************************************************************************/
     private void buildNameSpaces(String[] tableNames,
                                  boolean includeVariablePaths,
                                  CcddVariableConversionHandler variableHandler,
@@ -1948,23 +1787,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                true,
                                                                parent);
 
-            // Get the table type and from the type get the type definition.
-            // The type definition can be a global parameter since if the table
-            // represents a structure, then all of its children are also
-            // structures, and if the table represents commands or other table
+            // Get the table type and from the type get the type definition. The type definition
+            // can be a global parameter since if the table represents a structure, then all of its
+            // children are also structures, and if the table represents commands or other table
             // type then it is processed within this nest level
             typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
 
-            // Get the table's basic type - structure, command, or the original
-            // table type if not structure or command table
+            // Get the table's basic type - structure, command, or the original table type if not
+            // structure or command table
             String tableType = typeDefn.isStructure()
                                                       ? TYPE_STRUCTURE
                                                       : typeDefn.isCommand()
                                                                              ? TYPE_COMMAND
                                                                              : tableInfo.getType();
 
-            // Check if the table type is recognized and that the table's data
-            // successfully loaded
+            // Check if the table type is recognized and that the table's data successfully loaded
             if (tableType != null && !tableInfo.isErrorFlag())
             {
                 // Check if this type hasn't already been referenced
@@ -1974,8 +1811,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     referencedTableTypes.add(tableInfo.getType());
                 }
 
-                // Check if the flag is set that indicates macros should be
-                // replaced
+                // Check if the flag is set that indicates macros should be replaced
                 if (replaceMacros)
                 {
                     // Replace all macro names with their corresponding values
@@ -1993,8 +1829,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             // Step through each macro referenced in the column
                             for (String macro : macroHandler.getReferencedMacros(columnData))
                             {
-                                // Check if this macro asn't already been
-                                // referenced
+                                // Check if this macro asn't already been referenced
                                 if (!referencedMacros.contains(macro))
                                 {
                                     // Add the macro to the reference list
@@ -2007,8 +1842,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 String systemName;
 
-                // Get the table's system from the system name data field, if
-                // it exists
+                // Get the table's system from the system name data field, if it exists
                 FieldInformation fieldInfo = tableInfo.getFieldHandler().getFieldInformationByName(tableName,
                                                                                                    systemFieldName);
 
@@ -2089,8 +1923,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                   + "."
                                                   + tableInfo.getData()[row][varColumn];
 
-                            // Add the path, in both application and
-                            // user-defined formats, to the list to be output
+                            // Add the path, in both application and user-defined formats, to the
+                            // list to be output
                             referencedVariablePaths.add(new String[] {variablePath,
                                                                       variableHandler.getFullVariableName(variablePath,
                                                                                                           separators[0],
@@ -2134,33 +1968,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Add the command(s) from this table to the data sheet
                         addNameSpaceCommands(nameSpace, tableInfo);
                     }
-                    // Not a command (or structure) table; i.e., it's a
-                    // user-defined table type
+                    // Not a command (or structure) table; i.e., it's a user-defined table type
                     else
                     {
-                        // Create a list to contain the table's data field
-                        // names and associated values, description, column
-                        // information (for a non-command table type), and
-                        // table name and type
+                        // Create a list to contain the table's data field names and associated
+                        // values, description, column information (for a non-command table type),
+                        // and table name and type
                         List<String[]> otherData = new ArrayList<String[]>();
 
-                        // Store this table's data as additional data for the
-                        // current data sheet. Step through each row of the
-                        // table
+                        // Store this table's data as additional data for the current data sheet.
+                        // Step through each row of the table
                         for (int row = 0; row < tableInfo.getData().length; row++)
                         {
                             // Step through each column in the row
                             for (int column = 0; column < tableInfo.getData()[row].length; column++)
                             {
-                                // Check that this isn't the primary key or row
-                                // index column, and that the column value
-                                // isn't blank
+                                // Check that this isn't the primary key or row index column, and
+                                // that the column value isn't blank
                                 if (column != DefaultColumn.PRIMARY_KEY.ordinal()
                                     && column != DefaultColumn.ROW_INDEX.ordinal()
                                     && !tableInfo.getData()[row][column].isEmpty())
                                 {
-                                    // Store the data column name, value, and
-                                    // row number
+                                    // Store the data column name, value, and row number
                                     otherData.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(typeDefn.getColumnNamesUser()[column],
                                                                                                    row),
                                                                 tableInfo.getData()[row][column]});
@@ -2178,20 +2007,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
     }
 
-    /**************************************************************************
-     * Return an array containing the specified table's data field names and
-     * values
+    /**********************************************************************************************
+     * Return an array containing the specified table's data field names and values
      *
      * @param fieldInformation
      *            list containing data field information
      *
      * @param identifier
-     *            string to append to the data field tag used to identify the
-     *            table type to which a data field belongs; null if the data
-     *            type doesn't belong to a table type
+     *            string to append to the data field tag used to identify the table type to which a
+     *            data field belongs; null if the data type doesn't belong to a table type
      *
      * @return List containing the data field names and values
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> getDataFields(List<FieldInformation> fieldInformation,
                                          String identifier)
     {
@@ -2225,13 +2052,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return fieldData;
     }
 
-    /**************************************************************************
-     * Create a new name space as a child within the specified name space. If
-     * the specified name space is null then this is the root data sheet
+    /**********************************************************************************************
+     * Create a new name space as a child within the specified name space. If the specified name
+     * space is null then this is the root data sheet
      *
      * @param systemName
-     *            system name; null or blank if no system (e.g., macro
-     *            definitions)
+     *            system name; null or blank if no system (e.g., macro definitions)
      *
      * @param nameSpaceName
      *            name for the new name space
@@ -2240,7 +2066,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            data sheet description
      *
      * @return Reference to the new name space
-     *************************************************************************/
+     *********************************************************************************************/
     private NamespaceType addNameSpace(String systemName,
                                        String nameSpaceName,
                                        String shortDescription)
@@ -2248,8 +2074,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Check if a system name is provided
         if (systemName != null && !systemName.isEmpty())
         {
-            // Prepend the system name to the name space name to get the full
-            // name
+            // Prepend the system name to the name space name to get the full name
             nameSpaceName = EDSTags.TABLE.getTag()
                             + ": "
                             + nameSpaceName
@@ -2286,16 +2111,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return nameSpace;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Search for the name space with the same name as the search name
      *
      * @param nameSpaceName
-     *            name of the name space to search for within the name space
-     *            hierarchy
+     *            name of the name space to search for within the name space hierarchy
      *
-     * @return Reference to the name space with the same name as the search
-     *         name; null if no name space name matches the search name
-     *************************************************************************/
+     * @return Reference to the name space with the same name as the search name; null if no name
+     *         space name matches the search name
+     *********************************************************************************************/
     private NamespaceType searchNameSpacesForName(String nameSpaceName)
     {
         NamespaceType foundNameSpace = null;
@@ -2314,7 +2138,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return foundNameSpace;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a variable to the specified data sheet
      *
      * @param nameSpace
@@ -2336,8 +2160,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            bit length column index
      *
      * @param enumColumns
-     *            list containing the current table's enumeration column
-     *            indices; empty list if no enumeration columns exist
+     *            list containing the current table's enumeration column indices; empty list if no
+     *            enumeration columns exist
      *
      * @param unitsColumn
      *            current table's units column index; -1 if none exists
@@ -2350,7 +2174,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param variableName
      *            variable name
-     *************************************************************************/
+     *********************************************************************************************/
     private void addNameSpaceParameter(NamespaceType nameSpace,
                                        TableInformation tableInfo,
                                        int varColumn,
@@ -2373,8 +2197,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         String description = null;
         List<String[]> otherCols = new ArrayList<String[]>();
 
-        // Separate the variable name and bit length (if present) and store the
-        // variable name
+        // Separate the variable name and bit length (if present) and store the variable name
         String[] nameAndBit = variableName.split(":");
         variableName = nameAndBit[0];
 
@@ -2390,13 +2213,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                     variableName,
                                                     varColumn);
 
-        // Check that a valid row index exists for this variable. Since the
-        // table tree is built from the existing tables, a valid variable row
-        // index is always returned
+        // Check that a valid row index exists for this variable. Since the table tree is built
+        // from the existing tables, a valid variable row index is always returned
         if (row != -1)
         {
-            // Check if the data type is a string and if the array size column
-            // isn't empty
+            // Check if the data type is a string and if the array size column isn't empty
             if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
                 && !tableInfo.getData()[row][sizeColumn].isEmpty())
             {
@@ -2405,8 +2226,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Check if the variable name is an array member
                 while (tableInfo.getData()[defnRow][varColumn].endsWith("]"))
                 {
-                    // Step back through the rows until the array definition is
-                    // located
+                    // Step back through the rows until the array definition is located
                     defnRow--;
                 }
             }
@@ -2414,17 +2234,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Step through each column in the row
             for (int column = 0; column < tableInfo.getData()[row].length; column++)
             {
-                // Check that this is not the primary key, row index, variable
-                // or name column, or the bit length column and the variable
-                // has no bit length, and that a value exists in the column
+                // Check that this is not the primary key, row index, variable or name column, or
+                // the bit length column and the variable has no bit length, and that a value
+                // exists in the column
                 if (((column != DefaultColumn.PRIMARY_KEY.ordinal()
                       && column != DefaultColumn.ROW_INDEX.ordinal()
                       && column != varColumn)
                      || (column == bitColumn && bitLength != null))
                     && !tableInfo.getData()[row][column].isEmpty())
                 {
-                    // Store the column value size. This is treated as
-                    // ancillary data
+                    // Store the column value size. This is treated as ancillary data
                     otherCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(typeDefn.getColumnNamesUser()[column],
                                                                                    row),
                                                 tableInfo.getData()[row][column]});
@@ -2471,7 +2290,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherCols);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add the command(s) from a table to the specified name space
      *
      * @param nameSpace
@@ -2479,15 +2298,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param tableInfo
      *            TableInformation reference for the current node
-     *************************************************************************/
+     *********************************************************************************************/
     private void addNameSpaceCommands(NamespaceType nameSpace,
                                       TableInformation tableInfo)
     {
         List<String[]> otherCols = new ArrayList<String[]>();
 
-        // Get the list containing command argument name, data type,
-        // enumeration, minimum, maximum, and other associated column indices
-        // for each argument grouping
+        // Get the list containing command argument name, data type, enumeration, minimum, maximum,
+        // and other associated column indices for each argument grouping
         List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
         // Step through each row in the table
@@ -2498,12 +2316,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             String commandDescription = null;
             List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
 
-            // Create an array of flags to indicate if the column is a command
-            // argument that has been processed
+            // Create an array of flags to indicate if the column is a command argument that has
+            // been processed
             boolean[] isCmdArg = new boolean[rowData.length];
 
-            // Step through each column in the row, skipping the primary key
-            // and index columns
+            // Step through each column in the row, skipping the primary key and index columns
             for (int colA = NUM_HIDDEN_COLUMNS; colA < rowData.length; colA++)
             {
                 // Check if the column value isn't blank
@@ -2518,8 +2335,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Store the command name
                         commandName = rowData[colA];
                     }
-                    // Not the command name column; check for other overall
-                    // command and command argument columns
+                    // Not the command name column; check for other overall command and command
+                    // argument columns
                     else
                     {
                         // Initialize the command argument attributes
@@ -2533,20 +2350,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Step through each command argument column grouping
                         for (AssociatedColumns cmdArg : commandArguments)
                         {
-                            // Check if this is the command argument name
-                            // column
+                            // Check if this is the command argument name column
                             if (colA == cmdArg.getName())
                             {
                                 // Store the command argument name
                                 argName = rowData[colA];
 
-                                // Set the flag indicating the column is a
-                                // command argument
+                                // Set the flag indicating the column is a command argument
                                 isCmdArg[colA] = true;
 
-                                // Step through each column in the row again to
-                                // look for the remaining members of this
-                                // argument grouping
+                                // Step through each column in the row again to look for the
+                                // remaining members of this argument grouping
                                 for (int colB = NUM_HIDDEN_COLUMNS; colB < rowData.length; colB++)
                                 {
                                     // Check if a value is present
@@ -2555,72 +2369,65 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         // Get the column name
                                         colName = typeDefn.getColumnNamesUser()[colB];
 
-                                        // Store the column name and value.
-                                        // This is treated as ancillary data
-                                        // for this command argument set
+                                        // Store the column name and value. This is treated as
+                                        // ancillary data for this command argument set
                                         otherArgCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(colName,
                                                                                                           Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()]) - 1),
                                                                        rowData[colB]});
 
-                                        // Check if this is the command
-                                        // argument data type column
+                                        // Check if this is the command argument data type column
                                         if (colB == cmdArg.getDataType())
                                         {
-                                            // Store the command argument data
-                                            // type
+                                            // Store the command argument data type
                                             dataType = rowData[colB];
 
-                                            // Set the flag indicating the
-                                            // column is a command argument
+                                            // Set the flag indicating the column is a command
+                                            // argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if this is the command
-                                        // argument enumeration column
+                                        // Check if this is the command argument enumeration column
                                         else if (colB == cmdArg.getEnumeration())
                                         {
-                                            // Store the command argument
-                                            // enumeration and column name
+                                            // Store the command argument enumeration and column
+                                            // name
                                             enumeration = rowData[colB];
 
-                                            // Set the flag indicating the
-                                            // column is a command argument
+                                            // Set the flag indicating the column is a command
+                                            // argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if this is the command
-                                        // argument description column
+                                        // Check if this is the command argument description column
                                         else if (colB == cmdArg.getDescription())
                                         {
-                                            // Store the command argument
-                                            // description and column name
+                                            // Store the command argument description and column
+                                            // name
                                             description = rowData[colB];
 
-                                            // Set the flag indicating the
-                                            // column is a command argument
+                                            // Set the flag indicating the column is a command
+                                            // argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if this is the command
-                                        // argument units column
+                                        // Check if this is the command argument units column
                                         else if (colB == cmdArg.getUnits())
                                         {
-                                            // Store the command argument
-                                            // description and column name
+                                            // Store the command argument description and column
+                                            // name
                                             units = rowData[colB];
 
-                                            // Set the flag indicating the
-                                            // column is a command argument
+                                            // Set the flag indicating the column is a command
+                                            // argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // Check if this is the command
-                                        // argument minimum or maximum column
+                                        // Check if this is the command argument minimum or maximum
+                                        // column
                                         else if (colB == cmdArg.getMinimum()
                                                  || colB == cmdArg.getMaximum())
                                         {
-                                            // Set the flag indicating the
-                                            // column is a command argument
+                                            // Set the flag indicating the column is a command
+                                            // argument
                                             isCmdArg[colB] = true;
                                         }
-                                        // The column isn't associated with
-                                        // this command argument
+                                        // The column isn't associated with this command argument
                                         else if (!cmdArg.getOther().contains(colB))
                                         {
                                             // Remove the column information
@@ -2630,9 +2437,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     }
                                 }
 
-                                // Check if the command argument has the
-                                // minimum parameters required: a name and data
-                                // type
+                                // Check if the command argument has the minimum parameters
+                                // required: a name and data type
                                 if (argName != null
                                     && !argName.isEmpty()
                                     && dataType != null)
@@ -2656,13 +2462,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            // Step through each column in the row again in order to assign the
-            // overall command information
+            // Step through each column in the row again in order to assign the overall command
+            // information
             for (int col = NUM_HIDDEN_COLUMNS; col < rowData.length; col++)
             {
-                // Check that this is not one of the command argument columns
-                // and that the column value isn't blank. This prevents adding
-                // command arguments to the overall command information
+                // Check that this is not one of the command argument columns and that the column
+                // value isn't blank. This prevents adding command arguments to the overall command
+                // information
                 if (!isCmdArg[col] && !rowData[col].isEmpty())
                 {
                     // Get the column name
@@ -2675,8 +2481,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         commandDescription = rowData[col];
                     }
 
-                    // Store the column name and value. This is treated as
-                    // generic data for this command
+                    // Store the column name and value. This is treated as generic data for this
+                    // command
                     otherCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(colName,
                                                                                    Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()]) - 1),
                                                 rowData[col]});
@@ -2698,14 +2504,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherCols);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the parameter set for the specified name space
      *
      * @param nameSpace
      *            name space
      *
      * @return Reference to the parameter set
-     *************************************************************************/
+     *********************************************************************************************/
     private InterfaceDeclarationType createParameterSet(NamespaceType nameSpace)
     {
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
@@ -2714,14 +2520,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return intParmType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the command set for the specified name space
      *
      * @param nameSpace
      *            name space
      *
      * @return Reference to the command set
-     *************************************************************************/
+     *********************************************************************************************/
     private InterfaceDeclarationType createCommandSet(NamespaceType nameSpace)
     {
         InterfaceDeclarationType intCmdType = factory.createInterfaceDeclarationType();
@@ -2730,14 +2536,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return intCmdType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a user-defined set for the specified name space
      *
      * @param nameSpace
      *            name space
      *
      * @return Reference to the user-defined set
-     *************************************************************************/
+     *********************************************************************************************/
     private InterfaceDeclarationType createUserSet(NamespaceType nameSpace)
     {
         InterfaceDeclarationType intUserType = factory.createInterfaceDeclarationType();
@@ -2746,16 +2552,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return intUserType;
     }
 
-    /**************************************************************************
-     * Add a telemetry parameter to the name space's parameter set. Create the
-     * parameter set for the name space if it does not exist
+    /**********************************************************************************************
+     * Add a telemetry parameter to the name space's parameter set. Create the parameter set for
+     * the name space if it does not exist
      *
      * @param nameSpace
      *            name space
      *
      * @param systemPath
-     *            system path in the format <project name>.<system
-     *            name>.<structure path>.<primitive data Type>.<variable name>
+     *            system path in the format <project name>.<system name>.<structure
+     *            path>.<primitive data Type>.<variable name>
      *
      * @param parameterName
      *            parameter name
@@ -2764,15 +2570,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            parameter primitive data type
      *
      * @param enumerations
-     *            list containing enumerations in the format <enum label>|<enum
-     *            value>[|...][,...]; null to not specify
+     *            list containing enumerations in the format <enum label>|<enum value>[|...][,...];
+     *            null to not specify
      *
      * @param units
      *            parameter units
      *
      * @param shortDescription
      *            short description of the parameter
-     *************************************************************************/
+     *********************************************************************************************/
     private void addParameter(NamespaceType nameSpace,
                               String systemPath,
                               String parameterName,
@@ -2786,9 +2592,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         parameter.setName(parameterName);
         parameter.setShortDescription(shortDescription);
 
-        // Check if a data type is provided is a primitive type. If none is
-        // provided then no entry for this parameter appears under the
-        // ParameterTypeSet, but it will appear under the ParameterSet
+        // Check if a data type is provided is a primitive type. If none is provided then no entry
+        // for this parameter appears under the ParameterTypeSet, but it will appear under the
+        // ParameterSet
         if (dataType != null)
         {
             // Set the parameter data type
@@ -2806,8 +2612,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Get the data type set for this name space
                         DataTypeSetType dataTypeSet = nameSpace.getDataTypeSet();
 
-                        // Check if the data type set doesn't exist, which is
-                        // the case for the first enumerated parameter
+                        // Check if the data type set doesn't exist, which is the case for the
+                        // first enumerated parameter
                         if (dataTypeSet == null)
                         {
                             // Create the data type set
@@ -2818,21 +2624,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         EnumeratedDataType enumType = factory.createEnumeratedDataType();
                         EnumerationListType enumList = createEnumerationList(nameSpace,
                                                                              enumeration);
-                        // Set the integer encoding (the only encoding
-                        // available for an enumeration) and the size in bits
+                        // Set the integer encoding (the only encoding available for an
+                        // enumeration) and the size in bits
                         IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
                         intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
 
                         // Check if the data type is an unsigned integer
                         if (dataTypeHandler.isUnsignedInt(dataType))
                         {
-                            // Set the encoding type to indicate an unsigned
-                            // integer
+                            // Set the encoding type to indicate an unsigned integer
                             intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
                         }
 
-                        // Set the enumeration parameter name, encoding type,
-                        // and enumeration list attribute
+                        // Set the enumeration parameter name, encoding type, and enumeration list
+                        // attribute
                         enumType.setName(parameterName);
                         enumType.setIntegerDataEncoding(intEncodingType);
                         enumType.setEnumerationList(enumList);
@@ -2854,8 +2659,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
-            // This throws an illegal argument exception if the unit is not one
-            // of those in the Unit enum class
+            // This throws an illegal argument exception if the unit is not one of those in the
+            // Unit enum class
             Unit unit = Unit.fromValue(units);
             SemanticsType semType = factory.createSemanticsType();
             semType.setUnit(unit);
@@ -2863,16 +2668,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
         catch (IllegalArgumentException iae)
         {
-            // TODO User-supplied units don't match one of the hard-coded Unit
-            // types (from Units.java), which are the only ones that are
-            // accepted by the Unit fromValue() method. The hard-coded unit
-            // types list is limited
+            // TODO User-supplied units don't match one of the hard-coded Unit types (from
+            // Units.java), which are the only ones that are accepted by the Unit fromValue()
+            // method. The hard-coded unit types list is limited
         }
 
         InterfaceDeclarationType intParmType = null;
 
-        // Step through the interfaces in order to locate the name space's
-        // parameter set
+        // Step through the interfaces in order to locate the name space's parameter set
         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
         {
             // Check if the interface contains a parameter set
@@ -2895,7 +2698,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         intParmType.getParameterSet().getParameter().add(parameter);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a command metadata set to the command metadata
      *
      * @param nameSpace
@@ -2909,7 +2712,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param shortDescription
      *            short description of the command
-     *************************************************************************/
+     *********************************************************************************************/
     private void addCommand(NamespaceType nameSpace,
                             String commandName,
                             List<CommandArgumentType> arguments,
@@ -2933,8 +2736,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         InterfaceDeclarationType intCmdType = null;
 
-        // Step through the interfaces in order to locate the name space's
-        // command set
+        // Step through the interfaces in order to locate the name space's command set
         for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
         {
             // Check if the interface contains a command set
@@ -2957,7 +2759,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         intCmdType.getCommandSet().getCommand().add(command);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a command argument to the command metadata
      *
      * @param system
@@ -2988,9 +2790,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            short description of the command
      *
      * @param otherArgCols
-     *            list of string arrays containing other argument column data
-     *            in the format [column name][data value]
-     *************************************************************************/
+     *            list of string arrays containing other argument column data in the format [column
+     *            name][data value]
+     *********************************************************************************************/
     private CommandArgumentType addCommandArgument(NamespaceType nameSpace,
                                                    String commandName,
                                                    String argumentName,
@@ -3009,8 +2811,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Get the data type set for this name space
             DataTypeSetType dataTypeSet = nameSpace.getDataTypeSet();
 
-            // Check if the data type set doesn't exist, which is the case for
-            // the first enumerated parameter
+            // Check if the data type set doesn't exist, which is the case for the first enumerated
+            // parameter
             if (dataTypeSet == null)
             {
                 // Create the data type set
@@ -3022,8 +2824,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             EnumerationListType enumList = createEnumerationList(nameSpace,
                                                                  enumeration);
 
-            // Set the integer encoding (the only encoding available for an
-            // enumeration) and the size in bits
+            // Set the integer encoding (the only encoding available for an enumeration) and the
+            // size in bits
             IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
             intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
 
@@ -3071,19 +2873,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return argType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build an enumeration list from the supplied enumeration string
      *
      * @param nameSpace
      *            name space
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value
-     *            separator><enum label>[<enum value separator>...][<enum pair
-     *            separator>...]
+     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
+     *            value separator>...][<enum pair separator>...]
      *
      * @return Enumeration list for the supplied enumeration string
-     *************************************************************************/
+     *********************************************************************************************/
     private EnumerationListType createEnumerationList(NamespaceType nameSpace,
                                                       String enumeration)
     {
@@ -3091,8 +2892,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
-            // Get the character that separates the enumeration value from the
-            // associated label
+            // Get the character that separates the enumeration value from the associated label
             String enumValSep = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
             // Check if the value separator couldn't be located
@@ -3110,19 +2910,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 throw new CCDDException("separator character between enumerated pairs missing");
             }
 
-            // Divide the enumeration string into the separate enumeration
-            // definitions
+            // Divide the enumeration string into the separate enumeration definitions
             String[] enumDefn = enumeration.split(Pattern.quote(enumPairSep));
 
             // Step through each enumeration definition
             for (int index = 0; index < enumDefn.length; index++)
             {
-                // Split the enumeration definition into the name and label
-                // components
+                // Split the enumeration definition into the name and label components
                 String[] enumParts = enumDefn[index].split(Pattern.quote(enumValSep), 2);
 
-                // Create a new enumeration value type and add the enumerated
-                // name and value to the enumeration list
+                // Create a new enumeration value type and add the enumerated name and value to the
+                // enumeration list
                 ValueEnumerationType valueEnum = factory.createValueEnumerationType();
                 valueEnum.setLabel(enumParts[1].trim());
                 valueEnum.setValue(BigInteger.valueOf(Integer.valueOf(enumParts[0].trim())));
@@ -3147,21 +2945,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         return enumList;
     }
 
-    /**************************************************************************
-     * Store any additional attribute information in the specified name space
-     * under the generic interface declaration
+    /**********************************************************************************************
+     * Store any additional attribute information in the specified name space under the generic
+     * interface declaration
      *
      * @param nameSpace
-     *            parent data sheet for the new system; null for the root data
-     *            sheet
+     *            parent data sheet for the new system; null for the root data sheet
      *
      * @param attrType
      *            type of the additional attributes
      *
      * @param otherAttrs
-     *            list containing other attribute data in the format [attribute
-     *            name][attribute value]
-     *************************************************************************/
+     *            list containing other attribute data in the format [attribute name][attribute
+     *            value]
+     *********************************************************************************************/
     private void storeOtherAttributes(NamespaceType nameSpace,
                                       EDSTags attrType,
                                       List<String[]> otherAttrs)
@@ -3169,8 +2966,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Check if other attribute data is provided
         if (otherAttrs != null && !otherAttrs.isEmpty())
         {
-            // Create the user-defined set in this name space for this
-            // parameter to store the other attribute information
+            // Create the user-defined set in this name space for this parameter to store the other
+            // attribute information
             InterfaceDeclarationType intUserType = createUserSet(nameSpace);
             intUserType.setName(attrType.getTag());
 

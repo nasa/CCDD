@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary scheduler editor handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -61,9 +60,9 @@ import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary scheduler editor handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddSchedulerEditorHandler
 {
     // Class references
@@ -73,8 +72,7 @@ public class CcddSchedulerEditorHandler
     private CcddJTableHandler schedulerTable;
     private CcddAssignmentTreeHandler assignmentTree;
 
-    // Tabbed pane for displaying the variable trees for messages and
-    // sub-messages
+    // Tabbed pane for displaying the variable trees for messages and sub-messages
     private JTabbedPane tabbedPane;
 
     // Size of each message
@@ -102,8 +100,7 @@ public class CcddSchedulerEditorHandler
     // Cycle when message repeats
     private final float period;
 
-    // Flag used to inhibit tab selection changes while the tabbed pane is
-    // updated
+    // Flag used to inhibit tab selection changes while the tabbed pane is updated
     private boolean isTabUpdate;
 
     // Indices of the row and column selected in the scheduler table
@@ -113,7 +110,7 @@ public class CcddSchedulerEditorHandler
     // Empty message text
     private final String MESSAGE_EMPTY = "<html><i>Message is empty";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Scheduler editor handler class constructor
      *
      * @param schedulerHndlr
@@ -127,7 +124,7 @@ public class CcddSchedulerEditorHandler
      *
      * @param msgsPerSecond
      *            total messages per second
-     *************************************************************************/
+     *********************************************************************************************/
     CcddSchedulerEditorHandler(CcddMain ccddMain,
                                CcddSchedulerHandler schedulerHndlr,
                                int totalMessages,
@@ -151,19 +148,19 @@ public class CcddSchedulerEditorHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the scheduler table
      *
      * @return Reference to the scheduler table
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddJTableHandler getTable()
     {
         return schedulerTable;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a telemetry table
-     *************************************************************************/
+     *********************************************************************************************/
     @SuppressWarnings("serial")
     private void initialize()
     {
@@ -196,27 +193,27 @@ public class CcddSchedulerEditorHandler
         // Initialize the scheduler table object
         schedulerTable = new CcddJTableHandler(5)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Allow multiple line display in the specified column only
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
                 return column == SchedulerColumn.NAME.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow resizing of the specified column only
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnResizable(int column)
             {
                 return column == SchedulerColumn.NAME.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow editing of the table cells in the specified columns only
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
             {
@@ -229,9 +226,9 @@ public class CcddSchedulerEditorHandler
                                         + messages.get(row).getNumberOfSubMessages());
             }
 
-            /******************************************************************
-             * Validate changes to the data field value cells; e.g., verify
-             * cell content and, if found invalid, revert to the original value
+            /**************************************************************************************
+             * Validate changes to the data field value cells; e.g., verify cell content and, if
+             * found invalid, revert to the original value
              *
              * @param tableData
              *            list containing the table data row arrays
@@ -255,7 +252,7 @@ public class CcddSchedulerEditorHandler
              *            unused
              *
              * @return Value of ShowMessage
-             ****************************************************************/
+             ************************************************************************************/
             @Override
             protected Boolean validateCellContent(List<Object[]> tableData,
                                                   int row,
@@ -265,8 +262,7 @@ public class CcddSchedulerEditorHandler
                                                   Boolean showMessage,
                                                   boolean isMultiple)
             {
-                // Reset the flag that indicates the last edited cell's content
-                // is invalid
+                // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
 
                 // Create a string version of the new value
@@ -280,16 +276,14 @@ public class CcddSchedulerEditorHandler
                         // Check if the value name is blank
                         if (newValueS.isEmpty())
                         {
-                            // Inform the user that the message name cannot be
-                            // blank
+                            // Inform the user that the message name cannot be blank
                             throw new CCDDException("Message name must be entered");
                         }
 
                         // Check if the message name is an alphanumeric
                         if (!newValueS.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
                         {
-                            // Inform the user that the message name contains
-                            // invalid characters
+                            // Inform the user that the message name contains invalid characters
                             throw new CCDDException("Invalid characters in message name");
                         }
 
@@ -300,8 +294,7 @@ public class CcddSchedulerEditorHandler
                             if (messages.indexOf(message) != row
                                 && message.getName().equals(newValueS))
                             {
-                                // Inform the user that the message name
-                                // already is in use
+                                // Inform the user that the message name already is in use
                                 throw new CCDDException("Message name is already in use");
                             }
                         }
@@ -309,14 +302,12 @@ public class CcddSchedulerEditorHandler
                         // Store the new message name
                         messages.get(row).setName(newValueS);
 
-                        // Update the assigned variables tab and options list
-                        // with the new name
+                        // Update the assigned variables tab and options list with the new name
                         tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), newValueS);
                         schedulerHndlr.getTelemetryOptions();
 
-                        // Change references to the original message name to
-                        // the new name in the assignment tree so that the tree
-                        // builds correctly
+                        // Change references to the original message name to the new name in the
+                        // assignment tree so that the tree builds correctly
                         assignmentTree.updateMessageName(oldValue.toString(),
                                                          newValueS);
                     }
@@ -326,8 +317,7 @@ public class CcddSchedulerEditorHandler
                         // Check if the message ID is a hexadecimal
                         if (!newValueS.matches(InputDataType.HEXADECIMAL.getInputMatch()))
                         {
-                            // Inform the user that the message name contains
-                            // invalid characters
+                            // Inform the user that the message name contains invalid characters
                             throw new CCDDException("Invalid characters in message ID");
                         }
 
@@ -346,17 +336,14 @@ public class CcddSchedulerEditorHandler
                                 // Step through each column containing an ID
                                 for (int checkCol = SchedulerColumn.ID.ordinal(); checkCol < tableData.get(checkRow).length; checkCol++)
                                 {
-                                    // Check if this isn't the same row and
-                                    // column as the one being updated, and
-                                    // that the new ID matches that in another
-                                    // ID cell
+                                    // Check if this isn't the same row and column as the one being
+                                    // updated, and that the new ID matches that in another ID cell
                                     if (!(row == checkRow
                                           && column == checkCol)
                                         && !tableData.get(checkRow)[checkCol].toString().isEmpty()
                                         && id == Integer.valueOf(tableData.get(checkRow)[checkCol].toString().replaceFirst("^0x|^0X", ""), 16))
                                     {
-                                        // Inform the user that the message
-                                        // name already is in use
+                                        // Inform the user that the message name already is in use
                                         throw new CCDDException("Message ID is already in use");
                                     }
                                 }
@@ -385,8 +372,7 @@ public class CcddSchedulerEditorHandler
                 }
                 catch (CCDDException ce)
                 {
-                    // Set the flag that indicates the last edited cell's
-                    // content is invalid
+                    // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
 
                     // Inform the user that the input value is invalid
@@ -405,17 +391,16 @@ public class CcddSchedulerEditorHandler
                 return showMessage;
             }
 
-            /******************************************************************
-             * Load the table data field definition values into the table and
-             * format the table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Load the table data field definition values into the table and format the table
+             * cells
+             *************************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(currentData,
                                             getColumnNames(),
                                             null,
@@ -425,10 +410,9 @@ public class CcddSchedulerEditorHandler
                                             true);
             }
 
-            /******************************************************************
-             * Override prepareRenderer to allow adjusting the background
-             * colors of table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Override prepareRenderer to allow adjusting the background colors of table cells
+             *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer,
                                              int row,
@@ -438,9 +422,9 @@ public class CcddSchedulerEditorHandler
                                                                      row,
                                                                      column);
 
-                // Check if the cell doesn't have the focus or is selected, and
-                // is protected from changes. The focus and selection highlight
-                // colors override the invalid highlight color
+                // Check if the cell doesn't have the focus or is selected, and is protected from
+                // changes. The focus and selection highlight colors override the invalid highlight
+                // color
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
                     && !isCellEditable(row, column))
@@ -456,13 +440,12 @@ public class CcddSchedulerEditorHandler
             }
         };
 
-        // Create a listener for scheduler table row and column selection
-        // changes
+        // Create a listener for scheduler table row and column selection changes
         ListSelectionListener rowColListener = new ListSelectionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a scheduler table row or column selection change
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void valueChanged(ListSelectionEvent lse)
             {
@@ -477,8 +460,8 @@ public class CcddSchedulerEditorHandler
                     // Update the assignment tree/list
                     updateAssignmentList();
 
-                    // Store the selected row and column indices for comparison
-                    // when another cell is selected
+                    // Store the selected row and column indices for comparison when another cell
+                    // is selected
                     previousRow = schedulerTable.getSelectedRow();
                     previousColumn = schedulerTable.getSelectedColumn();
                 }
@@ -516,12 +499,11 @@ public class CcddSchedulerEditorHandler
         // Check if this is the telemetry scheduler
         if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
         {
-            // Get a reference to the telemetry scheduler input to shorten
-            // subsequent calls
+            // Get a reference to the telemetry scheduler input to shorten subsequent calls
             CcddTelemetrySchedulerInput tlmInput = (CcddTelemetrySchedulerInput) schedulerHndlr.getSchedulerInput();
 
-            // Create an assignment tree specifying a null rate & message so
-            // the tree is initially empty
+            // Create an assignment tree specifying a null rate & message so the tree is initially
+            // empty
             assignmentTree = new CcddAssignmentTreeHandler(ccddMain,
                                                            null,
                                                            tlmInput.getLinkTree().getLinkHandler(),
@@ -533,8 +515,8 @@ public class CcddSchedulerEditorHandler
         // Check if this is the application scheduler
         else if (schedulerHndlr.getSchedulerOption() == APPLICATION_SCHEDULER)
         {
-            // Initialize the assignment list and add it to a scroll pane that
-            // will be placed next to the variable list
+            // Initialize the assignment list and add it to a scroll pane that will be placed next
+            // to the variable list
             assignmentList = new JList<String>();
             assignmentList.setModel(new DefaultListModel<String>());
             assignmentList.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
@@ -549,15 +531,14 @@ public class CcddSchedulerEditorHandler
             assignScrollPane.setMinimumSize(assignScrollPane.getPreferredSize());
         }
 
-        // Create panels to hold the components
-        // tablePnl = new JPanel(new GridBagLayout());
+        // Create panels to hold the components tablePnl = new JPanel(new GridBagLayout());
         JPanel schedulerPnl = new JPanel(new GridBagLayout());
         JPanel assignmentPnl = new JPanel(new GridBagLayout());
         schedulerPnl.setBorder(emptyBorder);
         assignmentPnl.setBorder(emptyBorder);
 
-        // Set the scheduler panel size so that the panel can't be resized in
-        // width less than that needed to display the default columns
+        // Set the scheduler panel size so that the panel can't be resized in width less than that
+        // needed to display the default columns
         int[] colWidths = schedulerTable.getColumnWidths();
         int prefWidth = 8 + colWidths[0] + colWidths[1]
                         + (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
@@ -595,29 +576,28 @@ public class CcddSchedulerEditorHandler
         // Check if this is the telemetry scheduler
         if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
         {
-            // Adjust the tab area's insets so that the scheduler and tabs are
-            // aligned. Note that the Nimbus L&F has hard-coded insets, so
-            // can't be changed;
+            // Adjust the tab area's insets so that the scheduler and tabs are aligned. Note that
+            // the Nimbus L&F has hard-coded insets, so can't be changed;
             UIManager.getDefaults().put("TabbedPane.tabAreaInsets",
                                         new Insets(0, 0, 0, 0));
             UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
 
-            // Create a tabbed pane to contain the variable tree for the
-            // message and any sub-messages
+            // Create a tabbed pane to contain the variable tree for the message and any
+            // sub-messages
             tabbedPane = new JTabbedPane();
             tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
             // Listen for tab selection changes
             tabbedPane.addChangeListener(new ChangeListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle tab selection change
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void stateChanged(ChangeEvent ce)
                 {
-                    // Check that a tab update isn't in progress. This prevents
-                    // repeated calls to update the assignment tree
+                    // Check that a tab update isn't in progress. This prevents repeated calls to
+                    // update the assignment tree
                     if (!isTabUpdate)
                     {
                         // Get the currently selected tab index
@@ -626,16 +606,14 @@ public class CcddSchedulerEditorHandler
                         // Check if a tab is selected
                         if (tabIndex != -1)
                         {
-                            // Get the currently selected message in the
-                            // scheduler table
+                            // Get the currently selected message in the scheduler table
                             Message message = getSelectedMessage();
 
                             // Check if a message is selected
                             if (message != null)
                             {
-                                // Select the row and column in the scheduler
-                                // table corresponding to the selected message
-                                // tab
+                                // Select the row and column in the scheduler table corresponding
+                                // to the selected message tab
                                 schedulerTable.changeSelection(schedulerTable.getSelectedRow(),
                                                                SchedulerColumn.ID.ordinal()
                                                                                                 + tabIndex,
@@ -673,8 +651,7 @@ public class CcddSchedulerEditorHandler
             gbc.insets.top = 0;
             assignmentPnl.add(assignScrollPane, gbc);
 
-            // Set the tabbed pane to null so that the application scheduler
-            // ignores it
+            // Set the tabbed pane to null so that the application scheduler ignores it
             tabbedPane = null;
         }
 
@@ -685,10 +662,10 @@ public class CcddSchedulerEditorHandler
                                           JSplitPane.HORIZONTAL_SPLIT);
     }
 
-    /**************************************************************************
-     * Update the tabs in the assigned variables tabbed pane based on the
-     * currently selected message
-     *************************************************************************/
+    /**********************************************************************************************
+     * Update the tabs in the assigned variables tabbed pane based on the currently selected
+     * message
+     *********************************************************************************************/
     private void updateAssignedVariablesTabs()
     {
         // Check if this is the telemetry scheduler
@@ -702,9 +679,8 @@ public class CcddSchedulerEditorHandler
             {
                 int subMsgIndex = 0;
 
-                // Set the flag indicating a tabbed pane update is in progress.
-                // This flag is used to inhibit tab selection changes while the
-                // tabbed pane is updated
+                // Set the flag indicating a tabbed pane update is in progress. This flag is used
+                // to inhibit tab selection changes while the tabbed pane is updated
                 isTabUpdate = true;
 
                 // Check if a sub-message is selected
@@ -727,9 +703,9 @@ public class CcddSchedulerEditorHandler
                     tabbedPane.remove(index);
                 }
 
-                // Check if more than one sub-message exists. A 'default'
-                // sub-message is automatically created, but if it's the only
-                // one then it's hidden until another sub-message is added
+                // Check if more than one sub-message exists. A 'default' sub-message is
+                // automatically created, but if it's the only one then it's hidden until another
+                // sub-message is added
                 if (message.getNumberOfSubMessages() > 1)
                 {
                     // Step through each sub-message
@@ -759,9 +735,9 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the assignment tree/list based on the currently selected message
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateAssignmentList()
     {
         // Get the selected message
@@ -779,13 +755,11 @@ public class CcddSchedulerEditorHandler
             // Check if this is the telemetry scheduler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
             {
-                // Set the flag indicating a tabbed pane update is in progress.
-                // This flag is used to inhibit tab selection changes while the
-                // tabbed pane is updated
+                // Set the flag indicating a tabbed pane update is in progress. This flag is used
+                // to inhibit tab selection changes while the tabbed pane is updated
                 isTabUpdate = true;
 
-                // Step backwards through each tab that represents a
-                // sub-message in the tabbed pane
+                // Step backwards through each tab that represents a sub-message in the tabbed pane
                 for (int index = tabbedPane.getTabCount() - 1; index > 0; index--)
                 {
                     // Remove the sub-message tab
@@ -810,13 +784,12 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the assignment tree/list with the specified message's variables
      *
      * @param message
-     *            reference to the message from which the package list is
-     *            populated
-     *************************************************************************/
+     *            reference to the message from which the package list is populated
+     *********************************************************************************************/
     private void updateAssignmentList(Message message)
     {
         // Checks if the message exists
@@ -831,8 +804,7 @@ public class CcddSchedulerEditorHandler
                 // Check if there are any variables to display
                 if (!variables.isEmpty())
                 {
-                    // (Re)build the assignment tree using the message's
-                    // variables
+                    // (Re)build the assignment tree using the message's variables
                     assignmentTree.buildTree(false,
                                              false,
                                              schedulerHndlr.getRateName()
@@ -880,9 +852,9 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the bytes column for all messages in the scheduler table
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateRemainingBytesColumn()
     {
         // Check if the scheduler table has been created
@@ -897,14 +869,14 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Set the bytes column for the specified message in the scheduler table.
-     * If the remaining bytes is less than zero the text is displayed in red
+    /**********************************************************************************************
+     * Set the bytes column for the specified message in the scheduler table. If the remaining
+     * bytes is less than zero the text is displayed in red
      *
      * @param msgIndex
-     *            index of the message to update, which is the same as the row
-     *            in the scheduler table
-     *************************************************************************/
+     *            index of the message to update, which is the same as the row in the scheduler
+     *            table
+     *********************************************************************************************/
     private void updateRemainingBytesColumn(int msgIndex)
     {
         schTableModel.setValueAt(messages.get(msgIndex).getBytesRemaining(),
@@ -912,27 +884,25 @@ public class CcddSchedulerEditorHandler
                                  SchedulerColumn.SIZE.ordinal());
     }
 
-    /**************************************************************************
-     * Get the table panel containing the scheduler table and assignment
-     * tree/list panes
+    /**********************************************************************************************
+     * Get the table panel containing the scheduler table and assignment tree/list panes
      *
-     * @return Split pane containing the scheduler table and assignment
-     *         tree/list panes
-     *************************************************************************/
+     * @return Split pane containing the scheduler table and assignment tree/list panes
+     *********************************************************************************************/
     protected JSplitPane getSchedulerAndAssignPanel()
     {
         return tableSpltPn;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the total amount of unused bytes
      *
      * @return Total amount of bytes remaining
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getTotalBytesRemaining()
     {
-        // Initialize the total remaining bytes. This is zero unless the total
-        // bytes is not evenly divisible by the number of messages
+        // Initialize the total remaining bytes. This is zero unless the total bytes is not evenly
+        // divisible by the number of messages
         int remainingBytes = totalBytes
                              - totalBytes / messages.size()
                                * messages.size();
@@ -947,12 +917,12 @@ public class CcddSchedulerEditorHandler
         return remainingBytes;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the maximum number of sub-messages from the messages
      *
-     * @return Maximum number of sub-messages; 0 if only the message(s) only
-     *         contains a default sub-message
-     *************************************************************************/
+     * @return Maximum number of sub-messages; 0 if only the message(s) only contains a default
+     *         sub-message
+     *********************************************************************************************/
     private int getMaxNumberOfSubMessages()
     {
         int maxSubMessages = 0;
@@ -975,11 +945,11 @@ public class CcddSchedulerEditorHandler
         return maxSubMessages;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the column names based on the scheduler type
      *
      * @return Array containing the column names
-     *************************************************************************/
+     *********************************************************************************************/
     private String[] getColumnNames()
     {
         List<String> columns = new ArrayList<String>();
@@ -1014,23 +984,23 @@ public class CcddSchedulerEditorHandler
         return columns.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the sub-message scheduler column name or assigned variables tab name
      *
      * @param index
      *            sub-message index
      *
      * @return Sub-message scheduler column name or assigned variables tab name
-     *************************************************************************/
+     *********************************************************************************************/
     private String getSubHeaderOrTabName(int index)
     {
         return "Sub " + index;
     }
 
-    /**************************************************************************
-     * Initialize the scheduler table. Add values to the current data which is
-     * used when creating the table. The message list is also initialized
-     *************************************************************************/
+    /**********************************************************************************************
+     * Initialize the scheduler table. Add values to the current data which is used when creating
+     * the table. The message list is also initialized
+     *********************************************************************************************/
     private void initializeSchedulerTable()
     {
         // Initialize the messages lists
@@ -1051,8 +1021,8 @@ public class CcddSchedulerEditorHandler
             // Step through each row
             for (int row = 0; row < currentData.length; row++)
             {
-                // Create a new message. The space in the name is necessary
-                // when parsing the message row for the message indices
+                // Create a new message. The space in the name is necessary when parsing the
+                // message row for the message indices
                 msg = new Message((schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
                                                                                               ? "Message"
                                                                                               : "Time Slot")
@@ -1076,8 +1046,7 @@ public class CcddSchedulerEditorHandler
             // Add the messages to the existing list
             messages.addAll(storedMsgs);
 
-            // Set the scheduler table data array to the current message
-            // information
+            // Set the scheduler table data array to the current message information
             updateSchedulerTable(false);
 
             // Check if there are any excluded variables
@@ -1092,8 +1061,8 @@ public class CcddSchedulerEditorHandler
                     varNames.add(var.getFullName());
                 }
 
-                // Make each variable in the excluded variables list
-                // unavailable in the variable tree
+                // Make each variable in the excluded variables list unavailable in the variable
+                // tree
                 schedulerHndlr.setVariableUnavailable(varNames);
             }
         }
@@ -1102,13 +1071,13 @@ public class CcddSchedulerEditorHandler
         copyMessages();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the scheduler table based on the current messages
      *
      * @param isLoadData
-     *            true to load the scheduler table with the data; false to only
-     *            update the scheduler table data array
-     *************************************************************************/
+     *            true to load the scheduler table with the data; false to only update the
+     *            scheduler table data array
+     *********************************************************************************************/
     protected void updateSchedulerTable(boolean isLoadData)
     {
         // Get the maximum number of sub-messages in the existing messages
@@ -1146,16 +1115,15 @@ public class CcddSchedulerEditorHandler
             // Step through each of the remaining columns
             for (int subIndex = 0; subIndex < maxSubMsgs; subIndex++)
             {
-                // Check if this message has more than just the default
-                // sub-message and that this sub-message index exists for this
-                // message
+                // Check if this message has more than just the default sub-message and that this
+                // sub-message index exists for this message
                 if (numSubMessages > 1 && subIndex < numSubMessages)
                 {
                     // Add the sub-message ID
                     currentData[msgIndex][SchedulerColumn.ID.ordinal() + subIndex + 1] = messages.get(msgIndex).getSubMessage(subIndex).getID();
                 }
-                // This message has only the default sub-message or doesn't
-                // have this sub-message index
+                // This message has only the default sub-message or doesn't have this sub-message
+                // index
                 else
                 {
                     // Set the sub-message ID to a blank
@@ -1164,9 +1132,9 @@ public class CcddSchedulerEditorHandler
             }
         }
 
-        // Check if the table should be loaded with the message data. This is
-        // done automatically when the table is created, so this flag should be
-        // set to true only if updating the table after it's created
+        // Check if the table should be loaded with the message data. This is done automatically
+        // when the table is created, so this flag should be set to true only if updating the table
+        // after it's created
         if (isLoadData)
         {
             // Load the data into the scheduler table
@@ -1174,10 +1142,10 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Calculate the number of unused bytes for all messages and sub-messages,
-     * accounting for bit-packed variables
-     *************************************************************************/
+    /**********************************************************************************************
+     * Calculate the number of unused bytes for all messages and sub-messages, accounting for
+     * bit-packed variables
+     *********************************************************************************************/
     protected void calculateTotalBytesRemaining()
     {
         // Step through each message
@@ -1197,10 +1165,9 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Copy the current messages so that a comparison can be made to detect
-     * changes
-     *************************************************************************/
+    /**********************************************************************************************
+     * Copy the current messages so that a comparison can be made to detect changes
+     *********************************************************************************************/
     protected void copyMessages()
     {
         // Create storage for the existing messages
@@ -1219,7 +1186,7 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Copy the specified (sub-)messages to the specified copy location
      *
      * @param messageList
@@ -1230,7 +1197,7 @@ public class CcddSchedulerEditorHandler
      *
      * @param parentMessage
      *            parent of the sub-message; null if this is not a sub-message
-     *************************************************************************/
+     *********************************************************************************************/
     private void copyMessages(List<Message> messageList,
                               List<Message> copyList,
                               Message parentMessage)
@@ -1291,22 +1258,20 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Add a variable to the specified (sub-)message. Update the message and
-     * table with the new values
+    /**********************************************************************************************
+     * Add a variable to the specified (sub-)message. Update the message and table with the new
+     * values
      *
      * @param variable
      *            variable that will be added
      *
      * @param messageIndex
-     *            message index if the variable is not assigned to a
-     *            sub-message; sub-message index if the message is assigned to
-     *            a sub-message
+     *            message index if the variable is not assigned to a sub-message; sub-message index
+     *            if the message is assigned to a sub-message
      *
      * @param subMsgIndex
-     *            message index if the variable is assigned to a sub-message,
-     *            -1 if not
-     *************************************************************************/
+     *            message index if the variable is assigned to a sub-message, -1 if not
+     *********************************************************************************************/
     protected void addVariableToMessage(Variable variable,
                                         int messageIndex,
                                         int subMsgIndex)
@@ -1327,8 +1292,7 @@ public class CcddSchedulerEditorHandler
             targetMsg = messages.get(messageIndex);
         }
 
-        // Get the index at which the variable/application should be inserted
-        // in the message
+        // Get the index at which the variable/application should be inserted in the message
         index = schedulerHndlr.getSchedulerInput().getVariableRelativeIndex(variable,
                                                                             targetMsg.getVariables());
 
@@ -1340,46 +1304,46 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the assignment tree with the current messages and rate
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateAssignmentDefinitions()
     {
         assignmentTree.updateAssignmentDefinitions(messages,
                                                    schedulerHndlr.getRateName());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of variables in the specified message
      *
      * @param index
      *            message index
      *
      * @return Number of variables in the specified message
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getPacketSize(int index)
     {
         return messages.get(index).getNumberOfVariables();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the table to select the specified row
      *
      * @param row
      *            row to select
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setSelectedRow(int row)
     {
         schedulerTable.getSelectionModel().setSelectionInterval(row, row);
     }
 
-    /**************************************************************************
-     * Remove the selected variable(s). This will remove it from any other
-     * messages the variable is in. If the variable is a member of a link it
-     * removes all the other link member variables as well
+    /**********************************************************************************************
+     * Remove the selected variable(s). This will remove it from any other messages the variable is
+     * in. If the variable is a member of a link it removes all the other link member variables as
+     * well
      *
      * @return List of variable names removed
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<String> removeSelectedVariable()
     {
         List<String> removedVarNames = new ArrayList<String>();
@@ -1398,8 +1362,7 @@ public class CcddSchedulerEditorHandler
             selectedVars = assignmentList.getSelectedValuesList();
         }
 
-        // Check if an item is selected and that the selected value is not the
-        // empty message value
+        // Check if an item is selected and that the selected value is not the empty message value
         if (selectedVars != null
             && !selectedVars.isEmpty()
             && !selectedVars.get(0).equals(MESSAGE_EMPTY))
@@ -1416,19 +1379,16 @@ public class CcddSchedulerEditorHandler
                 // Variable object to be returned
                 Variable variable = messages.get(row).getVariable(selectedVar);
 
-                // Check if the selected variable hasn't already been added to
-                // removed list
+                // Check if the selected variable hasn't already been added to removed list
                 if (variable != null && !removedVars.contains(variable))
                 {
                     // Check to see if the variable is linked
                     if (variable.getLink() != null)
                     {
-                        // Add all the variables in the link to the removed
-                        // list
+                        // Add all the variables in the link to the removed list
                         for (Variable packetVar : messages.get(row).getVariables())
                         {
-                            // Check if the variable is in the link of the
-                            // selected item
+                            // Check if the variable is in the link of the selected item
                             if (packetVar.getLink() != null
                                 && packetVar.getLink().equals(variable.getLink()))
                             {
@@ -1437,8 +1397,8 @@ public class CcddSchedulerEditorHandler
                             }
                         }
                     }
-                    // The variable is not in a link; add the selected variable
-                    // to the removed variables list
+                    // The variable is not in a link; add the selected variable to the removed
+                    // variables list
                     else
                     {
                         // Add the variable to the list of removed variables
@@ -1453,8 +1413,7 @@ public class CcddSchedulerEditorHandler
             // Check if this is a telemetry scheduler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
             {
-                // Update the assignment definition list for when the
-                // assignment tree is rebuilt
+                // Update the assignment definition list for when the assignment tree is rebuilt
                 assignmentTree.updateAssignmentDefinitions(messages,
                                                            schedulerHndlr.getRateName());
             }
@@ -1472,7 +1431,7 @@ public class CcddSchedulerEditorHandler
         return removedVarNames;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the specified variable(s) from all messages it is contained in
      *
      * @param variables
@@ -1482,7 +1441,7 @@ public class CcddSchedulerEditorHandler
      *            message row index
      *
      * @return List of the variable names removed
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String> removeVariablesFromMessages(List<Variable> variables,
                                                      int row)
     {
@@ -1519,14 +1478,14 @@ public class CcddSchedulerEditorHandler
         return removedVarNames;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Find all the combinations of messages into which a a rate fits
      *
      * @param rate
      *            rate, in hertz, of the selected variable
      *
      * @return List of the combinations
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<String> getMessageAvailability(float rate)
     {
         List<String> combos;
@@ -1547,15 +1506,15 @@ public class CcddSchedulerEditorHandler
         return combos;
     }
 
-    /**************************************************************************
-     * Get a list of the options for non-sub-hertz rates in the format
-     * [MessageName1][, MessageName2],...]]
+    /**********************************************************************************************
+     * Get a list of the options for non-sub-hertz rates in the format [MessageName1][,
+     * MessageName2],...]]
      *
      * @param rate
      *            rate filter, in hertz
      *
      * @return List of all the combinations
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String> getOptions(int rate)
     {
         List<String> options = new ArrayList<String>();
@@ -1592,14 +1551,14 @@ public class CcddSchedulerEditorHandler
         return options;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Find all the options for sub-hertz
      *
      * @param rate
      *            hertz of the selected variable
      *
      * @return List of all the combinations
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String> getSubOptions(float rate)
     {
         List<String> msgs = new ArrayList<String>();
@@ -1610,13 +1569,12 @@ public class CcddSchedulerEditorHandler
         // Step through each existing message
         for (Message message : messages)
         {
-            // Calculate the number of cycles per sample, which equates to the
-            // number of possible options as well as the spacing between
-            // sub-messages
+            // Calculate the number of cycles per sample, which equates to the number of possible
+            // options as well as the spacing between sub-messages
             int numOptions = Math.round(1 / rate / period);
 
-            // Check if the message's sub-message count can be split evenly by
-            // the number of available options
+            // Check if the message's sub-message count can be split evenly by the number of
+            // available options
             if (message.getNumberOfSubMessages() > 1
                 && message.getNumberOfSubMessages() % numOptions == 0.0)
             {
@@ -1658,17 +1616,16 @@ public class CcddSchedulerEditorHandler
         return msgs;
     }
 
-    /**************************************************************************
-     * Set the message name to green if the message has room for the size; if
-     * not set the name to red. Also set the table model to display the number
-     * of bytes after the variable is added
+    /**********************************************************************************************
+     * Set the message name to green if the message has room for the size; if not set the name to
+     * red. Also set the table model to display the number of bytes after the variable is added
      *
      * @param messageIndex
      *            row number for which to set the values
      *
      * @param size
      *            size that needs to fit in the message
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setMessageAvailability(int messageIndex, int size)
     {
         // Check if the size is not negative
@@ -1681,8 +1638,7 @@ public class CcddSchedulerEditorHandler
         // The size is a negative number
         else
         {
-            // Change the row text color to indicate the message is over
-            // subscribed
+            // Change the row text color to indicate the message is over subscribed
             schedulerTable.setRowTextColor(messageIndex,
                                            ModifiableColorInfo.INVALID_TEXT.getColor());
         }
@@ -1693,9 +1649,9 @@ public class CcddSchedulerEditorHandler
                                   SchedulerColumn.SIZE.ordinal());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Reset the message name to its normal state
-     *************************************************************************/
+     *********************************************************************************************/
     protected void resetMessageAvailability()
     {
         // Step through each row
@@ -1709,32 +1665,31 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the message size for the specified message index
      *
      * @param index
      *            message index
      *
      * @return Message size
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getMessageSize(int index)
     {
         return messages.get(index).getBytesRemaining();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the message at the specified indices
      *
      * @param messageIndex
-     *            message index if this is a parent message; sub-message index
-     *            if this is a sub-message
-     *
-     * @param parentIndex
-     *            parent message index if this is a sub-message; -1 if not a
+     *            message index if this is a parent message; sub-message index if this is a
      *            sub-message
      *
+     * @param parentIndex
+     *            parent message index if this is a sub-message; -1 if not a sub-message
+     *
      * @return Message object at the given indices
-     *************************************************************************/
+     *********************************************************************************************/
     protected Message getMessage(int messageIndex, int parentIndex)
     {
         Message msg = null;
@@ -1755,11 +1710,11 @@ public class CcddSchedulerEditorHandler
         return msg;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the (sub-)message currently selected in the scheduler table
      *
      * @return The currently selected (sub-)message; null if none is selected
-     *************************************************************************/
+     *********************************************************************************************/
     private Message getSelectedMessage()
     {
         Message message = null;
@@ -1770,8 +1725,8 @@ public class CcddSchedulerEditorHandler
         // Check if a row is selected
         if (row != -1)
         {
-            // Convert the row index to model coordinates in case the rows are
-            // sorted by the column header
+            // Convert the row index to model coordinates in case the rows are sorted by the column
+            // header
             row = schedulerTable.convertRowIndexToModel(row);
 
             // Get the message for the selected row
@@ -1800,15 +1755,13 @@ public class CcddSchedulerEditorHandler
         return message;
     }
 
-    /**************************************************************************
-     * Remove the variables (applications) assigned to the messages (time
-     * slots)
+    /**********************************************************************************************
+     * Remove the variables (applications) assigned to the messages (time slots)
      *
      * @param rateFilter
-     *            rate of the variables to removed from the telemetry messages;
-     *            null to remove all variables. Not used for the application
-     *            scheduler
-     *************************************************************************/
+     *            rate of the variables to removed from the telemetry messages; null to remove all
+     *            variables. Not used for the application scheduler
+     *********************************************************************************************/
     protected void clearVariablesFromMessages(String rateFilter)
     {
         String type;
@@ -1839,15 +1792,14 @@ public class CcddSchedulerEditorHandler
             // Check if a variable (application) exists in the message
             if (!msg.getAllVariables().isEmpty())
             {
-                // Set the flag indicating a variable (application)exists and
-                // stop searching
+                // Set the flag indicating a variable (application)exists and stop searching
                 isVariable = true;
                 break;
             }
         }
 
-        // Check if there are any messages (time slots) to reset and, if so,
-        // that the user confirms resetting the messages (time slots)
+        // Check if there are any messages (time slots) to reset and, if so, that the user confirms
+        // resetting the messages (time slots)
         if (isVariable
             && new CcddDialogHandler().showMessageDialog(schedulerHndlr.getSchedulerDialog().getDialog(),
                                                          "<html><b>Remove "
@@ -1858,8 +1810,7 @@ public class CcddSchedulerEditorHandler
                                                          JOptionPane.QUESTION_MESSAGE,
                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
-            // Create lists for the variables and the variables that are
-            // removed
+            // Create lists for the variables and the variables that are removed
             List<Variable> allVarsRemoved = new ArrayList<Variable>();
             List<Variable> msgVarsRemoved = new ArrayList<Variable>();
 
@@ -1878,12 +1829,11 @@ public class CcddSchedulerEditorHandler
                 // Step through each variable assigned to this message
                 for (Variable variable : messages.get(msgIndex).getAllVariables())
                 {
-                    // Check if no rate filter is in effect, or if a filter is
-                    // applied that the variable's rate matches the rate filter
+                    // Check if no rate filter is in effect, or if a filter is applied that the
+                    // variable's rate matches the rate filter
                     if (rateFilter == null || rate == variable.getRate())
                     {
-                        // Add the variable to the list of those to be removed
-                        // from the message
+                        // Add the variable to the list of those to be removed from the message
                         msgVarsRemoved.add(variable);
                     }
                 }
@@ -1891,8 +1841,7 @@ public class CcddSchedulerEditorHandler
                 // Remove the variables from the messages
                 removeVariablesFromMessages(msgVarsRemoved, msgIndex);
 
-                // Add the message's removed variables to the list of all
-                // removed variables
+                // Add the message's removed variables to the list of all removed variables
                 allVarsRemoved.addAll(msgVarsRemoved);
 
                 // Clear the removed variables list for the next pass
@@ -1902,8 +1851,7 @@ public class CcddSchedulerEditorHandler
             // Check if this is a telemetry scheduler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
             {
-                // Update the assignment definition list for when the
-                // assignment tree is rebuilt
+                // Update the assignment definition list for when the assignment tree is rebuilt
                 assignmentTree.updateAssignmentDefinitions(messages,
                                                            schedulerHndlr.getRateName());
             }
@@ -1920,17 +1868,14 @@ public class CcddSchedulerEditorHandler
             // Create an included variables (applications) list
             List<String> includedVars = new ArrayList<String>();
 
-            // Step through each variable (application) in the removed variable
-            // (application) list
+            // Step through each variable (application) in the removed variable (application) list
             for (Variable variable : allVarsRemoved)
             {
-                // Add each name to the list of included variables
-                // (applications)
+                // Add each name to the list of included variables (applications)
                 includedVars.add(variable.getFullName());
             }
 
-            // Include the variables (applications) back in the variable
-            // (application) tree
+            // Include the variables (applications) back in the variable (application) tree
             schedulerHndlr.makeVariableAvailable(includedVars);
 
             // Set the unused bytes field
@@ -1941,10 +1886,9 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Add a sub-message to the message currently selected in the scheduler
-     * table
-     *************************************************************************/
+    /**********************************************************************************************
+     * Add a sub-message to the message currently selected in the scheduler table
+     *********************************************************************************************/
     protected void addSubMessage()
     {
         // Get the currently selected (sub-)message
@@ -1957,8 +1901,8 @@ public class CcddSchedulerEditorHandler
             message = message.getParentMessage();
         }
 
-        // Check if a message is selected and if there are variables in the
-        // sub-messages and deallocate them if present
+        // Check if a message is selected and if there are variables in the sub-messages and
+        // deallocate them if present
         if (message != null && deAllocateSubVariables(message))
         {
             // Check if a sub-message tab is selected
@@ -1977,8 +1921,7 @@ public class CcddSchedulerEditorHandler
             // Update the assignment tree/list
             updateAssignmentList();
 
-            // Update the options panel to display the options for the selected
-            // rate
+            // Update the options panel to display the options for the selected rate
             schedulerHndlr.getTelemetryOptions();
 
             // Update the scheduler table to reflect the added sub-message
@@ -1986,10 +1929,9 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Delete the sub-message associated with the currently selected assignment
-     * tab
-     *************************************************************************/
+    /**********************************************************************************************
+     * Delete the sub-message associated with the currently selected assignment tab
+     *********************************************************************************************/
     protected void deleteSubMessage()
     {
         // Get the currently selected (sub-)message
@@ -2008,8 +1950,8 @@ public class CcddSchedulerEditorHandler
             // Get the number of sub-messages
             int index = message.getNumberOfSubMessages();
 
-            // Check if the selected message isn't the general (parent) or
-            // default message, and if there are variables in the sub-messages
+            // Check if the selected message isn't the general (parent) or default message, and if
+            // there are variables in the sub-messages
             if (index > 1 && deAllocateSubVariables(message))
             {
                 // Remove the sub-message from the message
@@ -2021,12 +1963,11 @@ public class CcddSchedulerEditorHandler
                 // Update the assignment tree/list
                 updateAssignmentList();
 
-                // Update the options panel to display the options for the
-                // selected rate
+                // Update the options panel to display the options for the selected rate
                 schedulerHndlr.getTelemetryOptions();
 
-                // Recalculate the total bytes remaining in each message and
-                // update the Scheduler table Bytes column
+                // Recalculate the total bytes remaining in each message and update the Scheduler
+                // table Bytes column
                 calculateTotalBytesRemaining();
 
                 // Update the remaining bytes column values
@@ -2038,18 +1979,15 @@ public class CcddSchedulerEditorHandler
         }
     }
 
-    /**************************************************************************
-     * Deallocate any sub-message variables if the number of sub-messages is
-     * changed
+    /**********************************************************************************************
+     * Deallocate any sub-message variables if the number of sub-messages is changed
      *
      * @param message
-     *            message for which the variables are deallocated from each
-     *            sub-message
+     *            message for which the variables are deallocated from each sub-message
      *
-     * @return true if the variable is deallocated or there are no variables to
-     *         deallocate; false if there are variable to deallocate but the
-     *         user cancels the operation
-     *************************************************************************/
+     * @return true if the variable is deallocated or there are no variables to deallocate; false
+     *         if there are variable to deallocate but the user cancels the operation
+     *********************************************************************************************/
     private boolean deAllocateSubVariables(Message message)
     {
         boolean isDeallocated = true;
@@ -2064,8 +2002,8 @@ public class CcddSchedulerEditorHandler
                 // Check if the sub-message has a variable
                 if (msg.getNumberOfVariables() != 0)
                 {
-                    // Set the flag to indicate a sub-message contains a
-                    // variable and stop searching
+                    // Set the flag to indicate a sub-message contains a variable and stop
+                    // searching
                     isSubVariable = true;
                     break;
                 }
@@ -2075,8 +2013,7 @@ public class CcddSchedulerEditorHandler
         // Check if a sub-message has a variable
         if (isSubVariable)
         {
-            // Check if the user confirms deallocating the variables from the
-            // sub-messages
+            // Check if the user confirms deallocating the variables from the sub-messages
             if (new CcddDialogHandler().showMessageDialog(schedulerHndlr.getSchedulerDialog().getDialog(),
                                                           "<html><b>Note: All of this message's sub-message<br>"
                                                                                                            + "variables will be de-assigned!<br><br>Proceed?",
@@ -2092,8 +2029,7 @@ public class CcddSchedulerEditorHandler
                     // Step through each variable in the sub-message
                     for (Variable var : subMsg.getVariables())
                     {
-                        // Check if the variable has not been added to the
-                        // excluded variables list
+                        // Check if the variable has not been added to the excluded variables list
                         if (!excludedVars.contains(var.getFullName()))
                         {
                             // Add the variable name to the exclude list
@@ -2111,8 +2047,8 @@ public class CcddSchedulerEditorHandler
             // User canceled the operation
             else
             {
-                // Set the flag to indicate that the user canceled changing the
-                // number of sub-messages
+                // Set the flag to indicate that the user canceled changing the number of
+                // sub-messages
                 isDeallocated = false;
             }
         }
@@ -2120,22 +2056,21 @@ public class CcddSchedulerEditorHandler
         return isDeallocated;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of current messages
      *
      * @return List of current messages
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<Message> getCurrentMessages()
     {
         return messages;
     }
 
-    /**************************************************************************
-     * Compare the current messages to the committed messages to detect any
-     * changes
+    /**********************************************************************************************
+     * Compare the current messages to the committed messages to detect any changes
      *
      * @return true if a message's content changed; false if no change exists
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isMessagesChanged()
     {
         // Initialize the flag to true if the number of messages differs
@@ -2160,9 +2095,8 @@ public class CcddSchedulerEditorHandler
         return isChanged;
     }
 
-    /**************************************************************************
-     * Compare the current (sub-)message to the committed (sub-)message to
-     * detect any changes
+    /**********************************************************************************************
+     * Compare the current (sub-)message to the committed (sub-)message to detect any changes
      *
      * @param currMsg
      *            reference to the message's current values
@@ -2170,9 +2104,8 @@ public class CcddSchedulerEditorHandler
      * @param commMsg
      *            reference to the message's original values
      *
-     * @return true if the (sub-)message's content changed; false if no change
-     *         exists
-     *************************************************************************/
+     * @return true if the (sub-)message's content changed; false if no change exists
+     *********************************************************************************************/
     private boolean isMessageChanged(Message currMsg, Message commMsg)
     {
         boolean isChanged = false;
@@ -2181,8 +2114,8 @@ public class CcddSchedulerEditorHandler
         List<Variable> currVars = currMsg.getVariables();
         List<Variable> commVars = commMsg.getVariables();
 
-        // Check if the message number of bytes, name, number of variables, or
-        // number of sub-messages changed
+        // Check if the message number of bytes, name, number of variables, or number of
+        // sub-messages changed
         if (currMsg.getBytesRemaining() != commMsg.getBytesRemaining()
             || !currMsg.getName().equals(commMsg.getName())
             || !currMsg.getID().equals(commMsg.getID())
@@ -2191,20 +2124,20 @@ public class CcddSchedulerEditorHandler
         {
             isChanged = true;
         }
-        // The message's number of bytes, name, number of variables, or number
-        // of sub-messages is the same
+        // The message's number of bytes, name, number of variables, or number of sub-messages is
+        // the same
         else
         {
             // Step through each variable
             for (int varIndex = 0; varIndex < currVars.size(); varIndex++)
             {
-                // Get a reference to the current and committed variable to
-                // make subsequent calls shorter
+                // Get a reference to the current and committed variable to make subsequent calls
+                // shorter
                 Variable currVar = currVars.get(varIndex);
                 Variable commVar = commVars.get(varIndex);
 
-                // Check if the variable number of bytes, variable path or
-                // name, or the variable rate changed
+                // Check if the variable number of bytes, variable path or name, or the variable
+                // rate changed
                 if (currVar.getSize() != commVar.getSize()
                     || !currVar.getFullName().equals(commVar.getFullName())
                     || currVar.getRate() != commVar.getRate())

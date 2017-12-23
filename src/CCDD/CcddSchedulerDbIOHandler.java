@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary scheduler database I/O handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -25,9 +24,9 @@ import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.SchedulerType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary scheduler database I/O handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddSchedulerDbIOHandler
 {
     // Class references
@@ -43,7 +42,7 @@ public class CcddSchedulerDbIOHandler
     // List of data streams
     private final List<DataStream> dataStreams;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Scheduler database I/O handler class constructor
      *
      * @param ccddMain
@@ -54,7 +53,7 @@ public class CcddSchedulerDbIOHandler
      *
      * @param dialog
      *            reference to the scheduler dialog
-     *************************************************************************/
+     *********************************************************************************************/
     CcddSchedulerDbIOHandler(CcddMain ccddMain,
                              SchedulerType option,
                              CcddDialogHandler dialog)
@@ -69,19 +68,18 @@ public class CcddSchedulerDbIOHandler
         dataStreams = new ArrayList<DataStream>();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Format and store the current messages into the current project database
      *
      * @param streams
      *            list of the current data streams
-     *************************************************************************/
+     *********************************************************************************************/
     protected void storeData(List<DataStream> streams)
     {
         // Check if this is the telemetry scheduler
         if (option == SchedulerType.TELEMETRY_SCHEDULER)
         {
-            // Store the telemetry scheduler information in the project
-            // database
+            // Store the telemetry scheduler information in the project database
             dbTable.storeInformationTableInBackground(InternalTable.TLM_SCHEDULER,
                                                       getTelemetryData(streams),
                                                       null,
@@ -90,8 +88,7 @@ public class CcddSchedulerDbIOHandler
         // Check if this is the application scheduler
         else if (option == SchedulerType.APPLICATION_SCHEDULER)
         {
-            // Store the application scheduler information in the project
-            // database
+            // Store the application scheduler information in the project database
             dbTable.storeInformationTableInBackground(InternalTable.APP_SCHEDULER,
                                                       getApplicationData(streams.get(0).getMessages()),
                                                       null,
@@ -99,35 +96,33 @@ public class CcddSchedulerDbIOHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Load the stored data from the database
-     *************************************************************************/
+     *********************************************************************************************/
     protected void loadStoredData()
     {
         // Check if this is the telemetry scheduler
         if (option == SchedulerType.TELEMETRY_SCHEDULER)
         {
-            // Load the telemetry scheduler information from the project
-            // database
+            // Load the telemetry scheduler information from the project database
             loadTelemetryData();
         }
         // Check if this is the application scheduler
         else if (option == SchedulerType.APPLICATION_SCHEDULER)
         {
-            // Load the application scheduler information from the project
-            // database
+            // Load the application scheduler information from the project database
             loadApplicationData();
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of stored messages for the specified data stream
      *
      * @param streamIndex
      *            data stream index
      *
      * @return List of current messages for the specified data stream
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<Message> getStoredData(int streamIndex)
     {
         List<Message> messages = new ArrayList<Message>();
@@ -142,14 +137,14 @@ public class CcddSchedulerDbIOHandler
         return messages;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of variables for the specified data stream
      *
      * @param streamIndex
      *            data stream index
      *
      * @return List of variables for the specified data stream
-     **************************************************************************/
+     **********************************************************************************************/
     protected List<Variable> getVariableList(int streamIndex)
     {
         List<Variable> variables = new ArrayList<Variable>();
@@ -164,16 +159,16 @@ public class CcddSchedulerDbIOHandler
         return variables;
     }
 
-    /**************************************************************************
-     * Get the list of the message definitions for all data streams. Each list
-     * item is a string array containing the rate name, message name, message
-     * ID, and a space-separated list of variables in that message
+    /**********************************************************************************************
+     * Get the list of the message definitions for all data streams. Each list item is a string
+     * array containing the rate name, message name, message ID, and a space-separated list of
+     * variables in that message
      *
      * @param streams
      *            list of data streams
      *
      * @return List of message definitions
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> getTelemetryData(List<DataStream> streams)
     {
         List<String[]> currentMsg = new ArrayList<String[]>();
@@ -199,10 +194,10 @@ public class CcddSchedulerDbIOHandler
         return currentMsg;
     }
 
-    /**************************************************************************
-     * Get the list of the message definitions for the specified (sub-)message.
-     * Each list item is a string array containing the rate name, message name,
-     * message ID, and a space-separated list of variables in that message
+    /**********************************************************************************************
+     * Get the list of the message definitions for the specified (sub-)message. Each list item is a
+     * string array containing the rate name, message name, message ID, and a space-separated list
+     * of variables in that message
      *
      * @param stream
      *            data stream
@@ -211,7 +206,7 @@ public class CcddSchedulerDbIOHandler
      *            (sub-)message reference
      *
      * @return List of the specified message's definitions
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> addVariablesToMessage(DataStream stream,
                                                  Message message)
     {
@@ -223,8 +218,8 @@ public class CcddSchedulerDbIOHandler
             // Create a new array for the row
             String[] msg = new String[TlmSchedulerColumn.values().length];
 
-            // Add the data stream, sub-message name, message ID, and a blank
-            // as a placeholder for the rate and variable name
+            // Add the data stream, sub-message name, message ID, and a blank as a placeholder for
+            // the rate and variable name
             msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = stream.getRateName();
             msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
             msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
@@ -242,8 +237,7 @@ public class CcddSchedulerDbIOHandler
                 // Create a new array for the row
                 String[] msg = new String[TlmSchedulerColumn.values().length];
 
-                // Add the data stream, message name, message ID, and the rate
-                // and variable name
+                // Add the data stream, message name, message ID, and the rate and variable name
                 msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = stream.getRateName();
                 msg[TlmSchedulerColumn.MESSAGE_NAME.ordinal()] = message.getName();
                 msg[TlmSchedulerColumn.MESSAGE_ID.ordinal()] = message.getID();
@@ -259,10 +253,9 @@ public class CcddSchedulerDbIOHandler
         return messageList;
     }
 
-    /**************************************************************************
-     * Load the stored data from the project database and initialize the
-     * telemetry table
-     *************************************************************************/
+    /**********************************************************************************************
+     * Load the stored data from the project database and initialize the telemetry table
+     *********************************************************************************************/
     private void loadTelemetryData()
     {
         // Load the data from the database
@@ -285,8 +278,7 @@ public class CcddSchedulerDbIOHandler
                 msgList = null;
                 varList = null;
 
-                // Get the rate column name, message name, message ID, and
-                // members
+                // Get the rate column name, message name, message ID, and members
                 String rateName = data[TlmSchedulerColumn.RATE_NAME.ordinal()];
                 String messageName = data[TlmSchedulerColumn.MESSAGE_NAME.ordinal()];
                 String messageID = data[TlmSchedulerColumn.MESSAGE_ID.ordinal()];
@@ -311,8 +303,8 @@ public class CcddSchedulerDbIOHandler
                     }
                 }
 
-                // Check if the message list is still null, indicating the data
-                // stream does not exist
+                // Check if the message list is still null, indicating the data stream does not
+                // exist
                 if (msgList == null)
                 {
                     // Get the rate information for this rate column
@@ -327,12 +319,10 @@ public class CcddSchedulerDbIOHandler
                         // Add the stream to the existing list
                         dataStreams.add(stream);
 
-                        // Get a reference to the created data stream message
-                        // list
+                        // Get a reference to the created data stream message list
                         msgList = stream.getMessages();
 
-                        // Get a reference to the created data stream variable
-                        // list
+                        // Get a reference to the created data stream variable list
                         varList = stream.getVariableList();
                     }
                 }
@@ -347,8 +337,7 @@ public class CcddSchedulerDbIOHandler
                     // Separate the message's name and the sub-index, if any
                     String[] nameAndIndex = messageName.split("\\.");
 
-                    // Calculate the period (= total messages / total messages
-                    // per second)
+                    // Calculate the period (= total messages / total messages per second)
                     float period = Float.valueOf(info.getMaxMsgsPerCycle())
                                    / Float.valueOf(msgsPerSec);
 
@@ -370,8 +359,8 @@ public class CcddSchedulerDbIOHandler
                                     // Check if the sub-message already exists
                                     if (subMessage.getName().equals(messageName))
                                     {
-                                        // Get the sub-message's index and
-                                        // assign the sub-message's ID
+                                        // Get the sub-message's index and assign the sub-message's
+                                        // ID
                                         subIndex = Integer.valueOf(nameAndIndex[1]);
                                         message.getSubMessage(subIndex).setID(messageID);
                                     }
@@ -383,8 +372,7 @@ public class CcddSchedulerDbIOHandler
                                     // Get the sub-index from the message name
                                     subIndex = Integer.valueOf(nameAndIndex[1]);
 
-                                    // Create a new sub-message and assign the
-                                    // sub-message's ID
+                                    // Create a new sub-message and assign the sub-message's ID
                                     message.addNewSubMessage(messageID);
                                 }
                             }
@@ -411,8 +399,7 @@ public class CcddSchedulerDbIOHandler
                     // Check if the message has a member
                     if (!member.isEmpty())
                     {
-                        // Split the member column to remove the rate and
-                        // extract the variable name
+                        // Split the member column to remove the rate and extract the variable name
                         String varName = member.split("\\" + TLM_SCH_SEPARATOR, 2)[1];
 
                         // Step through the variables
@@ -440,16 +427,14 @@ public class CcddSchedulerDbIOHandler
                         // Check if the rate is a sub-rate
                         if (variable.getRate() < period)
                         {
-                            // Assign the variable to the sub-message and store
-                            // the message index
+                            // Assign the variable to the sub-message and store the message index
                             message.getSubMessage(subIndex).addVariable(variable);
                             variable.addMessageIndex(subIndex);
                         }
                         // The rate isn't a sub-rate
                         else
                         {
-                            // Check if the variable has not already been
-                            // assigned to the message
+                            // Check if the variable has not already been assigned to the message
                             if (!message.getAllVariables().contains(variable))
                             {
                                 // Add the variable to the general message
@@ -465,16 +450,15 @@ public class CcddSchedulerDbIOHandler
         }
     }
 
-    /**************************************************************************
-     * Get the list of the current messages. Each list item is a string arrays
-     * containing the message name and a space-separated list of applications
-     * in that message
+    /**********************************************************************************************
+     * Get the list of the current messages. Each list item is a string arrays containing the
+     * message name and a space-separated list of applications in that message
      *
      * @param messages
      *            list of messages
      *
      * @return List of current messages
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> getApplicationData(List<Message> messages)
     {
         List<String[]> currentMsg = new ArrayList<String[]>();
@@ -499,10 +483,9 @@ public class CcddSchedulerDbIOHandler
                     // Create new array for the row
                     String[] app = new String[2];
 
-                    // Store the message name, and application name, rate, run
-                    // time, priority, wake-up name, wake-up ID, send rate,
-                    // housekeeping wake-up name, housekeeping wake-up ID, and
-                    // schedule group name
+                    // Store the message name, and application name, rate, run time, priority,
+                    // wake-up name, wake-up ID, send rate, housekeeping wake-up name, housekeeping
+                    // wake-up ID, and schedule group name
                     app[AppSchedulerColumn.TIME_SLOT.ordinal()] = message.getName();
                     app[AppSchedulerColumn.APP_INFO.ordinal()] = appData.getFullName() + ","
                                                                  + appData.getRate() + ","
@@ -525,10 +508,9 @@ public class CcddSchedulerDbIOHandler
         return currentMsg;
     }
 
-    /**************************************************************************
-     * Get the stored data from the project database and initialize the
-     * application table
-     *************************************************************************/
+    /**********************************************************************************************
+     * Get the stored data from the project database and initialize the application table
+     *********************************************************************************************/
     private void loadApplicationData()
     {
         List<Message> messages = new ArrayList<Message>();
@@ -555,8 +537,7 @@ public class CcddSchedulerDbIOHandler
                     // Check if the message has already been created
                     if (message.getName().equals(row[AppSchedulerColumn.TIME_SLOT.ordinal()]))
                     {
-                        // Assign the existing message to the message object
-                        // and stop searching
+                        // Assign the existing message to the message object and stop searching
                         msg = message;
                         break;
                     }
@@ -586,8 +567,7 @@ public class CcddSchedulerDbIOHandler
                         // Check if the variable has already been created
                         if (variable.getFullName().equals(name))
                         {
-                            // Assign the existing variable to the variable
-                            // object
+                            // Assign the existing variable to the variable object
                             var = variable;
                             break;
                         }

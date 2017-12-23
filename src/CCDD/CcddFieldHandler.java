@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary field handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -22,9 +21,9 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary field handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddFieldHandler
 {
     // Main class reference
@@ -39,12 +38,12 @@ public class CcddFieldHandler
     // List of field information
     private List<FieldInformation> fieldInformation;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Field handler class constructor
      *
      * @param ccddMain
      *            main class reference
-     *************************************************************************/
+     *********************************************************************************************/
     CcddFieldHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -54,19 +53,18 @@ public class CcddFieldHandler
         fieldInformation = new ArrayList<FieldInformation>();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Field handler class constructor
      *
      * @param ccddMain
      *            main class
      *
      * @param ownerName
-     *            name of the data field owner; null to build the information
-     *            for all data fields
+     *            name of the data field owner; null to build the information for all data fields
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
     {
         this(ccddMain);
@@ -82,52 +80,52 @@ public class CcddFieldHandler
                               ownerName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field definitions
      *
      * @return data field definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> getFieldDefinitions()
     {
         return fieldDefinitions;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the data field definitions
      *
      * @param data
      *            field definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setFieldDefinitions(List<String[]> fieldDefinitions)
     {
         this.fieldDefinitions = fieldDefinitions;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field information
      *
      * @return data field information
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<FieldInformation> getFieldInformation()
     {
         return fieldInformation;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a copy of the data field information
      *
      * @return Copy of the data field information
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationCopy()
     {
         return getFieldInformationCopy(fieldInformation);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Static method to create a copy of the supplied data field information
      *
      * @return Copy of the supplied data field information
-     *************************************************************************/
+     *********************************************************************************************/
     protected static List<FieldInformation> getFieldInformationCopy(List<FieldInformation> fieldInfo)
     {
         List<FieldInformation> fldInfo = new ArrayList<FieldInformation>();
@@ -154,13 +152,12 @@ public class CcddFieldHandler
         return fldInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the data field information
      *
      * @param fieldInfo
-     *            data field information; null or an empty list to clear the
-     *            field information
-     *************************************************************************/
+     *            data field information; null or an empty list to clear the field information
+     *********************************************************************************************/
     protected void setFieldInformation(List<FieldInformation> fieldInfo)
     {
         // Check if fields are defined in the supplied field information
@@ -177,21 +174,19 @@ public class CcddFieldHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field information for a specified field
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name)
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
      *
      * @param fieldName
-     *            name of the field for which to get the field information
-     *            (case insensitive)
+     *            name of the field for which to get the field information (case insensitive)
      *
-     * @return Reference to the data field information for the specified field;
-     *         null if the field doesn't exist
-     *************************************************************************/
+     * @return Reference to the data field information for the specified field; null if the field
+     *         doesn't exist
+     *********************************************************************************************/
     protected FieldInformation getFieldInformationByName(String ownerName,
                                                          String fieldName)
     {
@@ -200,8 +195,7 @@ public class CcddFieldHandler
         // Step through each field
         for (FieldInformation info : fieldInformation)
         {
-            // Check if the owner and field names match the ones supplied (case
-            // insensitive)
+            // Check if the owner and field names match the ones supplied (case insensitive)
             if (info.getOwnerName().equalsIgnoreCase(ownerName)
                 && info.getFieldName().equalsIgnoreCase(fieldName))
             {
@@ -214,14 +208,14 @@ public class CcddFieldHandler
         return fieldInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field information from the field definitions
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name); null to get all data fields
-     *************************************************************************/
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name); null to get all data
+     *            fields
+     *********************************************************************************************/
     protected void buildFieldInformation(String ownerName)
     {
         buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
@@ -229,18 +223,18 @@ public class CcddFieldHandler
                               null);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field information from the field definitions provided
      *
      * @param fieldDefinitions
-     *            array of field definitions; null if no definitions exist
-     *            (this produces an empty field information list)
+     *            array of field definitions; null if no definitions exist (this produces an empty
+     *            field information list)
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name); null to get all data fields
-     *************************************************************************/
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name); null to get all data
+     *            fields
+     *********************************************************************************************/
     protected void buildFieldInformation(Object[][] fieldDefinitions,
                                          String ownerName)
     {
@@ -249,18 +243,17 @@ public class CcddFieldHandler
                               null);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field information from the field definitions
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name); null to get all data fields
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name); null to get all data
+     *            fields
      *
      * @param isRootStruct
-     *            true if the owner is a root structure, false if not, or null
-     *            if unknown
-     *************************************************************************/
+     *            true if the owner is a root structure, false if not, or null if unknown
+     *********************************************************************************************/
     protected void buildFieldInformation(String ownerName, Boolean isRootStruct)
     {
         buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
@@ -268,22 +261,21 @@ public class CcddFieldHandler
                               isRootStruct);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field information from the field definitions provided
      *
      * @param fieldDefinitions
-     *            array of field definitions; null if no definitions exist
-     *            (this produces an empty field information list)
+     *            array of field definitions; null if no definitions exist (this produces an empty
+     *            field information list)
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name); null to get all data fields
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name); null to get all data
+     *            fields
      *
      * @param isRootStruct
-     *            true if the owner is a root structure, false if not, or null
-     *            if unknown
-     *************************************************************************/
+     *            true if the owner is a root structure, false if not, or null if unknown
+     *********************************************************************************************/
     protected void buildFieldInformation(Object[][] fieldDefinitions,
                                          String ownerName,
                                          Boolean isRootStruct)
@@ -297,10 +289,9 @@ public class CcddFieldHandler
             // Step through each field definition
             for (Object[] fieldDefn : fieldDefinitions)
             {
-                // Check if the table (prototype.variable)/group name matches
-                // the owner name; if no owner name is provided then get the
-                // fields for all tables and groups, else add the field if it
-                // is applicable to this owner
+                // Check if the table (prototype.variable)/group name matches the owner name; if no
+                // owner name is provided then get the fields for all tables and groups, else add
+                // the field if it is applicable to this owner
                 if (ownerName == null
                     || ownerName.isEmpty()
                     || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString())
@@ -322,45 +313,43 @@ public class CcddFieldHandler
         }
     }
 
-    /**************************************************************************
-     * Determine if a field is applicable to the specified owner. A field is
-     * always applicable if the specified applicability is for all tables, or
-     * if the owner is a table type or group. If the owner is a root table then
-     * 'child only' fields are inapplicable. If the table doesn't meet any of
-     * the previous criteria then the table is a child table or the prototype
-     * for a child table, so 'root only' fields are inapplicable
+    /**********************************************************************************************
+     * Determine if a field is applicable to the specified owner. A field is always applicable if
+     * the specified applicability is for all tables, or if the owner is a table type or group. If
+     * the owner is a root table then 'child only' fields are inapplicable. If the table doesn't
+     * meet any of the previous criteria then the table is a child table or the prototype for a
+     * child table, so 'root only' fields are inapplicable
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name)
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
      *
      * @param applicability
-     *            one of the ApplicabilityType names; a blank is treated the
-     *            same as being applicable for all tables
+     *            one of the ApplicabilityType names; a blank is treated the same as being
+     *            applicable for all tables
      *
      * @param isRootStruct
      *            true if the owner is a root structure table
      *
      * @return true if the field is applicable to the owner
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isFieldApplicable(String ownerName,
                                         String applicability,
                                         Boolean isRootStruct)
     {
-        // Set the flag to indicate the owner is a table type or group if the
-        // owner name contains a colon
+        // Set the flag to indicate the owner is a table type or group if the owner name contains a
+        // colon
         boolean isTypeOrGroup = ownerName.contains(":");
 
-        // Check if the owner is a table type, group, or child structure (the
-        // owner name includes a data type & variable name)
+        // Check if the owner is a table type, group, or child structure (the owner name includes a
+        // data type & variable name)
         if (isTypeOrGroup || ownerName.contains("."))
         {
             // Set the flag to indicate the owner isn't a root structure
             isRootStruct = false;
         }
-        // Check if the root structure status is unknown, the owner name is
-        // provided, and the owner isn't a prototype table
+        // Check if the root structure status is unknown, the owner name is provided, and the owner
+        // isn't a prototype table
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
@@ -376,30 +365,29 @@ public class CcddFieldHandler
                    && applicability.equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()));
     }
 
-    /**************************************************************************
-     * Determine if the number of data fields, field attributes, or field
-     * contents differ between two sets of data field information
+    /**********************************************************************************************
+     * Determine if the number of data fields, field attributes, or field contents differ between
+     * two sets of data field information
      *
      * @param compFieldInfoA
-     *            reference to the the first data field information with which
-     *            to compare the second data field information
+     *            reference to the the first data field information with which to compare the
+     *            second data field information
      *
      * @param compFieldInfoB
-     *            reference to the second data field information with which to
-     *            compare the first data field information
+     *            reference to the second data field information with which to compare the first
+     *            data field information
      *
      * @param isIgnoreOwnerName
-     *            true if the owner name is ignored. This is the case if called
-     *            by the data field or table type editors
+     *            true if the owner name is ignored. This is the case if called by the data field
+     *            or table type editors
      *
      * @return Data field definitions array
-     *************************************************************************/
+     *********************************************************************************************/
     protected static boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
                                             List<FieldInformation> compFieldInfoB,
                                             boolean isIgnoreOwnerName)
     {
-        // Set the change flag if the number of fields in the two field
-        // handlers differ
+        // Set the change flag if the number of fields in the two field handlers differ
         boolean isFieldChanged = compFieldInfoA.size() != compFieldInfoB.size();
 
         // Check if the number of fields is the same
@@ -417,8 +405,7 @@ public class CcddFieldHandler
                     || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
                     || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired())
                 {
-                    // Set the flag indicating a field is changed and stop
-                    // searching
+                    // Set the flag indicating a field is changed and stop searching
                     isFieldChanged = true;
                     break;
                 }
@@ -428,19 +415,18 @@ public class CcddFieldHandler
         return isFieldChanged;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the data field definitions from the data field editor provided
      *
      * @param fieldData
      *            array of data field editor data
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name)
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
      *
      * @return Data field definitions array
-     *************************************************************************/
+     *********************************************************************************************/
     protected Object[][] buildFieldDefinition(Object[][] fieldData,
                                               String ownerName)
     {
@@ -449,15 +435,13 @@ public class CcddFieldHandler
         // Check if any data fields are defined
         if (fieldData.length != 0)
         {
-            // Create the field definition array with an extra column for the
-            // table name
+            // Create the field definition array with an extra column for the table name
             fieldDefinition = new Object[fieldData.length][fieldData[0].length + 1];
 
             // Step through each row in the editor data array
             for (int row = 0; row < fieldData.length; row++)
             {
-                // Add the table name (with path, if applicable) to the field
-                // definition
+                // Add the table name (with path, if applicable) to the field definition
                 fieldDefinition[row][FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
 
                 // Copy the editor data to the field definition
@@ -474,12 +458,11 @@ public class CcddFieldHandler
         return fieldDefinition;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the array of data field definitions for the data field editor
      *
-     * @return Object array containing the data field definitions used by the
-     *         data field editor
-     *************************************************************************/
+     * @return Object array containing the data field definitions used by the data field editor
+     *********************************************************************************************/
     protected Object[][] getFieldEditorDefinition()
     {
         List<Object[]> definitions = new ArrayList<Object[]>();
@@ -506,11 +489,11 @@ public class CcddFieldHandler
         return definitions.toArray(new Object[0][0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field definitions
      *
      * @return String list containing the data field definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> getFieldDefinitionList()
     {
         // Create storage for the field definitions
@@ -539,13 +522,12 @@ public class CcddFieldHandler
         return definitions;
     }
 
-    /**************************************************************************
-     * Add a field. This method is not applicable if the fields for all tables,
-     * table types, and groups are loaded
+    /**********************************************************************************************
+     * Add a field. This method is not applicable if the fields for all tables, table types, and
+     * groups are loaded
      *
      * @param ownerName
-     *            name of the table/table type/group to which the field is a
-     *            member
+     *            name of the table/table type/group to which the field is a member
      *
      * @param name
      *            name of the new field
@@ -563,12 +545,12 @@ public class CcddFieldHandler
      *            true if a value if required in this field
      *
      * @param applicability
-     *            all, parent, or child to indicate all tables, parent tables
-     *            only, or child tables only, respectively
+     *            all, parent, or child to indicate all tables, parent tables only, or child tables
+     *            only, respectively
      *
      * @param value
      *            data field value
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addField(String ownerName,
                             String name,
                             String description,
@@ -588,27 +570,25 @@ public class CcddFieldHandler
                                                   value));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update an existing data field's information
      *
      * @param updateInfo
-     *            updated field information used to replace the existing field
-     *            information
+     *            updated field information used to replace the existing field information
      *
-     * @return true if the a matching owner and field exists for the provided
-     *         field information update
-     *************************************************************************/
+     * @return true if the a matching owner and field exists for the provided field information
+     *         update
+     *********************************************************************************************/
     protected boolean updateField(FieldInformation updateInfo)
     {
         boolean isUpdate = false;
 
-        // Get the reference to the field information for the specified
-        // owner/field combination
+        // Get the reference to the field information for the specified owner/field combination
         FieldInformation fieldInfo = getFieldInformationByName(updateInfo.getOwnerName(),
                                                                updateInfo.getFieldName());
 
-        // Check if the owner/field combination exists and if the field differs
-        // from the updated one
+        // Check if the owner/field combination exists and if the field differs from the updated
+        // one
         if (fieldInfo != null
             && (!fieldInfo.getDescription().equals(updateInfo.getDescription())
                 || !fieldInfo.getInputType().equals(updateInfo.getInputType())
@@ -622,8 +602,7 @@ public class CcddFieldHandler
             // Remove the existing field from the list
             fieldInformation.remove(fieldInfo);
 
-            // Add the updated field information to the list at the same
-            // position as the old field
+            // Add the updated field information to the list at the same position as the old field
             fieldInformation.add(index, updateInfo);
 
             // Set the flag to indicate a match exists
@@ -633,14 +612,14 @@ public class CcddFieldHandler
         return isUpdate;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Change the owner name for the data fields
      *
      * @param newName
      *            new owner name
      *
      * @return List of field definitions with the updated owner name
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> renameFieldTable(String newName)
     {
         // Step through each field
@@ -653,16 +632,14 @@ public class CcddFieldHandler
         return getFieldDefinitionList();
     }
 
-    /**************************************************************************
-     * Count the number of the specified field type that exists in the field
-     * information
+    /**********************************************************************************************
+     * Count the number of the specified field type that exists in the field information
      *
      * @param fieldType
      *            FieldInputType
      *
-     * @return The number of the specified field type that exists in the field
-     *         information
-     *************************************************************************/
+     * @return The number of the specified field type that exists in the field information
+     *********************************************************************************************/
     protected int getFieldTypeCount(InputDataType fieldType)
     {
         int count = 0;
@@ -681,29 +658,29 @@ public class CcddFieldHandler
         return count;
     }
 
-    /**************************************************************************
-     * Prepend the table type indicator to the table type name for use in
-     * identifying default data fields in the fields table
+    /**********************************************************************************************
+     * Prepend the table type indicator to the table type name for use in identifying default data
+     * fields in the fields table
      *
      * @param tableType
      *            table type name
      *
      * @return Table type name with the table type indicator prepended
-     *************************************************************************/
+     *********************************************************************************************/
     protected static String getFieldTypeName(String tableType)
     {
         return TYPE_DATA_FIELD_IDENT + tableType;
     }
 
-    /**************************************************************************
-     * Prepend the group indicator to the group name for use in identifying
-     * group data fields in the fields table
+    /**********************************************************************************************
+     * Prepend the group indicator to the group name for use in identifying group data fields in
+     * the fields table
      *
      * @param groupName
      *            group name
      *
      * @return Group name with the group indicator prepended
-     *************************************************************************/
+     *********************************************************************************************/
     protected static String getFieldGroupName(String groupName)
     {
         return GROUP_DATA_FIELD_IDENT + groupName;

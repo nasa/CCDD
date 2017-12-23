@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -73,6 +72,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.WindowConstants;
 
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
@@ -89,9 +89,9 @@ import CCDD.CcddConstants.ScriptIOType;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary main class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddMain
 {
     // Class references
@@ -186,9 +186,9 @@ public class CcddMain
     private String ccddVersion;
     private String buildDate;
 
-    // Label containing the currently open database name for display in the
-    // main application window above the session event log
-    private JLabel currentDatabase;
+    // Label containing the currently open project name for display in the main application window
+    // above the session event log
+    private JLabel currentProject;
 
     // Program preferences backing store node
     private final Preferences progPrefs;
@@ -196,44 +196,41 @@ public class CcddMain
     // Look and feel currently selected by the user
     private String selectedLaF;
 
-    // Flag indicating if dialog messages should be displayed on the command
-    // line instead of in dialog boxes
+    // Flag indicating if dialog messages should be displayed on the command line instead of in
+    // dialog boxes
     private boolean isHideGUI;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the application
-     *************************************************************************/
+     *********************************************************************************************/
     private CcddMain(String[] args)
     {
-        // Create the shutdown handler so that the database and event log file
-        // are closed
+        // Create the shutdown handler so that the database and event log file are closed
         createShutdownHook();
 
-        // Clear the flags so that dialog messages appear in dialog boxes and
-        // the web service is not enabled
+        // Clear the flags so that dialog messages appear in dialog boxes and the web service is
+        // not enabled
         isHideGUI = false;
         webServer = null;
 
-        // Get the backing store node for storing the program preference keys
-        // and values. These are stored by user so that different users can
-        // have their own preferences
+        // Get the backing store node for storing the program preference keys and values. These are
+        // stored by user so that different users can have their own preferences
         progPrefs = Preferences.userNodeForPackage(this.getClass());
 
-        // Set the selected look & feel. This is done prior to creating any of
-        // the GUI (including the session event log) so that the GUI components
-        // initialize with the preferred look & feel
+        // Set the selected look & feel. This is done prior to creating any of the GUI (including
+        // the session event log) so that the GUI components initialize with the preferred look &
+        // feel
         boolean isLaFError = setLookAndFeel(null);
 
-        // Create lists to store references to open event logs and table editor
-        // dialogs
+        // Create lists to store references to open event logs and table editor dialogs
         eventLogs = new ArrayList<CcddEventLogDialog>();
         tableEditorDialogs = new ArrayList<CcddTableEditorDialog>();
 
         // Create the command line handler
         CcddCommandLineHandler cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
 
-        // Check if the command that sets the session event log file path is
-        // present, and if so set the path
+        // Check if the command that sets the session event log file path is present, and if so set
+        // the path
         cmdLnHandler.parseCommand(true);
 
         // Create the database command and control handler classes
@@ -243,14 +240,13 @@ public class CcddMain
         // Get the program preferences
         getProgramPreferences();
 
-        // Create the session event log and set it in the command and control
-        // classes
+        // Create the session event log and set it in the command and control classes
         eventLogs.add(new CcddEventLogDialog(CcddMain.this, true));
         dbCommand.setEventLog();
         dbControl.setEventLog();
 
-        // Create the handler classes for database table commands, file I/O,
-        // scripts, and application parameters
+        // Create the handler classes for database table commands, file I/O, scripts, and
+        // application parameters
         dbTable = new CcddDbTableCommandHandler(CcddMain.this);
         fileIOHandler = new CcddFileIOHandler(CcddMain.this);
         scriptHandler = new CcddScriptHandler(CcddMain.this);
@@ -270,15 +266,13 @@ public class CcddMain
                                                                       + System.getProperty("sun.arch.data.model")
                                                                       + "-bit)");
 
-        // Create a keyboard handler to adjust the response to the Enter key to
-        // act like the Space key to activate certain control types and to
-        // adjust the response to the arrow keys based on the component with
-        // the keyboard focus. Also handle table undo/redo actions
+        // Create a keyboard handler to adjust the response to the Enter key to act like the Space
+        // key to activate certain control types and to adjust the response to the arrow keys based
+        // on the component with the keyboard focus. Also handle table undo/redo actions
         keyboardHandler = new CcddKeyboardHandler(CcddMain.this);
 
-        // Check if the look & feel failed to load. The error can't be
-        // annunciated via a dialog when the look & feel is loaded since the
-        // main frame doesn't yet exist
+        // Check if the look & feel failed to load. The error can't be annunciated via a dialog
+        // when the look & feel is loaded since the main frame doesn't yet exist
         if (isLaFError)
         {
             // Inform the user that there was an error setting the look & feel
@@ -296,38 +290,37 @@ public class CcddMain
         // Make the main application window visible if the GUI set to be active
         frameCCDD.setVisible(!isGUIHidden());
 
-        // Force tool tip pop-ups to effectively remain visible until the mouse
-        // pointer moves away from the object
+        // Force tool tip pop-ups to effectively remain visible until the mouse pointer moves away
+        // from the object
         ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 
         // Check if a database, user, and host are specified
-        if (!dbControl.getDatabase().isEmpty()
+        if (!dbControl.getDatabaseName().isEmpty()
             && !dbControl.getUser().isEmpty()
             && !dbControl.getHost().isEmpty())
         {
-            // Attempt to connect to the database that was open at the
-            // termination of the previous session using the parameters from
-            // the command line and/or backing store. If a password is
-            // required, but not provided, then request the password and
-            // attempt to connect. If this connection attempt fails then
-            // attempt to connect to the default database
-            dbControl.openDatabaseInBackground(dbControl.getDatabase());
+            // Attempt to connect to the database that was open at the termination of the previous
+            // session using the parameters from the command line and/or backing store. If a
+            // password is required, but not provided, then request the password and attempt to
+            // connect. If this connection attempt fails then attempt to connect to the default
+            // database
+            dbControl.openDatabaseInBackground(dbControl.getProjectName());
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Launch the application
      *
      * @param args
      *            array of command line arguments
-     *************************************************************************/
+     *********************************************************************************************/
     public static void main(final String[] args)
     {
         SwingUtilities.invokeLater(new Runnable()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Execute the main class
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void run()
             {
@@ -343,48 +336,47 @@ public class CcddMain
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the main application frame
      *
      * @return Main application frame; null if the flag is set to hide the GUI
-     *************************************************************************/
+     *********************************************************************************************/
     protected JFrame getMainFrame()
     {
         return isGUIHidden() ? null : frameCCDD;
     }
 
-    /**************************************************************************
-     * Set the flag that indicates if the GUI is hidden. If so, dialog messages
-     * are sent to the command line or a dialog box. Any dialogs requiring user
-     * input, including question message dialogs, are displayed in dialog boxes
+    /**********************************************************************************************
+     * Set the flag that indicates if the GUI is hidden. If so, dialog messages are sent to the
+     * command line or a dialog box. Any dialogs requiring user input, including question message
+     * dialogs, are displayed in dialog boxes
      *
      * @param isHideGUI
-     *            true if dialog messages should appear on the command line;
-     *            false to display the message in a dialog box
-     *************************************************************************/
+     *            true if dialog messages should appear on the command line; false to display the
+     *            message in a dialog box
+     *********************************************************************************************/
     protected void setGUIHidden(boolean isHideGUI)
     {
         this.isHideGUI = isHideGUI;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the status of the flag that indicates if the GUI is hidden
      *
      * @return true if the GUI is not visible
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isGUIHidden()
     {
         return isHideGUI;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Start the web server
      *
      * @param gui
-     *            'gui' if the graphical user interface should be displayed;
-     *            any other text to not show the user interface and to direct
-     *            dialog messages to the command line
-     *************************************************************************/
+     *            'gui' if the graphical user interface should be displayed; any other text to not
+     *            show the user interface and to direct dialog messages to the command line
+     *********************************************************************************************/
     protected void setWebServer(String gui)
     {
         // Log the Jetty version
@@ -403,109 +395,107 @@ public class CcddMain
         // Check if the user interface shouldn't be displayed
         if (!gui.equals("gui"))
         {
-            // Set the flag to indicate that dialog messages should be sent to
-            // the command line
+            // Set the flag to indicate that dialog messages should be sent to the command line
             setGUIHidden(true);
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the web server
      *
      * @return Reference to the web server
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddWebServer getWebServer()
     {
         return webServer;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the status of the flag that indicates if the web server is enabled
      *
      * @return true if the web server is enabled
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isWebServer()
     {
         return mntmEnableWebServer.isSelected();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the web server port
      *
      * @param port
      *            web server port
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setWebServerPort(String port)
     {
         progPrefs.put(WEB_SERVER_PORT, port);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the program preferences
      *
      * @return Program preferences
-     *************************************************************************/
+     *********************************************************************************************/
     protected Preferences getProgPrefs()
     {
         return progPrefs;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the session event log
      *
      * @return Session event log
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddEventLogDialog getSessionEventLog()
     {
         return eventLogs.get(0);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the database control handler
      *
      * @return Database control handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddDbControlHandler getDbControlHandler()
     {
         return dbControl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the database command handler
      *
      * @return Database command handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddDbCommandHandler getDbCommandHandler()
     {
         return dbCommand;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the table command handler
      *
      * @return Database table command handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddDbTableCommandHandler getDbTableCommandHandler()
     {
         return dbTable;
     }
 
-    /**************************************************************************
-     * Create the handler classes that rely on a successful connection to a
-     * project database (other than the default): table type, macro, and rate
-     * parameter handlers. Set the references to these handlers in the
-     * persistent classes that use them
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the handler classes that rely on a successful connection to a project database (other
+     * than the default): table type, macro, and rate parameter handlers. Set the references to
+     * these handlers in the persistent classes that use them
+     *********************************************************************************************/
     protected void setDbSpecificHandlers()
     {
         // Read the table type definitions from the database
         tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
 
-        // Read the data types definitions from the database
-        dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
-
         // Read the macro definitions from the database
         macroHandler = new CcddMacroHandler(CcddMain.this);
+
+        // Read the data types definitions from the database
+        dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
 
         // Read the rate parameters from the project database
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
@@ -516,18 +506,18 @@ public class CcddMain
         // Read the reserved message IDs from the project database
         rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
-        // Now that the handlers exist, store its reference in the other
-        // persistent classes that use them
+        // Now that the handlers exist, store its reference in the other persistent classes that
+        // use them
         CcddClasses.setHandlers(CcddMain.this);
         dbTable.setHandlers();
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
 
-        // Create a variable size handler and determine the variable offsets
-        // (note that the class must be instantiated before calling the list
-        // build method)
+        // Create a variable size handler and determine the variable offsets (note that the class
+        // must be fully instantiated before calling the list build method)
         varSizeHandler = new CcddVariableSizeHandler(CcddMain.this);
+        macroHandler.setHandlers(varSizeHandler);
         varSizeHandler.buildPathAndOffsetLists();
 
         // Check if the web server is activated
@@ -537,148 +527,148 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the type handler
      *
      * @return Type handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddTableTypeHandler getTableTypeHandler()
     {
         return tableTypeHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the macro handler
      *
      * @return Macro handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddMacroHandler getMacroHandler()
     {
         return macroHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data type handler
      *
      * @return Data type handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddDataTypeHandler getDataTypeHandler()
     {
         return dataTypeHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the file handler
      *
      * @return File handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddFileIOHandler getFileIOHandler()
     {
         return fileIOHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reserved message ID handler
      *
      * @return Reserved message ID handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddReservedMsgIDHandler getReservedMsgIDHandler()
     {
         return rsvMsgIDHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the script handler
      *
      * @return Script handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddScriptHandler getScriptHandler()
     {
         return scriptHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the rate parameter handler
      *
      * @return Rate parameter handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddRateParameterHandler getRateParameterHandler()
     {
         return rateHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the application parameter handler
      *
      * @return Rate parameter handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddApplicationParameterHandler getApplicationParameterHandler()
     {
         return appHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the variable size handler
      *
      * @return Variable size handler reference
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddVariableSizeHandler getVariableSizeHandler()
     {
         return varSizeHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the keyboard handler
      *
      * @return Keyboard handler reference
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddKeyboardHandler getKeyboardHandler()
     {
         return keyboardHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the table type editor dialog
      *
      * @return Reference to the table type editor dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddTableTypeEditorDialog getTableTypeEditor()
     {
         return tableTypeEditorDialog;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field table editor
      *
      * @return Data field table editor
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddFieldTableEditorDialog getFieldTableEditor()
     {
         return fieldTblEditorDialog;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the group manager dialog
      *
      * @return Reference to the group manager dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddGroupManagerDialog getGroupManager()
     {
         return groupManagerDialog;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the reference to the group manager dialog
      *
      * @param groupManagerDialog
      *            reference to the group manager dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setGroupManager(CcddGroupManagerDialog groupManagerDialog)
     {
         this.groupManagerDialog = groupManagerDialog;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Display the search dialog for searching database tables or scripts
      *
      * @param searchType
@@ -686,30 +676,29 @@ public class CcddMain
      *
      * @param parent
      *            GUI component over which to center the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected void showSearchDialog(SearchDialogType searchType,
                                     Component parent)
     {
         showSearchDialog(searchType, null, null, parent);
     }
 
-    /**************************************************************************
-     * Display the search dialog for searching database tables, scripts, and
-     * event logs
+    /**********************************************************************************************
+     * Display the search dialog for searching database tables, scripts, and event logs
      *
      * @param searchType
      *            search dialog type: TABLES, SCRIPTS, or LOG
      *
      * @param targetRow
-     *            row index to match if this is an event log entry search on a
-     *            table that displays only a single log entry; null otherwise
+     *            row index to match if this is an event log entry search on a table that displays
+     *            only a single log entry; null otherwise
      *
      * @param eventLogToSearch
      *            event log to search; null if not searching a log
      *
      * @param parent
      *            GUI component over which to center the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected void showSearchDialog(SearchDialogType searchType,
                                     Long targetRow,
                                     CcddEventLogDialog eventLogToSearch,
@@ -741,8 +730,7 @@ public class CcddMain
                 break;
         }
 
-        // Check if the dialog hasn't already been opened, or if it has that it
-        // isn't showing
+        // Check if the dialog hasn't already been opened, or if it has that it isn't showing
         if (searchDialog == null || !searchDialog.isShowing())
         {
             // Open the specified search dialog
@@ -782,21 +770,20 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the script manager dialog
      *
      * @return Reference to the script manager dialog
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddScriptManagerDialog getScriptManager()
     {
         return scriptManagerDialog;
     }
 
-    /**************************************************************************
-     * Update the script manager and executive dialogs' associations tables
-     * following a data table addition, deletion, or name change, and for a
-     * group deletion or name change
-     *************************************************************************/
+    /**********************************************************************************************
+     * Update the script manager and executive dialogs' associations tables following a data table
+     * addition, deletion, or name change, and for a group deletion or name change
+     *********************************************************************************************/
     protected void updateScriptAssociationsDialogs()
     {
         // Check if the script association manager dialog is open
@@ -814,11 +801,10 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
-     * Activate/deactivate the main menu by setting the component enable flags
-     * appropriately. While disabled these components are grayed out and do not
-     * respond to inputs
-     *************************************************************************/
+    /**********************************************************************************************
+     * Activate/deactivate the main menu by setting the component enable flags appropriately. While
+     * disabled these components are grayed out and do not respond to inputs
+     *********************************************************************************************/
     protected void setGUIActivated(boolean activate)
     {
         // Step through the menu bar items
@@ -829,10 +815,10 @@ public class CcddMain
         }
 
         // Update the current database label
-        setCurrentDatabaseLabel();
+        setCurrentProjectLabel();
 
-        // Enable/disable the menu items based on the server, database,
-        // template, and file definition statuses
+        // Enable/disable the menu items based on the server, database, template, and file
+        // definition statuses
         mntmOpenDb.setEnabled(dbControl.isServerConnected());
         mntmCloseDb.setEnabled(dbControl.isDatabaseConnected());
         mntmNewDb.setEnabled(dbControl.isServerConnected());
@@ -899,38 +885,38 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
-     * Set the label displaying the currently open database
-     *************************************************************************/
-    private void setCurrentDatabaseLabel()
+    /**********************************************************************************************
+     * Set the label displaying the currently open project
+     *********************************************************************************************/
+    private void setCurrentProjectLabel()
     {
-        currentDatabase.setText("<html>Project:<b> "
-                                + (dbControl.isDatabaseConnected()
-                                                                   ? dbControl.getDatabase()
-                                                                   : "<i>not connected"));
+        currentProject.setText("<html>Project:<b>&#160;"
+                               + (dbControl.isDatabaseConnected()
+                                                                  ? dbControl.getProjectName()
+                                                                  : "<i>not connected"));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of currently open event logs
      *
      * @return List of open event logs
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<CcddEventLogDialog> getEventLogs()
     {
         return eventLogs;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of currently open table editor dialogs
      *
      * @return List of open table editor dialogs
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<CcddTableEditorDialog> getTableEditorDialogs()
     {
         return tableEditorDialogs;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a menu and add it to a menu bar
      *
      * @param menuBar
@@ -943,14 +929,14 @@ public class CcddMain
      *            key mnemonic for the menu
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
      *
      * @return Menu created
-     *************************************************************************/
+     *********************************************************************************************/
     protected JMenu createMenu(JMenuBar menuBar,
                                String name,
                                int key,
@@ -966,7 +952,7 @@ public class CcddMain
         return menu;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a sub-menu and add it to another menu
      *
      * @param menu
@@ -979,14 +965,14 @@ public class CcddMain
      *            key mnemonic for the sub-menu
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
      *
      * @return Sub-menu created
-     *************************************************************************/
+     *********************************************************************************************/
     protected JMenu createSubMenu(JMenu menu,
                                   String name,
                                   int key,
@@ -1002,9 +988,9 @@ public class CcddMain
         return subMenu;
     }
 
-    /**************************************************************************
-     * Create a menu item and add it to a menu. Specify the occurrence of the
-     * key character in the menu item name to highlight
+    /**********************************************************************************************
+     * Create a menu item and add it to a menu. Specify the occurrence of the key character in the
+     * menu item name to highlight
      *
      * @param menu
      *            menu to add the item to
@@ -1016,14 +1002,14 @@ public class CcddMain
      *            key mnemonic for the menu item
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
      *
      * @return Menu item created
-     *************************************************************************/
+     *********************************************************************************************/
     protected JMenuItem createMenuItem(JMenu menu,
                                        String name,
                                        int key,
@@ -1039,9 +1025,9 @@ public class CcddMain
         return menuItem;
     }
 
-    /**************************************************************************
-     * Create a check box menu item and add it to a menu. Specify the
-     * occurrence of the key character in the menu item name to highlight
+    /**********************************************************************************************
+     * Create a check box menu item and add it to a menu. Specify the occurrence of the key
+     * character in the menu item name to highlight
      *
      * @param menu
      *            menu to add the item to
@@ -1053,8 +1039,8 @@ public class CcddMain
      *            key mnemonic for the menu item
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1063,7 +1049,7 @@ public class CcddMain
      *            true to have the check box selected initially
      *
      * @return Check box menu item created
-     *************************************************************************/
+     *********************************************************************************************/
     protected JCheckBoxMenuItem createCheckBoxMenuItem(JMenu menu,
                                                        String name,
                                                        int key,
@@ -1081,9 +1067,9 @@ public class CcddMain
         return menuItem;
     }
 
-    /**************************************************************************
-     * Create a radio button menu item and add it to a menu. Specify the
-     * occurrence of the key character in the menu item name to highlight
+    /**********************************************************************************************
+     * Create a radio button menu item and add it to a menu. Specify the occurrence of the key
+     * character in the menu item name to highlight
      *
      * @param menu
      *            menu to add the item to
@@ -1095,8 +1081,8 @@ public class CcddMain
      *            key mnemonic for the menu item
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1105,7 +1091,7 @@ public class CcddMain
      *            true to have the radio button selected initially
      *
      * @return Radio button menu item created
-     *************************************************************************/
+     *********************************************************************************************/
     protected JRadioButtonMenuItem createRadioButtonMenuItem(JMenu menu,
                                                              String name,
                                                              int key,
@@ -1123,9 +1109,9 @@ public class CcddMain
         return menuItem;
     }
 
-    /**************************************************************************
-     * Set the key mnemonic for the supplied menu item. Specify the occurrence
-     * of the key character in the menu item name to highlight
+    /**********************************************************************************************
+     * Set the key mnemonic for the supplied menu item. Specify the occurrence of the key character
+     * in the menu item name to highlight
      *
      * @param menuItem
      *            menu item for which to set the mnemonic
@@ -1137,55 +1123,52 @@ public class CcddMain
      *            key mnemonic for the menu item
      *
      * @param occurrence
-     *            specifies which occurrence of the character in the item name
-     *            to highlight; set to < 2 to use the first occurrence
-     *************************************************************************/
+     *            specifies which occurrence of the character in the item name to highlight; set to
+     *            < 2 to use the first occurrence
+     *********************************************************************************************/
     private void setMnemonic(AbstractButton menuItem,
                              String name,
                              int key,
                              int occurrence)
     {
-        // Convert the menu item name and key character to lower case to make
-        // the match case insensitive
+        // Convert the menu item name and key character to lower case to make the match case
+        // insensitive
         name = name.toLowerCase();
         String keyChar = KeyEvent.getKeyText(key).toLowerCase();
 
-        // Set the mnemonic key. This automatically highlights the first
-        // occurrence of the key character (if present) in the menu item name
+        // Set the mnemonic key. This automatically highlights the first occurrence of the key
+        // character (if present) in the menu item name
         menuItem.setMnemonic(key);
 
         int position = -1;
 
         do
         {
-            // Get the position of the key character in the item name starting
-            // at the beginning of the name (first pass) or the last occurrence
-            // of the key character (subsequent passes)
+            // Get the position of the key character in the item name starting at the beginning of
+            // the name (first pass) or the last occurrence of the key character (subsequent
+            // passes)
             position = name.indexOf(keyChar, position + 1);
 
             // Decrement the occurrence counter each pass
             occurrence--;
         } while (occurrence > 0 && position != -1);
-        // Continue until the specified occurrence is reached or if the key
-        // character can't be found in the remaining portion of the name
-
-        // Check if the specified occurrence of the key character was located
+        // Continue until the specified occurrence is reached or if the key character can't be
+        // found in the remaining portion of the name Check if the specified occurrence of the key
+        // character was located
         if (position != -1)
         {
-            // Highlight the specified occurrence of the key character in the
-            // menu item name
+            // Highlight the specified occurrence of the key character in the menu item name
             menuItem.setDisplayedMnemonicIndex(position);
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Initialize the contents of the main application frame
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
-        // Set the font and background color for all tool tip pop-ups. Note
-        // that some look & feels (e.g., Nimbus, GTK+) ignore the tool tip font
-        // and color settings
+        // Set the font and background color for all tool tip pop-ups. Note that some look & feels
+        // (e.g., Nimbus, GTK+) ignore the tool tip font and color settings
         UIDefaults uiDefs = UIManager.getDefaults();
         uiDefs.put("ToolTip.font", ModifiableFontInfo.TOOL_TIP.getFont());
         uiDefs.put("ToolTip.foreground", ModifiableColorInfo.TOOL_TIP_TEXT.getColor());
@@ -1196,13 +1179,12 @@ public class CcddMain
 
         try
         {
-            // Get the path+name of the .jar file in a format acceptable to all
-            // OS's
+            // Get the path+name of the .jar file in a format acceptable to all OS's
             String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
                                                    "UTF-8");
 
-            // Check if the .jar file name exists. This is false if the
-            // application is executed from within the IDE
+            // Check if the .jar file name exists. This is false if the application is executed
+            // from within the IDE
             if (jarFileName != null && jarFileName.endsWith(".jar"))
             {
                 // Get the manifest in the .jar file
@@ -1212,8 +1194,7 @@ public class CcddMain
                 // Check if the manifest exists
                 if (manifest != null)
                 {
-                    // Get the version number, build number, and build date
-                    // from the manifest
+                    // Get the version number, build number, and build date from the manifest
                     Attributes attributes = manifest.getMainAttributes();
                     ccddVersion = attributes.getValue("CCDD-Version");
                     buildDate = attributes.getValue("Build-Date");
@@ -1224,8 +1205,8 @@ public class CcddMain
         }
         catch (Exception e)
         {
-            // Ignore the exception if an I/O exception occurs accessing the
-            // manifest in the .jar file
+            // Ignore the exception if an I/O exception occurs accessing the manifest in the .jar
+            // file
         }
 
         // Check if no version number or build date was found in the manifest
@@ -1233,9 +1214,8 @@ public class CcddMain
         {
             try
             {
-                // Read the version and number from the build property files
-                // and set the date to today's date. This is for when the
-                // application is executed from within the IDE
+                // Read the version and number from the build property files and set the date to
+                // today's date. This is for when the application is executed from within the IDE
                 Properties properties = new Properties();
                 properties.load(new FileInputStream("." + File.separator + "ccdd.build.version"));
                 ccddVersion = properties.getProperty("build.version");
@@ -1245,16 +1225,15 @@ public class CcddMain
             }
             catch (Exception e)
             {
-                // Ignore the exception if the version number and build date
-                // can't be obtained from the build property files
+                // Ignore the exception if the version number and build date can't be obtained from
+                // the build property files
             }
 
-            // Check if no version number was found in the manifest or the
-            // build property files
+            // Check if no version number was found in the manifest or the build property files
             if (ccddVersion == null)
             {
-                // Set the version number and build date to indicate this
-                // information isn't available
+                // Set the version number and build date to indicate this information isn't
+                // available
                 ccddVersion = "*unknown*";
                 buildDate = "*unknown*";
             }
@@ -1268,36 +1247,34 @@ public class CcddMain
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH,
                                                MIN_WINDOW_HEIGHT));
 
-        // Set the default close operation so that the main window frame's
-        // close button doesn't automatically exit the program. Instead, if
-        // this close button is pressed a 'click' event is sent to the File |
-        // Exit command
-        frameCCDD.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        // Set the default close operation so that the main window frame's close button doesn't
+        // automatically exit the program. Instead, if this close button is pressed a 'click' event
+        // is sent to the File | Exit command
+        frameCCDD.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         // Add a listener for main window events
         frameCCDD.addWindowListener(new WindowAdapter()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle the main window frame close button press event
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void windowClosing(WindowEvent we)
             {
-                // Send a 'click' event for the main window frame's File | Exit
-                // menu item. This allows the frame's close button to perform
-                // the same actions as the File | Exit command; i.e., asks the
-                // user to confirm exiting the program
+                // Send a 'click' event for the main window frame's File | Exit menu item. This
+                // allows the frame's close button to perform the same actions as the File | Exit
+                // command; i.e., asks the user to confirm exiting the program
                 mntmExit.doClick();
             }
         });
 
         // Create the application event log window
         JPanel sessionPanel = new JPanel(new BorderLayout());
-        currentDatabase = new JLabel();
-        currentDatabase.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-        currentDatabase.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setCurrentDatabaseLabel();
-        sessionPanel.add(currentDatabase, BorderLayout.PAGE_START);
+        currentProject = new JLabel();
+        currentProject.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+        currentProject.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setCurrentProjectLabel();
+        sessionPanel.add(currentProject, BorderLayout.PAGE_START);
         sessionPanel.add(getSessionEventLog().getEventPanel(),
                          BorderLayout.CENTER);
         frameCCDD.getContentPane().add(sessionPanel);
@@ -1402,14 +1379,13 @@ public class CcddMain
         // Add a listener for the Select user menu item
         mntmUser.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the select user dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Get confirmation to discard uncommitted changes, if
-                // applicable
+                // Get confirmation to discard uncommitted changes, if applicable
                 if (ignoreUncommittedChanges("Select User",
                                              "Discard changes?",
                                              true,
@@ -1425,14 +1401,13 @@ public class CcddMain
         // Add a listener for the Database server menu item
         mntmDbServer.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the database server dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Get confirmation to discard uncommitted changes, if
-                // applicable
+                // Get confirmation to discard uncommitted changes, if applicable
                 if (ignoreUncommittedChanges("Database Server",
                                              "Discard changes?",
                                              true,
@@ -1448,9 +1423,9 @@ public class CcddMain
         // Add a listener for the Read log menu item
         mntmReadLog.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the Read log dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1462,9 +1437,9 @@ public class CcddMain
         // Add a listener for the Print log menu item
         mntmPrintLog.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Print the current session's event log
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1472,16 +1447,16 @@ public class CcddMain
             }
         });
 
-        // Enable the log search menu command only if the session's event log
-        // file successfully opened and can be read
+        // Enable the log search menu command only if the session's event log file successfully
+        // opened and can be read
         mntmSearchLog.setEnabled(getSessionEventLog().getEventLogFile().canRead());
 
         // Add a listener for the Search log menu item
         mntmSearchLog.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Search the current session's event log
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1495,9 +1470,9 @@ public class CcddMain
         // Add a listener for the Enable server check box menu item
         mntmEnableWebServer.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Start or stop the web server
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1533,9 +1508,9 @@ public class CcddMain
         // Add a listener for the Select port menu item
         mntmWebServerPort.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the web server port select dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1547,9 +1522,9 @@ public class CcddMain
         // Add a listener for the Open Project menu item
         mntmOpenDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the project database selection dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1561,15 +1536,14 @@ public class CcddMain
         // Add a listener for the Close Project menu item
         mntmCloseDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Close the currently open project database and open the default
-             * database
-             *****************************************************************/
+            /**************************************************************************************
+             * Close the currently open project database and open the default database
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Check if there are uncommitted changes and if so, confirm
-                // discarding the changes before proceeding
+                // Check if there are uncommitted changes and if so, confirm discarding the changes
+                // before proceeding
                 if (ignoreUncommittedChanges("Restore Project",
                                              "Discard changes?",
                                              true,
@@ -1584,9 +1558,9 @@ public class CcddMain
         // Add a listener for the New Project menu item
         mntmNewDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the project database creation dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1598,9 +1572,9 @@ public class CcddMain
         // Add a listener for the Rename Project menu item
         mntmRenameDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the rename project database dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1612,9 +1586,9 @@ public class CcddMain
         // Add a listener for the Copy Project menu item
         mntmCopyDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the copy project database dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1626,9 +1600,9 @@ public class CcddMain
         // Add a listener for the Delete Project menu item
         mntmDeleteDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the project database deletion dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1640,9 +1614,9 @@ public class CcddMain
         // Add a listener for the Backup Project menu item
         mntmBackupDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Backup a project database to a file
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1653,14 +1627,14 @@ public class CcddMain
         // Add a listener for the Restore Project menu item
         mntmRestoreDb.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Restore a project database from a backup file
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Check if there are uncommitted changes and if so, confirm
-                // discarding the changes before proceeding
+                // Check if there are uncommitted changes and if so, confirm discarding the changes
+                // before proceeding
                 if (ignoreUncommittedChanges("Restore Project",
                                              "Discard changes?",
                                              true,
@@ -1675,9 +1649,9 @@ public class CcddMain
         // Add a listener for the Unlock Project menu item
         mntmUnlock.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the unlock project database dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1689,9 +1663,9 @@ public class CcddMain
         // Add a listener for the Verify menu item
         mntmVerifyDatabase.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Perform a database consistency check
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1702,9 +1676,9 @@ public class CcddMain
         // Add a listener for the New Data menu item
         mntmNewTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the data table management dialog to create a new table
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1715,9 +1689,9 @@ public class CcddMain
         // Add a listener for the Edit Data menu item
         mntmEditTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the data table management dialog to select a table to edit
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1728,10 +1702,9 @@ public class CcddMain
         // Add a listener for the Rename Data menu item
         mntmRenameTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select a table to
-             * rename
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select a table to rename
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1743,9 +1716,9 @@ public class CcddMain
         // Add a listener for the Copy Data menu item
         mntmCopyTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the data table management dialog to select a table to copy
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1757,10 +1730,9 @@ public class CcddMain
         // Add a listener for the Delete Data menu item
         mntmDeleteTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select a table to
-             * delete
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select a table to delete
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1772,9 +1744,9 @@ public class CcddMain
         // Add a listener for the Padding byte alignment Data menu item
         mntmSetAlignment.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the padding byte alignment value
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1785,9 +1757,9 @@ public class CcddMain
         // Add a listener for the Add Padding Data menu item
         mntmAddPadding.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Add or update padding variables in the data structure tables
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1798,9 +1770,9 @@ public class CcddMain
         // Add a listener for the Remove Padding Data menu item
         mntmRemovePadding.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Remove padding variables from the data structure tables
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1811,9 +1783,9 @@ public class CcddMain
         // Add a listener for the Import Data menu item
         mntmImportTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Select one or more files to import
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1825,10 +1797,10 @@ public class CcddMain
         // Add a listener for the Export Table(s) - CSV menu item
         mntmExportCSV.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select one or more
-             * tables to export in CSV format
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select one or more tables to export in CSV
+             * format
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1840,10 +1812,10 @@ public class CcddMain
         // Add a listener for the Export Table(s) - EDS menu item
         mntmExportEDS.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select one or more
-             * tables to export in EDS format
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select one or more tables to export in EDS
+             * format
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1855,10 +1827,10 @@ public class CcddMain
         // Add a listener for the Export Table(s) - JSON menu item
         mntmExportJSON.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select one or more
-             * tables to export in JSON format
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select one or more tables to export in JSON
+             * format
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1870,10 +1842,10 @@ public class CcddMain
         // Add a listener for the Export Table(s) - XTCE menu item
         mntmExportXTCE.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Show the data table management dialog to select one or more
-             * tables to export in XTCE format
-             *****************************************************************/
+            /**************************************************************************************
+             * Show the data table management dialog to select one or more tables to export in XTCE
+             * format
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1885,9 +1857,9 @@ public class CcddMain
         // Add a listener for the Manage Groups Table menu item
         mntmManageGroups.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the table group management dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1899,9 +1871,9 @@ public class CcddMain
         // Add a listener for the Manage Table Types menu item
         mntmManageTableTypes.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the table type editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1915,8 +1887,7 @@ public class CcddMain
                 // The table type editor is already open
                 else
                 {
-                    // Deiconify the editor (if iconfied) and bring it to the
-                    // front
+                    // Deiconify the editor (if iconfied) and bring it to the front
                     tableTypeEditorDialog.setExtendedState(Frame.NORMAL);
                     tableTypeEditorDialog.toFront();
                     tableTypeEditorDialog.repaint();
@@ -1927,9 +1898,9 @@ public class CcddMain
         // Add a listener for the Manage Data Types menu item
         mntmManageDataTypes.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the data type editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1941,9 +1912,9 @@ public class CcddMain
         // Add a listener for the Manage Macros menu item
         mntmManageMacros.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the macro editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1955,9 +1926,9 @@ public class CcddMain
         // Add a listener for the Manage Links Table menu item
         mntmManageLinks.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the link management dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1968,9 +1939,9 @@ public class CcddMain
         // Add a listener for the telemetry scheduler menu item
         mntmManageTlm.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the telemetry scheduler dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1981,9 +1952,9 @@ public class CcddMain
         // Add a listener for the application scheduler menu item
         mntmManageApps.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the application scheduler dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -1994,9 +1965,9 @@ public class CcddMain
         // Add a listener for the Rate Parameters menu item
         mntmRateParameters.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the rate parameter change dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2007,9 +1978,9 @@ public class CcddMain
         // Add a listener for the Application Parameters menu item
         mntmAppParameters.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the application parameter change dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2020,9 +1991,9 @@ public class CcddMain
         // Add a listener for the Assign IDs menu item
         mntmAssignMsgID.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the message ID assignment dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2033,9 +2004,9 @@ public class CcddMain
         // Add a listener for the Reserve IDs menu item
         mntmReserveMsgID.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the message ID reservation dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2046,9 +2017,9 @@ public class CcddMain
         // Add a listener for the Show All IDs menu item
         mntmShowAllMsgID.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the message ID owner, name, and ID dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2059,9 +2030,9 @@ public class CcddMain
         // Add a listener for the Find Duplicates menu item
         mntmDuplicateMsgID.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the duplicate message ID dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2072,14 +2043,13 @@ public class CcddMain
         // Add a listener for the Edit Data Fields menu item
         mntmEditDataField.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the data field editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Check if the data field editor dialog is not already
-                // displayed
+                // Check if the data field editor dialog is not already displayed
                 if (fieldTblEditorDialog == null || !fieldTblEditorDialog.isShowing())
                 {
                     // Open the data field editor
@@ -2088,8 +2058,7 @@ public class CcddMain
                 // The editor is currently displayed
                 else
                 {
-                    // Deiconify the editor (if iconfied) and bring it to the
-                    // front
+                    // Deiconify the editor (if iconfied) and bring it to the front
                     fieldTblEditorDialog.setExtendedState(Frame.NORMAL);
                     fieldTblEditorDialog.toFront();
                     fieldTblEditorDialog.repaint();
@@ -2100,10 +2069,10 @@ public class CcddMain
         // Add a listener for the Show Variables command
         mntmShowVariables.addActionListener(new ActionListener()
         {
-            /******************************************************************
-             * Display a dialog showing all of the variable paths + names. The
-             * application format and ITOS record formats are shown
-             *****************************************************************/
+            /**************************************************************************************
+             * Display a dialog showing all of the variable paths + names. The application format
+             * and ITOS record formats are shown
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2114,9 +2083,9 @@ public class CcddMain
         // Add a listener for the Search tables menu item
         mntmSearchTable.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the search tables dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2127,9 +2096,9 @@ public class CcddMain
         // Add a listener for the Manage script associations menu item
         mntmManageScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the manage script associations dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2140,8 +2109,7 @@ public class CcddMain
                     scriptExecutiveDialog.closeFrame();
                 }
 
-                // Check if the script association manager dialog isn't already
-                // open
+                // Check if the script association manager dialog isn't already open
                 if (scriptManagerDialog == null || !scriptManagerDialog.isShowing())
                 {
                     // Open the script association manager dialog
@@ -2150,8 +2118,7 @@ public class CcddMain
                 // The script association manager dialog is already open
                 else
                 {
-                    // Deiconify the dialog (if iconfied) and bring it to the
-                    // front
+                    // Deiconify the dialog (if iconfied) and bring it to the front
                     scriptManagerDialog.setExtendedState(Frame.NORMAL);
                     scriptManagerDialog.toFront();
                     scriptManagerDialog.repaint();
@@ -2162,9 +2129,9 @@ public class CcddMain
         // Add a listener for the Execute script associations menu item
         mntmExecuteScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Execute the table and script associations stored in the database
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2173,8 +2140,8 @@ public class CcddMain
                 // Check if the script association manager is already open
                 if (scriptManagerDialog != null && scriptManagerDialog.isShowing())
                 {
-                    // Check if there are no changes to the script associations
-                    // or if the user elects to discard the changes
+                    // Check if there are no changes to the script associations or if the user
+                    // elects to discard the changes
                     if (!scriptManagerDialog.isAssociationsChanged()
                         || new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                                      "<html><b>Discard script association changes?",
@@ -2185,8 +2152,8 @@ public class CcddMain
                         // Close the script manager
                         scriptManagerDialog.closeFrame();
                     }
-                    // There are changes in the script manager that the user
-                    // doesn't want to discard
+                    // There are changes in the script manager that the user doesn't want to
+                    // discard
                     else
                     {
                         // Set the flag to prevent opening the script executive
@@ -2194,40 +2161,33 @@ public class CcddMain
                     }
                 }
 
-                // Check if the script manager isn't preventing opening the
-                // script executive
+                // Check if the script manager isn't preventing opening the script executive
                 if (isOkayToOpen)
                 {
-                    // Get the list of script association definitions stored in
-                    // the database
+                    // Get the list of script association definitions stored in the database
                     String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
                                                                                frameCCDD)
                                                      .toArray(new String[0][0]);
 
-                    // Check that at least one script association definition
-                    // exists
+                    // Check that at least one script association definition exists
                     if (associations.length != 0)
                     {
-                        // Check if the script association executive dialog
-                        // isn't already open
+                        // Check if the script association executive dialog isn't already open
                         if (scriptExecutiveDialog == null || !scriptExecutiveDialog.isShowing())
                         {
                             // Open the script association executive dialog
                             scriptExecutiveDialog = new CcddScriptExecutiveDialog(CcddMain.this);
                         }
-                        // The script association executive dialog is already
-                        // open
+                        // The script association executive dialog is already open
                         else
                         {
-                            // Deiconify the dialog (if iconfied) and bring it
-                            // to the front
+                            // Deiconify the dialog (if iconfied) and bring it to the front
                             scriptExecutiveDialog.setExtendedState(Frame.NORMAL);
                             scriptExecutiveDialog.toFront();
                             scriptExecutiveDialog.repaint();
                         }
                     }
-                    // No script association definitions are stored in the
-                    // database
+                    // No script association definitions are stored in the database
                     else
                     {
                         // Inform the user that no scripts exist
@@ -2244,9 +2204,9 @@ public class CcddMain
         // Add a listener for the Store scripts menu item
         mntmStoreScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Store script(s) in the database
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2257,9 +2217,9 @@ public class CcddMain
         // Add a listener for the Retrieve scripts menu item
         mntmRetrieveScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Retrieve script(s) from the database
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2271,9 +2231,9 @@ public class CcddMain
         // Add a listener for the Delete scripts menu item
         mntmDeleteScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Delete script(s) from the database
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2285,9 +2245,9 @@ public class CcddMain
         // Add a listener for the Search scripts menu item
         mntmSearchScripts.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the search scripts dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2298,9 +2258,9 @@ public class CcddMain
         // Add a listener for the program Preferences menu item
         mntmPreferences.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Show the program preferences dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2311,9 +2271,9 @@ public class CcddMain
         // Add a listener for the Exit menu item
         mntmExit.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Exit the program
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2324,9 +2284,9 @@ public class CcddMain
         // Add a listener for the Guide menu item
         mntmGuide.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Extract the user's guide from the .jar file and display it
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -2337,14 +2297,13 @@ public class CcddMain
         // Add a listener for the About menu item
         mntmAbout.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Display the help About dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Create the icon to display in the dialog by scaling the CCDD
-                // logo
+                // Create the icon to display in the dialog by scaling the CCDD logo
                 int iconWidth = 250;
                 ImageIcon icon = new ImageIcon(getClass().getResource(CCDD_ICON));
                 Image image = icon.getImage().getScaledInstance(iconWidth,
@@ -2396,18 +2355,18 @@ public class CcddMain
         });
     }
 
-    /**************************************************************************
-     * Create a shutdown hook so that normal and abnormal termination of the
-     * application can close the database and event log file
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create a shutdown hook so that normal and abnormal termination of the application can close
+     * the database and event log file
+     *********************************************************************************************/
     private void createShutdownHook()
     {
         // Add a hook to trap a shutdown event
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle the shutdown event
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void run()
             {
@@ -2416,14 +2375,14 @@ public class CcddMain
                     // Check if the database control handler exists
                     if (dbControl != null)
                     {
-                        // Check if the database command handler exists and
-                        // that a save point is active
+                        // Check if the database command handler exists and that a save point is
+                        // active
                         if (dbCommand != null && dbCommand.getSavePointEnable())
                         {
                             try
                             {
-                                // Revert the changes to the tables that were
-                                // successfully updated prior the current table
+                                // Revert the changes to the tables that were successfully updated
+                                // prior the current table
                                 dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
                                                            + DB_SAVE_POINT_NAME
                                                            + ";",
@@ -2434,8 +2393,7 @@ public class CcddMain
                                 // Check if the session event log exists
                                 if (!eventLogs.isEmpty())
                                 {
-                                    // Inform the user that the reversion to
-                                    // the save point failed
+                                    // Inform the user that the reversion to the save point failed
                                     getSessionEventLog().logFailEvent(frameCCDD,
                                                                       "Cannot revert changes to table(s); cause '"
                                                                                  + se.getMessage()
@@ -2469,21 +2427,19 @@ public class CcddMain
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Exit the CCDD application
      *
      * @param withConfirm
-     *            true to ask for confirmation to exit; false to exit without
-     *            confirmation
+     *            true to ask for confirmation to exit; false to exit without confirmation
      *
      * @param status
      *            exit status value: 0 for normal exit, non-zero for abnormal
-     *************************************************************************/
+     *********************************************************************************************/
     protected void exitApplication(boolean withConfirm, int status)
     {
-        // Ask the user to verify if exiting is okay, then check if there are
-        // editors open with uncommitted changes; if so then get confirmation
-        // to discard the changes before exiting
+        // Ask the user to verify if exiting is okay, then check if there are editors open with
+        // uncommitted changes; if so then get confirmation to discard the changes before exiting
         if (!withConfirm
             || (new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                           "<html><b>Exit application?",
@@ -2501,25 +2457,25 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the application look & feel
      *
      * @return name of the selected look & feel
-     *************************************************************************/
+     *********************************************************************************************/
     protected String getLookAndFeel()
     {
         return selectedLaF;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the application's look & feel
      *
      * @param laf
-     *            name of the selected look & feel; null to use the look & feel
-     *            stored in the program preferences
+     *            name of the selected look & feel; null to use the look & feel stored in the
+     *            program preferences
      *
      * @return true if an error occurred loading the look & feel
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean setLookAndFeel(String laf)
     {
         boolean isLaFError = false;
@@ -2538,8 +2494,7 @@ public class CcddMain
         // Step through the look & feels available
         for (LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels())
         {
-            // Check if the desired look & feel matches one of the available
-            // ones
+            // Check if the desired look & feel matches one of the available ones
             if (laf.equals(lafInfo.getName()))
             {
                 // Store the selected look & feel
@@ -2569,19 +2524,17 @@ public class CcddMain
         return isLaFError;
     }
 
-    /**************************************************************************
-     * Update the visible graphical user interface (GUI) components for a
-     * change in the specified GUI update type
+    /**********************************************************************************************
+     * Update the visible graphical user interface (GUI) components for a change in the specified
+     * GUI update type
      *
      * @param updateType
-     *            type of GUI update - LAF for look & feel; FONT for font;
-     *            COLOR for color
+     *            type of GUI update - LAF for look & feel; FONT for font; COLOR for color
      *
      * @param dialogs
-     *            array of other dialogs to update. This is used to update the
-     *            Preferences dialog and its associated selection dialog (if
-     *            applicable)
-     *************************************************************************/
+     *            array of other dialogs to update. This is used to update the Preferences dialog
+     *            and its associated selection dialog (if applicable)
+     *********************************************************************************************/
     protected void updateGUI(GUIUpdateType updateType, CcddDialogHandler[] dialogs)
     {
         // Update the main application window
@@ -2590,8 +2543,8 @@ public class CcddMain
         // Step through each open event log
         for (CcddEventLogDialog evtLog : eventLogs)
         {
-            // Check if this isn't the session event log. Since it exists as
-            // part of the main window it's already updated above
+            // Check if this isn't the session event log. Since it exists as part of the main
+            // window it's already updated above
             if (!evtLog.equals(getSessionEventLog()))
             {
                 // Update the log entry dialog
@@ -2671,21 +2624,19 @@ public class CcddMain
         }
     }
 
-    /**************************************************************************
-     * Update the visible graphical user interface (GUI) components of the
-     * specified container for a change in the specified GUI update type
+    /**********************************************************************************************
+     * Update the visible graphical user interface (GUI) components of the specified container for
+     * a change in the specified GUI update type
      *
      * @param updateType
-     *            type of GUI update - LAF for look & feel; FONT for font;
-     *            COLOR for color
+     *            type of GUI update - LAF for look & feel; FONT for font; COLOR for color
      *
      * @param container
      *            reference to the Container object to update
      *
      * @param table
-     *            reference to the container's table; null if the container has
-     *            no table
-     *************************************************************************/
+     *            reference to the container's table; null if the container has no table
+     *********************************************************************************************/
     private void updateContainerGUI(GUIUpdateType updateType,
                                     Container container,
                                     CcddJTableHandler table)
@@ -2699,9 +2650,9 @@ public class CcddMain
                 // Check if a table reference is provided
                 if (table != null)
                 {
-                    // Reset the table header renderer and mouse listener so
-                    // that the header is drawn to match the new look & feel
-                    // and column auto-resizing remains functional
+                    // Reset the table header renderer and mouse listener so that the header is
+                    // drawn to match the new look & feel and column auto-resizing remains
+                    // functional
                     table.resetHeaderOnLaFChange();
                 }
 
@@ -2739,15 +2690,15 @@ public class CcddMain
         container.repaint();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the programs preferences from the backing store
-     *************************************************************************/
+     *********************************************************************************************/
     private void getProgramPreferences()
     {
         try
         {
-            // Attempt to store a test preference value to determine if access
-            // to the backing store is available
+            // Attempt to store a test preference value to determine if access to the backing store
+            // is available
             progPrefs.putBoolean("PreferenceStorageAvailable", true);
             progPrefs.remove("PreferenceStorageAvailable");
             progPrefs.flush();
@@ -2783,13 +2734,13 @@ public class CcddMain
         dbControl.setPort(progPrefs.get(POSTGRESQL_SERVER_PORT,
                                         DEFAULT_POSTGRESQL_PORT));
         dbControl.setSSL(progPrefs.getBoolean(POSTGRESQL_SERVER_SSL, false));
-        dbControl.setDatabase(progPrefs.get(DATABASE, DEFAULT_DATABASE));
+        dbControl.setProjectName(progPrefs.get(DATABASE, DEFAULT_DATABASE));
         dbControl.setUser(progPrefs.get(USER, System.getProperty("user.name")));
     }
 
-    /**************************************************************************
-     * Check if any of the open editors has uncommitted changes, and if so, ask
-     * the user if the operation should continue
+    /**********************************************************************************************
+     * Check if any of the open editors has uncommitted changes, and if so, ask the user if the
+     * operation should continue
      *
      * @param dialogType
      *            text to display in the dialog's header
@@ -2801,16 +2752,16 @@ public class CcddMain
      *            true to close any open table editors
      *
      * @param tableTypes
-     *            list of tables types that are being changed; null or an empty
-     *            list if the caller is not the table type editor
+     *            list of tables types that are being changed; null or an empty list if the caller
+     *            is not the table type editor
      *
      * @param parent
      *            GUI component over which to center the confirmation dialog
      *
-     * @return true if there are no uncommitted changes or if the user elects
-     *         to ignore the changes and continue with the operation; false if
-     *         changes exist and the user cancels the operation
-     *************************************************************************/
+     * @return true if there are no uncommitted changes or if the user elects to ignore the changes
+     *         and continue with the operation; false if changes exist and the user cancels the
+     *         operation
+     *********************************************************************************************/
     protected boolean ignoreUncommittedChanges(String dialogType,
                                                String dialogMessage,
                                                boolean closeEditors,
@@ -2826,23 +2777,20 @@ public class CcddMain
         // Step through the open table editor dialogs
         for (CcddTableEditorDialog editorDialog : tableEditorDialogs)
         {
-            // Check if any of the editor dialog's tables contain uncommitted
-            // changes
+            // Check if any of the editor dialog's tables contain uncommitted changes
             if (editorDialog.isTablesChanged()
                 && (tableTypes == null
                     || tableTypes.contains(editorDialog.getTableEditor().getTableInformation().getType())))
             {
-                // Set the flag to indicate that there are uncommitted changes
-                // and stop searching
+                // Set the flag to indicate that there are uncommitted changes and stop searching
                 isChanged = true;
                 break;
             }
         }
 
-        // Check if there are unsaved table type or data field table editor
-        // changes. If the list of changed table types is not empty then the
-        // caller is the table type editor; ignore table type changes in this
-        // instance
+        // Check if there are unsaved table type or data field table editor changes. If the list of
+        // changed table types is not empty then the caller is the table type editor; ignore table
+        // type changes in this instance
         if (!isChanged
             && (((tableTypes == null || tableTypes.isEmpty())
                  && tableTypeEditorDialog != null
@@ -2859,8 +2807,8 @@ public class CcddMain
             isChanged = true;
         }
 
-        // Check if there are uncommitted changes and if the user confirms that
-        // the changes should be ignored
+        // Check if there are uncommitted changes and if the user confirms that the changes should
+        // be ignored
         if (isChanged && new CcddDialogHandler().showMessageDialog(parent,
                                                                    "<html><b>"
                                                                            + dialogMessage,
@@ -2868,13 +2816,12 @@ public class CcddMain
                                                                    JOptionPane.QUESTION_MESSAGE,
                                                                    DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
         {
-            // Clear the flag to indicate that the operation should be
-            // terminated
+            // Clear the flag to indicate that the operation should be terminated
             canContinue = false;
         }
 
-        // Check if the open editor dialogs should be closed and that the user
-        // confirmed discarding the uncommitted changes
+        // Check if the open editor dialogs should be closed and that the user confirmed discarding
+        // the uncommitted changes
         if (closeEditors && canContinue)
         {
             // Step through the open table editor dialogs

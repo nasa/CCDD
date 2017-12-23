@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary common tree handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -36,9 +35,9 @@ import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary common tree handler class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddCommonTreeHandler extends JTree
 {
@@ -54,31 +53,30 @@ public class CcddCommonTreeHandler extends JTree
     private final Icon linkedBitVariableIcon;
     private final Icon linkedPackedVariableIcon;
 
-    // Index of the row containing the last variable in a group of bit-packed
-    // variables
+    // Index of the row containing the last variable in a group of bit-packed variables
     private int lastPackRow;
 
     // Flag indicating if the data type portion of a node name (in the format
     // dataType.variableName) should be hidden or displayed
     private boolean isHideDataType;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Tree cell renderer class for highlighting variable names in nodes
-     *************************************************************************/
+     *********************************************************************************************/
     protected class TableTreeCellRenderer extends DefaultTreeCellRenderer
     {
-        /**********************************************************************
+        /******************************************************************************************
          * Tree cell renderer constructor
-         *********************************************************************/
+         *****************************************************************************************/
         TableTreeCellRenderer()
         {
             // Set the node font
             super.setFont(ModifiableFontInfo.TREE_NODE.getFont());
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Display variable nodes with the variable name italicized
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public Component getTreeCellRendererComponent(JTree tree,
                                                       Object value,
@@ -92,8 +90,8 @@ public class CcddCommonTreeHandler extends JTree
             // Get the node's name
             String name = ((ToolTipTreeNode) value).getUserObject().toString();
 
-            // Check if the name contains a period, indicating it is in the
-            // form dataType.variableName
+            // Check if the name contains a period, indicating it is in the form
+            // dataType.variableName
             if (name.contains("."))
             {
                 String newName = name;
@@ -131,9 +129,9 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Common tree handler class constructor
-     *************************************************************************/
+     *********************************************************************************************/
     CcddCommonTreeHandler(CcddMain ccddMain)
     {
         super();
@@ -153,45 +151,44 @@ public class CcddCommonTreeHandler extends JTree
         isHideDataType = false;
     }
 
-    /**************************************************************************
-     * Placeholder for method to respond to changes in selection of a table in
-     * the table tree
-     *************************************************************************/
+    /**********************************************************************************************
+     * Placeholder for method to respond to changes in selection of a table in the table tree
+     *********************************************************************************************/
     protected void updateTableSelection()
     {
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove HTML tag(s). Override to remove other text
      *
      * @param text
      *            string from which to remove the extra text
      *
      * @return Input string minus any HTML tag(s)
-     *************************************************************************/
+     *********************************************************************************************/
     protected String removeExtraText(String text)
     {
         return CcddUtilities.removeHTMLTags(text);
     }
 
-    /**************************************************************************
-     * Set the flag indicating if the data type portion of a node name (in the
-     * format dataType.variableName) should be hidden or displayed
+    /**********************************************************************************************
+     * Set the flag indicating if the data type portion of a node name (in the format
+     * dataType.variableName) should be hidden or displayed
      *
      * @param enable
      *            true to display the data type; false to hide it
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setEnableDataType(boolean enable)
     {
         isHideDataType = !enable;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Expand or collapse all of the nodes in the tree
      *
      * @param isExpanded
      *            true if all tree nodes should be expanded
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setTreeExpansion(boolean isExpanded)
     {
         // Check if the tree should be fully expanded
@@ -208,13 +205,12 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
-     * Expand the specified tree path and all of its child paths. This is a
-     * recursive method
+    /**********************************************************************************************
+     * Expand the specified tree path and all of its child paths. This is a recursive method
      *
      * @param path
      *            tree path to expand
-     *************************************************************************/
+     *********************************************************************************************/
     private void expandTreePath(TreePath path)
     {
         // Get the node for this path
@@ -237,13 +233,12 @@ public class CcddCommonTreeHandler extends JTree
         expandPath(path);
     }
 
-    /**************************************************************************
-     * Collapse the specified tree path and all of its child paths. This is a
-     * recursive method
+    /**********************************************************************************************
+     * Collapse the specified tree path and all of its child paths. This is a recursive method
      *
      * @param path
      *            tree path to collapse
-     *************************************************************************/
+     *********************************************************************************************/
     private void collapseTreePath(TreePath path)
     {
         // Get the node for this path
@@ -262,8 +257,8 @@ public class CcddCommonTreeHandler extends JTree
             }
         }
 
-        // Check if this path is not the root or if the root is visible. This
-        // prevents collapsing the root's children when the root is invisible
+        // Check if this path is not the root or if the root is visible. This prevents collapsing
+        // the root's children when the root is invisible
         if (path.getParentPath() != null || isRootVisible())
         {
             // Collapse the current path
@@ -271,15 +266,15 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the tree path for the specified tree node
      *
      * @param node
      *            tree node from which to create the tree path
      *
-     * @return Tree path corresponding to the specified tree node; null if the
-     *         specified node is null
-     *************************************************************************/
+     * @return Tree path corresponding to the specified tree node; null if the specified node is
+     *         null
+     *********************************************************************************************/
     protected static TreePath getPathFromNode(TreeNode node)
     {
         List<Object> nodes = new ArrayList<Object>();
@@ -299,10 +294,9 @@ public class CcddCommonTreeHandler extends JTree
                                : new TreePath(nodes.toArray());
     }
 
-    /**************************************************************************
-     * Expand the selected node(s) if collapsed, or collapse the selected
-     * node(s) if expanded
-     *************************************************************************/
+    /**********************************************************************************************
+     * Expand the selected node(s) if collapsed, or collapse the selected node(s) if expanded
+     *********************************************************************************************/
     protected void expandCollapseSelectedNodes()
     {
         // Check if a tree node is selected
@@ -330,14 +324,14 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the current tree expansion state
      *
      * @param tree
      *            reference to the tree for which to obtain the expansion state
      *
      * @return String representing the current tree expansion state
-     *************************************************************************/
+     *********************************************************************************************/
     protected String getExpansionState()
     {
         String expState = "";
@@ -359,16 +353,15 @@ public class CcddCommonTreeHandler extends JTree
         return expState;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Restore the tree expansion state
      *
      * @param tree
-     *            reference to the tree for which to restore the expansion
-     *            state
+     *            reference to the tree for which to restore the expansion state
      *
      * @param expState
      *            string representing the desired tree expansion state
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setExpansionState(String expState)
     {
         // Step through each visible row in the tree
@@ -377,8 +370,7 @@ public class CcddCommonTreeHandler extends JTree
             // Get the row's path
             TreePath path = getPathForRow(row);
 
-            // Check if the desired expansion state contains the path for the
-            // row
+            // Check if the desired expansion state contains the path for the row
             if (expState.contains(path.toString()))
             {
                 // Expand the row
@@ -387,9 +379,8 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
-     * Adjust the tree expansion state to account for the tree filter selection
-     * status
+    /**********************************************************************************************
+     * Adjust the tree expansion state to account for the tree filter selection status
      *
      * @param expState
      *            string representing the desired tree expansion state
@@ -407,13 +398,11 @@ public class CcddCommonTreeHandler extends JTree
      *            true if the table type filter status changed
      *
      * @param isApp
-     *            true if the groups are to be treated as possible
-     *            applications; false if the application distinction doesn't
-     *            apply
+     *            true if the groups are to be treated as possible applications; false if the
+     *            application distinction doesn't apply
      *
      * @param topNodePrefixes
-     *            initial portion of the node path that provide the overall
-     *            division of the tree
+     *            initial portion of the node path that provide the overall division of the tree
      *
      * @param groupHandler
      *            reference to the group handler
@@ -421,9 +410,9 @@ public class CcddCommonTreeHandler extends JTree
      * @param tableTypeHandler
      *            reference to the table type handler
      *
-     * @return String representing the tree expansion state with adjustments
-     *         made to account for the change in filter selection status
-     *************************************************************************/
+     * @return String representing the tree expansion state with adjustments made to account for
+     *         the change in filter selection status
+     *********************************************************************************************/
     protected String adjustExpansionState(String expState,
                                           boolean isByGroup,
                                           boolean isByGroupChanged,
@@ -443,16 +432,14 @@ public class CcddCommonTreeHandler extends JTree
         // Create the path termination regular expression
         String termPattern = "(\\],|,.*)";
 
-        // Initialize the group name regular expression pattern assuming there
-        // is no filtering by groups
+        // Initialize the group name regular expression pattern assuming there is no filtering by
+        // groups
         String groupPattern = "(())";
 
-        // Check if the tree has changed to or is already being filtered by
-        // groups
+        // Check if the tree has changed to or is already being filtered by groups
         if ((isByGroup && !isByGroupChanged) || (!isByGroup && isByGroupChanged))
         {
-            // Initialize the group name regular expression pattern with group
-            // filtering enabled
+            // Initialize the group name regular expression pattern with group filtering enabled
             groupPattern = "(, (";
 
             // Step through each group
@@ -466,16 +453,14 @@ public class CcddCommonTreeHandler extends JTree
             groupPattern = CcddUtilities.removeTrailer(groupPattern, "|") + "))";
         }
 
-        // Initialize the type name regular expression pattern assuming there
-        // is no filtering by types
+        // Initialize the type name regular expression pattern assuming there is no filtering by
+        // types
         String typePattern = "(())";
 
-        // Check if the tree has changed to or is already being filtered by
-        // types
+        // Check if the tree has changed to or is already being filtered by types
         if ((isByType && !isByTypeChanged) || (!isByType && isByTypeChanged))
         {
-            // Initialize the type name regular expression pattern with type
-            // filtering enabled
+            // Initialize the type name regular expression pattern with type filtering enabled
             typePattern = "(, (";
 
             // Step through each table type
@@ -492,22 +477,19 @@ public class CcddCommonTreeHandler extends JTree
         // Step through each visible path in the tree
         for (String path : paths)
         {
-            // Add the path terminator that was removed when the expansion
-            // state was split
+            // Add the path terminator that was removed when the expansion state was split
             path += "],";
 
             // Step through the prototype and instance nodes
             for (String prefix : topNodePrefixes)
             {
-                // Set the flag to true if the path contains the group and/or a
-                // type nodes
+                // Set the flag to true if the path contains the group and/or a type nodes
                 boolean matchesEither = path.matches(Pattern.quote(prefix)
                                                      + groupPattern
                                                      + typePattern
                                                      + termPattern);
 
-                // Set the flag to true if the path contains a group node but
-                // no type node
+                // Set the flag to true if the path contains a group node but no type node
                 boolean matchesGroup = groupPattern.equals("(())")
                                                                    ? false
                                                                    : typePattern.equals("(())")
@@ -526,8 +508,7 @@ public class CcddCommonTreeHandler extends JTree
                                                                                                                   + typePattern
                                                                                                                   + termPattern);
 
-                // Set the flag to true if the path contains a type node but
-                // no group node
+                // Set the flag to true if the path contains a type node but no group node
                 boolean matchesType = typePattern.equals("(())")
                                                                  ? false
                                                                  : groupPattern.equals("(())")
@@ -551,8 +532,7 @@ public class CcddCommonTreeHandler extends JTree
                     // Check if the group filter changed to enabled
                     if (isByGroup && isByGroupChanged)
                     {
-                        // Check if the groups are to treated as possible
-                        // applications
+                        // Check if the groups are to treated as possible applications
                         if (isApp)
                         {
                             // Update the node path with the group name
@@ -573,8 +553,8 @@ public class CcddCommonTreeHandler extends JTree
                                 // Check if the tree is filtered by type
                                 if (isByType)
                                 {
-                                    // Update the node path with the group name
-                                    // and append it to new path
+                                    // Update the node path with the group name and append it to
+                                    // new path
                                     newPath += path.replaceAll(Pattern.quote(prefix)
                                                                + typePattern
                                                                + termPattern,
@@ -584,8 +564,8 @@ public class CcddCommonTreeHandler extends JTree
                                                                               + "$3");
                                 }
 
-                                // Update the node path with the group name and
-                                // append it to new path
+                                // Update the node path with the group name and append it to new
+                                // path
                                 newPath += path.replaceAll(Pattern.quote(prefix)
                                                            + typePattern
                                                            + termPattern,
@@ -595,12 +575,10 @@ public class CcddCommonTreeHandler extends JTree
                                                                           + "$1$3");
                             }
 
-                            // Check if type filtering is enabled and that the
-                            // path contains a type
+                            // Check if type filtering is enabled and that the path contains a type
                             if (isByType && matchesType)
                             {
-                                // Blank the original path; only the new path
-                                // items are applicable
+                                // Blank the original path; only the new path items are applicable
                                 path = "";
                             }
 
@@ -628,8 +606,7 @@ public class CcddCommonTreeHandler extends JTree
                         // Step through each table type
                         for (String type : tableTypeHandler.getTypes())
                         {
-                            // Modify the existing path to include the new
-                            // type node
+                            // Modify the existing path to include the new type node
                             newPath += path.replaceAll(Pattern.quote(prefix)
                                                        + groupPattern
                                                        + termPattern,
@@ -656,15 +633,13 @@ public class CcddCommonTreeHandler extends JTree
 
                     break;
                 }
-                // Check if group filtering is disabled and the path contains a
-                // group
+                // Check if group filtering is disabled and the path contains a group
                 else if (!isByGroup && matchesGroup)
                 {
                     // Blank the path
                     path = "";
                 }
-                // Check if type filtering is disabled and the path contains a
-                // type
+                // Check if type filtering is disabled and the path contains a type
                 else if (!isByType && matchesType)
                 {
                     // Blank the path
@@ -683,26 +658,22 @@ public class CcddCommonTreeHandler extends JTree
         return expState;
     }
 
-    /**************************************************************************
-     * Convert the elements in tree path array to a single, comma-separated
-     * string
+    /**********************************************************************************************
+     * Convert the elements in tree path array to a single, comma-separated string
      *
      * @param path
      *            tree path array
      *
      * @param startIndex
-     *            index of the first array member to include in the output
-     *            string
+     *            index of the first array member to include in the output string
      *
-     * @return The tree path array as a single string with individual elements
-     *         separated by commas
-     *************************************************************************/
+     * @return The tree path array as a single string with individual elements separated by commas
+     *********************************************************************************************/
     protected String createNameFromPath(Object[] path, int startIndex)
     {
         String name = "";
 
-        // Step through each element in the path, beginning at the specified
-        // starting index
+        // Step through each element in the path, beginning at the specified starting index
         for (int index = startIndex; index < path.length; index++)
         {
             // Add the path element the name
@@ -715,9 +686,9 @@ public class CcddCommonTreeHandler extends JTree
         return name;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Deselect any nodes that are disabled
-     ************************************************************************/
+     ********************************************************************************************/
     protected void clearDisabledNodes()
     {
         // Get the selected tables
@@ -739,10 +710,10 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
-     * Recursively add the children of the specified node to the path list. If
-     * these are variable paths and the node represents a bit-wise or string
-     * variable then add the bit-packed/string members as well
+    /**********************************************************************************************
+     * Recursively add the children of the specified node to the path list. If these are variable
+     * paths and the node represents a bit-wise or string variable then add the bit-packed/string
+     * members as well
      *
      * @param node
      *            current child node to check
@@ -755,7 +726,7 @@ public class CcddCommonTreeHandler extends JTree
      *
      * @param isVariable
      *            true if the tree contains variables
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addChildNodes(ToolTipTreeNode node,
                                  List<Object[]> selectedPaths,
                                  List<String> excludedPaths,
@@ -769,15 +740,14 @@ public class CcddCommonTreeHandler extends JTree
             // Get the node name to shorten subsequent calls
             String nodeName = node.getUserObject().toString();
 
-            // Check that no exclusion list is in effect or, if one is, that
-            // the node is not marked as excluded (i.e., starts with an HTML
-            // tag)
+            // Check that no exclusion list is in effect or, if one is, that the node is not marked
+            // as excluded (i.e., starts with an HTML tag)
             if (excludedPaths == null || !nodeName.startsWith("<html>"))
             {
-                // If this node is a bit-wise variable then all other variables
-                // that are packed with it must be selected as well. Likewise,
-                // if this is a string then all array members that comprise the
-                // string must be selected. Check if this node has any siblings
+                // If this node is a bit-wise variable then all other variables that are packed
+                // with it must be selected as well. Likewise, if this is a string then all array
+                // members that comprise the string must be selected. Check if this node has any
+                // siblings
                 if (node.getSiblingCount() > 1)
                 {
                     BitPackNodeIndex nodeIndex = null;
@@ -788,8 +758,8 @@ public class CcddCommonTreeHandler extends JTree
                         // Check if it represents a bit-wise variable
                         if (nodeName.contains(":"))
                         {
-                            // Get the node indices that encompass the packed
-                            // variables (if applicable)
+                            // Get the node indices that encompass the packed variables (if
+                            // applicable)
                             nodeIndex = getBitPackedVariables(node);
                         }
                         // Not a bit-wise variable
@@ -801,8 +771,7 @@ public class CcddCommonTreeHandler extends JTree
                             // Check if this is a string
                             if (dataTypeHandler.isString(dataType))
                             {
-                                // Get the node indices that encompass the
-                                // string array members
+                                // Get the node indices that encompass the string array members
                                 nodeIndex = getStringVariableMembers(node);
                             }
                         }
@@ -811,8 +780,7 @@ public class CcddCommonTreeHandler extends JTree
                     // Check if packed variables or string members are present
                     if (nodeIndex != null)
                     {
-                        // Calculate the tree node index for the first
-                        // packed/string variable
+                        // Calculate the tree node index for the first packed/string variable
                         int treeIndex = node.getParent().getIndex(node)
                                         - (nodeIndex.getTableIndex()
                                            - nodeIndex.getFirstIndex());
@@ -831,8 +799,8 @@ public class CcddCommonTreeHandler extends JTree
                                 // Check if the path is already in the list
                                 if (Arrays.equals(path, selPath))
                                 {
-                                    // Set the flag to indicate the path is
-                                    // already in the list and stop searching
+                                    // Set the flag to indicate the path is already in the list and
+                                    // stop searching
                                     isInList = true;
                                     break;
                                 }
@@ -841,8 +809,7 @@ public class CcddCommonTreeHandler extends JTree
                             // Check if the variable wasn't already in the list
                             if (!isInList)
                             {
-                                // Add the variable to the selected variables
-                                // list
+                                // Add the variable to the selected variables list
                                 selectedPaths.add(path);
                             }
                         }
@@ -875,60 +842,54 @@ public class CcddCommonTreeHandler extends JTree
         }
     }
 
-    /**************************************************************************
-     * Get the first applicable node index. Override this method to skip node
-     * levels that don't apply (e.g., root or filter nodes)
+    /**********************************************************************************************
+     * Get the first applicable node index. Override this method to skip node levels that don't
+     * apply (e.g., root or filter nodes)
      *
      * @return First applicable node index
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getHeaderNodeLevel()
     {
         return 0;
     }
 
-    /**************************************************************************
-     * Convert the path array into a single string showing the full variable
-     * path in the format
-     * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This
-     * excludes the database, prototype/instance, group (if filtered by group),
-     * and type (if filtered by type) nodes
+    /**********************************************************************************************
+     * Convert the path array into a single string showing the full variable path in the format
+     * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This excludes the database,
+     * prototype/instance, group (if filtered by group), and type (if filtered by type) nodes
      *
      * @param path
      *            array describing the variable's tree path
      *
-     * @return Root table name, followed by the variable names with the data
-     *         types, separated by commas, from the specified tree path
-     *************************************************************************/
+     * @return Root table name, followed by the variable names with the data types, separated by
+     *         commas, from the specified tree path
+     *********************************************************************************************/
     protected String getFullVariablePath(Object[] path)
     {
         return getFullVariablePath(path, 0);
     }
 
-    /**************************************************************************
-     * Convert the path array into a single string showing the full variable
-     * path in the format
-     * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This
-     * excludes the database, prototype/instance, group (if filtered by group),
-     * and type (if filtered by type) nodes
+    /**********************************************************************************************
+     * Convert the path array into a single string showing the full variable path in the format
+     * rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]. This excludes the database,
+     * prototype/instance, group (if filtered by group), and type (if filtered by type) nodes
      *
      * @param path
      *            array describing the variable's tree path
      *
      * @param levelAdjust
-     *            number of nodes (+/-) by which to adjust the starting the
-     *            node level
+     *            number of nodes (+/-) by which to adjust the starting the node level
      *
-     * @return Root table name, followed by the variable names with the data
-     *         types, separated by commas, from the specified tree path
-     *************************************************************************/
+     * @return Root table name, followed by the variable names with the data types, separated by
+     *         commas, from the specified tree path
+     *********************************************************************************************/
     protected String getFullVariablePath(Object[] path, int levelAdjust)
     {
         String variablePath = "";
 
-        // Step through the nodes in the path. Calculate the index into the
-        // tree path array so as to skip the database and prototype/instance
-        // nodes, and the group and/or type nodes, if filtering is active, and
-        // the parent table name
+        // Step through the nodes in the path. Calculate the index into the tree path array so as
+        // to skip the database and prototype/instance nodes, and the group and/or type nodes, if
+        // filtering is active, and the parent table name
         for (int index = getHeaderNodeLevel() + levelAdjust; index < path.length; index++)
         {
             // Get the node name
@@ -937,8 +898,7 @@ public class CcddCommonTreeHandler extends JTree
             // Check if the node represents a variable name
             if (!variable.contains(";"))
             {
-                // Store the variable name (including the bit length, if
-                // present) in the path array
+                // Store the variable name (including the bit length, if present) in the path array
                 variablePath += variable + ",";
             }
         }
@@ -949,16 +909,14 @@ public class CcddCommonTreeHandler extends JTree
         return variablePath;
     }
 
-    /**************************************************************************
-     * Determine the node indices in the table tree that encompass a group of
-     * bit-packed variables
+    /**********************************************************************************************
+     * Determine the node indices in the table tree that encompass a group of bit-packed variables
      *
      * @param node
      *            selected node for a (potentially) bit-packed variable
      *
-     * @return NodeIndex object containing the node indices bounding the
-     *         bit-packed variables
-     *************************************************************************/
+     * @return NodeIndex object containing the node indices bounding the bit-packed variables
+     *********************************************************************************************/
     protected BitPackNodeIndex getBitPackedVariables(ToolTipTreeNode node)
     {
         // Get the variable name from the node
@@ -967,8 +925,7 @@ public class CcddCommonTreeHandler extends JTree
         // Get the corresponding node in the variable tree
         ToolTipTreeNode tblParent = (ToolTipTreeNode) node.getParent();
 
-        // Get this variable tree node's index in the variable tree relative to
-        // its parent node
+        // Get this variable tree node's index in the variable tree relative to its parent node
         int tblIndex = tblParent.getIndex(node);
         int firstIndex = tblIndex;
         int lastIndex = tblIndex;
@@ -976,26 +933,24 @@ public class CcddCommonTreeHandler extends JTree
         // Check if the target variable has a bit length
         if (varName.contains(":"))
         {
-            // Get the data type for this variable and calculate the number of
-            // bits it occupies
+            // Get the data type for this variable and calculate the number of bits it occupies
             String dataType = varName.substring(0, varName.indexOf("."));
             int dataTypeBitSize = dataTypeHandler.getSizeInBits(dataType);
 
-            // Set the current index in preparation for locating other
-            // variables packed with this one. Note that this can result is
-            // stepping backwards into another pack; this is accounted for
-            // further down
+            // Set the current index in preparation for locating other variables packed with this
+            // one. Note that this can result is stepping backwards into another pack; this is
+            // accounted for further down
             int curIndex = tblIndex - 1;
 
-            // Step backwards through the child nodes as long as the bit-wise
-            // variables of the same data type are found
+            // Step backwards through the child nodes as long as the bit-wise variables of the same
+            // data type are found
             while (curIndex >= 0)
             {
                 // Get the variable name from the node
                 varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
 
-                // Check if this variable doesn't have a bit length or isn't
-                // the same data type as the target
+                // Check if this variable doesn't have a bit length or isn't the same data type as
+                // the target
                 if (!varName.contains(":") || !varName.startsWith(dataType + "."))
                 {
                     // Stop searching
@@ -1005,31 +960,29 @@ public class CcddCommonTreeHandler extends JTree
                 curIndex--;
             }
 
-            // Adjust the index and save this as the starting index, and store
-            // its associated tree node index
+            // Adjust the index and save this as the starting index, and store its associated tree
+            // node index
             curIndex++;
             firstIndex = curIndex;
 
             int bitCount = 0;
             boolean isTargetInPack = false;
 
-            // Step forward, packing the bits, in order to determine the
-            // variables in the target variable's pack
+            // Step forward, packing the bits, in order to determine the variables in the target
+            // variable's pack
             while (curIndex < node.getSiblingCount())
             {
                 // Get the variable name from the node
                 varName = removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString());
 
-                // Check if this variable doesn't have a bit length or isn't
-                // the same data type as the target
+                // Check if this variable doesn't have a bit length or isn't the same data type as
+                // the target
                 if (!varName.contains(":") || !varName.startsWith(dataType + "."))
                 {
-                    // Check if the target variable is a member of this packed
-                    // group
+                    // Check if the target variable is a member of this packed group
                     if (curIndex == tblIndex)
                     {
-                        // Set the flag indicating this pack includes the
-                        // target variable
+                        // Set the flag indicating this pack includes the target variable
                         isTargetInPack = true;
                     }
 
@@ -1037,87 +990,77 @@ public class CcddCommonTreeHandler extends JTree
                     break;
                 }
 
-                // Add the number of bits occupied by this variable to the
-                // running count
+                // Add the number of bits occupied by this variable to the running count
                 int bitLength = Integer.valueOf(macroHandler.getMacroExpansion(varName.substring(varName.indexOf(":") + 1)));
                 bitCount += bitLength;
 
                 // Check if the bit count rolled over the maximum allowed
                 if (bitCount > dataTypeBitSize)
                 {
-                    // Check if the target variable is included in the range of
-                    // packed variables
+                    // Check if the target variable is included in the range of packed variables
                     if (isTargetInPack)
                     {
-                        // All variables packed with the target variable have
-                        // been detected, so stop searching
+                        // All variables packed with the target variable have been detected, so
+                        // stop searching
                         break;
                     }
 
-                    // Reset the bit count to the current row's value and store
-                    // the row index for the first variable in the pack. This
-                    // accounts for one or more bit-wise variables occurring
-                    // immediately prior to the pack containing the target
+                    // Reset the bit count to the current row's value and store the row index for
+                    // the first variable in the pack. This accounts for one or more bit-wise
+                    // variables occurring immediately prior to the pack containing the target
                     bitCount = bitLength;
                     firstIndex = curIndex;
                 }
 
-                // Check if the target variable is a member of this packed
-                // group
+                // Check if the target variable is a member of this packed group
                 if (curIndex == tblIndex)
                 {
-                    // Set the flag indicating this pack includes the target
-                    // variable
+                    // Set the flag indicating this pack includes the target variable
                     isTargetInPack = true;
                 }
 
                 curIndex++;
             }
 
-            // Store the last index in the pack. If the variable isn't
-            // bit-packed (i.e., has no bit length or has no other pack
-            // members) then the last index is the same as the first index
+            // Store the last index in the pack. If the variable isn't bit-packed (i.e., has no bit
+            // length or has no other pack members) then the last index is the same as the first
+            // index
             lastIndex = curIndex - (isTargetInPack ? 1 : 0);
         }
 
         return new BitPackNodeIndex(firstIndex, lastIndex, tblIndex);
     }
 
-    /**************************************************************************
-     * Determine the node indices in the table tree that encompass the array
-     * members that represent the individual bytes of a string variable
+    /**********************************************************************************************
+     * Determine the node indices in the table tree that encompass the array members that represent
+     * the individual bytes of a string variable
      *
      * @param node
      *            selected node for a (potentially) bit-packed variable
      *
-     * @return NodeIndex object containing the node indices bounding the string
-     *         variable
-     *************************************************************************/
+     * @return NodeIndex object containing the node indices bounding the string variable
+     *********************************************************************************************/
     protected BitPackNodeIndex getStringVariableMembers(ToolTipTreeNode node)
     {
-        // Get the target variable's data type and name from the node without
-        // the string size array index
+        // Get the target variable's data type and name from the node without the string size array
+        // index
         String variableName = ArrayVariable.removeStringSize(removeExtraText(node.getUserObject().toString()));
 
         // Get the corresponding node in the variable tree
         ToolTipTreeNode tblParent = (ToolTipTreeNode) node.getParent();
 
-        // Get this variable tree node's index in the variable tree relative to
-        // its parent node
+        // Get this variable tree node's index in the variable tree relative to its parent node
         int tblIndex = tblParent.getIndex(node);
 
-        // Set the current index in preparation for locating other variables
-        // packed with this one
+        // Set the current index in preparation for locating other variables packed with this one
         int curIndex = tblIndex - 1;
 
-        // Step backwards through the child nodes, matching the data type and
-        // variable name (and array index or indices other than the string size
-        // array index), in order to determine the array members that make up
-        // the target string
+        // Step backwards through the child nodes, matching the data type and variable name (and
+        // array index or indices other than the string size array index), in order to determine
+        // the array members that make up the target string
         while (curIndex >= 0)
         {
-            // Check if the variable at this node doesn't match the target
-            // variable
+            // Check if the variable at this node doesn't match the target variable
             if (!variableName.equals(ArrayVariable.removeStringSize(removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString()))))
             {
                 // Stop searching
@@ -1127,18 +1070,17 @@ public class CcddCommonTreeHandler extends JTree
             curIndex--;
         }
 
-        // Adjust the index and save this as the starting index, and store its
-        // associated tree node index
+        // Adjust the index and save this as the starting index, and store its associated tree node
+        // index
         curIndex++;
         int firstIndex = curIndex;
 
-        // Step forward, matching the data type and variable name (and array
-        // index or indices other than the string size array index), in order
-        // to determine the array members that make up the target string
+        // Step forward, matching the data type and variable name (and array index or indices other
+        // than the string size array index), in order to determine the array members that make up
+        // the target string
         while (curIndex < node.getSiblingCount())
         {
-            // Check if this variable at this node doesn't match the target
-            // variable
+            // Check if this variable at this node doesn't match the target variable
             if (!variableName.equals(ArrayVariable.removeStringSize(removeExtraText(((ToolTipTreeNode) tblParent.getChildAt(curIndex)).getUserObject().toString()))))
             {
                 // Stop searching
@@ -1148,18 +1090,16 @@ public class CcddCommonTreeHandler extends JTree
             curIndex++;
         }
 
-        // Store the last index in the pack. If the variable isn't bit-packed
-        // (i.e., has no bit length or has no other pack members) then the last
-        // index is the same as the first index
+        // Store the last index in the pack. If the variable isn't bit-packed (i.e., has no bit
+        // length or has no other pack members) then the last index is the same as the first index
         int lastIndex = curIndex - 1;
 
         return new BitPackNodeIndex(firstIndex, lastIndex, tblIndex);
     }
 
-    /**************************************************************************
-     * Set the tree icon for nodes representing a variable. The icon indicates
-     * if the variable is or isn't bit-wise, is or isn't linked, and is or
-     * isn't bit-packed
+    /**********************************************************************************************
+     * Set the tree icon for nodes representing a variable. The icon indicates if the variable is
+     * or isn't bit-wise, is or isn't linked, and is or isn't bit-packed
      *
      * @param renderer
      *            reference to the tree's cell renderer
@@ -1172,7 +1112,7 @@ public class CcddCommonTreeHandler extends JTree
      *
      * @param isLinked
      *            true if the variable is a member of a link
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setVariableNodeIcon(DefaultTreeCellRenderer renderer,
                                        ToolTipTreeNode node,
                                        int currentRow,
@@ -1184,15 +1124,14 @@ public class CcddCommonTreeHandler extends JTree
         // Check if this is a bit-wise variable (node name ends with ':#')
         if (node.toString().matches("^.+:\\d+$"))
         {
-            // Check if this tree row falls within a group of bit-packed
-            // variables determined from an earlier row
+            // Check if this tree row falls within a group of bit-packed variables determined from
+            // an earlier row
             if (currentRow <= lastPackRow)
             {
                 // Check if the variable is a link member
                 if (isLinked)
                 {
-                    // Set the icon to indicate this is a linked & bit-packed
-                    // variable
+                    // Set the icon to indicate this is a linked & bit-packed variable
                     icon = linkedPackedVariableIcon;
                 }
                 // The variable isn't a link member
@@ -1205,8 +1144,7 @@ public class CcddCommonTreeHandler extends JTree
             // The row is not within a known bit-packed group
             else
             {
-                // Determine if this row's variable is bit-packed with other
-                // variables
+                // Determine if this row's variable is bit-packed with other variables
                 BitPackNodeIndex nodeIndex = getBitPackedVariables(node);
 
                 // Check if the variable is bit-packed with other variables
@@ -1215,15 +1153,13 @@ public class CcddCommonTreeHandler extends JTree
                     // Check if the variable is a link member
                     if (isLinked)
                     {
-                        // Set the icon to indicate this is a linked &
-                        // bit-packed variable
+                        // Set the icon to indicate this is a linked & bit-packed variable
                         icon = linkedPackedVariableIcon;
                     }
                     // The variable isn't a link member
                     else
                     {
-                        // Set the icon to indicate this is a bit-packed
-                        // variable
+                        // Set the icon to indicate this is a bit-packed variable
                         icon = packedVariableIcon;
                     }
 
@@ -1236,8 +1172,7 @@ public class CcddCommonTreeHandler extends JTree
                     // Check if the variable is a link member
                     if (isLinked)
                     {
-                        // Set the icon to indicate this is a linked & bit-wise
-                        // variable
+                        // Set the icon to indicate this is a linked & bit-wise variable
                         icon = linkedBitVariableIcon;
                     }
                     // The variable isn't a link member

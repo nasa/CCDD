@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary table type editor dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -37,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -48,9 +48,9 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary table type editor dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableTypeEditorDialog extends CcddFrameHandler
 {
@@ -87,13 +87,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JButton btnClose;
     private JTabbedPane tabbedPane;
 
-    // List containing the table type names for the types that are being
-    // updated. If a table type change is stored, any tables of that type with
-    // unsaved changes will have the changes removed. This list is used when
-    // determining if the user is asked to confirm discarding the table changes
+    // List containing the table type names for the types that are being updated. If a table type
+    // change is stored, any tables of that type with unsaved changes will have the changes
+    // removed. This list is used when determining if the user is asked to confirm discarding the
+    // table changes
     private final List<String> changedTypes;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Table type editor dialog class constructor
      *
      * @param ccddMain
@@ -101,7 +101,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *
      * @param typeNames
      *            array of table type names
-     *************************************************************************/
+     *********************************************************************************************/
     CcddTableTypeEditorDialog(CcddMain ccddMain, String[] typeNames)
     {
         this.ccddMain = ccddMain;
@@ -119,66 +119,62 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         initialize(typeNames);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the currently active type editor
      *
-     * @return Currently active type editor. Return null if no table types
-     *         exist
-     *************************************************************************/
+     * @return Currently active type editor. Return null if no table types exist
+     *********************************************************************************************/
     protected CcddTableTypeEditorHandler getTypeEditor()
     {
         return activeEditor;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the active table type editor's name
      *
      * @param typeName
      *            type name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setActiveTypeName(String typeName)
     {
         tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), typeName);
         activeEditor.setTableTypeName(typeName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the active tab
-     *************************************************************************/
+     *********************************************************************************************/
     protected void removeActiveTab()
     {
-        // Remove the selected editor for the deleted type from the list, then
-        // remove its tab
+        // Remove the selected editor for the deleted type from the list, then remove its tab
         typeEditors.remove(tabbedPane.getSelectedIndex());
         tabbedPane.removeTabAt(tabbedPane.getSelectedIndex());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable/disable the type editor dialog buttons and commands
      *
      * @param enable
      *            true to enable the buttons and commands; false to disable
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void setControlsEnabled(boolean enable)
     {
         // Set the flag based on the input flag and if a table exists
         boolean enableIfType = enable && !typeEditors.isEmpty();
 
-        // Enable/disable the buttons based on the input flag and if a table
-        // exists
+        // Enable/disable the buttons based on the input flag and if a table exists
         super.setControlsEnabled(enableIfType);
 
         // Step through the menu bar items
         for (int index = 0; index < getJMenuBar().getComponentCount(); index++)
         {
-            // Enable/disable the item based on the input flag and if a table
-            // exists
+            // Enable/disable the item based on the input flag and if a table exists
             getJMenuBar().getMenu(index).setEnabled(enableIfType);
         }
 
-        // Set the menu item/button based on the input flag for these items
-        // since these are valid even when no table type exists
+        // Set the menu item/button based on the input flag for these items since these are valid
+        // even when no table type exists
         mnFile.setEnabled(enable);
         mntmCopyType.setEnabled(enableIfType);
         mntmRenameType.setEnabled(enableIfType);
@@ -188,28 +184,27 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         mntmPrint.setEnabled(enableIfType);
         btnClose.setEnabled(enable);
 
-        // Set the menu item based on the input flag and if there are any data
-        // fields assigned to the table type
+        // Set the menu item based on the input flag and if there are any data fields assigned to
+        // the table type
         mntmClearValues.setEnabled(enable
                                    && activeEditor != null
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform the steps needed following execution of table modification
      *
      * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
+     *            false if the database commands successfully completed; true if an error occurred
+     *            and the changes were not made
      *
      *
      * @param updatedEditor
-     *            reference to the table type editor where the change(s)
-     *            occurred
+     *            reference to the table type editor where the change(s) occurred
      *
      * @param tableNames
      *            array of modified table names
-     ************************************************************************/
+     ********************************************************************************************/
     protected void doTypeModificationComplete(boolean commandError,
                                               CcddTableTypeEditorHandler updatedEditor,
                                               String[] tableNames)
@@ -220,13 +215,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Check if an error occurred and that a table was modified
         if (!commandError && tableNames != null)
         {
-            // If any table editors are open then the displayed columns and
-            // data fields need to be updated to match the table type changes.
-            // Both the currently displayed and committed values are updated so
-            // that when the table editor is closed these changes aren't seen
-            // as table changes since they're already committed to the database
-
-            // Step through the open table editor dialogs
+            // If any table editors are open then the displayed columns and data fields need to be
+            // updated to match the table type changes. Both the currently displayed and committed
+            // values are updated so that when the table editor is closed these changes aren't seen
+            // as table changes since they're already committed to the database Step through the
+            // open table editor dialogs
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
             {
                 // Step through each individual editor
@@ -243,19 +236,17 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                                            true,
                                                                            CcddTableTypeEditorDialog.this);
 
-                        // Check that no error occurred loading the table's
-                        // data
+                        // Check that no error occurred loading the table's data
                         if (!tableInfo.isErrorFlag())
                         {
-                            // Update the table editor for the table type
-                            // change
+                            // Update the table editor for the table type change
                             editor.updateForTableTypeChange(tableInfo);
                         }
                         // An error occurred loading the table's data
                         else
                         {
-                            // Close the editor for this table since it can't
-                            // be updated to the new information
+                            // Close the editor for this table since it can't be updated to the new
+                            // information
                             editorDialog.closeTableEditor(editor.getOwnerName());
                         }
                     }
@@ -264,16 +255,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
-     * Create the table type editor dialog. This is executed in a separate
-     * thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The
-     * GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
+    /**********************************************************************************************
+     * Create the table type editor dialog. This is executed in a separate thread since it can take
+     * a noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+     * continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
      *
      * @param typeNames
      *            array containing the table type names
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize(final String[] typeNames)
     {
         // Build the table type editor dialog in the background
@@ -282,15 +272,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Create panel to hold the dialog buttons
             JPanel buttonPnl = new JPanel();
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the table type editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
-                // Menu
-                // ////////////////////////////////////////////////////////////
-                // Create the table menu bar
+                // Menu //////////////////////////////////////////////////////////// Create the
+                // table menu bar
                 JMenuBar menuBar = new JMenuBar();
                 setJMenuBar(menuBar);
 
@@ -336,9 +325,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the New Type command
                 mntmNewType.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Create a new table type
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -347,11 +336,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                        ManagerDialogType.NEW);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -362,9 +351,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Copy Type command
                 mntmCopyType.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Copy a table type
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -373,11 +362,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                        ManagerDialogType.COPY);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -388,9 +377,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Rename Type command
                 mntmRenameType.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Rename a table type
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -399,11 +388,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                        ManagerDialogType.RENAME);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -414,9 +403,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Delete Type command
                 mntmDeleteType.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Delete a table type
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -425,11 +414,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                        ManagerDialogType.DELETE);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -440,9 +429,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Print command
                 mntmPrint.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Output the type to the printer
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -453,11 +442,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                            PageFormat.LANDSCAPE);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -468,10 +457,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Copy command
                 mntmCopy.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Copy the selected table cell(s) contents into the
-                     * clipboard
-                     *********************************************************/
+                    /******************************************************************************
+                     * Copy the selected table cell(s) contents into the clipboard
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -479,11 +467,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         controlKeyAction(KeyEvent.VK_C);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -494,11 +482,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Paste command
                 mntmPaste.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Paste the clipboard contents in the table, overwriting
-                     * any existing data in the target cells and adding new
-                     * rows at the end of the table if needed
-                     *********************************************************/
+                    /******************************************************************************
+                     * Paste the clipboard contents in the table, overwriting any existing data in
+                     * the target cells and adding new rows at the end of the table if needed
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -506,11 +493,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         controlKeyAction(KeyEvent.VK_V);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -521,10 +508,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Insert command
                 mntmInsert.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Insert the clipboard contents in the table, creating new
-                     * rows to contain the data
-                     *********************************************************/
+                    /******************************************************************************
+                     * Insert the clipboard contents in the table, creating new rows to contain the
+                     * data
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -532,11 +519,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         controlKeyAction(KeyEvent.VK_I);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -547,9 +534,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Clear command
                 mntmClear.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Clear the table contents
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -570,11 +557,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         }
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -585,15 +572,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Store All command
                 mntmStoreAll.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Store the changes to all open table contents, if any, in
-                     * the database
-                     *********************************************************/
+                    /******************************************************************************
+                     * Store the changes to all open table contents, if any, in the database
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Only update if one or more of the table's has
-                        // changes and the user confirms the action
+                        // Only update if one or more of the table's has changes and the user
+                        // confirms the action
                         if (isTypesChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
                                                                          "<html><b>Store changes for all?",
@@ -611,11 +597,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         }
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -626,9 +612,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Manage Fields command
                 mntmManageFields.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Manage the data fields
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -638,16 +624,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                   tableTypeHandler.getTypeDefinition(activeEditor.getTypeName()).isStructure(),
                                                   MIN_WINDOW_WIDTH);
 
-                        // Enable/disable the Clear values command depending on
-                        // if any data fields remain
+                        // Enable/disable the Clear values command depending on if any data fields
+                        // remain
                         mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -658,9 +644,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Clear Values command
                 mntmClearValues.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Clear the table data field values
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -672,11 +658,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         }
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -693,20 +679,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Insert Row command
                 ActionListener insertAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Insert a new row into the table at the selected location
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getTable().insertEmptyRow(true);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -714,8 +700,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 };
 
-                // Add the insert listener to the Insert Row button and menu
-                // command
+                // Add the insert listener to the Insert Row button and menu command
                 btnInsertRow.addActionListener(insertAction);
                 mntmInsertRow.addActionListener(insertAction);
 
@@ -728,20 +713,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Delete Row command
                 ActionListener deleteAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Delete the selected row(s) from the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getTable().deleteRow(true);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -749,8 +734,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 };
 
-                // Add the delete listener to the Delete Row button and menu
-                // command
+                // Add the delete listener to the Delete Row button and menu command
                 btnDeleteRow.addActionListener(deleteAction);
                 mntmDeleteRow.addActionListener(deleteAction);
 
@@ -763,20 +747,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Move Up command
                 ActionListener moveUpAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Move the selected row(s) up in the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getTable().moveRowUp();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -784,8 +768,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 };
 
-                // Add the move up listener to the Move Up button and menu
-                // command
+                // Add the move up listener to the Move Up button and menu command
                 btnMoveUp.addActionListener(moveUpAction);
                 mntmMoveUp.addActionListener(moveUpAction);
 
@@ -798,20 +781,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Move Down command
                 ActionListener moveDownAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Move the selected row(s) down in the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeEditor.getTable().moveRowDown();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -819,8 +802,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 };
 
-                // Add the move down listener to the Move Down button and menu
-                // command
+                // Add the move down listener to the Move Down button and menu command
                 btnMoveDown.addActionListener(moveDownAction);
                 mntmMoveDown.addActionListener(moveDownAction);
 
@@ -833,9 +815,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Undo command
                 ActionListener undoAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Undo the last cell edit
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -845,11 +827,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         activeEditor.getInputFieldPanelHandler().setFieldBackgound();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -870,9 +852,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Redo command
                 ActionListener redoAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Redo the last cell edit that was undone
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -882,11 +864,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         activeEditor.getInputFieldPanelHandler().setFieldBackgound();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -907,21 +889,19 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Create a listener for the Store command
                 ActionListener storeAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Store the changes to the table contents, if any, in the
-                     * database
-                     *********************************************************/
+                    /******************************************************************************
+                     * Store the changes to the table contents, if any, in the database
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Set the list of changed table types to the active
-                        // editor's type
+                        // Set the list of changed table types to the active editor's type
                         changedTypes.clear();
                         changedTypes.add(activeEditor.getTypeName());
 
-                        // Only update the table in the database if a cell's
-                        // content has changed, none of the required columns is
-                        // missing a value, and the user confirms the action
+                        // Only update the table in the database if a cell's content has changed,
+                        // none of the required columns is missing a value, and the user confirms
+                        // the action
                         if (activeEditor.isTableChanged()
                             && !activeEditor.checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
@@ -935,17 +915,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                                  changedTypes,
                                                                  CcddTableTypeEditorDialog.this))
                         {
-                            // Store the changes for the currently displayed
-                            // editor in the database
+                            // Store the changes for the currently displayed editor in the database
                             storeChanges(activeEditor);
                         }
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -966,20 +945,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Add a listener for the Close table type editor command
                 ActionListener closeAction = new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the type editor
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         windowCloseButtonAction();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the table for which the action is performed
                      *
                      * @return Table for which the action is performed
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -991,8 +970,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 btnClose.addActionListener(closeAction);
                 mntmClose.addActionListener(closeAction);
 
-                // Add buttons in the order in which they'll appear (left to
-                // right, top to bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -1005,27 +983,25 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Distribute the buttons across two rows
                 setButtonRows(2);
 
-                // Table Editors
-                // ////////////////////////////////////////////////////////////
+                // Table Editors ////////////////////////////////////////////////////////////
                 // Create a tabbed pane for the editors to appear in
-                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                tabbedPane = new JTabbedPane(SwingConstants.TOP);
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
                 tabbedPane.addChangeListener(new ChangeListener()
                 {
-                    /**********************************************************
-                     * Update the editor to the one associated with the
-                     * selected tab
-                     *********************************************************/
+                    /******************************************************************************
+                     * Update the editor to the one associated with the selected tab
+                     *****************************************************************************/
                     @Override
                     public void stateChanged(ChangeEvent ce)
                     {
                         // Check if a table type exists
                         if (!typeEditors.isEmpty())
                         {
-                            // Set the active editor to the one indicated by
-                            // the currently selected tab
+                            // Set the active editor to the one indicated by the currently selected
+                            // tab
                             activeEditor = typeEditors.get(tabbedPane.getSelectedIndex());
                         }
                         // No table type exists
@@ -1059,9 +1035,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Table type editor dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -1079,12 +1055,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a reference to the active table type's table handler
      *
-     * @return Reference to the active table type's table handler. Return null
-     *         if no active editor (i.e., no table type) exists
-     *************************************************************************/
+     * @return Reference to the active table type's table handler. Return null if no active editor
+     *         (i.e., no table type) exists
+     *********************************************************************************************/
     private CcddJTableHandler getActiveTable()
     {
         CcddJTableHandler table = null;
@@ -1099,13 +1075,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         return table;
     }
 
-    /**************************************************************************
-     * Determine if any of the table types represented in this editor dialog
-     * have uncommitted changes
+    /**********************************************************************************************
+     * Determine if any of the table types represented in this editor dialog have uncommitted
+     * changes
      *
-     * @return true if any of the editors represented in this editor dialog
-     *         have uncommitted changes
-     *************************************************************************/
+     * @return true if any of the editors represented in this editor dialog have uncommitted
+     *         changes
+     *********************************************************************************************/
     private boolean isTablesChanged()
     {
         boolean isChanged = false;
@@ -1116,8 +1092,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Check if the table has changed
             if (editor.isTableChanged())
             {
-                // Set the flag indicated uncommitted changes and stop
-                // searching
+                // Set the flag indicated uncommitted changes and stop searching
                 isChanged = true;
                 break;
             }
@@ -1126,15 +1101,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         return isChanged;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the frame close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the specified table
-        // is validated and that there are no uncommitted changes. If a change
-        // exists then confirm discarding the changes
+        // Check if the contents of the last cell edited in the specified table is validated and
+        // that there are no uncommitted changes. If a change exists then confirm discarding the
+        // changes
         if (activeEditor == null
             || (activeEditor.getTable().isLastCellValid()
                 && (!isTablesChanged()
@@ -1149,12 +1124,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform a control key action
      *
      * @param key
      *            key to simulate pressing along with the control key
-     *************************************************************************/
+     *********************************************************************************************/
     private void controlKeyAction(int key)
     {
         try
@@ -1179,19 +1154,19 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Commit changes to the database for the specified table type editor
      *
      * @param editor
      *            table type editor to commit
-     *************************************************************************/
+     *********************************************************************************************/
     private void storeChanges(CcddTableTypeEditorHandler editor)
     {
         // Build the table updates based on the type definition changes
         editor.buildUpdates();
 
-        // Recreate the table type definitions table in the database and update
-        // the affected table(s)
+        // Recreate the table type definitions table in the database and update the affected
+        // table(s)
         dbTable.modifyTableTypeInBackground(editor.getTypeName(),
                                             editor.getFieldHandler().getFieldInformation(),
                                             mntmOverwrite.isSelected(),
@@ -1204,21 +1179,20 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                             activeEditor);
     }
 
-    /**************************************************************************
-     * Commit changes to the database for every table in the editor that has
-     * changes. This command is executed in a separate thread since it can take
-     * a noticeable amount time to complete, and by using a separate thread the
-     * GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the database command completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Commit changes to the database for every table in the editor that has changes. This command
+     * is executed in a separate thread since it can take a noticeable amount time to complete, and
+     * by using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the database command completes execution
+     *********************************************************************************************/
     private void storeAllChanges()
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Update the database for every table that has changes
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1228,8 +1202,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     // Check if the table has changes
                     if (editor.isTableChanged())
                     {
-                        // Build the addition, modification, and deletion
-                        // command lists
+                        // Build the addition, modification, and deletion command lists
                         editor.buildUpdates();
 
                         // Perform the changes to the table in the database
@@ -1249,7 +1222,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add one or more table type tabs to the editor dialog tabbed pane
      *
      * @param typeNames
@@ -1257,15 +1230,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *
      * @param fieldDefinitions
      *            list of data field definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addTypePanes(String[] typeNames,
                                 List<String[]> fieldDefinitions)
     {
         // Step through the table types
         for (String name : typeNames)
         {
-            // Create an editor for this table type and add it to the list of
-            // editors
+            // Create an editor for this table type and add it to the list of editors
             final CcddTableTypeEditorHandler editor = new CcddTableTypeEditorHandler(ccddMain,
                                                                                      name,
                                                                                      fieldDefinitions.toArray(new Object[0][0]),
@@ -1287,13 +1259,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the change indicator for the specified table type editor
      *
      * @param typeEditor
-     *            reference to the table type editor for which the change
-     *            indicator is to be updated
-     *************************************************************************/
+     *            reference to the table type editor for which the change indicator is to be
+     *            updated
+     *********************************************************************************************/
     protected void updateChangeIndicator(CcddTableTypeEditorHandler typeEditor)
     {
         // Get the index of the specified tab
@@ -1302,8 +1274,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Check that the tab index is valid
         if (index != -1)
         {
-            // Replace the tab name, appending the change indicator if changes
-            // exist
+            // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
                                          + (typeEditor.isTableChanged()
@@ -1312,12 +1283,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         }
     }
 
-    /**************************************************************************
-     * Determine if any of the table types have uncommitted changes. Store the
-     * names of the changed table types in a list
+    /**********************************************************************************************
+     * Determine if any of the table types have uncommitted changes. Store the names of the changed
+     * table types in a list
      *
      * @return true if any of the table types have uncommitted changes
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isTypesChanged()
     {
         boolean isChanged = false;

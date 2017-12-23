@@ -33,8 +33,6 @@
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-util-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/servlet-api-3.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/MathParser.org-mXparser-v.4.1.1/bin-only/jdk.1.7/MathParser.org-mXparser-jdk17-4.1.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <delete file="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_Users_Guide.pdf"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/CCDD_Users_Guide.pdf" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd"/>
     </target>
 </project>
 

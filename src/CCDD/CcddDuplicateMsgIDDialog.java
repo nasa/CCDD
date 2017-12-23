@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary duplicate message ID dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -30,21 +29,21 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary show duplicate message IDs dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
 {
     // List of message IDs that are used by multiple owners, and their owner
     private ArrayListMultiple duplicates;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Show duplicate message IDs dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddDuplicateMsgIDDialog(CcddMain ccddMain)
     {
         // Create a message ID handler
@@ -54,7 +53,7 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         initialize(msgIDHandler, ccddMain.getMainFrame());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Display the duplicate message ID dialog
      *
      * @param msgIDHandler
@@ -62,11 +61,10 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize(CcddMessageIDHandler msgIDHandler, Component parent)
     {
-        // Get the list of message IDs in use - this creates the duplicates
-        // list
+        // Get the list of message IDs in use - this creates the duplicates list
         msgIDHandler.getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
 
         // Get the list of duplicate message IDs
@@ -75,9 +73,9 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         // Sort the duplicates list
         Collections.sort(duplicates, new Comparator<String[]>()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Sort the duplicates list based on the message ID (second column)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public int compare(final String[] msgID1, final String[] msgID2)
             {
@@ -108,35 +106,33 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         // Create the table to display the duplicate message IDs
         CcddJTableHandler duplicatesTable = new CcddJTableHandler()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Allow multiple line display in the specified column(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
                 return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow HTML-formatted text in the specified column(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnHTML(int column)
             {
                 return column == DuplicateMsgIDColumnInfo.OWNERS.ordinal();
             }
 
-            /******************************************************************
-             * Load the duplicate message ID data into the table and format the
-             * table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Load the duplicate message ID data into the table and format the table cells
+             *************************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(duplicates.toArray(new String[0][0]),
                                             DuplicateMsgIDColumnInfo.getColumnNames(),
                                             "1:0",

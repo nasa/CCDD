@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary data table editor dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -42,6 +41,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
@@ -297,9 +297,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Perform the steps needed following execution of a table modification.
-     * This includes closing child table editors that are no longer valid and
-     * modifying child tables when a prototype table is changed
+     * Perform the steps needed following execution of a table modification. This includes closing
+     * child table editors that are no longer valid and modifying child tables when a prototype
+     * table is changed
      *
      * @param main
      *            reference to CcddMain
@@ -317,9 +317,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            list of row deletion information
      *
      * @param forceUpdate
-     *            true to make the changes to other tables; false to only make
-     *            changes to tables other than the one in which the changes
-     *            originally took place
+     *            true to make the changes to other tables; false to only make changes to tables
+     *            other than the one in which the changes originally took place
      ************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
                                                       TableInformation tableInfo,
@@ -391,12 +390,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Step through each individual editor
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
-                // Check if the table represents a structure
+                // Check if the table represents a structure and the update to
+                // the variable paths and offsets hasn't already occurred on a
+                // previous pass
                 if (!isStructureChanged
                     && main.getTableTypeHandler().getTypeDefinition(editor.getTableInformation().getType()).isStructure())
                 {
-                    // TODO THE VAR SIZES SHOULD BE UPDATED PRIOR TO UPDATING
-                    // THE TABLE
                     // Rebuild the variable paths and offsets
                     main.getVariableSizeHandler().buildPathAndOffsetLists();
 
@@ -461,24 +460,20 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Update the table name, editor dialog tab, and editor dialog frame when
-     * the prototype name (data type for a structure table) or the variable
-     * name for a structure type table is changed
+     * Update the table name, editor dialog tab, and editor dialog frame when the prototype name
+     * (data type for a structure table) or the variable name for a structure type table is changed
      *
      * @param main
      *            reference to CcddMain
      *
      * @param oldPrototype
-     *            original prototype name (same as the data type for a
-     *            structure table)
+     *            original prototype name (same as the data type for a structure table)
      *
      * @param newPrototype
-     *            current prototype name (same as the data type for a structure
-     *            table)
+     *            current prototype name (same as the data type for a structure table)
      *
      * @param oldVariableName
-     *            original variable name if this change is for a structure
-     *            table
+     *            original variable name if this change is for a structure table
      *
      * @param newVariableName
      *            current variable name if this change is for a structure table
@@ -657,8 +652,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmOpenPrototype.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Open the currently displayed table's prototype table in this
-             * editor dialog
+             * Open the currently displayed table's prototype table in this editor dialog
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -864,9 +858,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmPaste.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Paste the clipboard contents in the table, overwriting any
-             * existing data in the target cells and adding new rows at the end
-             * of the table if needed
+             * Paste the clipboard contents in the table, overwriting any existing data in the
+             * target cells and adding new rows at the end of the table if needed
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -889,8 +882,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmInsert.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Insert the clipboard contents in the table, creating new rows to
-             * contain the data
+             * Insert the clipboard contents in the table, creating new rows to contain the data
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -940,8 +932,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmWithPrototype.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Erase the data in the selected cell(s) and the corresponding
-             * entry(s) in the custom values table
+             * Erase the data in the selected cell(s) and the corresponding entry(s) in the custom
+             * values table
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -968,8 +960,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmInsertMacro.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Insert the macro chosen from the pop-up list into the current
-             * cell
+             * Insert the macro chosen from the pop-up list into the current cell
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -1068,8 +1059,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmStoreAll.addActionListener(new ValidateCellActionListener()
         {
             /******************************************************************
-             * Store the changes to all open table contents, if any, in the
-             * database
+             * Store the changes to all open table contents, if any, in the database
              *****************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -1602,7 +1592,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Table Editors //////////////////////////////////////////////////////
         // Create a tabbed pane for the editors to appear in
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        tabbedPane = new JTabbedPane(SwingConstants.TOP);
         tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Listen for tab selection changes
@@ -1650,8 +1640,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Update the expand/collapse arrays check box to reflect the current state
-     * of the active editor
+     * Update the expand/collapse arrays check box to reflect the current state of the active
+     * editor
      *************************************************************************/
     protected void updateExpandArrayCheckBox()
     {
@@ -1735,11 +1725,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Commit changes to the database for every table in the editor that has
-     * changes. This command is executed in a separate thread since it can take
-     * a noticeable amount time to complete, and by using a separate thread the
-     * GUI is allowed to continue to update. The GUI menu commands, however,
-     * are disabled until the database command completes execution
+     * Commit changes to the database for every table in the editor that has changes. This command
+     * is executed in a separate thread since it can take a noticeable amount time to complete, and
+     * by using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the database command completes execution
      *************************************************************************/
     private void storeAllChanges()
     {
@@ -1774,7 +1763,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                 true,
                                                 true,
                                                 true,
-                                                null,
                                                 null,
                                                 CcddTableEditorDialog.this);
                     }
@@ -1820,8 +1808,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Update the change indicator for the specified table editor
      *
      * @param tableEditor
-     *            reference to the table editor for which the change indicator
-     *            is to be updated
+     *            reference to the table editor for which the change indicator is to be updated
      *************************************************************************/
     protected void updateChangeIndicator(CcddTableEditorHandler tableEditor)
     {
@@ -1842,11 +1829,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**************************************************************************
-     * Determine if any of the tables represented in this editor dialog have
-     * uncommitted changes
+     * Determine if any of the tables represented in this editor dialog have uncommitted changes
      *
-     * @return true if any of the editors represented in this editor dialog
-     *         have uncommitted changes
+     * @return true if any of the editors represented in this editor dialog have uncommitted
+     *         changes
      *************************************************************************/
     protected boolean isTablesChanged()
     {

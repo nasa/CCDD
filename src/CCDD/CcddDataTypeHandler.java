@@ -1,17 +1,17 @@
 /**
  * CFS Command & Data Dictionary data type handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
-import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
@@ -26,6 +26,8 @@ import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -34,55 +36,55 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DatabaseListCommand;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
-import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.SearchType;
-import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary data type handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddDataTypeHandler
 {
     // Class references
     private CcddDbTableCommandHandler dbTable;
     private CcddDbCommandHandler dbCommand;
     private CcddTableTypeHandler tableTypeHandler;
+    private CcddMacroHandler macroHandler;
 
-    // Pop-up combo box for displaying the structure names and the dialog to
-    // contain it
+    // Pop-up combo box for displaying the structure names and the dialog to contain it
     private PaddedComboBox structureCbox;
     private JDialog comboDlg;
 
     // List containing the data type names and associated data type definitions
     private List<String[]> dataTypes;
 
-    /**************************************************************************
-     * Data type handler class constructor used when setting the data types
-     * from a source other than those in the project database
+    /**********************************************************************************************
+     * Data type handler class constructor used when setting the data types from a source other
+     * than those in the project database
      *
      * @param dataTypes
-     *            list of string arrays containing data type names and the
-     *            corresponding data type definitions
-     *************************************************************************/
+     *            list of string arrays containing data type names and the corresponding data type
+     *            definitions
+     *********************************************************************************************/
     CcddDataTypeHandler(List<String[]> dataTypes)
     {
         this.dataTypes = dataTypes;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data type handler class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddDataTypeHandler(CcddMain ccddMain)
     {
         // Load the data types table from the project database
@@ -93,50 +95,50 @@ public class CcddDataTypeHandler
         dbTable = ccddMain.getDbTableCommandHandler();
         dbCommand = ccddMain.getDbCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
+        macroHandler = ccddMain.getMacroHandler();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data type data
      *
-     * @return List of string arrays containing data type names and the
-     *         corresponding data type definitions
-     *************************************************************************/
+     * @return List of string arrays containing data type names and the corresponding data type
+     *         definitions
+     *********************************************************************************************/
     protected List<String[]> getDataTypeData()
     {
         return dataTypes;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the data types to the supplied array
      *
      * @param dataTypes
-     *            list of string arrays containing data type names and the
-     *            corresponding data type definitions
-     *************************************************************************/
+     *            list of string arrays containing data type names and the corresponding data type
+     *            definitions
+     *********************************************************************************************/
     protected void setDataTypeData(List<String[]> dataTypes)
     {
         this.dataTypes = new ArrayList<String[]>(dataTypes);
     }
 
-    /**************************************************************************
-     * Get the data type name. Return the user-defined name unless it's blank,
-     * in which case return the C-language name
+    /**********************************************************************************************
+     * Get the data type name. Return the user-defined name unless it's blank, in which case return
+     * the C-language name
      *
      * @param dataType
-     *            string array containing data type name and the corresponding
-     *            data type definition
+     *            string array containing data type name and the corresponding data type definition
      *
      * @return User-defined data type name; if blank then the C-language name
-     *************************************************************************/
+     *********************************************************************************************/
     protected static String getDataTypeName(String[] dataType)
     {
         return getDataTypeName(dataType[DataTypesColumn.USER_NAME.ordinal()],
                                dataType[DataTypesColumn.C_NAME.ordinal()]);
     }
 
-    /**************************************************************************
-     * Get the data type name. Return the user-defined name unless it's blank,
-     * in which case return the C-language name
+    /**********************************************************************************************
+     * Get the data type name. Return the user-defined name unless it's blank, in which case return
+     * the C-language name
      *
      * @param userName
      *            user-defined data type name
@@ -145,7 +147,7 @@ public class CcddDataTypeHandler
      *            C-language data type
      *
      * @return User-defined data type name; if blank then the C-language name
-     *************************************************************************/
+     *********************************************************************************************/
     protected static String getDataTypeName(String userName, String cName)
     {
         String dataTypeName;
@@ -166,16 +168,15 @@ public class CcddDataTypeHandler
         return dataTypeName;
     }
 
-    /**************************************************************************
-     * Get the data type information associated with the specified data type
-     * name
+    /**********************************************************************************************
+     * Get the data type information associated with the specified data type name
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Data type information associated with the specified data type
-     *         name; returns null if the data type doesn't exist
-     *************************************************************************/
+     * @return Data type information associated with the specified data type name; returns null if
+     *         the data type doesn't exist
+     *********************************************************************************************/
     protected String[] getDataTypeInfo(String dataTypeName)
     {
         String[] dataType = null;
@@ -195,15 +196,15 @@ public class CcddDataTypeHandler
         return dataType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the base data type for the specified data type
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Base data type for the specified data type; returns null if the
-     *         data type doesn't exist
-     *************************************************************************/
+     * @return Base data type for the specified data type; returns null if the data type doesn't
+     *         exist
+     *********************************************************************************************/
     protected BaseDataTypeInfo getBaseDataType(String dataTypeName)
     {
         BaseDataTypeInfo baseDataType = null;
@@ -221,15 +222,14 @@ public class CcddDataTypeHandler
         return baseDataType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data type size for the specified data type
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Data type size for the specified data type; returns 0 if the
-     *         data type doesn't exist
-     *************************************************************************/
+     * @return Data type size for the specified data type; returns 0 if the data type doesn't exist
+     *********************************************************************************************/
     protected int getDataTypeSize(String dataTypeName)
     {
         int dataTypeSize = 0;
@@ -247,15 +247,15 @@ public class CcddDataTypeHandler
         return dataTypeSize;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data type size in bytes for the specified data type
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Data type size in bytes for the specified data type; returns 0
-     *         if the data type doesn't exist
-     *************************************************************************/
+     * @return Data type size in bytes for the specified data type; returns 0 if the data type
+     *         doesn't exist
+     *********************************************************************************************/
     protected int getSizeInBytes(String dataTypeName)
     {
         // Get the data type size
@@ -264,37 +264,37 @@ public class CcddDataTypeHandler
         // Check if this data type is a character string
         if (isString(dataTypeName))
         {
-            // Force the size to 1 byte. This prevents the string pseudo-data
-            // type, which uses a size other than 1 to indicate the data type
-            // is a string, from returning an incorrect size
+            // Force the size to 1 byte. This prevents the string pseudo-data type, which uses a
+            // size other than 1 to indicate the data type is a string, from returning an incorrect
+            // size
             dataTypeSize = 1;
         }
 
         return dataTypeSize;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data type size in bits for the specified data type
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Data type size in bits for the specified data type; returns 0 if
-     *         the data type doesn't exist
-     *************************************************************************/
+     * @return Data type size in bits for the specified data type; returns 0 if the data type
+     *         doesn't exist
+     *********************************************************************************************/
     protected int getSizeInBits(String dataTypeName)
     {
         return getSizeInBytes(dataTypeName) * 8;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the supplied data type is a primitive type
      *
      * @param dataTypeName
      *            name of data type to test
      *
      * @return true if the supplied data type is a primitive
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isPrimitive(String dataTypeName)
     {
         boolean isPrimitive = false;
@@ -312,14 +312,14 @@ public class CcddDataTypeHandler
         return isPrimitive;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the specified data type is a signed or unsigned integer
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if the specified data type is a signed or unsigned integer
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isInteger(String dataTypeName)
     {
         boolean isInteger = false;
@@ -327,103 +327,102 @@ public class CcddDataTypeHandler
         // get the base data type for the specified data type
         BaseDataTypeInfo baseDataType = getBaseDataType(dataTypeName);
 
-        // Set the flag to true if the base data type is an integer (signed or
-        // unsigned)
+        // Set the flag to true if the base data type is an integer (signed or unsigned)
         isInteger = baseDataType == BaseDataTypeInfo.UNSIGNED_INT
                     || baseDataType == BaseDataTypeInfo.SIGNED_INT;
 
         return isInteger;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the the specified data type is a signed integer
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if the specified data type is a signed integer
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isSignedInt(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.SIGNED_INT;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the the specified data type is an unsigned integer
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if the specified data type is an unsigned integer
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isUnsignedInt(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.UNSIGNED_INT;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the specified data type is a float or double
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if the specified data type is a float or double
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isFloat(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.FLOATING_POINT;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the this primitive data type is a character or string
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if this data type is a character or string
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isCharacter(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the this primitive data type is a character string
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if this data type is a character string
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isString(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.CHARACTER
                && getDataTypeSize(dataTypeName) > 1;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the this primitive data type is a pointer
      *
      * @param dataTypeName
      *            data type name
      *
      * @return true if this data type is a pointer
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean isPointer(String dataTypeName)
     {
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.POINTER;
     }
 
-    /**********************************************************************
-     * Get the minimum possible value of the primitive type based on the data
-     * type and size in bytes
+    /******************************************************************************************
+     * Get the minimum possible value of the primitive type based on the data type and size in
+     * bytes
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Minimum possible value of the primitive type based on the data
-     *         type and size in bytes
-     *********************************************************************/
+     * @return Minimum possible value of the primitive type based on the data type and size in
+     *         bytes
+     *****************************************************************************************/
     protected Object getMinimum(String dataTypeName)
     {
         Object minimum = 0;
@@ -436,8 +435,8 @@ public class CcddDataTypeHandler
         {
             minimum = 0;
         }
-        // Check if the data type is a signed integer (an unsigned integer
-        // was already accounted for above)
+        // Check if the data type is a signed integer (an unsigned integer was already accounted
+        // for above)
         else if (isInteger(dataTypeName))
         {
             minimum = -(int) Math.pow(2, bytes * 8) / 2;
@@ -456,16 +455,16 @@ public class CcddDataTypeHandler
         return minimum;
     }
 
-    /**********************************************************************
-     * Get the maximum possible value of the primitive type based on the data
-     * type and size in bytes
+    /******************************************************************************************
+     * Get the maximum possible value of the primitive type based on the data type and size in
+     * bytes
      *
      * @param dataTypeName
      *            data type name
      *
-     * @return Maximum possible value of the primitive type based on the data
-     *         type and size in bytes
-     *********************************************************************/
+     * @return Maximum possible value of the primitive type based on the data type and size in
+     *         bytes
+     *****************************************************************************************/
     protected Object getMaximum(String dataTypeName)
     {
         Object maximum = 0;
@@ -478,8 +477,8 @@ public class CcddDataTypeHandler
         {
             maximum = (int) Math.pow(2, bytes * 8);
         }
-        // Check if the data type is a signed integer (an unsigned integer
-        // was already accounted for above)
+        // Check if the data type is a signed integer (an unsigned integer was already accounted
+        // for above)
         else if (isInteger(dataTypeName))
         {
             int maxUnsigned = (int) Math.pow(2, bytes * 8);
@@ -499,11 +498,10 @@ public class CcddDataTypeHandler
         return maximum;
     }
 
-    /**************************************************************************
-     * Get a list containing the tables in the project database that reference
-     * the specified data type name. Only search for references in the
-     * prototype tables (any references in the custom values table are
-     * automatically updated when the prototype is changed)
+    /**********************************************************************************************
+     * Get a list containing the tables in the project database that reference the specified data
+     * type name. Only search for references in the prototype tables (any references in the custom
+     * values table are automatically updated when the prototype is changed)
      *
      * @param dataTypeName
      *            data type name for which to search
@@ -511,88 +509,50 @@ public class CcddDataTypeHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return List containing the tables in the database that reference the
-     *         specified data type name
-     *************************************************************************/
-    protected String[] getDataTypeReferences(String dataTypeName,
-                                             Component parent)
+     * @return List containing the tables in the database that reference the specified data type
+     *         name
+     *********************************************************************************************/
+    protected String[] getDataTypeReferences(String dataTypeName, Component parent)
     {
-        // Get the references in the prototype tables that match the specified
-        // data type name
+        String searchCriteria = dataTypeName;
+
+        // Step through each macro with a value that is dependent on this data type
+        for (String macroName : macroHandler.getDataTypeReferences(dataTypeName))
+        {
+            // Add the macro name to the search criteria
+            searchCriteria += "|" + macroName;
+        }
+
+        // Get the references in the prototype tables that match the specified data type name
         List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
                                                                                      new String[][] {{"_search_text_",
-                                                                                                      dataTypeName},
+                                                                                                      "(" + searchCriteria + ")"},
                                                                                                      {"_case_insensitive_",
                                                                                                       "true"},
                                                                                                      {"_allow_regex_",
-                                                                                                      "false"},
+                                                                                                      "true"},
                                                                                                      {"_selected_tables_",
                                                                                                       SearchType.PROTO.toString()},
                                                                                                      {"_columns_",
                                                                                                       ""}},
                                                                                      parent)));
 
-        // Step through each match (in reverse since an entry in the list may
-        // need to be removed)
-        for (int index = matches.size() - 1; index >= 0; index--)
-        {
-            // Separate the match components
-            String[] tblColDescAndCntxt = matches.get(index).split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-            // Separate the user-viewable table name and table type
-            String[] tableAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
-
-            // Check if the table names match
-            if (tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(tableAndType[0]))
-            {
-                // Get the table's type definition
-                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableAndType[1]);
-
-                // Get the column index based on the column's database name
-                int column = typeDefn.getColumnIndexByDbName(tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()]);
-
-                // Check if the column represents a primitive data type
-                if (typeDefn.getInputTypes()[column] == InputDataType.PRIM_AND_STRUCT
-                    || typeDefn.getInputTypes()[column] == InputDataType.PRIMITIVE)
-                {
-                    // Separate the location into the individual columns.
-                    // Commas between double quotes are ignored so that an
-                    // erroneous column separation doesn't occur
-                    String[] columns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                    // Check if the column's contents doesn't match the
-                    // specified data type name
-                    if (!dataTypeName.equalsIgnoreCase(columns[column]))
-                    {
-                        // Remove the match
-                        matches.remove(index);
-                    }
-                }
-                // The column doesn't represent a primitive data type
-                else
-                {
-                    // Remove the match
-                    matches.remove(index);
-                }
-
-                // Stop searching since a matching table was found
-                break;
-            }
-        }
+        // Remove any references to the data type that appear in an array size column for an array
+        // member (the reference in the array's definition is all that's needed)
+        CcddSearchHandler.removeArrayMemberReferences(matches, tableTypeHandler);
 
         return matches.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add new data types and check for matches with existing ones
      *
      * @param dataTypeDefinitions
      *            list of data type definitions
      *
-     * @return The name of the data type if its name matches an existing one
-     *         but the type definition differs; return null if the data type is
-     *         new or matches an existing one
-     *************************************************************************/
+     * @return The name of the data type if its name matches an existing one but the type
+     *         definition differs; return null if the data type is new or matches an existing one
+     *********************************************************************************************/
     protected String updateDataTypes(List<String[]> dataTypeDefinitions)
     {
         String badType = null;
@@ -600,8 +560,7 @@ public class CcddDataTypeHandler
         // Step through each imported data type definition
         for (String[] typeDefn : dataTypeDefinitions)
         {
-            // Get the data type information associated with this data type
-            // name
+            // Get the data type information associated with this data type name
             String[] dataType = getDataTypeInfo(CcddDataTypeHandler.getDataTypeName(typeDefn));
 
             // Check if the data type doesn't already exist
@@ -610,15 +569,14 @@ public class CcddDataTypeHandler
                 // Add the data type
                 dataTypes.add(typeDefn);
             }
-            // The data type exists; check if the type information provided
-            // matches the existing type information
+            // The data type exists; check if the type information provided matches the existing
+            // type information
             else if (!(dataType[DataTypesColumn.USER_NAME.ordinal()].equals(typeDefn[DataTypesColumn.USER_NAME.ordinal()])
                        && dataType[DataTypesColumn.C_NAME.ordinal()].equals(typeDefn[DataTypesColumn.C_NAME.ordinal()])
                        && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
                        && dataType[DataTypesColumn.BASE_TYPE.ordinal()].equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()])))
             {
-                // Store the name of the mismatched data type and stop
-                // searching
+                // Store the name of the mismatched data type and stop searching
                 badType = CcddDataTypeHandler.getDataTypeName(typeDefn);
                 break;
             }
@@ -627,27 +585,68 @@ public class CcddDataTypeHandler
         return badType;
     }
 
-    /**************************************************************************
-     * Display a pop-up combo box containing the names of the defined data
-     * types: primitive data types (dependent on the input flag) and
-     * structures. When the user selects a data type insert it into the
-     * supplied text field
+    /**********************************************************************************************
+     * Highlight any sizeof() calls in the the specified text component
+     *
+     * @param component
+     *            reference to the table cell renderer component
+     *
+     * @param text
+     *            cell value
+     *
+     * @param hightlightColor
+     *            color used for highlighting the sizeof() call
+     *********************************************************************************************/
+    protected static void highlightSizeof(Component component,
+                                          String text,
+                                          Color hightlightColor)
+    {
+        // Highlight 'sizeof(data type)' instances. Create a highlighter painter
+        DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(hightlightColor);
+
+        // Create the match pattern
+        Pattern pattern = Pattern.compile(SIZEOF_DATATYPE);
+
+        // Create the pattern matcher from the pattern
+        Matcher matcher = pattern.matcher(text);
+
+        // Check if there is a match in the cell value
+        while (matcher.find())
+        {
+            try
+            {
+                // Highlight the matching text. Adjust the highlight color to account for the cell
+                // selection highlighting so that the sizeof() call is easily readable
+                ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
+                                                                           matcher.end(),
+                                                                           painter);
+            }
+            catch (BadLocationException ble)
+            {
+                // Ignore highlighting failure
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Display a pop-up combo box containing the names of the defined data types: primitive data
+     * types (dependent on the input flag) and structures. When the user selects a data type insert
+     * it into the supplied text field
      *
      * @param owner
      *            dialog owning the pop-up combo box
      *
      * @param textArea
-     *            text field over which to display the pop-up combo box and
-     *            insert the selected data type name
+     *            text field over which to display the pop-up combo box and insert the selected
+     *            data type name
      *
      * @param includePrimitives
-     *            true to include primitive data types in the list; false to
-     *            include only structures
+     *            true to include primitive data types in the list; false to include only
+     *            structures
      *
      * @param structures
-     *            Array containing the data types to display in the pop-up;
-     *            null to build the array
-     *************************************************************************/
+     *            Array containing the data types to display in the pop-up; null to build the array
+     *********************************************************************************************/
     protected void insertDataTypeName(Window owner,
                                       final JTextArea textArea,
                                       boolean includePrimitives,
@@ -695,50 +694,47 @@ public class CcddDataTypeHandler
             // Set the first structure as initially selected
             structureCbox.setSelectedIndex(0);
 
-            // Set the property to allow the arrow keys to be used to change
-            // the structure selection in the combo box
+            // Set the property to allow the arrow keys to be used to change the structure
+            // selection in the combo box
             structureCbox.putClientProperty("JComboBox.isTableCellEditor",
                                             Boolean.TRUE);
 
-            // Add a listener for selection events in the structure pop-up
-            // combo box
+            // Add a listener for selection events in the structure pop-up combo box
             structureCbox.addActionListener(new ActionListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a selection event in the structure combo box
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    // Get the selected structure's name and enclose it in the
-                    // structure identifier character(s)
+                    // Get the selected structure's name and enclose it in the structure identifier
+                    // character(s)
                     String structureName = ((JComboBox<?>) ae.getSource()).getSelectedItem().toString();
 
                     // Get the starting index of the selected text in the field
                     int start = textArea.getSelectionStart();
 
-                    // Insert the structure into the text field's existing
-                    // text, overwriting any of the text that is highlighted
+                    // Insert the structure into the text field's existing text, overwriting any of
+                    // the text that is highlighted
                     textArea.setText(getInsertedStructure(structureName, textArea));
                     textArea.setSelectionStart(start);
 
                     // Select the structure name that was inserted
                     textArea.setSelectionEnd(start + structureName.length());
 
-                    // Remove the structure pop-up and return to the caller.
-                    // Get the selected structure's name and enclose it in the
-                    // structure identifier character(s)
+                    // Remove the structure pop-up and return to the caller. Get the selected
+                    // structure's name and enclose it in the structure identifier character(s)
                     exitStructCombo();
                 }
             });
 
-            // Add a listener for key press events in the structure pop-up
-            // combo box
+            // Add a listener for key press events in the structure pop-up combo box
             structureCbox.addKeyListener(new KeyAdapter()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a key press event in the structure combo box
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void keyPressed(KeyEvent ke)
                 {
@@ -751,30 +747,29 @@ public class CcddDataTypeHandler
                 }
             });
 
-            // Add a listener for changes to the expansion/contraction of the
-            // combo box
+            // Add a listener for changes to the expansion/contraction of the combo box
             structureCbox.addPopupMenuListener(new PopupMenuListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a combo box expansion event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent pme)
                 {
                 }
 
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a combo box contraction event
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent pme)
                 {
                 }
 
-                /**************************************************************
-                 * Handle a combo box cancel event. This occurs if the mouse is
-                 * clicked outside the combo box
-                 *************************************************************/
+                /**********************************************************************************
+                 * Handle a combo box cancel event. This occurs if the mouse is clicked outside the
+                 * combo box
+                 *********************************************************************************/
                 @Override
                 public void popupMenuCanceled(PopupMenuEvent pme)
                 {
@@ -783,8 +778,8 @@ public class CcddDataTypeHandler
                 }
             });
 
-            // Create the dialog to contain the structure pop-up combo box. Set
-            // to modeless so that pop-up dialog focus changes can be detected
+            // Create the dialog to contain the structure pop-up combo box. Set to modeless so that
+            // pop-up dialog focus changes can be detected
             comboDlg.setModalityType(ModalityType.MODELESS);
             comboDlg.setUndecorated(true);
             comboDlg.add(structureCbox, BorderLayout.NORTH);
@@ -793,20 +788,19 @@ public class CcddDataTypeHandler
             // Add a listener for focus changes to the pop-up dialog
             comboDlg.addWindowFocusListener(new WindowFocusListener()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a gain of pop-up dialog focus
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowGainedFocus(WindowEvent we)
                 {
                     // Create a runnable object to be executed
                     SwingUtilities.invokeLater(new Runnable()
                     {
-                        /******************************************************
-                         * Execute after all pending Swing events are finished.
-                         * This ensures the pop-up is showing and can be
-                         * expanded
-                         *****************************************************/
+                        /**************************************************************************
+                         * Execute after all pending Swing events are finished. This ensures the
+                         * pop-up is showing and can be expanded
+                         *************************************************************************/
                         @Override
                         public void run()
                         {
@@ -816,9 +810,9 @@ public class CcddDataTypeHandler
                     });
                 }
 
-                /**************************************************************
+                /**********************************************************************************
                  * Handle a loss of pop-up dialog focus
-                 *************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void windowLostFocus(WindowEvent we)
                 {
@@ -833,13 +827,13 @@ public class CcddDataTypeHandler
         }
     }
 
-    /**************************************************************************
-     * Position the dialog containing the structure pop-up combo box at the
-     * text cursor position in the text field
+    /**********************************************************************************************
+     * Position the dialog containing the structure pop-up combo box at the text cursor position in
+     * the text field
      *
      * @param textArea
      *            text field over which to display the pop-up combo box
-     *************************************************************************/
+     *********************************************************************************************/
     private void positionStructurePopup(JTextArea textArea)
     {
         try
@@ -859,9 +853,9 @@ public class CcddDataTypeHandler
         }
     }
 
-    /**************************************************************************
-     * Get the text of the specified text field with the structure name or
-     * value inserted at the current selection point
+    /**********************************************************************************************
+     * Get the text of the specified text field with the structure name or value inserted at the
+     * current selection point
      *
      * @param text
      *            structure name or value
@@ -869,22 +863,21 @@ public class CcddDataTypeHandler
      * @param textArea
      *            text field over which the pop-up combo box is displayed
      *
-     * @return Text of the specified text field with the structure name or
-     *         value inserted at the current selection point
-     *************************************************************************/
+     * @return Text of the specified text field with the structure name or value inserted at the
+     *         current selection point
+     *********************************************************************************************/
     private String getInsertedStructure(String text, JTextArea textArea)
     {
-        // Insert the text into the text field at the selection start position,
-        // replacing any characters between the selection start and end
-        // positions
+        // Insert the text into the text field at the selection start position, replacing any
+        // characters between the selection start and end positions
         return textArea.getText().substring(0, textArea.getSelectionStart())
                + text
                + textArea.getText().substring(textArea.getSelectionEnd());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the structure pop-up combo box and return to the caller
-     *************************************************************************/
+     *********************************************************************************************/
     private void exitStructCombo()
     {
         comboDlg.setVisible(false);

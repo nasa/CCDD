@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary command line argument handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -27,9 +26,9 @@ import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.ModifiablePathInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary command line argument handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddCommandLineHandler
 {
     // Class reference
@@ -44,12 +43,12 @@ public class CcddCommandLineHandler
     // List containing the valid command line argument handlers
     private final List<CommandHandler> argument;
 
-    // Flag that indicates the application should exit once the command is
-    // complete. Used by the script execution command
+    // Flag that indicates the application should exit once the command is complete. Used by the
+    // script execution command
     private boolean shutdownWhenComplete;
 
-    // Application exit value following script execution: = 0 if the script(s)
-    // completed successfully; = 1 if a script fails to complete successfully
+    // Application exit value following script execution: = 0 if the script(s) completed
+    // successfully; = 1 if a script fails to complete successfully
     private int scriptExitStatus;
 
     // Session event log file path command name
@@ -58,9 +57,9 @@ public class CcddCommandLineHandler
     // Session script output file path command name
     private static final String SCRIPT_OUTPUT_PATH = "scriptOutPath";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Individual command line argument handler class
-     *************************************************************************/
+     *********************************************************************************************/
     private class CommandHandler
     {
         private final String command;
@@ -71,9 +70,9 @@ public class CcddCommandLineHandler
         private final Object[] conditions;
         private final int priority;
 
-        /**********************************************************************
-         * Individual command line argument handler class constructor for
-         * commands with a fixed set of valid options
+        /******************************************************************************************
+         * Individual command line argument handler class constructor for commands with a fixed set
+         * of valid options
          *
          * @param command
          *            command name
@@ -86,24 +85,21 @@ public class CcddCommandLineHandler
          *
          *
          * @param type
-         *            command type: CommandLineType.NAME,
-         *            CommandLineType.MINMAX, CommandLineType.SIZE,
-         *            CommandLineType.COLOR, or CommandLineType.OPTION
+         *            command type: CommandLineType.NAME, CommandLineType.MINMAX,
+         *            CommandLineType.SIZE, CommandLineType.COLOR, or CommandLineType.OPTION
          *
          * @param priority
-         *            order in which the command line argument should be
-         *            executed relative to the other commands (a command with a
-         *            lower priority number is executed prior to one with a
-         *            higher number; commands with the same priority are
-         *            executed in the order they appear on the command line
+         *            order in which the command line argument should be executed relative to the
+         *            other commands (a command with a lower priority number is executed prior to
+         *            one with a higher number; commands with the same priority are executed in the
+         *            order they appear on the command line
          *
          * @param options
          *            array of valid input options
          *
          * @param conditions
-         *            array of output parameters associated with each input
-         *            option
-         *********************************************************************/
+         *            array of output parameters associated with each input option
+         *****************************************************************************************/
         protected CommandHandler(String command,
                                  String description,
                                  String value,
@@ -121,9 +117,9 @@ public class CcddCommandLineHandler
             this.options = options;
         }
 
-        /**********************************************************************
-         * Individual command line argument handler class constructor for
-         * commands having no limit values or fixed set of options
+        /******************************************************************************************
+         * Individual command line argument handler class constructor for commands having no limit
+         * values or fixed set of options
          *
          * @param command
          *            command name
@@ -138,12 +134,11 @@ public class CcddCommandLineHandler
          *            command type: CmdType.NAME, or CmdType.COLOR
          *
          * @param priority
-         *            order in which the command line argument should be
-         *            executed relative to the other commands (a command with a
-         *            lower priority number is executed prior to one with a
-         *            higher number; commands with the same priority are
-         *            executed in the order they appear on the command line
-         *********************************************************************/
+         *            order in which the command line argument should be executed relative to the
+         *            other commands (a command with a lower priority number is executed prior to
+         *            one with a higher number; commands with the same priority are executed in the
+         *            order they appear on the command line
+         *****************************************************************************************/
         protected CommandHandler(String command,
                                  String description,
                                  String value,
@@ -159,9 +154,9 @@ public class CcddCommandLineHandler
                  null);
         }
 
-        /**********************************************************************
-         * Individual command line argument handler class constructor for
-         * commands with value limits
+        /******************************************************************************************
+         * Individual command line argument handler class constructor for commands with value
+         * limits
          *
          * @param command
          *            command name
@@ -176,15 +171,14 @@ public class CcddCommandLineHandler
          *            command type: CmdType.MINMAX or CmdType.SIZE
          *
          * @param priority
-         *            order in which the command line argument should be
-         *            executed relative to the other commands (a command with a
-         *            lower priority number is executed prior to one with a
-         *            higher number; commands with the same priority are
-         *            executed in the order they appear on the command line
+         *            order in which the command line argument should be executed relative to the
+         *            other commands (a command with a lower priority number is executed prior to
+         *            one with a higher number; commands with the same priority are executed in the
+         *            order they appear on the command line
          *
          * @param conditions
          *            array of limit values
-         *********************************************************************/
+         *****************************************************************************************/
         protected CommandHandler(String command,
                                  String description,
                                  String value,
@@ -201,30 +195,29 @@ public class CcddCommandLineHandler
                  null);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the command priority
          *
          * @return Command priority
-         *********************************************************************/
+         *****************************************************************************************/
         protected int getPriority()
         {
             return priority;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Command line argument handler
          *
          * @param parm
          *            command parameter
          *
          * @return true if the command does not succeed
-         *********************************************************************/
+         *****************************************************************************************/
         protected boolean handler(String parm)
         {
             Object parmVal = null;
 
-            // Check and convert the command parameter value based on the
-            // command type
+            // Check and convert the command parameter value based on the command type
             switch (type)
             {
                 case NAME:
@@ -258,23 +251,23 @@ public class CcddCommandLineHandler
             return parmVal == null;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Placeholder for command type specific handler
          *
          * @param parmVal
          *            command parameter
-         *********************************************************************/
+         *****************************************************************************************/
         protected void doCommand(Object parmVal)
         {
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Command line argument handler class constructor
      *
      * @param args
      *            array of command line arguments and associated parameters
-     *************************************************************************/
+     *********************************************************************************************/
     CcddCommandLineHandler(final CcddMain ccddMain, String[] args)
     {
         this.ccddMain = ccddMain;
@@ -282,17 +275,17 @@ public class CcddCommandLineHandler
         errorMessage = null;
         argument = new ArrayList<CommandHandler>();
 
-        // Event log file path command. This command, if present, is executed
-        // prior to all other commands, regardless of relative priorities
+        // Event log file path command. This command, if present, is executed prior to all other
+        // commands, regardless of relative priorities
         argument.add(new CommandHandler(LOG_PATH,
                                         "Set event log file path",
                                         "file path",
                                         CommandLineType.NAME,
                                         1)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the event log file path
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -310,13 +303,13 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         1)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the project database
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                ccddMain.getDbControlHandler().setDatabase((String) parmVal);
+                ccddMain.getDbControlHandler().setProjectName((String) parmVal);
             }
         });
 
@@ -327,9 +320,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         3)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Backup the project database when first connected
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -344,9 +337,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         2)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the user name
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -361,9 +354,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         2)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the user password
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -378,9 +371,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         2)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the PostgreSQL server host
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -395,9 +388,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         2)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the PostgreSQL server port
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -414,9 +407,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"on", "off"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Enable/disable server secure socket for the PostgreSQL server
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -433,9 +426,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show all events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -453,9 +446,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show command events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -473,9 +466,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show success events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -493,9 +486,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show fail events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -513,9 +506,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show status events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -533,9 +526,9 @@ public class CcddCommandLineHandler
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the show web server events flag
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -551,9 +544,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         6)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the look & feel
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -570,9 +563,9 @@ public class CcddCommandLineHandler
                                         new Object[] {MIN_WINDOW_WIDTH,
                                                       MIN_WINDOW_HEIGHT})
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the main window size
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -587,9 +580,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         5)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Enable the web server
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -604,9 +597,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         5)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the web server port
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -621,9 +614,9 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         1)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the script output file path
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
@@ -643,32 +636,31 @@ public class CcddCommandLineHandler
                                         CommandLineType.NAME,
                                         10)
         {
-            /******************************************************************
-             * Execute a script. The application exits following completion of
-             * this command
-             *****************************************************************/
+            /**************************************************************************************
+             * Execute a script. The application exits following completion of this command
+             *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Set the flag that hides the GUI so that dialog messages are
-                // redirected to the command line
+                // Set the flag that hides the GUI so that dialog messages are redirected to the
+                // command line
                 ccddMain.setGUIHidden(true);
 
                 // Check if a project database, user, and host are specified
-                if (!ccddMain.getDbControlHandler().getDatabase().isEmpty()
-                    && !ccddMain.getDbControlHandler().getDatabase().equals(DEFAULT_DATABASE)
+                if (!ccddMain.getDbControlHandler().getDatabaseName().isEmpty()
+                    && !ccddMain.getDbControlHandler().getDatabaseName().equals(DEFAULT_DATABASE)
                     && !ccddMain.getDbControlHandler().getUser().isEmpty()
                     && !ccddMain.getDbControlHandler().getHost().isEmpty())
                 {
-                    // Check if the database opens successfully and that the
-                    // project database opened, as opposed to the server only
-                    if (!ccddMain.getDbControlHandler().openDatabase(ccddMain.getDbControlHandler().getDatabase())
+                    // Check if the database opens successfully and that the project database
+                    // opened, as opposed to the server only
+                    if (!ccddMain.getDbControlHandler().openDatabase(ccddMain.getDbControlHandler().getProjectName())
                         && ccddMain.getDbControlHandler().isDatabaseConnected())
                     {
                         List<Object[]> associations = new ArrayList<Object[]>();
 
-                        // Break the supplied string of semicolon-separated
-                        // associations into the individual associations
+                        // Break the supplied string of semicolon-separated associations into the
+                        // individual associations
                         String[] associationsArray = parmVal.toString().split(";");
 
                         // Step through each association
@@ -676,28 +668,27 @@ public class CcddCommandLineHandler
                         {
                             String[] association;
 
-                            // Break the supplied association into the script
-                            // name and table(s) (if any)
+                            // Break the supplied association into the script name and table(s) (if
+                            // any)
                             String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
 
-                            // Remove any leading/trailing white space
-                            // characters from the script name
+                            // Remove any leading/trailing white space characters from the script
+                            // name
                             String name = scriptAndTable[0].trim();
 
-                            // Check if the name contains a file extension
-                            // (it's a script file name)
+                            // Check if the name contains a file extension (it's a script file
+                            // name)
                             if (scriptAndTable[0].contains("."))
                             {
-                                // Set the script and table in the association
-                                // array (assumes no table(s))
+                                // Set the script and table in the association array (assumes no
+                                // table(s))
                                 association = new String[] {"", "", name, " "};
 
                                 // Check if one or more tables are provided
                                 if (scriptAndTable.length == 2)
                                 {
-                                    // Set the association tables. If multiple
-                                    // tables are provided then separate these
-                                    // with the expected separator string
+                                    // Set the association tables. If multiple tables are provided
+                                    // then separate these with the expected separator string
                                     association[2] = scriptAndTable[1].replaceAll(" ",
                                                                                   "")
                                                                       .replaceAll(Pattern.quote("+"),
@@ -707,8 +698,7 @@ public class CcddCommandLineHandler
                                 // Add the association to the list
                                 associations.add(association);
                             }
-                            // No file extension; assume this is an association
-                            // name
+                            // No file extension; assume this is an association name
                             else
                             {
                                 // Get the association with this name
@@ -723,8 +713,7 @@ public class CcddCommandLineHandler
                                 // No association exists with this name
                                 else
                                 {
-                                    // Inform the user that the association
-                                    // name is invalid
+                                    // Inform the user that the association name is invalid
                                     ccddMain.getSessionEventLog().logFailEvent(null,
                                                                                "Unrecognized association name '"
                                                                                      + name
@@ -748,8 +737,8 @@ public class CcddCommandLineHandler
                             // Check if the script execution failed
                             if (flag)
                             {
-                                // Set the application return value to indicate
-                                // a failure and stop searching
+                                // Set the application return value to indicate a failure and stop
+                                // searching
                                 scriptExitStatus = 1;
                                 break;
                             }
@@ -759,32 +748,29 @@ public class CcddCommandLineHandler
                 // Missing project database, user, or host
                 else
                 {
-                    // Set the application return value to indicate a failure
-                    // and stop searching
+                    // Set the application return value to indicate a failure and stop searching
                     scriptExitStatus = 1;
 
-                    // Inform the user that one or more required parameters is
-                    // missing
+                    // Inform the user that one or more required parameters is missing
                     ccddMain.getSessionEventLog().logFailEvent(null,
                                                                "Project database, user name, and/or host missing",
                                                                "<html><b>Project database, user name, and/or host missing");
                 }
 
-                // Set the flag that indicates the application should exit
-                // following execution of the script association(s)
+                // Set the flag that indicates the application should exit following execution of
+                // the script association(s)
                 shutdownWhenComplete = true;
             }
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Parse and execute the command line argument(s)
      *
      * @param doLogPathOnly
-     *            true to only parse and execute the session event log file
-     *            path command (if present); false to parse and execute all
-     *            commands
-     *************************************************************************/
+     *            true to only parse and execute the session event log file path command (if
+     *            present); false to parse and execute all commands
+     *********************************************************************************************/
     protected void parseCommand(boolean doLogPathOnly)
     {
         try
@@ -802,8 +788,7 @@ public class CcddCommandLineHandler
             // Step through the valid commands
             for (CommandHandler cmd : argument)
             {
-                // Check if the priority list doesn't contain the priority
-                // value for this command
+                // Check if the priority list doesn't contain the priority value for this command
                 if (!priorities.contains(cmd.getPriority()))
                 {
                     // Add the priority value to the list
@@ -820,13 +805,11 @@ public class CcddCommandLineHandler
                 // Step through the command line arguments
                 for (int index = 0; index < args.length; index += 2)
                 {
-                    // Get the next command line argument and associated
-                    // parameter
+                    // Get the next command line argument and associated parameter
                     String arg = args[index];
                     String parm = args[index + 1];
 
-                    // Check if the command doesn't start with a recognized
-                    // delimiter
+                    // Check if the command doesn't start with a recognized delimiter
                     if (!arg.startsWith("-") && arg.startsWith("/"))
                     {
                         throw new CCDDException();
@@ -840,30 +823,25 @@ public class CcddCommandLineHandler
                     // Step through the valid commands
                     for (CommandHandler cmd : argument)
                     {
-                        // Check if the command argument matches a valid
-                        // command
+                        // Check if the command argument matches a valid command
                         if (arg.equalsIgnoreCase(cmd.command))
                         {
-                            // Set the flag to indicate this is a recognized
-                            // command
+                            // Set the flag to indicate this is a recognized command
                             isValidCmd = true;
 
-                            // Check if the command's priority matches the
-                            // current priority (if processing all commands) or
-                            // if this is the log path command (if only the log
-                            // path command is to be processed)
+                            // Check if the command's priority matches the current priority (if
+                            // processing all commands) or if this is the log path command (if only
+                            // the log path command is to be processed)
                             if ((!doLogPathOnly && cmd.getPriority() == priority)
                                 || (doLogPathOnly && arg.equals(LOG_PATH)))
                             {
-                                // Handle the command and check if it results
-                                // in an error condition
+                                // Handle the command and check if it results in an error condition
                                 if (cmd.handler(parm))
                                 {
                                     throw new CCDDException();
                                 }
 
-                                // Stop searching since a matching command was
-                                // found
+                                // Stop searching since a matching command was found
                                 break;
                             }
                         }
@@ -963,7 +941,7 @@ public class CcddCommandLineHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the main window size parameter
      *
      * @param arg
@@ -973,11 +951,10 @@ public class CcddCommandLineHandler
      *            window dimensions
      *
      * @param min
-     *            array containing the minimum main window width and minimum
-     *            main window height
+     *            array containing the minimum main window width and minimum main window height
      *
      * @return Main window dimension value (null if an error is found)
-     *************************************************************************/
+     *********************************************************************************************/
     private Dimension handleSize(String arg, String parm, Object[] min)
     {
         Dimension val = null;
@@ -985,8 +962,7 @@ public class CcddCommandLineHandler
         // Split out the width and height strings
         String[] parts = parm.split("x");
 
-        // Check that only two values are provided and that both contain only
-        // decimal digits
+        // Check that only two values are provided and that both contain only decimal digits
         if (parts.length == 2
             && parts[0].matches("\\d+")
             && parts[1].matches("\\d+"))
@@ -1009,8 +985,7 @@ public class CcddCommandLineHandler
                 val.height = (int) min[1];
             }
         }
-        // Width or height string contains a non-numeral or the wrong number of
-        // values
+        // Width or height string contains a non-numeral or the wrong number of values
         else
         {
             errorMessage = arg
@@ -1020,7 +995,7 @@ public class CcddCommandLineHandler
         return val;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an integer value parameter that has minimum and maximum limits
      *
      * @param arg
@@ -1030,11 +1005,11 @@ public class CcddCommandLineHandler
      *            integer value
      *
      * @param limit
-     *            array containing the lower limit value (inclusive) and the
-     *            upper limit value (inclusive)
+     *            array containing the lower limit value (inclusive) and the upper limit value
+     *            (inclusive)
      *
      * @return Integer value (null if an error is found)
-     *************************************************************************/
+     *********************************************************************************************/
     private Integer handleMinMax(String arg, String parm, Object[] limit)
     {
         Integer val = null;
@@ -1065,7 +1040,7 @@ public class CcddCommandLineHandler
         return val;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a color parameter
      *
      * @param arg
@@ -1075,7 +1050,7 @@ public class CcddCommandLineHandler
      *            color in hexadecimal format or a color name
      *
      * @return Selected color in hexadecimal format (null if an error is found)
-     *************************************************************************/
+     *********************************************************************************************/
     private Integer handleColor(String arg, String parm)
     {
         Integer val = null;
@@ -1097,8 +1072,8 @@ public class CcddCommandLineHandler
         {
             try
             {
-                // Check if the parameter is a valid color name; if so, get the
-                // RGB value (mask out the alpha portion)
+                // Check if the parameter is a valid color name; if so, get the RGB value (mask out
+                // the alpha portion)
                 val = ((Color) Color.class.getField(parm).get(null)).getRGB()
                       & 0xffffff;
             }
@@ -1114,10 +1089,9 @@ public class CcddCommandLineHandler
         return val;
     }
 
-    /**************************************************************************
-     * Get the selected option which must match one of a predefined list of
-     * options. The command argument if forced to lower case when comparing to
-     * the acceptable options
+    /**********************************************************************************************
+     * Get the selected option which must match one of a predefined list of options. The command
+     * argument if forced to lower case when comparing to the acceptable options
      *
      * @param arg
      *            command line argument
@@ -1132,7 +1106,7 @@ public class CcddCommandLineHandler
      *            array of output values associated with each input option
      *
      * @return Output value for the option selected
-     *************************************************************************/
+     *********************************************************************************************/
     private Object handleOption(String arg,
                                 String parm,
                                 String[] inputOptions,
@@ -1156,8 +1130,7 @@ public class CcddCommandLineHandler
                 break;
             }
 
-            // Build the option list for the error message text, in case it's
-            // needed
+            // Build the option list for the error message text, in case it's needed
             valid += (index != 0 ? " | " : " ") + inputOptions[index];
 
             index++;

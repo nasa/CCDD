@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary application scheduler dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -30,9 +29,9 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.SchedulerType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary application scheduler dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements CcddSchedulerDialogInterface
 {
@@ -50,12 +49,12 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     // Dialog title
     private static final String DIALOG_TITLE = "Application Scheduler";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Application scheduler dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddApplicationSchedulerDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -67,13 +66,12 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         initialize();
     }
 
-    /**************************************************************************
-     * Create the application scheduler dialog. This is executed in a separate
-     * thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The
-     * GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the application scheduler dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the application scheduler dialog in the background
@@ -82,9 +80,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
             // Create a button panel
             JPanel buttonPnl = new JPanel();
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the application scheduler dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -105,10 +103,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 // Create a listener for the Auto-fill button
                 btnAutoFill.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
-                    /**********************************************************
-                     * Auto-fill the applications into the application
-                     * scheduler
-                     *********************************************************/
+                    /******************************************************************************
+                     * Auto-fill the applications into the application scheduler
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -125,9 +122,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 // Add a listener for the Clear Slots button
                 btnClear.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Remove the applications from all time slots
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -143,15 +140,14 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
-                    /**********************************************************
-                     * Store the application scheduler data in the project
-                     * database
-                     *********************************************************/
+                    /******************************************************************************
+                     * Store the application scheduler data in the project database
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Check if any message has changed and, if so, that
-                        // the user confirms storing the changes
+                        // Check if any message has changed and, if so, that the user confirms
+                        // storing the changes
                         if (schedulerHndlr.getSchedulerEditor().isMessagesChanged()
                             && new CcddDialogHandler().showMessageDialog(CcddApplicationSchedulerDialog.this,
                                                                          "<html><b>Store changes?",
@@ -173,9 +169,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the application scheduler dialog
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -183,8 +179,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to
-                // right)
+                // Add buttons in the order in which they'll appear (left to right)
                 buttonPnl.add(btnAutoFill);
                 buttonPnl.add(btnStore);
                 buttonPnl.add(btnClear);
@@ -194,9 +189,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                 setButtonRows(2);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Application scheduler dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -211,9 +206,9 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the data into the database
-     *************************************************************************/
+     *********************************************************************************************/
     private void storeData()
     {
         // Create a data stream to pass into the schedule database handler
@@ -223,53 +218,51 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         stream.add(new DataStream(schedulerHndlr.getCurrentMessages(),
                                   new ArrayList<Variable>()));
 
-        // Update the copy of the messages so that subsequent changes can
-        // be detected
+        // Update the copy of the messages so that subsequent changes can be detected
         schedulerHndlr.getSchedulerEditor().copyMessages();
 
         // Pass the data stream into the scheduler database handler
         schedulerDb.storeData(stream);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the dialog close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the scheduler table
-        // is validated and that no message has changed. If a change exists
-        // then confirm discarding the changes
+        // Check if the contents of the last cell edited in the scheduler table is validated and
+        // that no message has changed. If a change exists then confirm discarding the changes
         if (schedulerHndlr.getSchedulerEditor().getTable().isLastCellValid()
             && (!schedulerHndlr.getSchedulerEditor().isMessagesChanged()
-            || new CcddDialogHandler().showMessageDialog(CcddApplicationSchedulerDialog.this,
-                                                         "<html><b>Discard changes?",
-                                                         "Discard Changes",
-                                                         JOptionPane.QUESTION_MESSAGE,
-                                                         DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+                || new CcddDialogHandler().showMessageDialog(CcddApplicationSchedulerDialog.this,
+                                                             "<html><b>Discard changes?",
+                                                             "Discard Changes",
+                                                             JOptionPane.QUESTION_MESSAGE,
+                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
         {
             // Close the application scheduler dialog
             closeDialog();
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the scheduler dialog
      *
      * @return Scheduler dialog
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddDialogHandler getDialog()
     {
         return CcddApplicationSchedulerDialog.this;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable/disable the dialog controls
      *
      * @param enable
      *            true to enable the controls, false to disable
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void setControlsEnabled(boolean enable)
     {
@@ -277,58 +270,57 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
         schedulerHndlr.setArrowsEnabled(enable);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Gets the scheduler database handler
      *
      * @return Schedule database handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerDbIOHandler getSchedulerDatabaseHandler()
     {
         return schedulerDb;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Creates and returns a scheduler input object
      *
      * @param unused
      *            not used for the application scheduler dialog
      *
      * @return Application input object
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerInputInterface createSchedulerInput(String unused)
     {
         return new CcddApplicationSchedulerInput(ccddMain, this);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the scheduler handler
      *
      * @return Scheduler handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerHandler getSchedulerHandler()
     {
         return schedulerHndlr;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the change indicator for the scheduler handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void updateChangeIndicator()
     {
         setTitle(DIALOG_TITLE
                  + (schedulerHndlr.getSchedulerEditor().isMessagesChanged()
-                                                                           ? "*"
-                                                                           : ""));
+                                                                            ? "*"
+                                                                            : ""));
     }
 
-    /**************************************************************************
-     * Steps to perform following storing of the scheduler data in the project
-     * database
-     *************************************************************************/
+    /**********************************************************************************************
+     * Steps to perform following storing of the scheduler data in the project database
+     *********************************************************************************************/
     @Override
     public void doSchedulerUpdatesComplete(boolean errorFlag)
     {

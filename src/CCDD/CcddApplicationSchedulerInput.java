@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary application scheduler input.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -33,9 +32,9 @@ import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary application scheduler input class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterface
 {
@@ -57,12 +56,12 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     // Node selection change in progress flag
     private boolean isNodeSelectionChanging;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Application scheduler input class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddApplicationSchedulerInput(CcddMain ccddMain,
                                   CcddApplicationSchedulerDialog schedulerDlg)
     {
@@ -75,16 +74,15 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Initialize the application tree
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         isNodeSelectionChanging = false;
 
-        // Set the selected rate to a dummy value initially. Once the
-        // application information is loaded the rate is initialized to 1 Hz if
-        // that rate is valid
+        // Set the selected rate to a dummy value initially. Once the application information is
+        // loaded the rate is initialized to 1 Hz if that rate is valid
         selectedRate = "0";
 
         // Create the application tree
@@ -94,20 +92,18 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                                    true,
                                                    ccddMain.getMainFrame())
         {
-            /******************************************************************
-             * Respond to changes in selection of a node in the application
-             * tree
-             *****************************************************************/
+            /**************************************************************************************
+             * Respond to changes in selection of a node in the application tree
+             *************************************************************************************/
             @Override
             protected void updateTableSelection()
             {
                 // Check that a node selection change is not in progress
                 if (!isNodeSelectionChanging)
                 {
-                    // Select the associated slot(s) in the scheduler table if
-                    // an application is selected in the application tree. Note
-                    // that below any assigned applications are deselected, so
-                    // this call must occur first
+                    // Select the associated slot(s) in the scheduler table if an application is
+                    // selected in the application tree. Note that below any assigned applications
+                    // are deselected, so this call must occur first
                     selectTimeSlotbyApplication();
 
                     // Set the flag to prevent application tree updates
@@ -151,9 +147,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                            0,
                                            0));
 
-        // Initialize the currently selected rate to 1 Hz if present in the
-        // list of available rates; otherwise choose the first rate if any
-        // rates exist, and if none exist set the rate to a dummy value
+        // Initialize the currently selected rate to 1 Hz if present in the list of available
+        // rates; otherwise choose the first rate if any rates exist, and if none exist set the
+        // rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         updateVariableTree(availableRates.contains("1")
                                                         ? "1"
@@ -162,21 +158,19 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                                                                      : "0"));
     }
 
-    /**************************************************************************
-     * Get the index at which the specified application should be inserted in
-     * the list of applications provided. The application tree is used to
-     * determine the target application's position relative to the applications
-     * in the list (if any)
+    /**********************************************************************************************
+     * Get the index at which the specified application should be inserted in the list of
+     * applications provided. The application tree is used to determine the target application's
+     * position relative to the applications in the list (if any)
      *
      * @param application
      *            application for which to determine the insertion index
      *
      * @param applications
-     *            list of applications into which the application is to be
-     *            inserted
+     *            list of applications into which the application is to be inserted
      *
      * @return Index at which to insert the target application
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public int getVariableRelativeIndex(Variable application,
                                         List<Variable> applications)
@@ -188,8 +182,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         {
             int targetVarTreeIndex = 0;
 
-            // Step through the application tree's root node's children, if
-            // any
+            // Step through the application tree's root node's children, if any
             for (Enumeration<?> element = applicationTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
             {
                 // Get the referenced node and its path
@@ -198,8 +191,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 // Check if the target node matches the application tree node
                 if (application.getFullName().equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
                 {
-                    // The target application is located in the tree; stop
-                    // searching
+                    // The target application is located in the tree; stop searching
                     break;
                 }
 
@@ -211,31 +203,28 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             {
                 int listVarTreeIndex = 0;
 
-                // Step through the application tree's root node's children,
-                // if any
+                // Step through the application tree's root node's children, if any
                 for (Enumeration<?> element = applicationTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
                 {
                     // Get the referenced node and its path
                     ToolTipTreeNode tableNode = (ToolTipTreeNode) element.nextElement();
 
-                    // Check if the target node matches the application tree
-                    // node
+                    // Check if the target node matches the application tree node
                     if (applications.get(insertIndex).getFullName().equals(CcddUtilities.removeHTMLTags(tableNode.getUserObject().toString())))
                     {
-                        // The list application is located in the tree; stop
-                        // searching
+                        // The list application is located in the tree; stop searching
                         break;
                     }
 
                     listVarTreeIndex++;
                 }
 
-                // Check if the list application tree position is after the
-                // target application tree position
+                // Check if the list application tree position is after the target application tree
+                // position
                 if (listVarTreeIndex > targetVarTreeIndex)
                 {
-                    // The relative position of the target application within
-                    // the list is determined; stop searching
+                    // The relative position of the target application within the list is
+                    // determined; stop searching
                     break;
                 }
             }
@@ -244,15 +233,14 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return insertIndex;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the total amount of time for the specified application(s)
      *
      * @param applications
-     *            list of applications; null to use the currently selected
-     *            application(s)
+     *            list of applications; null to use the currently selected application(s)
      *
      * @return Total amount of time for the specified application(s)
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public int getSelectedVariableSize(List<Variable> applications)
     {
@@ -277,15 +265,14 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return totalRunTime;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a list of applications with the specified rate
      *
      * @param rate
      *            currently selected rate
      *
-     * @return List of variable object(s) representing the application(s) at
-     *         the specified rate
-     *************************************************************************/
+     * @return List of variable object(s) representing the application(s) at the specified rate
+     *********************************************************************************************/
     @Override
     public List<Variable> getVariablesAtRate(String rate)
     {
@@ -294,9 +281,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // Step though the application group information
         for (GroupInformation grpInfo : applicationTree.getGroupHandler().getGroupInformation())
         {
-            // Check that the group represents a CFS application, the target
-            // rate matches the field value, and the application isn't in the
-            // exclusion list
+            // Check that the group represents a CFS application, the target rate matches the field
+            // value, and the application isn't in the exclusion list
             if (grpInfo.isApplication()
                 && rate.equals(getDataFieldValue(grpInfo.getName(),
                                                  DefaultApplicationField.SCHEDULE_RATE))
@@ -310,12 +296,11 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return getApplicationFields(applications.toArray(new String[0]), rate);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the selected node in the application tree
      *
-     * @return List of variable object(s) representing the selected
-     *         application(s)
-     *************************************************************************/
+     * @return List of variable object(s) representing the selected application(s)
+     *********************************************************************************************/
     @Override
     public List<Variable> getSelectedVariable()
     {
@@ -324,7 +309,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                     selectedRate);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the selected node in the application tree
      *
      * @param applications
@@ -333,9 +318,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @param rate
      *            currently selected rate
      *
-     * @return List of variable object(s) representing the specified
-     *         application(s)
-     *************************************************************************/
+     * @return List of variable object(s) representing the specified application(s)
+     *********************************************************************************************/
     private List<Variable> getApplicationFields(String[] applications,
                                                 String rate)
     {
@@ -373,11 +357,11 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return appList;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array of the available rates
      *
      * @return Array of rates
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public String[] getAvailableRates()
     {
@@ -387,8 +371,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // Step through each application in the application tree
         for (GroupInformation appInfo : applicationTree.getGroupHandler().getGroupInformation())
         {
-            // Set the field handler to contain the current application's
-            // information
+            // Set the field handler to contain the current application's information
             fieldHndlr.setFieldInformation(appInfo.getFieldInformation());
 
             // Get the scheduler rate of the current application
@@ -406,9 +389,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // Sort the list of rates from greatest to least
         Collections.sort(rates, Collections.reverseOrder(new Comparator<String>()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Override the compare method to sort from greatest to least
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public int compare(String string1, String string2)
             {
@@ -420,23 +403,23 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return rates.toArray(new String[rates.size()]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the currently selected rate
      *
      * @return Currently selected rate
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public String getSelectedRate()
     {
         return selectedRate;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add the specified application(s) to the excluded application list
      *
      * @param applications
      *            list containing the application(s) to be excluded
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void excludeVariable(List<String> applications)
     {
@@ -449,8 +432,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 // Check if the excludes list already contains the string name
                 if (!excludedList.contains(application))
                 {
-                    // Add the application name to the excluded applications
-                    // list
+                    // Add the application name to the excluded applications list
                     excludedList.add(application);
                 }
             }
@@ -461,13 +443,12 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the specified application(s) from the excluded application list
      *
      * @param applications
-     *            list of applications to be removed from the excluded
-     *            application list
-     *************************************************************************/
+     *            list of applications to be removed from the excluded application list
+     *********************************************************************************************/
     @Override
     public void includeVariable(List<String> applications)
     {
@@ -491,12 +472,12 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the tree to display applications at the specified rate
      *
      * @param rate
      *            rate for filtering the applications
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void updateVariableTree(String rate)
     {
@@ -519,18 +500,18 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the tree panel
      *
      * @return Tree panel object
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public JPanel getInputPanel()
     {
         return treePnl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field value for the specified application and field name
      *
      * @param applicationName
@@ -540,19 +521,18 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *            application data field
      *
      * @return Application data field value for the specified application
-     *************************************************************************/
+     *********************************************************************************************/
     private String getDataFieldValue(String applicationName,
                                      DefaultApplicationField appField)
     {
         // Initialize the value to the default
         String value = appField.getInitialValue();
 
-        // Check if the application name isn't blank. This occurs if the
-        // application scheduler time slot has no applications assigned
+        // Check if the application name isn't blank. This occurs if the application scheduler time
+        // slot has no applications assigned
         if (!applicationName.isEmpty())
         {
-            // Update the data field handler with this application's field
-            // information
+            // Update the data field handler with this application's field information
             fieldHndlr.setFieldInformation(applicationTree.getGroupHandler().getGroupInformationByName(applicationName).getFieldInformation());
 
             // Get the information for the specified data field
@@ -569,10 +549,10 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         return value;
     }
 
-    /**************************************************************************
-     * Select the message(s) in the assignment tree for which the selected
-     * variable in the variable tree is a member
-     *************************************************************************/
+    /**********************************************************************************************
+     * Select the message(s) in the assignment tree for which the selected variable in the variable
+     * tree is a member
+     *********************************************************************************************/
     private void selectTimeSlotbyApplication()
     {
         // Check if only a single node is selected in the application tree
@@ -582,8 +562,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             String application = applicationTree.getFullVariablePath(applicationTree.getSelectionPath().getPath(),
                                                                      applicationTree.getGroupNodeLevel());
 
-            // Check if the application contains the HTML flags indicating it
-            // is in use; i.e., belongs to a time slot
+            // Check if the application contains the HTML flags indicating it is in use; i.e.,
+            // belongs to a time slot
             if (application.contains(DISABLED_TEXT_COLOR))
             {
                 // Remove the HTML flags from the application name
@@ -592,9 +572,8 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 // Clear any selected time slot(s) in the Scheduler table
                 schedulerDlg.getSchedulerHandler().getSchedulerEditor().getTable().clearSelection();
 
-                // Step through the list of current time slots. Go in reverse
-                // order so that the first time slot containing the application
-                // gets the focus
+                // Step through the list of current time slots. Go in reverse order so that the
+                // first time slot containing the application gets the focus
                 for (int row = schedulerDlg.getSchedulerHandler().getCurrentMessages().size() - 1; row >= 0; row--)
                 {
                     String option = "";

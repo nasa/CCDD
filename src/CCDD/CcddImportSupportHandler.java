@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary import support handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -21,21 +20,20 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary import support handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddImportSupportHandler
 {
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a table type column definition after verifying the input parameters
      *
      * @param continueOnError
-     *            current state of the flag that indicates if all table type
-     *            errors should be ignored
+     *            current state of the flag that indicates if all table type errors should be
+     *            ignored
      *
      * @param defn
-     *            reference to the TableTypeDefinition to which this column
-     *            definition applies
+     *            reference to the TableTypeDefinition to which this column definition applies
      *
      * @param columnDefn
      *            array containing the table type column definition
@@ -49,9 +47,9 @@ public class CcddImportSupportHandler
      * @return true if the user elected to ignore the column error
      *
      * @throws CCDDException
-     *             If the column name is missing or the user elects to stop the
-     *             import operation due to an invalid input data type
-     *************************************************************************/
+     *             If the column name is missing or the user elects to stop the import operation
+     *             due to an invalid input data type
+     *********************************************************************************************/
     protected boolean addImportedTableTypeDefinition(boolean continueOnError,
                                                      TableTypeDefinition tableTypeDefn,
                                                      String[] columnDefn,
@@ -111,16 +109,15 @@ public class CcddImportSupportHandler
         return continueOnError;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a data field definition after verifying the input parameters
      *
      * @param continueOnError
-     *            current state of the flag that indicates if all data field
-     *            errors should be ignored
+     *            current state of the flag that indicates if all data field errors should be
+     *            ignored
      *
      * @param defn
-     *            TableTypeDefinition or TableDefinition object to which this
-     *            data field applies
+     *            TableTypeDefinition or TableDefinition object to which this data field applies
      *
      * @param fieldDefn
      *            array containing the data field definition
@@ -134,9 +131,9 @@ public class CcddImportSupportHandler
      * @return true if the user elected to ignore the data field error
      *
      * @throws CCDDException
-     *             If the data field name is missing or the user elects to stop
-     *             the import operation due to an invalid input data type
-     *************************************************************************/
+     *             If the data field name is missing or the user elects to stop the import
+     *             operation due to an invalid input data type
+     *********************************************************************************************/
     protected boolean addImportedDataFieldDefinition(boolean continueOnError,
                                                      Object defn,
                                                      String[] fieldDefn,
@@ -232,15 +229,14 @@ public class CcddImportSupportHandler
         return continueOnError;
     }
 
-    /**************************************************************************
-     * Display an Ignore/Ignore All/Cancel dialog in order to get the response
-     * to an error condition. The user may elect to ignore the one instance of
-     * this type of error, all instances of this type of error, or cancel the
-     * operation
+    /**********************************************************************************************
+     * Display an Ignore/Ignore All/Cancel dialog in order to get the response to an error
+     * condition. The user may elect to ignore the one instance of this type of error, all
+     * instances of this type of error, or cancel the operation
      *
      * @param continueOnError
-     *            current state of the flag that indicates if all errors of
-     *            this type should be ignored
+     *            current state of the flag that indicates if all errors of this type should be
+     *            ignored
      *
      * @param message
      *            text message to display
@@ -249,16 +245,13 @@ public class CcddImportSupportHandler
      *            title to display in the dialog window frame
      *
      * @param ignoreToolTip
-     *            Ignore button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Ignore button tool tip text; null if no tool tip is to be displayed
      *
      * @param ignoreAllToolTip
-     *            Ignore All button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Ignore All button tool tip text; null if no tool tip is to be displayed
      *
      * @param cancelToolTip
-     *            Cancel button tool tip text; null if no tool tip is to be
-     *            displayed
+     *            Cancel button tool tip text; null if no tool tip is to be displayed
      *
      * @param parent
      *            GUID component calling this method
@@ -267,7 +260,7 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException
      *             If the user selects the Cancel button
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean getErrorResponse(boolean continueOnError,
                                        String message,
                                        String title,
@@ -276,8 +269,7 @@ public class CcddImportSupportHandler
                                        String cancelToolTip,
                                        Component parent) throws CCDDException
     {
-        // Check if the user hasn't already elected to ignore this type of
-        // error
+        // Check if the user hasn't already elected to ignore this type of error
         if (!continueOnError)
         {
             // Inform the user that the imported item is incorrect
@@ -297,8 +289,7 @@ public class CcddImportSupportHandler
             // Check if the Cancel button was pressed
             else if (buttonSelected == CANCEL_BUTTON)
             {
-                // No error message is provided since the user chose this
-                // action
+                // No error message is provided since the user chose this action
                 throw new CCDDException();
             }
         }

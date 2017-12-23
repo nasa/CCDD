@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary database command handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -22,9 +21,9 @@ import java.util.List;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary database command handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddDbCommandHandler
 {
     // Class references
@@ -43,16 +42,15 @@ public class CcddDbCommandHandler
     // Flag to enable/disable creating a save point prior to a transaction
     private boolean savePointEnabled;
 
-    // Flag indicating that a save point has been created for this transaction
-    // block
+    // Flag indicating that a save point has been created for this transaction block
     private boolean isSavePointCreated;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Database command handler class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddDbCommandHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -61,49 +59,48 @@ public class CcddDbCommandHandler
         setSavePointEnable(false);
     }
 
-    /**************************************************************************
-     * Create a reference to the session event log. This can't be done
-     * initially since the event log hasn't been created when this class is
-     * instantiated
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create a reference to the session event log. This can't be done initially since the event
+     * log hasn't been created when this class is instantiated
+     *********************************************************************************************/
     protected void setEventLog()
     {
         eventLog = ccddMain.getSessionEventLog();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the database connection
      *
      * @param connection
      *            database connection
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setConnection(Connection connection)
     {
         this.connection = connection;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the database connection
      *
      * @return The database connection
-     *************************************************************************/
+     *********************************************************************************************/
     protected Connection getConnection()
     {
         return connection;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the connection statement
      *
      * @param statement
      *            connection statement
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setStatement(Statement statement)
     {
         this.statement = statement;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Execute a database query command and log the command to the session log
      *
      * @param command
@@ -112,12 +109,11 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return Command results; returns null if no connection exists to the
-     *         server
+     * @return Command results; returns null if no connection exists to the server
      *
      * @throws SQLexception
      *             If no connection exists to the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected ResultSet executeDbQuery(String command,
                                        Component component) throws SQLException
     {
@@ -126,7 +122,7 @@ public class CcddDbCommandHandler
                                               component);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Execute a database update command and log the command to the session log
      *
      * @param command
@@ -135,12 +131,11 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return Command result row count; returns null if no connection exists
-     *         to the server
+     * @return Command result row count; returns null if no connection exists to the server
      *
      * @throws SQLexception
      *             If no connection exists to the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected int executeDbUpdate(String command,
                                   Component component) throws SQLException
     {
@@ -149,7 +144,7 @@ public class CcddDbCommandHandler
                                             component);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Execute a database command and log the command to the session log
      *
      * @param command
@@ -158,13 +153,12 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return true if the first result is a ResultSet object, or false if it
-     *         is an update count or there are no results; returns null if no
-     *         connection exists to the server
+     * @return true if the first result is a ResultSet object, or false if it is an update count or
+     *         there are no results; returns null if no connection exists to the server
      *
      * @throws SQLexception
      *             If no connection exists to the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean executeDbCommand(String command,
                                        Component component) throws SQLException
     {
@@ -173,9 +167,8 @@ public class CcddDbCommandHandler
                                             component);
     }
 
-    /**************************************************************************
-     * Execute a database update statement and log the command to the session
-     * log
+    /**********************************************************************************************
+     * Execute a database update statement and log the command to the session log
      *
      * @param commandType
      *            command type (DbCommandType)
@@ -186,20 +179,20 @@ public class CcddDbCommandHandler
      * @param component
      *            GUI component over which to center any error dialog
      *
-     * @return Command result (content is dependent on the command type);
-     *         returns null if no connection exists to the server
+     * @return Command result (content is dependent on the command type); returns null if no
+     *         connection exists to the server
      *
      * @throws SQLexception
      *             If no connection exists to the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected Object executeDbStatement(DbCommandType commandType,
                                         String command,
                                         Component component) throws SQLException
     {
         Object result = null;
 
-        // Check if creation of a save point is enabled and a save point hasn't
-        // already been created
+        // Check if creation of a save point is enabled and a save point hasn't already been
+        // created
         if (savePointEnabled && !isSavePointCreated)
         {
             // Execute the command to create a save point
@@ -241,8 +234,7 @@ public class CcddDbCommandHandler
                     break;
             }
 
-            // Check if auto-commit is disabled and a save point isn't
-            // established
+            // Check if auto-commit is disabled and a save point isn't established
             if (connection.getAutoCommit() == false && !savePointEnabled)
             {
                 // Commit the change to the database
@@ -251,14 +243,13 @@ public class CcddDbCommandHandler
         }
         catch (SQLException se)
         {
-            // Check if auto-commit is disabled and a save point isn't
-            // established
+            // Check if auto-commit is disabled and a save point isn't established
             if (connection.getAutoCommit() == false && !savePointEnabled)
             {
                 try
                 {
-                    // The command failed to complete successfully; revert the
-                    // change to the database
+                    // The command failed to complete successfully; revert the change to the
+                    // database
                     connection.rollback();
                 }
                 catch (SQLException se2)
@@ -279,46 +270,44 @@ public class CcddDbCommandHandler
         return result;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the save point status
      *
      * @return true if a save point is enabled and exists
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean getSavePointEnable()
     {
         return savePointEnabled && isSavePointCreated;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable or disable creation of a save point prior to a transaction
      *
      * @param enable
      *            true to enable creating a save point
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setSavePointEnable(boolean enable)
     {
         savePointEnabled = enable;
         isSavePointCreated = false;
     }
 
-    /**************************************************************************
-     * Retrieve a list from the server or database. The command strings are set
-     * up to explicitly sort the list alphabetically, without regard to
-     * capitalization
+    /**********************************************************************************************
+     * Retrieve a list from the server or database. The command strings are set up to explicitly
+     * sort the list alphabetically, without regard to capitalization
      *
      * @param listType
      *            type of list to be retrieved
      *
      * @param listOption
-     *            array containing replacement text within a command; null if
-     *            none is needed
+     *            array containing replacement text within a command; null if none is needed
      *
      * @param dialog
      *            GUI component calling this method
      *
-     * @return String array containing the requested list items in alphabetical
-     *         order; an empty array if no items exist
-     *************************************************************************/
+     * @return String array containing the requested list items in alphabetical order; an empty
+     *         array if no items exist
+     *********************************************************************************************/
     protected String[] getList(DatabaseListCommand listType,
                                String[][] listOption,
                                Component parent)

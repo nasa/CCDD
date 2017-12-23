@@ -1,11 +1,9 @@
 /**
- * CFS Command & Data Dictionary variable padding byte alignment assignment
- * dialog.
+ * CFS Command & Data Dictionary variable padding byte alignment assignment dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -29,22 +27,21 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
- * CFS Command & Data Dictionary variable padding byte alignment assignment
- * dialog class
- *****************************************************************************/
+/**************************************************************************************************
+ * CFS Command & Data Dictionary variable padding byte alignment assignment dialog class
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddPaddingAlignmentDialog extends CcddDialogHandler
 {
     // Class reference
     private final CcddMain ccddMain;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Variable padding byte alignment assignment dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddPaddingAlignmentDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -53,9 +50,9 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the variable padding byte alignment assignment dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Set the initial layout manager characteristics
@@ -83,8 +80,7 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         byteAlignmentLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(byteAlignmentLbl, gbc);
 
-        // Create a slider of the available alignment choices and add it to the
-        // dialog
+        // Create a slider of the available alignment choices and add it to the dialog
         final JSlider byteAlignmentSld = new JSlider(0,
                                                      6,
                                                      (int) (Math.log(Double.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT,
@@ -107,14 +103,14 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         // Add a listener for mouse button clicks
         byteAlignmentSld.addMouseListener(new MouseAdapter()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a mouse button click on the slider
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void mouseClicked(MouseEvent me)
             {
-                // Set the slider value based on the mouse pointer position
-                // when the button is clicked
+                // Set the slider value based on the mouse pointer position when the button is
+                // clicked
                 BasicSliderUI ui = (BasicSliderUI) byteAlignmentSld.getUI();
                 int value = ui.valueForXPosition(me.getX());
                 byteAlignmentSld.setValue(value);

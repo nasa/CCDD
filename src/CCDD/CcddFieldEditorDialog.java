@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary data field editor dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -58,9 +57,9 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary data field editor dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddFieldEditorDialog extends CcddDialogHandler
 {
@@ -85,8 +84,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private JButton btnUpdate;
     private JButton btnClose;
 
-    // Table name, including the path if this is a structure type table, or
-    // group name
+    // Table name, including the path if this is a structure type table, or group name
     private final String ownerName;
 
     // Flag that indicates if the applicability column should be displayed
@@ -95,15 +93,15 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // Index for the data field editor's input type column
     private int inputTypeIndex;
 
-    // Table instance model data. Current copy is the table information as it
-    // exists in the table editor and is used to determine what changes have
-    // been made to the table since the previous field editor update
+    // Table instance model data. Current copy is the table information as it exists in the table
+    // editor and is used to determine what changes have been made to the table since the previous
+    // field editor update
     private Object[][] currentData;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Data Field Editor";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Data field editor dialog class constructor
      *
      * @param ccddMain
@@ -113,15 +111,14 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *            description and data field panel reference
      *
      * @param ownerName
-     *            table name, including the path if this is a structure type
-     *            table, or group name
+     *            table name, including the path if this is a structure type table, or group name
      *
      * @param includeApplicability
      *            true to include the applicability column
      *
      * @param minimumWidth
      *            minimum pixel width of the caller
-     *************************************************************************/
+     *********************************************************************************************/
     CcddFieldEditorDialog(CcddMain ccddMain,
                           CcddInputFieldPanelHandler fieldPnlHandler,
                           String ownerName,
@@ -143,12 +140,12 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         initialize(minimumWidth);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the data field editor dialog
      *
      * @param minimumWidth
      *            minimum pixel width of the caller
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize(final int minimumWidth)
     {
         // Check if the table has fields
@@ -167,10 +164,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()
         {
-            /******************************************************************
-             * Allow resizing of all columns except the Size, Required, and
-             * Applicability columns
-             *****************************************************************/
+            /**************************************************************************************
+             * Allow resizing of all columns except the Size, Required, and Applicability columns
+             *************************************************************************************/
             @Override
             protected boolean isColumnResizable(int column)
             {
@@ -179,10 +175,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
             }
 
-            /******************************************************************
-             * Allow multiple line display in all but the Required, Size, and
-             * Applicability columns
-             *****************************************************************/
+            /**************************************************************************************
+             * Allow multiple line display in all but the Required, Size, and Applicability columns
+             *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
@@ -191,9 +186,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Hide the specified column(s)
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnHidden(int column)
             {
@@ -202,19 +197,19 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                            && column == FieldEditorColumnInfo.APPLICABILITY.ordinal());
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Display the specified column(s) as check boxes
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnBoolean(int column)
             {
                 return column == FieldEditorColumnInfo.REQUIRED.ordinal();
             }
 
-            /******************************************************************
-             * Override isCellEditable so that all columns except the line
-             * separators and breaks can be edited
-             *****************************************************************/
+            /**************************************************************************************
+             * Override isCellEditable so that all columns except the line separators and breaks
+             * can be edited
+             *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
             {
@@ -240,9 +235,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 return isEditable;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow pasting data into the data field cells
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData,
                                               int row,
@@ -252,9 +247,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                       convertColumnIndexToView(column));
             }
 
-            /******************************************************************
-             * Override the CcddJTableHandler method to prevent deleting the
-             * contents of the cell at the specified row and column
+            /**************************************************************************************
+             * Override the CcddJTableHandler method to prevent deleting the contents of the cell
+             * at the specified row and column
              *
              * @param row
              *            table row index in view coordinates
@@ -263,7 +258,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              *            table column index in view coordinates
              *
              * @return false if the cell contains a combo box; true otherwise
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isCellBlankable(int row, int column)
             {
@@ -274,7 +269,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Validate changes to the editable cells
              *
              * @param tableData
@@ -293,16 +288,14 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              *            new cell contents
              *
              * @param showMessage
-             *            true to display the invalid input dialog, if
-             *            applicable
+             *            true to display the invalid input dialog, if applicable
              *
              * @param isMultiple
-             *            true if this is one of multiple cells to be entered
-             *            and checked; false if only a single input is being
-             *            entered
+             *            true if this is one of multiple cells to be entered and checked; false if
+             *            only a single input is being entered
              *
              * @return Always returns false
-             ****************************************************************/
+             ************************************************************************************/
             @Override
             protected Boolean validateCellContent(List<Object[]> tableData,
                                                   int row,
@@ -312,8 +305,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                   Boolean showMessage,
                                                   boolean isMultiple)
             {
-                // Reset the flag that indicates the last edited cell's content
-                // is invalid
+                // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
 
                 // Create a string version of the new value
@@ -321,18 +313,16 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
                 try
                 {
-                    // Check if the field name has been changed and if the name
-                    // isn't blank
+                    // Check if the field name has been changed and if the name isn't blank
                     if (column == FieldEditorColumnInfo.NAME.ordinal()
                         && !newValueS.isEmpty())
                     {
-                        // Compare this field name to the others in the table
-                        // in order to avoid creating a duplicate
+                        // Compare this field name to the others in the table in order to avoid
+                        // creating a duplicate
                         for (int otherRow = 0; otherRow < getRowCount(); otherRow++)
                         {
-                            // Check if this row isn't the one being edited,
-                            // and if the field name matches the one being
-                            // added (case insensitive)
+                            // Check if this row isn't the one being edited, and if the field name
+                            // matches the one being added (case insensitive)
                             if (otherRow != row
                                 && newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString()))
                             {
@@ -351,26 +341,23 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                             throw new CCDDException("Field size must be a positive integer");
                         }
 
-                        // Check if the character width of the data field
-                        // exceeds the maximum allowed. If the field is too
-                        // wide the rendering of the table can make the
-                        // interface unusable
+                        // Check if the character width of the data field exceeds the maximum
+                        // allowed. If the field is too wide the rendering of the table can make
+                        // the interface unusable
                         if (Integer.valueOf(newValueS) > ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize())
                         {
                             throw new CCDDException("Field size must be less than or equal to "
                                                     + ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize());
                         }
 
-                        // Remove any unneeded characters and store the cleaned
-                        // number
+                        // Remove any unneeded characters and store the cleaned number
                         tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(),
                                                                           "$1");
                     }
                 }
                 catch (CCDDException ce)
                 {
-                    // Set the flag that indicates the last edited cell's
-                    // content is invalid
+                    // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
 
                     // Check if the input error dialog should be displayed
@@ -385,25 +372,23 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                                   DialogOption.OK_OPTION);
                     }
 
-                    // Restore the column name to its original value and set
-                    // the error message
+                    // Restore the column name to its original value and set the error message
                     tableData.get(row)[column] = oldValue;
                 }
 
                 return false;
             }
 
-            /******************************************************************
-             * Load the table data field definition values into the table and
-             * format the table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Load the table data field definition values into the table and format the table
+             * cells
+             *************************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(currentData,
                                             FieldEditorColumnInfo.getColumnNames(),
                                             null,
@@ -413,10 +398,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                             true);
             }
 
-            /******************************************************************
-             * Override prepareRenderer to allow adjusting the background
-             * colors of table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Override prepareRenderer to allow adjusting the background colors of table cells
+             *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer,
                                              int row,
@@ -426,9 +410,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                                      row,
                                                                      column);
 
-                // Check if the cell isn't already selected (selection
-                // highlighting overrides the invalid highlighting, if
-                // applicable)
+                // Check if the cell isn't already selected (selection highlighting overrides the
+                // invalid highlighting, if applicable)
                 if (!(isFocusOwner()
                       && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -439,8 +422,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     if (FieldEditorColumnInfo.values()[fieldTable.convertColumnIndexToModel(column)].isRequired()
                         && fieldTable.getValueAt(row, column).toString().isEmpty())
                     {
-                        // Set the flag indicating that the cell value is
-                        // invalid
+                        // Set the flag indicating that the cell value is invalid
                         found = false;
                     }
                     // Check if this is the input type column
@@ -463,8 +445,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                 // Check if the cell matches the combo box item
                                 if (inputTypeCbox.getItemAt(index).equals(fieldTable.getValueAt(row, column).toString()))
                                 {
-                                    // Set the flag indicating that the cell
-                                    // value is valid
+                                    // Set the flag indicating that the cell value is valid
                                     found = true;
                                 }
                             }
@@ -482,33 +463,32 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 return comp;
             }
 
-            /******************************************************************
-             * Override the CcddJTableHandler method to produce an array
-             * containing empty values for a new row in this table
+            /**************************************************************************************
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected Object[] getEmptyRow()
             {
                 return FieldEditorColumnInfo.getEmptyRow();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the table's content
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not
-                // any unstored changes exist
+                // Add or remove the change indicator based on whether or not any unstored changes
+                // exist
                 setTitle(DIALOG_TITLE + ": " + ownerName
                          + (fieldTable.isTableChanged(currentData)
                                                                    ? "*"
                                                                    : ""));
 
-                // Force the table to redraw so that changes to the cells are
-                // displayed
+                // Force the table to redraw so that changes to the cells are displayed
                 repaint();
             }
         };
@@ -531,12 +511,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
 
-        // Create a drop-down combo box to display the available field input
-        // data types
+        // Create a drop-down combo box to display the available field input data types
         setUpInputTypeColumn();
 
-        // Create a drop-down combo box to display the available field
-        // applicability types
+        // Create a drop-down combo box to display the available field applicability types
         setUpApplicabilityColumn();
 
         // Re-enable storage of edit operations
@@ -561,8 +539,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                         0,
                                                         0);
 
-        // Create an outer panel to put the editor panel in (the border doesn't
-        // appear without this)
+        // Create an outer panel to put the editor panel in (the border doesn't appear without
+        // this)
         outerPanel = new JPanel(new GridBagLayout());
         outerPanel.add(editorPanel, gbc);
         outerPanel.setBorder(BorderFactory.createEmptyBorder());
@@ -570,8 +548,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create the lower (button) panel
         JPanel buttonPnl = new JPanel();
 
-        // Define the buttons for the lower panel: ////////////////////////////
-        // New button
+        // Define the buttons for the lower panel: //////////////////////////// New button
         btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
                                                            INSERT_ICON,
                                                            KeyEvent.VK_I,
@@ -580,9 +557,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Insert Row button
         btnInsertRow.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Insert a new row into the table at the selected location
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -599,9 +576,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Delete row button
         btnDeleteRow.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Delete the selected row(s) from the table
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -618,9 +595,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Move Up button
         btnMoveUp.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Move the selected row(s) up in the table
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -637,9 +614,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Move Down button
         btnMoveDown.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Move the selected row(s) down in the table
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -656,9 +633,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Separator button
         btnSeparator.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Insert a line separator
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -683,9 +660,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Move Down button
         btnBreak.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Insert a line break
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -710,9 +687,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Undo button
         btnUndo.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Undo the last cell edit
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -729,9 +706,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Redo button
         btnRedo.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Redo the last cell edit that was undone
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -748,21 +725,20 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Update button
         btnUpdate.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Update the table data fields
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // Check if no required columns are empty, the currently
-                // editing cell's contents is valid (if a cell is being
-                // edited), and that there are changes to update
+                // Check if no required columns are empty, the currently editing cell's contents is
+                // valid (if a cell is being edited), and that there are changes to update
                 if (!checkForMissingColumns()
                     && fieldTable.isLastCellValid()
                     && fieldTable.isTableChanged(currentData))
                 {
-                    // Rebuild the data field panel in the table editor using
-                    // the current text field contents
+                    // Rebuild the data field panel in the table editor using the current text
+                    // field contents
                     recreateDataFieldPanel(minimumWidth);
                 }
             }
@@ -777,9 +753,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create a listener for the Close button
         btnClose.addActionListener(new ValidateCellActionListener(fieldTable)
         {
-            /******************************************************************
+            /**************************************************************************************
              * Close the data field editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
@@ -787,8 +763,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             }
         });
 
-        // Add buttons in the order in which they'll appear (left to right, top
-        // to bottom)
+        // Add buttons in the order in which they'll appear (left to right, top to bottom)
         buttonPnl.add(btnInsertRow);
         buttonPnl.add(btnMoveUp);
         buttonPnl.add(btnSeparator);
@@ -803,8 +778,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Distribute the buttons across two rows
         setButtonRows(2);
 
-        // Set the modal undo manager and table references in the keyboard
-        // handler while the data field editor is active
+        // Set the modal undo manager and table references in the keyboard handler while the data
+        // field editor is active
         keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(),
                                                 fieldTable);
 
@@ -816,38 +791,36 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                           DIALOG_TITLE + ": " + ownerName,
                           true);
 
-        // Clear the modal dialog references in the keyboard handler since the
-        // data field editor is no longer active. The component that called
-        // this editor, if a modal dialog, must set these parameters again once
-        // control is returned to it from this editor
+        // Clear the modal dialog references in the keyboard handler since the data field editor is
+        // no longer active. The component that called this editor, if a modal dialog, must set
+        // these parameters again once control is returned to it from this editor
         keyboardHandler.setModalDialogReference(null, null);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Recreate the data fields for display below the table
      *
      * @param minimumWidth
      *            minimum pixel width of the caller
-     *************************************************************************/
+     *********************************************************************************************/
     private void recreateDataFieldPanel(int minimumWidth)
     {
-        // Get the data field information as it is currently displayed in the
-        // table editor and update the current data array to reflect the
-        // updates so that subsequent changes are correctly identified
+        // Get the data field information as it is currently displayed in the table editor and
+        // update the current data array to reflect the updates so that subsequent changes are
+        // correctly identified
         currentData = getUpdatedData();
 
-        // Build the field definitions from the editor table data, then use
-        // the definitions to build the field information
+        // Build the field definitions from the editor table data, then use the definitions to
+        // build the field information
         fieldPnlHandler.getFieldHandler().buildFieldInformation(fieldPnlHandler.getFieldHandler().buildFieldDefinition(currentData,
                                                                                                                        ownerName),
                                                                 ownerName);
 
-        // Rebuild the data field panel in the table editor using the current
-        // text field contents
+        // Rebuild the data field panel in the table editor using the current text field contents
         fieldPnlHandler.createDataFieldPanel(true);
 
-        // Update the size of the data field owner to accommodate a field wider
-        // than the owner's minimum width
+        // Update the size of the data field owner to accommodate a field wider than the owner's
+        // minimum width
         fieldPnlHandler.getOwner().setMinimumSize(new Dimension(Math.max(minimumWidth,
                                                                          fieldPnlHandler.getMaxFieldWidth()),
                                                                 fieldPnlHandler.getOwner().getPreferredSize().height));
@@ -859,21 +832,21 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Update the change indicator for the owner of this edit panel
         fieldPnlHandler.updateOwnerChangeIndicator();
 
-        // Update the undo manager so that all data field editor edits up to
-        // the press of the Update button can be undone/redone
+        // Update the undo manager so that all data field editor edits up to the press of the
+        // Update button can be undone/redone
         fieldPnlHandler.storeCurrentFieldInformation();
         fieldTable.getUndoManager().endEditSequence();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the dialog close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that there are changes that haven't been applied. If
-        // changes exist then confirm discarding the changes
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been applied. If changes exist then confirm discarding
+        // the changes
         if (fieldTable.isLastCellValid()
             && (!fieldTable.isTableChanged(currentData)
                 || new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
@@ -887,20 +860,20 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the updated field data
      *
      * @return Array containing the updated field data
-     *************************************************************************/
+     *********************************************************************************************/
     private Object[][] getUpdatedData()
     {
         return fieldTable.getTableData(true);
     }
 
-    /**************************************************************************
-     * Set up the combo box containing the available field input input data
-     * types for display in the table's Input Type cells
-     *************************************************************************/
+    /**********************************************************************************************
+     * Set up the combo box containing the available field input input data types for display in
+     * the table's Input Type cells
+     *********************************************************************************************/
     private void setUpInputTypeColumn()
     {
         // Step through each column in the editor
@@ -922,10 +895,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Add a listener to the combo box for focus changes
         inputTypeCbox.addFocusListener(new FocusAdapter()
         {
-            /******************************************************************
-             * Handle a focus gained event so that the combo box automatically
-             * expands when selected
-             *****************************************************************/
+            /**************************************************************************************
+             * Handle a focus gained event so that the combo box automatically expands when
+             * selected
+             *************************************************************************************/
             @Override
             public void focusGained(FocusEvent fe)
             {
@@ -940,10 +913,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         inputTypeCbox.setSelectedItem(InputDataType.TEXT.getInputName());
     }
 
-    /**************************************************************************
-     * Set up the combo box containing the available field applicability types
-     * for display in the table's Applicability cells
-     *************************************************************************/
+    /**********************************************************************************************
+     * Set up the combo box containing the available field applicability types for display in the
+     * table's Applicability cells
+     *********************************************************************************************/
     private void setUpApplicabilityColumn()
     {
         // Check if the applicability column is to be displayed
@@ -954,8 +927,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             // Step through each column in the editor
             for (applicabilityIndex = 0; applicabilityIndex < fieldTable.getColumnCount(); applicabilityIndex++)
             {
-                // Check if the column name matches that for the field
-                // applicability
+                // Check if the column name matches that for the field applicability
                 if (fieldTable.getColumnName(applicabilityIndex).equals(FieldEditorColumnInfo.APPLICABILITY.getColumnName()))
                 {
                     // Stop searching
@@ -970,10 +942,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             // Add a listener to the combo box for focus changes
             applicabilityCBox.addFocusListener(new FocusAdapter()
             {
-                /**************************************************************
-                 * Handle a focus gained event so that the combo box
-                 * automatically expands when selected
-                 *************************************************************/
+                /**********************************************************************************
+                 * Handle a focus gained event so that the combo box automatically expands when
+                 * selected
+                 *********************************************************************************/
                 @Override
                 public void focusGained(FocusEvent fe)
                 {
@@ -989,11 +961,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
      * @return true if a row is missing data in a required column
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
@@ -1018,9 +990,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // Set the 'data is missing' flag
                         dataIsMissing = true;
 
-                        // Inform the user that a row is missing required data.
-                        // If Cancel is selected then do not perform checks on
-                        // other columns and rows
+                        // Inform the user that a row is missing required data. If Cancel is
+                        // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
                                                                                                   + fieldTable.getColumnName(column)
@@ -1031,8 +1002,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
-                            // Set the stop flag to prevent further error
-                            // checking
+                            // Set the stop flag to prevent further error checking
                             stopCheck = true;
                         }
 

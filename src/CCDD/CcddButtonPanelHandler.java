@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary button panel handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -33,9 +32,9 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary button panel handling class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddButtonPanelHandler
 {
     // Panel containing the buttons
@@ -47,9 +46,9 @@ public class CcddButtonPanelHandler
     // Reference to the last button pressed in the button panel
     private JButton lastButtonPressed;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Button panel handling class constructor
-     *************************************************************************/
+     *********************************************************************************************/
     CcddButtonPanelHandler()
     {
         // Initialize the button panel and set the button spacing
@@ -61,54 +60,54 @@ public class CcddButtonPanelHandler
         buttonRows = 1;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the number of rows occupied by the window's buttons
      *
      * @param rows
      *            number of button rows
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setButtonRows(int rows)
     {
         buttonRows = rows;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the last button pressed in the button panel
      *
      * @return Reference to the last button pressed in the button panel
-     *************************************************************************/
+     *********************************************************************************************/
     protected JButton getLastButtonPressed()
     {
         return lastButtonPressed;
     }
 
-    /**************************************************************************
-     * Get the button panel's close/cancel button which is assumed to be the
-     * last button in the button panel
+    /**********************************************************************************************
+     * Get the button panel's close/cancel button which is assumed to be the last button in the
+     * button panel
      *
      * @return Button panel close/cancel button
-     *************************************************************************/
+     *********************************************************************************************/
     protected JButton getExitButton()
     {
         return (JButton) buttonPnl.getComponent(buttonPnl.getComponentCount() - 1);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder for method to close the window
      *
      * @param buttonSelected
      *            button selected when closing the window
-     *************************************************************************/
+     *********************************************************************************************/
     protected void closeWindow(int buttonSelected)
     {
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable/disable the button panel buttons
      *
      * @param enable
      *            true to enable the buttons; false to disable
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setButtonsEnabled(boolean enable)
     {
         // Get the number of buttons in the panel
@@ -125,11 +124,11 @@ public class CcddButtonPanelHandler
         }
     }
 
-    /**************************************************************************
-     * Extract the button(s) from the supplied panel, then find the widest
-     * button calculated from the button's text and icon. Set the width of the
-     * panel containing the buttons based on the widest button
-     *************************************************************************/
+    /**********************************************************************************************
+     * Extract the button(s) from the supplied panel, then find the widest button calculated from
+     * the button's text and icon. Set the width of the panel containing the buttons based on the
+     * widest button
+     *********************************************************************************************/
     protected void setButtonWidth()
     {
         int maxWidth = 0;
@@ -144,8 +143,8 @@ public class CcddButtonPanelHandler
             // Create a pointer to the individual button for easier reference
             JButton button = (JButton) buttonPnl.getComponent(index);
 
-            // Check if the button has no text (i.e., this is a placeholder
-            // button used for positioning the other buttons)
+            // Check if the button has no text (i.e., this is a placeholder button used for
+            // positioning the other buttons)
             if (button.getText().isEmpty())
             {
                 // Skip this button
@@ -155,9 +154,8 @@ public class CcddButtonPanelHandler
             // Change the button padding
             setButtonMargins(button);
 
-            // Calculate the button width based on the width of the icon, gap
-            // between the icon and text, width of the text, left and right
-            // margins, and the button border
+            // Calculate the button width based on the width of the icon, gap between the icon and
+            // text, width of the text, left and right margins, and the button border
             int width = button.getIcon().getIconWidth()
                         + button.getIconTextGap()
                         + (int) button.getFontMetrics(ModifiableFontInfo.DIALOG_BUTTON.getFont()).getStringBounds(button.getText(),
@@ -180,16 +178,15 @@ public class CcddButtonPanelHandler
                                                                                                                  button.getGraphics())
                                      .getHeight();
 
-            // Check if the button's icon height is greater than the text
-            // height
+            // Check if the button's icon height is greater than the text height
             if (button.getIcon().getIconHeight() > height)
             {
                 // Use the icon height since it's larger
                 height = button.getIcon().getIconHeight();
             }
 
-            // Calculate the button height based on the icon/text height, the
-            // top and bottom margin, and the button border
+            // Calculate the button height based on the icon/text height, the top and bottom
+            // margin, and the button border
             height += button.getMargin().top
                       + button.getMargin().bottom
                       + button.getBorder().getBorderInsets(button).top
@@ -203,8 +200,7 @@ public class CcddButtonPanelHandler
             }
         }
 
-        // Step through each button again, now that the width and height are
-        // known
+        // Step through each button again, now that the width and height are known
         for (int index = 0; index < numButtons; index++)
         {
             // Set the size of the button(s)
@@ -215,8 +211,7 @@ public class CcddButtonPanelHandler
         // Calculate the number of columns to display the buttons
         int numColumns = (int) Math.ceil((float) numButtons / buttonRows);
 
-        // Size the panel containing the buttons based on the buttons' widths
-        // and heights
+        // Size the panel containing the buttons based on the buttons' widths and heights
         Dimension buttonPnlCoord = new Dimension(maxWidth * numColumns
                                                  + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
                                                    * (numColumns + 1),
@@ -224,14 +219,14 @@ public class CcddButtonPanelHandler
                                                                        + (ModifiableSpacingInfo.BUTTON_GAP.getSpacing() + 1)
                                                                          * (buttonRows + 1));
 
-        // Set the button panel to a fixed size so that the buttons stay
-        // positioned correctly relative to each other
+        // Set the button panel to a fixed size so that the buttons stay positioned correctly
+        // relative to each other
         buttonPnl.setPreferredSize(buttonPnlCoord);
         buttonPnl.setMaximumSize(buttonPnlCoord);
         buttonPnl.setMinimumSize(buttonPnlCoord);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create a button
      *
      * @param buttonText
@@ -244,11 +239,11 @@ public class CcddButtonPanelHandler
      *            key mnemonic for the menu item
      *
      * @param toolTip
-     *            tool tip text to display when the pointer hovers over this
-     *            button; null to not display a tool tip
+     *            tool tip text to display when the pointer hovers over this button; null to not
+     *            display a tool tip
      *
      * @return Button created
-     *************************************************************************/
+     *********************************************************************************************/
     protected static JButton createButton(String buttonText,
                                           String iconName,
                                           int key,
@@ -268,30 +263,27 @@ public class CcddButtonPanelHandler
         return button;
     }
 
-    /**************************************************************************
-     * Change the button padding between the button's icon/text and the
-     * perimeter of the button
+    /**********************************************************************************************
+     * Change the button padding between the button's icon/text and the perimeter of the button
      *
      * @param button
      *            button to adjust
-     *************************************************************************/
+     *********************************************************************************************/
     private static void setButtonMargins(JButton button)
     {
-        // Change the button padding between the button's icon/text and the
-        // perimeter of the button
+        // Change the button padding between the button's icon/text and the perimeter of the button
         button.setMargin(new Insets(1, 3, 1, 3));
     }
 
-    /**************************************************************************
-     * Create the buttons and button listeners based on the option type
-     * provided
+    /**********************************************************************************************
+     * Create the buttons and button listeners based on the option type provided
      *
      * @param parent
      *            parent window; needed to get the button icons
      *
      * @param optionType
      *            DialogOption type
-     *************************************************************************/
+     *********************************************************************************************/
     private JPanel createButtonPanel(DialogOption optionType)
     {
         // Create the Okay button
@@ -304,9 +296,9 @@ public class CcddButtonPanelHandler
         // Add a listener for the Okay button
         btnOkButton.addActionListener(new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the selected button to indicate Okay and exit the window
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -327,10 +319,9 @@ public class CcddButtonPanelHandler
             // Add a listener for the Cancel button
             btnCancelButton.addActionListener(new ActionListener()
             {
-                /**************************************************************
-                 * Set the selected button to indicate Cancel and exit the
-                 * window
-                 *************************************************************/
+                /**********************************************************************************
+                 * Set the selected button to indicate Cancel and exit the window
+                 *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
@@ -342,29 +333,25 @@ public class CcddButtonPanelHandler
         return buttonPnl;
     }
 
-    /**************************************************************************
-     * Create the window's button panel and combine with the upper components,
-     * set up keyboard focus management, and determine the window's exit
-     * button. If no button panel is provided then create the buttons and
-     * button listeners needed based on the option type
+    /**********************************************************************************************
+     * Create the window's button panel and combine with the upper components, set up keyboard
+     * focus management, and determine the window's exit button. If no button panel is provided
+     * then create the buttons and button listeners needed based on the option type
      *
      * @param btnPanel
-     *            panel containing the window's buttons; null if a defined
-     *            option type is used
+     *            panel containing the window's buttons; null if a defined option type is used
      *
      * @param defaultBtn
-     *            reference to the JButton that is actuated if the Enter key is
-     *            pressed; null to have no default button (unless btnPanel is
-     *            null as well, in which case the first button is set as the
-     *            default)
+     *            reference to the JButton that is actuated if the Enter key is pressed; null to
+     *            have no default button (unless btnPanel is null as well, in which case the first
+     *            button is set as the default)
      *
      * @param upperComponent
      *            upper window components
      *
      * @param optionType
-     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION,
-     *            READ_OPTION, PRINT_OPTION, CLOSE_OPTION, OK_OPTION, or
-     *            OK_CANCEL_OPTION. Ignored if btnPanel isn't null
+     *            dialog type: LOAD_OPTION, SAVE_OPTION, SEARCH_OPTION, READ_OPTION, PRINT_OPTION,
+     *            CLOSE_OPTION, OK_OPTION, or OK_CANCEL_OPTION. Ignored if btnPanel isn't null
      *
      * @param contentPane
      *            the content pane for the calling container
@@ -373,7 +360,7 @@ public class CcddButtonPanelHandler
      *            the root pane for the calling container
      *
      * @return JPanel containing the window's buttons
-     *************************************************************************/
+     *********************************************************************************************/
     protected JPanel assembleWindowComponents(JPanel btnPanel,
                                               JButton defaultBtn,
                                               JComponent upperComponent,
@@ -381,8 +368,8 @@ public class CcddButtonPanelHandler
                                               final Container contentPane,
                                               final JRootPane rootPane)
     {
-        // Remove any existing content from the dialog. This is necessary if
-        // the dialog content is altered.
+        // Remove any existing content from the dialog. This is necessary if the dialog content is
+        // altered.
         contentPane.removeAll();
         buttonPnl.removeAll();
 
@@ -420,9 +407,9 @@ public class CcddButtonPanelHandler
         // Create a listener for button press events
         ActionListener buttonListener = new ActionListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle a button press event
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -441,8 +428,8 @@ public class CcddButtonPanelHandler
             ((JButton) buttonPnl.getComponent(index)).addActionListener(buttonListener);
         }
 
-        // Create a panel to contain the button panel. This is necessary so
-        // that the button panel remains centered as the window is resized
+        // Create a panel to contain the button panel. This is necessary so that the button panel
+        // remains centered as the window is resized
         JPanel bpPanel = new JPanel();
         bpPanel.add(buttonPnl);
 
@@ -458,8 +445,7 @@ public class CcddButtonPanelHandler
                                                                  ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing(),
                                                                  ModifiableSpacingInfo.DIALOG_BORDER_PAD.getSpacing()));
 
-        // Set the layout manager for the window and add the upper and lower
-        // components
+        // Set the layout manager for the window and add the upper and lower components
         contentPane.setLayout(new BorderLayout());
         contentPane.add(upperComponent, BorderLayout.CENTER);
         contentPane.add(bpPanel, BorderLayout.PAGE_END);

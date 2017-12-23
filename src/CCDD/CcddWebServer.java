@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary web server.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -28,9 +27,9 @@ import org.eclipse.jetty.util.security.Credential;
 
 import CCDD.CcddConstants.EventLogMessageType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary web server class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddWebServer
 {
     // Class reference
@@ -42,17 +41,17 @@ public class CcddWebServer
     // Web server
     private Server server;
 
-    // Storage for a user+password combination authenticated by the PostgreSQL
-    // server for the current project database
+    // Storage for a user+password combination authenticated by the PostgreSQL server for the
+    // current project database
     private String validUser;
     private String validPassword;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Web server class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddWebServer(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -69,19 +68,19 @@ public class CcddWebServer
         createServer();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the web data access handler class
      *
      * @return Reference to the web data access handler class
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddWebDataAccessHandler getWebAccessHandler()
     {
         return accessHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the web server
-     *************************************************************************/
+     *********************************************************************************************/
     private void createServer()
     {
         try
@@ -96,10 +95,10 @@ public class CcddWebServer
             // Create the login service
             HashLoginService loginService = new HashLoginService("CCDDRealm")
             {
-                /**************************************************************
-                 * Override the login method so that the supplied user name and
-                 * password can be authenticated by the PostgreSQL server
-                 *************************************************************/
+                /**********************************************************************************
+                 * Override the login method so that the supplied user name and password can be
+                 * authenticated by the PostgreSQL server
+                 *********************************************************************************/
                 @Override
                 public UserIdentity login(String user, Object password)
                 {
@@ -110,28 +109,26 @@ public class CcddWebServer
                         // Convert the password object to a string
                         String passwordS = password.toString();
 
-                        // Check if the user+password hasn't been set of if
-                        // either has changed. This prevents contacting the
-                        // PostgreSQL server with each request after the
-                        // user+password is authenticated initially
+                        // Check if the user+password hasn't been set of if either has changed.
+                        // This prevents contacting the PostgreSQL server with each request after
+                        // the user+password is authenticated initially
                         if (validUser == null
                             || !validUser.equals(user)
                             || !validPassword.equals(passwordS))
                         {
-                            // Attempt to connect to the database using the
-                            // supplied user and password
-                            DriverManager.getConnection(dbControl.getDatabaseURL(dbControl.getDatabase()),
+                            // Attempt to connect to the database using the supplied user and
+                            // password
+                            DriverManager.getConnection(dbControl.getDatabaseURL(dbControl.getDatabaseName()),
                                                         user,
                                                         passwordS);
 
-                            // Store the authenticated user and password for
-                            // future login requests
+                            // Store the authenticated user and password for future login requests
                             validUser = user;
                             validPassword = passwordS;
                         }
 
-                        // User+password combination is valid, so set the user
-                        // identity using the generic login credentials
+                        // User+password combination is valid, so set the user identity using the
+                        // generic login credentials
                         identity = super.login("valid", "valid");
                     }
                     catch (SQLException se)
@@ -139,9 +136,8 @@ public class CcddWebServer
                         validUser = null;
                         validPassword = null;
 
-                        // The supplied user+password combination is not valid;
-                        // set the user identity using invalid credentials so
-                        // that the request is rejected
+                        // The supplied user+password combination is not valid; set the user
+                        // identity using invalid credentials so that the request is rejected
                         identity = super.login("invalid", "invalid");
                     }
 
@@ -149,21 +145,20 @@ public class CcddWebServer
                 }
             };
 
-            // Create the user credentials that are used by the login service
-            // if the user's PostgreSQL credentials are authenticated
+            // Create the user credentials that are used by the login service if the user's
+            // PostgreSQL credentials are authenticated
             loginService.putUser("valid",
                                  Credential.getCredential("valid"),
                                  new String[] {"user"});
             server.addBean(loginService);
 
-            // Set the security handler that secures content behind a
-            // particular portion of a URL space
+            // Set the security handler that secures content behind a particular portion of a URL
+            // space
             ConstraintSecurityHandler security = new ConstraintSecurityHandler();
             server.setHandler(security);
 
-            // Set a constraint that requires authentication and in addition
-            // that an authenticated user be a member of a given set of roles
-            // for authorization purposes
+            // Set a constraint that requires authentication and in addition that an authenticated
+            // user be a member of a given set of roles for authorization purposes
             Constraint constraint = new Constraint();
             constraint.setName("auth");
             constraint.setAuthenticate(true);
@@ -174,9 +169,8 @@ public class CcddWebServer
             mapping.setPathSpec("/*");
             mapping.setConstraint(constraint);
 
-            // Apply the constraint mapping to the handler, set an
-            // authenticator to check the user's credentials, and set the login
-            // service which contains the single valid user
+            // Apply the constraint mapping to the handler, set an authenticator to check the
+            // user's credentials, and set the login service which contains the single valid user
             security.setConstraintMappings(Collections.singletonList(mapping));
             security.setAuthenticator(new BasicAuthenticator());
             security.setLoginService(loginService);
@@ -197,9 +191,9 @@ public class CcddWebServer
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Start the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected void startServer()
     {
         try
@@ -224,9 +218,9 @@ public class CcddWebServer
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Stop the server
-     *************************************************************************/
+     *********************************************************************************************/
     protected void stopServer()
     {
         try
@@ -250,26 +244,25 @@ public class CcddWebServer
         }
     }
 
-    /**************************************************************************
-     * Server message logging class. Formats the message and outputs it to the
-     * event log file
-     *************************************************************************/
+    /**********************************************************************************************
+     * Server message logging class. Formats the message and outputs it to the event log file
+     *********************************************************************************************/
     private class ServerLogging implements Logger
     {
         private boolean isDebug;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Server message logging class constructor
-         *********************************************************************/
+         *****************************************************************************************/
         ServerLogging()
         {
             // Set the flag to indicate that debugging is initially disabled
             isDebug = false;
         }
 
-        /**********************************************************************
-         * Create the log message from the input information and output the
-         * formatted message to the log file
+        /******************************************************************************************
+         * Create the log message from the input information and output the formatted message to
+         * the log file
          *
          * @param type
          *            message type
@@ -279,7 +272,7 @@ public class CcddWebServer
          *
          * @param args
          *            message arguments; may be null
-         *********************************************************************/
+         *****************************************************************************************/
         private void logOutput(String type, String msg, Object... args)
         {
             // Build the server event log message
@@ -310,99 +303,99 @@ public class CcddWebServer
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the logger reference
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public Logger getLogger(String name)
         {
             return this;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the server logger name
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public String getName()
         {
             return "CCDD Web Server Log";
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a warning message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void warn(String msg, Object... args)
         {
             logOutput("WARN", msg, args);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a warning message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void warn(Throwable thrown)
         {
             logOutput("WARN", thrown.getMessage(), thrown.getCause());
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a warning message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void warn(String msg, Throwable thrown)
         {
             logOutput("WARN", msg, thrown.getMessage());
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output an information message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void info(String msg, Object... args)
         {
             logOutput("INFO", msg, args);
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output an information message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void info(Throwable thrown)
         {
             logOutput("INFO", thrown.getMessage(), thrown.getCause());
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output an information message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void info(String msg, Throwable thrown)
         {
             logOutput("INFO", msg, thrown.getMessage());
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Check if debugging is enabled
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public boolean isDebugEnabled()
         {
             return isDebug;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set debugging
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void setDebugEnabled(boolean enabled)
         {
             isDebug = enabled;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a debugging message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void debug(String msg, Object... args)
         {
@@ -413,9 +406,9 @@ public class CcddWebServer
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a debugging message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void debug(Throwable thrown)
         {
@@ -426,9 +419,9 @@ public class CcddWebServer
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a debugging message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void debug(String msg, Throwable thrown)
         {
@@ -439,9 +432,9 @@ public class CcddWebServer
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output a debugging message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void debug(String arg0, long arg1)
         {
@@ -452,9 +445,9 @@ public class CcddWebServer
             }
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Output an ignore message
-         *********************************************************************/
+         *****************************************************************************************/
         @Override
         public void ignore(Throwable thrown)
         {

@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary message ID assignment dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -32,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
@@ -50,9 +50,9 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary message ID assignment dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddAssignMessageIDDialog extends CcddDialogHandler
 {
@@ -67,8 +67,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private Border etchBorder;
     private JTabbedPane tabbedPane;
 
-    // List of message IDs that are reserved or are already assigned to a
-    // message
+    // List of message IDs that are reserved or are already assigned to a message
     private List<Integer> idsInUse;
 
     // Message ID assignment dialog type
@@ -80,9 +79,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     // Array of message ID tab information and GUI components
     private MsgTabInfo[] msgTabs;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Message name/ID assignment tab information class
-     *************************************************************************/
+     *********************************************************************************************/
     private class MsgTabInfo
     {
         private final String name;
@@ -97,7 +96,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         private JLabel patternLbl;
         private JTextField patternFld;
 
-        /**********************************************************************
+        /******************************************************************************************
          * Message name/ID assignment tab information class constructor
          *
          * @param name
@@ -108,7 +107,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
          *
          * @param toolTip
          *            tab tool tip
-         *********************************************************************/
+         *****************************************************************************************/
         MsgTabInfo(String name, String type, String toolTip)
         {
             this.name = name;
@@ -116,212 +115,211 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             this.toolTip = toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the tab name
          *
          * @return Tab name
-         *********************************************************************/
+         *****************************************************************************************/
         private String getName()
         {
             return name;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the tab type
          *
          * @return Tab type
-         *********************************************************************/
+         *****************************************************************************************/
         private String getType()
         {
             return type;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the tab tool tip
          *
          * @return Tab tool tip
-         *********************************************************************/
+         *****************************************************************************************/
         private String getToolTip()
         {
             return toolTip;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message name/ID assignment check box
          *
          * @return Reference to the message name/ID assignment check box
-         *********************************************************************/
+         *****************************************************************************************/
         private JCheckBox getAssignCbx()
         {
             return assignCbx;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message name/ID assignment check box
          *
          * @param idAssignCbx
          *            Reference to the message name/ID assignment check box
-         *********************************************************************/
+         *****************************************************************************************/
         private void setAssignCbx(JCheckBox idAssignCbx)
         {
             this.assignCbx = idAssignCbx;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message number/ID start label
          *
          * @return Reference to the message number/ID start label
-         *********************************************************************/
+         *****************************************************************************************/
         private JLabel getStartLbl()
         {
             return startLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message number/ID start label
          *
          * @param startLbl
          *            reference to the message number/ID start label
-         *********************************************************************/
+         *****************************************************************************************/
         private void setStartLbl(JLabel startLbl)
         {
             this.startLbl = startLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message number/ID start input field
          *
          * @return Reference to the message number/ID start input field
-         *********************************************************************/
+         *****************************************************************************************/
         private JTextField getStartFld()
         {
             return startFld;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message number/ID start input field
          *
          * @param startFld
          *            reference to the message number/ID start input field
-         *********************************************************************/
+         *****************************************************************************************/
         private void setStartFld(JTextField startFld)
         {
             this.startFld = startFld;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message number/ID interval label
          *
          * @return Reference to the message number/ID interval label
-         *********************************************************************/
+         *****************************************************************************************/
         private JLabel getIntervalLbl()
         {
             return intervalLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message number/ID interval label
          *
          * @param intervalLbl
          *            reference to the message number/ID interval label
-         *********************************************************************/
+         *****************************************************************************************/
         private void setIntervalLbl(JLabel intervalLbl)
         {
             this.intervalLbl = intervalLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message number/ID interval input field
          *
          * @return Reference to the message number/ID interval input field
-         *********************************************************************/
+         *****************************************************************************************/
         private JTextField getIntervalFld()
         {
             return intervalFld;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message number/ID interval input field
          *
          * @param intervalFld
          *            reference to the message number/ID interval input field
-         *********************************************************************/
+         *****************************************************************************************/
         private void setIntervalFld(JTextField intervalFld)
         {
             this.intervalFld = intervalFld;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the overwrite check box
          *
          * @return Reference to the overwrite check box
-         *********************************************************************/
+         *****************************************************************************************/
         private JCheckBox getOverwriteCbx()
         {
             return overwriteCbx;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the overwrite check box
          *
          * @param overwriteCbx
          *            reference to the overwrite check box
-         *********************************************************************/
+         *****************************************************************************************/
         private void setOverwriteCbx(JCheckBox overwriteCbx)
         {
             this.overwriteCbx = overwriteCbx;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message name pattern label
          *
          * @return Reference to the message name pattern label
-         *********************************************************************/
+         *****************************************************************************************/
         private JLabel getPatternLbl()
         {
             return patternLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message name pattern label
          *
          * @param patternLbl
          *            reference to the message name pattern label
-         *********************************************************************/
+         *****************************************************************************************/
         private void setPatternLbl(JLabel patternLbl)
         {
             this.patternLbl = patternLbl;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Get the reference to the message name pattern input field
          *
          * @return Reference to the message name pattern input field
-         *********************************************************************/
+         *****************************************************************************************/
         private JTextField getPatternFld()
         {
             return patternFld;
         }
 
-        /**********************************************************************
+        /******************************************************************************************
          * Set the reference to the message name pattern input field
          *
          * @param patternLbl
          *            reference to the message name pattern input field
-         *********************************************************************/
+         *****************************************************************************************/
         private void setPatternFld(JTextField patternFld)
         {
             this.patternFld = patternFld;
         }
     }
 
-    /**************************************************************************
-     * Message ID assignment dialog class constructor for structure and command
-     * messages
+    /**********************************************************************************************
+     * Message ID assignment dialog class constructor for structure and command messages
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddAssignMessageIDDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -331,9 +329,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
-     * Message name and ID assignment dialog class constructor for telemetry
-     * messages
+    /**********************************************************************************************
+     * Message name and ID assignment dialog class constructor for telemetry messages
      *
      * @param ccddMain
      *            main class
@@ -343,7 +340,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @param schedulerDlg
      *            component over which to center the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     CcddAssignMessageIDDialog(CcddMain ccddMain,
                               List<Message> messages,
                               CcddTelemetrySchedulerDialog schedulerDlg)
@@ -357,9 +354,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the message ID assignment dialog
-     *************************************************************************/
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the message ID assignment dialog in the background
@@ -370,9 +367,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Create a panel to contain the dialog components
             JPanel dialogPnl = new JPanel(new GridBagLayout());
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the message ID assignment dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -405,20 +402,18 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                                             ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
                 etchBorder = BorderFactory.createEtchedBorder();
 
-                // Create a tabbed pane to contain the message name/ID
-                // parameters and add it to the dialog
-                tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+                // Create a tabbed pane to contain the message name/ID parameters and add it to the
+                // dialog
+                tabbedPane = new JTabbedPane(SwingConstants.LEFT);
 
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 dialogPnl.add(tabbedPane, gbc);
                 dialogPnl.setBorder(etchBorder);
 
-                // Check if this is the table and group message ID assignment
-                // dialog
+                // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    // Create the information for each table type tab and the
-                    // group tab
+                    // Create the information for each table type tab and the group tab
                     msgTabs = new MsgTabInfo[] {new MsgTabInfo(TYPE_STRUCTURE,
                                                                "structure",
                                                                "Structure message ID assignment"),
@@ -442,8 +437,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // This is the telemetry message ID assignment dialog
                 else
                 {
-                    // Create the information for the telemetry message name
-                    // and ID assignment
+                    // Create the information for the telemetry message name and ID assignment
                     msgTabs = new MsgTabInfo[] {new MsgTabInfo("Message Name",
                                                                "telemetry",
                                                                "Telemetry message name assignment"),
@@ -457,26 +451,24 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 }
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Message ID assignment dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
-                // Check if this is the table and group message ID assignment
-                // dialog
+                // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
-                    // Get the user's input and check if at least one of
-                    // assignment check boxes is selected
+                    // Get the user's input and check if at least one of assignment check boxes is
+                    // selected
                     if (showOptionsDialog(ccddMain.getMainFrame(),
                                           dialogPnl,
                                           "Assign Message IDs",
                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
                         && isAssignTypeSelected())
                     {
-                        // Get the list of message IDs that are reserved or
-                        // already in use
+                        // Get the list of message IDs that are reserved or already in use
                         idsInUse = msgIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
                                                                    !msgTabs[1].getOverwriteCbx().isSelected(),
                                                                    !msgTabs[2].getOverwriteCbx().isSelected(),
@@ -487,24 +479,21 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                    false,
                                                                    CcddAssignMessageIDDialog.this);
 
-                        // Create a field handler and populate it with the
-                        // field definitions for all of the tables in the
-                        // database
+                        // Create a field handler and populate it with the field definitions for
+                        // all of the tables in the database
                         CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
                                                                              null,
                                                                              CcddAssignMessageIDDialog.this);
                         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
 
-                        // Sort the field information by table name so that
-                        // sequence order of the message ID values is applied
-                        // to the tables' alphabetical order
+                        // Sort the field information by table name so that sequence order of the
+                        // message ID values is applied to the tables' alphabetical order
                         Collections.sort(fieldInformation, new Comparator<FieldInformation>()
                         {
-                            /**************************************************
-                             * Compare the table names of two field
-                             * definitions. Force lower case to eliminate case
-                             * differences in the comparison
-                             *************************************************/
+                            /**********************************************************************
+                             * Compare the table names of two field definitions. Force lower case
+                             * to eliminate case differences in the comparison
+                             *********************************************************************/
                             @Override
                             public int compare(FieldInformation fld1, FieldInformation fld2)
                             {
@@ -517,8 +506,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         boolean otherMsgChanged = false;
                         boolean groupMsgChanged = false;
 
-                        // Check if the structure table message IDs should be
-                        // assigned
+                        // Check if the structure table message IDs should be assigned
                         if (msgTabs[0].getAssignCbx().isSelected())
                         {
                             structMsgChanged = assignTableMessageIDs(msgTabs[0],
@@ -526,8 +514,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                      fieldInformation);
                         }
 
-                        // Check if the command table message IDs should be
-                        // assigned
+                        // Check if the command table message IDs should be assigned
                         if (msgTabs[1].getAssignCbx().isSelected())
                         {
                             structMsgChanged = assignTableMessageIDs(msgTabs[1],
@@ -535,8 +522,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                      fieldInformation);
                         }
 
-                        // Check if the other table message IDs should be
-                        // assigned
+                        // Check if the other table message IDs should be assigned
                         if (msgTabs[2].getAssignCbx().isSelected())
                         {
                             structMsgChanged = assignTableMessageIDs(msgTabs[2],
@@ -551,9 +537,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                      fieldInformation);
                         }
 
-                        // Check if a structure, command, or other table type
-                        // telemetry message ID column or data field value, or
-                        // a group message ID data field value changed
+                        // Check if a structure, command, or other table type telemetry message ID
+                        // column or data field value, or a group message ID data field value
+                        // changed
                         if (structMsgChanged || cmdMsgChanged || otherMsgChanged || groupMsgChanged)
                         {
                             // Store the updated data fields table
@@ -567,16 +553,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // This is the telemetry message ID assignment dialog
                 else
                 {
-                    // Get the user's input and check if at least one of
-                    // assignment check boxes is selected
+                    // Get the user's input and check if at least one of assignment check boxes is
+                    // selected
                     if (showOptionsDialog(ccddMain.getMainFrame(),
                                           dialogPnl,
                                           "Assign Message Names and IDs",
                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON
                         && isAssignTypeSelected())
                     {
-                        // Get the list of message IDs that are reserved or
-                        // already in use
+                        // Get the list of message IDs that are reserved or already in use
                         idsInUse = msgIDHandler.getMessageIDsInUse(true,
                                                                    true,
                                                                    true,
@@ -593,13 +578,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                             // Update the telemetry message names
                             assignTelemetryMessageNames(msgTabs[0]);
 
-                            // Update the options list with the new message
-                            // names
+                            // Update the options list with the new message names
                             schedulerDlg.getSchedulerHandler().getTelemetryOptions();
                         }
 
-                        // Check if the telemetry message IDs should be
-                        // assigned
+                        // Check if the telemetry message IDs should be assigned
                         if (msgTabs[1].getAssignCbx().isSelected())
                         {
                             // Update the telemetry message IDs
@@ -614,16 +597,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a tab for the specified table type or the telemetry message name/ID
      *
      * @param tabInfo
      *            message name/ID tab information reference
      *
      * @param isTlmName
-     *            true if this is the tab for the telemetry message name
-     *            assignment
-     *************************************************************************/
+     *            true if this is the tab for the telemetry message name assignment
+     *********************************************************************************************/
     private void addMessageIDTab(final MsgTabInfo tabInfo,
                                  boolean isTlmName)
     {
@@ -728,9 +710,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Add a listener for check box selection changes
         tabInfo.getAssignCbx().addItemListener(new ItemListener()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the remaining inputs based on the check box selection state
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void itemStateChanged(ItemEvent ae)
             {
@@ -768,17 +750,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         setTabGUIComponentsEnable(tabInfo, false);
     }
 
-    /**************************************************************************
-     * Set the enable state of the specified table type or telemetry message
-     * name/ID input fields and check box
+    /**********************************************************************************************
+     * Set the enable state of the specified table type or telemetry message name/ID input fields
+     * and check box
      *
      * @param tabInfo
      *            message name/ID tab information reference
      *
      * @param enable
-     *            true to enable the message name/ID input fields and check
-     *            box; false to disable
-     *************************************************************************/
+     *            true to enable the message name/ID input fields and check box; false to disable
+     *********************************************************************************************/
     private void setTabGUIComponentsEnable(MsgTabInfo tabInfo, boolean enable)
     {
         tabInfo.getStartLbl().setEnabled(enable);
@@ -795,11 +776,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if any of the assignment check boxes is selected
      *
      * @return true if one or more of the assignment check boxes is selected
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean isAssignTypeSelected()
     {
         boolean isSelected = false;
@@ -810,8 +791,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Check if the assignment check box is selected
             if (tabInfo.getAssignCbx().isSelected())
             {
-                // Set the flag indicating a check box is selected and stop
-                // searching
+                // Set the flag indicating a check box is selected and stop searching
                 isSelected = true;
                 break;
             }
@@ -820,9 +800,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         return isSelected;
     }
 
-    /**************************************************************************
-     * Assign message ID values to the structure, command, or other table type
-     * message ID columns and data fields
+    /**********************************************************************************************
+     * Assign message ID values to the structure, command, or other table type message ID columns
+     * and data fields
      *
      * @param tabInfo
      *            message ID tab information reference
@@ -834,7 +814,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *            list of data field information
      *
      * @return true if a message ID value changed
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean assignTableMessageIDs(MsgTabInfo type,
                                           List<String> tables,
                                           List<FieldInformation> fieldInformation)
@@ -845,24 +825,20 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         int startID = Integer.parseInt(type.getStartFld().getText().replaceFirst("^0x", ""), 16);
         int interval = Integer.valueOf(type.getIntervalFld().getText());
 
-        // ////////////////////////////////////////////////////////////////////
-        // First assign message IDs to all table columns with a message ID
-        // input type for those tables of the current table type
-        // ////////////////////////////////////////////////////////////////////
-
+        // //////////////////////////////////////////////////////////////////// First assign
+        // message IDs to all table columns with a message ID input type for those tables of the
+        // current table type ////////////////////////////////////////////////////////////////////
         // Step through each table type
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
-            // Check if the tab information type and table type match the table
-            // type definition
+            // Check if the tab information type and table type match the table type definition
             if ((type.getName().equals(TYPE_STRUCTURE) && typeDefn.isStructure())
                 || type.getName().equals(TYPE_COMMAND) && typeDefn.isCommand()
                 || (type.getName().equals(TYPE_OTHER)
                     && !typeDefn.isStructure()
                     && !typeDefn.isCommand()))
             {
-                // Get a list of the columns in this table type that are
-                // message IDs
+                // Get a list of the columns in this table type that are message IDs
                 List<Integer> msgIDColumns = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID);
 
                 // Check if the table type has any columns that are message IDs
@@ -871,8 +847,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Step through each table
                     for (String tablePath : tables)
                     {
-                        // Load the table's information from the project
-                        // database
+                        // Load the table's information from the project database
                         TableInformation tableInformation = dbTable.loadTableData(tablePath,
                                                                                   !tablePath.contains(","),
                                                                                   false,
@@ -880,16 +855,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                                   false,
                                                                                   CcddAssignMessageIDDialog.this);
 
-                        // Check that the table data loaded and if the table's
-                        // type matches that of the current type definition
+                        // Check that the table data loaded and if the table's type matches that of
+                        // the current type definition
                         if (!tableInformation.isErrorFlag()
                             && tableInformation.getType().equals(typeDefn.getName()))
                         {
-                            // Create a table editor handler, but without
-                            // displaying the editor itself
+                            // Create a table editor handler, but without displaying the editor
+                            // itself
                             CcddTableEditorHandler editor = new CcddTableEditorHandler(ccddMain,
                                                                                        tableInformation,
-                                                                                       ccddMain.getDataTypeHandler());
+                                                                                       null);
 
                             // Check if the table arrays aren't expanded
                             if (!editor.isExpanded())
@@ -898,46 +873,42 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                 editor.showHideArrayMembers();
                             }
 
-                            // Get the table's data (again if a name change
-                            // occurred since changes were made)
+                            // Get the table's data (again if a name change occurred since changes
+                            // were made)
                             Object[][] tableData = editor.getTable().getTableData(false);
 
                             // Step through each row in the table
                             for (int row = 0; row < editor.getTable().getModel().getRowCount(); row++)
                             {
-                                // Step through each column that contains
-                                // message IDs
+                                // Step through each column that contains message IDs
                                 for (int idColumn : msgIDColumns)
                                 {
-                                    // Check if the cell's value can be
-                                    // changed, and if existing values should
-                                    // be overwritten or if the cell is empty
+                                    // Check if the cell's value can be changed, and if existing
+                                    // values should be overwritten or if the cell is empty
                                     if (editor.getTable().isCellEditable(editor.getTable().convertRowIndexToView(row),
                                                                          editor.getTable().convertColumnIndexToView(idColumn))
                                         && (type.getOverwriteCbx().isSelected()
                                             || tableData[row][idColumn].toString().isEmpty()))
                                     {
-                                        // Set the column message ID value to
-                                        // the next unused message ID
+                                        // Set the column message ID value to the next unused
+                                        // message ID
                                         startID = getNextMessageID(startID, interval);
                                         tableData[row][idColumn] = formatMessageID(startID);
                                     }
                                 }
                             }
 
-                            // Check if the a message ID in the table was
-                            // changed
+                            // Check if the a message ID in the table was changed
                             if (editor.getTable().isTableChanged(tableData))
                             {
-                                // Load the updated array of data into the
-                                // table
+                                // Load the updated array of data into the table
                                 editor.getTable().loadDataArrayIntoTable(tableData, false);
 
                                 // Build the table updates
                                 editor.buildUpdates();
 
-                                // Make the table modifications to the project
-                                // database and to any open table editors
+                                // Make the table modifications to the project database and to any
+                                // open table editors
                                 dbTable.modifyTableData(editor.getTableInformation(),
                                                         editor.getAdditions(),
                                                         editor.getModifications(),
@@ -948,7 +919,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                         false,
                                                         false,
                                                         null,
-                                                        null,
                                                         CcddAssignMessageIDDialog.this);
                             }
                         }
@@ -957,36 +927,32 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             }
         }
 
-        // ////////////////////////////////////////////////////////////////////
-        // Next assign message IDs to table data fields
-        // ////////////////////////////////////////////////////////////////////
-
-        // Step through each defined data field
+        // //////////////////////////////////////////////////////////////////// Next assign message
+        // IDs to table data fields
+        // //////////////////////////////////////////////////////////////////// Step through each
+        // defined data field
         for (int index = 0; index < fieldInformation.size(); index++)
         {
             // Get the reference to the field information
             FieldInformation fieldInfo = fieldInformation.get(index);
 
-            // Check if the field contains a message ID, the field owner
-            // matches one of the supplied tables, and that either the
-            // overwrite check box is selected or the field is blank
+            // Check if the field contains a message ID, the field owner matches one of the
+            // supplied tables, and that either the overwrite check box is selected or the field is
+            // blank
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && tables.contains(fieldInfo.getOwnerName())
                 && (type.getOverwriteCbx().isSelected()
                     || fieldInfo.getValue().isEmpty()))
             {
-                // Set the message ID data field value to the next unused
-                // message ID
+                // Set the message ID data field value to the next unused message ID
                 startID = getNextMessageID(startID, interval);
                 fieldInfo.setValue(formatMessageID(startID));
 
-                // If any table editor dialogs are open then the displayed data
-                // fields need to be updated to match the message ID value
-                // change. Both the currently displayed and committed field
-                // values are updated so that when the editor dialog is closed
-                // these changes aren't seen as table changes since they're
-                // already committed to the database. Step through each table
-                // editor dialog
+                // If any table editor dialogs are open then the displayed data fields need to be
+                // updated to match the message ID value change. Both the currently displayed and
+                // committed field values are updated so that when the editor dialog is closed
+                // these changes aren't seen as table changes since they're already committed to
+                // the database. Step through each table editor dialog
                 for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
                 {
                     boolean isUpdate = false;
@@ -997,8 +963,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Get the reference to the table's field handler
                         CcddFieldHandler editorFldHandler = editor.getTableInformation().getFieldHandler();
 
-                        // Check if the table contains the message ID field; if
-                        // so then update it to the new value
+                        // Check if the table contains the message ID field; if so then update it
+                        // to the new value
                         if (editorFldHandler.updateField(fieldInfo))
                         {
                             // Update the committed message ID value
@@ -1007,8 +973,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                             // Update the editor data fields
                             editor.updateDataFields();
 
-                            // Set the flag to indicate the table/field
-                            // combination was located and stop searching
+                            // Set the flag to indicate the table/field combination was located and
+                            // stop searching
                             isUpdate = true;
                             break;
                         }
@@ -1030,7 +996,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         return isChanges;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Assign message ID values to the group data fields
      *
      * @param tabInfo
@@ -1040,7 +1006,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *            list of data field information
      *
      * @return true if a message ID value changed
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean assignGroupMessageIDs(MsgTabInfo type,
                                           List<FieldInformation> fieldInformation)
     {
@@ -1056,16 +1022,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Get the reference to the field information
             FieldInformation fieldInfo = fieldInformation.get(index);
 
-            // Check if the field contains a message ID, is for a group, and
-            // that either the overwrite check box is selected or the field is
-            // blank
+            // Check if the field contains a message ID, is for a group, and that either the
+            // overwrite check box is selected or the field is blank
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
                 && (type.getOverwriteCbx().isSelected()
                     || fieldInfo.getValue().isEmpty()))
             {
-                // Set the message ID data field value to the next unused
-                // message ID
+                // Set the message ID data field value to the next unused message ID
                 startID = getNextMessageID(startID, interval);
                 fieldInfo.setValue(formatMessageID(startID));
 
@@ -1077,12 +1041,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         return isChanges;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Assign the telemetry message names
      *
      * @param tlmName
      *            telemetry message name tab information reference
-     *************************************************************************/
+     *********************************************************************************************/
     private void assignTelemetryMessageNames(MsgTabInfo tlmName)
     {
         // Get the message starting number and interval values
@@ -1092,16 +1056,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Step through each message
         for (Message message : messages)
         {
-            // Use the pattern and current message number to create the message
-            // name
+            // Use the pattern and current message number to create the message name
             String msgName = String.format(tlmName.getPatternFld().getText(),
                                            startNum);
 
             // Adjust the message number by the interval amount
             startNum += interval;
 
-            // Store the message's current name, then change the name to the
-            // new one
+            // Store the message's current name, then change the name to the new one
             String originalName = message.getName();
             message.setName(msgName);
 
@@ -1119,12 +1081,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Assign the telemetry message IDs
      *
      * @param tlmID
      *            telemetry message ID tab information reference
-     *************************************************************************/
+     *********************************************************************************************/
     private void assignTelemetryMessageIDs(MsgTabInfo tlmID)
     {
         // Get the starting message ID and ID interval values
@@ -1140,13 +1102,12 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Set the message's ID to the next one in the sequence
             startID = setMessageID(tlmID, message, startID, interval);
 
-            // Step through each of the message's sub-messages. The default
-            // sub-message is skipped since its ID gets set when the parent
-            // message's ID is set
+            // Step through each of the message's sub-messages. The default sub-message is skipped
+            // since its ID gets set when the parent message's ID is set
             for (int index = 1; index < message.getSubMessages().size(); index++)
             {
-                // Set the sub-message's ID to the next one in the sequence
-                // (for the default sub-message use the parent message's ID
+                // Set the sub-message's ID to the next one in the sequence (for the default
+                // sub-message use the parent message's ID
                 startID = setMessageID(tlmID,
                                        message.getSubMessage(index),
                                        startID,
@@ -1155,9 +1116,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
-     * Set the message ID. If the message already has an ID only update it if
-     * the overwrite check box is selected
+    /**********************************************************************************************
+     * Set the message ID. If the message already has an ID only update it if the overwrite check
+     * box is selected
      *
      *
      * @param tlmID
@@ -1173,7 +1134,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *            difference between two contiguous message ID values
      *
      * @return Next ID value in the sequence
-     *************************************************************************/
+     *********************************************************************************************/
     private int setMessageID(MsgTabInfo tlmID,
                              Message message,
                              int idValue,
@@ -1181,8 +1142,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     {
         int nextID = idValue;
 
-        // Check if the message has no ID, or if it does, that the overwrite ID
-        // check box is selected
+        // Check if the message has no ID, or if it does, that the overwrite ID check box is
+        // selected
         if (message.getID().isEmpty() || tlmID.getOverwriteCbx().isSelected())
         {
             // Get the next unused message ID value
@@ -1195,7 +1156,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         return nextID;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the next unused message ID value
      *
      *
@@ -1206,15 +1167,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *            difference between two contiguous message ID values
      *
      * @return Next unused ID value
-     *************************************************************************/
+     *********************************************************************************************/
     private int getNextMessageID(int idValue, int interval)
     {
-        // Continue to loop as long as the ID value matches a reserved or
-        // existing one. This prevents assigning a duplicate ID
+        // Continue to loop as long as the ID value matches a reserved or existing one. This
+        // prevents assigning a duplicate ID
         while (idsInUse.contains(idValue))
         {
-            // Adjust the message ID value by the interval amount and set the
-            // flag to indicate a message ID value is changed
+            // Adjust the message ID value by the interval amount and set the flag to indicate a
+            // message ID value is changed
             idValue += interval;
         }
 
@@ -1224,24 +1185,24 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         return idValue;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Convert a message ID value into a formatted hexadecimal text string
      *
      * @param idValue
      *            message ID value
      *
      * @return Message ID value as a formatted hexadecimal text string
-     *************************************************************************/
+     *********************************************************************************************/
     private String formatMessageID(int idValue)
     {
         return String.format("0x%04x", idValue);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected boolean verifySelection()
     {
@@ -1262,8 +1223,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Check if this is a message ID tab
                     if (tabInfo.getPatternFld() == null)
                     {
-                        // Check if the starting message ID value is not in
-                        // hexadecimal format
+                        // Check if the starting message ID value is not in hexadecimal format
                         if (!tabInfo.getStartFld().getText().matches(InputDataType.HEXADECIMAL.getInputMatch()))
                         {
                             // Inform the user that the starting ID is invalid
@@ -1271,8 +1231,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                     + "0x<i>&gt;</i>#<br>where # is one or more hexadecimal digits");
                         }
 
-                        // Check if the message ID interval value is not a
-                        // positive integer
+                        // Check if the message ID interval value is not a positive integer
                         if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
                         {
                             // Inform the user that the interval is invalid
@@ -1288,9 +1247,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Get the name pattern
                         String pattern = tabInfo.getPatternFld().getText();
 
-                        // Check if the message name pattern isn't in the
-                        // format text%<0#>d<text> where # is one or more
-                        // digits
+                        // Check if the message name pattern isn't in the format text%<0#>d<text>
+                        // where # is one or more digits
                         if (!pattern.matches(InputDataType.MESSAGE_ID_NAME.getInputMatch()
                                              + "%(0\\d+)?d[a-zA-Z0-9_]*"))
                         {
@@ -1305,17 +1263,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                     + "and </b><i>endText</i><b> are optional");
                         }
 
-                        // Check if the starting message number is not a
-                        // non-negative integer
+                        // Check if the starting message number is not a non-negative integer
                         if (!tabInfo.getStartFld().getText().matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
                         {
-                            // Inform the user that the starting number is
-                            // invalid
+                            // Inform the user that the starting number is invalid
                             throw new CCDDException("Message starting number must be an integer >= 0");
                         }
 
-                        // Check if the message name interval value is not a
-                        // positive integer
+                        // Check if the message name interval value is not a positive integer
                         if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
                         {
                             // Inform the user that the interval is invalid

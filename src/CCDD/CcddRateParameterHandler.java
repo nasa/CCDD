@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary rate parameter handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -26,9 +25,9 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.RateParameter;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary rate parameter handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddRateParameterHandler
 {
     // Class references
@@ -44,12 +43,12 @@ public class CcddRateParameterHandler
     // List containing the rate information for a stream
     private final List<RateInformation> rateInformation;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Rate parameter handler class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddRateParameterHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -63,55 +62,52 @@ public class CcddRateParameterHandler
         getRateParameters();
     }
 
-    /**************************************************************************
-     * Get the maximum number of seconds allowed between downlinking two of the
-     * same message
+    /**********************************************************************************************
+     * Get the maximum number of seconds allowed between downlinking two of the same message
      *
-     * @return Maximum number of seconds allowed between downlinking two of the
-     *         same message
-     *************************************************************************/
+     * @return Maximum number of seconds allowed between downlinking two of the same message
+     *********************************************************************************************/
     protected int getMaxSecondsPerMsg()
     {
         return maxSecPerMsg;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the maximum number of messages that can be downlinked in one second
      *
      * @return Maximum number of messages that can be downlinked in one second
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getMaxMsgsPerSecond()
     {
         return maxMsgsPerSec;
     }
 
-    /**************************************************************************
-     * Get the value of the flag that indicates if unevenly time-space sample
-     * rates are to be included
+    /**********************************************************************************************
+     * Get the value of the flag that indicates if unevenly time-space sample rates are to be
+     * included
      *
-     * @return true if unevenly time-spaced sample rate values are included;
-     *         false if only sample rates that are evenly time-spaced are
-     *         included
-     *************************************************************************/
+     * @return true if unevenly time-spaced sample rate values are included; false if only sample
+     *         rates that are evenly time-spaced are included
+     *********************************************************************************************/
     protected boolean isIncludeUneven()
     {
         return includeUneven;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the list of rate information, sorted by data stream name
      *
      * @return List of rate information
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<RateInformation> getRateInformation()
     {
         // Sort the rate information by data stream name
         Collections.sort(rateInformation, new Comparator<RateInformation>()
         {
-            /******************************************************************
-             * Compare the stream names of two rates. Force lower case to
-             * eliminate case differences in the comparison
-             *****************************************************************/
+            /**************************************************************************************
+             * Compare the stream names of two rates. Force lower case to eliminate case
+             * differences in the comparison
+             *************************************************************************************/
             @Override
             public int compare(RateInformation rate1, RateInformation rate2)
             {
@@ -122,12 +118,12 @@ public class CcddRateParameterHandler
         return rateInformation;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add rate information to the list for the specified rate column name
      *
      * @param rateName
      *            new rate's column name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addRateInformation(String rateName)
     {
         // Get the rate information based on the rate column name
@@ -136,8 +132,8 @@ public class CcddRateParameterHandler
         // Check if rate information with this name doesn't already exist
         if (rateInfo == null)
         {
-            // Create the specified rate, adjust the rate counter, and set the
-            // flag to indicate a rate is added
+            // Create the specified rate, adjust the rate counter, and set the flag to indicate a
+            // rate is added
             rateInformation.add(new RateInformation(rateName));
         }
         // The rate information already exists for this rate column name
@@ -148,19 +144,18 @@ public class CcddRateParameterHandler
         }
     }
 
-    /**************************************************************************
-     * Change the rate column name for in the rate information list. If the
-     * original rate column name matches one in another table type then create
-     * a new rate entry instead of renaming the existing one. If the new rate
-     * column name matches one in another table type then merge it with the
-     * existing one and delete the original
+    /**********************************************************************************************
+     * Change the rate column name for in the rate information list. If the original rate column
+     * name matches one in another table type then create a new rate entry instead of renaming the
+     * existing one. If the new rate column name matches one in another table type then merge it
+     * with the existing one and delete the original
      *
      * @param oldRateName
      *            current rate column name
      *
      * @param newRateName
      *            new rate column name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void renameRateInformation(String oldRateName,
                                          String newRateName)
     {
@@ -170,8 +165,7 @@ public class CcddRateParameterHandler
         // Check if rate information with this name exists
         if (rateInfo != null)
         {
-            // Check if only a single table type references this rate column
-            // name
+            // Check if only a single table type references this rate column name
             if (rateInfo.getNumSharedTableTypes() == 1)
             {
                 // Get the rate information for the new rate column name
@@ -180,13 +174,12 @@ public class CcddRateParameterHandler
                 // Check if the new rate column doesn't already exist
                 if (rateInfoNew == null)
                 {
-                    // Rename the specified rate column and set the flag to
-                    // indicate a rate is renamed
+                    // Rename the specified rate column and set the flag to indicate a rate is
+                    // renamed
                     rateInfo.setRateName(newRateName);
 
-                    // Check if the original rate column name is the same as
-                    // the stream name; this implies the user hasn't chosen a
-                    // name for the stream
+                    // Check if the original rate column name is the same as the stream name; this
+                    // implies the user hasn't chosen a name for the stream
                     if (oldRateName.equals(rateInfo.getStreamName()))
                     {
                         // Set the stream name to the new name as well
@@ -196,8 +189,8 @@ public class CcddRateParameterHandler
                 // A rate column by this name already exists
                 else
                 {
-                    // Delete the original rate column's information and
-                    // increment the counter for the 'new' rate column
+                    // Delete the original rate column's information and increment the counter for
+                    // the 'new' rate column
                     deleteRateInformation(oldRateName);
                     rateInfoNew.setNumSharedTableTypes(rateInfoNew.getNumSharedTableTypes() + 1);
                 }
@@ -205,21 +198,20 @@ public class CcddRateParameterHandler
             // This rate column is referenced by another table type
             else
             {
-                // Create new rate column information so that the shared one is
-                // unchanged and decrement the share counter for the existing
-                // rate information
+                // Create new rate column information so that the shared one is unchanged and
+                // decrement the share counter for the existing rate information
                 addRateInformation(newRateName);
                 rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() - 1);
             }
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the specified rate's information from the list
      *
      * @param rateName
      *            rate name for the rate information object to remove
-     *************************************************************************/
+     *********************************************************************************************/
     protected void deleteRateInformation(String rateName)
     {
         // Get the rate information based on the rate column name
@@ -231,35 +223,33 @@ public class CcddRateParameterHandler
             // Check is only one table type references this rate column name
             if (rateInfo.getNumSharedTableTypes() == 1)
             {
-                // Remove the specified rate's information, adjust the rate
-                // counter, and set the flag to indicate a rate is removed
+                // Remove the specified rate's information, adjust the rate counter, and set the
+                // flag to indicate a rate is removed
                 rateInformation.remove(rateInfo);
             }
             // The rate column name is shared between multiple table types
             else
             {
-                // Decrement the share counter for the existing rate
-                // information
+                // Decrement the share counter for the existing rate information
                 rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() - 1);
             }
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the rate information with the specified rate column
      *
      * @param rateColumnName
      *            rate column name
      *
-     * @return Rate information with the specified rate column; null if the
-     *         rate column doesn't exist
-     *************************************************************************/
+     * @return Rate information with the specified rate column; null if the rate column doesn't
+     *         exist
+     *********************************************************************************************/
     protected RateInformation getRateInformationByRateName(String rateColumnName)
     {
         RateInformation rateInfo = null;
 
-        // Get the index into the rate information for the specified rate
-        // column name
+        // Get the index into the rate information for the specified rate column name
         int index = getRateInformationIndexByRateName(rateColumnName);
 
         // Check if the rate column name exists
@@ -272,21 +262,19 @@ public class CcddRateParameterHandler
         return rateInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the rate information with the specified data stream name
      *
      * @param streamName
      *            name of stream
      *
-     * @return Rate information with the data stream name; null if the data
-     *         stream doesn't exist
-     *************************************************************************/
+     * @return Rate information with the data stream name; null if the data stream doesn't exist
+     *********************************************************************************************/
     protected RateInformation getRateInformationByStreamName(String streamName)
     {
         RateInformation rateInfo = null;
 
-        // Get the index into the rate information for the specified data
-        // stream name
+        // Get the index into the rate information for the specified data stream name
         int index = getRateInformationIndexByStreamName(streamName);
 
         // Check if the stream name exists
@@ -299,16 +287,15 @@ public class CcddRateParameterHandler
         return rateInfo;
     }
 
-    /**************************************************************************
-     * Get the index of the rate information with the specified rate column
-     * name
+    /**********************************************************************************************
+     * Get the index of the rate information with the specified rate column name
      *
      * @param rateName
      *            rate column name
      *
-     * @return Index of the rate information with the specified rate column
-     *         name; -1 if no rate information has this rate column name
-     *************************************************************************/
+     * @return Index of the rate information with the specified rate column name; -1 if no rate
+     *         information has this rate column name
+     *********************************************************************************************/
     protected int getRateInformationIndexByRateName(String rateColumnName)
     {
         int rateIndex = -1;
@@ -321,8 +308,7 @@ public class CcddRateParameterHandler
             // Step through the rate information
             for (RateInformation info : rateInformation)
             {
-                // Check if the rate name matches the name for this rate
-                // information
+                // Check if the rate name matches the name for this rate information
                 if (rateColumnName.equals(info.getRateName()))
                 {
                     // Save the index and stop searching
@@ -337,15 +323,15 @@ public class CcddRateParameterHandler
         return rateIndex;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the index of the rate information with the specified stream name
      *
      * @param streamName
      *            stream name
      *
-     * @return Index of the rate information with the specified stream name; -1
-     *         if no rate information has this stream name
-     *************************************************************************/
+     * @return Index of the rate information with the specified stream name; -1 if no rate
+     *         information has this stream name
+     *********************************************************************************************/
     protected int getRateInformationIndexByStreamName(String streamName)
     {
         int streamIndex = -1;
@@ -354,8 +340,7 @@ public class CcddRateParameterHandler
         // Step through the rate information
         for (RateInformation info : rateInformation)
         {
-            // Check if the stream name matches the name for this rate
-            // information
+            // Check if the stream name matches the name for this rate information
             if (streamName.equals(info.getStreamName()))
             {
                 // Save the index and stop searching
@@ -369,21 +354,21 @@ public class CcddRateParameterHandler
         return streamIndex;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of unique rate columns
      *
      * @return Number of unique rate columns
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getNumRateColumns()
     {
         return rateInformation.size();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the rate information list based on the unique rate columns
      *
      * @return true if the number of rate columns changed
-     *************************************************************************/
+     *********************************************************************************************/
     protected boolean setRateInformation()
     {
         // Store the current number of rate columns
@@ -392,8 +377,8 @@ public class CcddRateParameterHandler
         // Step through any existing rate column information
         for (RateInformation rateInfo : rateInformation)
         {
-            // Set the number of table types referencing this rate to zero.
-            // This is used to determine if a rate is still in use
+            // Set the number of table types referencing this rate to zero. This is used to
+            // determine if a rate is still in use
             rateInfo.setNumSharedTableTypes(0);
         }
 
@@ -424,8 +409,7 @@ public class CcddRateParameterHandler
                         // The rate column already exists
                         else
                         {
-                            // Increment the share counter for the existing
-                            // rate information
+                            // Increment the share counter for the existing rate information
                             rateInfo.setNumSharedTableTypes(rateInfo.getNumSharedTableTypes() + 1);
                         }
                     }
@@ -433,8 +417,7 @@ public class CcddRateParameterHandler
             }
         }
 
-        // Create a list to store any rate column information that no longer
-        // exists
+        // Create a list to store any rate column information that no longer exists
         List<RateInformation> removedRates = new ArrayList<RateInformation>();
 
         // Step through each rate column's information
@@ -454,9 +437,9 @@ public class CcddRateParameterHandler
         return rateInformation.size() != oldNumRateColumns;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the rate parameters from the database and calculate the sample rates
-     *************************************************************************/
+     *********************************************************************************************/
     private void getRateParameters()
     {
         // Build the rate information list from the table types
@@ -474,8 +457,8 @@ public class CcddRateParameterHandler
                 throw new Exception("missing rate value");
             }
 
-            // Convert the rate parameters to integers and set the flag for
-            // whether or not unevenly time-spaced rates should be included
+            // Convert the rate parameters to integers and set the flag for whether or not unevenly
+            // time-spaced rates should be included
             maxSecPerMsg = Integer.valueOf(rateValues[RateParameter.MAXIMUM_SECONDS_PER_MESSAGE.ordinal()]);
             maxMsgsPerSec = Integer.valueOf(rateValues[RateParameter.MAXIMUM_MESSAGES_PER_SECOND.ordinal()]);
             includeUneven = Boolean.valueOf(rateValues[RateParameter.INCLUDE_UNEVEN_RATES.ordinal()]);
@@ -494,8 +477,7 @@ public class CcddRateParameterHandler
             {
                 int offset = index - numStreamParms;
 
-                // Remove the leading and trailing quotes from the rate column
-                // name
+                // Remove the leading and trailing quotes from the rate column name
                 String rateColName = rateValues[RateParameter.RATE_COLUMN_NAME.ordinal()
                                                 + offset].replaceAll("^\"(.*)\"$", "$1");
 
@@ -505,8 +487,7 @@ public class CcddRateParameterHandler
                 // Check if the rate information for this column exists
                 if (getRateInformationByRateName(rateColName) != null)
                 {
-                    // Remove the leading and trailing quotes from the stream
-                    // name
+                    // Remove the leading and trailing quotes from the stream name
                     String streamName = rateValues[RateParameter.STREAM_NAME.ordinal()
                                                    + offset].replaceAll("^\"(.*)\"$", "$1");
 
@@ -557,38 +538,33 @@ public class CcddRateParameterHandler
         calculateSampleRates();
     }
 
-    /**************************************************************************
-     * Set the rate parameters, store them in the project database, and
-     * calculate the sample rates
+    /**********************************************************************************************
+     * Set the rate parameters, store them in the project database, and calculate the sample rates
      *
      * @param maxSecPerMsg
-     *            maximum number of seconds allowed between downlinking two of
-     *            the same message
+     *            maximum number of seconds allowed between downlinking two of the same message
      *
      * @param maxMsgsPerSec
-     *            maximum number of messages that can be downlinked in one
-     *            second
+     *            maximum number of messages that can be downlinked in one second
      *
      * @param streamName
      *            array containing the stream name per stream
      *
      * @param maxMsgsPerCycle
-     *            array containing the maximum number of messages that can be
-     *            downlinked before repeating the message list per stream
+     *            array containing the maximum number of messages that can be downlinked before
+     *            repeating the message list per stream
      *
      * @param maxBytesPerSec
-     *            array containing the maximum number of bytes that can be
-     *            downlinked in one second per stream
+     *            array containing the maximum number of bytes that can be downlinked in one second
+     *            per stream
      *
      * @param includeUneven
-     *            true to include unevenly time-spaced sample rate values;
-     *            false to only include sample rates that are evenly
-     *            time-spaced
+     *            true to include unevenly time-spaced sample rate values; false to only include
+     *            sample rates that are evenly time-spaced
      *
      * @param parent
-     *            component calling this method, used for positioning any error
-     *            dialogs
-     *************************************************************************/
+     *            component calling this method, used for positioning any error dialogs
+     *********************************************************************************************/
     protected void setRateParameters(int maxSecPerMsg,
                                      int maxMsgsPerSec,
                                      String[] streamName,
@@ -619,11 +595,10 @@ public class CcddRateParameterHandler
         calculateSampleRates();
     }
 
-    /**************************************************************************
-     * Build the array of valid sample rates for all rate columns based on the
-     * current rate parameters. Update open table editors that have a Rate
-     * column
-     *************************************************************************/
+    /**********************************************************************************************
+     * Build the array of valid sample rates for all rate columns based on the current rate
+     * parameters. Update open table editors that have a Rate column
+     *********************************************************************************************/
     private void calculateSampleRates()
     {
         // Step through each data stream
@@ -648,29 +623,25 @@ public class CcddRateParameterHandler
         }
     }
 
-    /**************************************************************************
-     * Build the array of valid sample rates based on the specified rate
-     * parameters
+    /**********************************************************************************************
+     * Build the array of valid sample rates based on the specified rate parameters
      *
      * @param maxSecPerMsg
-     *            maximum number of seconds allowed between downlinking two of
-     *            the same message
+     *            maximum number of seconds allowed between downlinking two of the same message
      *
      * @param maxMsgsPerSec
-     *            maximum number of messages that can be downlinked in one
-     *            second
+     *            maximum number of messages that can be downlinked in one second
      *
      * @param maxMsgsPerCycle
-     *            maximum number of messages that can be downlinked before
-     *            repeating the message list per stream
+     *            maximum number of messages that can be downlinked before repeating the message
+     *            list per stream
      *
      * @param includeUneven
-     *            true to include unevenly time-spaced sample rate values;
-     *            false to only include sample rates that are evenly
-     *            time-spaced
+     *            true to include unevenly time-spaced sample rate values; false to only include
+     *            sample rates that are evenly time-spaced
      *
      * @return Array containing the valid sample rates
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] calculateSampleRates(int maxSecPerMsg,
                                             int maxMsgsPerSec,
                                             int maxMsgsPerCycle,
@@ -697,13 +668,11 @@ public class CcddRateParameterHandler
         {
             int index = 0;
 
-            // Step through the potential factors, beginning with 1. The loop
-            // termination criteria accounts for not needing to check a
-            // factor's companion value
+            // Step through the potential factors, beginning with 1. The loop termination criteria
+            // accounts for not needing to check a factor's companion value
             for (int div = 1; div <= maxMsgsPerCycle / div; div++)
             {
-                // Check if the number is divisible by the divisor with no
-                // remainder
+                // Check if the number is divisible by the divisor with no remainder
                 if (maxMsgsPerCycle % div == 0)
                 {
                     // Format the low and high factors
@@ -713,14 +682,14 @@ public class CcddRateParameterHandler
                     // Check if the two factors differ
                     if (!highFactor.equals(lowFactor))
                     {
-                        // Add the second factor to the list. Use of the index
-                        // causes insertion of the values in descending order
+                        // Add the second factor to the list. Use of the index causes insertion of
+                        // the values in descending order
                         rates.add(index, highFactor);
                         index++;
                     }
 
-                    // Add the low factor to the list. Use of the index causes
-                    // insertion of the values in descending order
+                    // Add the low factor to the list. Use of the index causes insertion of the
+                    // values in descending order
                     rates.add(index, lowFactor);
                 }
             }
@@ -736,11 +705,10 @@ public class CcddRateParameterHandler
         return rates.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Format a rate value as the specified number of samples over the
-     * specified number of seconds. Use whole numbers if possible; otherwise
-     * use the format '1/x', where 'x' is the number of seconds rounded to 5
-     * decimal places. Remove any extra trailing zeroes after the decimal and
+    /**********************************************************************************************
+     * Format a rate value as the specified number of samples over the specified number of seconds.
+     * Use whole numbers if possible; otherwise use the format '1/x', where 'x' is the number of
+     * seconds rounded to 5 decimal places. Remove any extra trailing zeroes after the decimal and
      * the decimal if no zeroes remain for both the numerator and denominator
      *
      * @param samples
@@ -749,15 +717,13 @@ public class CcddRateParameterHandler
      * @param seconds
      *            number of seconds
      *
-     * @return Rate, in samples per second, displaying a maximum of 5 decimal
-     *         places)
-     *************************************************************************/
+     * @return Rate, in samples per second, displaying a maximum of 5 decimal places)
+     *********************************************************************************************/
     private String formatRate(double samples, double seconds)
     {
         String rate;
 
-        // Check if the rate is evenly divisible into 1 (within 5 decimal
-        // places)
+        // Check if the rate is evenly divisible into 1 (within 5 decimal places)
         if ((int) (samples * 100000) % (int) (seconds * 100000) <= 10)
         {
             // Add the rate as a whole number instead of a fraction
@@ -773,11 +739,11 @@ public class CcddRateParameterHandler
         return rate.replaceAll(TRAILING_ZEROES, "");
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array containing the unique data stream names
      *
      * @return Array containing the unique data stream names
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] getDataStreamNames()
     {
         List<String> columnNames = new ArrayList<String>();
@@ -792,10 +758,9 @@ public class CcddRateParameterHandler
         return columnNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get the array of the sample rate values for the specified rate column
-     * name with those rates not assigned to any telemetry parameter in the
-     * structure tables grayed out
+    /**********************************************************************************************
+     * Get the array of the sample rate values for the specified rate column name with those rates
+     * not assigned to any telemetry parameter in the structure tables grayed out
      *
      * @param rateName
      *            rate column name
@@ -803,17 +768,16 @@ public class CcddRateParameterHandler
      * @param parent
      *            GUI component calling this method
      *
-     * @return Array of the sample rate values for the specified rate column
-     *         name with those rates not assigned to any telemetry parameter in
-     *         the structure tables grayed out; an empty array if the rate name
-     *         isn't valid
-     *************************************************************************/
+     * @return Array of the sample rate values for the specified rate column name with those rates
+     *         not assigned to any telemetry parameter in the structure tables grayed out; an empty
+     *         array if the rate name isn't valid
+     *********************************************************************************************/
     protected String[] getRatesInUse(String rateName, Component parent)
     {
         String[] availableRates = new String[0];
 
-        // Create the string array list using the second column (rate values)
-        // for comparison purposes
+        // Create the string array list using the second column (rate values) for comparison
+        // purposes
         ArrayListMultiple ratesInUse = new ArrayListMultiple(1);
 
         // Get the rate information for the specified rate
@@ -822,17 +786,15 @@ public class CcddRateParameterHandler
         // Check if the rate name is recognized
         if (rateInfo != null)
         {
-            // Get a copy of the array of sample rates for this rate. If a copy
-            // isn't used then the stored sample rates can be altered to show
-            // as disabled below; subsequent calls to get the sample rates will
-            // have the disable tags
+            // Get a copy of the array of sample rates for this rate. If a copy isn't used then the
+            // stored sample rates can be altered to show as disabled below; subsequent calls to
+            // get the sample rates will have the disable tags
             availableRates = Arrays.copyOf(rateInfo.getSampleRates(),
                                            rateInfo.getSampleRates().length);
 
-            // Query the database for those values of the specified rate that
-            // are in use in all tables with a table type representing a
-            // structure, including any references in the custom values table.
-            // Only unique rate values are returned
+            // Query the database for those values of the specified rate that are in use in all
+            // tables with a table type representing a structure, including any references in the
+            // custom values table. Only unique rate values are returned
             ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
                                                     + rateName
                                                     + "', '"

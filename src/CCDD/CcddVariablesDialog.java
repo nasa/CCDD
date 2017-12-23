@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary variable paths & names dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -53,9 +52,9 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary variable paths & names dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddVariablesDialog extends CcddDialogHandler
 {
@@ -74,12 +73,12 @@ public class CcddVariablesDialog extends CcddDialogHandler
     // Variables table data
     private Object[][] tableData;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Variable paths & names dialog class constructor
      *
      * @param ccddMain
      *            main class reference
-     *************************************************************************/
+     *********************************************************************************************/
     CcddVariablesDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -91,13 +90,12 @@ public class CcddVariablesDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
-     * Create the variable paths & names dialog. This is executed in a separate
-     * thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The
-     * GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the variable paths & names dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the variable paths & names dialog in the background
@@ -108,9 +106,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
             JPanel buttonPnl = new JPanel();
             JButton btnShow;
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the variable paths & names dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -147,8 +145,8 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 upperPnl.setBorder(emptyBorder);
                 inputPnl.setBorder(emptyBorder);
 
-                // Create the variable path separator label and input field,
-                // and add them to the dialog panel
+                // Create the variable path separator label and input field, and add them to the
+                // dialog panel
                 JLabel varPathSepLbl = new JLabel("<html>Enter variable path<br>&#160separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 inputPnl.add(varPathSepLbl, gbc);
@@ -163,8 +161,8 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 gbc.gridy++;
                 inputPnl.add(varPathSepFld, gbc);
 
-                // Create the data type/variable name separator label and input
-                // field, and add them to the dialog panel
+                // Create the data type/variable name separator label and input field, and add them
+                // to the dialog panel
                 final JLabel typeNameSepLbl = new JLabel("<html>Enter data type/variable name<br>&#160;separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = 0;
@@ -194,29 +192,28 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the hide data type check box
                 hideDataTypeCb.addActionListener(new ActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Handle a change in the hide data type check box status
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        // Enable/disable the data type/variable name separator
-                        // input label and field
+                        // Enable/disable the data type/variable name separator input label and
+                        // field
                         typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
                         typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
                     }
                 });
 
-                // Add the inputs panel, containing the separator characters
-                // fields and check box, to the upper panel
+                // Add the inputs panel, containing the separator characters fields and check box,
+                // to the upper panel
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy = 0;
                 upperPnl.add(inputPnl, gbc);
 
-                // Build the table tree showing both table prototypes and table
-                // instances; i.e., parent tables with their child tables
-                // (i.e., parents with children)
+                // Build the table tree showing both table prototypes and table instances; i.e.,
+                // parent tables with their child tables (i.e., parents with children)
                 tableTree = new CcddTableTreeHandler(ccddMain,
                                                      new CcddGroupHandler(ccddMain,
                                                                           null,
@@ -265,36 +262,35 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Define the variable paths & names JTable
                 variableTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Allow multiple line display in all columns
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected boolean isColumnMultiLine(int column)
                     {
                         return true;
                     }
 
-                    /******************************************************************
+                    /**************************************************************************************
                      * Allow HTML-formatted text in the specified column(s)
-                     *****************************************************************/
+                     *************************************************************************************/
                     @Override
                     protected boolean isColumnHTML(int column)
                     {
                         return column == 0;
                     }
 
-                    /**********************************************************
-                     * Load the structure table variables paths & names into
-                     * the table and format the table cells
-                     *********************************************************/
+                    /******************************************************************************
+                     * Load the structure table variables paths & names into the table and format
+                     * the table cells
+                     *****************************************************************************/
                     @Override
                     protected void loadAndFormatData()
                     {
-                        // Place the data into the table model along with the
-                        // column names, set up the editors and renderers for
-                        // the table cells, set up the table grid lines, and
-                        // calculate the minimum width required to display the
-                        // table information
+                        // Place the data into the table model along with the column names, set up
+                        // the editors and renderers for the table cells, set up the table grid
+                        // lines, and calculate the minimum width required to display the table
+                        // information
                         setUpdatableCharacteristics(tableData,
                                                     new String[] {"Application Format",
                                                                   "User Format"},
@@ -350,9 +346,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the Show button
                 btnShow.addActionListener(new ActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Convert the variables and display the results
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
@@ -360,8 +356,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                         varPathSepFld.setText(varPathSepFld.getText().trim());
                         typeNameSepFld.setText(typeNameSepFld.getText().trim());
 
-                        // Check if a separator field contains a character that
-                        // cannot be used
+                        // Check if a separator field contains a character that cannot be used
                         if (varPathSepFld.getText().matches(".*[\\[\\]].*")
                             || (!hideDataTypeCb.isSelected()
                                 && typeNameSepFld.getText().matches(".*[\\[\\]].*")))
@@ -378,9 +373,8 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                  || !ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_").equals(typeNameSepFld.getText())
                                  || !ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "_").equals(String.valueOf(hideDataTypeCb.isSelected())))
                         {
-                            // Get the variables (matching the filtering
-                            // tables, if applicable) and display the them in
-                            // the table
+                            // Get the variables (matching the filtering tables, if applicable) and
+                            // display the them in the table
                             tableData = getVariables();
                             variableTable.loadAndFormatData();
                         }
@@ -396,14 +390,14 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the Print button
                 btnPrint.addActionListener(new ActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Print the variables list
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
                         variableTable.printTable("Project '"
-                                                 + ccddMain.getDbControlHandler().getDatabase()
+                                                 + ccddMain.getDbControlHandler().getDatabaseName()
                                                  + "' Variables",
                                                  null,
                                                  CcddVariablesDialog.this,
@@ -420,14 +414,13 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Store the variable separators and hide data types flag
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        // Store the separator information in the program
-                        // preferences
+                        // Store the separator information in the program preferences
                         ccddMain.getProgPrefs().put(VARIABLE_PATH_SEPARATOR,
                                                     varPathSepFld.getText());
                         ccddMain.getProgPrefs().put(TYPE_NAME_SEPARATOR,
@@ -441,8 +434,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                             // Step through each individual editor
                             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                             {
-                                // Update the variable path column, if
-                                // present
+                                // Update the variable path column, if present
                                 editor.updateVariablePaths();
                             }
                         }
@@ -458,9 +450,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the Close button
                 btnCancel.addActionListener(new ActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the variables dialog
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
@@ -476,9 +468,9 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 buttonPnl.add(btnCancel);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Variable paths & names dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -493,13 +485,13 @@ public class CcddVariablesDialog extends CcddDialogHandler
         });
     }
 
-    /**************************************************************************
-     * Get the array of variables. If the table tree has any selections use
-     * these to filter the variable array
+    /**********************************************************************************************
+     * Get the array of variables. If the table tree has any selections use these to filter the
+     * variable array
      *
-     * @return Array of variables matching the filter tables, or all variables
-     *         if no filter table is selected
-     *************************************************************************/
+     * @return Array of variables matching the filter tables, or all variables if no filter table
+     *         is selected
+     *********************************************************************************************/
     private Object[][] getVariables()
     {
         List<Object[]> variableList = new ArrayList<Object[]>();
@@ -513,8 +505,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
             // Step through each filter table
             for (int index = 0; index < filterTables.size(); index++)
             {
-                // Append the regular expression to match variables of the
-                // filter table
+                // Append the regular expression to match variables of the filter table
                 filterTables.set(index,
                                  filterTables.get(index)
                                         + ",[a-zA-Z0-9_]*\\.[a-zA-Z0-9_]*");

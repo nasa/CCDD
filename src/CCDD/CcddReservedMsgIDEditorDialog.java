@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary reserved message ID editor dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -51,9 +50,9 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary reserved message ID editor dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 {
@@ -63,20 +62,20 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddJTableHandler msgIDTable;
 
-    // Table instance model data. Current copy is the table information as it
-    // exists in the table editor and is used to determine what changes have
-    // been made to the table since the previous field editor update
+    // Table instance model data. Current copy is the table information as it exists in the table
+    // editor and is used to determine what changes have been made to the table since the previous
+    // field editor update
     private String[][] committedData;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Reserved Message ID Editor";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Reserved message ID editor dialog class constructor
      *
      * @param ccddMain
      *            main class reference
-     *************************************************************************/
+     *********************************************************************************************/
     CcddReservedMsgIDEditorDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -89,14 +88,13 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         initialize();
     }
 
-    /**************************************************************************
-     * Perform the steps needed following execution of reserved message ID
-     * updates to the database
+    /**********************************************************************************************
+     * Perform the steps needed following execution of reserved message ID updates to the database
      *
      * @param commandError
-     *            false if the database commands successfully completed; true
-     *            if an error occurred and the changes were not made
-     *************************************************************************/
+     *            false if the database commands successfully completed; true if an error occurred
+     *            and the changes were not made
+     *********************************************************************************************/
     protected void doMsgIDUpdatesComplete(boolean commandError)
     {
         // Check that no error occurred performing the database commands
@@ -105,8 +103,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             // Update the reserved message ID handler with the changes
             rsvMsgIDHandler.setReservedMsgIDData(getUpdatedData());
 
-            // Update the copy of the reserved message ID data so it can be
-            // used to determine if changes are made
+            // Update the copy of the reserved message ID data so it can be used to determine if
+            // changes are made
             storeCurrentData();
 
             // Accept all edits for this table
@@ -114,10 +112,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
-     * Copy the reserved message ID data so it can be used to determine if
-     * changes are made
-     *************************************************************************/
+    /**********************************************************************************************
+     * Copy the reserved message ID data so it can be used to determine if changes are made
+     *********************************************************************************************/
     private void storeCurrentData()
     {
         // Check if the table has fields
@@ -134,13 +131,12 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
-     * Create the reserved message ID editor dialog. This is executed in a
-     * separate thread since it can take a noticeable amount time to complete,
-     * and by using a separate thread the GUI is allowed to continue to update.
-     * The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the reserved message ID editor dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the data type editor dialog in the background
@@ -151,9 +147,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             JPanel buttonPnl = new JPanel();
             JButton btnClose;
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the data type editor dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -170,12 +166,11 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                 0,
                                                                 0);
 
-                // Create a copy of the reserved message ID data so it can be
-                // used to determine if changes are made
+                // Create a copy of the reserved message ID data so it can be used to determine if
+                // changes are made
                 storeCurrentData();
 
-                // Define the panel to contain the table and place it in the
-                // editor
+                // Define the panel to contain the table and place it in the editor
                 JPanel tablePnl = new JPanel();
                 tablePnl.setLayout(new BoxLayout(tablePnl, BoxLayout.X_AXIS));
                 tablePnl.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
@@ -183,9 +178,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 editorPnl.add(tablePnl, gbc);
                 editorPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                // Set the modal undo manager and table references in the
-                // keyboard handler while the reserved message ID editor is
-                // active
+                // Set the modal undo manager and table references in the keyboard handler while
+                // the reserved message ID editor is active
                 ccddMain.getKeyboardHandler().setModalDialogReference(msgIDTable.getUndoManager(),
                                                                       msgIDTable);
 
@@ -198,9 +192,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Insert Row button
                 btnInsertRow.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Insert a new row into the table at the selected location
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -217,9 +211,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Delete row button
                 btnDeleteRow.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Delete the selected row(s) from the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -236,9 +230,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Move Up button
                 btnMoveUp.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Move the selected row(s) up in the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -255,9 +249,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Move Down button
                 btnMoveDown.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Move the selected row(s) down in the table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -274,9 +268,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Undo button
                 btnUndo.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Undo the last cell edit
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -293,9 +287,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Redo button
                 btnRedo.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Redo the last cell edit that was undone
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -312,15 +306,15 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Store the reserved message IDs
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Only update the table in the database if a cell's
-                        // content has changed, none of the required columns is
-                        // missing a value, and the user confirms the action
+                        // Only update the table in the database if a cell's content has changed,
+                        // none of the required columns is missing a value, and the user confirms
+                        // the action
                         if (msgIDTable.isTableChanged(committedData)
                             && !checkForMissingColumns()
                             && new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
@@ -348,9 +342,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 // Create a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener(msgIDTable)
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the reserved message ID editor dialog
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -358,8 +352,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to
-                // right, top to bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnInsertRow);
                 buttonPnl.add(btnMoveUp);
                 buttonPnl.add(btnUndo);
@@ -373,9 +366,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 setButtonRows(2);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Reserved message ID editor dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -390,46 +383,46 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the reserved message ID table
      *
      * @return Reference to the scroll pane in which the table is placed
-     *************************************************************************/
+     *********************************************************************************************/
     private JScrollPane createReservedMsgIDTable()
     {
         // Define the reserved message ID editor JTable
         msgIDTable = new CcddJTableHandler()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Allow multiple line display in all columns
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
                 return true;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Hide the the specified columns
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isColumnHidden(int column)
             {
                 return column == ReservedMsgIDEditorColumnInfo.OID.ordinal();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Override isCellEditable so that all columns can be edited
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public boolean isCellEditable(int row, int column)
             {
                 return true;
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Allow pasting data into the reserved message ID cells
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData,
                                               int row,
@@ -439,7 +432,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                       convertColumnIndexToView(column));
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Validate changes to the editable cells
              *
              * @param tableData
@@ -458,16 +451,14 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
              *            new cell contents
              *
              * @param showMessage
-             *            true to display the invalid input dialog, if
-             *            applicable
+             *            true to display the invalid input dialog, if applicable
              *
              * @param isMultiple
-             *            true if this is one of multiple cells to be entered
-             *            and checked; false if only a single input is being
-             *            entered
+             *            true if this is one of multiple cells to be entered and checked; false if
+             *            only a single input is being entered
              *
              * @return Always returns false
-             ****************************************************************/
+             ************************************************************************************/
             @Override
             protected Boolean validateCellContent(List<Object[]> tableData,
                                                   int row,
@@ -477,8 +468,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                   Boolean showMessage,
                                                   boolean isMultiple)
             {
-                // Reset the flag that indicates the last edited cell's content
-                // is invalid
+                // Reset the flag that indicates the last edited cell's content is invalid
                 setLastCellValid(true);
 
                 // Create a string version of the new value
@@ -489,12 +479,11 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                     // Check if the value isn't blank
                     if (!newValueS.isEmpty())
                     {
-                        // Check if the message ID has been changed and if the
-                        // ID isn't blank
+                        // Check if the message ID has been changed and if the ID isn't blank
                         if (column == ReservedMsgIDEditorColumnInfo.MSG_ID.ordinal())
                         {
-                            // Check if the message ID does not match the
-                            // hexadecimal range input type
+                            // Check if the message ID does not match the hexadecimal range input
+                            // type
                             if (!newValueS.matches(InputDataType.HEXADECIMAL_RANGE.getInputMatch()))
                             {
                                 throw new CCDDException("Invalid message ID; "
@@ -502,39 +491,35 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                         + " expected");
                             }
 
-                            // Convert the lower and upper (if present) values
-                            // into integers
+                            // Convert the lower and upper (if present) values into integers
                             int[] lowHigh = rsvMsgIDHandler.parseReservedMsgIDs(newValueS);
 
-                            // Check if this is a range and if the lower value
-                            // is greater than the upper value
+                            // Check if this is a range and if the lower value is greater than the
+                            // upper value
                             if (lowHigh[1] != -1 && lowHigh[0] > lowHigh[1])
                             {
                                 // inform the user that the values are invalid
                                 throw new CCDDException("Invalid message ID range; lower value must be &lt;= upper value");
                             }
 
-                            // Compare this message ID to the others in the
-                            // table in order to avoid creating a duplicate
+                            // Compare this message ID to the others in the table in order to avoid
+                            // creating a duplicate
                             for (int otherRow = 0; otherRow < getModel().getRowCount(); otherRow++)
                             {
-                                // Check if this row isn't the one being
-                                // edited
+                                // Check if this row isn't the one being edited
                                 if (otherRow != row)
                                 {
                                     // Get the message ID from this row
                                     String otherValue = tableData.get(otherRow)[column].toString();
 
-                                    // Check if the message ID isn't blank and
-                                    // if if matches or falls within the range
-                                    // of this row's ID(s)
+                                    // Check if the message ID isn't blank and if if matches or
+                                    // falls within the range of this row's ID(s)
                                     if (!otherValue.isEmpty()
                                         && rsvMsgIDHandler.isWithinRange(lowHigh,
                                                                          otherValue))
                                     {
-                                        // Inform the user that the new ID
-                                        // matches or falls within the range of
-                                        // an existing reserved message ID
+                                        // Inform the user that the new ID matches or falls within
+                                        // the range of an existing reserved message ID
                                         throw new CCDDException("Message ID(s) already reserved");
                                     }
                                 }
@@ -552,8 +537,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                              + InputDataType.HEXADECIMAL.formatInput(range[1]);
                             }
 
-                            // Store the new value in the table data array
-                            // after formatting the cell value
+                            // Store the new value in the table data array after formatting the
+                            // cell value
                             newValue = newValueS;
                             tableData.get(row)[column] = newValueS;
                         }
@@ -561,8 +546,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 }
                 catch (CCDDException ce)
                 {
-                    // Set the flag that indicates the last edited cell's
-                    // content is invalid
+                    // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
 
                     // Check if the input error dialog should be displayed
@@ -577,8 +561,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                   DialogOption.OK_OPTION);
                     }
 
-                    // Restore the cell contents to its original value and pop
-                    // the edit from the stack
+                    // Restore the cell contents to its original value and pop the edit from the
+                    // stack
                     tableData.get(row)[column] = oldValue;
                     msgIDTable.getUndoManager().undoRemoveEdit();
                 }
@@ -586,17 +570,16 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 return false;
             }
 
-            /******************************************************************
-             * Load the table reserved message ID definition values into the
-             * table and format the table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Load the table reserved message ID definition values into the table and format the
+             * table cells
+             *************************************************************************************/
             @Override
             protected void loadAndFormatData()
             {
-                // Place the data into the table model along with the column
-                // names, set up the editors and renderers for the table cells,
-                // set up the table grid lines, and calculate the minimum width
-                // required to display the table information
+                // Place the data into the table model along with the column names, set up the
+                // editors and renderers for the table cells, set up the table grid lines, and
+                // calculate the minimum width required to display the table information
                 setUpdatableCharacteristics(committedData,
                                             ReservedMsgIDEditorColumnInfo.getColumnNames(),
                                             null,
@@ -606,10 +589,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                             true);
             }
 
-            /******************************************************************
-             * Override prepareRenderer to allow adjusting the background
-             * colors of table cells
-             *****************************************************************/
+            /**************************************************************************************
+             * Override prepareRenderer to allow adjusting the background colors of table cells
+             *************************************************************************************/
             @Override
             public Component prepareRenderer(TableCellRenderer renderer,
                                              int row,
@@ -619,9 +601,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                      row,
                                                                      column);
 
-                // Check if the cell isn't already selected (selection
-                // highlighting overrides the invalid highlighting, if
-                // applicable)
+                // Check if the cell isn't already selected (selection highlighting overrides the
+                // invalid highlighting, if applicable)
                 if (!(isFocusOwner()
                       && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
@@ -632,8 +613,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                     if (ReservedMsgIDEditorColumnInfo.values()[msgIDTable.convertColumnIndexToModel(column)].isRequired()
                         && msgIDTable.getValueAt(row, column).toString().isEmpty())
                     {
-                        // Set the flag indicating that the cell value is
-                        // invalid
+                        // Set the flag indicating that the cell value is invalid
                         found = false;
                     }
 
@@ -648,33 +628,32 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                 return comp;
             }
 
-            /******************************************************************
-             * Override the CcddJTableHandler method to produce an array
-             * containing empty values for a new row in this table
+            /**************************************************************************************
+             * Override the CcddJTableHandler method to produce an array containing empty values
+             * for a new row in this table
              *
              * @return Array containing blank cell values for a new row
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected Object[] getEmptyRow()
             {
                 return ReservedMsgIDEditorColumnInfo.getEmptyRow();
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Handle a change to the table's content
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void processTableContentChange()
             {
-                // Add or remove the change indicator based on whether or not
-                // any unstored changes exist
+                // Add or remove the change indicator based on whether or not any unstored changes
+                // exist
                 setTitle(DIALOG_TITLE
                          + (msgIDTable.isTableChanged(committedData)
                                                                      ? "*"
                                                                      : ""));
 
-                // Force the table to redraw so that changes to the cells are
-                // displayed
+                // Force the table to redraw so that changes to the cells are displayed
                 repaint();
             }
         };
@@ -703,15 +682,15 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         return scrollPane;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the dialog close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the editor table is
-        // validated and that there are changes that haven't been stored. If
-        // changes exist then confirm discarding the changes
+        // Check if the contents of the last cell edited in the editor table is validated and that
+        // there are changes that haven't been stored. If changes exist then confirm discarding the
+        // changes
         if (msgIDTable.isLastCellValid()
             && (!msgIDTable.isTableChanged(committedData)
                 || new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
@@ -728,21 +707,21 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the updated reserved message ID data
      *
      * @return List containing the updated reserved message ID data
-     *************************************************************************/
+     *********************************************************************************************/
     private List<String[]> getUpdatedData()
     {
         return Arrays.asList(CcddUtilities.convertObjectToString(msgIDTable.getTableData(true)));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
      * @return true if a row is missing data in a required column
-     *************************************************************************/
+     *********************************************************************************************/
     private boolean checkForMissingColumns()
     {
         boolean dataIsMissing = false;
@@ -767,9 +746,8 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         // Set the 'data is missing' flag
                         dataIsMissing = true;
 
-                        // Inform the user that a row is missing required data.
-                        // If Cancel is selected then do not perform checks on
-                        // other columns and rows
+                        // Inform the user that a row is missing required data. If Cancel is
+                        // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
                                                                       "<html><b>Data must be provided for column '"
                                                                                                           + msgIDTable.getColumnName(column)
@@ -780,8 +758,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
-                            // Set the stop flag to prevent further error
-                            // checking
+                            // Set the stop flag to prevent further error checking
                             stopCheck = true;
                         }
 

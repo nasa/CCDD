@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary telemetry scheduler dialog.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -26,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -39,9 +39,9 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SchedulerType;
 import CCDD.CcddConstants.TableTreeType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary telemetry scheduler dialog class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements CcddSchedulerDialogInterface
 {
@@ -67,12 +67,12 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     // List containing the path for all nodes in the variable tree
     private List<String> allVariableTreePaths;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Telemetry scheduler dialog class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddTelemetrySchedulerDialog(final CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -86,13 +86,12 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         initialize();
     }
 
-    /**************************************************************************
-     * Create the telemetry scheduler dialog. This is executed in a separate
-     * thread since it can take a noticeable amount time to complete, and by
-     * using a separate thread the GUI is allowed to continue to update. The
-     * GUI menu commands, however, are disabled until the telemetry scheduler
-     * initialization completes execution
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the telemetry scheduler dialog. This is executed in a separate thread since it can
+     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
+     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
+     * scheduler initialization completes execution
+     *********************************************************************************************/
     private void initialize()
     {
         // Build the telemetry scheduler dialog in the background
@@ -101,14 +100,14 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             // Create a button panel
             JPanel buttonPnl = new JPanel();
 
-            /******************************************************************
+            /**************************************************************************************
              * Build the telemetry scheduler dialog
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
-                // Create a tree containing all of the variables. This is used
-                // for determining bit-packing and variable relative position
+                // Create a tree containing all of the variables. This is used for determining
+                // bit-packing and variable relative position
                 allVariableTree = new CcddTableTreeHandler(ccddMain,
                                                            TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
                                                            ccddMain.getMainFrame());
@@ -121,13 +120,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Step through all of the nodes in the variable tree
                 for (Enumeration<?> element = allVariableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
                 {
-                    // Convert the variable path to a string and add it to the
-                    // list
+                    // Convert the variable path to a string and add it to the list
                     allVariableTreePaths.add(allVariableTree.getFullVariablePath(((ToolTipTreeNode) element.nextElement()).getPath()));
                 }
 
-                // Load the stored telemetry scheduler data from the project
-                // database
+                // Load the stored telemetry scheduler data from the project database
                 schedulerDb.loadStoredData();
 
                 // Auto-fill button
@@ -139,10 +136,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create a listener for the Auto-fill button
                 btnAutoFill.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Auto-fill the variables into the telemetry scheduler for
-                     * the currently selected data stream
-                     *********************************************************/
+                    /******************************************************************************
+                     * Auto-fill the variables into the telemetry scheduler for the currently
+                     * selected data stream
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -150,9 +147,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                         activeSchHandler.autoFill();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -169,19 +166,19 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Add a listener for the Clear Rate button
                 btnClearRate.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Remove the variables of the currently selected rate from
-                     * all messages in the currently selected data stream
-                     *********************************************************/
+                    /******************************************************************************
+                     * Remove the variables of the currently selected rate from all messages in the
+                     * currently selected data stream
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(activeSchHandler.getSchedulerInput().getSelectedRate());
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -198,19 +195,18 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Add a listener for the Clear Msgs button
                 btnClear.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Remove the variables from all messages in the currently
-                     * selected data stream
-                     *********************************************************/
+                    /******************************************************************************
+                     * Remove the variables from all messages in the currently selected data stream
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeSchHandler.getSchedulerEditor().clearVariablesFromMessages(null);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -227,18 +223,18 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create a listener for the Add Sub-msg button
                 btnAddSubMessage.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Add a sub-message to the current message
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeSchHandler.getSchedulerEditor().addSubMessage();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -255,18 +251,18 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create a listener for the Del Sub-msg button
                 btnDeleteSubMessage.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Delete the current sub-message
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         activeSchHandler.getSchedulerEditor().deleteSubMessage();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -283,10 +279,10 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Add a listener for the Assign Msgs button
                 btnAssign.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Automatically assign names and/or IDs to the telemetry
-                     * messages and sub-messages
-                     *********************************************************/
+                    /******************************************************************************
+                     * Automatically assign names and/or IDs to the telemetry messages and
+                     * sub-messages
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
@@ -295,9 +291,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                                                       CcddTelemetrySchedulerDialog.this);
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -314,15 +310,14 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
-                     * Store the data from the various data streams into the
-                     * database
-                     *********************************************************/
+                    /******************************************************************************
+                     * Store the data from the various data streams into the database
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        // Check if any message has changed and, if so, that
-                        // the user confirms storing the changes
+                        // Check if any message has changed and, if so, that the user confirms
+                        // storing the changes
                         if (isChanges()
                             && new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
                                                                          "<html><b>Store changes?",
@@ -335,9 +330,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                         }
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -354,18 +349,18 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Add a listener for the Close button
                 btnClose.addActionListener(new ValidateCellActionListener()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Close the telemetry scheduler dialog
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
                         windowCloseButtonAction();
                     }
 
-                    /**********************************************************
+                    /******************************************************************************
                      * Get the reference to the currently displayed table
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     protected CcddJTableHandler getTable()
                     {
@@ -373,8 +368,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                     }
                 });
 
-                // Add buttons in the order in which they'll appear (left to
-                // right, top to bottom)
+                // Add buttons in the order in which they'll appear (left to right, top to bottom)
                 buttonPnl.add(btnAutoFill);
                 buttonPnl.add(btnClearRate);
                 buttonPnl.add(btnAddSubMessage);
@@ -387,23 +381,20 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 // Create two rows of buttons
                 setButtonRows(2);
 
-                // Create a tabbed pane in which to place the scheduler
-                // handlers
-                tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+                // Create a tabbed pane in which to place the scheduler handlers
+                tabbedPane = new JTabbedPane(SwingConstants.TOP);
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
                 tabbedPane.addChangeListener(new ChangeListener()
                 {
-                    /**********************************************************
-                     * Update the editor to the one associated with the
-                     * selected tab
-                     *********************************************************/
+                    /******************************************************************************
+                     * Update the editor to the one associated with the selected tab
+                     *****************************************************************************/
                     @Override
                     public void stateChanged(ChangeEvent ce)
                     {
-                        // Set the active editor to the one indicated by the
-                        // currently selected tab
+                        // Set the active editor to the one indicated by the currently selected tab
                         activeSchHandler = schHandlers.get(tabbedPane.getSelectedIndex());
                     }
                 });
@@ -415,9 +406,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 activeSchHandler = schHandlers.get(0);
             }
 
-            /******************************************************************
+            /**************************************************************************************
              * Telemetry scheduler dialog creation complete
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -432,9 +423,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a scheduler handler for each rate
-     *************************************************************************/
+     *********************************************************************************************/
     private void addDataStreams()
     {
         // Step through each rate
@@ -453,9 +444,9 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the data from the various data streams into the database
-     *************************************************************************/
+     *********************************************************************************************/
     private void storeData()
     {
         // Create a list to hold the data streams
@@ -468,8 +459,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             streams.add(new DataStream(handler.getCurrentMessages(),
                                        handler.getRateName()));
 
-            // Update the copy of the messages so that subsequent changes can
-            // be detected
+            // Update the copy of the messages so that subsequent changes can be detected
             handler.getSchedulerEditor().copyMessages();
         }
 
@@ -477,15 +467,14 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         schedulerDb.storeData(streams);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Handle the dialog close button press event
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected void windowCloseButtonAction()
     {
-        // Check if the contents of the last cell edited in the scheduler table
-        // is validated and that no message has changed. If a change exists
-        // then confirm discarding the changes
+        // Check if the contents of the last cell edited in the scheduler table is validated and
+        // that no message has changed. If a change exists then confirm discarding the changes
         if (activeSchHandler.getSchedulerEditor().getTable().isLastCellValid()
             && (!isChanges()
                 || new CcddDialogHandler().showMessageDialog(CcddTelemetrySchedulerDialog.this,
@@ -499,12 +488,11 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Check if a change has been made to a message
      *
-     * @return true if a message in any of the data streams changed; false
-     *         otherwise
-     *************************************************************************/
+     * @return true if a message in any of the data streams changed; false otherwise
+     *********************************************************************************************/
     private boolean isChanges()
     {
         boolean isChanged = false;
@@ -524,23 +512,23 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         return isChanged;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the scheduler dialog
      *
      * @return Scheduler dialog
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddDialogHandler getDialog()
     {
         return CcddTelemetrySchedulerDialog.this;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable/disable the dialog controls
      *
      * @param enable
      *            true to enable the controls, false to disable
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void setControlsEnabled(boolean enable)
     {
@@ -548,25 +536,25 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         activeSchHandler.setArrowsEnabled(enable);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the scheduler database handler
      *
      * @return Scheduler database handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerDbIOHandler getSchedulerDatabaseHandler()
     {
         return schedulerDb;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create and return a scheduler input object
      *
      * @param rateName
      *            rate column name
      *
      * @return Telemetry input object
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerInputInterface createSchedulerInput(String rateName)
     {
@@ -577,30 +565,30 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                                                allVariableTreePaths);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the scheduler handler
      *
      * @return Scheduler handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public CcddSchedulerHandler getSchedulerHandler()
     {
         return activeSchHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to the list of scheduler handlers
      *
      * @return Reference to the list of scheduler handlers
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<CcddSchedulerHandler> getSchedulerHandlers()
     {
         return schHandlers;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the change indicator for the scheduler handler
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     public void updateChangeIndicator()
     {
@@ -610,8 +598,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         // Check that a tab is displayed
         if (index != -1)
         {
-            // Replace the tab name, appending the change indicator if changes
-            // exist
+            // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
                                   tabbedPane.getTitleAt(index).replaceAll("\\*", "")
                                          + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged()
@@ -620,19 +607,17 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         }
     }
 
-    /**************************************************************************
-     * Steps to perform following storing of the scheduler data in the project
-     * database
-     *************************************************************************/
+    /**********************************************************************************************
+     * Steps to perform following storing of the scheduler data in the project database
+     *********************************************************************************************/
     @Override
     public void doSchedulerUpdatesComplete(boolean errorFlag)
     {
         // Check that no error occurred storing the telemetry scheduler table
         if (!errorFlag)
         {
-            // Update the message ID names combo boxes in any open table
-            // editors in case the group has a message ID name or message ID
-            // data field that may have changed
+            // Update the message ID names combo boxes in any open table editors in case the group
+            // has a message ID name or message ID data field that may have changed
             ccddMain.getDbTableCommandHandler().updateMessageIDNamesColumns(CcddTelemetrySchedulerDialog.this);
 
             // Step through each data stream tab

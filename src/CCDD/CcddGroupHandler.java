@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary group handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -21,27 +20,26 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.GroupsColumn;
 import CCDD.CcddUndoHandler.UndoableArrayList;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary group handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddGroupHandler
 {
     private final UndoableArrayList<GroupInformation> groupInformation;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Group handler class constructor
      *
      * @param undoHandler
-     *            reference to the undo handler; null if undo/redo operations
-     *            are not needed for the groups
-     *************************************************************************/
+     *            reference to the undo handler; null if undo/redo operations are not needed for
+     *            the groups
+     *********************************************************************************************/
     CcddGroupHandler(CcddUndoHandler undoHandler)
     {
         // Check if no undo handler is specified
         if (undoHandler == null)
         {
-            // Create a 'dummy' undo handler and set the flag to not allow undo
-            // operations
+            // Create a 'dummy' undo handler and set the flag to not allow undo operations
             undoHandler = new CcddUndoHandler(new CcddUndoManager());
             undoHandler.setAllowUndo(false);
         }
@@ -50,16 +48,16 @@ public class CcddGroupHandler
         groupInformation = undoHandler.new UndoableArrayList<GroupInformation>();
     }
 
-    /**************************************************************************
-     * Group handler class constructor. Load and build the group information
-     * class from the group definitions provided
+    /**********************************************************************************************
+     * Group handler class constructor. Load and build the group information class from the group
+     * definitions provided
      *
      * @param undoHandler
      *            reference to the undo handler
      *
      * @param groupInformation
      *            group information list
-     *************************************************************************/
+     *********************************************************************************************/
     CcddGroupHandler(CcddUndoHandler undoHandler,
                      List<String[]> groupDefinitions)
     {
@@ -67,9 +65,9 @@ public class CcddGroupHandler
         buildGroupInformation(groupDefinitions);
     }
 
-    /**************************************************************************
-     * Group handler class constructor. Load and build the group information
-     * class from the group definitions stored in the project database
+    /**********************************************************************************************
+     * Group handler class constructor. Load and build the group information class from the group
+     * definitions stored in the project database
      *
      * @param ccddMain
      *            main class
@@ -79,7 +77,7 @@ public class CcddGroupHandler
      *
      * @param component
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     CcddGroupHandler(CcddMain ccddMain,
                      CcddUndoHandler undoHandler,
                      Component component)
@@ -89,7 +87,7 @@ public class CcddGroupHandler
                                                                           component));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a new group to the group information class
      *
      * @param name
@@ -100,7 +98,7 @@ public class CcddGroupHandler
      *
      * @param isApplication
      *            true if the group represents a CFS application
-     *************************************************************************/
+     *********************************************************************************************/
     protected void addGroupInformation(String name,
                                        String description,
                                        boolean isApplication)
@@ -114,12 +112,12 @@ public class CcddGroupHandler
         sortGroupInformation();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove the specified group's information
      *
      * @param groupName
      *            group name
-     *************************************************************************/
+     *********************************************************************************************/
     protected void removeGroupInformation(String groupName)
     {
         // Step through each group's information
@@ -135,13 +133,13 @@ public class CcddGroupHandler
         }
     }
 
-    /**************************************************************************
-     * Build the group information using the group definitions and the field
-     * information in the database
+    /**********************************************************************************************
+     * Build the group information using the group definitions and the field information in the
+     * database
      *
      * @param groupDefinitions
      *            list of group definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected void buildGroupInformation(List<String[]> groupDefinitions)
     {
         // Clear the groups from the list
@@ -157,17 +155,15 @@ public class CcddGroupHandler
                 String groupName = groupDefn[GroupsColumn.GROUP_NAME.ordinal()];
                 String groupMember = groupDefn[GroupsColumn.MEMBERS.ordinal()];
 
-                // Check if this is a group definition entry. These are
-                // indicated if the first character is a digit. A non-zero
-                // value indicates that this group represents a CFS application
+                // Check if this is a group definition entry. These are indicated if the first
+                // character is a digit. A non-zero value indicates that this group represents a
+                // CFS application
                 if (groupMember.matches("\\d.*"))
                 {
-                    // Separate the CFS application identifier and description
-                    // text
+                    // Separate the CFS application identifier and description text
                     String[] appAndDesc = groupMember.split(",", 2);
 
-                    // Create the group with its description and application
-                    // status
+                    // Create the group with its description and application status
                     groupInformation.add(new GroupInformation(groupName,
                                                               appAndDesc[1],
                                                               !appAndDesc[0].equals("0"),
@@ -193,20 +189,18 @@ public class CcddGroupHandler
         }
     }
 
-    /**************************************************************************
-     * Get the reference to a specified group's information from the supplied
-     * list of group information
+    /**********************************************************************************************
+     * Get the reference to a specified group's information from the supplied list of group
+     * information
      *
      * @param groupInformationList
-     *            list of group information from which to extract the specific
-     *            group's information
+     *            list of group information from which to extract the specific group's information
      *
      * @param name
      *            group name
      *
-     * @return Reference to the group's information; null if the group doesn't
-     *         exist
-     *************************************************************************/
+     * @return Reference to the group's information; null if the group doesn't exist
+     *********************************************************************************************/
     protected GroupInformation getGroupInformationByName(List<GroupInformation> groupInformationList,
                                                          String name)
     {
@@ -227,33 +221,32 @@ public class CcddGroupHandler
         return groupInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the reference to a specified group's information
      *
      * @param groupName
      *            group name
      *
-     * @return Reference to the group's information; null if the group doesn't
-     *         exist
-     *************************************************************************/
+     * @return Reference to the group's information; null if the group doesn't exist
+     *********************************************************************************************/
     protected GroupInformation getGroupInformationByName(String groupName)
     {
         return getGroupInformationByName(groupInformation, groupName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the group information list
      *
      * @return Group information list
-     *************************************************************************/
+     *********************************************************************************************/
     protected List<GroupInformation> getGroupInformation()
     {
         return groupInformation;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Sort the group information list by group name
-     *************************************************************************/
+     *********************************************************************************************/
     private void sortGroupInformation()
     {
         // Check if any groups exist
@@ -262,7 +255,7 @@ public class CcddGroupHandler
             // Sort the group information list based on the group names
             Collections.sort(groupInformation, new Comparator<Object>()
             {
-                /**************************************************************
+                /**********************************************************************************
                  * Compare group names
                  *
                  * @param grpInfo1
@@ -271,11 +264,10 @@ public class CcddGroupHandler
                  * @param grpInfo2
                  *            second group's information
                  *
-                 * @return -1 if the first group's name is lexically less than
-                 *         the second group's name; 0 if the two group names
-                 *         are the same; 1 if the first group's name is
-                 *         lexically greater than the second group's name
-                 *************************************************************/
+                 * @return -1 if the first group's name is lexically less than the second group's
+                 *         name; 0 if the two group names are the same; 1 if the first group's name
+                 *         is lexically greater than the second group's name
+                 *********************************************************************************/
                 @Override
                 public int compare(Object grpInfo1, Object grpInfo2)
                 {
@@ -285,40 +277,36 @@ public class CcddGroupHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array containing the group names
      *
      * @param applicationOnly
-     *            true if only groups representing CFS applications should be
-     *            returned
+     *            true if only groups representing CFS applications should be returned
      *
      * @return Array containing the group names
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] getGroupNames(boolean applicationOnly)
     {
         return getGroupNames(applicationOnly, false);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array containing the group names
      *
      * @param applicationOnly
-     *            true if only groups representing CFS applications should be
-     *            returned
+     *            true if only groups representing CFS applications should be returned
      *
      * @param includeAllGroup
-     *            true to include the name of pseudo-group that contains all
-     *            tables
+     *            true to include the name of pseudo-group that contains all tables
      *
      * @return Array containing the group names
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] getGroupNames(boolean applicationOnly, boolean includeAllGroup)
     {
         List<String> groupNames = new ArrayList<String>();
 
-        // Check if this list applies for application and non-application
-        // groups and if the name of the pseudo-group containing all tables
-        // should be included
+        // Check if this list applies for application and non-application groups and if the name of
+        // the pseudo-group containing all tables should be included
         if (includeAllGroup && !applicationOnly)
         {
             // Add the 'All tables' group name to the list
@@ -328,8 +316,7 @@ public class CcddGroupHandler
         // Step through each group
         for (GroupInformation groupInfo : groupInformation)
         {
-            // Check if all groups are to be returned or if not, that this is
-            // an application group
+            // Check if all groups are to be returned or if not, that this is an application group
             if (!applicationOnly || groupInfo.isApplication())
             {
                 // Add the group name to the list
@@ -340,15 +327,15 @@ public class CcddGroupHandler
         return groupNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description for the specified group
      *
      * @param groupName
      *            group name
      *
-     * @return Description for the specified group; blank if the group has no
-     *         description or the group doesn't exist
-     *************************************************************************/
+     * @return Description for the specified group; blank if the group has no description or the
+     *         group doesn't exist
+     *********************************************************************************************/
     protected String getGroupDescription(String groupName)
     {
         String description = "";
@@ -366,7 +353,7 @@ public class CcddGroupHandler
         return description;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the specified group's description
      *
      * @param groupName
@@ -374,7 +361,7 @@ public class CcddGroupHandler
      *
      * @param description
      *            group description
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setDescription(String groupName, String description)
     {
         // Get a reference to the group's information
@@ -388,7 +375,7 @@ public class CcddGroupHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the specified group's CFS application status flag
      *
      * @param groupName
@@ -396,7 +383,7 @@ public class CcddGroupHandler
      *
      * @param isApplication
      *            true if the group represents a CFS application
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setIsApplication(String groupName, boolean isApplication)
     {
         // Get a reference to the group's information

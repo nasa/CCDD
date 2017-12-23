@@ -1,9 +1,8 @@
 /**
- * CFS Command & Data Dictionary description and data field panel handler.
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * CFS Command & Data Dictionary description and data field panel handler. Copyright 2017 United
+ * States Government as represented by the Administrator of the National Aeronautics and Space
+ * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
+ * Other Rights Reserved.
  */
 package CCDD;
 
@@ -30,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -50,9 +50,8 @@ import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
 /******************************************************************************
- * CFS Command & Data Dictionary description and data field panel handler
- * class. The editor panel contains the table description and data fields (if
- * any)
+ * CFS Command & Data Dictionary description and data field panel handler class. The editor panel
+ * contains the table description and data fields (if any)
  *****************************************************************************/
 public abstract class CcddInputFieldPanelHandler
 {
@@ -112,8 +111,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set the references to the description and data field undo/redo manager
-     * and handler
+     * Set the references to the description and data field undo/redo manager and handler
      *
      * @param undoManager
      *            undo/redo manager
@@ -129,11 +127,9 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get a reference to the owner of the description and data field panel
-     * handler
+     * Get a reference to the owner of the description and data field panel handler
      *
-     * @return Reference to the owner of the description and data field panel
-     *         handler
+     * @return Reference to the owner of the description and data field panel handler
      *************************************************************************/
     protected Component getOwner()
     {
@@ -141,11 +137,9 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the name of the owner of this description and data field panel
-     * handler
+     * Get the name of the owner of this description and data field panel handler
      *
-     * @return Name of the owner of this description and data field panel
-     *         handler
+     * @return Name of the owner of this description and data field panel handler
      *************************************************************************/
     protected String getOwnerName()
     {
@@ -153,12 +147,10 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set the name of the owner of this description and data field panel
-     * handler
+     * Set the name of the owner of this description and data field panel handler
      *
      * @param owner
-     *            name of the owner of this description and data field panel
-     *            handler
+     *            name of the owner of this description and data field panel handler
      *************************************************************************/
     protected void setOwnerName(String ownerName)
     {
@@ -176,8 +168,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Placeholder for the method to update the owning dialog's change
-     * indicator
+     * Placeholder for the method to update the owning dialog's change indicator
      *************************************************************************/
     protected abstract void updateOwnerChangeIndicator();
 
@@ -203,8 +194,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Enable/disable the description field, set its background color based on
-     * the enable status, and set the description text
+     * Enable/disable the description field, set its background color based on the enable status,
+     * and set the description text
      *
      * @param enable
      *            true to enable editing the description, false to disable
@@ -224,8 +215,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Update the description field text. Put the edit on the undo/redo stack
-     * based on the input flag
+     * Update the description field text. Put the edit on the undo/redo stack based on the input
+     * flag
      *
      * @param undoable
      *            true to enable putting the edit on the undo/redo stack
@@ -236,11 +227,9 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Get the width of the widest data field (including its label), plus
-     * padding on either side
+     * Get the width of the widest data field (including its label), plus padding on either side
      *
-     * @return Width of the widest data field (including its label), plus
-     *         padding on either side
+     * @return Width of the widest data field (including its label), plus padding on either side
      *************************************************************************/
     protected int getMaxFieldWidth()
     {
@@ -248,8 +237,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set the data field information for use when creating the data field
-     * panel
+     * Set the data field information for use when creating the data field panel
      *
      * @param fieldInfo
      *            list of the data field information
@@ -260,9 +248,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Store the data field information in the undo handler in case an
-     * undo/redo operation is requested so that the fields can be set
-     * accordingly
+     * Store the data field information in the undo handler in case an undo/redo operation is
+     * requested so that the fields can be set accordingly
      *************************************************************************/
     protected void storeCurrentFieldInformation()
     {
@@ -270,8 +257,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Update the field information to match the data field text field and
-     * check box values
+     * Update the field information to match the data field text field and check box values
      *
      * @param fieldInformation
      *            data field information list
@@ -306,16 +292,15 @@ public abstract class CcddInputFieldPanelHandler
      * Create the table input field panel
      *
      * @param fieldPnlHndlrOwner
-     *            reference to the owner of this description and data field
-     *            handler
+     *            reference to the owner of this description and data field handler
      *
      * @param scrollPane
-     *            scroll pane containing the table; null if this field panel
-     *            handler does not contain a table
+     *            scroll pane containing the table; null if this field panel handler does not
+     *            contain a table
      *
      * @param ownerName
-     *            name of the owner of this field panel handler; null if no
-     *            owner name is associated with it
+     *            name of the owner of this field panel handler; null if no owner name is
+     *            associated with it
      *
      * @param description
      *            description field text
@@ -471,8 +456,8 @@ public abstract class CcddInputFieldPanelHandler
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     /**********************************************************
-                     * Since the size returned by get___Size() can lag the
-                     * actual size, use invokeLater to let the sizes "catch up"
+                     * Since the size returned by get___Size() can lag the actual size, use
+                     * invokeLater to let the sizes "catch up"
                      *********************************************************/
                     @Override
                     public void run()
@@ -489,12 +474,11 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Create the data fields for display in the description and data field
-     * panel
+     * Create the data fields for display in the description and data field panel
      *
      * @param undoable
-     *            true if the change(s) to the data fields should be stored for
-     *            possible undo/redo operations; false to not store the changes
+     *            true if the change(s) to the data fields should be stored for possible undo/redo
+     *            operations; false to not store the changes
      *************************************************************************/
     protected void createDataFieldPanel(boolean undoable)
     {
@@ -518,7 +502,7 @@ public abstract class CcddInputFieldPanelHandler
             // Create a panel to contain the data fields. As the editor is
             // resized the field panel is resized to contain the data fields,
             // wrapping them to new lines as needed
-            fieldPnl = new JPanel(new WrapLayout(WrapLayout.LEADING));
+            fieldPnl = new JPanel(new WrapLayout(FlowLayout.LEADING));
 
             // Adjust the border to align the first field with the description
             // label
@@ -538,7 +522,7 @@ public abstract class CcddInputFieldPanelHandler
                         fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
                         // Add a vertical separator to the field panel
-                        fieldPnl.add(new JSeparator(JSeparator.VERTICAL));
+                        fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
                         break;
 
                     case SEPARATOR:
@@ -852,8 +836,8 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set the data field background color for all fields based each field's
-     * value and required flag
+     * Set the data field background color for all fields based each field's value and required
+     * flag
      *************************************************************************/
     protected void setFieldBackgound()
     {
@@ -861,9 +845,8 @@ public abstract class CcddInputFieldPanelHandler
         SwingUtilities.invokeLater(new Runnable()
         {
             /******************************************************************
-             * Set the data field colors after other pending events are
-             * complete. If this isn't done following other events then the
-             * colors aren't updated consistently
+             * Set the data field colors after other pending events are complete. If this isn't
+             * done following other events then the colors aren't updated consistently
              *****************************************************************/
             @Override
             public void run()
@@ -892,8 +875,7 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**************************************************************************
-     * Set the specified data field's background color based the field's value
-     * and required flag
+     * Set the specified data field's background color based the field's value and required flag
      *
      * @param fieldInfo
      *            reference to the data field's information

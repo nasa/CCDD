@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary generic information tree handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -23,9 +22,9 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.TableCommentIndex;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary generic information tree handler class
- *****************************************************************************/
+ *************************************************************************************************/
 @SuppressWarnings("serial")
 public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 {
@@ -40,24 +39,22 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     // List to contain the node names and their child paths
     private List<String[]> treeDefinitions;
 
-    // Flags to indicate if the tree should be filtered by table type or by
-    // application
+    // Flags to indicate if the tree should be filtered by table type or by application
     private boolean isFilterByType;
     private boolean isFilterByApp;
 
     // Array containing the comments parameters for each table
     private String[][] tableComments;
 
-    // String value that may be used to modify the tree building method; null
-    // or blank if not filtering
+    // String value that may be used to modify the tree building method; null or blank if not
+    // filtering
     private String filterValue;
 
-    // List of all tree paths in the table tree in the order to be maintained
-    // in the information tree
+    // List of all tree paths in the table tree in the order to be maintained in the information
+    // tree
     private List<String> treePathOrder;
 
-    // Information tree child node insertion order, relative to the sibling
-    // nodes
+    // Information tree child node insertion order, relative to the sibling nodes
     private enum TreeChildOrder
     {
         NATURAL, // Insert children below existing siblings
@@ -65,7 +62,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         PATH_ORDER; // Insert children based on a tree path order list
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Generic information tree handler class constructor
      *
      * @param ccddMain
@@ -78,21 +75,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            internal table type
      *
      * @param filterValue
-     *            string value that may be used to modify the tree building
-     *            method; null or blank if not filtering
+     *            string value that may be used to modify the tree building method; null or blank
+     *            if not filtering
      *
      * @param filterFlag
      *            flag used to filter the tree content
      *
      * @param treePathOrder
-     *            list containing all of the items that potentially can appear
-     *            in the tree in the order in which they appear when added to
-     *            the tree; null if no order is specified (the order can be
-     *            specified later, if needed)
+     *            list containing all of the items that potentially can appear in the tree in the
+     *            order in which they appear when added to the tree; null if no order is specified
+     *            (the order can be specified later, if needed)
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     CcddInformationTreeHandler(CcddMain ccddMain,
                                CcddUndoHandler undoHandler,
                                InternalTable infoType,
@@ -118,17 +114,16 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Create the tree's root node
             root = new ToolTipTreeNode("", "");
 
-            // Set the tree model and hide the root node from view. Use the
-            // undoable tree model if an undo handler is provided; otherwise
-            // use the default (non-undoable) tree model
+            // Set the tree model and hide the root node from view. Use the undoable tree model if
+            // an undo handler is provided; otherwise use the default (non-undoable) tree model
             infoTreeModel = undoHandler != null
                                                 ? undoHandler.new UndoableTreeModel(root)
                                                 : new DefaultTreeModel(root);
             setModel(infoTreeModel);
             setRootVisible(false);
 
-            // Perform any initialization steps needed for this information
-            // table prior to building its tree
+            // Perform any initialization steps needed for this information table prior to building
+            // its tree
             initialize(ccddMain, undoHandler, infoDefinitions);
 
             // Build the information tree
@@ -136,43 +131,41 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the node level that skips any active filter nodes
      *
      * @return Node level for tree nodes below the active filter nodes
-     *************************************************************************/
+     *********************************************************************************************/
     @Override
     protected int getHeaderNodeLevel()
     {
         return (isFilterByApp ? 1 : 0) + (isFilterByType ? 1 : 0);
     }
 
-    /**************************************************************************
-     * Get the node level that skips any active filter nodes and other header
-     * nodes. The default number of header nodes is 2; this method can be
-     * overridden to adjust the header levels
+    /**********************************************************************************************
+     * Get the node level that skips any active filter nodes and other header nodes. The default
+     * number of header nodes is 2; this method can be overridden to adjust the header levels
      *
      * @return Node level for tree nodes below the filter and header nodes
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getItemNodeLevel()
     {
         return getHeaderNodeLevel() + 2;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the node level that skips the group filter node
      *
      * @return Node level for groups
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getGroupNodeLevel()
     {
         return (isFilterByApp ? 2 : 1);
     }
 
-    /**************************************************************************
-     * Override the table tree's tool tip text handler to provide the
-     * descriptions of the nodes
-     *************************************************************************/
+    /**********************************************************************************************
+     * Override the table tree's tool tip text handler to provide the descriptions of the nodes
+     *********************************************************************************************/
     @Override
     public String getToolTipText(MouseEvent me)
     {
@@ -196,9 +189,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return toolTip;
     }
 
-    /**************************************************************************
-     * Placeholder for method to perform any initialization steps necessary
-     * prior to building the information tree
+    /**********************************************************************************************
+     * Placeholder for method to perform any initialization steps necessary prior to building the
+     * information tree
      *
      * @param ccddMain
      *            main class
@@ -208,12 +201,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param infoDefinitions
      *            list containing the internal table definitions
-     *************************************************************************/
+     *********************************************************************************************/
     protected abstract void initialize(CcddMain ccddMain,
                                        CcddUndoHandler undoHandler,
                                        List<String[]> infoDefinitions);
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the information tree root node and set the tree model
      *
      * @param isFilterByType
@@ -223,15 +216,15 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            true if the tree is filtered by application status
      *
      * @param filterValue
-     *            string value that may be used to modify the tree building
-     *            method; null or blank if not filtering
+     *            string value that may be used to modify the tree building method; null or blank
+     *            if not filtering
      *
      * @param filterFlag
      *            flag used to filter the tree content
      *
      * @param parent
      *            GUI component calling this method
-     *************************************************************************/
+     *********************************************************************************************/
     protected void buildTree(boolean isFilterByType,
                              boolean isFilterByApp,
                              String filterValue,
@@ -246,26 +239,26 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         root.removeAllChildren();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the information tree root node
      *
      * @return Information tree root node
-     *************************************************************************/
+     *********************************************************************************************/
     protected ToolTipTreeNode getRootNode()
     {
         return root;
     }
 
-    /**************************************************************************
-     * Set the table type handler, and table comments array. This is only
-     * required if the table can be filtered by table type
+    /**********************************************************************************************
+     * Set the table type handler, and table comments array. This is only required if the table can
+     * be filtered by table type
      *
      * @param tableTypeHandler
      *            table type handler reference
      *
      * @param tableComments
      *            array containing the comment parameters for each table
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setHandlersAndComments(CcddTableTypeHandler tableTypeHandler,
                                           String[][] tableComments)
     {
@@ -273,20 +266,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         this.tableComments = tableComments;
     }
 
-    /**************************************************************************
-     * Set the list of all tree paths in the table tree in the order to be used
-     * when placing a path in the information tree
+    /**********************************************************************************************
+     * Set the list of all tree paths in the table tree in the order to be used when placing a path
+     * in the information tree
      *
      * @param treePathOrder
-     *            list of all paths in the table tree in the order to be
-     *            maintained in the information tree
-     *************************************************************************/
+     *            list of all paths in the table tree in the order to be maintained in the
+     *            information tree
+     *********************************************************************************************/
     protected void setTreePathOrder(List<String> treePathOrder)
     {
         this.treePathOrder = treePathOrder;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a node to the tree
      *
      * @param parentNode
@@ -302,11 +295,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            index in the parent at which to insert the new node
      *
      * @param order
-     *            order in which the added node should be placed relative to
-     *            the child nodes already preset
+     *            order in which the added node should be placed relative to the child nodes
+     *            already preset
      *
      * @return Reference to the newly added child node
-     *************************************************************************/
+     *********************************************************************************************/
     private ToolTipTreeNode addNode(ToolTipTreeNode parentNode,
                                     String nodeName,
                                     String toolTipText,
@@ -329,8 +322,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Step through the parent node's children
                 for (; index < parentNode.getChildCount(); index++)
                 {
-                    // Check if the child node's name is alphabetically after
-                    // the new child node's name
+                    // Check if the child node's name is alphabetically after the new child node's
+                    // name
                     if (removeExtraText(((ToolTipTreeNode) parentNode.getChildAt(index)).getUserObject().toString()).compareToIgnoreCase(nodeName) > 0)
                     {
                         // Stop searching the node
@@ -346,12 +339,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 path.addAll(Arrays.asList(parentNode.getPath()));
                 path.addAll(Arrays.asList(childNode.getPath()));
 
-                // Set the insertion point to the end of the tree in the event
-                // the child isn't in the path order list
+                // Set the insertion point to the end of the tree in the event the child isn't in
+                // the path order list
                 index = parentNode.getChildCount();
 
-                // Get the path of the new child node and locate it within the
-                // path order list
+                // Get the path of the new child node and locate it within the path order list
                 int childIndex = treePathOrder.indexOf(createNameFromPath(path.toArray(new Object[0]),
                                                                           getItemNodeLevel()));
 
@@ -361,14 +353,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     // Step backwards through the existing sibling nodes
                     for (int nodeIndex = parentNode.getChildCount() - 1; nodeIndex >= 0; nodeIndex--)
                     {
-                        // Get the path of the sibling node and locate it
-                        // within the path order list
+                        // Get the path of the sibling node and locate it within the path order
+                        // list
                         ToolTipTreeNode siblingPath = (ToolTipTreeNode) parentNode.getChildAt(nodeIndex);
                         int siblingIndex = treePathOrder.indexOf(createNameFromPath(siblingPath.getPath(),
                                                                                     getItemNodeLevel()));
 
-                        // Check if the sibling appears in the path order
-                        // before the new child
+                        // Check if the sibling appears in the path order before the new child
                         if (siblingIndex < childIndex)
                         {
                             // Store the insertion index and stop searching
@@ -394,7 +385,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return childNode;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a new node to the tree's root node
      *
      * @param nodeName
@@ -404,14 +395,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            tool tip text for the new node
      *
      * @return Reference to the newly added node
-     *************************************************************************/
+     *********************************************************************************************/
     protected ToolTipTreeNode addInformationNode(String nodeName,
                                                  String toolTipText)
     {
         return addNode(root, nodeName, toolTipText, TreeChildOrder.ALPHABETICAL);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add a new node to the tree's root node
      *
      * @param nodeName
@@ -424,7 +415,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            true if the group represents a CFS application
      *
      * @return Reference to the newly added node
-     *************************************************************************/
+     *********************************************************************************************/
     protected ToolTipTreeNode addInformationNode(String nodeName,
                                                  String toolTipText,
                                                  boolean isApp)
@@ -439,28 +430,26 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                        TreeChildOrder.ALPHABETICAL);
     }
 
-    /**************************************************************************
-     * Add the specified nodes(s) from the source tree to the specified node(s)
-     * in the information tree
+    /**********************************************************************************************
+     * Add the specified nodes(s) from the source tree to the specified node(s) in the information
+     * tree
      *
      * @param sourcePaths
-     *            list containing the node paths for the selected nodes in the
-     *            source tree
+     *            list containing the node paths for the selected nodes in the source tree
      *
      * @param startIndex
-     *            tree level at which the desired node names first appear in
-     *            the source tree
+     *            tree level at which the desired node names first appear in the source tree
      *
      * @param onlyIfPrimitive
-     *            true to only include nodes that end with a reference to
-     *            primitive data type; false to include all nodes
-     *************************************************************************/
+     *            true to only include nodes that end with a reference to primitive data type;
+     *            false to include all nodes
+     *********************************************************************************************/
     protected void addSourceNodesToTargetNode(List<Object[]> sourcePaths,
                                               int startIndex,
                                               boolean onlyIfPrimitive)
     {
-        // Check that at least one node is selected in the source tree and at
-        // least one node is selected in the information tree
+        // Check that at least one node is selected in the source tree and at least one node is
+        // selected in the information tree
         if (sourcePaths != null && getSelectionCount() != 0)
         {
             List<ToolTipTreeNode> infoNodes = new ArrayList<ToolTipTreeNode>();
@@ -471,13 +460,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Get the top level node for this path
                 ToolTipTreeNode infoNode = (ToolTipTreeNode) infoPath.getPathComponent(getGroupNodeLevel());
 
-                // Check if this top level node has already been modified. This
-                // can occur if more than one node in the top level node's tree
-                // is selected
+                // Check if this top level node has already been modified. This can occur if more
+                // than one node in the top level node's tree is selected
                 if (!infoNodes.contains(infoNode))
                 {
-                    // Add the top level node to the list so that it won't be
-                    // checked again
+                    // Add the top level node to the list so that it won't be checked again
                     infoNodes.add(infoNode);
 
                     // Step through each selected node path in the source tree
@@ -485,37 +472,34 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     {
                         boolean isPrimitive = false;
 
-                        // Check if only nodes ending with a reference to a
-                        // primitive data type should be included
+                        // Check if only nodes ending with a reference to a primitive data type
+                        // should be included
                         if (onlyIfPrimitive)
                         {
                             // Get the name of the last node in the path
                             String lastNode = sourcePath[sourcePath.length - 1].toString();
 
-                            // Get the index that bounds the variable's data
-                            // type
+                            // Get the index that bounds the variable's data type
                             int lastPeriod = lastNode.lastIndexOf(".");
 
-                            // Check that a data type was found and that it is
-                            // a primitive type. In case the tree allows HTML
-                            // formatted nodes remove any HTML tags before
-                            // checking the data type
+                            // Check that a data type was found and that it is a primitive type. In
+                            // case the tree allows HTML formatted nodes remove any HTML tags
+                            // before checking the data type
                             if (lastPeriod != -1
                                 && dataTypeHandler.isPrimitive(removeExtraText(lastNode.substring(0,
                                                                                                   lastPeriod))))
                             {
-                                // Set the flag to indicate this node
-                                // references a primitive data type
+                                // Set the flag to indicate this node references a primitive data
+                                // type
                                 isPrimitive = true;
                             }
                         }
 
-                        // Check if all nodes should be included, or if the
-                        // node references a primitive data type
+                        // Check if all nodes should be included, or if the node references a
+                        // primitive data type
                         if (!onlyIfPrimitive || isPrimitive)
                         {
-                            // Add the source node to this top level node in
-                            // the information tree
+                            // Add the source node to this top level node in the information tree
                             addNodeToInfoNode(infoNode, sourcePath, startIndex);
                         }
                     }
@@ -524,7 +508,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Add the specified variable(s) to the specified information node(s)
      *
      * @param node
@@ -534,9 +518,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            array containing the source node path
      *
      * @param startIndex
-     *            tree level at which the variable names first appear in the
-     *            array
-     *************************************************************************/
+     *            tree level at which the variable names first appear in the array
+     *********************************************************************************************/
     protected void addNodeToInfoNode(ToolTipTreeNode node,
                                      Object[] sourcePath,
                                      int startIndex)
@@ -550,8 +533,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Step through each data table comment
             for (String[] tableComment : tableComments)
             {
-                // Check if the table name matches the source node's prototype
-                // name
+                // Check if the table name matches the source node's prototype name
                 if (tableComment[TableCommentIndex.NAME.ordinal()].equals(protoName))
                 {
                     int typeIndex = 0;
@@ -559,12 +541,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                     // Step through each table type
                     for (String type : tableTypeHandler.getTypes())
                     {
-                        // Check if the table type matches the type represented
-                        // by this prototype table
+                        // Check if the table type matches the type represented by this prototype
+                        // table
                         if (type.equals(tableComment[TableCommentIndex.TYPE.ordinal()]))
                         {
-                            // Set the node to the table type node and stop
-                            // searching
+                            // Set the node to the table type node and stop searching
                             node = (ToolTipTreeNode) node.getChildAt(typeIndex);
                             break;
                         }
@@ -591,9 +572,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Check if the node already contains this source tree's node
                 if (node.getChildAt(childIndex).toString().equals(nodeName))
                 {
-                    // Update the node to this child node and set the flag
-                    // indicating the tree node already exists, then stop
-                    // searching
+                    // Update the node to this child node and set the flag indicating the tree node
+                    // already exists, then stop searching
                     node = (ToolTipTreeNode) node.getChildAt(childIndex);
                     isFound = true;
                     break;
@@ -617,17 +597,16 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Remove the specified child node, and its ancestors until a node with
-     * other children or the top level node is reached
+    /**********************************************************************************************
+     * Remove the specified child node, and its ancestors until a node with other children or the
+     * top level node is reached
      *
      * @param removeNode
      *            node at which to start the removal
-     *************************************************************************/
+     *********************************************************************************************/
     protected void removeNodeAndEmptyAncestors(ToolTipTreeNode removeNode)
     {
-        // Check if the node has no siblings and is not the top level in the
-        // sub-tree
+        // Check if the node has no siblings and is not the top level in the sub-tree
         while (removeNode.getParent() != null
                && removeNode.getParent().getChildCount() == 1
                && ((ToolTipTreeNode) removeNode.getParent()).getLevel() > getHeaderNodeLevel())
@@ -640,10 +619,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         removeNode.removeFromParent();
     }
 
-    /**************************************************************************
-     * Remove the currently selected top level node(s) and all of its child
-     * nodes from the information tree
-     *************************************************************************/
+    /**********************************************************************************************
+     * Remove the currently selected top level node(s) and all of its child nodes from the
+     * information tree
+     *********************************************************************************************/
     protected void removeSelectedTopLevelNodes()
     {
         List<ToolTipTreeNode> removedNodes = new ArrayList<ToolTipTreeNode>();
@@ -666,13 +645,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Remove the currently selected child node(s) from the selected top level
-     * node(s)
+    /**********************************************************************************************
+     * Remove the currently selected child node(s) from the selected top level node(s)
      *
      * @param isVariable
      *            true if the this tree contains variables
-     *************************************************************************/
+     *********************************************************************************************/
     protected void removeSelectedChildNodes(boolean isVariable)
     {
         List<Object[]> selectedVariablePaths = new ArrayList<Object[]>();
@@ -697,9 +675,9 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 TreePath path = new TreePath(varPath);
                 ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
 
-                // In order to remove all of a child's path that isn't shared
-                // with another child, step back through the child's path to
-                // find the ancestor node with only a single child node
+                // In order to remove all of a child's path that isn't shared with another child,
+                // step back through the child's path to find the ancestor node with only a single
+                // child node
                 while (node.getParent().getChildCount() == 1
                        && node.getLevel() > 2 + getHeaderNodeLevel())
                 {
@@ -713,12 +691,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the top-level node name(s) associated with the selected node(s)
      *
-     * @return Array containing the top-level node name(s) associated with the
-     *         selected node(s); an empty array if no node is selected
-     *************************************************************************/
+     * @return Array containing the top-level node name(s) associated with the selected node(s); an
+     *         empty array if no node is selected
+     *********************************************************************************************/
     protected String[] getTopLevelSelectedNodeNames()
     {
         List<String> selectedNodeNames = new ArrayList<String>();
@@ -733,12 +711,11 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return selectedNodeNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array containing the selected node path(s)
      *
-     * @return Array containing the selected node path(s); an empty array if no
-     *         node is selected
-     *************************************************************************/
+     * @return Array containing the selected node path(s); an empty array if no node is selected
+     *********************************************************************************************/
     protected TreePath[] getSelectedPaths()
     {
         List<TreePath> selectedPaths = new ArrayList<TreePath>();
@@ -755,9 +732,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 // Get the path for this row
                 TreePath path = getPathForRow(row);
 
-                // Check if the node represents a node that's not a a header or
-                // filter, and that the selected node has not yet been added to
-                // the list
+                // Check if the node represents a node that's not a a header or filter, and that
+                // the selected node has not yet been added to the list
                 if (path.getPathCount() > getGroupNodeLevel()
                     && !selectedPaths.contains(path))
                 {
@@ -770,12 +746,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return selectedPaths.toArray(new TreePath[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the top-level node path(s) associated with the selected node path(s)
      *
-     * @return Array containing the top-level node path(s) associated with the
-     *         selected node path(s); an empty array if no node is selected
-     *************************************************************************/
+     * @return Array containing the top-level node path(s) associated with the selected node
+     *         path(s); an empty array if no node is selected
+     *********************************************************************************************/
     protected TreePath[] getTopLevelSelectedPaths()
     {
         List<TreePath> selectedPaths = new ArrayList<TreePath>();
@@ -789,15 +765,13 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Step through each selected node
             for (TreePath path : paths)
             {
-                // Check if the path represents a top-level node or its
-                // children
+                // Check if the path represents a top-level node or its children
                 if (path.getPathCount() > getGroupNodeLevel())
                 {
                     // Get the top-level path for this node path
                     TreePath topPath = getPathFromNode((ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel()));
 
-                    // Check if a selected node has not yet been added to the
-                    // list
+                    // Check if a selected node has not yet been added to the list
                     if (!selectedPaths.contains(topPath))
                     {
                         // Store the node name
@@ -810,7 +784,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return selectedPaths.toArray(new TreePath[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Rename a top-level node (a node that is a direct child of the root node)
      *
      * @param oldName
@@ -820,7 +794,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            new name for the node
      *
      * @return Reference to the renamed node
-     *************************************************************************/
+     *********************************************************************************************/
     protected ToolTipTreeNode renameRootChildNode(Object oldName, Object newName)
     {
         ToolTipTreeNode node = null;
@@ -844,7 +818,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         return node;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Copy the tree of a source node to a target node
      *
      * @param originalName
@@ -855,7 +829,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param infoToCopy
      *            information object to copy
-     *************************************************************************/
+     *********************************************************************************************/
     protected void copyNodeTree(String originalName,
                                 String nameOfCopy,
                                 Object infoToCopy)
@@ -866,16 +840,14 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Get the path for the row
             TreePath path = getPathForRow(row);
 
-            // Check if this node represents a top level name and that the name
-            // matches the target
+            // Check if this node represents a top level name and that the name matches the target
             if (path.getPathCount() == 2
                 && path.getLastPathComponent().toString().equals(originalName))
             {
                 // Store the information for the copy
                 addInformation(infoToCopy, nameOfCopy);
 
-                // Create a node for the top level and add it to the
-                // information tree
+                // Create a node for the top level and add it to the information tree
                 ToolTipTreeNode newNode = addInformationNode(nameOfCopy, "");
 
                 // Copy the source node's tree to the copy and stop searching
@@ -886,20 +858,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Placeholder for method to add a copy of the specified information object
-     * to the information list
+    /**********************************************************************************************
+     * Placeholder for method to add a copy of the specified information object to the information
+     * list
      *
      * @param information
      *            information object to copy
      *
      * @param nameOfCopy
      *            name of the copy of the node
-     *************************************************************************/
+     *********************************************************************************************/
     protected abstract void addInformation(Object information,
                                            String nameOfCopy);
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Recursively copy the tree of a source node to a target node
      *
      * @param source
@@ -907,7 +879,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @param target
      *            target node
-     *************************************************************************/
+     *********************************************************************************************/
     protected void copySubTree(ToolTipTreeNode source, ToolTipTreeNode target)
     {
         // Step through each child of the source node
@@ -925,60 +897,56 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Create the information definitions from the tree for storage in the
-     * database or to use as a comparison to a previously committed version of
-     * the tree.
+    /**********************************************************************************************
+     * Create the information definitions from the tree for storage in the database or to use as a
+     * comparison to a previously committed version of the tree.
      *
-     * @return List containing the path array for each child node belonging to
-     *         an information node
-     *************************************************************************/
+     * @return List containing the path array for each child node belonging to an information node
+     *********************************************************************************************/
     protected List<String[]> createDefinitionsFromTree()
     {
         // Initialize the definitions list
         treeDefinitions = createDefinitionsFromInformation();
 
-        // Start with the root node and step through the tree to find the child
-        // nodes and their member variable paths and add these to the
-        // definition list
+        // Start with the root node and step through the tree to find the child nodes and their
+        // member variable paths and add these to the definition list
         buildDefinitionFromTree(root);
 
         return treeDefinitions;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder to initialize the definition list
      *
      * @return Initialized definition list
-     *************************************************************************/
+     *********************************************************************************************/
     protected abstract List<String[]> createDefinitionsFromInformation();
 
-    /**************************************************************************
-     * Placeholder to remove any unwanted text from the node names. The object
-     * array is converted to a string array
+    /**********************************************************************************************
+     * Placeholder to remove any unwanted text from the node names. The object array is converted
+     * to a string array
      *
      * @param node
      *            path array
      *
      * @return Cleaned node path array
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] cleanNodePath(Object[] nodePath)
     {
         return CcddUtilities.convertObjectToString(nodePath);
     }
 
-    /**************************************************************************
-     * Recursively step through the information tree and append the path to
-     * each leaf node to the definition list
+    /**********************************************************************************************
+     * Recursively step through the information tree and append the path to each leaf node to the
+     * definition list
      *
      * @param node
      *            node to check
-     *************************************************************************/
+     *********************************************************************************************/
     private void buildDefinitionFromTree(ToolTipTreeNode node)
     {
-        // Check if this is the last node in this path (i.e., the 'leaf', which
-        // is a table or primitive variable depending on the internal table
-        // type)
+        // Check if this is the last node in this path (i.e., the 'leaf', which is a table or
+        // primitive variable depending on the internal table type)
         if (node.getChildCount() == 0
             && node.getLevel() > 1 + getHeaderNodeLevel())
         {
@@ -1003,8 +971,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                                   filterValue);
             }
         }
-        // This node has child nodes (i.e., this node is in the path for a
-        // leaf node)
+        // This node has child nodes (i.e., this node is in the path for a leaf node)
         else
         {
             // Step through the each child node on this level
@@ -1016,10 +983,10 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         }
     }
 
-    /**************************************************************************
-     * Add the specified leaf definition to the tree definition list. Override
-     * this method to insert other information into the leaf definition prior
-     * to adding it to the tree definition list
+    /**********************************************************************************************
+     * Add the specified leaf definition to the tree definition list. Override this method to
+     * insert other information into the leaf definition prior to adding it to the tree definition
+     * list
      *
      * @param treeDefns
      *            list to which to add the leaf definition
@@ -1028,9 +995,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            leaf definition to add to the list
      *
      * @param filterValue
-     *            string value that may be used to modify the tree; null or
-     *            blank if not used
-     *************************************************************************/
+     *            string value that may be used to modify the tree; null or blank if not used
+     *********************************************************************************************/
     protected void addLeafDefinition(List<String[]> treeDefns,
                                      List<String> leafDefn,
                                      String filterValue)
@@ -1039,23 +1005,23 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         treeDefns.add(leafDefn.toArray(new String[0]));
     }
 
-    /**************************************************************************
-     * Convert the array describing the leaf node path into a single string,
-     * with the nodes separated by commas
+    /**********************************************************************************************
+     * Convert the array describing the leaf node path into a single string, with the nodes
+     * separated by commas
      *
      * @param path
      *            array describing the tree path to construct
      *
      * @return Node names, separated by commas, in the specified path
-     *************************************************************************/
+     *********************************************************************************************/
     protected String convertLeafNodePath(Object[] path)
     {
         return convertLeafNodePath(path, 2);
     }
 
-    /**************************************************************************
-     * Convert the array describing the leaf node path into a single string,
-     * with the nodes separated by commas
+    /**********************************************************************************************
+     * Convert the array describing the leaf node path into a single string, with the nodes
+     * separated by commas
      *
      * @param path
      *            array describing the tree path to construct
@@ -1064,13 +1030,12 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            starting node level adjustment
      *
      * @return Node names, separated by commas, in the specified path
-     *************************************************************************/
+     *********************************************************************************************/
     protected String convertLeafNodePath(Object[] path, int startAdjust)
     {
         String leafPath = "";
 
-        // Step through the nodes in the path. Skip the table type node if
-        // present
+        // Step through the nodes in the path. Skip the table type node if present
         for (int index = startAdjust + getHeaderNodeLevel(); index < path.length; index++)
         {
             // Store the leaf node name in the path array

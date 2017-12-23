@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary application scheduler table handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -21,9 +20,9 @@ import CCDD.CcddClasses.Variable;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.SchedulerType;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary application scheduler table handler class
- *****************************************************************************/
+ *************************************************************************************************/
 public class CcddApplicationSchedulerTableHandler
 {
     // Class references
@@ -43,12 +42,12 @@ public class CcddApplicationSchedulerTableHandler
     private final String UNUSED = "SCH_UNUSED";
     private final String GROUPNONE = "SCH_GROUP_NONE";
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Application scheduler table handler class constructor
      *
      * @param ccddMain
      *            main class
-     *************************************************************************/
+     *********************************************************************************************/
     CcddApplicationSchedulerTableHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -65,10 +64,9 @@ public class CcddApplicationSchedulerTableHandler
         createApplicationScheduleDefinitionTable();
     }
 
-    /**************************************************************************
-     * Create the schedule definition table entries based on the time slot
-     * definitions
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the schedule definition table entries based on the time slot definitions
+     *********************************************************************************************/
     private void createApplicationScheduleDefinitionTable()
     {
         sdtEntries = new ArrayList<String[][]>();
@@ -116,16 +114,16 @@ public class CcddApplicationSchedulerTableHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Sort the list of messages based on the assigned priorities
-     *************************************************************************/
+     *********************************************************************************************/
     private void prioritizeApps(Message msg)
     {
         Collections.sort(msg.getVariables(), new Comparator<Variable>()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Compare the priorities for two messages
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public int compare(Variable var, Variable otherVar)
             {
@@ -136,9 +134,9 @@ public class CcddApplicationSchedulerTableHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      *
-     *************************************************************************/
+     *********************************************************************************************/
     private String getMessageIndex(int x)
     {
         String index = "0";
@@ -155,9 +153,9 @@ public class CcddApplicationSchedulerTableHandler
         return index;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Build the application wake-up message ID define statement parameters
-     *************************************************************************/
+     *********************************************************************************************/
     private void createSchedulerTableDefines()
     {
         List<Variable> appsSorted = new ArrayList<Variable>();
@@ -168,9 +166,9 @@ public class CcddApplicationSchedulerTableHandler
         // Sort the applications based on wake-up ID
         Collections.sort(appsSorted, new Comparator<Variable>()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Compare the wake-up IDs for two applications
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public int compare(Variable var, Variable otherVar)
             {
@@ -185,30 +183,28 @@ public class CcddApplicationSchedulerTableHandler
         // Step through the sorted applications
         for (Variable app : appsSorted)
         {
-            // Store the application wake-up message ID define statement
-            // parameters
+            // Store the application wake-up message ID define statement parameters
             defines[index][0] = app.getFullName().toUpperCase() + "_WAKEUP_MID";
             defines[index][1] = Integer.valueOf(((ApplicationData) app).getWakeUpID().replace("0x", ""), 16).toString();
             index++;
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the application wake-up message ID define statement parameters
      *
-     * @return Array containing the application wake-up message ID define
-     *         statement parameters
-     *************************************************************************/
+     * @return Array containing the application wake-up message ID define statement parameters
+     *********************************************************************************************/
     protected String[][] getScheduleDefinitionTableDefines()
     {
         return defines;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the message definition table entries
      *
      * @return Array containing the message definition table entries
-     *************************************************************************/
+     *********************************************************************************************/
     protected String[] getMessageDefinitionTable()
     {
         String[] scheduleCommands = new String[appHandler.getNumberOfTimeSlots()];
@@ -238,36 +234,35 @@ public class CcddApplicationSchedulerTableHandler
         return scheduleCommands;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the specified entry in the schedule definition table
      *
      * @param row
      *            row index for the entry in the schedule definition table
      *
-     * @return Array containing the specified entry in the schedule definition
-     *         table
-     *************************************************************************/
+     * @return Array containing the specified entry in the schedule definition table
+     *********************************************************************************************/
     protected String[][] getScheduleDefinitionTableByRow(int row)
     {
         return sdtEntries.get(row);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of time slots in the schedule definition table
      *
      * @return Number of time slots in the schedule definition table
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getNumberOfTimeSlots()
     {
         return sdtEntries.size();
     }
 
-    /**************************************************************************
-     * Get the time slots and validate the time slot data. Invalid time slot
-     * entries are removed from the list
+    /**********************************************************************************************
+     * Get the time slots and validate the time slot data. Invalid time slot entries are removed
+     * from the list
      *
      * @return List of valid time slots
-     *************************************************************************/
+     *********************************************************************************************/
     private List<Message> getValidatedStoredData()
     {
         List<Message> messages = schedulerDB.getStoredData(0);
@@ -275,16 +270,16 @@ public class CcddApplicationSchedulerTableHandler
         return messages;
     }
 
-    /**************************************************************************
-     * Validate the application scheduler table and remove from the list of
-     * messages any application that is invalid
+    /**********************************************************************************************
+     * Validate the application scheduler table and remove from the list of messages any
+     * application that is invalid
      *
      * @param applications
      *            list of applications in the time slots
      *
      * @param timeSlots
      *            list of time slots in the table
-     *************************************************************************/
+     *********************************************************************************************/
     private void validateTableData(List<Variable> applications,
                                    List<Message> timeSlots)
     {
@@ -294,8 +289,7 @@ public class CcddApplicationSchedulerTableHandler
         int numInvalid = 0;
         String type = "application scheduler applications";
 
-        // Validate the application group data and remove any invalid
-        // applications
+        // Validate the application group data and remove any invalid applications
         numInvalid += removeInvalidData(validateApplicationData());
 
         // Check if invalid entries were removed
@@ -317,12 +311,12 @@ public class CcddApplicationSchedulerTableHandler
         }
     }
 
-    /**************************************************************************
-     * Check all the stored application information for inconsistencies. Update
-     * or flag the application for removal if any changes are found
+    /**********************************************************************************************
+     * Check all the stored application information for inconsistencies. Update or flag the
+     * application for removal if any changes are found
      *
      * @return List of invalid applications
-     *************************************************************************/
+     *********************************************************************************************/
     private List<Variable> validateApplicationData()
     {
         List<Variable> removedApps = new ArrayList<Variable>();
@@ -349,8 +343,8 @@ public class CcddApplicationSchedulerTableHandler
                 // Check if the group's name matches the application's name
                 if (app.getFullName().equals(name))
                 {
-                    // Get the group's information and set the data field
-                    // handler to contain the current group's information
+                    // Get the group's information and set the data field handler to contain the
+                    // current group's information
                     GroupInformation groupInfo = groupTree.getGroupHandler().getGroupInformationByName(name);
                     fieldHandler.setFieldInformation(groupInfo.getFieldInformation());
 
@@ -493,14 +487,14 @@ public class CcddApplicationSchedulerTableHandler
         return removedApps;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Remove data that is determined to be invalid
      *
      * @param removedVars
      *            list of invalid data
      *
      * @return Number of invalid entries that were found and removed
-     *************************************************************************/
+     *********************************************************************************************/
     private int removeInvalidData(List<Variable> removedVars)
     {
         List<Integer> indices;

@@ -1,10 +1,9 @@
 /**
  * CFS Command & Data Dictionary script data access handler.
  *
- * Copyright 2017 United States Government as represented by the Administrator
- * of the National Aeronautics and Space Administration. No copyright is
- * claimed in the United States under Title 17, U.S. Code. All Other Rights
- * Reserved.
+ * Copyright 2017 United States Government as represented by the Administrator of the National
+ * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
+ * 17, U.S. Code. All Other Rights Reserved.
  */
 package CCDD;
 
@@ -53,10 +52,10 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/******************************************************************************
- * CFS Command & Data Dictionary script data access class. This class contains
- * public methods that are accessible to the data output scripts
- *****************************************************************************/
+/**************************************************************************************************
+ * CFS Command & Data Dictionary script data access class. This class contains public methods that
+ * are accessible to the data output scripts
+ *************************************************************************************************/
 public class CcddScriptDataAccessHandler
 {
     // Class references
@@ -89,11 +88,11 @@ public class CcddScriptDataAccessHandler
     // Data table information array
     private final TableInformation[] tableInformation;
 
-    // Flag indicating if the variable handler references all variables (true)
-    // or only those contained in the associated structure tables (false)
+    // Flag indicating if the variable handler references all variables (true) or only those
+    // contained in the associated structure tables (false)
     private boolean isAllVariables;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Script data access class constructor
      *
      * @param ccddMain
@@ -115,15 +114,13 @@ public class CcddScriptDataAccessHandler
      *            name of the script file being executed
      *
      * @param groupNames
-     *            list containing the names of any groups referenced in the
-     *            script association
+     *            list containing the names of any groups referenced in the script association
      *
      * @param scriptDialog
-     *            reference to the GUI component from which this class was
-     *            generated (script dialog if executing from within the CCDD
-     *            application; main window frame if executing from the command
-     *            line)
-     *************************************************************************/
+     *            reference to the GUI component from which this class was generated (script dialog
+     *            if executing from within the CCDD application; main window frame if executing
+     *            from the command line)
+     *********************************************************************************************/
     CcddScriptDataAccessHandler(CcddMain ccddMain,
                                 TableInformation[] tableInformation,
                                 CcddLinkHandler linkHandler,
@@ -154,31 +151,28 @@ public class CcddScriptDataAccessHandler
         isAllVariables = false;
     }
 
-    /**************************************************************************
-     * Create the variable handler. This creates a table tree of instance
-     * tables, including primitive variables, and lists that show all the
-     * original variables' full names, and the variable's full name before and
-     * after converting any commas and brackets to underscores. Only variable's
-     * where the converted name matches another variable's are saved in the
-     * latter two lists
-     *************************************************************************/
+    /**********************************************************************************************
+     * Create the variable handler. This creates a table tree of instance tables, including
+     * primitive variables, and lists that show all the original variables' full names, and the
+     * variable's full name before and after converting any commas and brackets to underscores.
+     * Only variable's where the converted name matches another variable's are saved in the latter
+     * two lists
+     *********************************************************************************************/
     private void createVariableHandler(boolean getAllVariables)
     {
-        // Check if the variable handler hasn't already been created, or if it
-        // has then check if the previous handler only included the subset of
-        // variables within the associated structure tables, but now all
-        // variables are required
+        // Check if the variable handler hasn't already been created, or if it has then check if
+        // the previous handler only included the subset of variables within the associated
+        // structure tables, but now all variables are required
         if (varConvHandler == null
             || (getAllVariables == true && isAllVariables != true))
         {
-            // Check if only the variables referenced within the associated
-            // structure tables are needed
+            // Check if only the variables referenced within the associated structure tables are
+            // needed
             if (!getAllVariables)
             {
-                // Create storage for the variable paths and names. This is
-                // used to create a list of converted names. This is done for
-                // the first call to this method; subsequent calls use the list
-                // built in the initial call
+                // Create storage for the variable paths and names. This is used to create a list
+                // of converted names. This is done for the first call to this method; subsequent
+                // calls use the list built in the initial call
                 List<String> variableInformation = new ArrayList<String>();
 
                 // Step through each structure table row
@@ -206,15 +200,15 @@ public class CcddScriptDataAccessHandler
                     }
                 }
 
-                // Create the variable handler for only those variables in the
-                // associated structure tables
+                // Create the variable handler for only those variables in the associated structure
+                // tables
                 varConvHandler = new CcddVariableConversionHandler(variableInformation);
             }
             // All variables in the project database are needed
             else
             {
-                // Set the flag indicating all variables have been loaded and
-                // create the variable handler for all variables
+                // Set the flag indicating all variables have been loaded and create the variable
+                // handler for all variables
                 isAllVariables = true;
                 varConvHandler = new CcddVariableConversionHandler(ccddMain);
             }
@@ -224,20 +218,19 @@ public class CcddScriptDataAccessHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the table information for the table type specified
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command". The table type is converted to the
-     *            generic type ("Structure" or "Command") if the specified type
-     *            is a representative of the generic type
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command". The table type is converted to the
+     *            generic type ("Structure" or "Command") if the specified type is a representative
+     *            of the generic type
      *
-     * @return Table information class for the type specified; return null if
-     *         an instance of the table type doesn't exist
-     *************************************************************************/
+     * @return Table information class for the type specified; return null if an instance of the
+     *         table type doesn't exist
+     *********************************************************************************************/
     private TableInformation getTableInformation(String tableType)
     {
         TableInformation tableInfo = null;
@@ -265,8 +258,8 @@ public class CcddScriptDataAccessHandler
         // Step through the available table information instances
         for (TableInformation info : tableInformation)
         {
-            // Check if the requested type matches the table information type;
-            // ignore case sensitivity
+            // Check if the requested type matches the table information type; ignore case
+            // sensitivity
             if (info.getType().equalsIgnoreCase(tableType))
             {
                 // Store the table information reference and stop searching
@@ -278,41 +271,51 @@ public class CcddScriptDataAccessHandler
         return tableInfo;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name of the script file being executed
      *
      * @return Name of the script file being executed
-     *************************************************************************/
+     *********************************************************************************************/
     public String getScriptName()
     {
         return scriptFileName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name of the user executing the script
      *
      * @return Name of the user executing the script
-     *************************************************************************/
+     *********************************************************************************************/
     public String getUser()
     {
         return dbControl.getUser();
     }
 
-    /**************************************************************************
-     * Get the name of the project database
+    /**********************************************************************************************
+     * Get the name of the project database name
      *
      * @return Name of the project database
-     *************************************************************************/
-    public String getProject()
+     *********************************************************************************************/
+    public String getDatabase()
     {
-        return dbControl.getDatabase();
+        return dbControl.getDatabaseName();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
+     * Get the name of the project name
+     *
+     * @return Name of the project
+     *********************************************************************************************/
+    public String getProject()
+    {
+        return dbControl.getProjectName();
+    }
+
+    /**********************************************************************************************
      * Get the script output folder path
      *
      * @return Script output folder path
-     *************************************************************************/
+     *********************************************************************************************/
     public String getOutputPath()
     {
         return ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath().isEmpty()
@@ -321,7 +324,7 @@ public class CcddScriptDataAccessHandler
                                                                            + File.separator;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of characters in longest string in an array of strings
      *
      * @param strgArray
@@ -330,9 +333,9 @@ public class CcddScriptDataAccessHandler
      * @param minWidth
      *            initial minimum widths; null to use zero as the minimum
      *
-     * @return Character length of the longest string in the supplied array;
-     *         null if an input is invalid
-     *************************************************************************/
+     * @return Character length of the longest string in the supplied array; null if an input is
+     *         invalid
+     *********************************************************************************************/
     public Integer getLongestString(String[] strgArray, Integer minWidth)
     {
         // Check if no initial minimum is specified
@@ -356,27 +359,24 @@ public class CcddScriptDataAccessHandler
         return minWidth;
     }
 
-    /**************************************************************************
-     * Get the number of characters in longest string in each column of an
-     * array of strings
+    /**********************************************************************************************
+     * Get the number of characters in longest string in each column of an array of strings
      *
      * @param strgArray
      *            array of string arrays
      *
      * @param minWidths
-     *            array of initial minimum widths; null to use zero as the
-     *            minimum for each column
+     *            array of initial minimum widths; null to use zero as the minimum for each column
      *
-     * @return Character length of the longest string in each column of the
-     *         supplied array; null if any of the inputs is invalid
-     *************************************************************************/
+     * @return Character length of the longest string in each column of the supplied array; null if
+     *         any of the inputs is invalid
+     *********************************************************************************************/
     public Integer[] getLongestStrings(String[][] strgArray,
                                        Integer[] minWidths)
     {
-        // Check if the string array contains at least one row and column, and
-        // that either no initial minimum widths are specified or that the
-        // number of minimum widths is greater than or equal to the number of
-        // string columns
+        // Check if the string array contains at least one row and column, and that either no
+        // initial minimum widths are specified or that the number of minimum widths is greater
+        // than or equal to the number of string columns
         if (strgArray.length != 0
             && strgArray[0].length != 0
             && (minWidths == null
@@ -416,62 +416,59 @@ public class CcddScriptDataAccessHandler
         return minWidths;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the current date and time in the form:
      *
      * dow mon dd hh:mm:ss zzz yyyy
      *
-     * where: dow is the day of the week (Sun, Mon, Tue, Wed, Thu, Fri, Sat);
-     * mon is the month (Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov,
-     * Dec); dd is the day of the month (01 through 31), as two decimal digits;
-     * hh is the hour of the day (00 through 23), as two decimal digits; mm is
-     * the minute within the hour (00 through 59), as two decimal digits; ss is
-     * the second within the minute (00 through 61, as two decimal digits; zzz
-     * is the time zone (and may reflect daylight saving time); yyyy is the
-     * year, as four decimal digits
+     * where: dow is the day of the week (Sun, Mon, Tue, Wed, Thu, Fri, Sat); mon is the month
+     * (Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec); dd is the day of the month (01
+     * through 31), as two decimal digits; hh is the hour of the day (00 through 23), as two
+     * decimal digits; mm is the minute within the hour (00 through 59), as two decimal digits; ss
+     * is the second within the minute (00 through 61, as two decimal digits; zzz is the time zone
+     * (and may reflect daylight saving time); yyyy is the year, as four decimal digits
      *
      * @return Current date and time
-     *************************************************************************/
+     *********************************************************************************************/
     public String getDateAndTime()
     {
         return new Date().toString();
     }
 
-    /**************************************************************************
-     * Get the array containing the user-defined data type names and their
-     * corresponding C-language, size (in bytes), and base data type values
+    /**********************************************************************************************
+     * Get the array containing the user-defined data type names and their corresponding
+     * C-language, size (in bytes), and base data type values
      *
-     * @return Array where each row contains a user-defined data type name and
-     *         its corresponding C-language, size (in bytes), and base data
-     *         type values
-     *************************************************************************/
+     * @return Array where each row contains a user-defined data type name and its corresponding
+     *         C-language, size (in bytes), and base data type values
+     *********************************************************************************************/
     public String[][] getDataTypeDefinitions()
     {
         return dataTypeHandler.getDataTypeData().toArray(new String[0][0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Determine if the supplied data type is a primitive type
      *
      * @param dataType
      *            data type to test
      *
      * @return true if the supplied data type is a primitive; false otherwise
-     *************************************************************************/
+     *********************************************************************************************/
     public boolean isDataTypePrimitive(String dataType)
     {
         return dataTypeHandler.isPrimitive(dataType);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the C type for the specified data type
      *
      * @param dataType
      *            primitive data type
      *
-     * @return C type for the specified data type; returns null if the data
-     *         type doesn't exist or isn't a primitive type
-     *************************************************************************/
+     * @return C type for the specified data type; returns null if the data type doesn't exist or
+     *         isn't a primitive type
+     *********************************************************************************************/
     public String getCDataType(String dataType)
     {
         String cType = null;
@@ -489,15 +486,15 @@ public class CcddScriptDataAccessHandler
         return cType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the base type for the specified data type
      *
      * @param dataType
      *            primitive data type
      *
-     * @return Base type for the specified data type; returns null if the data
-     *         type doesn't exist or isn't a primitive type
-     *************************************************************************/
+     * @return Base type for the specified data type; returns null if the data type doesn't exist
+     *         or isn't a primitive type
+     *********************************************************************************************/
     public String getBaseDataType(String dataType)
     {
         String baseType = null;
@@ -515,42 +512,39 @@ public class CcddScriptDataAccessHandler
         return baseType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of bytes for the specified data type
      *
      * @param dataType
      *            structure or primitive data type
      *
-     * @return Number of bytes required to store the data type; returns 0 if
-     *         the data type doesn't exist
-     *************************************************************************/
+     * @return Number of bytes required to store the data type; returns 0 if the data type doesn't
+     *         exist
+     *********************************************************************************************/
     public int getDataTypeSizeInBytes(String dataType)
     {
         return varSizeHandler.getDataTypeSizeInBytes(dataType);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Convert a primitive data type into its ITOS encoded form
      *
      * @param dataType
      *            data type (e.g., "uint16" or "double")
      *
      * @param encoding
-     *            "SINGLE_CHAR" to get the single character encoding (e.g., "I"
-     *            for any integer type); "TWO_CHAR" to get the encoding
-     *            character with the data type size (e.g., "I4" for a 4-byte
-     *            integer); "BIG_ENDIAN" to get the encoding as big endian;
-     *            "BIG_ENDIAN_SWAP" to get the encoding as a big endian with
-     *            byte swapping; "LITTLE_ENDIAN" to get the encoding as little
-     *            endian; "LITTLE_ENDIAN_SWAP" to get the encoding as a little
-     *            endian with byte swapping. The encoding parameter is case
-     *            insensitive
+     *            "SINGLE_CHAR" to get the single character encoding (e.g., "I" for any integer
+     *            type); "TWO_CHAR" to get the encoding character with the data type size (e.g.,
+     *            "I4" for a 4-byte integer); "BIG_ENDIAN" to get the encoding as big endian;
+     *            "BIG_ENDIAN_SWAP" to get the encoding as a big endian with byte swapping;
+     *            "LITTLE_ENDIAN" to get the encoding as little endian; "LITTLE_ENDIAN_SWAP" to get
+     *            the encoding as a little endian with byte swapping. The encoding parameter is
+     *            case insensitive
      *
-     * @return ITOS encoded form of the data type in the format requested
-     *         (e.g., "int32" and "LITTLE_ENDIAN" returns "I12345678"); returns
-     *         the data type, unmodified, if the data type is a table (i.e.,
-     *         it's a structure), or null if the data type is unrecognized
-     *************************************************************************/
+     * @return ITOS encoded form of the data type in the format requested (e.g., "int32" and
+     *         "LITTLE_ENDIAN" returns "I12345678"); returns the data type, unmodified, if the data
+     *         type is a table (i.e., it's a structure), or null if the data type is unrecognized
+     *********************************************************************************************/
     public String getITOSEncodedDataType(String dataType, String encoding)
     {
         String encodedType = null;
@@ -558,8 +552,8 @@ public class CcddScriptDataAccessHandler
         // Check if the data type is a recognized primitive
         if (dataTypeHandler.isPrimitive(dataType))
         {
-            // Set the encoding character based on the data type's base type.
-            // Check if the data type is in integer
+            // Set the encoding character based on the data type's base type. Check if the data
+            // type is in integer
             if (dataTypeHandler.isInteger(dataType))
             {
                 // Check if the integer is unsigned
@@ -609,8 +603,7 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "S":
-                        // All string types (characters and strings) are set to
-                        // 1
+                        // All string types (characters and strings) are set to 1
                         size = 1;
                         break;
                 }
@@ -618,9 +611,7 @@ public class CcddScriptDataAccessHandler
                 switch (encoding.toUpperCase())
                 {
                     case "BIG_ENDIAN":
-                        // Example byte order: 12345678
-
-                        // Step through each byte
+                        // Example byte order: 12345678 Step through each byte
                         for (int i = 1; i <= size; i++)
                         {
                             // Append the byte number to the encoding string
@@ -630,9 +621,7 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "BIG_ENDIAN_SWAP":
-                        // Example byte order: 21436587
-
-                        // Check if the data type is a single byte
+                        // Example byte order: 21436587 Check if the data type is a single byte
                         if (size == 1)
                         {
                             // Append a '1' to the encoding string
@@ -644,8 +633,8 @@ public class CcddScriptDataAccessHandler
                             // Step through every other byte byte
                             for (int i = 1; i <= size; i += 2)
                             {
-                                // Append the byte number for the next byte and
-                                // the current byte to the encoding string
+                                // Append the byte number for the next byte and the current byte to
+                                // the encoding string
                                 encodedType += String.valueOf(i + 1)
                                                + String.valueOf(i);
                             }
@@ -654,9 +643,7 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "LITTLE_ENDIAN":
-                        // Example byte order: 87654321
-
-                        // Step through each byte in reverse order
+                        // Example byte order: 87654321 Step through each byte in reverse order
                         for (int i = size; i > 0; i--)
                         {
                             // Append the byte number to the encoding string
@@ -666,9 +653,7 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "LITTLE_ENDIAN_SWAP":
-                        // Example byte order: 78563412
-
-                        // Check if the data type is a single byte
+                        // Example byte order: 78563412 Check if the data type is a single byte
                         if (size == 1)
                         {
                             // Append a '1' to the encoding string
@@ -680,8 +665,8 @@ public class CcddScriptDataAccessHandler
                             // Step through every other byte in reverse order
                             for (int i = size; i > 0; i -= 2)
                             {
-                                // Append the byte number for the previous byte
-                                // and the current byte to the encoding string
+                                // Append the byte number for the previous byte and the current
+                                // byte to the encoding string
                                 encodedType += String.valueOf(i - 1)
                                                + String.valueOf(i);
                             }
@@ -700,8 +685,8 @@ public class CcddScriptDataAccessHandler
                         break;
                 }
             }
-            // The data type is unrecognized; treat as 'raw'. Check if the
-            // request is not for the single character encoding
+            // The data type is unrecognized; treat as 'raw'. Check if the request is not for the
+            // single character encoding
             else if (!encoding.equalsIgnoreCase("SINGLE_CHAR"))
             {
                 // Append a '0' to the encoding string
@@ -718,14 +703,14 @@ public class CcddScriptDataAccessHandler
         return encodedType;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the ITOS limit name based on the supplied index value
      *
      * @param index
      *            0 = redLow, 1 = yellowLow, 2 = yellowHigh, 3 = redHigh
      *
      * @return ITOS limit name; returns blank if the index is invalid
-     *************************************************************************/
+     *********************************************************************************************/
     public String getITOSLimitName(int index)
     {
         String[] limitNames = new String[] {
@@ -746,43 +731,39 @@ public class CcddScriptDataAccessHandler
         return limitNames[index];
     }
 
-    /**************************************************************************
-     * Get the array of root structure table names (child table names are
-     * excluded). Convenience method that assumes the table type is a structure
+    /**********************************************************************************************
+     * Get the array of root structure table names (child table names are excluded). Convenience
+     * method that assumes the table type is a structure
      *
-     * @return Array of root structure table names; returns a blank if an
-     *         instance of the structure table type doesn't exist
-     *************************************************************************/
+     * @return Array of root structure table names; returns a blank if an instance of the structure
+     *         table type doesn't exist
+     *********************************************************************************************/
     public String[] getRootStructureTableNames()
     {
         return getRootTableNames(TYPE_STRUCTURE);
     }
 
-    /**************************************************************************
-     * Get the array of the root table names for the supplied table type. Note
-     * that only structure tables can have child tables so using this method
-     * for non-structure tables returns the same list of tables as
-     * getTableNames(typeName)
+    /**********************************************************************************************
+     * Get the array of the root table names for the supplied table type. Note that only structure
+     * tables can have child tables so using this method for non-structure tables returns the same
+     * list of tables as getTableNames(typeName)
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
-     * @return Array of root table names for the type specified; returns a
-     *         blank if an instance of the table type doesn't exist
-     *************************************************************************/
+     * @return Array of root table names for the type specified; returns a blank if an instance of
+     *         the table type doesn't exist
+     *********************************************************************************************/
     public String[] getRootTableNames(String tableType)
     {
         List<String> name = new ArrayList<String>();
 
-        // Get the reference to the table information class for the requested
-        // table type
+        // Get the reference to the table information class for the requested table type
         TableInformation tableInfo = getTableInformation(tableType);
 
-        // Check that the table type exists and that there is data for the
-        // specified table type
+        // Check that the table type exists and that there is data for the specified table type
         if (tableInfo != null && tableInfo.getData().length != 0)
         {
             // Step through each row in the table data
@@ -806,47 +787,44 @@ public class CcddScriptDataAccessHandler
         return name.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of rows of data in the structure table
      *
-     * @return Number of rows of data in the table for the table type
-     *         "structure"; -1 if an instance of the structure table type
-     *         doesn't exist
-     *************************************************************************/
+     * @return Number of rows of data in the table for the table type "structure"; -1 if an
+     *         instance of the structure table type doesn't exist
+     *********************************************************************************************/
     public int getStructureTableNumRows()
     {
         return getTableNumRows(TYPE_STRUCTURE);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of rows of data in the command table
      *
-     * @return Number of rows of data in the table of the type "command"; -1 if
-     *         an instance of the command table type doesn't exist
-     *************************************************************************/
+     * @return Number of rows of data in the table of the type "command"; -1 if an instance of the
+     *         command table type doesn't exist
+     *********************************************************************************************/
     public int getCommandTableNumRows()
     {
         return getTableNumRows(TYPE_COMMAND);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of rows of data in the table for the specified table type
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
-     * @return Number of rows of data in the table for the table type
-     *         specified; -1 if an instance of the table type doesn't exist
-     *************************************************************************/
+     * @return Number of rows of data in the table for the table type specified; -1 if an instance
+     *         of the table type doesn't exist
+     *********************************************************************************************/
     public int getTableNumRows(String tableType)
     {
         int numRows = -1;
 
-        // Get the reference to the table information class for the requested
-        // table type
+        // Get the reference to the table information class for the requested table type
         TableInformation tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists
@@ -859,12 +837,11 @@ public class CcddScriptDataAccessHandler
         return numRows;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of rows of data for all table types
      *
-     * @return Number of rows of data for all table types; 0 if there is no
-     *         table data
-     *************************************************************************/
+     * @return Number of rows of data for all table types; 0 if there is no table data
+     *********************************************************************************************/
     public int getTableNumRows()
     {
         int numRows = 0;
@@ -879,17 +856,16 @@ public class CcddScriptDataAccessHandler
         return numRows;
     }
 
-    /**************************************************************************
-     * Get the prototype structure table name to which the specified row's data
-     * belongs. Convenience method that assumes the table type is "structure"
+    /**********************************************************************************************
+     * Get the prototype structure table name to which the specified row's data belongs.
+     * Convenience method that assumes the table type is "structure"
      *
      * @param row
      *            table data row index
      *
-     * @return Prototype structure table name to which the current row's
-     *         parameter belongs; returns a blank if an instance of the
-     *         structure table type or the row doesn't exist
-     *************************************************************************/
+     * @return Prototype structure table name to which the current row's parameter belongs; returns
+     *         a blank if an instance of the structure table type or the row doesn't exist
+     *********************************************************************************************/
     public String getStructureTableNameByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE,
@@ -898,17 +874,16 @@ public class CcddScriptDataAccessHandler
                                  true);
     }
 
-    /**************************************************************************
-     * Get the command table name to which the specified row's data belongs.
-     * Convenience method that assumes the table type is "command"
+    /**********************************************************************************************
+     * Get the command table name to which the specified row's data belongs. Convenience method
+     * that assumes the table type is "command"
      *
      * @param row
      *            table data row index
      *
-     * @return Command table name to which the current row's parameter belongs;
-     *         returns a blank if an instance of the command table type or the
-     *         row doesn't exist
-     *************************************************************************/
+     * @return Command table name to which the current row's parameter belongs; returns a blank if
+     *         an instance of the command table type or the row doesn't exist
+     *********************************************************************************************/
     public String getCommandTableNameByRow(int row)
     {
         return getTablePathByRow(TYPE_COMMAND,
@@ -917,23 +892,21 @@ public class CcddScriptDataAccessHandler
                                  true);
     }
 
-    /**************************************************************************
-     * Get the prototype table name for the type specified to which the
-     * specified row's parameter belongs
+    /**********************************************************************************************
+     * Get the prototype table name for the type specified to which the specified row's parameter
+     * belongs
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return Prototype table name to which the current row's parameter
-     *         belongs; return a blank if an instance of the table type or the
-     *         row doesn't exist
-     *************************************************************************/
+     * @return Prototype table name to which the current row's parameter belongs; return a blank if
+     *         an instance of the table type or the row doesn't exist
+     *********************************************************************************************/
     public String getTableNameByRow(String tableType, int row)
     {
         return getTablePathByRow(tableType,
@@ -942,89 +915,82 @@ public class CcddScriptDataAccessHandler
                                  true);
     }
 
-    /**************************************************************************
-     * Get array of all structure table names, including paths for child
-     * structure tables, referenced in the table data. Convenience method that
-     * specifies the table type as "structure"
+    /**********************************************************************************************
+     * Get array of all structure table names, including paths for child structure tables,
+     * referenced in the table data. Convenience method that specifies the table type as
+     * "structure"
      *
-     * @return Array of all structure table names, including paths for child
-     *         structure tables; returns an empty array if an instance of the
-     *         structure table type doesn't exist
-     *************************************************************************/
+     * @return Array of all structure table names, including paths for child structure tables;
+     *         returns an empty array if an instance of the structure table type doesn't exist
+     *********************************************************************************************/
     public String[] getStructureTablePaths()
     {
         return getTableNames(TYPE_STRUCTURE, false);
     }
 
-    /**************************************************************************
-     * Get array of all prototype structure table names referenced in the table
-     * data. Convenience method that specifies the table type as "structure"
+    /**********************************************************************************************
+     * Get array of all prototype structure table names referenced in the table data. Convenience
+     * method that specifies the table type as "structure"
      *
-     * @return Array of all prototype structure table names; returns an empty
-     *         array if an instance of the structure table type doesn't exist
-     *************************************************************************/
+     * @return Array of all prototype structure table names; returns an empty array if an instance
+     *         of the structure table type doesn't exist
+     *********************************************************************************************/
     public String[] getStructureTableNames()
     {
         return getTableNames(TYPE_STRUCTURE, true);
     }
 
-    /**************************************************************************
-     * Get array of all command table names referenced in the table data.
-     * Convenience method that specifies the table type as "command"
+    /**********************************************************************************************
+     * Get array of all command table names referenced in the table data. Convenience method that
+     * specifies the table type as "command"
      *
-     * @return Array of all command table names; returns an empty array if an
-     *         instance of the command table type doesn't exist
-     *************************************************************************/
+     * @return Array of all command table names; returns an empty array if an instance of the
+     *         command table type doesn't exist
+     *********************************************************************************************/
     public String[] getCommandTableNames()
     {
         return getTableNames(TYPE_COMMAND);
     }
 
-    /**************************************************************************
-     * Get array of all table names, including paths for child structure
-     * tables, referenced in the table data of the specified table type
+    /**********************************************************************************************
+     * Get array of all table names, including paths for child structure tables, referenced in the
+     * table data of the specified table type
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
-     * @return Array of all table names, including paths for child structure
-     *         tables, represented by the table type; returns an empty array if
-     *         an instance of the table type doesn't exist
-     *************************************************************************/
+     * @return Array of all table names, including paths for child structure tables, represented by
+     *         the table type; returns an empty array if an instance of the table type doesn't
+     *         exist
+     *********************************************************************************************/
     public String[] getTableNames(String tableType)
     {
         return getTableNames(tableType, false);
     }
 
-    /**************************************************************************
-     * Get array of all table names referenced in the table data of the
-     * specified table type
+    /**********************************************************************************************
+     * Get array of all table names referenced in the table data of the specified table type
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param prototypeOnly
-     *            true to return only the prototype name for any child
-     *            structures; false to include the full path for child
-     *            structures
+     *            true to return only the prototype name for any child structures; false to include
+     *            the full path for child structures
      *
-     * @return Array of all table names, with paths for child structure tables
-     *         excluded based on the input flag, represented by the table type;
-     *         returns an empty array if an instance of the table type doesn't
-     *         exist
-     *************************************************************************/
+     * @return Array of all table names, with paths for child structure tables excluded based on
+     *         the input flag, represented by the table type; returns an empty array if an instance
+     *         of the table type doesn't exist
+     *********************************************************************************************/
     public String[] getTableNames(String tableType, boolean prototypeOnly)
     {
         List<String> names = new ArrayList<String>();
 
-        // Get the reference to the table information class for the requested
-        // table type
+        // Get the reference to the table information class for the requested table type
         TableInformation tableInfo = getTableInformation(tableType);
 
         // Check that there is data for the specified table type
@@ -1039,8 +1005,7 @@ public class CcddScriptDataAccessHandler
                 // Get the table's prototype name from the path
                 String tableName = tableInfo.getData()[row][pathColumn];
 
-                // Check if only prototype names should be returned for child
-                // structures
+                // Check if only prototype names should be returned for child structures
                 if (prototypeOnly)
                 {
                     // Get the prototype name form the table name
@@ -1059,14 +1024,13 @@ public class CcddScriptDataAccessHandler
         return names.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get array of all table names, including paths for child structure
-     * tables, referenced in the table data for all table types
+    /**********************************************************************************************
+     * Get array of all table names, including paths for child structure tables, referenced in the
+     * table data for all table types
      *
-     * @return Array of all table names, including paths for child structure
-     *         tables, referenced in the table data; empty array if no tables
-     *         exists in the data
-     *************************************************************************/
+     * @return Array of all table names, including paths for child structure tables, referenced in
+     *         the table data; empty array if no tables exists in the data
+     *********************************************************************************************/
     public String[] getTableNames()
     {
         List<String> names = new ArrayList<String>();
@@ -1083,8 +1047,7 @@ public class CcddScriptDataAccessHandler
                     // Calculate the column index for the table path
                     int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
 
-                    // Get the table's name, including the path (if it's a
-                    // child structure)
+                    // Get the table's name, including the path (if it's a child structure)
                     String tableName = tableInfo.getData()[row][pathColumn];
 
                     // Check if the table name hasn't been added to the list
@@ -1100,58 +1063,55 @@ public class CcddScriptDataAccessHandler
         return names.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get the variable name at the specified row in the structure data, with
-     * any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable name at the specified row in the structure data, with any macro name
+     * replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Variable name at the specified row in the structure data, with
-     *         any macro replaced by its corresponding value; null if the row
-     *         index is invalid
-     *************************************************************************/
+     * @return Variable name at the specified row in the structure data, with any macro replaced by
+     *         its corresponding value; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureVariableName(int row)
     {
         return getStructureVariableName(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable name at the specified row in the structure data, with
-     * any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable name at the specified row in the structure data, with any embedded macro(s)
+     * left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Variable name at the specified row in the structure data, with
-     *         any embedded macro(s) left in place; null if the row index is
-     *         invalid
-     *************************************************************************/
+     * @return Variable name at the specified row in the structure data, with any embedded macro(s)
+     *         left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureVariableNameWithMacros(int row)
     {
         return getStructureVariableName(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable name at the specified row in the structure data. Macro
-     * expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable name at the specified row in the structure data. Macro expansion is
+     * controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Variable name at the specified row in the structure data; null
-     *         if the row index is invalid
-     *************************************************************************/
+     * @return Variable name at the specified row in the structure data; null if the row index is
+     *         invalid
+     *********************************************************************************************/
     private String getStructureVariableName(int row, boolean expandMacros)
     {
         String variableName = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1174,21 +1134,20 @@ public class CcddScriptDataAccessHandler
         return variableName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the variable data type at the specified row in the structure data
      *
      * @param row
      *            table data row index
      *
-     * @return Variable data type at the specified row in the structure data;
-     *         null if the row index is invalid
-     *************************************************************************/
+     * @return Variable data type at the specified row in the structure data; null if the row index
+     *         is invalid
+     *********************************************************************************************/
     public String getStructureDataType(int row)
     {
         String dataType = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1204,58 +1163,55 @@ public class CcddScriptDataAccessHandler
         return dataType;
     }
 
-    /**************************************************************************
-     * Get the variable array size at the specified row in the structure data,
-     * with any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable array size at the specified row in the structure data, with any macro name
+     * replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Variable array size at the specified row in the structure data,
-     *         with any macro replaced by its corresponding value; null if the
-     *         row index is invalid
-     *************************************************************************/
+     * @return Variable array size at the specified row in the structure data, with any macro
+     *         replaced by its corresponding value; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureArraySize(int row)
     {
         return getStructureArraySize(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable array size at the specified row in the structure data,
-     * with any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable array size at the specified row in the structure data, with any embedded
+     * macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Variable array size at the specified row in the structure data,
-     *         with any embedded macro(s) left in place; null if the row index
-     *         is invalid
-     *************************************************************************/
+     * @return Variable array size at the specified row in the structure data, with any embedded
+     *         macro(s) left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureArraySizeWithMacros(int row)
     {
         return getStructureArraySize(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable array size at the specified row in the structure data.
-     * Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable array size at the specified row in the structure data. Macro expansion is
+     * controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Variable array size at the specified row in the structure data;
-     *         null if the row index is invalid
-     *************************************************************************/
+     * @return Variable array size at the specified row in the structure data; null if the row
+     *         index is invalid
+     *********************************************************************************************/
     private String getStructureArraySize(int row, boolean expandMacros)
     {
         String arraySize = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1278,58 +1234,55 @@ public class CcddScriptDataAccessHandler
         return arraySize;
     }
 
-    /**************************************************************************
-     * Get the variable bit length at the specified row in the structure data,
-     * with any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable bit length at the specified row in the structure data, with any macro name
+     * replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Variable bit length at the specified row in the structure data,
-     *         with any macro replaced by its corresponding value; null if the
-     *         row index is invalid
-     *************************************************************************/
+     * @return Variable bit length at the specified row in the structure data, with any macro
+     *         replaced by its corresponding value; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureBitLength(int row)
     {
         return getStructureBitLength(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable bit length at the specified row in the structure data,
-     * with any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable bit length at the specified row in the structure data, with any embedded
+     * macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Variable bit length at the specified row in the structure data,
-     *         with any embedded macro(s) left in place; null if the row index
-     *         is invalid
-     *************************************************************************/
+     * @return Variable bit length at the specified row in the structure data, with any embedded
+     *         macro(s) left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String getStructureBitLengthWithMacros(int row)
     {
         return getStructureBitLength(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable bit length at the specified row in the structure data.
-     * Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable bit length at the specified row in the structure data. Macro expansion is
+     * controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Variable bit length at the specified row in the structure data;
-     *         null if the row index is invalid
-     *************************************************************************/
+     * @return Variable bit length at the specified row in the structure data; null if the row
+     *         index is invalid
+     *********************************************************************************************/
     private String getStructureBitLength(int row, boolean expandMacros)
     {
         String bitLength = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1352,60 +1305,57 @@ public class CcddScriptDataAccessHandler
         return bitLength;
     }
 
-    /**************************************************************************
-     * Get the variable description at the specified row in the structure data,
-     * with any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable description at the specified row in the structure data, with any macro name
+     * replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Variable description at the specified row in the structure data,
-     *         with any macro replaced by its corresponding value; null if the
-     *         row index is invalid or no column has the 'Description' input
-     *         type
-     *************************************************************************/
+     * @return Variable description at the specified row in the structure data, with any macro
+     *         replaced by its corresponding value; null if the row index is invalid or no column
+     *         has the 'Description' input type
+     *********************************************************************************************/
     public String getStructureDescription(int row)
     {
         return getStructureDescription(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable description at the specified row in the structure data,
-     * with any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable description at the specified row in the structure data, with any embedded
+     * macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Variable description at the specified row in the structure data,
-     *         with any embedded macro(s) left in place; null if the row index
-     *         is invalid or no column has the 'Description' input type
-     *************************************************************************/
+     * @return Variable description at the specified row in the structure data, with any embedded
+     *         macro(s) left in place; null if the row index is invalid or no column has the
+     *         'Description' input type
+     *********************************************************************************************/
     public String getStructureDescriptionWithMacros(int row)
     {
         return getStructureDescription(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable description at the specified row in the structure data.
-     * Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable description at the specified row in the structure data. Macro expansion is
+     * controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Variable description at the specified row in the structure data;
-     *         null if the row index is invalid or no column has the
-     *         'Description' input type
-     *************************************************************************/
+     * @return Variable description at the specified row in the structure data; null if the row
+     *         index is invalid or no column has the 'Description' input type
+     *********************************************************************************************/
     private String getStructureDescription(int row, boolean expandMacros)
     {
         String description = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1414,8 +1364,7 @@ public class CcddScriptDataAccessHandler
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
-            // Get the index of the first column with the 'Description' input
-            // type
+            // Get the index of the first column with the 'Description' input type
             int column = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
 
             // Check if the column exists
@@ -1436,59 +1385,57 @@ public class CcddScriptDataAccessHandler
         return description;
     }
 
-    /**************************************************************************
-     * Get the variable units at the specified row in the structure data, with
-     * any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable units at the specified row in the structure data, with any macro name
+     * replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Variable units at the specified row in the structure data, with
-     *         any macro replaced by its corresponding value; null if the row
-     *         index is invalid or no column has the 'Units' input type
-     *************************************************************************/
+     * @return Variable units at the specified row in the structure data, with any macro replaced
+     *         by its corresponding value; null if the row index is invalid or no column has the
+     *         'Units' input type
+     *********************************************************************************************/
     public String getStructureUnits(int row)
     {
         return getStructureUnits(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable units at the specified row in the structure data, with
-     * any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable units at the specified row in the structure data, with any embedded
+     * macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Variable units at the specified row in the structure data, with
-     *         any embedded macro(s) left in place; null if the row index is
-     *         invalid or no column has the 'Units' input type
-     *************************************************************************/
+     * @return Variable units at the specified row in the structure data, with any embedded
+     *         macro(s) left in place; null if the row index is invalid or no column has the
+     *         'Units' input type
+     *********************************************************************************************/
     public String getStructureUnitsWithMacros(int row)
     {
         return getStructureUnits(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable units at the specified row in the structure data. Macro
-     * expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable units at the specified row in the structure data. Macro expansion is
+     * controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Variable units at the specified row in the structure data; null
-     *         if the row index is invalid or no column has the 'Units' input
-     *         type
-     *************************************************************************/
+     * @return Variable units at the specified row in the structure data; null if the row index is
+     *         invalid or no column has the 'Units' input type
+     *********************************************************************************************/
     private String getStructureUnits(int row, boolean expandMacros)
     {
         String units = null;
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1497,8 +1444,7 @@ public class CcddScriptDataAccessHandler
             // Get the reference to the table information
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
-            // Get the index of the first column with the 'Units' input
-            // type
+            // Get the index of the first column with the 'Units' input type
             int column = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
 
             // Check if the column exists
@@ -1519,58 +1465,56 @@ public class CcddScriptDataAccessHandler
         return units;
     }
 
-    /**************************************************************************
-     * Get the variable enumeration(s) at the specified row in the structure
-     * data, with any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the variable enumeration(s) at the specified row in the structure data, with any macro
+     * name replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Array containing the variable enumeration(s) at the specified
-     *         row in the structure data, with any macro replaced by its
-     *         corresponding value; null if the row index is invalid
-     *************************************************************************/
+     * @return Array containing the variable enumeration(s) at the specified row in the structure
+     *         data, with any macro replaced by its corresponding value; null if the row index is
+     *         invalid
+     *********************************************************************************************/
     public String[] getStructureEnumerations(int row)
     {
         return getStructureEnumerations(row, true);
     }
 
-    /**************************************************************************
-     * Get the variable enumeration(s) at the specified row in the structure
-     * data, with any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the variable enumeration(s) at the specified row in the structure data, with any
+     * embedded macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Array containing the variable enumeration(s) at the specified
-     *         row in the structure data, with any embedded macro(s) left in
-     *         place; null if the row index is invalid
-     *************************************************************************/
+     * @return Array containing the variable enumeration(s) at the specified row in the structure
+     *         data, with any embedded macro(s) left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String[] getStructureEnumerationsWithMacros(int row)
     {
         return getStructureEnumerations(row, false);
     }
 
-    /**************************************************************************
-     * Get the variable enumeration(s) at the specified row in the structure
-     * data. Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the variable enumeration(s) at the specified row in the structure data. Macro expansion
+     * is controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Array containing the variable enumeration(s) at the specified
-     *         row in the structure data; null if the row index is invalid
-     *************************************************************************/
+     * @return Array containing the variable enumeration(s) at the specified row in the structure
+     *         data; null if the row index is invalid
+     *********************************************************************************************/
     private String[] getStructureEnumerations(int row, boolean expandMacros)
     {
         List<String> enumerations = new ArrayList<String>();
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1599,21 +1543,20 @@ public class CcddScriptDataAccessHandler
         return enumerations.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the variable rate(s) at the specified row in the structure data
      *
      * @param row
      *            table data row index
      *
-     * @return Array containing the variable rate(s) at the specified row in
-     *         the structure data; an empty array if the row index is invalid
-     *************************************************************************/
+     * @return Array containing the variable rate(s) at the specified row in the structure data; an
+     *         empty array if the row index is invalid
+     *********************************************************************************************/
     public String[] getStructureRates(int row)
     {
         List<String> rates = new ArrayList<String>();
 
-        // Get the table type definition for the structure table referenced in
-        // the specified row
+        // Get the table type definition for the structure table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getStructureTypeNameByRow(row));
 
         // Check if the table type exists and represents a structure
@@ -1633,58 +1576,55 @@ public class CcddScriptDataAccessHandler
         return rates.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get the command name at the specified row in the command data, with any
-     * macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the command name at the specified row in the command data, with any macro name replaced
+     * by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Command name at the specified row in the command data, with any
-     *         macro replaced by its corresponding value; null if the row index
-     *         is invalid
-     *************************************************************************/
+     * @return Command name at the specified row in the command data, with any macro replaced by
+     *         its corresponding value; null if the row index is invalid
+     *********************************************************************************************/
     public String getCommandName(int row)
     {
         return getCommandName(row, true);
     }
 
-    /**************************************************************************
-     * Get the command name at the specified row in the command data, with any
-     * embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the command name at the specified row in the command data, with any embedded macro(s)
+     * left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Command name at the specified row in the command data, with any
-     *         embedded macro(s) left in place; null if the row index is
-     *         invalid
-     *************************************************************************/
+     * @return Command name at the specified row in the command data, with any embedded macro(s)
+     *         left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String getCommandNameWithMacros(int row)
     {
         return getCommandName(row, false);
     }
 
-    /**************************************************************************
-     * Get the command name at the specified row in the command data. Macro
-     * expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the command name at the specified row in the command data. Macro expansion is controlled
+     * by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Command name at the specified row in the command data; null if
-     *         the row index is invalid
-     *************************************************************************/
+     * @return Command name at the specified row in the command data; null if the row index is
+     *         invalid
+     *********************************************************************************************/
     private String getCommandName(int row, boolean expandMacros)
     {
         String commandName = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
@@ -1707,58 +1647,55 @@ public class CcddScriptDataAccessHandler
         return commandName;
     }
 
-    /**************************************************************************
-     * Get the command code at the specified row in the command data, with any
-     * macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the command code at the specified row in the command data, with any macro name replaced
+     * by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return Command code at the specified row in the command data, with any
-     *         macro replaced by its corresponding value; null if the row index
-     *         is invalid
-     *************************************************************************/
+     * @return Command code at the specified row in the command data, with any macro replaced by
+     *         its corresponding value; null if the row index is invalid
+     *********************************************************************************************/
     public String getCommandCode(int row)
     {
         return getCommandCode(row, true);
     }
 
-    /**************************************************************************
-     * Get the command code at the specified row in the command data, with any
-     * embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the command code at the specified row in the command data, with any embedded macro(s)
+     * left in place
      *
      * @param row
      *            table data row index
      *
-     * @return Command code at the specified row in the command data, with any
-     *         embedded macro(s) left in place; null if the row index is
-     *         invalid
-     *************************************************************************/
+     * @return Command code at the specified row in the command data, with any embedded macro(s)
+     *         left in place; null if the row index is invalid
+     *********************************************************************************************/
     public String getCommandCodeWithMacros(int row)
     {
         return getCommandCode(row, false);
     }
 
-    /**************************************************************************
-     * Get the command code (as a string) at the specified row in the command
-     * data. Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the command code (as a string) at the specified row in the command data. Macro expansion
+     * is controlled by the input flag
      *
      * @param row
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Command code (as a string) at the specified row in the command
-     *         data; null if the row index is invalid
-     *************************************************************************/
+     * @return Command code (as a string) at the specified row in the command data; null if the row
+     *         index is invalid
+     *********************************************************************************************/
     private String getCommandCode(int row, boolean expandMacros)
     {
         String commandCode = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
@@ -1781,33 +1718,30 @@ public class CcddScriptDataAccessHandler
         return commandCode;
     }
 
-    /**************************************************************************
-     * Get the number of arguments associated with the command table type at
-     * the specified row in the command data. Macro expansion is controlled by
-     * the input flag
+    /**********************************************************************************************
+     * Get the number of arguments associated with the command table type at the specified row in
+     * the command data. Macro expansion is controlled by the input flag
      *
      * @param row
      *            table data row index
      *
-     * @return Number of arguments associated with the command table type at
-     *         the specified row in the command data; -1 if the table type is
-     *         invalid
-     *************************************************************************/
+     * @return Number of arguments associated with the command table type at the specified row in
+     *         the command data; -1 if the table type is invalid
+     *********************************************************************************************/
     public int getNumCommandArguments(int row)
     {
         return getNumCommandArguments(getCommandTypeNameByRow(row));
     }
 
-    /**************************************************************************
-     * Get the number of arguments associated with the specified command table
-     * type
+    /**********************************************************************************************
+     * Get the number of arguments associated with the specified command table type
      *
      * @param tableType
      *            table type (case insensitive)
      *
-     * @return Number of arguments associated with the specified command table
-     *         type; -1 if the table type is invalid
-     *************************************************************************/
+     * @return Number of arguments associated with the specified command table type; -1 if the
+     *         table type is invalid
+     *********************************************************************************************/
     public int getNumCommandArguments(String tableType)
     {
         int numArguments = -1;
@@ -1818,18 +1752,16 @@ public class CcddScriptDataAccessHandler
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the number of arguments associated with this command table
-            // type
+            // Get the number of arguments associated with this command table type
             numArguments = typeDefn.getAssociatedCommandArgumentColumns(false).size();
         }
 
         return numArguments;
     }
 
-    /**************************************************************************
-     * Get the argument name for the command argument specified at the
-     * specified row in the command data, with any macro name replaced by its
-     * corresponding value
+    /**********************************************************************************************
+     * Get the argument name for the command argument specified at the specified row in the command
+     * data, with any macro name replaced by its corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -1837,20 +1769,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument name for the command argument specified at the
-     *         specified row in the command data, with any macro replaced by
-     *         its corresponding value; null if the argument number or row
-     *         index is invalid
-     *************************************************************************/
+     * @return Get the argument name for the command argument specified at the specified row in the
+     *         command data, with any macro replaced by its corresponding value; null if the
+     *         argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgName(int argumentNumber, int row)
     {
         return getCommandArgName(argumentNumber, row, true);
     }
 
-    /**************************************************************************
-     * Get the argument name for the command argument specified at the
-     * specified row in the command data, with any embedded macro(s) left in
-     * place
+    /**********************************************************************************************
+     * Get the argument name for the command argument specified at the specified row in the command
+     * data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -1858,20 +1788,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument name for the command argument specified at the
-     *         specified row in the command data, with any embedded macro(s)
-     *         left in place; null if the argument number or row index is
-     *         invalid
-     *************************************************************************/
+     * @return Get the argument name for the command argument specified at the specified row in the
+     *         command data, with any embedded macro(s) left in place; null if the argument number
+     *         or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgNameWithMacros(int argumentNumber, int row)
     {
         return getCommandArgName(argumentNumber, row, false);
     }
 
-    /**************************************************************************
-     * Get the argument name for the command argument specified at the
-     * specified row in the command data. Macro expansion is controlled by the
-     * input flag
+    /**********************************************************************************************
+     * Get the argument name for the command argument specified at the specified row in the command
+     * data. Macro expansion is controlled by the input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -1880,30 +1808,26 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument name for the command argument specified at the
-     *         specified row in the command data; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Argument name for the command argument specified at the specified row in the command
+     *         data; null if the argument number or row index is invalid
+     *********************************************************************************************/
     private String getCommandArgName(int argumentNumber, int row, boolean expandMacros)
     {
         String argName = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that the argument name
-            // exists
+            // Check if the argument number is valid and that the argument name exists
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getName() != -1)
             {
@@ -1925,9 +1849,9 @@ public class CcddScriptDataAccessHandler
         return argName;
     }
 
-    /**************************************************************************
-     * Get the argument data type for the command argument specified at the
-     * specified row in the command data
+    /**********************************************************************************************
+     * Get the argument data type for the command argument specified at the specified row in the
+     * command data
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -1935,27 +1859,23 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Argument data type for the command argument specified at the
-     *         specified row in the command data; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Argument data type for the command argument specified at the specified row in the
+     *         command data; null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgDataType(int argumentNumber, int row)
     {
         String argDataType = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that the argument data
-            // type exists
+            // Check if the argument number is valid and that the argument data type exists
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getDataType() != -1)
             {
@@ -1970,10 +1890,9 @@ public class CcddScriptDataAccessHandler
         return argDataType;
     }
 
-    /**************************************************************************
-     * Get the argument array size for the command argument specified at the
-     * specified row in the command data, with any macro name replaced by its
-     * corresponding value
+    /**********************************************************************************************
+     * Get the argument array size for the command argument specified at the specified row in the
+     * command data, with any macro name replaced by its corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -1981,20 +1900,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument array size for the command argument specified
-     *         at the specified row in the command data, with any macro
-     *         replaced by its corresponding value; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Get the argument array size for the command argument specified at the specified row
+     *         in the command data, with any macro replaced by its corresponding value; null if the
+     *         argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgArraySize(int argumentNumber, int row)
     {
         return getCommandArgArraySize(argumentNumber, row, true);
     }
 
-    /**************************************************************************
-     * Get the argument array size for the command argument specified at the
-     * specified row in the command data, with any embedded macro(s) left in
-     * place
+    /**********************************************************************************************
+     * Get the argument array size for the command argument specified at the specified row in the
+     * command data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2002,20 +1919,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument array size for the command argument specified
-     *         at the specified row in the command data, with any embedded
-     *         macro(s) left in place; null if the argument number or row index
-     *         is invalid
-     *************************************************************************/
+     * @return Get the argument array size for the command argument specified at the specified row
+     *         in the command data, with any embedded macro(s) left in place; null if the argument
+     *         number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
     {
         return getCommandArgArraySize(argumentNumber, row, false);
     }
 
-    /**************************************************************************
-     * Get the argument array size for the command argument specified at the
-     * specified row in the command data. Macro expansion is controlled by the
-     * input flag
+    /**********************************************************************************************
+     * Get the argument array size for the command argument specified at the specified row in the
+     * command data. Macro expansion is controlled by the input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2024,30 +1939,26 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument array size for the command argument specified at the
-     *         specified row in the command data; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Argument array size for the command argument specified at the specified row in the
+     *         command data; null if the argument number or row index is invalid
+     *********************************************************************************************/
     private String getCommandArgArraySize(int argumentNumber, int row, boolean expandMacros)
     {
         String argArraySize = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that other argument
-            // columns exist
+            // Check if the argument number is valid and that other argument columns exist
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getOther().size() != 0)
             {
@@ -2057,8 +1968,8 @@ public class CcddScriptDataAccessHandler
                 // Step through each array size column index
                 for (int arrayIndex : commandArguments.get(argumentNumber).getOther())
                 {
-                    // Check if the index matches one in the list of columns
-                    // associated with this command argument
+                    // Check if the index matches one in the list of columns associated with this
+                    // command argument
                     if (arraySizes.contains(arrayIndex))
                     {
                         // Get the reference to the table information
@@ -2083,10 +1994,9 @@ public class CcddScriptDataAccessHandler
         return argArraySize;
     }
 
-    /**************************************************************************
-     * Get the argument enumeration for the command argument specified at the
-     * specified row in the command data, with any macro name replaced by its
-     * corresponding value
+    /**********************************************************************************************
+     * Get the argument enumeration for the command argument specified at the specified row in the
+     * command data, with any macro name replaced by its corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2094,20 +2004,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument enumeration for the command argument specified
-     *         at the specified row in the command data, with any macro
-     *         replaced by its corresponding value; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Get the argument enumeration for the command argument specified at the specified row
+     *         in the command data, with any macro replaced by its corresponding value; null if the
+     *         argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgEnumeration(int argumentNumber, int row)
     {
         return getCommandArgEnumeration(argumentNumber, row, true);
     }
 
-    /**************************************************************************
-     * Get the argument enumeration for the command argument specified at the
-     * specified row in the command data, with any embedded macro(s) left in
-     * place
+    /**********************************************************************************************
+     * Get the argument enumeration for the command argument specified at the specified row in the
+     * command data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2115,20 +2023,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument enumeration for the command argument specified
-     *         at the specified row in the command data, with any embedded
-     *         macro(s) left in place; null if the argument number or row index
-     *         is invalid
-     *************************************************************************/
+     * @return Get the argument enumeration for the command argument specified at the specified row
+     *         in the command data, with any embedded macro(s) left in place; null if the argument
+     *         number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgEnumerationWithMacros(int argumentNumber, int row)
     {
         return getCommandArgEnumeration(argumentNumber, row, false);
     }
 
-    /**************************************************************************
-     * Get the argument enumeration for the command argument specified at the
-     * specified row in the command data. Macro expansion is controlled by the
-     * input flag
+    /**********************************************************************************************
+     * Get the argument enumeration for the command argument specified at the specified row in the
+     * command data. Macro expansion is controlled by the input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2137,30 +2043,26 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument enumeration for the command argument specified at the
-     *         specified row in the command data; null if the argument number
-     *         or row index is invalid
-     *************************************************************************/
+     * @return Argument enumeration for the command argument specified at the specified row in the
+     *         command data; null if the argument number or row index is invalid
+     *********************************************************************************************/
     private String getCommandArgEnumeration(int argumentNumber, int row, boolean expandMacros)
     {
         String argEnumeration = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that the argument
-            // enumeration exists
+            // Check if the argument number is valid and that the argument enumeration exists
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getEnumeration() != -1)
             {
@@ -2182,10 +2084,9 @@ public class CcddScriptDataAccessHandler
         return argEnumeration;
     }
 
-    /**************************************************************************
-     * Get the argument minimum value (as a string) for the command argument
-     * specified at the specified row in the command data, with any macro name
-     * replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the argument minimum value (as a string) for the command argument specified at the
+     * specified row in the command data, with any macro name replaced by its corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2193,20 +2094,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument minimum value (as a string) for the command
-     *         argument specified at the specified row in the command data,
-     *         with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
-     *************************************************************************/
+     * @return Get the argument minimum value (as a string) for the command argument specified at
+     *         the specified row in the command data, with any macro replaced by its corresponding
+     *         value; null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgMinimum(int argumentNumber, int row)
     {
         return getCommandArgMinimum(argumentNumber, row, true);
     }
 
-    /**************************************************************************
-     * Get the argument minimum value (as a string) for the command argument
-     * specified at the specified row in the command data, with any embedded
-     * macro(s) left in place
+    /**********************************************************************************************
+     * Get the argument minimum value (as a string) for the command argument specified at the
+     * specified row in the command data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2214,20 +2113,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument minimum value (as a string) for the command
-     *         argument specified at the specified row in the command data,
-     *         with any embedded macro(s) left in place; null if the argument
-     *         number or row index is invalid
-     *************************************************************************/
+     * @return Get the argument minimum value (as a string) for the command argument specified at
+     *         the specified row in the command data, with any embedded macro(s) left in place;
+     *         null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgMinimumWithMacros(int argumentNumber, int row)
     {
         return getCommandArgMinimum(argumentNumber, row, false);
     }
 
-    /**************************************************************************
-     * Get the argument minimum value (as a string) for the command argument
-     * specified at the specified row in the command data. Macro expansion is
-     * controlled by the input flag
+    /**********************************************************************************************
+     * Get the argument minimum value (as a string) for the command argument specified at the
+     * specified row in the command data. Macro expansion is controlled by the input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2236,30 +2133,27 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument minimum value (as a string) for the command argument
-     *         specified at the specified row in the command data; null if the
-     *         argument number or row index is invalid
-     *************************************************************************/
+     * @return Argument minimum value (as a string) for the command argument specified at the
+     *         specified row in the command data; null if the argument number or row index is
+     *         invalid
+     *********************************************************************************************/
     private String getCommandArgMinimum(int argumentNumber, int row, boolean expandMacros)
     {
         String argMinimum = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that the argument
-            // minimum value exists
+            // Check if the argument number is valid and that the argument minimum value exists
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getMinimum() != -1)
             {
@@ -2281,10 +2175,9 @@ public class CcddScriptDataAccessHandler
         return argMinimum;
     }
 
-    /**************************************************************************
-     * Get the argument maximum value (as a string) for the command argument
-     * specified at the specified row in the command data, with any macro name
-     * replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the argument maximum value (as a string) for the command argument specified at the
+     * specified row in the command data, with any macro name replaced by its corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2292,20 +2185,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument maximum value (as a string) for the command
-     *         argument specified at the specified row in the command data,
-     *         with any macro replaced by its corresponding value; null if the
-     *         argument number or row index is invalid
-     *************************************************************************/
+     * @return Get the argument maximum value (as a string) for the command argument specified at
+     *         the specified row in the command data, with any macro replaced by its corresponding
+     *         value; null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgMaximum(int argumentNumber, int row)
     {
         return getCommandArgMaximum(argumentNumber, row, true);
     }
 
-    /**************************************************************************
-     * Get the argument maximum value (as a string) for the command argument
-     * specified at the specified row in the command data, with any embedded
-     * macro(s) left in place
+    /**********************************************************************************************
+     * Get the argument maximum value (as a string) for the command argument specified at the
+     * specified row in the command data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2313,20 +2204,18 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Get the argument maximum value (as a string) for the command
-     *         argument specified at the specified row in the command data,
-     *         with any embedded macro(s) left in place; null if the argument
-     *         number or row index is invalid
-     *************************************************************************/
+     * @return Get the argument maximum value (as a string) for the command argument specified at
+     *         the specified row in the command data, with any embedded macro(s) left in place;
+     *         null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String getCommandArgMaximumWithMacros(int argumentNumber, int row)
     {
         return getCommandArgMaximum(argumentNumber, row, false);
     }
 
-    /**************************************************************************
-     * Get the argument maximum value (as a string) for the command argument
-     * specified at the specified row in the command data. Macro expansion is
-     * controlled by the input flag
+    /**********************************************************************************************
+     * Get the argument maximum value (as a string) for the command argument specified at the
+     * specified row in the command data. Macro expansion is controlled by the input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2335,30 +2224,27 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument maximum value (as a string) for the command argument
-     *         specified at the specified row in the command data; null if the
-     *         argument number or row index is invalid
-     *************************************************************************/
+     * @return Argument maximum value (as a string) for the command argument specified at the
+     *         specified row in the command data; null if the argument number or row index is
+     *         invalid
+     *********************************************************************************************/
     private String getCommandArgMaximum(int argumentNumber, int row, boolean expandMacros)
     {
         String argMaximum = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that the argument
-            // maximum value exists
+            // Check if the argument number is valid and that the argument maximum value exists
             if (argumentNumber < commandArguments.size()
                 && commandArguments.get(argumentNumber).getMaximum() != -1)
             {
@@ -2380,10 +2266,10 @@ public class CcddScriptDataAccessHandler
         return argMaximum;
     }
 
-    /**************************************************************************
-     * Get the argument value (as a string) for the column belonging to the
-     * command argument specified at the specified row in the command data,
-     * with any macro name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the argument value (as a string) for the column belonging to the command argument
+     * specified at the specified row in the command data, with any macro name replaced by its
+     * corresponding value
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2394,12 +2280,11 @@ public class CcddScriptDataAccessHandler
      * @param columnName
      *            name of the argument column for which the value is requested
      *
-     * @return Get the argument value (as a string) for the column belonging to
-     *         the command argument specified at the specified row in the
-     *         command data, with any macro replaced by its corresponding
-     *         value; null if the argument number, row index, or column name is
-     *         invalid
-     *************************************************************************/
+     * @return Get the argument value (as a string) for the column belonging to the command
+     *         argument specified at the specified row in the command data, with any macro replaced
+     *         by its corresponding value; null if the argument number, row index, or column name
+     *         is invalid
+     *********************************************************************************************/
     public String getCommandArgByColumnName(int argumentNumber,
                                             int row,
                                             String columnName)
@@ -2407,10 +2292,9 @@ public class CcddScriptDataAccessHandler
         return getCommandArgByColumnName(argumentNumber, row, columnName, true);
     }
 
-    /**************************************************************************
-     * Get the argument value (as a string) for the column belonging to the
-     * command argument specified at the specified row in the command data,
-     * with any embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the argument value (as a string) for the column belonging to the command argument
+     * specified at the specified row in the command data, with any embedded macro(s) left in place
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2421,11 +2305,11 @@ public class CcddScriptDataAccessHandler
      * @param columnName
      *            name of the argument column for which the value is requested
      *
-     * @return Get the argument value (as a string) for the column belonging to
-     *         the command argument specified at the specified row in the
-     *         command data, with any embedded macro(s) left in place; null if
-     *         the argument number, row index, or column name is invalid
-     *************************************************************************/
+     * @return Get the argument value (as a string) for the column belonging to the command
+     *         argument specified at the specified row in the command data, with any embedded
+     *         macro(s) left in place; null if the argument number, row index, or column name is
+     *         invalid
+     *********************************************************************************************/
     public String getCommandArgByColumnNameWithMacros(int argumentNumber,
                                                       int row,
                                                       String columnName)
@@ -2433,10 +2317,10 @@ public class CcddScriptDataAccessHandler
         return getCommandArgByColumnName(argumentNumber, row, columnName, false);
     }
 
-    /**************************************************************************
-     * Get the argument value (as a string) for the column belonging to the
-     * specified command argument at the specified row in the command data.
-     * Macro expansion is controlled by the input flag
+    /**********************************************************************************************
+     * Get the argument value (as a string) for the column belonging to the specified command
+     * argument at the specified row in the command data. Macro expansion is controlled by the
+     * input flag
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2448,14 +2332,13 @@ public class CcddScriptDataAccessHandler
      *            name of the argument column for which the value is requested
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Argument value (as a string) for the column belonging to the
-     *         specified command argument at the specified row in the command
-     *         data; null if the argument number, row index, or column name is
-     *         invalid
-     *************************************************************************/
+     * @return Argument value (as a string) for the column belonging to the specified command
+     *         argument at the specified row in the command data; null if the argument number, row
+     *         index, or column name is invalid
+     *********************************************************************************************/
     private String getCommandArgByColumnName(int argumentNumber,
                                              int row,
                                              String columnName,
@@ -2463,15 +2346,13 @@ public class CcddScriptDataAccessHandler
     {
         String argValue = null;
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid
@@ -2482,8 +2363,7 @@ public class CcddScriptDataAccessHandler
                 // Get the index of the specified column
                 int tgtColumn = typeDefn.getColumnIndexByUserName(columnName);
 
-                // Check if the column belongs to the specified command
-                // argument
+                // Check if the column belongs to the specified command argument
                 if (tgtColumn == cmdColumns.getName()
                     || tgtColumn == cmdColumns.getDataType()
                     || tgtColumn == cmdColumns.getDescription()
@@ -2512,9 +2392,9 @@ public class CcddScriptDataAccessHandler
         return argValue;
     }
 
-    /**************************************************************************
-     * Get the array of column names belonging to the specified command
-     * argument at the specified row in the command data
+    /**********************************************************************************************
+     * Get the array of column names belonging to the specified command argument at the specified
+     * row in the command data
      *
      * @param argumentNumber
      *            command argument index. The first argument is 0
@@ -2522,24 +2402,21 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Array of column names belonging to the specified command
-     *         argument at the specified row in the command data; null if the
-     *         argument number or row index is invalid
-     *************************************************************************/
+     * @return Array of column names belonging to the specified command argument at the specified
+     *         row in the command data; null if the argument number or row index is invalid
+     *********************************************************************************************/
     public String[] getCommandArgColumnNames(int argumentNumber,
                                              int row)
     {
         List<String> argColumns = new ArrayList<String>();
 
-        // Get the table type definition for the command table referenced in
-        // the specified row
+        // Get the table type definition for the command table referenced in the specified row
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
 
         // Check if the table type exists and represents a command
         if (typeDefn != null && typeDefn.isCommand())
         {
-            // Get the list of command arguments associated with this command
-            // table type
+            // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
             // Check if the argument number is valid
@@ -2547,8 +2424,7 @@ public class CcddScriptDataAccessHandler
             {
                 AssociatedColumns cmdColumns = commandArguments.get(argumentNumber);
 
-                // Add the argument name column name (this column must be
-                // present)
+                // Add the argument name column name (this column must be present)
                 argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getName()]);
 
                 // Check if the argument data type column is present
@@ -2593,8 +2469,7 @@ public class CcddScriptDataAccessHandler
                     argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getMaximum()]);
                 }
 
-                // Step through the other columns associated with this command
-                // argument
+                // Step through the other columns associated with this command argument
                 for (Integer otherColumn : cmdColumns.getOther())
                 {
                     // Add the argument column name
@@ -2607,50 +2482,44 @@ public class CcddScriptDataAccessHandler
         return argColumns.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get the table type name referenced in the specified row of the structure
-     * table type data. Convenience method that specifies the table type as
-     * "structure"
+    /**********************************************************************************************
+     * Get the table type name referenced in the specified row of the structure table type data.
+     * Convenience method that specifies the table type as "structure"
      *
-     * @return Type name referenced in the specified row of the structure table
-     *         type data
-     *************************************************************************/
+     * @return Type name referenced in the specified row of the structure table type data
+     *********************************************************************************************/
     public String getStructureTypeNameByRow(int row)
     {
         return getTypeNameByRow(TYPE_STRUCTURE, row);
     }
 
-    /**************************************************************************
-     * Get the table type name referenced in the specified row of the command
-     * table type data. Convenience method that specifies the table type as
-     * "command"
+    /**********************************************************************************************
+     * Get the table type name referenced in the specified row of the command table type data.
+     * Convenience method that specifies the table type as "command"
      *
-     * @return Type name referenced in the specified row of the command table
-     *         type data
-     *************************************************************************/
+     * @return Type name referenced in the specified row of the command table type data
+     *********************************************************************************************/
     public String getCommandTypeNameByRow(int row)
     {
         return getTypeNameByRow(TYPE_COMMAND, row);
     }
 
-    /**************************************************************************
-     * Get the the table type name referenced in the specified row of the
-     * specified table type data. The data for all structure (command) types
-     * are combined. This method provides the means to retrieve the specific
-     * table type to which the row data belongs based on its "generic" type
+    /**********************************************************************************************
+     * Get the the table type name referenced in the specified row of the specified table type
+     * data. The data for all structure (command) types are combined. This method provides the
+     * means to retrieve the specific table type to which the row data belongs based on its
+     * "generic" type
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return Type name referenced in the specified row of the specified table
-     *         type data
-     *************************************************************************/
+     * @return Type name referenced in the specified row of the specified table type data
+     *********************************************************************************************/
     public String getTypeNameByRow(String tableType, int row)
     {
         String typeName = "";
@@ -2669,15 +2538,14 @@ public class CcddScriptDataAccessHandler
         return typeName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the the table type name for the specified table
      *
      * @param tableName
-     *            name of the table. For a child structure this includes the
-     *            path
+     *            name of the table. For a child structure this includes the path
      *
      * @return Type name for the specified table
-     *************************************************************************/
+     *********************************************************************************************/
     public String getTypeNameByTable(String tableName)
     {
         String typeName = "";
@@ -2688,8 +2556,7 @@ public class CcddScriptDataAccessHandler
             // Step through each row of data for this table type
             for (int row = 0; row < tableInfo.getData().length; row++)
             {
-                // Check if the supplied table name matches the one for this
-                // row
+                // Check if the supplied table name matches the one for this row
                 if (tableName.equals(tableInfo.getData()[row][tableInfo.getData()[row].length
                                                               - PATH_COLUMN_DELTA]))
                 {
@@ -2704,52 +2571,50 @@ public class CcddScriptDataAccessHandler
         return typeName;
     }
 
-    /**************************************************************************
-     * Get the column names for the table referenced on the specified row of
-     * the structure table data
+    /**********************************************************************************************
+     * Get the column names for the table referenced on the specified row of the structure table
+     * data
      *
      * @param row
      *            structure table data row index
      *
-     * @return Array containing the names of the columns of the structure table
-     *         referenced in the specified row of the structure table data
-     *************************************************************************/
+     * @return Array containing the names of the columns of the structure table referenced in the
+     *         specified row of the structure table data
+     *********************************************************************************************/
     public String[] getStructureTableColumnNames(int row)
     {
         return getTableColumnNames(TYPE_STRUCTURE, row);
     }
 
-    /**************************************************************************
-     * Get the column names for the table referenced on the specified row of
-     * the command table data
+    /**********************************************************************************************
+     * Get the column names for the table referenced on the specified row of the command table data
      *
      * @param row
      *            command table data row index
      *
-     * @return Array containing the names of the columns of the command table
-     *         referenced in the specified row of the command table data
-     *************************************************************************/
+     * @return Array containing the names of the columns of the command table referenced in the
+     *         specified row of the command table data
+     *********************************************************************************************/
     public String[] getCommandTableColumnNames(int row)
     {
         return getTableColumnNames(TYPE_COMMAND, row);
     }
 
-    /**************************************************************************
-     * Get the table column names for the table referenced on the specified row
-     * of the table data for the table type specified
+    /**********************************************************************************************
+     * Get the table column names for the table referenced on the specified row of the table data
+     * for the table type specified
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return Array containing the names of the columns of the table type
-     *         referenced in the specified row of the type's table data
-     *************************************************************************/
+     * @return Array containing the names of the columns of the table type referenced in the
+     *         specified row of the type's table data
+     *********************************************************************************************/
     public String[] getTableColumnNames(String tableType, int row)
     {
         String[] columnNames = null;
@@ -2767,15 +2632,14 @@ public class CcddScriptDataAccessHandler
         return columnNames;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the table column names for the table type specified
      *
      * @param typeName
      *            table type name
      *
-     * @return Array containing the names of the columns of the table type
-     *         specified
-     *************************************************************************/
+     * @return Array containing the names of the columns of the table type specified
+     *********************************************************************************************/
     public String[] getTableColumnNamesByType(String typeName)
     {
         String[] columnNames = null;
@@ -2793,16 +2657,15 @@ public class CcddScriptDataAccessHandler
         return columnNames;
     }
 
-    /**************************************************************************
-     * Get an array containing the names of the prototype structures in the
-     * order in which they are referenced; that is, the structure array is
-     * arranged so that a structure appears in the array prior to a structure
-     * that references it
+    /**********************************************************************************************
+     * Get an array containing the names of the prototype structures in the order in which they are
+     * referenced; that is, the structure array is arranged so that a structure appears in the
+     * array prior to a structure that references it
      *
-     * @return Array containing the names of the prototype structures in the
-     *         order in which they are referenced; an empty array is returned
-     *         if no structures tables are associated with the script
-     *************************************************************************/
+     * @return Array containing the names of the prototype structures in the order in which they
+     *         are referenced; an empty array is returned if no structures tables are associated
+     *         with the script
+     *********************************************************************************************/
     public String[] getStructureTablesByReferenceOrder()
     {
         List<String> allStructs = new ArrayList<String>();
@@ -2842,12 +2705,12 @@ public class CcddScriptDataAccessHandler
                 // Add the last structure as the first one in the ordered list
                 orderedNames.add(allStructs.get(allStructs.size() - 1));
 
-                // Step backwards through the list of all structures beginning
-                // with the next to the last structure in the list
+                // Step backwards through the list of all structures beginning with the next to the
+                // last structure in the list
                 for (int index = allStructs.size() - 2; index >= 0; index--)
                 {
-                    // Check if the ordered list doesn't already contain the
-                    // structure name in order to eliminate duplicates
+                    // Check if the ordered list doesn't already contain the structure name in
+                    // order to eliminate duplicates
                     if (!orderedNames.contains(allStructs.get(index)))
                     {
                         // Add the structure name to the list
@@ -2859,8 +2722,8 @@ public class CcddScriptDataAccessHandler
             // Step through the structure names
             for (String structureName : structureNames)
             {
-                // Check if the structure isn't already in the list. This is
-                // true for the top-level structure(s) without children
+                // Check if the structure isn't already in the list. This is true for the top-level
+                // structure(s) without children
                 if (!orderedNames.contains(structureName))
                 {
                     // Add the structure to the list
@@ -2872,18 +2735,18 @@ public class CcddScriptDataAccessHandler
         return orderedNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get a variable's full name in the application’s native format, which
-     * includes the variables in the structure path separated by commas, and
-     * with the data type and variable names separated by periods
+    /**********************************************************************************************
+     * Get a variable's full name in the application’s native format, which includes the variables
+     * in the structure path separated by commas, and with the data type and variable names
+     * separated by periods
      *
      * @param row
      *            table data row index
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by a comma, and with each data type and variable name
-     *         separated by a period; returns a blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by a
+     *         comma, and with each data type and variable name separated by a period; returns a
+     *         blank is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableNameRaw(int row)
     {
         String fullName = "";
@@ -2909,32 +2772,28 @@ public class CcddScriptDataAccessHandler
         return fullName;
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by underscores, and with the data types removed. In case
-     * there are any array member variable names in the full name, replace left
-     * square brackets with # underscores and remove right square brackets
-     * (example: a[0],b[2] becomes a_0_b_2)
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * underscores, and with the data types removed. In case there are any array member variable
+     * names in the full name, replace left square brackets with # underscores and remove right
+     * square brackets (example: a[0],b[2] becomes a_0_b_2)
      *
      * @param row
      *            table data row index
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by an underscore, and with the data types removed;
-     *         returns a blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by an
+     *         underscore, and with the data types removed; returns a blank is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(int row)
     {
         return getFullVariableName(row, "_");
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s), and with the
-     * data types removed. In case there are any array member variable names in
-     * the full name, replace left square brackets with # underscores and
-     * remove right square brackets (example: a[0],b[2] becomes
-     * a_0separatorb_2)
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s), and with the data types removed. In case there are any
+     * array member variable names in the full name, replace left square brackets with #
+     * underscores and remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
      * @param row
      *            table data row index
@@ -2942,22 +2801,21 @@ public class CcddScriptDataAccessHandler
      * @param varPathSeparator
      *            character(s) to place between variable path members
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s), and with the
-     *         data types removed; returns a blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s), and with the data types removed; returns a blank
+     *         is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(int row, String varPathSeparator)
     {
         return getFullVariableName(row, varPathSeparator, true, "");
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s). In case there
-     * are any array member variable names in the full name, replace left
-     * square brackets with # underscores and remove right square brackets
-     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
-     * or retained, based on the input flag
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s). In case there are any array member variable names in
+     * the full name, replace left square brackets with # underscores and remove right square
+     * brackets (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or
+     * retained, based on the input flag
      *
      * @param row
      *            table data row index
@@ -2971,10 +2829,9 @@ public class CcddScriptDataAccessHandler
      * @param typeNameSeparator
      *            character(s) to place between data types and variable names
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s); returns a
-     *         blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s); returns a blank is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(int row,
                                       String varPathSeparator,
                                       boolean excludeDataTypes,
@@ -3005,16 +2862,14 @@ public class CcddScriptDataAccessHandler
         return fullName;
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s) and with the data
-     * types removed. In case there are any array member variable names in the
-     * full name, replace left square brackets with # underscores and remove
-     * right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s) and with the data types removed. In case there are any
+     * array member variable names in the full name, replace left square brackets with #
+     * underscores and remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
      * @param variablePath
-     *            variable path in the format
-     *            rootTable[,structureDataType1.variable1
+     *            variable path in the format rootTable[,structureDataType1.variable1
      *            [,structureDataType2.variable2[,...]]]
      *
      * @param variableName
@@ -3023,10 +2878,10 @@ public class CcddScriptDataAccessHandler
      * @param varPathSeparator
      *            character(s) to place between variable path members
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s) and with the
-     *         data types removed; returns a blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s) and with the data types removed; returns a blank is
+     *         the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(String variablePath,
                                       String variableName,
                                       String varPathSeparator)
@@ -3038,43 +2893,37 @@ public class CcddScriptDataAccessHandler
                                    "");
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s), and with the
-     * data types removed. In case there are any array member variable names in
-     * the full name, replace left square brackets with # underscores and
-     * remove right square brackets (example: a[0],b[2] becomes
-     * a_0separatorb_2)
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s), and with the data types removed. In case there are any
+     * array member variable names in the full name, replace left square brackets with #
+     * underscores and remove right square brackets (example: a[0],b[2] becomes a_0separatorb_2)
      *
      * @param fullName
-     *            variable path + name in the format
-     *            rootTable[,structureDataType1.variable1
-     *            [,structureDataType2.variable2
-     *            [,...]]],primitiveDataType.variable
+     *            variable path + name in the format rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2 [,...]]],primitiveDataType.variable
      *
      * @param varPathSeparator
      *            character(s) to place between variable path members
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s), and with the
-     *         data types removed; returns a blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s), and with the data types removed; returns a blank
+     *         is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(String fullName, String varPathSeparator)
     {
         return getFullVariableName(fullName, varPathSeparator, true, "");
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s). In case there
-     * are any array member variable names in the full name, replace left
-     * square brackets with # underscores and remove right square brackets
-     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
-     * or retained, based on the input flag
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s). In case there are any array member variable names in
+     * the full name, replace left square brackets with # underscores and remove right square
+     * brackets (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or
+     * retained, based on the input flag
      *
      * @param variablePath
-     *            variable path in the format
-     *            rootTable[,structureDataType1.variable1
+     *            variable path in the format rootTable[,structureDataType1.variable1
      *            [,structureDataType2.variable2[,...]]]
      *
      * @param variableName
@@ -3089,10 +2938,9 @@ public class CcddScriptDataAccessHandler
      * @param typeNameSeparator
      *            character(s) to place between data types and variable names
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s); returns a
-     *         blank is the row is invalid
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s); returns a blank is the row is invalid
+     *********************************************************************************************/
     public String getFullVariableName(String variablePath,
                                       String variableName,
                                       String varPathSeparator,
@@ -3116,20 +2964,16 @@ public class CcddScriptDataAccessHandler
         return fullName;
     }
 
-    /**************************************************************************
-     * Get a variable's full name which includes the variables in the structure
-     * path separated by the specified separator character(s). In case there
-     * are any array member variable names in the full name, replace left
-     * square brackets with # underscores and remove right square brackets
-     * (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded
-     * or retained, based on the input flag. Any macro embedded in the variable
-     * name is expanded
+    /**********************************************************************************************
+     * Get a variable's full name which includes the variables in the structure path separated by
+     * the specified separator character(s). In case there are any array member variable names in
+     * the full name, replace left square brackets with # underscores and remove right square
+     * brackets (example: a[0],b[2] becomes a_0separatorb_2). Data types may be excluded or
+     * retained, based on the input flag. Any macro embedded in the variable name is expanded
      *
      * @param fullName
-     *            variable path + name in the format
-     *            rootTable[,structureDataType1.variable1
-     *            [,structureDataType2.variable2
-     *            [,...]]],primitiveDataType.variable
+     *            variable path + name in the format rootTable[,structureDataType1.variable1
+     *            [,structureDataType2.variable2 [,...]]],primitiveDataType.variable
      *
      * @param varPathSeparator
      *            character(s) to place between variable path members
@@ -3140,258 +2984,233 @@ public class CcddScriptDataAccessHandler
      * @param typeNameSeparator
      *            character(s) to place between data types and variable names
      *
-     * @return The variable's full path and name with each variable in the path
-     *         separated by the specified separator character(s); returns a
-     *         blank is the row is invalid. Any macro embedded in the variable
-     *         name is expanded
-     *************************************************************************/
+     * @return The variable's full path and name with each variable in the path separated by the
+     *         specified separator character(s); returns a blank is the row is invalid. Any macro
+     *         embedded in the variable name is expanded
+     *********************************************************************************************/
     public String getFullVariableName(String fullName,
                                       String varPathSeparator,
                                       boolean excludeDataTypes,
                                       String typeNameSeparator)
     {
-        // Create the variable handler for only those variables referenced in
-        // the associated structure tables, if it hasn't already been created
+        // Create the variable handler for only those variables referenced in the associated
+        // structure tables, if it hasn't already been created
         createVariableHandler(false);
 
         // Expand any macros in the variable name before getting the full name
         return varConvHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
-                                                   varPathSeparator,
-                                                   excludeDataTypes,
-                                                   typeNameSeparator);
+                                                  varPathSeparator,
+                                                  excludeDataTypes,
+                                                  typeNameSeparator);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs with
-     * any embedded macro replaced by its corresponding value. Convenience
-     * method that assumes the table type is "structure"
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs with any embedded macro
+     * replaced by its corresponding value. Convenience method that assumes the table type is
+     * "structure"
      *
      * @param row
      *            table data row index
      *
-     * @return The structure path to the current row's parameter with any
-     *         embedded macro replaced by its corresponding value; returns a
-     *         blank if an instance of the table type doesn't exist. The path
-     *         starts with the top-level table name and is followed by a comma
-     *         and then the parent structure and variable name(s) that
-     *         define(s) the table's path. Each parent and its associated
-     *         variable name are separated by a period. Each parent/variable
-     *         pair in the path is separated by a comma. The format is:
+     * @return The structure path to the current row's parameter with any embedded macro replaced
+     *         by its corresponding value; returns a blank if an instance of the table type doesn't
+     *         exist. The path starts with the top-level table name and is followed by a comma and
+     *         then the parent structure and variable name(s) that define(s) the table's path. Each
+     *         parent and its associated variable name are separated by a period. Each
+     *         parent/variable pair in the path is separated by a comma. The format is:
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructurePathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs with
-     * any embedded macro(s) left in place. Convenience method that assumes the
-     * table type is "structure"
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs with any embedded macro(s)
+     * left in place. Convenience method that assumes the table type is "structure"
      *
      * @param row
      *            table data row index
      *
-     * @return The structure path to the current row's parameter with any
-     *         embedded macro(s) left in place; returns a blank if an instance
-     *         of the table type doesn't exist. The path starts with the
-     *         top-level table name and is followed by a comma and then the
-     *         parent structure and variable name(s) that define(s) the table's
-     *         path. Each parent and its associated variable name are separated
-     *         by a period. Each parent/variable pair in the path is separated
-     *         by a comma. The format is:
+     * @return The structure path to the current row's parameter with any embedded macro(s) left in
+     *         place; returns a blank if an instance of the table type doesn't exist. The path
+     *         starts with the top-level table name and is followed by a comma and then the parent
+     *         structure and variable name(s) that define(s) the table's path. Each parent and its
+     *         associated variable name are separated by a period. Each parent/variable pair in the
+     *         path is separated by a comma. The format is:
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructurePathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PARENT_AND_VARIABLE, false);
     }
 
-    /**************************************************************************
-     * Get the path to which the specified row's data belongs with any embedded
-     * macro replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the path to which the specified row's data belongs with any embedded macro replaced by
+     * its corresponding value
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter with any embedded macro
-     *         replaced by its corresponding value; returns a blank if an
-     *         instance of the table type doesn't exist. The path starts with
-     *         the top-level table name. For structure tables the top-level
-     *         name is followed by a comma and then the parent structure and
-     *         variable name(s) that define(s) the table's path. Each parent
-     *         and its associated variable name are separated by a period. Each
-     *         parent/variable pair in the path is separated by a comma. The
-     *         format is:
+     * @return The path to the current row's parameter with any embedded macro replaced by its
+     *         corresponding value; returns a blank if an instance of the table type doesn't exist.
+     *         The path starts with the top-level table name. For structure tables the top-level
+     *         name is followed by a comma and then the parent structure and variable name(s) that
+     *         define(s) the table's path. Each parent and its associated variable name are
+     *         separated by a period. Each parent/variable pair in the path is separated by a
+     *         comma. The format is:
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getPathByRow(String tableType, int row)
     {
         return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, true);
     }
 
-    /**************************************************************************
-     * Get the path to which the specified row's data belongs with any embedded
-     * macro(s) left in place
+    /**********************************************************************************************
+     * Get the path to which the specified row's data belongs with any embedded macro(s) left in
+     * place
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter with any embedded
-     *         macro(s) left in place; returns a blank if an instance of the
-     *         table type doesn't exist. The path starts with the top-level
-     *         table name. For structure tables the top-level name is followed
-     *         by a comma and then the parent structure and variable name(s)
-     *         that define(s) the table's path. Each parent and its associated
-     *         variable name are separated by a period. Each parent/variable
-     *         pair in the path is separated by a comma. The format is:
+     * @return The path to the current row's parameter with any embedded macro(s) left in place;
+     *         returns a blank if an instance of the table type doesn't exist. The path starts with
+     *         the top-level table name. For structure tables the top-level name is followed by a
+     *         comma and then the parent structure and variable name(s) that define(s) the table's
+     *         path. Each parent and its associated variable name are separated by a period. Each
+     *         parent/variable pair in the path is separated by a comma. The format is:
      *
      *         top-level<,variable1.parent1<,variable2.parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getPathByRowWithMacros(String tableType, int row)
     {
         return getTablePathByRow(tableType, row, TablePathType.PARENT_AND_VARIABLE, false);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs,
-     * showing only the top-level structure and variable names and with any
-     * embedded macro replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs, showing only the top-level
+     * structure and variable names and with any embedded macro replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter with any embedded macro
-     *         replaced by its corresponding value; returns a blank if an
-     *         instance of the table type doesn't exist. The path starts with
-     *         the top-level table name. The top-level name is followed by a
-     *         comma and then the variable name(s) that define(s) the table's
-     *         path. Each variable in the path is separated by a comma. The
-     *         format is:
+     * @return The path to the current row's parameter with any embedded macro replaced by its
+     *         corresponding value; returns a blank if an instance of the table type doesn't exist.
+     *         The path starts with the top-level table name. The top-level name is followed by a
+     *         comma and then the variable name(s) that define(s) the table's path. Each variable
+     *         in the path is separated by a comma. The format is:
      *
      *         top-level<,variable1<,variable2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructureTableVariablePathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, true);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs,
-     * showing only the top-level structure and variable names and with any
-     * embedded macro(s) left in place
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs, showing only the top-level
+     * structure and variable names and with any embedded macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter with any embedded
-     *         macro(s) left in place; returns a blank if an instance of the
-     *         table type doesn't exist. The path starts with the top-level
-     *         table name. The top-level name is followed by a comma and then
-     *         the variable name(s) that define(s) the table's path. Each
-     *         variable in the path is separated by a comma. The format is:
+     * @return The path to the current row's parameter with any embedded macro(s) left in place;
+     *         returns a blank if an instance of the table type doesn't exist. The path starts with
+     *         the top-level table name. The top-level name is followed by a comma and then the
+     *         variable name(s) that define(s) the table's path. Each variable in the path is
+     *         separated by a comma. The format is:
      *
      *         top-level<,variable1<,variable2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructureTableVariablePathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.VARIABLE_ONLY, false);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs,
-     * formatted for use in an ITOS record statement and with any embedded
-     * macro replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs, formatted for use in an
+     * ITOS record statement and with any embedded macro replaced by its corresponding value
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter formatted for use in an
-     *         ITOS record statement and with any embedded macro replaced by
-     *         its corresponding value; returns a blank if an instance of the
-     *         table type doesn't exist. The path starts with the top-level
-     *         table name. The top-level name is followed by a period and then
-     *         the variable name(s) that define(s) the table's path. Each
-     *         variable in the path is separated by an period. The format is:
+     * @return The path to the current row's parameter formatted for use in an ITOS record
+     *         statement and with any embedded macro replaced by its corresponding value; returns a
+     *         blank if an instance of the table type doesn't exist. The path starts with the
+     *         top-level table name. The top-level name is followed by a period and then the
+     *         variable name(s) that define(s) the table's path. Each variable in the path is
+     *         separated by an period. The format is:
      *
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructureTableITOSPathByRow(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, true);
     }
 
-    /**************************************************************************
-     * Get the structure path to which the specified row's data belongs,
-     * formatted for use in an ITOS record statement, and with any embedded
-     * macro(s) left in place
+    /**********************************************************************************************
+     * Get the structure path to which the specified row's data belongs, formatted for use in an
+     * ITOS record statement, and with any embedded macro(s) left in place
      *
      * @param row
      *            table data row index
      *
-     * @return The path to the current row's parameter formatted for use in an
-     *         ITOS record statement and with any embedded macro(s) left in
-     *         place; returns a blank if an instance of the table type doesn't
-     *         exist. The path starts with the top-level table name. The
-     *         top-level name is followed by a period and then the variable
-     *         name(s) that define(s) the table's path. Each variable in the
-     *         path is separated by an period. The format is:
+     * @return The path to the current row's parameter formatted for use in an ITOS record
+     *         statement and with any embedded macro(s) left in place; returns a blank if an
+     *         instance of the table type doesn't exist. The path starts with the top-level table
+     *         name. The top-level name is followed by a period and then the variable name(s) that
+     *         define(s) the table's path. Each variable in the path is separated by an period. The
+     *         format is:
      *
      *         top-level<.variable1_parent1<.variable2_parent2<...>>>
-     *************************************************************************/
+     *********************************************************************************************/
     public String getStructureTableITOSPathByRowWithMacros(int row)
     {
         return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.ITOS_RECORD, false);
     }
 
-    /**************************************************************************
-     * Get the path or prototype table name for the table on the specified row
-     * in the specified format
+    /**********************************************************************************************
+     * Get the path or prototype table name for the table on the specified row in the specified
+     * format
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
      * @param pathType
-     *            the format of the path to return:
-     *            TablePathType.VARIABLE_AND_PARENT to return the path with the
-     *            variable names and associated parent structure names,
-     *            TablePathType.PROTOTYPE to return the name of the prototype
-     *            table, TablePathType.VARIABLE_ONLY to return the path with
-     *            only the variable names (parent names removed), or
-     *            TablePathType.ITOS_RECORD to return the path formatted for
-     *            use in an ITOS record file
+     *            the format of the path to return: TablePathType.VARIABLE_AND_PARENT to return the
+     *            path with the variable names and associated parent structure names,
+     *            TablePathType.PROTOTYPE to return the name of the prototype table,
+     *            TablePathType.VARIABLE_ONLY to return the path with only the variable names
+     *            (parent names removed), or TablePathType.ITOS_RECORD to return the path formatted
+     *            for use in an ITOS record file
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return The table path (or prototype name), for the structure table, to
-     *         the current row's parameter; returns a blank if an instance of
-     *         the structure table type doesn't exist. Depending on the input
-     *         flag, any macro is replaced by its corresponding value or left
-     *         in place
-     *************************************************************************/
+     * @return The table path (or prototype name), for the structure table, to the current row's
+     *         parameter; returns a blank if an instance of the structure table type doesn't exist.
+     *         Depending on the input flag, any macro is replaced by its corresponding value or
+     *         left in place
+     *********************************************************************************************/
     private String getTablePathByRow(String tableType,
                                      int row,
                                      TablePathType pathType,
@@ -3399,12 +3218,11 @@ public class CcddScriptDataAccessHandler
     {
         String structurePath = "";
 
-        // Get the reference to the table information class for the specified
-        // table type
+        // Get the reference to the table information class for the specified table type
         TableInformation tableInfo = getTableInformation(tableType);
 
-        // Check if table information exists for the specified type and if the
-        // row is within the table data array size
+        // Check if table information exists for the specified type and if the row is within the
+        // table data array size
         if (tableInfo != null && row < tableInfo.getData().length)
         {
             // Calculate the column index for the structure path
@@ -3419,8 +3237,7 @@ public class CcddScriptDataAccessHandler
                 switch (pathType)
                 {
                     case PARENT_AND_VARIABLE:
-                        // Get the path as stored, with the parent structures
-                        // in place
+                        // Get the path as stored, with the parent structures in place
                         break;
 
                     case PROTOTYPE:
@@ -3429,14 +3246,13 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case VARIABLE_ONLY:
-                        // Remove the data types (parent structure names) from
-                        // the path
+                        // Remove the data types (parent structure names) from the path
                         structurePath = structurePath.replaceAll(",[^\\.]*\\.", ",");
                         break;
 
                     case ITOS_RECORD:
-                        // Remove the data types (parent structure names) from
-                        // the path and replace the commas with periods
+                        // Remove the data types (parent structure names) from the path and replace
+                        // the commas with periods
                         structurePath = structurePath.replaceAll(",[^\\.]*\\.", ".");
                         break;
                 }
@@ -3453,16 +3269,15 @@ public class CcddScriptDataAccessHandler
         return structurePath;
     }
 
-    /**************************************************************************
-     * Determine if the specified structure is referenced by more than one root
-     * structure
+    /**********************************************************************************************
+     * Determine if the specified structure is referenced by more than one root structure
      *
      * @param structureName
      *            name of the structure to check
      *
-     * @return true if the specified structure is referenced by more than one
-     *         table; false otherwise
-     *************************************************************************/
+     * @return true if the specified structure is referenced by more than one table; false
+     *         otherwise
+     *********************************************************************************************/
     public boolean isStructureShared(String structureName)
     {
         boolean isShared = false;
@@ -3470,12 +3285,11 @@ public class CcddScriptDataAccessHandler
         // Check if a structure name is provided
         if (structureName != null && !structureName.isEmpty())
         {
-            // Create the variable handler for all the project's variables, if
-            // it hasn't already been created
+            // Create the variable handler for all the project's variables, if it hasn't already
+            // been created
             createVariableHandler(true);
 
-            // Get the list table tree paths for which the target structure is
-            // a member
+            // Get the list table tree paths for which the target structure is a member
             List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName);
 
             // Check that the target structure appears in at least two paths
@@ -3487,13 +3301,11 @@ public class CcddScriptDataAccessHandler
                 // Step through the remaining paths
                 for (int index = 1; index < memberPaths.size(); index++)
                 {
-                    // Check if the root table differs from the first path's
-                    // root table
+                    // Check if the root table differs from the first path's root table
                     if (!target.equals(tableTree.getVariableRootFromNodePath(memberPaths.get(index))))
                     {
-                        // Set the flag indicating that the target structure is
-                        // referenced by more than one root table and stop
-                        // searching
+                        // Set the flag indicating that the target structure is referenced by more
+                        // than one root table and stop searching
                         isShared = true;
                         break;
                     }
@@ -3504,83 +3316,76 @@ public class CcddScriptDataAccessHandler
         return isShared;
     }
 
-    /**************************************************************************
-     * Get an array containing the path to every root structure in the project
-     * database and its variables
+    /**********************************************************************************************
+     * Get an array containing the path to every root structure in the project database and its
+     * variables
      *
-     * @return Array containing the path for each structure variable. The root
-     *         structures are sorted alphabetically. The variables are
-     *         displayed in the order of appearance within the structure
-     *         (parent or child). Any macro is replaced by its corresponding
-     *         value
-     *************************************************************************/
+     * @return Array containing the path for each structure variable. The root structures are
+     *         sorted alphabetically. The variables are displayed in the order of appearance within
+     *         the structure (parent or child). Any macro is replaced by its corresponding value
+     *********************************************************************************************/
     public String[] getVariablePaths()
     {
-        // Create the variable handler for all the project's variables, if it
-        // hasn't already been created
+        // Create the variable handler for all the project's variables, if it hasn't already been
+        // created
         createVariableHandler(true);
 
         return varConvHandler.getAllVariableNameList().toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified table
      *
      * @param tableName
-     *            name of the table, including the path if this table
-     *            references a structure, to which the field is a member
+     *            name of the table, including the path if this table references a structure, to
+     *            which the field is a member
      *
-     * @return Array of the data field names associated with the specified
-     *         table; returns an empty array if the table name is invalid or
-     *         the table has no data fields
-     *************************************************************************/
+     * @return Array of the data field names associated with the specified table; returns an empty
+     *         array if the table name is invalid or the table has no data fields
+     *********************************************************************************************/
     public String[] getTableDataFieldNames(String tableName)
     {
         return getDataFieldNames(tableName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified group
      *
      * @param groupName
      *            name of the group to which the field is a member
      *
      *
-     * @return Array of the data field names associated with the specified
-     *         group; returns an empty array if the group name is invalid or
-     *         the group has no data fields
-     *************************************************************************/
+     * @return Array of the data field names associated with the specified group; returns an empty
+     *         array if the group name is invalid or the group has no data fields
+     *********************************************************************************************/
     public String[] getGroupDataFieldNames(String groupName)
     {
         return getDataFieldNames(CcddFieldHandler.getFieldGroupName(groupName));
     }
 
-    /**************************************************************************
-     * Get the name(s) of the data field(s) associated with the specified table
-     * type
+    /**********************************************************************************************
+     * Get the name(s) of the data field(s) associated with the specified table type
      *
      * @param typeName
      *            name of the table type to which the field is a member
      *
-     * @return Array of the data field names associated with the specified
-     *         table type; returns an empty array if the table type name is
-     *         invalid or the table type has no data fields
-     *************************************************************************/
+     * @return Array of the data field names associated with the specified table type; returns an
+     *         empty array if the table type name is invalid or the table type has no data fields
+     *********************************************************************************************/
     public String[] getTypeDataFieldNames(String typeName)
     {
         return getDataFieldNames(CcddFieldHandler.getFieldTypeName(typeName));
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified owner
      *
      * @param ownerName
      *            name of the table type to which the field is a member
      *
-     * @return Array of the data field names associated with the specified
-     *         owner; returns an empty array if the owner name is invalid or
-     *         the owner has no data fields
-     *************************************************************************/
+     * @return Array of the data field names associated with the specified owner; returns an empty
+     *         array if the owner name is invalid or the owner has no data fields
+     *********************************************************************************************/
     private String[] getDataFieldNames(String ownerName)
     {
         List<String> fieldNames = new ArrayList<String>();
@@ -3598,71 +3403,63 @@ public class CcddScriptDataAccessHandler
         return fieldNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
-     * Get the data field value for all tables that have the specified data
-     * field
+    /**********************************************************************************************
+     * Get the data field value for all tables that have the specified data field
      *
      * @param fieldName
      *            data field name
      *
-     * @return Array of table names and the data field value; returns an empty
-     *         array if the field name is invalid (i.e., no table has the data
-     *         field)
-     *************************************************************************/
+     * @return Array of table names and the data field value; returns an empty array if the field
+     *         name is invalid (i.e., no table has the data field)
+     *********************************************************************************************/
     public String[][] getTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(null, fieldName);
     }
 
-    /**************************************************************************
-     * Get the data field value for all structure tables that have the
-     * specified data field
+    /**********************************************************************************************
+     * Get the data field value for all structure tables that have the specified data field
      *
      * @param fieldName
      *            data field name
      *
-     * @return Array of structure table names and the data field value; returns
-     *         an empty array if the field name is invalid (i.e., no structure
-     *         table has the data field)
-     *************************************************************************/
+     * @return Array of structure table names and the data field value; returns an empty array if
+     *         the field name is invalid (i.e., no structure table has the data field)
+     *********************************************************************************************/
     public String[][] getStructureTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(TYPE_STRUCTURE, fieldName);
     }
 
-    /**************************************************************************
-     * Get the data field value for all command tables that have the specified
-     * data field
+    /**********************************************************************************************
+     * Get the data field value for all command tables that have the specified data field
      *
      * @param fieldName
      *            data field name
      *
-     * @return Array of command table names and the data field value; returns
-     *         an empty array if the field name is invalid (i.e., no command
-     *         table has the data field)
-     *************************************************************************/
+     * @return Array of command table names and the data field value; returns an empty array if the
+     *         field name is invalid (i.e., no command table has the data field)
+     *********************************************************************************************/
     public String[][] getCommandTableDataFieldValues(String fieldName)
     {
         return getTableDataFieldValues(TYPE_COMMAND, fieldName);
     }
 
-    /**************************************************************************
-     * Get the data field value for all tables of the specified type that have
-     * the specified data field
+    /**********************************************************************************************
+     * Get the data field value for all tables of the specified type that have the specified data
+     * field
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command". null to include tables of any type
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command". null to include tables of any type
      *
      * @param fieldName
      *            data field name
      *
-     * @return Array of table names of the specified type and the data field
-     *         value; returns an empty array if the field name is invalid
-     *         (i.e., no table has the data field)
-     *************************************************************************/
+     * @return Array of table names of the specified type and the data field value; returns an
+     *         empty array if the field name is invalid (i.e., no table has the data field)
+     *********************************************************************************************/
     public String[][] getTableDataFieldValues(String tableType, String fieldName)
     {
         List<String[]> fieldValues = new ArrayList<String[]>();
@@ -3686,25 +3483,25 @@ public class CcddScriptDataAccessHandler
         return fieldValues.toArray(new String[0][0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the value for the specified table's specified data field
      *
      * @param tableName
-     *            name of the table, including the path if this table
-     *            references a structure, to which the field is a member
+     *            name of the table, including the path if this table references a structure, to
+     *            which the field is a member
      *
      * @param fieldName
      *            data field name
      *
-     * @return Data field value; returns a null if the table type, table name,
-     *         or field name is invalid
-     *************************************************************************/
+     * @return Data field value; returns a null if the table type, table name, or field name is
+     *         invalid
+     *********************************************************************************************/
     public String getTableDataFieldValue(String tableName, String fieldName)
     {
         return getDataFieldValue(tableName, fieldName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the value for the specified group's specified data field
      *
      * @param groupName
@@ -3713,16 +3510,15 @@ public class CcddScriptDataAccessHandler
      * @param fieldName
      *            data field name
      *
-     * @return Data field value; returns a null if the group name or field name
-     *         is invalid
-     *************************************************************************/
+     * @return Data field value; returns a null if the group name or field name is invalid
+     *********************************************************************************************/
     public String getGroupDataFieldValue(String groupName, String fieldName)
     {
         return getDataFieldValue(CcddFieldHandler.getFieldGroupName(groupName),
                                  fieldName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the value for the specified table type's specified data field
      *
      * @param typeName
@@ -3731,36 +3527,31 @@ public class CcddScriptDataAccessHandler
      * @param fieldName
      *            data field name
      *
-     * @return Data field value; returns a null if the table type name or field
-     *         name is invalid
-     *************************************************************************/
+     * @return Data field value; returns a null if the table type name or field name is invalid
+     *********************************************************************************************/
     public String getTypeDataFieldValue(String typeName, String fieldName)
     {
         return getDataFieldValue(CcddFieldHandler.getFieldTypeName(typeName),
                                  fieldName);
     }
 
-    /**************************************************************************
-     * Get the contents of the data field for the specified table's specified
-     * data field
+    /**********************************************************************************************
+     * Get the contents of the data field for the specified table's specified data field
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name)
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
      *
      * @param fieldName
      *            data field name
      *
-     * @return Data field value; returns a null if the owner name or field name
-     *         is invalid
-     *************************************************************************/
+     * @return Data field value; returns a null if the owner name or field name is invalid
+     *********************************************************************************************/
     private String getDataFieldValue(String ownerName, String fieldName)
     {
         String fieldValue = null;
 
-        // Get the reference to the data field information for the requested
-        // owner and field names
+        // Get the reference to the data field information for the requested owner and field names
         FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
                                                                             fieldName);
 
@@ -3774,26 +3565,26 @@ public class CcddScriptDataAccessHandler
         return fieldValue;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description for the specified table's specified data field
      *
      * @param tableName
-     *            name of the table, including the path if this table
-     *            references a structure, to which the field is a member
+     *            name of the table, including the path if this table references a structure, to
+     *            which the field is a member
      *
      * @param fieldName
      *            data field name
      *
-     * @return Data field description; returns a blank if the table type, table
-     *         name, or field name is invalid
-     *************************************************************************/
+     * @return Data field description; returns a blank if the table type, table name, or field name
+     *         is invalid
+     *********************************************************************************************/
     public String getTableDataFieldDescription(String tableName,
                                                String fieldName)
     {
         return getDataFieldDescription(tableName, fieldName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description for the specified group's specified data field
      *
      * @param groupName
@@ -3802,9 +3593,8 @@ public class CcddScriptDataAccessHandler
      * @param fieldName
      *            data field name
      *
-     * @return Data field description; returns a blank if the group name or
-     *         field name is invalid
-     *************************************************************************/
+     * @return Data field description; returns a blank if the group name or field name is invalid
+     *********************************************************************************************/
     public String getGroupDataFieldDescription(String groupName,
                                                String fieldName)
     {
@@ -3812,7 +3602,7 @@ public class CcddScriptDataAccessHandler
                                        fieldName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description for the specified table type's specified data field
      *
      * @param typeName
@@ -3821,36 +3611,32 @@ public class CcddScriptDataAccessHandler
      * @param fieldName
      *            data field name
      *
-     * @return Data field description; returns a blank if the table type name
-     *         or field name is invalid
-     *************************************************************************/
+     * @return Data field description; returns a blank if the table type name or field name is
+     *         invalid
+     *********************************************************************************************/
     public String getTypeDataFieldDescription(String typeName, String fieldName)
     {
         return getDataFieldDescription(CcddFieldHandler.getFieldTypeName(typeName),
                                        fieldName);
     }
 
-    /**************************************************************************
-     * Get the description of the data field for the specified owner's
-     * specified data field
+    /**********************************************************************************************
+     * Get the description of the data field for the specified owner's specified data field
      *
      * @param ownerName
-     *            name of the data field owner (table name, including the path
-     *            if this table references a structure, group name, or table
-     *            type name)
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
      *
      * @param fieldName
      *            data field name
      *
-     * @return Data field description; returns a blank if the owner name or
-     *         field name is invalid
-     *************************************************************************/
+     * @return Data field description; returns a blank if the owner name or field name is invalid
+     *********************************************************************************************/
     private String getDataFieldDescription(String ownerName, String fieldName)
     {
         String fieldDescription = "";
 
-        // Get the reference to the data field information for the requested
-        // owner and field names
+        // Get the reference to the data field information for the requested owner and field names
         FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
                                                                             fieldName);
 
@@ -3864,10 +3650,10 @@ public class CcddScriptDataAccessHandler
         return fieldDescription;
     }
 
-    /**************************************************************************
-     * Get the structure table data at the row and column indicated, with any
-     * macro replaced by its corresponding value. The column is specified by
-     * name. Convenience method that assumes the table type is "structure"
+    /**********************************************************************************************
+     * Get the structure table data at the row and column indicated, with any macro replaced by its
+     * corresponding value. The column is specified by name. Convenience method that assumes the
+     * table type is "structure"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3875,20 +3661,19 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified structure table's array at the row and
-     *         column name provided, with any macro replaced by its
-     *         corresponding value; returns null if an instance of the
-     *         structure table type, the column name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified structure table's array at the row and column name
+     *         provided, with any macro replaced by its corresponding value; returns null if an
+     *         instance of the structure table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getStructureTableData(String columnName, int row)
     {
         return getTableData(TYPE_STRUCTURE, columnName, row);
     }
 
-    /**************************************************************************
-     * Get the command table data at the row and column indicated, with any
-     * macro replaced by its corresponding value. The column is specified by
-     * name. Convenience method that assumes the table type is "command"
+    /**********************************************************************************************
+     * Get the command table data at the row and column indicated, with any macro replaced by its
+     * corresponding value. The column is specified by name. Convenience method that assumes the
+     * table type is "command"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3896,26 +3681,23 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified command table's array at the row and
-     *         column name provided, with any macro replaced by its
-     *         corresponding value; returns null if an instance of the command
-     *         table type, the column name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified command table's array at the row and column name provided,
+     *         with any macro replaced by its corresponding value; returns null if an instance of
+     *         the command table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getCommandTableData(String columnName, int row)
     {
         return getTableData(TYPE_COMMAND, columnName, row);
     }
 
-    /**************************************************************************
-     * Get the data at the row and column indicated, with any macro replaced by
-     * its corresponding value, for the table type specified. The column is
-     * specified by name
+    /**********************************************************************************************
+     * Get the data at the row and column indicated, with any macro replaced by its corresponding
+     * value, for the table type specified. The column is specified by name
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3923,20 +3705,19 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified table's array at the row and column
-     *         name provided, with any macro replaced by its corresponding
-     *         value; returns null if an instance of the table type, the column
-     *         name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified table's array at the row and column name provided, with
+     *         any macro replaced by its corresponding value; returns null if an instance of the
+     *         table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getTableData(String tableType, String columnName, int row)
     {
         return getTableData(tableType, columnName, row, true);
     }
 
-    /**************************************************************************
-     * Get the structure table data at the row and column indicated, with any
-     * macro name(s) left in place. The column is specified by name.
-     * Convenience method that assumes the table type is "structure"
+    /**********************************************************************************************
+     * Get the structure table data at the row and column indicated, with any macro name(s) left in
+     * place. The column is specified by name. Convenience method that assumes the table type is
+     * "structure"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3944,20 +3725,19 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified structure table's array at the row and
-     *         column name provided, with any macro name(s) left in place;
-     *         returns null if an instance of the structure table type, the
-     *         column name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified structure table's array at the row and column name
+     *         provided, with any macro name(s) left in place; returns null if an instance of the
+     *         structure table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getStructureTableDataWithMacros(String columnName, int row)
     {
         return getTableDataWithMacros(TYPE_STRUCTURE, columnName, row);
     }
 
-    /**************************************************************************
-     * Get the command table data at the row and column indicated, with any
-     * macro name(s) left in place. The column is specified by name.
-     * Convenience method that assumes the table type is "command"
+    /**********************************************************************************************
+     * Get the command table data at the row and column indicated, with any macro name(s) left in
+     * place. The column is specified by name. Convenience method that assumes the table type is
+     * "command"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3965,26 +3745,23 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified command table's array at the row and
-     *         column name provided, with any macro name(s) left in place;
-     *         returns null if an instance of the command table type, the
-     *         column name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified command table's array at the row and column name provided,
+     *         with any macro name(s) left in place; returns null if an instance of the command
+     *         table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getCommandTableDataWithMacros(String columnName, int row)
     {
         return getTableDataWithMacros(TYPE_COMMAND, columnName, row);
     }
 
-    /**************************************************************************
-     * Get the data at the row and column indicated, with any macro name(s)
-     * left in place, for the table type specified. The column is specified by
-     * name
+    /**********************************************************************************************
+     * Get the data at the row and column indicated, with any macro name(s) left in place, for the
+     * table type specified. The column is specified by name
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -3992,26 +3769,23 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Contents of the specified table's array at the row and column
-     *         name provided, with any macro name(s) left in place; returns
-     *         null if an instance of the table type, the column name, or the
-     *         row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified table's array at the row and column name provided, with
+     *         any macro name(s) left in place; returns null if an instance of the table type, the
+     *         column name, or the row doesn't exist
+     *********************************************************************************************/
     public String getTableDataWithMacros(String tableType, String columnName, int row)
     {
         return getTableData(tableType, columnName, row, false);
     }
 
-    /**************************************************************************
-     * Get the data at the row and column indicated for the table type
-     * specified. The column is specified by name. Macro expansion is
-     * controlled by the input flag
+    /**********************************************************************************************
+     * Get the data at the row and column indicated for the table type specified. The column is
+     * specified by name. Macro expansion is controlled by the input flag
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param columnName
      *            column name (case insensitive)
@@ -4020,13 +3794,12 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Contents of the specified table's array at the row and column
-     *         name provided; returns null if an instance of the table type,
-     *         the column name, or the row doesn't exist
-     *************************************************************************/
+     * @return Contents of the specified table's array at the row and column name provided; returns
+     *         null if an instance of the table type, the column name, or the row doesn't exist
+     *********************************************************************************************/
     private String getTableData(String tableType,
                                 String columnName,
                                 int row,
@@ -4034,8 +3807,7 @@ public class CcddScriptDataAccessHandler
     {
         String tableData = null;
 
-        // Get the reference to the table information class for the requested
-        // table type
+        // Get the reference to the table information class for the requested table type
         TableInformation tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists and the row index is valid
@@ -4051,8 +3823,7 @@ public class CcddScriptDataAccessHandler
             // Check that the column name exists in the table
             if (column != -1)
             {
-                // Store the contents of the table at the specified row and
-                // column
+                // Store the contents of the table at the specified row and column
                 tableData = tableInfo.getData()[row][column];
 
                 // Check if any macros should be expanded
@@ -4067,16 +3838,15 @@ public class CcddScriptDataAccessHandler
         return tableData;
     }
 
-    /**************************************************************************
-     * Get the data from the specified "Structure" table in the specified
-     * column for the row with the specified variable name, with any macro name
-     * replaced by its corresponding value. Convenience method that assumes the
-     * table type is "Structure" and the variable name column is "Variable
-     * Name"
+    /**********************************************************************************************
+     * Get the data from the specified "Structure" table in the specified column for the row with
+     * the specified variable name, with any macro name replaced by its corresponding value.
+     * Convenience method that assumes the table type is "Structure" and the variable name column
+     * is "Variable Name"
      *
      * @param tablePath
-     *            full table path, which includes the parent table name and the
-     *            data type + variable name pairs
+     *            full table path, which includes the parent table name and the data type +
+     *            variable name pairs
      *
      * @param variableName
      *            variable name
@@ -4084,11 +3854,10 @@ public class CcddScriptDataAccessHandler
      * @param columnName
      *            column name (case insensitive)
      *
-     * @return Contents of the table defined by the table path, variable name,
-     *         and column name specified, with any macro replaced by its
-     *         corresponding value; returns null if an instance of the table
-     *         type, the column name, or the variable name doesn't exist
-     *************************************************************************/
+     * @return Contents of the table defined by the table path, variable name, and column name
+     *         specified, with any macro replaced by its corresponding value; returns null if an
+     *         instance of the table type, the column name, or the variable name doesn't exist
+     *********************************************************************************************/
     public String getStructureDataByVariableName(String tablePath,
                                                  String variableName,
                                                  String columnName)
@@ -4100,40 +3869,34 @@ public class CcddScriptDataAccessHandler
                                         columnName);
     }
 
-    /**************************************************************************
-     * Get the data from the table in the specified column for the row in the
-     * matching column name that contains the matching name, with any macro
-     * name replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the data from the table in the specified column for the row in the matching column name
+     * that contains the matching name, with any macro name replaced by its corresponding value
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param tablePath
      *            full table path
      *
      * @param matchColumnName
-     *            name of the column containing that matching name (case
-     *            insensitive)
+     *            name of the column containing that matching name (case insensitive)
      *
      * @param matchName
-     *            text to match in the matching column - this determines the
-     *            row. The first row in the matching column that matches the
-     *            matching name determines the row used to retrieve the data
-     *            value
+     *            text to match in the matching column - this determines the row. The first row in
+     *            the matching column that matches the matching name determines the row used to
+     *            retrieve the data value
      *
      * @param dataColumnName
-     *            name of the column from which to retrieve the data value
-     *            (case insensitive)
+     *            name of the column from which to retrieve the data value (case insensitive)
      *
-     * @return Contents of the table defined by the table type, table path,
-     *         matching column name, matching name, and data column name
-     *         specified, with any macro replaced by its corresponding value;
-     *         returns null if an instance of the table type, the matching
+     * @return Contents of the table defined by the table type, table path, matching column name,
+     *         matching name, and data column name specified, with any macro replaced by its
+     *         corresponding value; returns null if an instance of the table type, the matching
      *         column, the data column, or the matching name doesn't exist
-     *************************************************************************/
+     *********************************************************************************************/
     public String getTableDataByColumnName(String tableType,
                                            String tablePath,
                                            String matchColumnName,
@@ -4148,15 +3911,14 @@ public class CcddScriptDataAccessHandler
                                         true);
     }
 
-    /**************************************************************************
-     * Get the data from the specified "Structure" table in the specified
-     * column for the row with the specified variable name, with any macro
-     * name(s) left in place. Convenience method that assumes the table type is
-     * "Structure" and the variable name column is "Variable Name"
+    /**********************************************************************************************
+     * Get the data from the specified "Structure" table in the specified column for the row with
+     * the specified variable name, with any macro name(s) left in place. Convenience method that
+     * assumes the table type is "Structure" and the variable name column is "Variable Name"
      *
      * @param tablePath
-     *            full table path, which includes the parent table name and the
-     *            data type + variable name pairs
+     *            full table path, which includes the parent table name and the data type +
+     *            variable name pairs
      *
      * @param variableName
      *            variable name
@@ -4164,11 +3926,10 @@ public class CcddScriptDataAccessHandler
      * @param columnName
      *            column name (case insensitive)
      *
-     * @return Contents of the table defined by the table path, variable name,
-     *         and column name specified, with any macro name(s) left in place;
-     *         returns null if an instance of the table type, the column name,
-     *         or the variable name doesn't exist
-     *************************************************************************/
+     * @return Contents of the table defined by the table path, variable name, and column name
+     *         specified, with any macro name(s) left in place; returns null if an instance of the
+     *         table type, the column name, or the variable name doesn't exist
+     *********************************************************************************************/
     public String getStructureDataByVariableNameWithMacros(String tablePath,
                                                            String variableName,
                                                            String columnName)
@@ -4180,40 +3941,34 @@ public class CcddScriptDataAccessHandler
                                                   columnName);
     }
 
-    /**************************************************************************
-     * Get the data from the table in the specified column for the row in the
-     * matching column name that contains the matching name, with any macro
-     * name(s) left in place
+    /**********************************************************************************************
+     * Get the data from the table in the specified column for the row in the matching column name
+     * that contains the matching name, with any macro name(s) left in place
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param tablePath
      *            full table path
      *
      * @param matchColumnName
-     *            name of the column containing that matching name (case
-     *            insensitive)
+     *            name of the column containing that matching name (case insensitive)
      *
      * @param matchName
-     *            text to match in the matching column - this determines the
-     *            row. The first row in the matching column that matches the
-     *            matching name determines the row used to retrieve the data
-     *            value
+     *            text to match in the matching column - this determines the row. The first row in
+     *            the matching column that matches the matching name determines the row used to
+     *            retrieve the data value
      *
      * @param dataColumnName
-     *            name of the column from which to retrieve the data value
-     *            (case insensitive)
+     *            name of the column from which to retrieve the data value (case insensitive)
      *
-     * @return Contents of the table defined by the table type, table path,
-     *         matching column name, matching name, and data column name
-     *         specified, with any macro name(s) left in place; returns null if
-     *         an instance of the table type, the matching column, the data
-     *         column, or the matching name doesn't exist
-     *************************************************************************/
+     * @return Contents of the table defined by the table type, table path, matching column name,
+     *         matching name, and data column name specified, with any macro name(s) left in place;
+     *         returns null if an instance of the table type, the matching column, the data column,
+     *         or the matching name doesn't exist
+     *********************************************************************************************/
     public String getTableDataByColumnNameWithMacros(String tableType,
                                                      String tablePath,
                                                      String matchColumnName,
@@ -4228,44 +3983,37 @@ public class CcddScriptDataAccessHandler
                                         false);
     }
 
-    /**************************************************************************
-     * Get the data from the table in the specified column for the row in the
-     * matching column name that contains the matching name. Macro expansion is
-     * controlled by the input flag
+    /**********************************************************************************************
+     * Get the data from the table in the specified column for the row in the matching column name
+     * that contains the matching name. Macro expansion is controlled by the input flag
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param tablePath
      *            full table path
      *
      * @param matchColumnName
-     *            name of the column containing that matching name (case
-     *            insensitive)
+     *            name of the column containing that matching name (case insensitive)
      *
      * @param matchName
-     *            text to match in the matching column - this determines the
-     *            row. The first row in the matching column that matches the
-     *            matching name determines the row used to retrieve the data
-     *            value
+     *            text to match in the matching column - this determines the row. The first row in
+     *            the matching column that matches the matching name determines the row used to
+     *            retrieve the data value
      *
      * @param dataColumnName
-     *            name of the column from which to retrieve the data value
-     *            (case insensitive)
+     *            name of the column from which to retrieve the data value (case insensitive)
      *
      * @param expandMacros
-     *            true to replace any macros with their corresponding value;
-     *            false to return the data with any macro names in place
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
      *
-     * @return Contents of the table defined by the table type, table path,
-     *         matching column name, matching name, and data column name
-     *         specified; returns null if an instance of the table type, the
-     *         matching column, the data column, or the matching name doesn't
-     *         exist
-     *************************************************************************/
+     * @return Contents of the table defined by the table type, table path, matching column name,
+     *         matching name, and data column name specified; returns null if an instance of the
+     *         table type, the matching column, the data column, or the matching name doesn't exist
+     *********************************************************************************************/
     private String getTableDataByColumnName(String tableType,
                                             String tablePath,
                                             String matchColumnName,
@@ -4275,8 +4023,7 @@ public class CcddScriptDataAccessHandler
     {
         String tableData = null;
 
-        // Get the reference to the table information class for the requested
-        // table type
+        // Get the reference to the table information class for the requested table type
         TableInformation tableInfo = getTableInformation(tableType);
 
         // Check that the table type exists
@@ -4285,8 +4032,7 @@ public class CcddScriptDataAccessHandler
             // Step through the table data
             for (int row = 0; row < tableInfo.getData().length; row++)
             {
-                // Get the type definition based on the table's specific type
-                // name
+                // Get the type definition based on the table's specific type name
                 TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType,
                                                                                               row));
 
@@ -4297,14 +4043,14 @@ public class CcddScriptDataAccessHandler
                 // Check that the column names exist in the table
                 if (matchColumnIndex != -1 && dataColumnIndex != -1)
                 {
-                    // Check if the table name matches the target table and the
-                    // matching name matches that in the matching name column
+                    // Check if the table name matches the target table and the matching name
+                    // matches that in the matching name column
                     if (tableInfo.getData()[row][tableInfo.getData()[row].length
                                                  - PATH_COLUMN_DELTA].equals(tablePath)
                         && tableInfo.getData()[row][matchColumnIndex].equals(matchName))
                     {
-                        // Store the contents of the table at the specified row
-                        // and column and stop searching
+                        // Store the contents of the table at the specified row and column and stop
+                        // searching
                         tableData = tableInfo.getData()[row][dataColumnIndex];
 
                         // Check if any macros should be expanded
@@ -4323,39 +4069,34 @@ public class CcddScriptDataAccessHandler
         return tableData;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description of the specified table
      *
      * @param tableName
-     *            table name, including the full path for child structure
-     *            tables
+     *            table name, including the full path for child structure tables
      *
-     * @return Description of the specified table; returns a blank the table
-     *         doesn't exist
-     *************************************************************************/
+     * @return Description of the specified table; returns a blank the table doesn't exist
+     *********************************************************************************************/
     public String getTableDescription(String tableName)
     {
         // Get the description for the table
         return dbTable.queryTableDescription(tableName, ccddMain.getMainFrame());
     }
 
-    /**************************************************************************
-     * Get the description of the table at the row indicated for the table type
-     * specified
+    /**********************************************************************************************
+     * Get the description of the table at the row indicated for the table type specified
      *
      * @param tableType
-     *            table type (case insensitive). All structure table types are
-     *            combined and are referenced by the type name "Structure", and
-     *            all command table types are combined and are referenced by
-     *            the type name "Command"
+     *            table type (case insensitive). All structure table types are combined and are
+     *            referenced by the type name "Structure", and all command table types are combined
+     *            and are referenced by the type name "Command"
      *
      * @param row
      *            table data row index
      *
-     * @return Description of the specified table at the row provided; returns
-     *         a blank if an instance of the table type or the row doesn't
-     *         exist
-     *************************************************************************/
+     * @return Description of the specified table at the row provided; returns a blank if an
+     *         instance of the table type or the row doesn't exist
+     *********************************************************************************************/
     public String getTableDescriptionByRow(String tableType, int row)
     {
         // Get the description for the table
@@ -4363,26 +4104,24 @@ public class CcddScriptDataAccessHandler
                                              ccddMain.getMainFrame());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the array containing the macro names and their corresponding values
      *
-     * @return Array where each row contains a macro name and its corresponding
-     *         value
-     *************************************************************************/
+     * @return Array where each row contains a macro name and its corresponding value
+     *********************************************************************************************/
     public String[][] getMacroDefinitions()
     {
         return macroHandler.getMacroData().toArray(new String[0][0]);
     }
 
-    /**************************************************************************
-     * Display an informational dialog showing the supplied text. The dialog’s
-     * header and icon indicate that the text describes information useful to
-     * the user; e.g., script status. The Okay button must be pressed before
-     * the script can continue
+    /**********************************************************************************************
+     * Display an informational dialog showing the supplied text. The dialog’s header and icon
+     * indicate that the text describes information useful to the user; e.g., script status. The
+     * Okay button must be pressed before the script can continue
      *
      * @param text
      *            text to display in the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     public void showInformationDialog(String text)
     {
         // Display the supplied text in an information dialog
@@ -4394,14 +4133,14 @@ public class CcddScriptDataAccessHandler
                                                   DialogOption.OK_OPTION);
     }
 
-    /**************************************************************************
-     * Display a warning dialog showing the supplied text. The dialog’s header
-     * and icon indicate that the text describes an warning condition. The Okay
-     * button must be pressed before the script can continue
+    /**********************************************************************************************
+     * Display a warning dialog showing the supplied text. The dialog’s header and icon indicate
+     * that the text describes an warning condition. The Okay button must be pressed before the
+     * script can continue
      *
      * @param text
      *            text to display in the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     public void showWarningDialog(String text)
     {
         // Display the supplied text in a warning dialog
@@ -4413,14 +4152,14 @@ public class CcddScriptDataAccessHandler
                                                   DialogOption.OK_OPTION);
     }
 
-    /**************************************************************************
-     * Display an error dialog showing the supplied text. The dialog’s header
-     * and icon indicate that the text describes an error condition. The Okay
-     * button must be pressed before the script can continue
+    /**********************************************************************************************
+     * Display an error dialog showing the supplied text. The dialog’s header and icon indicate
+     * that the text describes an error condition. The Okay button must be pressed before the
+     * script can continue
      *
      * @param text
      *            text to display in the dialog
-     *************************************************************************/
+     *********************************************************************************************/
     public void showErrorDialog(String text)
     {
         // Display the supplied text in an error dialog
@@ -4432,18 +4171,16 @@ public class CcddScriptDataAccessHandler
                                                   DialogOption.OK_OPTION);
     }
 
-    /**************************************************************************
-     * Display a dialog for receiving text input. The user must select Okay to
-     * accept the input, or Cancel to close the dialog without accepting the
-     * input
+    /**********************************************************************************************
+     * Display a dialog for receiving text input. The user must select Okay to accept the input, or
+     * Cancel to close the dialog without accepting the input
      *
      * @param labelText
      *            text to display in the dialog
      *
-     * @return The text entered in the dialog input field if the Okay button is
-     *         pressed; returns null if no text or white space is entered, or
-     *         if the Cancel button is pressed
-     *************************************************************************/
+     * @return The text entered in the dialog input field if the Okay button is pressed; returns
+     *         null if no text or white space is entered, or if the Cancel button is pressed
+     *********************************************************************************************/
     public String getInputDialog(String labelText)
     {
         String input = null;
@@ -4493,8 +4230,7 @@ public class CcddScriptDataAccessHandler
                                                       "Input",
                                                       DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
-            // Get the text from the input field and remove the leading and
-            // trailing white space
+            // Get the text from the input field and remove the leading and trailing white space
             input = typeField.getText().trim();
 
             // Check if the text field is empty
@@ -4508,23 +4244,21 @@ public class CcddScriptDataAccessHandler
         return input;
     }
 
-    /**************************************************************************
-     * Display a dialog containing radio buttons. The radio buttons are
-     * mutually exclusive; only one can be selected at a time. The user must
-     * press the Okay button to accept the radio button input, or Cancel to
-     * close the dialog without accepting the input
+    /**********************************************************************************************
+     * Display a dialog containing radio buttons. The radio buttons are mutually exclusive; only
+     * one can be selected at a time. The user must press the Okay button to accept the radio
+     * button input, or Cancel to close the dialog without accepting the input
      *
      * @param label
      *            text to display above the radio buttons
      *
      * @param buttonInfo
-     *            array containing the text and optional descriptions for the
-     *            radio buttons to display in the dialog
+     *            array containing the text and optional descriptions for the radio buttons to
+     *            display in the dialog
      *
-     * @return The text for the selected radio button if the Okay button is
-     *         pressed; returns null if no radio button is selected or if the
-     *         Cancel button is pressed
-     *************************************************************************/
+     * @return The text for the selected radio button if the Okay button is pressed; returns null
+     *         if no radio button is selected or if the Cancel button is pressed
+     *********************************************************************************************/
     public String getRadioButtonDialog(String label, String[][] buttonInfo)
     {
         CcddDialogHandler dialog = new CcddDialogHandler();
@@ -4550,8 +4284,8 @@ public class CcddScriptDataAccessHandler
         // Create a panel to hold the components of the dialog
         JPanel panel = new JPanel(new GridBagLayout());
 
-        // Create a panel containing a grid of radio buttons representing the
-        // table types from which to choose and display the radio button dialog
+        // Create a panel containing a grid of radio buttons representing the table types from
+        // which to choose and display the radio button dialog
         if (dialog.addRadioButtons(null, false, buttonInfo, null, label, panel, gbc)
             && dialog.showOptionsDialog(parent,
                                         panel,
@@ -4566,22 +4300,21 @@ public class CcddScriptDataAccessHandler
         return selectedButton;
     }
 
-    /**************************************************************************
-     * Display a dialog containing one or more check boxes. The user must press
-     * the Okay button to accept the check box input(s), or Cancel to close the
-     * dialog without accepting the input
+    /**********************************************************************************************
+     * Display a dialog containing one or more check boxes. The user must press the Okay button to
+     * accept the check box input(s), or Cancel to close the dialog without accepting the input
      *
      * @param label
      *            text to display above the check boxes
      *
      * @param boxInfo
-     *            array containing the text and optional descriptions for the
-     *            check boxes to display in the dialog
+     *            array containing the text and optional descriptions for the check boxes to
+     *            display in the dialog
      *
-     * @return An array containing the status for the check box(es) if the Okay
-     *         button is pressed; returns null if no check box information is
-     *         supplied or if the Cancel button is pressed
-     *************************************************************************/
+     * @return An array containing the status for the check box(es) if the Okay button is pressed;
+     *         returns null if no check box information is supplied or if the Cancel button is
+     *         pressed
+     *********************************************************************************************/
     public boolean[] getCheckBoxDialog(String label, String[][] boxInfo)
     {
         boolean[] boxStatus = null;
@@ -4595,9 +4328,8 @@ public class CcddScriptDataAccessHandler
             // Create the dialog class
             CcddDialogHandler dialog = new CcddDialogHandler();
 
-            // Create a panel containing a grid of check boxes representing the
-            // table types from which to choose and display the check box
-            // dialog
+            // Create a panel containing a grid of check boxes representing the table types from
+            // which to choose and display the check box dialog
             if (dialog.addCheckBoxes(null, boxInfo, null, label, panel)
                 && dialog.showOptionsDialog(parent,
                                             panel,
@@ -4621,8 +4353,7 @@ public class CcddScriptDataAccessHandler
                 // Step through each check box
                 for (int index = 0; index < boxStatus.length; index++)
                 {
-                    // Check if the check box name is in the list of selected
-                    // boxes
+                    // Check if the check box name is in the list of selected boxes
                     if (selected.contains(boxInfo[index][0]))
                     {
                         // Set the check box status to true (checked)
@@ -4635,16 +4366,16 @@ public class CcddScriptDataAccessHandler
         return boxStatus;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Perform a query on the currently open database
      *
      * @param sqlCommand
      *            PostgreSQL-compatible database query statement
      *
-     * @return Two-dimensional array representing the rows and columns of data
-     *         returned by the database query; returns null if the query
-     *         produces an error, or an empty array if there are no results
-     *************************************************************************/
+     * @return Two-dimensional array representing the rows and columns of data returned by the
+     *         database query; returns null if the query produces an error, or an empty array if
+     *         there are no results
+     *********************************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
         return dbTable.queryDatabase(sqlCommand,
@@ -4652,27 +4383,24 @@ public class CcddScriptDataAccessHandler
                       .toArray(new String[0][0]);
     }
 
-    /**************************************************************************
-     * Divide the supplied enumeration string into the values and labels. The
-     * enumeration value/label separator character and the enumerated pair
-     * separator character are automatically determined. Any leading or
-     * trailing white space characters are removed from each array member
+    /**********************************************************************************************
+     * Divide the supplied enumeration string into the values and labels. The enumeration
+     * value/label separator character and the enumerated pair separator character are
+     * automatically determined. Any leading or trailing white space characters are removed from
+     * each array member
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value
-     *            separator><enum label>[<enum value separator>...][<enum pair
-     *            separator>...]
+     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
+     *            value separator>...][<enum pair separator>...]
      *
-     * @return Two-dimensional array representing the enumeration parameters ;
-     *         returns null if the input text is empty or the enumeration
-     *         separator characters cannot be determined
-     *************************************************************************/
+     * @return Two-dimensional array representing the enumeration parameters ; returns null if the
+     *         input text is empty or the enumeration separator characters cannot be determined
+     *********************************************************************************************/
     public String[][] parseEnumerationParameters(String enumeration)
     {
         String[][] pairs = null;
 
-        // Get the character that separates the enumeration value from the
-        // associated label
+        // Get the character that separates the enumeration value from the associated label
         String enumSeparator = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
         // Check if the value separator exists
@@ -4695,51 +4423,46 @@ public class CcddScriptDataAccessHandler
         return pairs;
     }
 
-    /**************************************************************************
-     * Divide the supplied string into an array using the supplied separator
-     * character or string, and trim any leading or trailing white space
-     * characters from each array member
+    /**********************************************************************************************
+     * Divide the supplied string into an array using the supplied separator character or string,
+     * and trim any leading or trailing white space characters from each array member
      *
      * @param text
      *            string to separate into an array
      *
      * @param columnSeparator
-     *            character string to use to delineate the separation point(s)
-     *            between columns. The separator is eliminated from the array
-     *            members
+     *            character string to use to delineate the separation point(s) between columns. The
+     *            separator is eliminated from the array members
      *
-     * @return Array representing the substrings in the supplied text after
-     *         being parsed using the separator; returns null if the input text
-     *         is empty
-     *************************************************************************/
+     * @return Array representing the substrings in the supplied text after being parsed using the
+     *         separator; returns null if the input text is empty
+     *********************************************************************************************/
     public String[] getArrayFromString(String text,
                                        String columnSeparator)
     {
         return getArrayFromString(text, columnSeparator, null)[0];
     }
 
-    /**************************************************************************
-     * Divide the supplied string into a two-dimensional array (columns and
-     * rows) using the supplied separator characters or strings, and trim any
-     * leading or trailing white space characters from each array member
+    /**********************************************************************************************
+     * Divide the supplied string into a two-dimensional array (columns and rows) using the
+     * supplied separator characters or strings, and trim any leading or trailing white space
+     * characters from each array member
      *
      * @param text
      *            string to separate into an array
      *
      * @param columnSeparator
-     *            character string to use to delineate the separation point(s)
-     *            between columns. The separator is eliminated from the array
-     *            members
+     *            character string to use to delineate the separation point(s) between columns. The
+     *            separator is eliminated from the array members
      *
      * @param rowSeparator
-     *            character string to use to delineate the separation point(s)
-     *            between rows. The separator is eliminated from the array
-     *            members. Use null if only one row is supplied
+     *            character string to use to delineate the separation point(s) between rows. The
+     *            separator is eliminated from the array members. Use null if only one row is
+     *            supplied
      *
-     * @return Two-dimensional array representing the substrings in the
-     *         supplied text after being parsed using the separator; returns
-     *         null if the input text is empty
-     *************************************************************************/
+     * @return Two-dimensional array representing the substrings in the supplied text after being
+     *         parsed using the separator; returns null if the input text is empty
+     *********************************************************************************************/
     public String[][] getArrayFromString(String text,
                                          String columnSeparator,
                                          String rowSeparator)
@@ -4754,8 +4477,8 @@ public class CcddScriptDataAccessHandler
             // Check if a row separator was provided
             if (rowSeparator != null)
             {
-                // Split the text using the row separator, and remove leading
-                // and trailing white space characters if present
+                // Split the text using the row separator, and remove leading and trailing white
+                // space characters if present
                 rowArray = text.split("\\s*[" + rowSeparator + "]\\s*");
             }
             // No row separator was provided; assume a single row exists
@@ -4770,8 +4493,8 @@ public class CcddScriptDataAccessHandler
             // Step through each row
             for (int row = 0; row < rowArray.length; row++)
             {
-                // Split the text using the column separator, and remove
-                // leading and trailing white space characters if present
+                // Split the text using the column separator, and remove leading and trailing white
+                // space characters if present
                 array[row] = rowArray[row].split("\\s*[" + columnSeparator
                                                  + "]\\s*");
             }
@@ -4780,66 +4503,63 @@ public class CcddScriptDataAccessHandler
         return array;
     }
 
-    /**************************************************************************
-     * Open the specified file for writing. The PrintWriter object that is
-     * returned is used by the file writing methods to specify the output file
+    /**********************************************************************************************
+     * Open the specified file for writing. The PrintWriter object that is returned is used by the
+     * file writing methods to specify the output file
      *
      * @param outputFileName
      *            output file path + name
      *
      * @return PrintWriter object; returns null if the file could not be opened
-     *************************************************************************/
+     *********************************************************************************************/
     public PrintWriter openOutputFile(String outputFileName)
     {
         return fileIOHandler.openOutputFile(outputFileName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Write the supplied text to the specified output file PrintWriter object
      *
      * @param printWriter
-     *            output file PrintWriter object obtained from the
-     *            openOutputFile method
+     *            output file PrintWriter object obtained from the openOutputFile method
      *
      * @param text
      *            text to write to the output file
-     *************************************************************************/
+     *********************************************************************************************/
     public void writeToFile(PrintWriter printWriter, String text)
     {
         fileIOHandler.writeToFile(printWriter, text);
     }
 
-    /**************************************************************************
-     * Write the supplied text to the specified output file PrintWriter object
-     * and append a line feed character
+    /**********************************************************************************************
+     * Write the supplied text to the specified output file PrintWriter object and append a line
+     * feed character
      *
      * @param printWriter
-     *            output file PrintWriter object obtained from the
-     *            openOutputFile method
+     *            output file PrintWriter object obtained from the openOutputFile method
      *
      * @param text
      *            text to write to the output file
-     *************************************************************************/
+     *********************************************************************************************/
     public void writeToFileLn(PrintWriter printWriter, String text)
     {
         fileIOHandler.writeToFileLn(printWriter, text);
     }
 
-    /**************************************************************************
-     * Write the supplied formatted text in the indicated format to the
-     * specified output file PrintWriter object
+    /**********************************************************************************************
+     * Write the supplied formatted text in the indicated format to the specified output file
+     * PrintWriter object
      *
      * @param printWriter
-     *            output file PrintWriter object obtained from the
-     *            openOutputFile method
+     *            output file PrintWriter object obtained from the openOutputFile method
      *
      * @param format
      *            print format string to write to the output file
      *
      * @param args
-     *            variable list of arguments referenced by the format
-     *            specifiers in the format string
-     *************************************************************************/
+     *            variable list of arguments referenced by the format specifiers in the format
+     *            string
+     *********************************************************************************************/
     public void writeToFileFormat(PrintWriter printWriter,
                                   String format,
                                   Object... args)
@@ -4847,18 +4567,18 @@ public class CcddScriptDataAccessHandler
         fileIOHandler.writeToFileFormat(printWriter, format, args);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Close the specified output file
      *
      * @param printWriter
      *            output file PrintWriter object
-     *************************************************************************/
+     *********************************************************************************************/
     public void closeFile(PrintWriter printWriter)
     {
         fileIOHandler.closeFile(printWriter);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description of the specified link
      *
      * @param streamName
@@ -4867,9 +4587,9 @@ public class CcddScriptDataAccessHandler
      * @param linkName
      *            link name
      *
-     * @return Link description; returns a blank if the data stream or link
-     *         don't exist, or the link has no description
-     *************************************************************************/
+     * @return Link description; returns a blank if the data stream or link don't exist, or the
+     *         link has no description
+     *********************************************************************************************/
     public String getLinkDescription(String streamName, String linkName)
     {
         String description = "";
@@ -4888,7 +4608,7 @@ public class CcddScriptDataAccessHandler
         return description;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Return the sample rate for the specified link
      *
      * @param streamName
@@ -4897,13 +4617,12 @@ public class CcddScriptDataAccessHandler
      * @param linkName
      *            link name
      *
-     * @return Text representation of the sample rate, in samples per second,
-     *         of the specified link. For rates equal to or faster than 1
-     *         sample per second the string represents a whole number; for
-     *         rates slower than 1 sample per second the string is in the form
-     *         number of samples / number of seconds; returns a blank if the
-     *         data stream or link don't exist
-     *************************************************************************/
+     * @return Text representation of the sample rate, in samples per second, of the specified
+     *         link. For rates equal to or faster than 1 sample per second the string represents a
+     *         whole number; for rates slower than 1 sample per second the string is in the form
+     *         number of samples / number of seconds; returns a blank if the data stream or link
+     *         don't exist
+     *********************************************************************************************/
     public String getLinkRate(String streamName, String linkName)
     {
         String sampleRate = "";
@@ -4922,111 +4641,102 @@ public class CcddScriptDataAccessHandler
         return sampleRate;
     }
 
-    /**************************************************************************
-     * Get the array of data stream and link names to which the specified
-     * variable belongs
+    /**********************************************************************************************
+     * Get the array of data stream and link names to which the specified variable belongs
      *
      * @param variableName
      *            variable path and name
      *
-     * @return Array containing the data stream and link names to which the
-     *         specified variable is a member; returns an empty array if the
-     *         variable does not belong to a link
-     *************************************************************************/
+     * @return Array containing the data stream and link names to which the specified variable is a
+     *         member; returns an empty array if the variable does not belong to a link
+     *********************************************************************************************/
     public String[][] getVariableLinks(String variableName)
     {
         return linkHandler.getVariableLinks(variableName, true);
     }
 
-    /**************************************************************************
-     * Get the byte offset of the specified variable relative to its parent
-     * structure. The variable's path, including parent structure and variable
-     * name, is used to verify that the specified target has been located;
-     * i.e., not another variable with the same name
+    /**********************************************************************************************
+     * Get the byte offset of the specified variable relative to its parent structure. The
+     * variable's path, including parent structure and variable name, is used to verify that the
+     * specified target has been located; i.e., not another variable with the same name
      *
      * @param path
-     *            a comma separated string of the parent structure and each
-     *            data type and variable name of each variable in the current
-     *            search path
+     *            a comma separated string of the parent structure and each data type and variable
+     *            name of each variable in the current search path
      *
-     * @return The byte offset to the target variable relative to its parent
-     *         structure; returns -1 if the parent-variable path combination is
-     *         invalid
-     *************************************************************************/
+     * @return The byte offset to the target variable relative to its parent structure; returns -1
+     *         if the parent-variable path combination is invalid
+     *********************************************************************************************/
     public int getVariableOffset(String path)
     {
         return varSizeHandler.getVariableOffset(path);
     }
 
-    /**************************************************************************
-     * Get the array representing the CFS application name data field values
-     * associated with the link entries. Each application name appears only
-     * once in the array
+    /**********************************************************************************************
+     * Get the array representing the CFS application name data field values associated with the
+     * link entries. Each application name appears only once in the array
      *
      * @param dataFieldName
      *            name of the application name data field
      *
-     * @return Array containing the contents of the specified CFS application
-     *         name data field associated with each of the tables referenced by
-     *         the link entries
-     *************************************************************************/
+     * @return Array containing the contents of the specified CFS application name data field
+     *         associated with each of the tables referenced by the link entries
+     *********************************************************************************************/
     public String[] getLinkApplicationNames(String dataFieldName)
     {
         return linkHandler.getApplicationNames(tableInformation[0].getFieldHandler(),
                                                dataFieldName);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the array of group names referenced in the script association
      *
-     * @return Array of group names referenced in the script association; empty
-     *         array if no groups are referenced
-     *************************************************************************/
+     * @return Array of group names referenced in the script association; empty array if no groups
+     *         are referenced
+     *********************************************************************************************/
     public String[] getAssociatedGroupNames()
     {
         return groupNames.toArray(new String[0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the array of group names
      *
      * @param applicationOnly
-     *            true if only those groups that represent a CFS application
-     *            should be returned
+     *            true if only those groups that represent a CFS application should be returned
      *
-     * @return Array of group names (application groups only if the input flag
-     *         is true); empty array if no groups are defined
-     *************************************************************************/
+     * @return Array of group names (application groups only if the input flag is true); empty
+     *         array if no groups are defined
+     *********************************************************************************************/
     public String[] getGroupNames(boolean applicationOnly)
     {
         return groupHandler.getGroupNames(applicationOnly);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description for the specified group
      *
      * @param groupName
      *            group name
      *
-     * @return Description for the specified group; blank if the group has no
-     *         description or the group doesn't exist
-     *************************************************************************/
+     * @return Description for the specified group; blank if the group has no description or the
+     *         group doesn't exist
+     *********************************************************************************************/
     public String getGroupDescription(String groupName)
     {
         return groupHandler.getGroupDescription(groupName);
     }
 
-    /**************************************************************************
-     * Get an array containing the table members, including the member table
-     * ancestor tables, for the specified group
+    /**********************************************************************************************
+     * Get an array containing the table members, including the member table ancestor tables, for
+     * the specified group
      *
      * @param groupName
      *            group name
      *
-     * @return Array containing the table members for the specified group; an
-     *         empty array if the group has no table members, or the group
-     *         doesn't exist
-     *************************************************************************/
+     * @return Array containing the table members for the specified group; an empty array if the
+     *         group has no table members, or the group doesn't exist
+     *********************************************************************************************/
     public String[] getGroupTables(String groupName)
     {
         String[] groupTables = new String[0];
@@ -5044,19 +4754,17 @@ public class CcddScriptDataAccessHandler
         return groupTables;
     }
 
-    /**************************************************************************
-     * Get an array containing the data field information for the specified
-     * group
+    /**********************************************************************************************
+     * Get an array containing the data field information for the specified group
      *
      * @param groupName
      *            group name
      *
-     * @return Array containing the data field information for the specified
-     *         group; an empty array if the group has no data fields, or the
-     *         group doesn't exist. The array in is the format: field name,
-     *         description, size, input type, required (true or false),
+     * @return Array containing the data field information for the specified group; an empty array
+     *         if the group has no data fields, or the group doesn't exist. The array in is the
+     *         format: field name, description, size, input type, required (true or false),
      *         applicability, value[,...]
-     *************************************************************************/
+     *********************************************************************************************/
     public String[][] getGroupFields(String groupName)
     {
         List<String[]> groupFields = new ArrayList<String[]>();
@@ -5084,11 +4792,11 @@ public class CcddScriptDataAccessHandler
         return groupFields.toArray(new String[0][0]);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the copy table column names
      *
      * @return Array containing the copy table column names
-     *************************************************************************/
+     *********************************************************************************************/
     public String[] getCopyTableColumnNames()
     {
         String[] columnNames = new String[CopyTableEntry.values().length];
@@ -5103,30 +4811,26 @@ public class CcddScriptDataAccessHandler
         return columnNames;
     }
 
-    /**************************************************************************
-     * Get the copy table for the messages of the specified data stream. Any
-     * macro embedded in a variable name is replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any macro embedded in a
+     * variable name is replaced by its corresponding value
      *
      * @param streamName
      *            data stream name
      *
      * @param headerSize
-     *            size of the message header in bytes. For example, the CCSDS
-     *            header size is 12
+     *            size of the message header in bytes. For example, the CCSDS header size is 12
      *
      * @param messageIDNameField
-     *            name of the message ID name data field (e.g., 'Message ID
-     *            name')
+     *            name of the message ID name data field (e.g., 'Message ID name')
      *
      * @param optimize
-     *            true to combine memory copy calls for consecutive variables
-     *            in the copy table
+     *            true to combine memory copy calls for consecutive variables in the copy table
      *
-     * @return Array containing the copy table entries; returns blank if there
-     *         are no entries for the specified data stream or if data stream
-     *         name is invalid. Any macro embedded in a variable name is
-     *         replaced by its corresponding value
-     *************************************************************************/
+     * @return Array containing the copy table entries; returns blank if there are no entries for
+     *         the specified data stream or if data stream name is invalid. Any macro embedded in a
+     *         variable name is replaced by its corresponding value
+     *********************************************************************************************/
     public String[][] getCopyTableEntries(String streamName,
                                           int headerSize,
                                           String messageIDNameField,
@@ -5141,30 +4845,26 @@ public class CcddScriptDataAccessHandler
                                    true);
     }
 
-    /**************************************************************************
-     * Get the copy table for the messages of the specified data stream. Any
-     * macro embedded in a variable name is left in place
+    /**********************************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any macro embedded in a
+     * variable name is left in place
      *
      * @param streamName
      *            data stream name
      *
      * @param headerSize
-     *            size of the message header in bytes. For example, the CCSDS
-     *            header size is 12
+     *            size of the message header in bytes. For example, the CCSDS header size is 12
      *
      * @param messageIDNameField
-     *            name of the message ID name data field (e.g., 'Message ID
-     *            name')
+     *            name of the message ID name data field (e.g., 'Message ID name')
      *
      * @param optimize
-     *            true to combine memory copy calls for consecutive variables
-     *            in the copy table
+     *            true to combine memory copy calls for consecutive variables in the copy table
      *
-     * @return Array containing the copy table entries with any macro embedded
-     *         in a variable name left in place; returns blank if there are no
-     *         entries for the specified data stream or if data stream name is
-     *         invalid
-     *************************************************************************/
+     * @return Array containing the copy table entries with any macro embedded in a variable name
+     *         left in place; returns blank if there are no entries for the specified data stream
+     *         or if data stream name is invalid
+     *********************************************************************************************/
     public String[][] getCopyTableEntriesWithMacros(String streamName,
                                                     int headerSize,
                                                     String messageIDNameField,
@@ -5179,37 +4879,33 @@ public class CcddScriptDataAccessHandler
                                    false);
     }
 
-    /**************************************************************************
-     * Get the copy table for the messages of the specified data stream. Any
-     * macro embedded in a variable name is replaced by its corresponding value
+    /**********************************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any macro embedded in a
+     * variable name is replaced by its corresponding value
      *
      * @param streamName
      *            data stream name
      *
      * @param headerSize
-     *            size of the message header in bytes. For example, the CCSDS
-     *            header size is 12
+     *            size of the message header in bytes. For example, the CCSDS header size is 12
      *
      * @param tlmMessageIDs
-     *            array containing string array entries giving the structure
-     *            table path+name and the table's associated message ID name
+     *            array containing string array entries giving the structure table path+name and
+     *            the table's associated message ID name
      *
      * @param optimize
-     *            true to combine memory copy calls for consecutive variables
-     *            in the copy table
+     *            true to combine memory copy calls for consecutive variables in the copy table
      *
-     * @return Array containing the copy table entries; returns blank if there
-     *         are no entries for the specified data stream or if data stream
-     *         name is invalid. Any macro embedded in a variable name is
-     *         replaced by its corresponding value
-     *************************************************************************/
+     * @return Array containing the copy table entries; returns blank if there are no entries for
+     *         the specified data stream or if data stream name is invalid. Any macro embedded in a
+     *         variable name is replaced by its corresponding value
+     *********************************************************************************************/
     public String[][] getCopyTableEntries(String streamName,
                                           int headerSize,
                                           String[][] tlmMessageIDs,
                                           boolean optimize)
     {
-        // Convert the array of structure tables and their message ID names to
-        // a list
+        // Convert the array of structure tables and their message ID names to a list
         ArrayListMultiple tlmMessageIDsList = new ArrayListMultiple();
         tlmMessageIDsList.addAll(Arrays.asList(tlmMessageIDs));
 
@@ -5222,37 +4918,33 @@ public class CcddScriptDataAccessHandler
                                    true);
     }
 
-    /**************************************************************************
-     * Get the copy table for the messages of the specified data stream. Any
-     * macro embedded in a variable name is left in place
+    /**********************************************************************************************
+     * Get the copy table for the messages of the specified data stream. Any macro embedded in a
+     * variable name is left in place
      *
      * @param streamName
      *            data stream name
      *
      * @param headerSize
-     *            size of the message header in bytes. For example, the CCSDS
-     *            header size is 12
+     *            size of the message header in bytes. For example, the CCSDS header size is 12
      *
      * @param tlmMessageIDs
-     *            array containing string array entries giving the structure
-     *            table path+name and the table's associated message ID name
+     *            array containing string array entries giving the structure table path+name and
+     *            the table's associated message ID name
      *
      * @param optimize
-     *            true to combine memory copy calls for consecutive variables
-     *            in the copy table
+     *            true to combine memory copy calls for consecutive variables in the copy table
      *
-     * @return Array containing the copy table entries with any macro embedded
-     *         in a variable name left in place; returns blank if there are no
-     *         entries for the specified data stream or if data stream name is
-     *         invalid
-     *************************************************************************/
+     * @return Array containing the copy table entries with any macro embedded in a variable name
+     *         left in place; returns blank if there are no entries for the specified data stream
+     *         or if data stream name is invalid
+     *********************************************************************************************/
     public String[][] getCopyTableEntriesWithMacros(String streamName,
                                                     int headerSize,
                                                     String[][] tlmMessageIDs,
                                                     boolean optimize)
     {
-        // Convert the array of structure tables and their message ID names to
-        // a list
+        // Convert the array of structure tables and their message ID names to a list
         ArrayListMultiple tlmMessageIDsList = new ArrayListMultiple();
         tlmMessageIDsList.addAll(Arrays.asList(tlmMessageIDs));
 
@@ -5265,37 +4957,32 @@ public class CcddScriptDataAccessHandler
                                    false);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the copy table for the messages of the specified data stream
      *
      * @param streamName
      *            data stream name
      *
      * @param headerSize
-     *            size of the message header in bytes. For example, the CCSDS
-     *            header size is 12
+     *            size of the message header in bytes. For example, the CCSDS header size is 12
      *
      * @param messageIDNameField
-     *            name of the structure table data field containing the message
-     *            ID name. If provided this is used instead of the
-     *            tlmMessageIDs list
+     *            name of the structure table data field containing the message ID name. If
+     *            provided this is used instead of the tlmMessageIDs list
      *
      * @param tlmMessageIDs
-     *            list containing string array entries giving the structure
-     *            table path+name and the table's associated message ID name.
-     *            Used if messageIDNameField is null
+     *            list containing string array entries giving the structure table path+name and the
+     *            table's associated message ID name. Used if messageIDNameField is null
      *
      * @param optimize
-     *            true to combine memory copy calls for consecutive variables
-     *            in the copy table
+     *            true to combine memory copy calls for consecutive variables in the copy table
      *
      * @param expandMacros
      *            true to expand any macro within the variable names
      *
-     * @return Array containing the copy table entries; returns blank if there
-     *         are no entries for the specified data stream or if data stream
-     *         name is invalid
-     *************************************************************************/
+     * @return Array containing the copy table entries; returns blank if there are no entries for
+     *         the specified data stream or if data stream name is invalid
+     *********************************************************************************************/
     private String[][] getCopyTableEntries(String streamName,
                                            int headerSize,
                                            String messageIDNameField,
@@ -5329,17 +5016,16 @@ public class CcddScriptDataAccessHandler
         return entries;
     }
 
-    /**************************************************************************
-     * Get the copy table message ID names and their corresponding ID values
-     * for the specified data stream
+    /**********************************************************************************************
+     * Get the copy table message ID names and their corresponding ID values for the specified data
+     * stream
      *
      * @param streamName
      *            data stream name
      *
-     * @return Array containing the copy table message ID names and ID values;
-     *         returns blank if there are no entries for the specified data
-     *         stream or if data stream name is invalid
-     *************************************************************************/
+     * @return Array containing the copy table message ID names and ID values; returns blank if
+     *         there are no entries for the specified data stream or if data stream name is invalid
+     *********************************************************************************************/
     public String[][] getTelemetryMessageIDs(String streamName)
     {
         String[][] messageIDs = new String[0][0];
@@ -5361,55 +5047,51 @@ public class CcddScriptDataAccessHandler
         return messageIDs;
     }
 
-    /**************************************************************************
-     * Get an array containing every message ID name and its corresponding
-     * message ID, and the owning entity from every table cell, data field
-     * (table or group), and telemetry message. ID names and IDs are determined
-     * by the input data type assigned to the table column or data field, and
-     * are matched one-to-one by relative position; i.e., the first message ID
-     * name data field for a table or group is paired with the first message ID
-     * data field, and so on. If more names are defined than IDs or vice versa
-     * then a blank ID/name is paired with the unmatched name/ID
+    /**********************************************************************************************
+     * Get an array containing every message ID name and its corresponding message ID, and the
+     * owning entity from every table cell, data field (table or group), and telemetry message. ID
+     * names and IDs are determined by the input data type assigned to the table column or data
+     * field, and are matched one-to-one by relative position; i.e., the first message ID name data
+     * field for a table or group is paired with the first message ID data field, and so on. If
+     * more names are defined than IDs or vice versa then a blank ID/name is paired with the
+     * unmatched name/ID
      *
-     * @return Two-dimensional array containing every message ID name and its
-     *         corresponding message ID, and the owning entity, sorted by the
-     *         owner name. Each row in the array is an array in the form [owner
-     *         name], [message ID name], [message ID]. The owner name is
-     *         preceded by 'Group:' if the owner is a group, and by "Tlm:' if
-     *         the owner is a telemetry message
-     *************************************************************************/
+     * @return Two-dimensional array containing every message ID name and its corresponding message
+     *         ID, and the owning entity, sorted by the owner name. Each row in the array is an
+     *         array in the form [owner name], [message ID name], [message ID]. The owner name is
+     *         preceded by 'Group:' if the owner is a group, and by "Tlm:' if the owner is a
+     *         telemetry message
+     *********************************************************************************************/
     public String[][] getMessageIDOwnersIDsAndNames()
     {
         return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER, parent).toArray(new String[0][0]);
     }
 
-    /**************************************************************************
-     * Get a string array containing all of the data stream names in the
-     * project
+    /**********************************************************************************************
+     * Get a string array containing all of the data stream names in the project
      *
      * @return Array containing the unique data stream names
-     *************************************************************************/
+     *********************************************************************************************/
     public String[] getDataStreamNames()
     {
         return rateHandler.getDataStreamNames();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get an array containing the application names in the project
      *
-     * @return Array of application names; the list is empty if no application
-     *         names exist
-     *************************************************************************/
+     * @return Array of application names; the list is empty if no application names exist
+     *********************************************************************************************/
     public String[] getApplicationNames()
     {
         return groupHandler.getGroupNames(true);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the array of defined parameters for the schedule definition table
      *
      * @return Two-dimensional array containing the defined parameters
-     *************************************************************************/
+     *********************************************************************************************/
     public String[][] getApplicationScheduleDefinitionTableDefines()
     {
         // Check if the scheduler table handler doesn't exist
@@ -5422,16 +5104,14 @@ public class CcddScriptDataAccessHandler
         return schTable.getScheduleDefinitionTableDefines();
     }
 
-    /**************************************************************************
-     * Get the specified entry in the application scheduler schedule definition
-     * table
+    /**********************************************************************************************
+     * Get the specified entry in the application scheduler schedule definition table
      *
      * @param row
      *            row index for the entry in the schedule definition table
      *
-     * @return Array containing the specified entry in the schedule definition
-     *         table
-     *************************************************************************/
+     * @return Array containing the specified entry in the schedule definition table
+     *********************************************************************************************/
     public String[][] getApplicationScheduleDefinitionTable(int row)
     {
         // Check if the scheduler table handler doesn't exist
@@ -5444,11 +5124,11 @@ public class CcddScriptDataAccessHandler
         return schTable.getScheduleDefinitionTableByRow(row);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the application scheduler message definition table
      *
      * @return Array containing the message definition table information
-     *************************************************************************/
+     *********************************************************************************************/
     public String[] getApplicationMessageDefinitionTable()
     {
         // Check if the scheduler table handler doesn't exist
@@ -5461,11 +5141,11 @@ public class CcddScriptDataAccessHandler
         return schTable.getMessageDefinitionTable();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the number of time slots in the schedule definition table
      *
      * @return Number of time slots in schedule definition table
-     *************************************************************************/
+     *********************************************************************************************/
     public int getNumberOfTimeSlots()
     {
         // Check if the scheduler table handler doesn't exist
@@ -5478,11 +5158,11 @@ public class CcddScriptDataAccessHandler
         return schTable.getNumberOfTimeSlots();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * *** TODO INCLUDED FOR TESTING ***
      *
      * Display the table information for each associated table type
-     *************************************************************************/
+     *********************************************************************************************/
     public void showData()
     {
         // Check if no table is associated with the script
