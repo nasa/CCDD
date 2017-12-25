@@ -69,9 +69,9 @@ import CCDD.CcddConstants.TableMemberType;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/**********************************************************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary database table command handler class
- *********************************************************************************************************************/
+ *************************************************************************************************/
 public class CcddDbTableCommandHandler
 {
     // Class references
@@ -97,12 +97,12 @@ public class CcddDbTableCommandHandler
     // List of arrays scheduled for removal from the links and telemetry scheduler tables
     private List<String> deletedArrayDefns;
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Database table command handler class constructor
      *
      * @param ccddMain
      *            main class
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     CcddDbTableCommandHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
@@ -118,9 +118,9 @@ public class CcddDbTableCommandHandler
         tlmSchSeparator = CcddUtilities.escapePostgreSQLReservedChars(TLM_SCH_SEPARATOR);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Set the references to the table type, macro, data type, and rate handler classes
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void setHandlers()
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
@@ -129,7 +129,7 @@ public class CcddDbTableCommandHandler
         rateHandler = ccddMain.getRateParameterHandler();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Enclose database text string objects with a delimiter. The default delimiter is single
      * quotes. If the text contains single quotes or a backslash then $$ is used instead, unless
      * the text already contains $$, in which case $_$ is used as the delimiter
@@ -138,7 +138,7 @@ public class CcddDbTableCommandHandler
      *            object to be stored in the database
      *
      * @return Object enclosed by delimiters if the object is a text string
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected Object delimitText(Object object)
     {
         // Check if this is a string
@@ -174,7 +174,7 @@ public class CcddDbTableCommandHandler
         return object;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Check if a specified table exists in the database (case insensitive)
      *
      * @param tableName
@@ -184,7 +184,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return true if the specified table exists in the database
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected boolean isTableExists(String tableName, Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.SPECIFIC_TABLE,
@@ -192,20 +192,20 @@ public class CcddDbTableCommandHandler
                                  parent).length != 0;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Get the list of root (top level) structure tables
      *
      * @param parent
      *            GUI component calling this method
      *
      * @return List of root structure tables; empty list if there are no root tables
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String> getRootStructures(Component parent)
     {
         return getRootTables(true, parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Get the list of root (top level) tables
      *
      * @param structuresOnly
@@ -215,7 +215,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return List of root tables; empty list if there are no root tables
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String> getRootTables(boolean structuresOnly, Component parent)
     {
         List<String> rootTables = new ArrayList<String>();
@@ -261,7 +261,7 @@ public class CcddDbTableCommandHandler
         return rootTables;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the specified table's comment command
      *
      * @param tableName
@@ -271,7 +271,7 @@ public class CcddDbTableCommandHandler
      *            table comment
      *
      * @return Command to update the table's comment
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildTableComment(String tableName, String comment)
     {
         return "COMMENT ON TABLE "
@@ -281,7 +281,7 @@ public class CcddDbTableCommandHandler
                + "; ";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the specified data table's comment command. The table's visible table name (preserving
      * case) and its type are stored as a comment on the table
      *
@@ -292,7 +292,7 @@ public class CcddDbTableCommandHandler
      *            table type
      *
      * @return Command to update the table's comment
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildDataTableComment(String tableName,
                                          String tableType)
     {
@@ -301,7 +301,7 @@ public class CcddDbTableCommandHandler
                                                                               tableType));
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the specified table instance's description update command. The table's description is
      * stored in the custom values table. Blank descriptions aren't stored
      *
@@ -317,7 +317,7 @@ public class CcddDbTableCommandHandler
      *            table description
      *
      * @return Command to update the specified table's description
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildTableDescription(String tablePath, String description)
     {
         String command = "DELETE FROM "
@@ -351,7 +351,7 @@ public class CcddDbTableCommandHandler
         return command;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the specified table instance's column order update command
      *
      * @param tablePath
@@ -366,7 +366,7 @@ public class CcddDbTableCommandHandler
      *            table column order
      *
      * @return Command to update the specified table's column order for the current user
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildColumnOrder(String tablePath, String columnOrder)
     {
         return "DELETE FROM "
@@ -396,7 +396,7 @@ public class CcddDbTableCommandHandler
                + "'); ";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Perform a query on the currently open database
      *
      * @param sqlCommand
@@ -408,7 +408,7 @@ public class CcddDbTableCommandHandler
      * @return Two-dimensional array representing the rows and columns of data returned by the
      *         database query; returns null if the query produces an error, or an empty array if
      *         there are no results
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> queryDatabase(String sqlCommand,
                                            Component parent)
     {
@@ -458,7 +458,7 @@ public class CcddDbTableCommandHandler
         return queryResults;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve the specified cell's value from the specified table
      *
      * @param table
@@ -474,7 +474,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Value of the cell in the table specified; blank if the query fails
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String queryTableCellValue(String tableName,
                                          String primaryKey,
                                          String columnName,
@@ -503,14 +503,14 @@ public class CcddDbTableCommandHandler
         return cellValue;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all data tables in the database. Any non-data tables are ignored
      *
      * @param parent
      *            GUI component calling this method
      *
      * @return String array containing the table names with their original capitalization
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] queryTableList(Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.DATA_TABLES,
@@ -518,7 +518,7 @@ public class CcddDbTableCommandHandler
                                  parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all data tables in the database along with the table's type. Any non-data
      * tables are ignored
      *
@@ -528,7 +528,7 @@ public class CcddDbTableCommandHandler
      * @return List array containing the table names and table types. The table names are provided
      *         in both the user-viewable form, which preserves capitalization, and the database
      *         form. An empty array is returned if no tables exist
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> queryTableAndTypeList(Component parent)
     {
         List<String[]> typeAndTable = new ArrayList<String[]>(0);
@@ -552,14 +552,14 @@ public class CcddDbTableCommandHandler
         return typeAndTable;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all table types in the database. Any non-data tables are ignored
      *
      * @param parent
      *            GUI component calling this method
      *
      * @return String array containing the table types in alphabetical order
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] queryTableTypesList(Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.TABLE_TYPES,
@@ -567,7 +567,7 @@ public class CcddDbTableCommandHandler
                                  parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all tables of a specific type in the database. Any non-data tables are
      * ignored
      *
@@ -578,7 +578,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return String array containing the table names of the specified type
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] queryTablesOfTypeList(String tableType,
                                              Component parent)
     {
@@ -587,14 +587,14 @@ public class CcddDbTableCommandHandler
                                  parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all tables that represent script files
      *
      * @param parent
      *            GUI component calling this method
      *
      * @return String array containing the script table names
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] queryScriptTables(Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.SCRIPTS,
@@ -602,7 +602,7 @@ public class CcddDbTableCommandHandler
                                  parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of comments for all data tables in the database. Any non-data tables are
      * ignored
      *
@@ -611,7 +611,7 @@ public class CcddDbTableCommandHandler
      *
      * @return String array containing the table comment parameters and the table name as used in
      *         the database
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[][] queryDataTableComments(Component parent)
     {
         // Get the array of comment strings for every data table
@@ -635,7 +635,7 @@ public class CcddDbTableCommandHandler
         return parsedComments;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve the comment for the specified table
      *
      * @param tableName
@@ -645,7 +645,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Array containing the separate elements of the table comment
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] queryTableComment(String tableName, Component parent)
     {
         // Create an list to contain the comment elements
@@ -692,7 +692,7 @@ public class CcddDbTableCommandHandler
         return parts.toArray(new String[0]);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve the comment for the specified data table. The comment contains the table's visible
      * name (preserves case) and type
      *
@@ -703,7 +703,7 @@ public class CcddDbTableCommandHandler
      *            dialog calling this component
      *
      * @return Array containing the separate elements of the data table comment
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String[] queryDataTableComment(String tableName, Component parent)
     {
         // Get the table's comment, broken into its separate elements
@@ -720,7 +720,7 @@ public class CcddDbTableCommandHandler
         return parts;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of all data table descriptions in the database. Any non-data tables are
      * ignored
      *
@@ -729,7 +729,7 @@ public class CcddDbTableCommandHandler
      *
      * @return String array containing the table names and their variable paths, if any, for those
      *         tables with descriptions
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[][] queryTableDescriptions(Component parent)
     {
         String[][] tableDescriptions;
@@ -762,7 +762,7 @@ public class CcddDbTableCommandHandler
         return tableDescriptions;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve the description for the specified table
      *
      * @param tablePath
@@ -780,7 +780,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Table description; blank if the table has no description
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String queryTableDescription(String tablePath, Component parent)
     {
         // Set the initial description to an empty string
@@ -838,7 +838,7 @@ public class CcddDbTableCommandHandler
         return description;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve the column order for the specified table and the current user
      *
      * @param tablePath
@@ -854,7 +854,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Table column order
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String queryColumnOrder(String tablePath,
                                     String tableType,
                                     Component parent)
@@ -906,7 +906,7 @@ public class CcddDbTableCommandHandler
         return columnOrder;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Return an array of table comment components for the specified table
      *
      * @param tableNameDb
@@ -916,7 +916,7 @@ public class CcddDbTableCommandHandler
      *            array of table comments, with each comment divided into its component parts
      *
      * @return Array of comment components for the specified table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] getTableComment(String tableNameDb, String[][] comments)
     {
         // Initialize the comment array
@@ -939,7 +939,7 @@ public class CcddDbTableCommandHandler
         return comment;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Set the comment for the specified table
      *
      * @param tableName
@@ -950,7 +950,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            reference to the GUI component over which any error dialogs should be centered
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void setTableComment(String tableName,
                                    String comment,
                                    Component parent)
@@ -983,7 +983,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to copy the data fields from one table to another
      *
      * @param fieldTableName
@@ -996,7 +996,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Command to copy the data fields for one table to another
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String copyDataFieldCommand(String fieldTableName,
                                         String tableName,
                                         Component parent)
@@ -1020,7 +1020,7 @@ public class CcddDbTableCommandHandler
         return command;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create one or more tables of the specified type. This command is executed in a separate
      * thread since it can take a noticeable amount time to complete, and by using a separate
      * thread the GUI is allowed to continue to update. The GUI menu commands, however, are
@@ -1037,7 +1037,7 @@ public class CcddDbTableCommandHandler
      *
      * @param tableDialog
      *            reference to the table manager dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void createTableInBackground(final String[] tableNames,
                                            final String description,
                                            final String tableType,
@@ -1048,9 +1048,9 @@ public class CcddDbTableCommandHandler
         {
             boolean errorFlag = false;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Database table creation command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1061,9 +1061,9 @@ public class CcddDbTableCommandHandler
                                         tableDialog);
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Create database table command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -1076,7 +1076,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create one or more tables of the specified type
      *
      * @param tableNames
@@ -1092,7 +1092,7 @@ public class CcddDbTableCommandHandler
      *            reference to the table manager dialog
      *
      * @return true if an error occurred when creating a table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected boolean createTable(String[] tableNames,
                                   String description,
                                   String tableType,
@@ -1144,7 +1144,7 @@ public class CcddDbTableCommandHandler
         return errorFlag;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to create a table of the specified type
      *
      * @param tableName
@@ -1160,7 +1160,7 @@ public class CcddDbTableCommandHandler
      *            GUI component over which to center any dialogs
      *
      * @return The command to create the specified table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String createTableCommand(String tableName,
                                       String description,
                                       String tableType,
@@ -1213,7 +1213,7 @@ public class CcddDbTableCommandHandler
         return command.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Change the name of a table. Only prototype tables can be renamed using this method
      * (instances are renamed by changing the variable name in the prototype). This command is
      * executed in a separate thread since it can take a noticeable amount time to complete, and by
@@ -1231,7 +1231,7 @@ public class CcddDbTableCommandHandler
      *
      * @param tableDialog
      *            reference to the table manager dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void renameTable(final String tableName,
                                final String newName,
                                final String newDescription,
@@ -1242,9 +1242,9 @@ public class CcddDbTableCommandHandler
         {
             boolean errorFlag = false;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Rename database table command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1345,9 +1345,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Rename database table command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -1360,7 +1360,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create the command to rename a table reference in an internal table
      *
      * @param intType
@@ -1376,7 +1376,7 @@ public class CcddDbTableCommandHandler
      *            new name for this table
      *
      * @return Command to rename the table reference in the specified internal table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String renameInfoTableCommand(InternalTable intType,
                                           String idColumnName,
                                           String oldName,
@@ -1408,7 +1408,7 @@ public class CcddDbTableCommandHandler
                + "\\\\2'); ";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Make a copy of an existing table. Only prototype tables can be copied using this method
      * (instances are copied by adding a new instance and copying the values to it in the table
      * editor). This command is executed in a separate thread since it can take a noticeable amount
@@ -1426,7 +1426,7 @@ public class CcddDbTableCommandHandler
      *
      * @param tableDialog
      *            reference to the table manager dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void copyTable(final String tableName,
                              final String newName,
                              final String newDescription,
@@ -1437,9 +1437,9 @@ public class CcddDbTableCommandHandler
         {
             boolean errorFlag = false;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Copy table command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1545,9 +1545,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /******************************************************************************************************
+            /**********************************************************************************
              * Copy database table command complete
-             *****************************************************************************************************/
+             *********************************************************************************/
             @Override
             protected void complete()
             {
@@ -1560,7 +1560,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Delete one or more prototype or script tables. The selected tables(s) are deleted from the
      * database, all references to the table are deleted from the custom values table, and any open
      * editors for tables of this prototype are closed. This command is executed in a separate
@@ -1577,7 +1577,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void deleteTableInBackground(final String[] tableNames,
                                            final CcddTableManagerDialog dialog,
                                            final Component parent)
@@ -1599,9 +1599,9 @@ public class CcddDbTableCommandHandler
             {
                 boolean errorFlag = false;
 
-                /******************************************************************************************************
+                /**********************************************************************************
                  * Database table deletion command
-                 *****************************************************************************************************/
+                 *********************************************************************************/
                 @Override
                 protected void execute()
                 {
@@ -1609,9 +1609,9 @@ public class CcddDbTableCommandHandler
                     errorFlag = deleteTable(tableNames, dialog, parent);
                 }
 
-                /******************************************************************************************************
+                /**********************************************************************************
                  * Delete database table command complete
-                 *****************************************************************************************************/
+                 *********************************************************************************/
                 @Override
                 protected void complete()
                 {
@@ -1626,7 +1626,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Delete one or more prototype or script tables. The selected tables(s) are deleted from the
      * database, all references to the table are deleted from the custom values table, and any open
      * editors for tables of this prototype are closed
@@ -1642,7 +1642,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return true if an error occurred when deleting a table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected boolean deleteTable(String[] tableNames,
                                   CcddTableManagerDialog dialog,
                                   Component parent)
@@ -1693,7 +1693,7 @@ public class CcddDbTableCommandHandler
         return errorFlag;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to delete one or more prototype or script tables
      *
      * @param tableNames
@@ -1702,7 +1702,7 @@ public class CcddDbTableCommandHandler
      * @param isDataTable
      *            true if the table(s) to be deleted are data tables; false if the tables are
      *            scripts or internal tables
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String deleteTableCommand(String[] tableNames, boolean isDataTable)
     {
         // Build the table deletion commands
@@ -1825,7 +1825,7 @@ public class CcddDbTableCommandHandler
         return command + ";";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Load the contents of a single database table and display the data in a table editor. Do not
      * load the table if it is already open for editing. If the table is already open, then the
      * editor for this table is brought to the foreground. This command is executed in a separate
@@ -1845,7 +1845,7 @@ public class CcddDbTableCommandHandler
      *            editor dialog to open the table in; null to open the table in a new editor dialog
      *
      * @return SwingWorker reference for this thread
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected SwingWorker<?, ?> loadTableDataInBackground(String tablePath,
                                                           CcddTableEditorDialog currentEditorDlg)
     {
@@ -1853,7 +1853,7 @@ public class CcddDbTableCommandHandler
                                          currentEditorDlg);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Load the contents of an array of database tables and display the data in a table editor. Do
      * not load tables that are already open for editing. If no table is loaded, but one in the
      * list is already open, then the editor for this table is brought to the foreground. This
@@ -1874,7 +1874,7 @@ public class CcddDbTableCommandHandler
      *            dialog
      *
      * @return SwingWorker reference for this thread
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected SwingWorker<?, ?> loadTableDataInBackground(final String[] tablePaths,
                                                           final CcddTableEditorDialog currentEditorDlg)
     {
@@ -1891,9 +1891,9 @@ public class CcddDbTableCommandHandler
                                                           ? ccddMain.getMainFrame()
                                                           : currentEditorDlg;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Load database table command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -1963,9 +1963,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Load database table command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -2010,7 +2010,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Perform the database query to load the contents of a database table. The data is sorted in
      * ascending numerical order based on the index (primary key) column
      *
@@ -2040,7 +2040,7 @@ public class CcddDbTableCommandHandler
      *
      * @return TableInformation class containing the table data from the database. If the error
      *         flag is set the an error occurred and the data is invalid
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected TableInformation loadTableData(String tablePath,
                                              boolean isRootStructure,
                                              boolean loadDescription,
@@ -2228,7 +2228,7 @@ public class CcddDbTableCommandHandler
         return tableInfo;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Perform the database query to load the rows from the custom values table that match the
      * specified column name and column value
      *
@@ -2245,7 +2245,7 @@ public class CcddDbTableCommandHandler
      * @return List containing arrays with the row data (table path, column name, and value) from
      *         the custom values table for those rows that match the specified column name and
      *         column value
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> getCustomValues(String columnName,
                                              String columnValue,
                                              Component parent)
@@ -2298,13 +2298,13 @@ public class CcddDbTableCommandHandler
         return customValues;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Store the rate parameters in the project database and update the database structure-related
      * functions
      *
      * @param parent
      *            component calling this method, used for positioning any error dialogs
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void storeRateParameters(Component parent)
     {
         // Build the string containing the rate parameters
@@ -2335,7 +2335,7 @@ public class CcddDbTableCommandHandler
                         parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create a list of all prototype tables with their child tables (prototypes and instances),
      * and primitive variables (if specified). The table must contain all of the protected columns
      * defined for a structure in order for its members to be determined. Non-structure tables are
@@ -2356,7 +2356,7 @@ public class CcddDbTableCommandHandler
      * @return List containing the table member information. For structure tables the member tables
      *         are included, along with primitive variables (if specified), sorted by variable name
      *         or row index as specified
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<TableMembers> loadTableMembers(TableMemberType memberType,
                                                   boolean sortByName,
                                                   final Component parent)
@@ -2562,10 +2562,10 @@ public class CcddDbTableCommandHandler
             // Sort the table members by table name in ascending order
             Collections.sort(tableMembers, new Comparator<TableMembers>()
             {
-                /******************************************************************************************************
+                /**********************************************************************************
                  * Compare the table names of two member definitions. Force lower case to eliminate
                  * case differences in the comparison
-                 *****************************************************************************************************/
+                 *********************************************************************************/
                 @Override
                 public int compare(TableMembers mem1, TableMembers mem2)
                 {
@@ -2592,7 +2592,7 @@ public class CcddDbTableCommandHandler
         return tableMembers;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Add, modify, and/or delete data in a table. This command is executed in a separate thread
      * since it can take a noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however, are disabled until the
@@ -2639,7 +2639,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            reference to the GUI component over which any error dialogs should be centered
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void modifyTableDataInBackground(final TableInformation tableInfo,
                                                final List<TableModification> additions,
                                                final List<TableModification> modifications,
@@ -2656,9 +2656,9 @@ public class CcddDbTableCommandHandler
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify table data command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -2677,7 +2677,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Add, modify, and/or delete data in a table. If the table is a prototype then its database
      * table is altered; if the table is an instance then the changes are made to the custom values
      * table
@@ -2725,7 +2725,7 @@ public class CcddDbTableCommandHandler
      *            reference to the GUI component over which any error dialogs should be centered
      *
      * @return true if an error occurs while updating the table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected boolean modifyTableData(TableInformation tableInfo,
                                       List<TableModification> additions,
                                       List<TableModification> modifications,
@@ -2909,7 +2909,7 @@ public class CcddDbTableCommandHandler
         return errorFlag;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to add table rows. Only prototype tables can have a row added
      *
      * @param tableInfo
@@ -2933,7 +2933,7 @@ public class CcddDbTableCommandHandler
      *            to speed up the operation
      *
      * @return Table row addition command
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildAdditionCommand(TableInformation tableInfo,
                                         List<TableModification> additions,
                                         String dbTableName,
@@ -3140,7 +3140,7 @@ public class CcddDbTableCommandHandler
         return addCmd.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the commands to modify the table
      *
      * @param tableInfo
@@ -3169,7 +3169,7 @@ public class CcddDbTableCommandHandler
      *            to speed up the operation
      *
      * @return Table row modification command
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildModificationCommand(TableInformation tableInfo,
                                             List<TableModification> modifications,
                                             TypeDefinition typeDefn,
@@ -3872,7 +3872,7 @@ public class CcddDbTableCommandHandler
         return modCmd.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to delete a table row. Only prototype tables can have a row deleted
      *
      * @param tableInfo
@@ -3896,7 +3896,7 @@ public class CcddDbTableCommandHandler
      *            to speed up the operation
      *
      * @return Table row deletion command
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String buildDeletionCommand(TableInformation tableInfo,
                                         List<TableModification> deletions,
                                         String dbTableName,
@@ -4093,7 +4093,7 @@ public class CcddDbTableCommandHandler
         return delCmd.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to update the variable name and/or the data type. Combine updates to array
      * members into a single command by using a regular expression to match the array indices
      *
@@ -4121,7 +4121,7 @@ public class CcddDbTableCommandHandler
      *            true to include child tables of the variable paths
      *
      * @return Command to update the variable name and/or the data type
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String updateVarNameAndDataType(String orgVariablePath,
                                             String newVariablePath,
                                             String tableName,
@@ -4213,7 +4213,7 @@ public class CcddDbTableCommandHandler
         return command;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create a copy of the specified table's table tree node and immediate child nodes
      *
      * @param tableName
@@ -4223,7 +4223,7 @@ public class CcddDbTableCommandHandler
      *            CcddTableTreeHandler reference describing the table tree
      *
      * @return Copy of the specified table's table tree node and immediate child nodes (if any)
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private ToolTipTreeNode copyPrototypeTableTreeNode(String tableName,
                                                        CcddTableTreeHandler tableTree)
     {
@@ -4249,7 +4249,7 @@ public class CcddDbTableCommandHandler
         return orgTableNode;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the commands to delete variable references in the links and telemetry scheduler tables
      * that are no longer valid due to changes in bit-packing
      *
@@ -4262,7 +4262,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Commands to delete variable references in the links and telemetry scheduler tables
      *         that are no longer valid due to changes in bit-packing
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String updateLinksAndTlmForPackingChange(CcddTableTreeHandler tableTree,
                                                      ToolTipTreeNode orgTableNode,
                                                      Component parent)
@@ -4280,12 +4280,13 @@ public class CcddDbTableCommandHandler
         // Get the tree node for the updated prototype table
         ToolTipTreeNode updTableNode = tableTree.getNodeByNodeName(orgTableNode.getUserObject().toString());
 
-        // //////////////////////////////////////////////////////////////////// Create a list
-        // containing lists of each group of bit-packed variables in the table as it exists after
-        // the updates are applied. Also create a list containing every bit-packed variable; this
-        // list is pruned later to remove those variables that haven't changed their bit-packing
-        // //////////////////////////////////////////////////////////////////// Step through each
-        // variable in the table as it exists after the updates
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Create a list containing lists of each group of bit-packed variables in the table as it
+        // exists after the updates are applied. Also create a list containing every bit-packed
+        // variable; this list is pruned later to remove those variables that haven't changed their
+        // bit-packing
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Step through each variable in the table as it exists after the updates
         for (int childIndex = 0; childIndex < updTableNode.getChildCount(); childIndex++)
         {
             // Get the indices of all variables bit-packed the variable at the current child index
@@ -4312,14 +4313,14 @@ public class CcddDbTableCommandHandler
             }
         }
 
-        // //////////////////////////////////////////////////////////////////// Create lists of
-        // each group of bit-packed variables in the table as it existed prior to the updates being
-        // applied. Also add the variables to the list containing every bit-packed variable (if not
-        // already in the list). Check if the group still exists in the updated table (i.e.
-        // contains the same bit-packed members; order or position is ignored). If the group does
-        // exist then remove its members from the list of variables to be removed
-        // //////////////////////////////////////////////////////////////////// Step through each
-        // variable in the table as is existed prior to the updates
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Create lists of each group of bit-packed variables in the table as it existed prior to
+        // the updates being applied. Also add the variables to the list containing every
+        // bit-packed variable (if not already in the list). Check if the group still exists in the
+        // updated table (i.e. contains the same bit-packed members; order or position is ignored).
+        // If the group does exist then remove its members from the list of variables to be removed
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Step through each variable in the table as is existed prior to the updates
         for (int childIndex = 0; childIndex < orgTableNode.getChildCount(); childIndex++)
         {
             // Get the indices of all variables bit-packed the variable at the current child index
@@ -4345,14 +4346,15 @@ public class CcddDbTableCommandHandler
                     }
                 }
 
-                // //////////////////////////////////////////////////////////// Compare the
-                // bit-packed group of variables in the table originally to the groups in the table
-                // with the updates. If the group still exists then remove its members from the
-                // list of variables to remove. Once all of the bit-packed groups are checks the
-                // removal list contains only the variables that have changed their bit-packed
-                // status, and therefore need to be removed from the links and telemetry scheduler
-                // tables //////////////////////////////////////////////////////////// Step through
-                // the list of bit-packed variables in the updated table
+                // ////////////////////////////////////////////////////////////////////////////////
+                // Compare the bit-packed group of variables in the table originally to the groups
+                // in the table with the updates. If the group still exists then remove its members
+                // from the list of variables to remove. Once all of the bit-packed groups are
+                // checks the removal list contains only the variables that have changed their
+                // bit-packed status, and therefore need to be removed from the links and telemetry
+                // scheduler tables
+                // ////////////////////////////////////////////////////////////////////////////////
+                // Step through the list of bit-packed variables in the updated table
                 for (List<String> updatedPackMembers : updatedPacking)
                 {
                     // Check if the bit-packed variables in the original table are still present in
@@ -4409,7 +4411,7 @@ public class CcddDbTableCommandHandler
         return linksDelCmd.toString() + tlmDelCmd.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Update the link definitions when a string variable's size is increased (i.e., a new member
      * is added to the array)
      *
@@ -4421,7 +4423,7 @@ public class CcddDbTableCommandHandler
      *
      * @param variableName
      *            string variable's name
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private void updateLinksForStringMemberAddition(String protoTable,
                                                     String dataType,
                                                     String variableName)
@@ -4485,7 +4487,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to delete the specified table/variable references from the links table
      *
      * @param linksPath
@@ -4500,7 +4502,7 @@ public class CcddDbTableCommandHandler
      *
      * @return StringBuilder containing the links table command. This must be terminated by a
      *         semi-colon prior to execution
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private void deleteLinkPathRef(String linksPath,
                                    StringBuilder linksCmd)
     {
@@ -4513,7 +4515,7 @@ public class CcddDbTableCommandHandler
                         + "'; ");
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the commands to delete the specified table/variable references from the telemetry
      * scheduler table
      *
@@ -4529,7 +4531,7 @@ public class CcddDbTableCommandHandler
      *
      * @return StringBuilder containing the telemetry scheduler table command. This must be
      *         terminated by a semi-colon prior to execution
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private void deleteTlmPathRef(String tlmPath, StringBuilder tlmCmd)
     {
         tlmCmd.append("DELETE FROM "
@@ -4542,7 +4544,7 @@ public class CcddDbTableCommandHandler
                       + "'; ");
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command to delete the specified variable references from the telemetry scheduler
      * table
      *
@@ -4551,7 +4553,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Command to delete the specified variable references from the telemetry scheduler
      *         table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String deleteTlmPathRefs(List<String> variablePaths)
     {
         StringBuilder tlmCommand = new StringBuilder("");
@@ -4579,7 +4581,7 @@ public class CcddDbTableCommandHandler
         return tlmCommand.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Remove all references to the specified variable paths in the links and telemetry scheduler
      * tables. If the variable is an array definition then amend the regular expression to match
      * all members of the array; skip any subsequent members of the array passed to this method
@@ -4602,7 +4604,7 @@ public class CcddDbTableCommandHandler
      *
      * @param tlmDelCmd
      *            StringBuilder containing the existing telemetry scheduler table deletion command
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private void deleteLinkAndTlmPathRef(String arraySize,
                                          String variableName,
                                          String variablePath,
@@ -4660,7 +4662,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Remove all references for the specified rate column name in tables of the changed table type
      * in the links and telemetry scheduler tables
      *
@@ -4675,7 +4677,7 @@ public class CcddDbTableCommandHandler
      *            target type
      *
      * @return
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String deleteLinkAndTlmRateRef(String rateColName,
                                            StringBuilder linksCmd,
                                            StringBuilder tlmSchCmd)
@@ -4699,7 +4701,7 @@ public class CcddDbTableCommandHandler
                + "; ";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Remove all references to the specified rate column name in the links and telemetry scheduler
      * tables
      *
@@ -4707,7 +4709,7 @@ public class CcddDbTableCommandHandler
      *            rate column name
      *
      * @return
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String deleteAllLinkAndTlmRateRefs(String rateColName)
     {
         return "DELETE FROM "
@@ -4725,7 +4727,7 @@ public class CcddDbTableCommandHandler
                + "'; ";
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of internal table data from the database
      *
      * @param intTable
@@ -4736,14 +4738,14 @@ public class CcddDbTableCommandHandler
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> retrieveInformationTable(InternalTable intTable,
                                                       Component parent)
     {
         return retrieveInformationTable(intTable, false, null, parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of internal table data from the database
      *
      * @param intTable
@@ -4757,7 +4759,7 @@ public class CcddDbTableCommandHandler
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> retrieveInformationTable(InternalTable intTable,
                                                       boolean includeOID,
                                                       Component parent)
@@ -4765,7 +4767,7 @@ public class CcddDbTableCommandHandler
         return retrieveInformationTable(intTable, includeOID, null, parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Retrieve a list of internal table data from the database
      *
      * @param intTable
@@ -4782,7 +4784,7 @@ public class CcddDbTableCommandHandler
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected List<String[]> retrieveInformationTable(InternalTable intTable,
                                                       boolean includeOID,
                                                       String scriptName,
@@ -4854,7 +4856,7 @@ public class CcddDbTableCommandHandler
         return tableData;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Store the internal table into the database. This command is executed in a separate thread
      * since it can take a noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however, are disabled until the
@@ -4871,7 +4873,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void storeInformationTableInBackground(final InternalTable intTable,
                                                      final List<String[]> tableData,
                                                      final String tableComment,
@@ -4886,7 +4888,7 @@ public class CcddDbTableCommandHandler
                                           parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Store the internal table into the database. This command is executed in a separate thread
      * since it can take a noticeable amount time to complete, and by using a separate thread the
      * GUI is allowed to continue to update. The GUI menu commands, however, are disabled until the
@@ -4915,7 +4917,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void storeInformationTableInBackground(final InternalTable intTable,
                                                      final List<String[]> tableData,
                                                      final List<List<FieldInformation>> fieldInformationList,
@@ -4927,9 +4929,9 @@ public class CcddDbTableCommandHandler
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, parent, new BackgroundCommand()
         {
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Database internal table store command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -4944,7 +4946,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Store the internal table into the database
      *
      * @param intTable
@@ -4958,7 +4960,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void storeInformationTable(InternalTable intTable,
                                          List<String[]> tableData,
                                          String tableComment,
@@ -4973,7 +4975,7 @@ public class CcddDbTableCommandHandler
                               parent);
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Store the internal table into the database
      *
      * @param intTable
@@ -5000,7 +5002,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void storeInformationTable(InternalTable intTable,
                                          List<String[]> tableData,
                                          List<List<FieldInformation>> fieldInformationList,
@@ -5161,7 +5163,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command for storing the groups, script associations, links table, data fields, or
      * script
      *
@@ -5178,7 +5180,7 @@ public class CcddDbTableCommandHandler
      *            GUI component calling this method
      *
      * @return Command for building the specified table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String storeNonTableTypesInfoTableCommand(InternalTable intTable,
                                                       List<String[]> tableData,
                                                       String tableComment,
@@ -5278,11 +5280,11 @@ public class CcddDbTableCommandHandler
         return command.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command for storing the table type definitions table
      *
      * @return Command for building the specified table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String storeTableTypesInfoTableCommand()
     {
         // Build the command to delete the existing table type definitions table and create the new
@@ -5348,7 +5350,7 @@ public class CcddDbTableCommandHandler
         return command.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Build the command for updating the data field definitions table for the specified data
      * table, table type, or group
      *
@@ -5361,7 +5363,7 @@ public class CcddDbTableCommandHandler
      *            type/group
      *
      * @return Command for updating the table/table type/group fields in the data field table
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     private String modifyFieldsCommand(String ownerName,
                                        List<FieldInformation> fieldInformation)
     {
@@ -5412,7 +5414,7 @@ public class CcddDbTableCommandHandler
         return command.toString();
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Change the name of a table type and update the existing tables of the specified type. This
      * command is executed in a separate thread since it can take a noticeable amount time to
      * complete, and by using a separate thread the GUI is allowed to continue to update. The GUI
@@ -5426,7 +5428,7 @@ public class CcddDbTableCommandHandler
      *
      * @param typeDialog
      *            reference to the type manager dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void renameTableType(final String typeName,
                                    final String newName,
                                    final CcddTableTypeManagerDialog typeDialog)
@@ -5437,9 +5439,9 @@ public class CcddDbTableCommandHandler
             boolean errorFlag = false;
             String tableName;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Rename table type command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -5506,9 +5508,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Rename table type command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -5517,7 +5519,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Create a copy of an existing table type. This command is executed in a separate thread since
      * it can take a noticeable amount time to complete, and by using a separate thread the GUI is
      * allowed to continue to update. The GUI menu commands, however, are disabled until the
@@ -5531,7 +5533,7 @@ public class CcddDbTableCommandHandler
      *
      * @param typeDialog
      *            reference to the type manager dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void copyTableType(final String typeName,
                                  final String copyName,
                                  final CcddTableTypeManagerDialog typeDialog)
@@ -5544,9 +5546,9 @@ public class CcddDbTableCommandHandler
             // List of field definitions
             List<String[]> fieldDefinitions = null;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Copy table type command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -5599,9 +5601,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Copy table type command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -5621,7 +5623,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Delete a table type and all tables of the deleted type. This command is executed in a
      * separate thread since it can take a noticeable amount time to complete, and by using a
      * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
@@ -5638,7 +5640,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void deleteTableType(final String typeName,
                                    final boolean isStructure,
                                    final CcddTableTypeManagerDialog typeDialog,
@@ -5652,9 +5654,9 @@ public class CcddDbTableCommandHandler
             String[] tableNames = null;
             String names = "";
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Table type deletion command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -5752,9 +5754,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Delete table type command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -5785,7 +5787,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Add, rename, or delete table type column names in the table definitions table and update the
      * existing tables of the specified type. This command is executed in a separate thread since
      * it can take a noticeable amount time to complete, and by using a separate thread the GUI is
@@ -5825,7 +5827,7 @@ public class CcddDbTableCommandHandler
      *
      * @param editor
      *            reference to the table type editor where the change(s) occurred
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void modifyTableTypeInBackground(final String tableType,
                                                final List<FieldInformation> fieldInformation,
                                                final boolean overwriteFields,
@@ -5840,9 +5842,9 @@ public class CcddDbTableCommandHandler
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify table types command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -5860,7 +5862,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Add, rename, or delete table type column names in the table definitions table and update the
      * existing tables of the specified type
      *
@@ -5899,7 +5901,7 @@ public class CcddDbTableCommandHandler
      *
      * @param editor
      *            reference to the table type editor where the change(s) occurred
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void modifyTableType(String typeName,
                                    List<FieldInformation> fieldInformation,
                                    boolean overwriteFields,
@@ -5961,11 +5963,11 @@ public class CcddDbTableCommandHandler
                                                                           TableTreeType.TABLES,
                                                                           editorDialog);
 
-                // //////////////////////////////////////////////////////////// All prototype
-                // tables of the affected table type have the columns added/renamed/deleted and the
-                // column order table updated
-                // //////////////////////////////////////////////////////////// Step through each
-                // prototype table of the specified type
+                // ////////////////////////////////////////////////////////////////////////////////
+                // All prototype tables of the affected table type have the columns
+                // added/renamed/deleted and the column order table updated
+                // ////////////////////////////////////////////////////////////////////////////////
+                // Step through each prototype table of the specified type
                 for (String protoName : protoTableNames)
                 {
                     // Create a list of table path arrays for instances of this prototype table
@@ -6053,17 +6055,19 @@ public class CcddDbTableCommandHandler
                     }
                 }
 
-                // //////////////////////////////////////////////////////////// A modification or
-                // deletion indicates that a column name changed and/or that a rate column's input
-                // type changed //////////////////////////////////////////////////////////// Check
-                // if there are modifications or deletions, and if any tables of this type exist
+                // ////////////////////////////////////////////////////////////////////////////////
+                // A modification or deletion indicates that a column name changed and/or that a
+                // rate column's input type changed
+                // ////////////////////////////////////////////////////////////////////////////////
+                // Check if there are modifications or deletions, and if any tables of this type
+                // exist
                 if ((!modifications.isEmpty() || !deletions.isEmpty())
                     && protoTableNames.length != 0)
                 {
-                    // //////////////////////////////////////////////////////// Build the
-                    // sub-command required to detect references to tables of the affected type in
-                    // the custom values, links, and telemetry scheduler tables
-                    // ////////////////////////////////////////////////////////
+                    // ////////////////////////////////////////////////////////////////////////////
+                    // Build the sub-command required to detect references to tables of the
+                    // affected type in the custom values, links, and telemetry scheduler tables
+                    // ////////////////////////////////////////////////////////////////////////////
                     StringBuilder valuesCmd = new StringBuilder("");
                     StringBuilder linksCmd = new StringBuilder("");
                     StringBuilder tlmSchCmd = new StringBuilder("");
@@ -6117,11 +6121,13 @@ public class CcddDbTableCommandHandler
                         tlmSchCmd.append(")");
                     }
 
-                    // //////////////////////////////////////////////////////// If the table type
-                    // no longer represents a structure then all references in the links and
-                    // telemetry scheduler tables to tables of the affected type are removed
-                    // //////////////////////////////////////////////////////// Check if the table
-                    // type changed from representing a structure to no longer doing so
+                    // ////////////////////////////////////////////////////////////////////////////
+                    // If the table type no longer represents a structure then all references in
+                    // the links and telemetry scheduler tables to tables of the affected type are
+                    // removed
+                    // ////////////////////////////////////////////////////////////////////////////
+                    // Check if the table type changed from representing a structure to no longer
+                    // doing so
                     if (!isStructure && wasStructure)
                     {
                         boolean hasSharedRate = false;
@@ -6161,22 +6167,22 @@ public class CcddDbTableCommandHandler
                         }
                     }
 
-                    // //////////////////////////////////////////////////////// For a column name
-                    // change/deletion (of any input type), references to the column name in the
-                    // custom values table are updated/removed The modifications and deletions must
-                    // then be applied to the links and telemetry scheduler tables, but only if the
-                    // table type remains a structure type after the change (if the table type no
-                    // longer represents a structure then the code above addresses the links and
-                    // telemetry scheduler tables, and if the table type becomes a structure no
-                    // changes to these internal tables is needed). If a rate name is changed and
-                    // it's not used by another table type then the rate name references are
-                    // changed to the new name in the internal tables. Otherwise, a change to or
-                    // removal of the rate name results in the references in the internal tables
-                    // being removed (either just the affected table references or all references -
-                    // tables as well as the link/rate definition rows - depending on if the rate
-                    // name was/is unique to this table type)
-                    // //////////////////////////////////////////////////////// Step through each
-                    // modification
+                    // ////////////////////////////////////////////////////////////////////////////
+                    // For a column name change/deletion (of any input type), references to the
+                    // column name in the custom values table are updated/removed The modifications
+                    // and deletions must then be applied to the links and telemetry scheduler
+                    // tables, but only if the table type remains a structure type after the change
+                    // (if the table type no longer represents a structure then the code above
+                    // addresses the links and telemetry scheduler tables, and if the table type
+                    // becomes a structure no changes to these internal tables is needed). If a
+                    // rate name is changed and it's not used by another table type then the rate
+                    // name references are changed to the new name in the internal tables.
+                    // Otherwise, a change to or removal of the rate name results in the references
+                    // in the internal tables being removed (either just the affected table
+                    // references or all references - tables as well as the link/rate definition
+                    // rows - depending on if the rate name was/is unique to this table type)
+                    // ////////////////////////////////////////////////////////////////////////////
+                    // Step through each modification
                     for (String[] mod : modifications)
                     {
                         // Check if the column name changed
@@ -6544,7 +6550,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Convert the supplied array of table names into a single string with the names separated by
      * commas. If the length of the string exceeds a specified maximum then shorten the string to
      * the maximum, find the last comma, truncate the string, and add an indication of how many
@@ -6552,7 +6558,7 @@ public class CcddDbTableCommandHandler
      *
      * @return The array of table names converted to a single, comma-separated string, and
      *         shortened if above a maximum length
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String getShortenedTableNames(String[] tableNames)
     {
         // Convert the array of names into a single string
@@ -6581,7 +6587,7 @@ public class CcddDbTableCommandHandler
         return names;
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Close the table editors for the specified deleted tables
      *
      * @param tableNames
@@ -6593,7 +6599,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void closeDeletedTableEditors(List<String[]> tableNames,
                                             Component parent)
     {
@@ -6679,12 +6685,12 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Update the data type columns in the open table editors
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void updateDataTypeColumns(Component parent)
     {
         // Check if any editor dialogs are open
@@ -6717,12 +6723,12 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Update the message names & IDs columns in the open table editors
      *
      * @param parent
      *            GUI component calling this method
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void updateMessageIDNamesColumns(Component parent)
     {
         // Check if any editor dialogs are open
@@ -6750,7 +6756,7 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Modify table data field values in the data fields table. This command is executed in a
      * separate thread since it can take a noticeable amount time to complete, and by using a
      * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
@@ -6764,7 +6770,7 @@ public class CcddDbTableCommandHandler
      *
      * @param editorWindow
      *            reference to the data field editor
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void modifyDataFields(final List<String[]> modifications,
                                     final List<String[]> deletions,
                                     final CcddFieldTableEditorDialog editorWindow)
@@ -6774,9 +6780,9 @@ public class CcddDbTableCommandHandler
         {
             boolean errorFlag = false;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify table types command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -6842,9 +6848,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify data fields command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -6853,7 +6859,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Modify all tables affected by changes to the user-defined data type names, or macro names
      * and/or macro values. This command is executed in a separate thread since it can take a
      * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
@@ -6869,7 +6875,7 @@ public class CcddDbTableCommandHandler
      *
      * @param dialog
      *            reference to the data type or macro editor dialog
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected void modifyTablePerDataTypeOrMacroChanges(final List<TableModification> modifications,
                                                         final List<String[]> updates,
                                                         final CcddDialogHandler dialog)
@@ -6908,22 +6914,22 @@ public class CcddDbTableCommandHandler
         newMacroHandler.setHandlers(newVarSizeHandler);
         newVarSizeHandler.buildPathAndOffsetLists();
 
-        /**************************************************************************************************************
+        /******************************************************************************************
          * Class for table information for those tables modified due to changes in a data type
          * (macro) definition
-         *************************************************************************************************************/
+         *****************************************************************************************/
         class ModifiedTable
         {
             private final TableInformation tableInformation;
             private final CcddTableEditorHandler editor;
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Class constructor for table information for those tables modified due to changes in
              * a data type (macro) definition
              *
              * @param tablePath
              *            table path (if applicable) and name
-             *********************************************************************************************************/
+             *************************************************************************************/
             ModifiedTable(String tablePath)
             {
                 // Load the table's information from the project database
@@ -6942,21 +6948,21 @@ public class CcddDbTableCommandHandler
                                                     newMacroHandler);
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Get the reference to the table information
              *
              * @return Reference to the table information
-             *********************************************************************************************************/
+             *************************************************************************************/
             protected TableInformation getTableInformation()
             {
                 return tableInformation;
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Get the reference to the table editor
              *
              * @return Reference to the table editor
-             *********************************************************************************************************/
+             *************************************************************************************/
             protected CcddTableEditorHandler getEditor()
             {
                 return editor;
@@ -6969,9 +6975,9 @@ public class CcddDbTableCommandHandler
             boolean errorFlag = false;
             List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify data types (macros) command
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void execute()
             {
@@ -7518,9 +7524,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************************************
+            /**************************************************************************************
              * Modify data types or macros command complete
-             *********************************************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -7541,7 +7547,7 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /******************************************************************************************************************
+    /**********************************************************************************************
      * Get an array containing all prototype tables that represent the specified type
      *
      * @param tableType
@@ -7552,7 +7558,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Array containing all prototype tables that represent the specified type. Returns an
      *         empty array if no tables of the specified type exists in the project database
-     *****************************************************************************************************************/
+     *********************************************************************************************/
     protected String[] getPrototypeTablesOfType(String tableType)
     {
         String[] tablesOfType = new String[0];

@@ -143,6 +143,9 @@ public class CcddConstants
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
+    // Chacter to append to a message ID to indicta eit's protected from automatic reassignment
+    protected static final String PROTECTED_MSG_ID_IDENT = "#";
+
     // Regular expression to detect reserved characters. The backslash character as a reserved
     // character isn't included here
     protected static final String POSTGRESQL_RESERVED_CHARS = "(.*?)([\\[\\]\\(\\)\\{\\}\\.\\+\\*\\^\\$\\|\\?\\-])(.*?)";
@@ -1991,11 +1994,13 @@ public class CcddConstants
                                          + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
         MESSAGE_ID("Message ID",
-                   "^(?:0x)?[a-fA-F0-9]*",
+                   "^(?:0x)?[a-fA-F0-9]*\\s*" + PROTECTED_MSG_ID_IDENT + "?",
                    "hexadecimal",
                    "Message ID: hexadecimal; optional initial '0x' or '0X' "
                                   + "followed by one or more hexadecimal digits (0 - 9, "
-                                  + "a - f (case insensitive))"),
+                                  + "a - f (case insensitive)). Append '"
+                                  + PROTECTED_MSG_ID_IDENT
+                                  + "' to protect this ID from automatic reassignment"),
 
         MESSAGE_ID_NAME("Message ID name",
                         "[a-zA-Z_][a-zA-Z0-9_]*",
@@ -2200,9 +2205,15 @@ public class CcddConstants
                 // Check if the value is in hexadecimal
                 else if (inputFormat.equals("hexadecimal"))
                 {
-                    // Remove leading hexadecimal identifier if present, then convert the value to
-                    // an integer (base 16)
-                    valueS = valueS.replaceFirst("^0x|^0X", "");
+                    // Set the string to append that indicates if this is a protected message ID or
+                    // not
+                    String protect = valueS.endsWith(PROTECTED_MSG_ID_IDENT)
+                                                                             ? PROTECTED_MSG_ID_IDENT
+                                                                             : "";
+
+                    // Remove leading hexadecimal identifier if present and the protection flag if
+                    // present, then convert the value to an integer (base 16)
+                    valueS = valueS.replaceFirst("^0x|^0X", "").replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
                     int value = Integer.valueOf(valueS, 16);
 
                     // Get the leading zeroes, if any
@@ -2222,7 +2233,8 @@ public class CcddConstants
                                            (preserveZeroes
                                                            ? leadZeroes
                                                            : ""),
-                                           value);
+                                           value)
+                             + protect;
                 }
                 // Check if the value is a boolean
                 else if (inputFormat.equals("boolean"))
@@ -5777,9 +5789,10 @@ public class CcddConstants
                + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
 
-        // //////////////////////////////////////////////////////////////////// THE REMAINING
-        // COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
-        // //////////////////////////////////////////////////////////////////// Get the list of all
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Get the list of all
         // tables (data and information), sorted alphabetically
         ALL_TABLES("SELECT tablename FROM pg_tables "
                    + "WHERE schemaname = 'public' ORDER BY tablename ASC;"),

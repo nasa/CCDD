@@ -740,7 +740,7 @@ public class CcddKeyboardHandler
             // Step through each open table editor dialog
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
             {
-                // // Check if this editor dialog has the keyboard focus
+                // Check if this editor dialog has the keyboard focus
                 if (editorDialog.isFocused())
                 {
                     // Get the undo manager, cell editor, and editor panel handler for the active
@@ -764,7 +764,7 @@ public class CcddKeyboardHandler
             // Check if no table undo manager is applicable and the table type editor is open
             if (undoManager == null && editorDialog != null)
             {
-                // // Check if the table type editor has the keyboard focus
+                // Check if the table type editor has the keyboard focus
                 if (editorDialog.isFocused())
                 {
                     // Get the undo manager, cell editor, and editor panel handler for the active

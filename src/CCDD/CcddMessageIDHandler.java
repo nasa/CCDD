@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -259,19 +260,20 @@ public class CcddMessageIDHandler
             // Replace any macro in the message ID with the corresponding text
             tableOwnerAndID[1] = macroHandler.getMacroExpansion(tableOwnerAndID[1]);
 
-            // Check if the message ID data field is assigned to a structure (command, other) table
-            // and the structure (command, other) IDs are to be included, and that the ID is not
-            // already in the list
-            if (includeStructures && structureTables.contains(TableInformation.getPrototypeName(tableOwnerAndID[0]))
-                || includeCommands && commandTables.contains(tableOwnerAndID[0])
-                || includeOthers && otherTables.contains(tableOwnerAndID[0]))
+            // Check if the message ID is flagged as protected, or the message ID data field is
+            // assigned to a structure (command, other) table and the structure (command, other)
+            // IDs are to be included
+            if (tableOwnerAndID[1].endsWith(PROTECTED_MSG_ID_IDENT)
+                || (includeStructures && structureTables.contains(TableInformation.getPrototypeName(tableOwnerAndID[0])))
+                || (includeCommands && commandTables.contains(tableOwnerAndID[0]))
+                || (includeOthers && otherTables.contains(tableOwnerAndID[0])))
             {
                 // Get the IDs in use in the table cells and data fields, and update the duplicates
                 // list (if the flag is set)
                 updateUsageAndDuplicates("Table", tableOwnerAndID, isGetDuplicates);
             }
             // Check if the message ID data field is assigned to a group and the group IDs are to
-            // be included, and that the ID is not already in the list
+            // be included
             else if (includeGroups && tableOwnerAndID[0].startsWith(GROUP_DATA_FIELD_IDENT))
             {
                 // Get the IDs in use in the group data fields, and update the duplicates list (if
@@ -596,8 +598,9 @@ public class CcddMessageIDHandler
                                           String[] ownerAndID,
                                           boolean isGetDuplicates)
     {
-        // Convert the message ID from a hexadecimal string to an integer
-        int msgID = Integer.decode(ownerAndID[1]);
+        // Convert the message ID from a hexadecimal string to an integer. Remove the protection
+        // flag if present so that the ID can be converted to an integer
+        int msgID = Integer.decode(ownerAndID[1].replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, ""));
 
         // Check if the list of duplicate message IDs is to be created
         if (isGetDuplicates)

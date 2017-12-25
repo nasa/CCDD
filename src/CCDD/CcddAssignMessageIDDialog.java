@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -825,9 +826,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         int startID = Integer.parseInt(type.getStartFld().getText().replaceFirst("^0x", ""), 16);
         int interval = Integer.valueOf(type.getIntervalFld().getText());
 
-        // //////////////////////////////////////////////////////////////////// First assign
-        // message IDs to all table columns with a message ID input type for those tables of the
-        // current table type ////////////////////////////////////////////////////////////////////
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // First assign message IDs to all table columns with a message ID input type for those
+        // tables of the current table type
+        // ////////////////////////////////////////////////////////////////////////////////////////
         // Step through each table type
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
@@ -887,6 +889,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                     // values should be overwritten or if the cell is empty
                                     if (editor.getTable().isCellEditable(editor.getTable().convertRowIndexToView(row),
                                                                          editor.getTable().convertColumnIndexToView(idColumn))
+                                        && !tableData[row][idColumn].toString().endsWith(PROTECTED_MSG_ID_IDENT)
                                         && (type.getOverwriteCbx().isSelected()
                                             || tableData[row][idColumn].toString().isEmpty()))
                                     {
@@ -927,10 +930,10 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             }
         }
 
-        // //////////////////////////////////////////////////////////////////// Next assign message
-        // IDs to table data fields
-        // //////////////////////////////////////////////////////////////////// Step through each
-        // defined data field
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Next assign message IDs to table data fields
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Step through each defined data field
         for (int index = 0; index < fieldInformation.size(); index++)
         {
             // Get the reference to the field information
@@ -941,6 +944,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // blank
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && tables.contains(fieldInfo.getOwnerName())
+                && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (type.getOverwriteCbx().isSelected()
                     || fieldInfo.getValue().isEmpty()))
             {
@@ -1026,6 +1030,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // overwrite check box is selected or the field is blank
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
+                && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (type.getOverwriteCbx().isSelected()
                     || fieldInfo.getValue().isEmpty()))
             {
@@ -1144,7 +1149,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         // Check if the message has no ID, or if it does, that the overwrite ID check box is
         // selected
-        if (message.getID().isEmpty() || tlmID.getOverwriteCbx().isSelected())
+        if (!message.getID().endsWith(PROTECTED_MSG_ID_IDENT)
+            && (message.getID().isEmpty() || tlmID.getOverwriteCbx().isSelected()))
         {
             // Get the next unused message ID value
             nextID = getNextMessageID(idValue, interval);

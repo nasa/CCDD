@@ -49,10 +49,10 @@ import CCDD.CcddUndoHandler.UndoableDataFieldPanel;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
-/******************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary description and data field panel handler class. The editor panel
  * contains the table description and data fields (if any)
- *****************************************************************************/
+ *************************************************************************************************/
 public abstract class CcddInputFieldPanelHandler
 {
     // Class references
@@ -80,37 +80,37 @@ public abstract class CcddInputFieldPanelHandler
     // Width of the widest data field, including its label
     private int maxFieldWidth;
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a reference to the description and data field panel handler
      *
      * @return Reference to the description and data field panel handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddInputFieldPanelHandler getInputFieldPanelHandler()
     {
         return this;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the JPanel containing the description and data fields
      *
      * @return JPanel containing the description and data fields
-     *************************************************************************/
+     *********************************************************************************************/
     protected JPanel getFieldPanel()
     {
         return inputPnl;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description and data field undo/redo manager
      *
      * @return Reference to the description and data field undo/redo manager
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddUndoManager getFieldPanelUndoManager()
     {
         return undoManager;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the references to the description and data field undo/redo manager and handler
      *
      * @param undoManager
@@ -118,7 +118,7 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param undoHandler
      *            undoable component handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setEditPanelUndo(CcddUndoManager undoManager,
                                     CcddUndoHandler undoHandler)
     {
@@ -126,74 +126,74 @@ public abstract class CcddInputFieldPanelHandler
         this.undoHandler = undoHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get a reference to the owner of the description and data field panel handler
      *
      * @return Reference to the owner of the description and data field panel handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected Component getOwner()
     {
         return fieldPnlHndlrOwner;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the name of the owner of this description and data field panel handler
      *
      * @return Name of the owner of this description and data field panel handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected String getOwnerName()
     {
         return ownerName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the name of the owner of this description and data field panel handler
      *
      * @param owner
      *            name of the owner of this description and data field panel handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setOwnerName(String ownerName)
     {
         this.ownerName = ownerName;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the data field information for this field panel handler
      *
      * @return Data field information for this field panel handler
-     *************************************************************************/
+     *********************************************************************************************/
     protected CcddFieldHandler getFieldHandler()
     {
         return dataFieldHandler;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Placeholder for the method to update the owning dialog's change indicator
-     *************************************************************************/
+     *********************************************************************************************/
     protected abstract void updateOwnerChangeIndicator();
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the description field text
      *
      * @return Description field text
-     *************************************************************************/
+     *********************************************************************************************/
     protected String getDescription()
     {
         return descriptionFld.getText().trim();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the description field text
      *
      * @param description
      *            description field text
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setDescription(String description)
     {
         descriptionFld.setText(description);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Enable/disable the description field, set its background color based on the enable status,
      * and set the description text
      *
@@ -202,7 +202,7 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param description
      *            text to place in the description field
-     *************************************************************************/
+     *********************************************************************************************/
     protected void enableDescriptionField(boolean enable, String description)
     {
         Color backColor = enable
@@ -214,54 +214,54 @@ public abstract class CcddInputFieldPanelHandler
         descScrollPane.setBackground(backColor);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the description field text. Put the edit on the undo/redo stack based on the input
      * flag
      *
      * @param undoable
      *            true to enable putting the edit on the undo/redo stack
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateDescriptionField(boolean undoable)
     {
         descriptionFld.updateText(undoable);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Get the width of the widest data field (including its label), plus padding on either side
      *
      * @return Width of the widest data field (including its label), plus padding on either side
-     *************************************************************************/
+     *********************************************************************************************/
     protected int getMaxFieldWidth()
     {
         return maxFieldWidth + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the data field information for use when creating the data field panel
      *
      * @param fieldInfo
      *            list of the data field information
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setDataFieldInformation(List<FieldInformation> fieldInfo)
     {
         dataFieldHandler.setFieldInformation(fieldInfo);
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Store the data field information in the undo handler in case an undo/redo operation is
      * requested so that the fields can be set accordingly
-     *************************************************************************/
+     *********************************************************************************************/
     protected void storeCurrentFieldInformation()
     {
         undoFieldPnl.setCurrentFieldInfo(dataFieldHandler.getFieldInformationCopy());
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Update the field information to match the data field text field and check box values
      *
      * @param fieldInformation
      *            data field information list
-     *************************************************************************/
+     *********************************************************************************************/
     protected void updateCurrentFieldValues(List<FieldInformation> fieldInformation)
     {
         // Step through each data field
@@ -288,7 +288,7 @@ public abstract class CcddInputFieldPanelHandler
         }
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the table input field panel
      *
      * @param fieldPnlHndlrOwner
@@ -307,7 +307,7 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param fieldHandler
      *            field handler reference
-     *************************************************************************/
+     *********************************************************************************************/
     protected void createDescAndDataFieldPanel(Component fieldPnlHndlrOwner,
                                                JScrollPane scrollPane,
                                                String ownerName,
@@ -446,19 +446,19 @@ public abstract class CcddInputFieldPanelHandler
         // Add a listener for changes in the editor panel's size
         inputPnl.addComponentListener(new ComponentAdapter()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Handle resizing of the editor panel
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void componentResized(ComponentEvent ce)
             {
                 // Create a runnable object to be executed
                 SwingUtilities.invokeLater(new Runnable()
                 {
-                    /**********************************************************
+                    /******************************************************************************
                      * Since the size returned by get___Size() can lag the actual size, use
                      * invokeLater to let the sizes "catch up"
-                     *********************************************************/
+                     *****************************************************************************/
                     @Override
                     public void run()
                     {
@@ -473,13 +473,13 @@ public abstract class CcddInputFieldPanelHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Create the data fields for display in the description and data field panel
      *
      * @param undoable
      *            true if the change(s) to the data fields should be stored for possible undo/redo
      *            operations; false to not store the changes
-     *************************************************************************/
+     *********************************************************************************************/
     protected void createDataFieldPanel(boolean undoable)
     {
         maxFieldWidth = 0;
@@ -661,9 +661,9 @@ public abstract class CcddInputFieldPanelHandler
                             // time the field is created
                             String lastValid = inputFld.getText();
 
-                            /**************************************************
+                            /**********************************************************************
                              * Verify the contents of a the data field
-                             *************************************************/
+                             *********************************************************************/
                             @Override
                             public boolean verify(JComponent input)
                             {
@@ -791,9 +791,9 @@ public abstract class CcddInputFieldPanelHandler
         fieldPnlHndlrOwner.repaint();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Clear the values from all fields
-     *************************************************************************/
+     *********************************************************************************************/
     protected void clearFieldValues()
     {
         // Disable automatically ending the edit sequence. This allows all of
@@ -835,19 +835,19 @@ public abstract class CcddInputFieldPanelHandler
         undoManager.endEditSequence();
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the data field background color for all fields based each field's value and required
      * flag
-     *************************************************************************/
+     *********************************************************************************************/
     protected void setFieldBackgound()
     {
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
         {
-            /******************************************************************
+            /**************************************************************************************
              * Set the data field colors after other pending events are complete. If this isn't
              * done following other events then the colors aren't updated consistently
-             *****************************************************************/
+             *************************************************************************************/
             @Override
             public void run()
             {
@@ -874,12 +874,12 @@ public abstract class CcddInputFieldPanelHandler
         });
     }
 
-    /**************************************************************************
+    /**********************************************************************************************
      * Set the specified data field's background color based the field's value and required flag
      *
      * @param fieldInfo
      *            reference to the data field's information
-     *************************************************************************/
+     *********************************************************************************************/
     private void setFieldBackground(FieldInformation fieldInfo)
     {
         // Set the text field background color. If the field is empty and is

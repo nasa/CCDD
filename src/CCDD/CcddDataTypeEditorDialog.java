@@ -601,7 +601,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
              *            only a single input is being entered
              *
              * @return Always returns false
-             ************************************************************************************/
+             *************************************************************************************/
             @Override
             protected Boolean validateCellContent(List<Object[]> tableData,
                                                   int row,
