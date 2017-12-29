@@ -728,12 +728,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                         case CELL_DATA:
                                             // Create storage for the row of cell data and
-                                            // initialize the values to blanks
+                                            // initialize the values to nulls (a null indicates
+                                            // that the pasted cell value won't overwrite the
+                                            // current table value if overwriting; if inserting the
+                                            // pasted value is changed to a space)
                                             String[] rowData = new String[numColumns];
-                                            Arrays.fill(rowData, null); // TODO WAS ""; INIT TO
-                                                                        // null SO THAT
-                                                                        // SPECIFIED VS UNSPECIFIED
-                                                                        // CELLS ARE RECOGNIZED
+                                            Arrays.fill(rowData, null);
 
                                             // Step through each column in the row
                                             for (int index = 0; index < columnValues.length; index++)
@@ -754,25 +754,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             break;
 
                                         case DATA_FIELD:
-                                        // Check if all definitions are to be loaded
-                                        // TODO THIS KEEPS DATA FIELDS FROM BEING IMPORTED INTO
-                                        // AN EXISTING TABLE - IS THIS CORRECT?
-                                        // if (importType == ImportType.IMPORT_ALL)
-                                        {
-                                            // Check if the expected number of inputs is
-                                            // present
+                                            // Check if the expected number of inputs is present
                                             if (columnValues.length == FieldsColumn.values().length - 1
                                                 || columnValues.length == FieldsColumn.values().length - 2)
                                             {
-                                                // Append empty columns as needed to fill out
-                                                // the expected number of inputs
+                                                // Append empty columns as needed to fill out the
+                                                // expected number of inputs
                                                 columnValues = CcddUtilities.appendArrayColumns(columnValues,
                                                                                                 FieldsColumn.values().length
                                                                                                               - 1
                                                                                                               - columnValues.length);
 
-                                                // Add the data field definition, checking for
-                                                // (and if possible, correcting) errors
+                                                // Add the data field definition, checking for (and
+                                                // if possible, correcting) errors
                                                 continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
                                                                                                           tableDefn,
                                                                                                           new String[] {tableDefn.getName(),
@@ -804,7 +798,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                             "Stop importing",
                                                                                             parent);
                                             }
-                                        }
 
                                             break;
 

@@ -3212,9 +3212,10 @@ public abstract class CcddJTableHandler extends JTable
         for (int index = 0, row = startRow; row < endRow
                                             && showMessage != null; row++, modelRow++)
         {
-            // TODO THIS ALLOWS A NULL TO INDICATE A CELL THAT SHOULD BE LEFT ALONE
+            // Check if inserting is in effect and the cell value is null
             if (isInsert && index < cellData.length && cellData[index] == null)
             {
+                // Replace the null with a blank
                 cellData[index] = "";
             }
 
@@ -3260,15 +3261,8 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Get the new cell value as a boolean. Use a blank for any pasted value
                         // not equal to "true" or "false". If the number of cells to be filled
-                        // exceeds the stored values then use "false" as the default
-                        // TODO
-                        // newValue = index < cellData.length
-                        // ? (cellData[index].equals("true")
-                        // ? true
-                        // : (cellData[index].equals("false")
-                        // ? false
-                        // : ""))
-                        // : false;
+                        // exceeds the stored values then use "false" as the default. A null paste
+                        // value indicates that the current cell's value won't be overwritten
                         newValue = index < cellData.length
                                                            ? (cellData[index] != null
                                                                                       ? (cellData[index].equals("true")
@@ -3287,13 +3281,8 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Get the new cell value as text, cleaning up the value if needed. If the
                         // number of cells to be filled exceeds the stored values then use a blank
-                        // as the default
-                        // TODO
-                        // newValue = index < cellData.length
-                        // ? cleanUpCellValue(cellData[index],
-                        // modelRow,
-                        // modelColumn)
-                        // : "";
+                        // as the default. A null paste value indicates that the current cell's
+                        // value won't be overwritten
                         newValue = index < cellData.length
                                                            ? (cellData[index] != null
                                                                                       ? cleanUpCellValue(cellData[index],
@@ -3306,11 +3295,12 @@ public abstract class CcddJTableHandler extends JTable
 
                     }
 
-                    // For the first pass through this row's column process only blank cells; for
-                    // the second pass process only non-blank cells. If one of these criteria is
-                    // met then check if the column index is within the table boundaries and if the
-                    // cell is alterable
-                    if (newValue != null // TODO
+                    // Check if the paste value isn't null (a null value indicates that the current
+                    // cell's value won't be overwritten). For the first pass through this row's
+                    // column process only blank cells; for the second pass process only non-blank
+                    // cells. If one of these criteria is met then check if the column index is
+                    // within the table boundaries and if the cell is alterable
+                    if (newValue != null
                         && ((pass == 1 && newValue.toString().isEmpty())
                             || (pass == 2 && !newValue.toString().isEmpty()))
                         && modelColumn < tableModel.getColumnCount()
@@ -3357,10 +3347,12 @@ public abstract class CcddJTableHandler extends JTable
             // Load the array of data into the table
             loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
 
-            // TODO
+            // Check if automatic edit sequence ending is in effect
             if (getUndoHandler().isAutoEndEditSequence())
+            {
                 // Flag the end of the editing sequence for undo/redo purposes
                 undoManager.endEditSequence();
+            }
 
             // Select all of the rows and columns into which the data was pasted
             setRowSelectionInterval(startRow + rowModelDelta, endRow - 1 + rowModelDelta);

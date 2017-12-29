@@ -2625,9 +2625,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the column index matches the variable name column
                     if (column == variableNameIndexView)
                     {
-                        // Check if the variable name is an array member
-                        if (cellData[index] == null // TODO ALLOWS A NULL TO INDICATE A CELL THAT
-                                                    // SHOULDN'T BE OVERWRITTEN
+                        // Check if the variable name cell has a value and is an array member
+                        if (cellData[index] == null
                             || ArrayVariable.isArrayMember(cellData[index]))
                         {
                             // Set the flag to indicate a new row doesn't need to be inserted
@@ -2655,7 +2654,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 Boolean showMessage = true;
 
-                // TODO
+                // TODO THIS MAY BE NEEDED FOR SOME PASTE OPS, BUT IT WILL INTERFERE WITH IMPORTING
                 // getUndoHandler().setAutoEndEditSequence(false);
 
                 // Get the table data array
@@ -2769,11 +2768,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             arrayRowsAdded++;
                             totalAddedRows++;
                         }
-                        // Check if this is the variable name column and that the cell to paste is
-                        // an array member
+                        // Check if this is the variable name column, a value is present to paste,
+                        // and that the value is an array member
                         else if (variableNameIndex == convertColumnIndexToModel(column)
                                  && tempIndex < cellData.length
-                                 && cellData[tempIndex] != null // TODO
+                                 && cellData[tempIndex] != null
                                  && ArrayVariable.isArrayMember(cellData[tempIndex]))
                         {
                             // Check if rows were added for the previous pasted row to accommodate
@@ -2813,9 +2812,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check that this row is not to be ignored
                     if (!skipRow)
                     {
-                        // TODO THIS ALLOWS A NULL TO INDICATE A CELL THAT SHOULD BE LEFT ALONE
+                        // Check if inserting is in effect and the cell value is null
                         if (isInsert && index < cellData.length && cellData[index] == null)
                         {
+                            // Replace the null with a blank
                             cellData[index] = "";
                         }
 
@@ -2864,22 +2864,25 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                                     // Get the value to be pasted into the cell, cleaning up the
                                     // value if needed. If the number of cells to be filled exceeds
-                                    // the stored values then insert a blank
+                                    // the stored values then insert a blank. A null paste value
+                                    // indicates that the current cell's value won't be overwritten
                                     Object newValue = index < cellData.length
-                                                                              ? (cellData[index] != null // TODO
+                                                                              ? (cellData[index] != null
                                                                                                          ? cleanUpCellValue(cellData[index],
                                                                                                                             adjustedRow,
                                                                                                                             columnModel)
                                                                                                          : (isInsert
                                                                                                                      ? ""
-                                                                                                                     : null))// TODO
+                                                                                                                     : null))
                                                                               : "";
 
-                                    // For the first pass through this row's column process only
-                                    // blank cells; for the second pass process only non-blank
-                                    // cells. If one of these criteria is met then check if the
-                                    // cell is alterable
-                                    if (newValue != null // TODO
+                                    // Check if the paste value isn't null (a null value indicates
+                                    // that the current cell's value won't be overwritten). For the
+                                    // first pass through this row's column process only blank
+                                    // cells; for the second pass process only non-blank cells. If
+                                    // one of these criteria is met then check if the cell is
+                                    // alterable
+                                    if (newValue != null
                                         && ((pass == 1 && newValue.toString().isEmpty())
                                             || (pass == 2 && !newValue.toString().isEmpty()))
                                         && isDataAlterable(tableData.get(adjustedRow),
@@ -2952,10 +2955,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
                                            true);
 
-                    // TODO
+                    // Check if automatic edit sequence ending is in effect
                     if (getUndoHandler().isAutoEndEditSequence())
+                    {
                         // Flag the end of the editing sequence for undo/redo purposes
                         getUndoManager().endEditSequence();
+                    }
 
                     // Check if there are rows left to be selected
                     if (endRow - 1 - skippedRows > 0)
@@ -3102,6 +3107,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // selection dialog, and the JTable name so that table change events can be identified
             // with this table
             setTableName();
+
+            // Store the current data field information in the event an undo/redo operation occurs
+            storeCurrentFieldInformation();
         }
     }
 

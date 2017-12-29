@@ -1169,7 +1169,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             // contain this structure's information. Initialize all
                                             // columns to blanks except for the variable name
                                             String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                            Arrays.fill(newRow, "");
+                                            Arrays.fill(newRow, ""); // TODO null
                                             newRow[variableNameIndex] = parmType.getName();
 
                                             // Check if a data type exists
@@ -1337,7 +1337,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             }
                                             // Check if all definitions are to be loaded and this
                                             // is a data field definition
-                                            else if (importType == ImportType.IMPORT_ALL
+                                            else if (importType == ImportType.IMPORT_ALL // TODO
                                                      && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
                                             {
                                                 // Get the data field inputs. If not present use a

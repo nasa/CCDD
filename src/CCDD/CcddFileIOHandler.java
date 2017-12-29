@@ -636,48 +636,11 @@ public class CcddFileIOHandler
                                     // Build the field information for this table
                                     fieldHandler.buildFieldInformation(tableDefn.getName());
 
-                                    // TODO
+                                    // Add the imported data field(s) to the table
                                     addImportedDataField(fieldHandler,
                                                          tableDefn,
                                                          tableDefn.getName(),
                                                          useExistingFields);
-
-                                    // // Step through the imported data fields. The order is
-                                    // reversed
-                                    // // so that field definitions can be removed if needed
-                                    // for (int index = tableDefn.getDataFields().size() - 1; index
-                                    // >= 0; index--)
-                                    // {
-                                    // String[] fieldDefn = tableDefn.getDataFields().get(index);
-                                    //
-                                    // // Get the reference to the data field based on the table
-                                    // // name and field name
-                                    // FieldInformation fieldInfo =
-                                    // fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
-                                    // fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
-                                    //
-                                    // // Check if the data field already exists
-                                    // if (fieldInfo != null)
-                                    // {
-                                    // // Check if the original data field information
-                                    // // supersedes the imported one
-                                    // if (useExistingFields)
-                                    // {
-                                    // // Remove the new data field definition
-                                    // tableDefn.getDataFields().remove(index);
-                                    // }
-                                    // // The imported data field information replaces the
-                                    // // original
-                                    // else
-                                    // {
-                                    // // Remove the original data field definition
-                                    // fieldHandler.getFieldInformation().remove(fieldInfo);
-                                    // }
-                                    // }
-                                    // }
-                                    //
-                                    // // Combine the imported and existing data fields
-                                    // tableDefn.getDataFields().addAll(fieldHandler.getFieldDefinitionList());
                                 }
                             }
 
@@ -1431,7 +1394,7 @@ public class CcddFileIOHandler
                         // Update the table description field in case the description changed
                         tableHandler.setDescription(tableDefn.getDescription());
 
-                        // TODO
+                        // Add the imported data field(s) to the table
                         addImportedDataField(tableHandler.getFieldHandler(),
                                              tableDefn,
                                              tableHandler.getTableInformation().getTablePath(),

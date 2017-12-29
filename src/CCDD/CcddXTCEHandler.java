@@ -698,7 +698,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         numColumns = typeDefn.getColumnCountVisible();
                     }
                     // Check if data fields are to be imported and this is a data field definition
-                    else if (importType == ImportType.IMPORT_ALL
+                    else if (importType == ImportType.IMPORT_ALL // TODO
                              && ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
                     {
                         // Get the data field inputs. If not present use a blank to prevent an
@@ -765,7 +765,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Create a row with empty columns and add the new row to the table
                                 // data
                                 String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                Arrays.fill(newRow, "");
+                                Arrays.fill(newRow, ""); // TODO null
                                 tableDefn.addData(newRow);
                             }
 

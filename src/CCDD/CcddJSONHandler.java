@@ -663,7 +663,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA))
                         {
                             // Initialize the column values to blanks
-                            Arrays.fill(rowData, "");
+                            Arrays.fill(rowData, ""); // TODO null
 
                             // Step through each key (column name)
                             for (Object columnName : rowDataJO.keySet())
@@ -705,7 +705,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Check if all definitions are to be loaded and if any data fields are
                         // defined
-                        if (importType == ImportType.IMPORT_ALL
+                        if (importType == ImportType.IMPORT_ALL // TODO
                             && dataFieldsJA != null)
                         {
                             // Step through each data field definition
