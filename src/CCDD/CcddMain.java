@@ -506,6 +506,9 @@ public class CcddMain
         // Read the reserved message IDs from the project database
         rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
+        // Create a variable size handler for the project database
+        varSizeHandler = new CcddVariableSizeHandler(CcddMain.this);
+
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
         CcddClasses.setHandlers(CcddMain.this);
@@ -513,12 +516,7 @@ public class CcddMain
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
-
-        // Create a variable size handler and determine the variable offsets (note that the class
-        // must be fully instantiated before calling the list build method)
-        varSizeHandler = new CcddVariableSizeHandler(CcddMain.this);
         macroHandler.setHandlers(varSizeHandler);
-        varSizeHandler.buildPathAndOffsetLists();
 
         // Check if the web server is activated
         if (webServer != null)

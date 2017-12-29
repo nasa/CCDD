@@ -309,9 +309,15 @@ public class CcddVariableSizeHandler
             // header nodes)
             if (nodePath.length > allVariableTree.getHeaderNodeLevel())
             {
-                // Get the variable path for this tree node. Expand any macros contained in the
-                // variable name(s)
-                String varPath = macroHandler.getMacroExpansion(allVariableTree.getFullVariablePath(nodePath));
+                // Get the variable path for this tree node
+                String varPath = allVariableTree.getFullVariablePath(nodePath);
+
+                // Check if the variable path has any macros in its variable name(s)
+                if (CcddMacroHandler.hasMacro(varPath))
+                {
+                    // Expand any macros contained in the variable name(s)
+                    varPath = macroHandler.getMacroExpansion(varPath);
+                }
 
                 // Check if the path contains a data type
                 if (varPath.matches(".+,.+\\..+"))

@@ -636,39 +636,48 @@ public class CcddFileIOHandler
                                     // Build the field information for this table
                                     fieldHandler.buildFieldInformation(tableDefn.getName());
 
-                                    // Step through the imported data fields. The order is reversed
-                                    // so that field definitions can be removed if needed
-                                    for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--)
-                                    {
-                                        String[] fieldDefn = tableDefn.getDataFields().get(index);
+                                    // TODO
+                                    addImportedDataField(fieldHandler,
+                                                         tableDefn,
+                                                         tableDefn.getName(),
+                                                         useExistingFields);
 
-                                        // Get the reference to the data field based on the table
-                                        // name and field name
-                                        FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
-                                                                                                            fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
-
-                                        // Check if the data field already exists
-                                        if (fieldInfo != null)
-                                        {
-                                            // Check if the original data field information
-                                            // supersedes the imported one
-                                            if (useExistingFields)
-                                            {
-                                                // Remove the new data field definition
-                                                tableDefn.getDataFields().remove(index);
-                                            }
-                                            // The imported data field information replaces the
-                                            // original
-                                            else
-                                            {
-                                                // Remove the original data field definition
-                                                fieldHandler.getFieldInformation().remove(fieldInfo);
-                                            }
-                                        }
-                                    }
-
-                                    // Combine the imported and existing data fields
-                                    tableDefn.getDataFields().addAll(fieldHandler.getFieldDefinitionList());
+                                    // // Step through the imported data fields. The order is
+                                    // reversed
+                                    // // so that field definitions can be removed if needed
+                                    // for (int index = tableDefn.getDataFields().size() - 1; index
+                                    // >= 0; index--)
+                                    // {
+                                    // String[] fieldDefn = tableDefn.getDataFields().get(index);
+                                    //
+                                    // // Get the reference to the data field based on the table
+                                    // // name and field name
+                                    // FieldInformation fieldInfo =
+                                    // fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
+                                    // fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
+                                    //
+                                    // // Check if the data field already exists
+                                    // if (fieldInfo != null)
+                                    // {
+                                    // // Check if the original data field information
+                                    // // supersedes the imported one
+                                    // if (useExistingFields)
+                                    // {
+                                    // // Remove the new data field definition
+                                    // tableDefn.getDataFields().remove(index);
+                                    // }
+                                    // // The imported data field information replaces the
+                                    // // original
+                                    // else
+                                    // {
+                                    // // Remove the original data field definition
+                                    // fieldHandler.getFieldInformation().remove(fieldInfo);
+                                    // }
+                                    // }
+                                    // }
+                                    //
+                                    // // Combine the imported and existing data fields
+                                    // tableDefn.getDataFields().addAll(fieldHandler.getFieldDefinitionList());
                                 }
                             }
 
@@ -1305,6 +1314,33 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void importSelectedFileIntoTable(CcddTableEditorHandler tableHandler)
     {
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   0),
+                                                        0,
+                                                        0);
+
+        // Create overwrite check box
+        JCheckBox overwriteChkBx = new JCheckBox("Overwrite existing cells");
+        overwriteChkBx.setBorder(BorderFactory.createEmptyBorder());
+        overwriteChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        overwriteChkBx.setSelected(false);
+
+        // Create a panel to contain the overwrite check box
+        JPanel overwritePnl = new JPanel(new GridBagLayout());
+        overwritePnl.setBorder(BorderFactory.createEmptyBorder());
+        overwritePnl.add(overwriteChkBx, gbc);
+
         // Allow the user to select the data file path + name to import from
         File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
                                                                  tableHandler.getOwner(),
@@ -1319,9 +1355,11 @@ public class CcddFileIOHandler
                                                                                                 new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
                                                                                                                             FileExtension.XTCE.getExtensionName())},
                                                                  false,
+                                                                 false,
                                                                  "Load Table Data",
                                                                  ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.LOAD_OPTION);
+                                                                 DialogOption.LOAD_OPTION,
+                                                                 overwritePnl);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -1384,18 +1422,74 @@ public class CcddFileIOHandler
                     // Check if a table definition was successfully created
                     if (tableDefinitions != null && !tableDefinitions.isEmpty())
                     {
-                        // Paste the data from the table definition into the specified table
-                        pasteIntoTableFromDefinition(tableHandler,
-                                                     tableDefinitions.get(0),
-                                                     tableHandler.getOwner());
+                        // Get a short-cut to the table definition to shorten subsequent calls
+                        TableDefinition tableDefn = tableDefinitions.get(0);
+
+                        // TODO
+                        tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(false);
+
+                        // Update the table description field in case the description changed
+                        tableHandler.setDescription(tableDefn.getDescription());
+
+                        // TODO
+                        addImportedDataField(tableHandler.getFieldHandler(),
+                                             tableDefn,
+                                             tableHandler.getTableInformation().getTablePath(),
+                                             true);// TODO useExistingFields - SHOULD THIS OPTION
+                                                   // BE ADDED?);
+
+                        // Update the field information in case the field values changed
+                        tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
+                        tableHandler.getFieldHandler().buildFieldInformation(tableHandler.getTableInformation().getTablePath(),
+                                                                             tableHandler.getTableInformation().isRootStructure());
+
+                        // Rebuild the table's editor panel which contains the data fields
+                        tableHandler.createDataFieldPanel(true);
+
+                        // Check if cell data is provided in the table definition
+                        if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
+                        {
+                            // Get the original number of rows in the table
+                            int numRows = tableHandler.getTableModel().getRowCount();
+
+                            // Paste the data into the table; check if the user hasn't canceled
+                            // importing the table following a cell validation error
+                            if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
+                                                                   tableHandler.getTable().getColumnCount(),
+                                                                   !overwriteChkBx.isSelected(), // true,
+                                                                                                 // //
+                                                                                                 // TODO
+                                                                                                 // SHOULD
+                                                                                                 // BE
+                                                                                                 // OPTIONAL
+                                                                   true, // TODO DEPENDS ON THE
+                                                                         // OPTION ABOVE?
+                                                                   true)) // TODO BASED ON COLUMN
+                                                                          // NAME IF PROVIDED?
+                            {
+                                // Let the user know how many rows were added
+                                new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
+                                                                          "<html><b>"
+                                                                                                   + (tableHandler.getTableModel().getRowCount()
+                                                                                                      - numRows)
+                                                                                                   + " row(s) added",
+                                                                          "Paste Table Data",
+                                                                          JOptionPane.INFORMATION_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                            }
+                        }
 
                         // Restore the table types to the values prior to the import operation
                         tableTypeHandler.setTypeDefinitions(originalTableTypes);
 
+                        // TODO
+                        tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(true);
+                        tableHandler.getTable().getUndoManager().endEditSequence();
+
                         // Store the data file path in the program preferences backing store
                         storePath(ccddMain,
                                   dataFile[0].getAbsolutePath(),
-                                  false,
+                                  true,
                                   ModifiablePathInfo.TABLE_EXPORT_PATH);
                     }
                 }
@@ -1418,8 +1512,7 @@ public class CcddFileIOHandler
                 {
                     // Inform the user that an error occurred reading the import file
                     new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
-                                                              "<html><b>"
-                                                                                       + ce.getMessage(),
+                                                              "<html><b>" + ce.getMessage(),
                                                               "File Error",
                                                               ce.getMessageType(),
                                                               DialogOption.OK_OPTION);
@@ -1433,58 +1526,63 @@ public class CcddFileIOHandler
         }
     }
 
+    // TODO
     /**********************************************************************************************
-     * Paste the data in a table definition into the specified table
+     * Import one or more data fields into a table, appending them to any existing fields. If the
+     * imported field already exists then the input flag determines if the existing or imported
+     * field is used
      *
-     * @param tableHandler
-     *            reference to the table handler for the table into which to import the data
+     * @param fieldHandler
+     *            field handler reference
      *
      * @param tableDefn
-     *            table definition containing the data to paste
+     *            imported table definition
      *
-     * @param parent
-     *            GUI component calling this method
+     * @param ownerName
+     *            data field owner name
+     *
+     * @param useExistingFields
+     *            true to replace an existing data field with the imported ones if the field names
+     *            match
      *********************************************************************************************/
-    private void pasteIntoTableFromDefinition(CcddTableEditorHandler tableHandler,
-                                              TableDefinition tableDefn,
-                                              final Component parent)
+    private void addImportedDataField(CcddFieldHandler fieldHandler,
+                                      TableDefinition tableDefn,
+                                      String ownerName,
+                                      boolean useExistingFields)
     {
-        // Update the table description field in case the description changed
-        tableHandler.setDescription(tableDefn.getDescription());
-
-        // Update the field information in case the field values changed
-        tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-        tableHandler.getFieldHandler().buildFieldInformation(tableDefn.getName(),
-                                                             tableHandler.getTableInformation().isRootStructure());
-
-        // Rebuild the table's editor panel which contains the data fields
-        tableHandler.createDataFieldPanel(true);
-
-        // Check if cell data is provided in the table definition
-        if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
+        // Step through the imported data fields. The order is reversed so that field definitions
+        // can be removed if needed
+        for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--)
         {
-            // Get the original number of rows in the table
-            int numRows = tableHandler.getTableModel().getRowCount();
+            String[] fieldDefn = tableDefn.getDataFields().get(index);
 
-            // Paste the data into the table; check if the user hasn't canceled importing the table
-            // following a cell validation error
-            if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
-                                                   tableHandler.getTable().getColumnCount(),
-                                                   true,
-                                                   true,
-                                                   true))
+            // TODO DOES THIS AFFECT IMPORTING WHOLE TABLES?
+            fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
+
+            // Get the reference to the data field based on the table name and field name
+            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
+                                                                                fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
+
+            // Check if the data field already exists
+            if (fieldInfo != null)
             {
-                // Let the user know how many rows were added
-                new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
-                                                          "<html><b>"
-                                                                                   + (tableHandler.getTableModel().getRowCount()
-                                                                                      - numRows)
-                                                                                   + " row(s) added",
-                                                          "Paste Table Data",
-                                                          JOptionPane.INFORMATION_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                // Check if the original data field information supersedes the imported one
+                if (useExistingFields)
+                {
+                    // Remove the new data field definition
+                    tableDefn.getDataFields().remove(index);
+                }
+                // The imported data field information replaces the original
+                else
+                {
+                    // Remove the original data field definition
+                    fieldHandler.getFieldInformation().remove(fieldInfo);
+                }
             }
         }
+
+        // Combine the existing and imported data fields
+        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefinitionList());
     }
 
     /**********************************************************************************************

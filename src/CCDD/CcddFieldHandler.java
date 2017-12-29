@@ -76,8 +76,7 @@ public class CcddFieldHandler
                                                                                         parent);
 
         // Use the field definitions to create the data field information
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
-                              ownerName);
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName);
     }
 
     /**********************************************************************************************
@@ -218,9 +217,7 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected void buildFieldInformation(String ownerName)
     {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
-                              ownerName,
-                              null);
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, null);
     }
 
     /**********************************************************************************************
@@ -235,12 +232,9 @@ public class CcddFieldHandler
      *            references a structure, group name, or table type name); null to get all data
      *            fields
      *********************************************************************************************/
-    protected void buildFieldInformation(Object[][] fieldDefinitions,
-                                         String ownerName)
+    protected void buildFieldInformation(Object[][] fieldDefinitions, String ownerName)
     {
-        buildFieldInformation(fieldDefinitions,
-                              ownerName,
-                              null);
+        buildFieldInformation(fieldDefinitions, ownerName, null);
     }
 
     /**********************************************************************************************
@@ -256,9 +250,7 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected void buildFieldInformation(String ownerName, Boolean isRootStruct)
     {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
-                              ownerName,
-                              isRootStruct);
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, isRootStruct);
     }
 
     /**********************************************************************************************

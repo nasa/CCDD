@@ -554,10 +554,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 for (int row = 0; row < tableModel.getRowCount(); row++)
                 {
                     // Get the variable name and data type from the table data
-                    String variableName = tableModel.getValueAt(row, variableNameIndex)
-                                                    .toString();
-                    String dataType = tableModel.getValueAt(row, dataTypeIndex)
-                                                .toString();
+                    String variableName = tableModel.getValueAt(row, variableNameIndex).toString();
+                    String dataType = tableModel.getValueAt(row, dataTypeIndex).toString();
 
                     // Check that the variable name and data type are present
                     if (!variableName.isEmpty() && !dataType.isEmpty())
@@ -2600,7 +2598,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * @param index
              *            current index into the cell data array
              *
-             * @param cells
+             * @param cellData
              *            array containing the cell data being inserted
              *
              * @param startColumn
@@ -2612,7 +2610,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * @return true if a row should be inserted; false otherwise
              *************************************************************************************/
             protected boolean isInsertRowRequired(int index,
-                                                  Object[] cells,
+                                                  Object[] cellData,
                                                   int startColumn,
                                                   int endColumn)
             {
@@ -2628,7 +2626,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     if (column == variableNameIndexView)
                     {
                         // Check if the variable name is an array member
-                        if (ArrayVariable.isArrayMember(cells[index]))
+                        if (cellData[index] == null // TODO ALLOWS A NULL TO INDICATE A CELL THAT
+                                                    // SHOULDN'T BE OVERWRITTEN
+                            || ArrayVariable.isArrayMember(cellData[index]))
                         {
                             // Set the flag to indicate a new row doesn't need to be inserted
                             isNotArrayMember = false;
@@ -2654,6 +2654,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean startFirstColumn)
             {
                 Boolean showMessage = true;
+
+                // TODO
+                // getUndoHandler().setAutoEndEditSequence(false);
 
                 // Get the table data array
                 List<Object[]> tableData = getTableDataList(false);
@@ -2770,6 +2773,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // an array member
                         else if (variableNameIndex == convertColumnIndexToModel(column)
                                  && tempIndex < cellData.length
+                                 && cellData[tempIndex] != null // TODO
                                  && ArrayVariable.isArrayMember(cellData[tempIndex]))
                         {
                             // Check if rows were added for the previous pasted row to accommodate
@@ -2809,6 +2813,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check that this row is not to be ignored
                     if (!skipRow)
                     {
+                        // TODO THIS ALLOWS A NULL TO INDICATE A CELL THAT SHOULD BE LEFT ALONE
+                        if (isInsert && index < cellData.length && cellData[index] == null)
+                        {
+                            cellData[index] = "";
+                        }
+
                         // Check if a row needs to be inserted to contain the cell data
                         if ((isInsert
                              || (isAddIfNeeded
@@ -2856,17 +2866,22 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     // value if needed. If the number of cells to be filled exceeds
                                     // the stored values then insert a blank
                                     Object newValue = index < cellData.length
-                                                                              ? cleanUpCellValue(cellData[index],
-                                                                                                 adjustedRow,
-                                                                                                 columnModel)
+                                                                              ? (cellData[index] != null // TODO
+                                                                                                         ? cleanUpCellValue(cellData[index],
+                                                                                                                            adjustedRow,
+                                                                                                                            columnModel)
+                                                                                                         : (isInsert
+                                                                                                                     ? ""
+                                                                                                                     : null))// TODO
                                                                               : "";
 
                                     // For the first pass through this row's column process only
                                     // blank cells; for the second pass process only non-blank
                                     // cells. If one of these criteria is met then check if the
                                     // cell is alterable
-                                    if (((pass == 1 && newValue.toString().isEmpty())
-                                         || (pass == 2 && !newValue.toString().isEmpty()))
+                                    if (newValue != null // TODO
+                                        && ((pass == 1 && newValue.toString().isEmpty())
+                                            || (pass == 2 && !newValue.toString().isEmpty()))
                                         && isDataAlterable(tableData.get(adjustedRow),
                                                            adjustedRow,
                                                            columnModel))
@@ -2937,8 +2952,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
                                            true);
 
-                    // Flag the end of the editing sequence for undo/redo purposes
-                    getUndoManager().endEditSequence();
+                    // TODO
+                    if (getUndoHandler().isAutoEndEditSequence())
+                        // Flag the end of the editing sequence for undo/redo purposes
+                        getUndoManager().endEditSequence();
 
                     // Check if there are rows left to be selected
                     if (endRow - 1 - skippedRows > 0)
@@ -2972,6 +2989,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Set the flag that indicates the last edited cell's content is valid (if an
                 // invalid input set the flag to false then it can prevent closing the editor)
                 setLastCellValid(true);
+
+                // TODO
+                // getUndoHandler().setAutoEndEditSequence(true);
+                // getUndoManager().endEditSequence();
 
                 return showMessage == null;
             }

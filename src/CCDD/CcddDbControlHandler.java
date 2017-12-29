@@ -1980,6 +1980,10 @@ public class CcddDbControlHandler
                         // Perform any patches to update this project database to the latest schema
                         new CcddPatchHandler(ccddMain);
 
+                        // Determine the variable offsets (note that the class must be fully
+                        // instantiated before calling the list build method)
+                        ccddMain.getVariableSizeHandler().buildPathAndOffsetLists();
+
                         // Check if the GUI is visible. If the application is started with the GUI
                         // hidden (for command line script execution or as a web server) then the
                         // project database is left unlocked

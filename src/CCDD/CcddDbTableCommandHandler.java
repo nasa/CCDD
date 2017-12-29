@@ -84,10 +84,16 @@ public class CcddDbTableCommandHandler
     private CcddRateParameterHandler rateHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddLinkHandler addLinkHandler;
+    private CcddVariableSizeHandler varSizeHandler;
 
     // Flag that indicates a variable has been added to a link definition and the links table
     // should be updated
     private boolean updateLinks;
+
+    // Flag that indicates that a variable has been added or deleted, or an existing variable's
+    // name, data type, array size, or bit length has changed. If this flag is true then the
+    // variable paths and offsets lists needs to be rebuilt
+    private boolean isPathUpdate;
 
     // Character(s) separating table references in the script associations and telemetry scheduler
     // tables, with any special characters escaped so as to be used in a PostgrSQL command
@@ -127,6 +133,7 @@ public class CcddDbTableCommandHandler
         macroHandler = ccddMain.getMacroHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        varSizeHandler = ccddMain.getVariableSizeHandler();
     }
 
     /**********************************************************************************************
@@ -2747,6 +2754,7 @@ public class CcddDbTableCommandHandler
             ToolTipTreeNode orgTableNode = null;
             updateLinks = false;
             addLinkHandler = null;
+            isPathUpdate = false;
 
             // Get the name of the table to modify and convert the table name to lower case.
             // PostgreSQL automatically does this, so it's done here just to differentiate the
@@ -2898,6 +2906,14 @@ public class CcddDbTableCommandHandler
         // Check that no error occurred
         if (!errorFlag)
         {
+            // Check if a variable has been added or deleted, or an existing variable's name, data
+            // type, array size, or bit length has changed
+            if (isPathUpdate)
+            {
+                // Rebuild the variable paths and offsets lists
+                varSizeHandler.buildPathAndOffsetLists();
+            }
+
             // Make changes to any open table editors
             CcddTableEditorDialog.doTableModificationComplete(ccddMain,
                                                               tableInfo,
@@ -2987,6 +3003,10 @@ public class CcddDbTableCommandHandler
                 // Check if internal tables are to be updated and the parent table is a structure
                 if (!skipInternalTables && typeDefn.isStructure())
                 {
+                    // Since a variable has been added set the flag to force the variable paths and
+                    // offsets lists to be rebuilt
+                    isPathUpdate = true;
+
                     // Get the variable name and data type for the variable in the new row
                     String variableName = add.getRowData()[add.getVariableColumn()].toString();
                     String dataType = add.getRowData()[add.getDataTypeColumn()].toString();
@@ -3279,6 +3299,18 @@ public class CcddDbTableCommandHandler
                             || bitLengthChanged
                             || rateChanged)
                         {
+                            // Check if the variable's name, data type, array size, or bit length
+                            // has changed
+                            if (variableChanged
+                                || dataTypeChanged
+                                || arraySizeChanged
+                                || bitLengthChanged)
+                            {
+                                // Set the flag to force the variable paths and offsets lists to be
+                                // rebuilt
+                                isPathUpdate = true;
+                            }
+
                             // Check if the data type has been changed, the new data type is a
                             // structure, and this structure is a root table
                             if (dataTypeChanged
@@ -3933,6 +3965,10 @@ public class CcddDbTableCommandHandler
                 // structure
                 if (!skipInternalTables && typeDefn.isStructure())
                 {
+                    // Since a variable has been deleted set the flag to force the variable paths
+                    // and offsets lists to be rebuilt
+                    isPathUpdate = true;
+
                     // Get the variable name, data type, and bit length
                     String variableName = del.getRowData()[del.getVariableColumn()].toString();
                     String dataType = del.getRowData()[del.getDataTypeColumn()].toString();

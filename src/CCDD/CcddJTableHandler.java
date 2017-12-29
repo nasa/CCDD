@@ -718,8 +718,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return true if any cell in the table has been changed
      *********************************************************************************************/
-    protected boolean isTableChanged(Object[][] previousData,
-                                     List<Integer> ignoreColumns)
+    protected boolean isTableChanged(Object[][] previousData, List<Integer> ignoreColumns)
     {
         // Get the data for the type as it exists in the database and the table editor
         Object[][] currentData = getTableData(true);
@@ -3146,6 +3145,9 @@ public abstract class CcddJTableHandler extends JTable
         Boolean showMessage = true;
         int modelRow = 0;
 
+        // TODO
+        // undoHandler.setAutoEndEditSequence(false);
+
         // Get the table data array
         List<Object[]> tableData = getTableDataList(false);
 
@@ -3210,6 +3212,12 @@ public abstract class CcddJTableHandler extends JTable
         for (int index = 0, row = startRow; row < endRow
                                             && showMessage != null; row++, modelRow++)
         {
+            // TODO THIS ALLOWS A NULL TO INDICATE A CELL THAT SHOULD BE LEFT ALONE
+            if (isInsert && index < cellData.length && cellData[index] == null)
+            {
+                cellData[index] = "";
+            }
+
             // Check if a row needs to be inserted to contain the cell data
             if (isInsert
                 || (isAddIfNeeded && modelRow == tableData.size()))
@@ -3253,13 +3261,26 @@ public abstract class CcddJTableHandler extends JTable
                         // Get the new cell value as a boolean. Use a blank for any pasted value
                         // not equal to "true" or "false". If the number of cells to be filled
                         // exceeds the stored values then use "false" as the default
+                        // TODO
+                        // newValue = index < cellData.length
+                        // ? (cellData[index].equals("true")
+                        // ? true
+                        // : (cellData[index].equals("false")
+                        // ? false
+                        // : ""))
+                        // : false;
                         newValue = index < cellData.length
-                                                           ? cellData[index].equals("true")
-                                                                                            ? true
-                                                                                            : cellData[index].equals("false")
-                                                                                                                              ? false
-                                                                                                                              : ""
+                                                           ? (cellData[index] != null
+                                                                                      ? (cellData[index].equals("true")
+                                                                                                                        ? true
+                                                                                                                        : (cellData[index].equals("false")
+                                                                                                                                                           ? false
+                                                                                                                                                           : ""))
+                                                                                      : (isInsert
+                                                                                                  ? false
+                                                                                                  : null))
                                                            : false;
+
                     }
                     // The cell displays text
                     else
@@ -3267,19 +3288,31 @@ public abstract class CcddJTableHandler extends JTable
                         // Get the new cell value as text, cleaning up the value if needed. If the
                         // number of cells to be filled exceeds the stored values then use a blank
                         // as the default
+                        // TODO
+                        // newValue = index < cellData.length
+                        // ? cleanUpCellValue(cellData[index],
+                        // modelRow,
+                        // modelColumn)
+                        // : "";
                         newValue = index < cellData.length
-                                                           ? cleanUpCellValue(cellData[index],
-                                                                              modelRow,
-                                                                              modelColumn)
+                                                           ? (cellData[index] != null
+                                                                                      ? cleanUpCellValue(cellData[index],
+                                                                                                         modelRow,
+                                                                                                         modelColumn)
+                                                                                      : (isInsert
+                                                                                                  ? ""
+                                                                                                  : null))
                                                            : "";
+
                     }
 
                     // For the first pass through this row's column process only blank cells; for
                     // the second pass process only non-blank cells. If one of these criteria is
                     // met then check if the column index is within the table boundaries and if the
                     // cell is alterable
-                    if (((pass == 1 && newValue.toString().isEmpty())
-                         || (pass == 2 && !newValue.toString().isEmpty()))
+                    if (newValue != null // TODO
+                        && ((pass == 1 && newValue.toString().isEmpty())
+                            || (pass == 2 && !newValue.toString().isEmpty()))
                         && modelColumn < tableModel.getColumnCount()
                         && isDataAlterable(tableData.get(modelRow),
                                            modelRow,
@@ -3324,12 +3357,13 @@ public abstract class CcddJTableHandler extends JTable
             // Load the array of data into the table
             loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
 
-            // Flag the end of the editing sequence for undo/redo purposes
-            undoManager.endEditSequence();
+            // TODO
+            if (getUndoHandler().isAutoEndEditSequence())
+                // Flag the end of the editing sequence for undo/redo purposes
+                undoManager.endEditSequence();
 
             // Select all of the rows and columns into which the data was pasted
-            setRowSelectionInterval(startRow + rowModelDelta,
-                                    endRow - 1 + rowModelDelta);
+            setRowSelectionInterval(startRow + rowModelDelta, endRow - 1 + rowModelDelta);
             setColumnSelectionInterval(startColumn, endColumnSelect);
 
             // Select the pasted cells and force the table to be redrawn so that the changes are
@@ -3343,6 +3377,10 @@ public abstract class CcddJTableHandler extends JTable
 
         // Set the flag that indicates the last edited cell's content is valid
         setLastCellValid(true);
+
+        // TODO
+        // undoHandler.setAutoEndEditSequence(true);
+        // undoManager.endEditSequence();
 
         return showMessage == null;
     }
