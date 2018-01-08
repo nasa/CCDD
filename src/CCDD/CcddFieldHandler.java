@@ -155,14 +155,15 @@ public class CcddFieldHandler
      * Set the data field information
      *
      * @param fieldInfo
-     *            data field information; null or an empty list to clear the field information
+     *            data field information to copy and use in the field handler; null or an empty
+     *            list to clear the field information
      *********************************************************************************************/
     protected void setFieldInformation(List<FieldInformation> fieldInfo)
     {
         // Check if fields are defined in the supplied field information
         if (fieldInfo != null)
         {
-            // Set the data field information to that supplied
+            // Set the data field information to a copy of that supplied
             fieldInformation = fieldInfo;
         }
         // No field information is supplied
@@ -186,8 +187,7 @@ public class CcddFieldHandler
      * @return Reference to the data field information for the specified field; null if the field
      *         doesn't exist
      *********************************************************************************************/
-    protected FieldInformation getFieldInformationByName(String ownerName,
-                                                         String fieldName)
+    protected FieldInformation getFieldInformationByName(String ownerName, String fieldName)
     {
         FieldInformation fieldInfo = null;
 
@@ -325,9 +325,7 @@ public class CcddFieldHandler
      *
      * @return true if the field is applicable to the owner
      *********************************************************************************************/
-    protected boolean isFieldApplicable(String ownerName,
-                                        String applicability,
-                                        Boolean isRootStruct)
+    protected boolean isFieldApplicable(String ownerName, String applicability, Boolean isRootStruct)
     {
         // Set the flag to indicate the owner is a table type or group if the owner name contains a
         // colon
@@ -419,8 +417,7 @@ public class CcddFieldHandler
      *
      * @return Data field definitions array
      *********************************************************************************************/
-    protected Object[][] buildFieldDefinition(Object[][] fieldData,
-                                              String ownerName)
+    protected Object[][] buildFieldDefinition(Object[][] fieldData, String ownerName)
     {
         Object[][] fieldDefinition = new Object[0][0];
 

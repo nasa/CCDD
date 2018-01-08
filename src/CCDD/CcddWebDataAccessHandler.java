@@ -547,6 +547,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Get the macro definitions
                 response = getMacroDefinitions();
             }
+            // Check if this is a message ID and name request
+            else if (component.equals("message_id"))
+            {
+                // Get the message IDs and names
+                response = getMessageIDAndNames();
+            }
             // Check if this is a user authentication request
             else if (component.equals("authenticate"))
             {
@@ -2609,42 +2615,48 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the table type definitions
      *
-     * @return JSON encoded string containing the table type definitions; an empty list if no table
-     *         type definition exists
+     * @return JSON encoded string containing the table type definitions; an empty object if no
+     *         table type definition exists
      *********************************************************************************************/
     private String getTableTypeDefinitions()
     {
         // Add the table type definitions to the output
-        return jsonHandler.getTableTypeDefinitions(null,
-                                                   new JSONObject())
-                          .toJSONString();
+        return jsonHandler.getTableTypeDefinitions(null, new JSONObject()).toJSONString();
     }
 
     /**********************************************************************************************
      * Get the data type definitions
      *
-     * @return JSON encoded string containing the data type definitions; an empty list if no data
+     * @return JSON encoded string containing the data type definitions; an empty object if no data
      *         type definition exists
      *********************************************************************************************/
     private String getDataTypeDefinitions()
     {
         // Add the data type definitions to the output
-        return jsonHandler.getDataTypeDefinitions(null,
-                                                  new JSONObject())
-                          .toJSONString();
+        return jsonHandler.getDataTypeDefinitions(null, new JSONObject()).toJSONString();
     }
 
     /**********************************************************************************************
      * Get the macro definitions
      *
-     * @return JSON encoded string containing the macro definitions; an empty list if no macro
+     * @return JSON encoded string containing the macro definitions; an empty object if no macro
      *         definition exists
      *********************************************************************************************/
     private String getMacroDefinitions()
     {
         // Add the macro definitions to the output
-        return jsonHandler.getMacroDefinitions(null,
-                                               new JSONObject())
-                          .toJSONString();
+        return jsonHandler.getMacroDefinitions(null, new JSONObject()).toJSONString();
+    }
+
+    /**********************************************************************************************
+     * Get the message ID owners, names, and values
+     *
+     * @return JSON encoded string containing the message ID owners, names, and values; an empty
+     *         string if no message IDs or names exist
+     *********************************************************************************************/
+    private String getMessageIDAndNames()
+    {
+        // Get the message ID owners, names, and values to the output
+        return jsonHandler.getMessageIDAndNames().toJSONString();
     }
 }

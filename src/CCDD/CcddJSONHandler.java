@@ -48,6 +48,9 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
+import CCDD.CcddConstants.MessageIDSortOrder;
+import CCDD.CcddConstants.MsgIDListColumnIndex;
+import CCDD.CcddConstants.MsgIDTableColumnInfo;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -89,9 +92,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param parent
      *            GUI component instantiating this class
      *********************************************************************************************/
-    CcddJSONHandler(CcddMain ccddMain,
-                    CcddFieldHandler fieldHandler,
-                    Component parent)
+    CcddJSONHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;
@@ -663,7 +664,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         for (JSONObject rowDataJO : parseJSONArray(tableDataJA))
                         {
                             // Initialize the column values to blanks
-                            Arrays.fill(rowData, ""); // TODO null
+                            Arrays.fill(rowData, null);
 
                             // Step through each key (column name)
                             for (Object columnName : rowDataJO.keySet())
@@ -705,8 +706,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Check if all definitions are to be loaded and if any data fields are
                         // defined
-                        if (importType == ImportType.IMPORT_ALL // TODO
-                            && dataFieldsJA != null)
+                        if (dataFieldsJA != null)
                         {
                             // Step through each data field definition
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
@@ -1225,9 +1225,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the data field(s) added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getDataFields(String ownerName,
-                                       String tagName,
-                                       JSONObject outputJO)
+    protected JSONObject getDataFields(String ownerName, String tagName, JSONObject outputJO)
     {
         JSONArray dataFieldDefnJA = new JSONArray();
 
@@ -1357,11 +1355,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the table type definitions added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getTableTypeDefinitions(List<String> tableTypeNames,
-                                                 JSONObject outputJO)
+    protected JSONObject getTableTypeDefinitions(List<String> tableTypeNames, JSONObject outputJO)
     {
-        JSONArray tableTypeJA = null;
-
         // Check if the table type name list is null, in which case all defined table types are
         // included
         if (tableTypeNames == null)
@@ -1379,7 +1374,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         // Check if any table types are referenced
         if (!tableTypeNames.isEmpty())
         {
-            tableTypeJA = new JSONArray();
+            JSONArray tableTypeJA = new JSONArray();
 
             // Step through each referenced table type
             for (String refTableType : tableTypeNames)
@@ -1459,11 +1454,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the data type definitions added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getDataTypeDefinitions(List<String> dataTypeNames,
-                                                JSONObject outputJO)
+    protected JSONObject getDataTypeDefinitions(List<String> dataTypeNames, JSONObject outputJO)
     {
-        JSONArray dataTypeJA = null;
-
         // Check if the data type name list is null, in which case all defined data types are
         // included
         if (dataTypeNames == null)
@@ -1481,7 +1473,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         // Check if any data types are referenced
         if (!dataTypeNames.isEmpty())
         {
-            dataTypeJA = new JSONArray();
+            JSONArray dataTypeJA = new JSONArray();
 
             // Step through each referenced table type
             for (String refDataType : dataTypeNames)
@@ -1533,11 +1525,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the macro definitions added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getMacroDefinitions(List<String> macroNames,
-                                             JSONObject outputJO)
+    protected JSONObject getMacroDefinitions(List<String> macroNames, JSONObject outputJO)
     {
-        JSONArray macroJA = null;
-
         // Check if the macro name list is null, in which case all defined macros are included
         if (macroNames == null)
         {
@@ -1554,7 +1543,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         // Check if there are any macros to process
         if (!macroNames.isEmpty())
         {
-            macroJA = new JSONArray();
+            JSONArray macroJA = new JSONArray();
 
             // Step through each referenced macro
             for (String macroName : macroNames)
@@ -1567,10 +1556,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     // Store the macro name and value
                     JSONObject macroJO = new JSONObject();
-                    macroJO.put(MacroEditorColumnInfo.NAME.getColumnName(),
-                                macroName);
-                    macroJO.put(MacroEditorColumnInfo.VALUE.getColumnName(),
-                                macroValue);
+                    macroJO.put(MacroEditorColumnInfo.NAME.getColumnName(), macroName);
+                    macroJO.put(MacroEditorColumnInfo.VALUE.getColumnName(), macroValue);
 
                     // Add the macro definition to the array
                     macroJA.add(macroJO);
@@ -1599,12 +1586,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @SuppressWarnings("unchecked")
     protected JSONObject getReservedMsgIDDefinitions(JSONObject outputJO)
     {
-        JSONArray reservedMsgIDJA = null;
-
         // Check if there are any reserved message IDs defined
         if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
         {
-            reservedMsgIDJA = new JSONArray();
+            JSONArray reservedMsgIDJA = new JSONArray();
 
             // Step through each reserved message ID definition
             for (String[] reservedMsgIDDefn : rsvMsgIDHandler.getReservedMsgIDData())
@@ -1644,15 +1629,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @return The supplied JSON object, with the variable paths added (if any)
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    protected JSONObject getVariablePaths(List<String[]> variablePaths,
-                                          JSONObject outputJO)
+    protected JSONObject getVariablePaths(List<String[]> variablePaths, JSONObject outputJO)
     {
-        JSONArray variablePathJA = null;
-
         // Check if there are any variable paths to output
         if (!variablePaths.isEmpty())
         {
-            variablePathJA = new JSONArray();
+            JSONArray variablePathJA = new JSONArray();
 
             // Step through each variable path
             for (String[] variablePath : variablePaths)
@@ -1670,6 +1652,56 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Add the variable paths to the JSON output
                 outputJO.put(JSONTags.VARIABLE_PATH.getTag(), variablePathJA);
+            }
+        }
+
+        return outputJO;
+    }
+
+    /**********************************************************************************************
+     * Get a JSON object containing the message ID owners, names, and values
+     *
+     * @return JSON object containing the message ID owners, names, and values; an empty object if
+     *         no message IDs or names exist
+     *********************************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected JSONObject getMessageIDAndNames()
+    {
+        JSONObject outputJO = new JSONObject();
+
+        // Create a message ID handler and get the list of message ID names and associated ID
+        // values
+        CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
+        List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
+                                                                   true,
+                                                                   parent);
+
+        // Check if there are any message IDs or names to output
+        if (!msgIDs.isEmpty())
+        {
+            JSONArray msgIDJA = new JSONArray();
+
+            // Step through each variable path
+            for (String[] msgID : msgIDs)
+            {
+                // Store the message ID owners, names, and values
+                JSONObject msgIDJO = new JSONObject();
+                msgIDJO.put(MsgIDTableColumnInfo.OWNER.getColumnName(),
+                            msgID[MsgIDListColumnIndex.OWNER.ordinal()]);
+                msgIDJO.put(MsgIDTableColumnInfo.MESSAGE_ID_NAME.getColumnName(),
+                            msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]);
+                msgIDJO.put(MsgIDTableColumnInfo.MESSAGE_ID.getColumnName(),
+                            msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]);
+
+                // Add the message ID owner, name, and value to the array
+                msgIDJA.add(msgIDJO);
+            }
+
+            // Check if a message ID owner, name, and value exists
+            if (!msgIDJA.isEmpty())
+            {
+                // Add the message ID owners, names, and values to the JSON output
+                outputJO.put(JSONTags.MESSAGE_ID.getTag(), msgIDJA);
             }
         }
 

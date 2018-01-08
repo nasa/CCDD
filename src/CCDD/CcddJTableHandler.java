@@ -295,10 +295,7 @@ public abstract class CcddJTableHandler extends JTable
      * Override the method so that the a selected cell's row and column coordinates can be stored
      *********************************************************************************************/
     @Override
-    public void changeSelection(int rowIndex,
-                                int columnIndex,
-                                boolean toggle,
-                                boolean extend)
+    public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend)
     {
         // Get the cell's current selection state
         boolean isSel = isCellSelected(rowIndex, columnIndex);
@@ -463,10 +460,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param endColumn
      *            column index in view coordinates at which to end selection (inclusive)
      *********************************************************************************************/
-    protected void setSelectedCells(int startRow,
-                                    int endRow,
-                                    int startColumn,
-                                    int endColumn)
+    protected void setSelectedCells(int startRow, int endRow, int startColumn, int endColumn)
     {
         // Remove any currently selected cells
         selectedCells.clear();
@@ -871,9 +865,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @return true if the cell contents can be changed; false otherwise
      *********************************************************************************************/
-    protected boolean isDataAlterable(Object[] rowData,
-                                      int row,
-                                      int column)
+    protected boolean isDataAlterable(Object[] rowData, int row, int column)
     {
         return false;
     }
@@ -1418,8 +1410,7 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Get the column information. Adjust the column index based on the number of
                 // columns already hidden
-                TableColumn tableColumn = getColumnModel().getColumn(column
-                                                                     - hiddenColumns.size());
+                TableColumn tableColumn = getColumnModel().getColumn(column - hiddenColumns.size());
 
                 // Add the column to the hidden columns list and remove it from the view
                 hiddenColumns.add(tableColumn);
@@ -1441,8 +1432,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param undoable
      *            true if the data update can be undone
      *********************************************************************************************/
-    protected void loadDataArrayIntoTable(Object[][] tableData,
-                                          boolean undoable)
+    protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
         // Check if the number of table rows changed
         if (tableData.length != tableModel.getDataVector().size())
@@ -2633,8 +2623,7 @@ public abstract class CcddJTableHandler extends JTable
             if (startColumn != -1)
             {
                 // Set the column selection
-                setColumnSelectionInterval(startColumn + columnDelta,
-                                           endColumn + columnDelta);
+                setColumnSelectionInterval(startColumn + columnDelta, endColumn + columnDelta);
             }
 
             // Adjust the selected cells based on the move directions
@@ -3084,16 +3073,13 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Replace the place holder with a new line character, then remove the
                         // leading and trailing double quote characters
-                        cellData[index] = cellData[index].replaceAll(embeddedNewline,
-                                                                     " ");
-                        cellData[index] = cellData[index].substring(1,
-                                                                    cellData[index].length()
-                                                                       - 1);
+                        cellData[index] = cellData[index].replaceAll(embeddedNewline, " ");
+                        cellData[index] = cellData[index].substring(1, cellData[index].length() - 1);
                     }
                 }
 
                 // Paste the data from the clipboard into the table
-                pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false);
+                pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true);
             }
         }
         catch (Exception e)
@@ -3133,6 +3119,11 @@ public abstract class CcddJTableHandler extends JTable
      *            true is pasting of the data begins in the first column; false to begin pasting at
      *            the currently cell with the focus
      *
+     * @param combineAsSingleEdit
+     *            true to combine the pasted data as a single edit; false to not alter the undo
+     *            manager's handling of the edit sequence (this allows handling externally so that
+     *            other edits may be grouped with the paste operation)
+     *
      * @return true if the user elected to cancel pasting the data following a cell validation
      *         error
      *********************************************************************************************/
@@ -3140,13 +3131,20 @@ public abstract class CcddJTableHandler extends JTable
                                 int numColumns,
                                 boolean isInsert,
                                 boolean isAddIfNeeded,
-                                boolean startFirstColumn)
+                                boolean startFirstColumn,
+                                boolean combineAsSingleEdit)
     {
         Boolean showMessage = true;
         int modelRow = 0;
 
-        // TODO
-        // undoHandler.setAutoEndEditSequence(false);
+        // Check if the pasted data should be combined into a single edit operation
+        if (combineAsSingleEdit)
+        {
+            // End any active edit sequence, then disable auto-ending so that the paste operation
+            // can be handled as a single edit for undo/redo purposes
+            undoManager.endEditSequence();
+            undoHandler.setAutoEndEditSequence(false);
+        }
 
         // Get the table data array
         List<Object[]> tableData = getTableDataList(false);
@@ -3370,9 +3368,14 @@ public abstract class CcddJTableHandler extends JTable
         // Set the flag that indicates the last edited cell's content is valid
         setLastCellValid(true);
 
-        // TODO
-        // undoHandler.setAutoEndEditSequence(true);
-        // undoManager.endEditSequence();
+        // Check if the pasted data should be combined into a single edit operation
+        if (combineAsSingleEdit)
+        {
+            // Re-enable auto-ending of the edit sequence and end the sequence. The pasted data can
+            // be removed with a single undo if desired
+            undoHandler.setAutoEndEditSequence(true);
+            undoManager.endEditSequence();
+        }
 
         return showMessage == null;
     }

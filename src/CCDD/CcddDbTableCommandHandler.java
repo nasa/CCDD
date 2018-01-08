@@ -6773,7 +6773,9 @@ public class CcddDbTableCommandHandler
             // Create a message ID handler and get the list of message ID names and associated ID
             // values
             CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-            List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME, parent);
+            List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
+                                                                       true,
+                                                                       parent);
 
             // Step through each open table editor dialog
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())

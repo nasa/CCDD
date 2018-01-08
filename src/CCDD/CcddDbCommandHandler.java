@@ -111,15 +111,12 @@ public class CcddDbCommandHandler
      *
      * @return Command results; returns null if no connection exists to the server
      *
-     * @throws SQLexception
+     * @throws SQLException
      *             If no connection exists to the server
      *********************************************************************************************/
-    protected ResultSet executeDbQuery(String command,
-                                       Component component) throws SQLException
+    protected ResultSet executeDbQuery(String command, Component component) throws SQLException
     {
-        return (ResultSet) executeDbStatement(DbCommandType.QUERY,
-                                              command,
-                                              component);
+        return (ResultSet) executeDbStatement(DbCommandType.QUERY, command, component);
     }
 
     /**********************************************************************************************
@@ -133,15 +130,12 @@ public class CcddDbCommandHandler
      *
      * @return Command result row count; returns null if no connection exists to the server
      *
-     * @throws SQLexception
+     * @throws SQLException
      *             If no connection exists to the server
      *********************************************************************************************/
-    protected int executeDbUpdate(String command,
-                                  Component component) throws SQLException
+    protected int executeDbUpdate(String command, Component component) throws SQLException
     {
-        return (Integer) executeDbStatement(DbCommandType.UPDATE,
-                                            command,
-                                            component);
+        return (Integer) executeDbStatement(DbCommandType.UPDATE, command, component);
     }
 
     /**********************************************************************************************
@@ -156,15 +150,12 @@ public class CcddDbCommandHandler
      * @return true if the first result is a ResultSet object, or false if it is an update count or
      *         there are no results; returns null if no connection exists to the server
      *
-     * @throws SQLexception
+     * @throws SQLException
      *             If no connection exists to the server
      *********************************************************************************************/
-    protected boolean executeDbCommand(String command,
-                                       Component component) throws SQLException
+    protected boolean executeDbCommand(String command, Component component) throws SQLException
     {
-        return (Boolean) executeDbStatement(DbCommandType.COMMAND,
-                                            command,
-                                            component);
+        return (Boolean) executeDbStatement(DbCommandType.COMMAND, command, component);
     }
 
     /**********************************************************************************************
@@ -182,7 +173,7 @@ public class CcddDbCommandHandler
      * @return Command result (content is dependent on the command type); returns null if no
      *         connection exists to the server
      *
-     * @throws SQLexception
+     * @throws SQLException
      *             If no connection exists to the server
      *********************************************************************************************/
     protected Object executeDbStatement(DbCommandType commandType,
@@ -318,8 +309,7 @@ public class CcddDbCommandHandler
         try
         {
             // Execute the command and obtain the results
-            ResultSet resultSet = executeDbQuery(listType.getListCommand(listOption),
-                                                 parent);
+            ResultSet resultSet = executeDbQuery(listType.getListCommand(listOption), parent);
 
             // Step through each of the results
             while (resultSet.next())
@@ -349,9 +339,7 @@ public class CcddDbCommandHandler
                                           + " list; cause '"
                                           + se.getMessage()
                                           + "'",
-                                  "<html><b>Cannot retrieve "
-                                                 + listType
-                                                 + " list");
+                                  "<html><b>Cannot retrieve " + listType + " list");
         }
 
         return list.toArray(new String[0]);

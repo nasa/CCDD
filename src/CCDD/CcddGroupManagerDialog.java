@@ -994,8 +994,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      * @param isApplication
      *            true if the group represents a CFS application
      *********************************************************************************************/
-    private void enableApplicationCheckBox(boolean enable,
-                                           boolean isApplication)
+    private void enableApplicationCheckBox(boolean enable, boolean isApplication)
     {
         applicationCb.setEnabled(enable);
         applicationCb.setSelected(enable
@@ -1321,11 +1320,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             JPanel dialogPnl = new JPanel(new GridBagLayout());
 
             // Create the group renaming dialog label and field
-            addGroupNameField("Rename '"
-                              + selected[0]
-                              + "' to:",
-                              selected[0],
-                              dialogPnl);
+            addGroupNameField("Rename '" + selected[0] + "' to:", selected[0], dialogPnl);
 
             // Create the group renaming dialog
             CcddDialogHandler groupDlg = new CcddDialogHandler()
@@ -1399,12 +1394,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             JPanel dialogPnl = new JPanel(new GridBagLayout());
 
             // Create the group copying dialog label and field
-            addGroupNameField("Copy '"
-                              + selected[0]
-                              + "' to:",
-                              selected[0]
-                                         + "_copy",
-                              dialogPnl);
+            addGroupNameField("Copy '" + selected[0] + "' to:", selected[0] + "_copy", dialogPnl);
 
             // Create the group copying dialog
             CcddDialogHandler groupDlg = new CcddDialogHandler()
@@ -1473,9 +1463,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
-    private GridBagConstraints addGroupNameField(String fieldText,
-                                                 String currentName,
-                                                 JPanel dialogPnl)
+    private GridBagConstraints addGroupNameField(String fieldText, String currentName, JPanel dialogPnl)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -1584,12 +1572,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         if (selectedGroup != null)
         {
             // Set the group's CFS application status
-            groupHandler.setIsApplication(selectedGroup.getName(),
-                                          applicationCb.isSelected());
+            groupHandler.setIsApplication(selectedGroup.getName(), applicationCb.isSelected());
 
             // Store the rate and description is case these have changed
-            groupHandler.setDescription(selectedGroup.getName(),
-                                        fieldPnlHndlr.getDescription());
+            groupHandler.setDescription(selectedGroup.getName(), fieldPnlHndlr.getDescription());
 
             // Store the updated data field information in the group
             selectedGroup.setFieldInformation(fieldHandler.getFieldInformationCopy());

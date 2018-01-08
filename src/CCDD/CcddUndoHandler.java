@@ -3393,7 +3393,7 @@ public class CcddUndoHandler
 
             // Rebuild the data fields using the original data field information list. Do not store
             // this edit operation on the undo/redo stack
-            fieldPnlHandler.setDataFieldInformation(oldFieldInfo);
+            fieldPnlHandler.setDataFieldInformation(CcddFieldHandler.getFieldInformationCopy(oldFieldInfo));
             fieldPnlHandler.createDataFieldPanel(false);
         }
 
@@ -3407,7 +3407,7 @@ public class CcddUndoHandler
 
             // Rebuild the data fields using the updated data field information list. Do not store
             // this edit operation on the undo/redo stack
-            fieldPnlHandler.setDataFieldInformation(newFieldInfo);
+            fieldPnlHandler.setDataFieldInformation(CcddFieldHandler.getFieldInformationCopy(newFieldInfo));
             fieldPnlHandler.createDataFieldPanel(false);
         }
 

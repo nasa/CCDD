@@ -231,9 +231,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param parent
      *            GUI component instantiating this class
      *********************************************************************************************/
-    CcddXTCEHandler(CcddMain ccddMain,
-                    CcddFieldHandler fieldHandler,
-                    Component parent)
+    CcddXTCEHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;
@@ -666,7 +664,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
             /**************************************************************************************
              * Other data processing
-             ***********************************************************************************/
+             *************************************************************************************/
             // Get the table type and data fields for this table. Also, if this table's type isn't
             // a structure or a command then get the table's column information
             AncillaryDataSet ancillarySet = childSystem.getAncillaryDataSet();
@@ -697,9 +695,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Get the number of columns defined in this table type
                         numColumns = typeDefn.getColumnCountVisible();
                     }
-                    // Check if data fields are to be imported and this is a data field definition
-                    else if (importType == ImportType.IMPORT_ALL // TODO
-                             && ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
+                    // Check if this is a data field definition
+                    else if (ancillaryData.getName().startsWith(XTCETags.DATA_FIELD.getTag()))
                     {
                         // Get the data field inputs. If not present use a blank to prevent an
                         // error when separating the inputs
@@ -765,7 +762,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Create a row with empty columns and add the new row to the table
                                 // data
                                 String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                Arrays.fill(newRow, ""); // TODO null
+                                Arrays.fill(newRow, null);
                                 tableDefn.addData(newRow);
                             }
 
@@ -799,7 +796,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
             /**************************************************************************************
              * Telemetry processing
-             ***********************************************************************************/
+             *************************************************************************************/
             // Get the child system's telemetry metadata information
             TelemetryMetaDataType tlmMetaData = childSystem.getTelemetryMetaData();
 
@@ -832,7 +829,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // structures's information. Initialize all columns to blanks except for
                         // the variable name
                         String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                        Arrays.fill(newRow, "");
+                        Arrays.fill(newRow, null);
                         newRow[variableNameIndex] = parm.getName();
 
                         // Get a reference to any extra data for this parameter
@@ -1006,10 +1003,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // ancillary data
                             if (dataTypeIndex != -1
                                 && !dataType.isEmpty()
-                                && tableDefn.getData().get(row
-                                                           * numColumns
-                                                           + dataTypeIndex)
-                                            .isEmpty())
+                                && (tableDefn.getData().get(row
+                                                            * numColumns
+                                                            + dataTypeIndex) == null
+                                    || tableDefn.getData().get(row
+                                                               * numColumns
+                                                               + dataTypeIndex)
+                                                .isEmpty()))
                             {
                                 // Store the data type
                                 tableDefn.getData().set(row
@@ -1022,10 +1022,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // ancillary data
                             if (descriptionIndex != -1
                                 && tlm.getShortDescription() != null
-                                && tableDefn.getData().get(row
-                                                           * numColumns
-                                                           + descriptionIndex)
-                                            .isEmpty())
+                                && (tableDefn.getData().get(row
+                                                            * numColumns
+                                                            + descriptionIndex) == null
+                                    || tableDefn.getData().get(row
+                                                               * numColumns
+                                                               + descriptionIndex)
+                                                .isEmpty()))
                             {
                                 // Store the description
                                 tableDefn.getData().set(row
@@ -1038,10 +1041,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // ancillary data
                             if (unitsIndex != -1
                                 && unitSet != null
-                                && tableDefn.getData().get(row
-                                                           * numColumns
-                                                           + unitsIndex)
-                                            .isEmpty())
+                                && (tableDefn.getData().get(row
+                                                            * numColumns
+                                                            + unitsIndex) == null
+                                    || tableDefn.getData().get(row
+                                                               * numColumns
+                                                               + unitsIndex)
+                                                .isEmpty()))
                             {
                                 List<UnitType> unitType = unitSet.getUnit();
 
@@ -1060,10 +1066,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // ancillary data
                             if (enumerationIndex != -1
                                 && enumeration != null
-                                && tableDefn.getData().get(row
-                                                           * numColumns
-                                                           + enumerationIndex)
-                                            .isEmpty())
+                                && (tableDefn.getData().get(row
+                                                            * numColumns
+                                                            + enumerationIndex) == null
+                                    || tableDefn.getData().get(row
+                                                               * numColumns
+                                                               + enumerationIndex)
+                                                .isEmpty()))
                             {
                                 // Store the enumeration parameters. This accounts only for the
                                 // first enumeration for a variable. If the variable has more than
@@ -1081,7 +1090,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
             /**************************************************************************************
              * Command processing
-             ***********************************************************************************/
+             *************************************************************************************/
             // Get the child system's command metadata information
             CommandMetaDataType cmdMetaData = childSystem.getCommandMetaData();
 
@@ -1123,7 +1132,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // command's information. Initialize all columns to blanks except for the
                         // command name
                         String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                        Arrays.fill(newRow, "");
+                        Arrays.fill(newRow, null);
                         newRow[commandNameIndex] = cmdType.getName();
 
                         // Check if the command description is present and the description column
@@ -1164,8 +1173,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     // command metadata
                                     if (tableDefn.getData().get(row
                                                                 * numColumns
-                                                                + column)
-                                                 .isEmpty())
+                                                                + column) == null
+                                        || tableDefn.getData().get(row
+                                                                   * numColumns
+                                                                   + column)
+                                                    .isEmpty())
                                     {
                                         // Update the table data at the row and column specified
                                         // with the value from the ancillary data

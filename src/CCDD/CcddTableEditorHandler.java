@@ -118,8 +118,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // been made to the table since the previous database update
     private TableInformation committedInfo;
 
-    // Column indices for the primary key, row index, variable path, and message ID name(s) (in
-    // model coordinates)
+    // Column indices for the primary key, row index, variable path, message ID name(s), and
+    // variable path (in model coordinates)
     private final int primaryKeyIndex;
     private final int rowIndex;
     private List<Integer> msgIDNameIndex;
@@ -1931,7 +1931,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Get the column index in model coordinates
                     int modelColumn = convertColumnIndexToModel(column);
 
-                    if ((
+                    if (
                     // Check if this isn't the variable name, data type, array size, bit length,
                     // rate, or variable path column, and that the cell is not alterable
                     (modelColumn != variableNameIndex
@@ -1940,7 +1940,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                      && modelColumn != bitLengthIndex
                      && modelColumn != variablePathIndex
                      && !rateIndex.contains(modelColumn)
-                     && !isDataAlterable(rowData, row, modelColumn)))
+                     && !isDataAlterable(rowData, row, modelColumn))
 
                         // Check if the data type column exists, the data type is not a primitive
                         // (i.e., it's a structure), and structures are not allowed for this column
@@ -2650,12 +2650,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         int numColumns,
                                         boolean isInsert,
                                         boolean isAddIfNeeded,
-                                        boolean startFirstColumn)
+                                        boolean startFirstColumn,
+                                        boolean combineAsSingleEdit)
             {
                 Boolean showMessage = true;
 
-                // TODO THIS MAY BE NEEDED FOR SOME PASTE OPS, BUT IT WILL INTERFERE WITH IMPORTING
-                // getUndoHandler().setAutoEndEditSequence(false);
+                // Check if the pasted data should be combined into a single edit operation
+                if (combineAsSingleEdit)
+                {
+                    // End any active edit sequence, then disable auto-ending so that the paste
+                    // operation can be handled as a single edit for undo/redo purposes
+                    getUndoManager().endEditSequence();
+                    getUndoHandler().setAutoEndEditSequence(false);
+                }
 
                 // Get the table data array
                 List<Object[]> tableData = getTableDataList(false);
@@ -2995,9 +3002,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // invalid input set the flag to false then it can prevent closing the editor)
                 setLastCellValid(true);
 
-                // TODO
-                // getUndoHandler().setAutoEndEditSequence(true);
-                // getUndoManager().endEditSequence();
+                // Check if the pasted data should be combined into a single edit operation
+                if (combineAsSingleEdit)
+                {
+                    // Re-enable auto-ending of the edit sequence and end the sequence. The pasted
+                    // data can be removed with a single undo if desired
+                    getUndoHandler().setAutoEndEditSequence(true);
+                    getUndoManager().endEditSequence();
+                }
 
                 return showMessage == null;
             }
@@ -3703,7 +3715,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Create a message ID handler and get the list of message ID names and associated
                 // ID values
                 CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-                msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME, editorDialog);
+                msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
+                                                            true,
+                                                            editorDialog);
             }
 
             // Create a combo box for displaying message ID names & IDs
@@ -4853,7 +4867,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             // selected then do not perform checks on other columns and rows
                             if (new CcddDialogHandler().showMessageDialog(editorDialog,
                                                                           "<html><b>Data must be provided for column '"
-                                                                                        + table.getColumnName(column)
+                                                                                        + tableModel.getColumnName(column)
                                                                                         + "' [row "
                                                                                         + (row + 1)
                                                                                         + "]",

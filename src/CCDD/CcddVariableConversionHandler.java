@@ -56,14 +56,10 @@ public class CcddVariableConversionHandler
      *            true to convert any macros in the path and to strip off the bit length, if
      *            present
      *********************************************************************************************/
-    CcddVariableConversionHandler(CcddMain ccddMain,
-                                  TableTreeType treeType,
-                                  boolean cleanName)
+    CcddVariableConversionHandler(CcddMain ccddMain, TableTreeType treeType, boolean cleanName)
     {
         // Create a tree containing all of the variables
-        allVariableTree = new CcddTableTreeHandler(ccddMain,
-                                                   treeType,
-                                                   ccddMain.getMainFrame());
+        allVariableTree = new CcddTableTreeHandler(ccddMain, treeType, ccddMain.getMainFrame());
 
         // Get the list of all variables
         allVariableNameList = allVariableTree.getTableTreePathList(null);
@@ -76,8 +72,9 @@ public class CcddVariableConversionHandler
             {
                 // Expand any macro(s) in the variable name and remove the bit length (if present)
                 allVariableNameList.set(index,
-                                        ccddMain.getMacroHandler().getMacroExpansion(allVariableNameList.get(index)).replaceFirst("\\:\\d+$",
-                                                                                                                                  ""));
+                                        ccddMain.getMacroHandler()
+                                                .getMacroExpansion(allVariableNameList.get(index))
+                                                .replaceFirst("\\:\\d+$", ""));
             }
         }
     }

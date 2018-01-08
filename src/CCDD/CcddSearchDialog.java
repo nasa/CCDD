@@ -156,9 +156,7 @@ public class CcddSearchDialog extends CcddFrameHandler
      * @param parent
      *            GUI component over which to center the dialog
      *********************************************************************************************/
-    CcddSearchDialog(CcddMain ccddMain,
-                     SearchDialogType searchType,
-                     Component parent)
+    CcddSearchDialog(CcddMain ccddMain, SearchDialogType searchType, Component parent)
     {
         this(ccddMain, searchType, null, null, parent);
     }

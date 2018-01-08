@@ -201,9 +201,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param parent
      *            GUI component instantiating this class
      *********************************************************************************************/
-    CcddEDSHandler(CcddMain ccddMain,
-                   CcddFieldHandler fieldHandler,
-                   Component parent)
+    CcddEDSHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;
@@ -226,8 +224,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
                                    "http://www.ccsds.org/schema/sois/seds");
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
-                                   new Boolean(true));
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
 
             // Create the factory for building the data sheet objects
             factory = new ObjectFactory();
@@ -293,10 +290,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *             For any unanticipated errors
      *********************************************************************************************/
     @Override
-    public void importFromFile(File importFile,
-                               ImportType importType) throws CCDDException,
-                                                      IOException,
-                                                      Exception
+    public void importFromFile(File importFile, ImportType importType) throws CCDDException,
+                                                                       IOException,
+                                                                       Exception
     {
         try
         {
@@ -1157,7 +1153,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 {
                                     /**************************************************************
                                      * Telemetry processing
-                                     ***********************************************************/
+                                     *************************************************************/
                                     // Check if the interface contains a parameter set
                                     if (intfcDecType.getParameterSet() != null
                                         && !intfcDecType.getParameterSet().getParameter().isEmpty())
@@ -1169,7 +1165,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             // contain this structure's information. Initialize all
                                             // columns to blanks except for the variable name
                                             String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                            Arrays.fill(newRow, ""); // TODO null
+                                            Arrays.fill(newRow, null);
                                             newRow[variableNameIndex] = parmType.getName();
 
                                             // Check if a data type exists
@@ -1197,7 +1193,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                                     /**************************************************************
                                      * Command processing
-                                     ***********************************************************/
+                                     *************************************************************/
                                     // Check if the interface contains a command set
                                     if (intfcDecType.getCommandSet() != null
                                         && !intfcDecType.getCommandSet().getCommand().isEmpty())
@@ -1209,7 +1205,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             // contain this command's information. Initialize all
                                             // columns to blanks except for the command name
                                             String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                            Arrays.fill(newRow, "");
+                                            Arrays.fill(newRow, null);
                                             newRow[commandNameIndex] = cmdType.getName();
 
                                             // Check if the command description is present and the
@@ -1259,7 +1255,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                                 /******************************************************************
                                  * Generic type processing
-                                 ***************************************************************/
+                                 *****************************************************************/
                                 // Check if this interface contains a generic type set. The generic
                                 // type set is used to column data, data fields, and enumeration
                                 // parameters for tables that aren't structure or command tables,
@@ -1335,10 +1331,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                     }
                                                 }
                                             }
-                                            // Check if all definitions are to be loaded and this
-                                            // is a data field definition
-                                            else if (importType == ImportType.IMPORT_ALL // TODO
-                                                     && intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
+                                            // Check if this is a table data field definition
+                                            else if (intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
                                             {
                                                 // Get the data field inputs. If not present use a
                                                 // blank to prevent an error when separating the
@@ -1411,7 +1405,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                         // Create a row with empty columns and add
                                                         // the new row to the table data
                                                         String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                                        Arrays.fill(newRow, "");
+                                                        Arrays.fill(newRow, null);
                                                         tableDefn.addData(newRow);
                                                     }
 
@@ -1420,8 +1414,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                     // present)
                                                     if (tableDefn.getData().get(row
                                                                                 * numColumns
-                                                                                + column)
-                                                                 .isEmpty())
+                                                                                + column) == null
+                                                        || tableDefn.getData().get(row
+                                                                                   * numColumns
+                                                                                   + column)
+                                                                    .isEmpty())
                                                     {
                                                         // Replace the value for the specified
                                                         // column
@@ -1556,9 +1553,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                              "Table type definitions");
 
             // Store the table type definitions as ancillary data
-            storeOtherAttributes(tableTypesNameSpace,
-                                 EDSTags.TABLE_TYPE,
-                                 tableTypeDefinitions);
+            storeOtherAttributes(tableTypesNameSpace, EDSTags.TABLE_TYPE, tableTypeDefinitions);
 
             // Step through each table type definition
             for (String[] tableType : tableTypeDefinitions)
@@ -1659,9 +1654,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             if (!dataTypeDefinitions.isEmpty())
             {
                 // Store the data type definitions as ancillary data
-                storeOtherAttributes(dataTypeNameSpace,
-                                     EDSTags.DATA_TYPE,
-                                     dataTypeDefinitions);
+                storeOtherAttributes(dataTypeNameSpace, EDSTags.DATA_TYPE, dataTypeDefinitions);
             }
         }
     }
@@ -1696,9 +1689,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                         "Macro definitions");
 
             // Store the macro definitions as ancillary data
-            storeOtherAttributes(macroNameSpace,
-                                 EDSTags.MACRO,
-                                 macroDefinitions);
+            storeOtherAttributes(macroNameSpace, EDSTags.MACRO, macroDefinitions);
         }
     }
 
@@ -1745,9 +1736,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                "Variable paths");
 
             // Store the variable paths as ancillary data
-            storeOtherAttributes(variablePathNameSpace,
-                                 EDSTags.VARIABLE_PATH,
-                                 referencedVariablePaths);
+            storeOtherAttributes(variablePathNameSpace, EDSTags.VARIABLE_PATH, referencedVariablePaths);
         }
     }
 
@@ -1877,9 +1866,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                               : tableInfo.getDescription();
 
                     // Add the structure to the telemetry data sheet
-                    nameSpace = addNameSpace(systemName,
-                                             tableName,
-                                             description);
+                    nameSpace = addNameSpace(systemName, tableName, description);
 
                     // Create a list containing the table type
                     List<String[]> typeData = new ArrayList<String[]>();
@@ -1887,9 +1874,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                tableInfo.getType()});
 
                     // Store the table type attribute information
-                    storeOtherAttributes(nameSpace,
-                                         EDSTags.TABLE_TYPE,
-                                         typeData);
+                    storeOtherAttributes(nameSpace, EDSTags.TABLE_TYPE, typeData);
 
                     // Store the data field attribute information
                     storeOtherAttributes(nameSpace,
@@ -1942,9 +1927,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                               : tableInfo.getDescription();
 
                     // Create a name space if not already present
-                    nameSpace = addNameSpace(systemName,
-                                             tableName,
-                                             description);
+                    nameSpace = addNameSpace(systemName, tableName, description);
 
                     // Create a list containing the table type
                     List<String[]> typeData = new ArrayList<String[]>();
@@ -1952,9 +1935,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                tableInfo.getType()});
 
                     // Store the table type attribute information
-                    storeOtherAttributes(nameSpace,
-                                         EDSTags.TABLE_TYPE,
-                                         typeData);
+                    storeOtherAttributes(nameSpace, EDSTags.TABLE_TYPE, typeData);
 
                     // Store the data field attribute information
                     storeOtherAttributes(nameSpace,
@@ -1998,9 +1979,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         }
 
                         // Store the additional column attribute information
-                        storeOtherAttributes(nameSpace,
-                                             EDSTags.COLUMN,
-                                             otherData);
+                        storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherData);
                     }
                 }
             }
@@ -2299,8 +2278,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param tableInfo
      *            TableInformation reference for the current node
      *********************************************************************************************/
-    private void addNameSpaceCommands(NamespaceType nameSpace,
-                                      TableInformation tableInfo)
+    private void addNameSpaceCommands(NamespaceType nameSpace, TableInformation tableInfo)
     {
         List<String[]> otherCols = new ArrayList<String[]>();
 
@@ -2493,10 +2471,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             if (commandName != null)
             {
                 // Add the command information
-                addCommand(nameSpace,
-                           commandName,
-                           arguments,
-                           commandDescription);
+                addCommand(nameSpace, commandName, arguments, commandDescription);
             }
         }
 
@@ -2858,9 +2833,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         if (!otherArgCols.isEmpty())
         {
             // Add any additional column data
-            storeOtherAttributes(nameSpace,
-                                 EDSTags.COLUMN,
-                                 otherArgCols);
+            storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherArgCols);
         }
 
         // Check if this data type hasn't already been referenced
@@ -2885,8 +2858,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/
-    private EnumerationListType createEnumerationList(NamespaceType nameSpace,
-                                                      String enumeration)
+    private EnumerationListType createEnumerationList(NamespaceType nameSpace, String enumeration)
     {
         EnumerationListType enumList = factory.createEnumerationListType();
 

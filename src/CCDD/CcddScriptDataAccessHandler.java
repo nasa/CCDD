@@ -371,8 +371,7 @@ public class CcddScriptDataAccessHandler
      * @return Character length of the longest string in each column of the supplied array; null if
      *         any of the inputs is invalid
      *********************************************************************************************/
-    public Integer[] getLongestStrings(String[][] strgArray,
-                                       Integer[] minWidths)
+    public Integer[] getLongestStrings(String[][] strgArray, Integer[] minWidths)
     {
         // Check if the string array contains at least one row and column, and that either no
         // initial minimum widths are specified or that the number of minimum widths is greater
@@ -635,8 +634,7 @@ public class CcddScriptDataAccessHandler
                             {
                                 // Append the byte number for the next byte and the current byte to
                                 // the encoding string
-                                encodedType += String.valueOf(i + 1)
-                                               + String.valueOf(i);
+                                encodedType += String.valueOf(i + 1) + String.valueOf(i);
                             }
                         }
 
@@ -667,8 +665,7 @@ public class CcddScriptDataAccessHandler
                             {
                                 // Append the byte number for the previous byte and the current
                                 // byte to the encoding string
-                                encodedType += String.valueOf(i - 1)
-                                               + String.valueOf(i);
+                                encodedType += String.valueOf(i - 1) + String.valueOf(i);
                             }
                         }
 
@@ -713,13 +710,11 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getITOSLimitName(int index)
     {
-        String[] limitNames = new String[] {
-                                            "redLow",
+        String[] limitNames = new String[] {"redLow",
                                             "yellowLow",
                                             "yellowHigh",
                                             "redHigh",
-                                            ""
-        };
+                                            ""};
 
         // Check if the index is invalid
         if (index < 0 || index > limitNames.length - 1)
@@ -868,10 +863,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getStructureTableNameByRow(int row)
     {
-        return getTablePathByRow(TYPE_STRUCTURE,
-                                 row,
-                                 TablePathType.PROTOTYPE,
-                                 true);
+        return getTablePathByRow(TYPE_STRUCTURE, row, TablePathType.PROTOTYPE, true);
     }
 
     /**********************************************************************************************
@@ -886,10 +878,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getCommandTableNameByRow(int row)
     {
-        return getTablePathByRow(TYPE_COMMAND,
-                                 row,
-                                 TablePathType.PROTOTYPE,
-                                 true);
+        return getTablePathByRow(TYPE_COMMAND, row, TablePathType.PROTOTYPE, true);
     }
 
     /**********************************************************************************************
@@ -909,10 +898,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getTableNameByRow(String tableType, int row)
     {
-        return getTablePathByRow(tableType,
-                                 row,
-                                 TablePathType.PROTOTYPE,
-                                 true);
+        return getTablePathByRow(tableType, row, TablePathType.PROTOTYPE, true);
     }
 
     /**********************************************************************************************
@@ -2285,9 +2271,7 @@ public class CcddScriptDataAccessHandler
      *         by its corresponding value; null if the argument number, row index, or column name
      *         is invalid
      *********************************************************************************************/
-    public String getCommandArgByColumnName(int argumentNumber,
-                                            int row,
-                                            String columnName)
+    public String getCommandArgByColumnName(int argumentNumber, int row, String columnName)
     {
         return getCommandArgByColumnName(argumentNumber, row, columnName, true);
     }
@@ -2310,9 +2294,7 @@ public class CcddScriptDataAccessHandler
      *         macro(s) left in place; null if the argument number, row index, or column name is
      *         invalid
      *********************************************************************************************/
-    public String getCommandArgByColumnNameWithMacros(int argumentNumber,
-                                                      int row,
-                                                      String columnName)
+    public String getCommandArgByColumnNameWithMacros(int argumentNumber, int row, String columnName)
     {
         return getCommandArgByColumnName(argumentNumber, row, columnName, false);
     }
@@ -2405,8 +2387,7 @@ public class CcddScriptDataAccessHandler
      * @return Array of column names belonging to the specified command argument at the specified
      *         row in the command data; null if the argument number or row index is invalid
      *********************************************************************************************/
-    public String[] getCommandArgColumnNames(int argumentNumber,
-                                             int row)
+    public String[] getCommandArgColumnNames(int argumentNumber, int row)
     {
         List<String> argColumns = new ArrayList<String>();
 
@@ -2886,11 +2867,7 @@ public class CcddScriptDataAccessHandler
                                       String variableName,
                                       String varPathSeparator)
     {
-        return getFullVariableName(variablePath,
-                                   variableName,
-                                   varPathSeparator,
-                                   true,
-                                   "");
+        return getFullVariableName(variablePath, variableName, varPathSeparator, true, "");
     }
 
     /**********************************************************************************************
@@ -3514,8 +3491,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getGroupDataFieldValue(String groupName, String fieldName)
     {
-        return getDataFieldValue(CcddFieldHandler.getFieldGroupName(groupName),
-                                 fieldName);
+        return getDataFieldValue(CcddFieldHandler.getFieldGroupName(groupName), fieldName);
     }
 
     /**********************************************************************************************
@@ -3531,8 +3507,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getTypeDataFieldValue(String typeName, String fieldName)
     {
-        return getDataFieldValue(CcddFieldHandler.getFieldTypeName(typeName),
-                                 fieldName);
+        return getDataFieldValue(CcddFieldHandler.getFieldTypeName(typeName), fieldName);
     }
 
     /**********************************************************************************************
@@ -3552,14 +3527,20 @@ public class CcddScriptDataAccessHandler
         String fieldValue = null;
 
         // Get the reference to the data field information for the requested owner and field names
-        FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
-                                                                            fieldName);
+        FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName, fieldName);
 
         // Check if a field for this owner exists
         if (fieldInfo != null)
         {
             // Get the field value
             fieldValue = fieldInfo.getValue();
+
+            // Check if the data field contains a message ID
+            if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID))
+            {
+                // Remove the auto-assignment protection flag, if present
+                fieldValue = CcddMessageIDHandler.removeProtectionFlag(fieldValue);
+            }
         }
 
         return fieldValue;
@@ -3578,8 +3559,7 @@ public class CcddScriptDataAccessHandler
      * @return Data field description; returns a blank if the table type, table name, or field name
      *         is invalid
      *********************************************************************************************/
-    public String getTableDataFieldDescription(String tableName,
-                                               String fieldName)
+    public String getTableDataFieldDescription(String tableName, String fieldName)
     {
         return getDataFieldDescription(tableName, fieldName);
     }
@@ -3595,11 +3575,9 @@ public class CcddScriptDataAccessHandler
      *
      * @return Data field description; returns a blank if the group name or field name is invalid
      *********************************************************************************************/
-    public String getGroupDataFieldDescription(String groupName,
-                                               String fieldName)
+    public String getGroupDataFieldDescription(String groupName, String fieldName)
     {
-        return getDataFieldDescription(CcddFieldHandler.getFieldGroupName(groupName),
-                                       fieldName);
+        return getDataFieldDescription(CcddFieldHandler.getFieldGroupName(groupName), fieldName);
     }
 
     /**********************************************************************************************
@@ -3616,8 +3594,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String getTypeDataFieldDescription(String typeName, String fieldName)
     {
-        return getDataFieldDescription(CcddFieldHandler.getFieldTypeName(typeName),
-                                       fieldName);
+        return getDataFieldDescription(CcddFieldHandler.getFieldTypeName(typeName), fieldName);
     }
 
     /**********************************************************************************************
@@ -3637,8 +3614,7 @@ public class CcddScriptDataAccessHandler
         String fieldDescription = "";
 
         // Get the reference to the data field information for the requested owner and field names
-        FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
-                                                                            fieldName);
+        FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName, fieldName);
 
         // Check if a field for this owner exists
         if (fieldInfo != null)
@@ -3800,10 +3776,7 @@ public class CcddScriptDataAccessHandler
      * @return Contents of the specified table's array at the row and column name provided; returns
      *         null if an instance of the table type, the column name, or the row doesn't exist
      *********************************************************************************************/
-    private String getTableData(String tableType,
-                                String columnName,
-                                int row,
-                                boolean expandMacros)
+    private String getTableData(String tableType, String columnName, int row, boolean expandMacros)
     {
         String tableData = null;
 
@@ -3831,6 +3804,13 @@ public class CcddScriptDataAccessHandler
                 {
                     // Expand any macros in the data
                     tableData = macroHandler.getMacroExpansion(tableData);
+                }
+
+                // Check if the data field contains a message ID
+                if (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID))
+                {
+                    // Remove the auto-assignment protection flag, if present
+                    tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
                 }
             }
         }
@@ -4060,6 +4040,13 @@ public class CcddScriptDataAccessHandler
                             tableData = macroHandler.getMacroExpansion(tableData);
                         }
 
+                        // Check if the data field contains a message ID
+                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(InputDataType.MESSAGE_ID))
+                        {
+                            // Remove the auto-assignment protection flag, if present
+                            tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
+                        }
+
                         break;
                     }
                 }
@@ -4100,8 +4087,7 @@ public class CcddScriptDataAccessHandler
     public String getTableDescriptionByRow(String tableType, int row)
     {
         // Get the description for the table
-        return dbTable.queryTableDescription(getPathByRow(tableType, row),
-                                             ccddMain.getMainFrame());
+        return dbTable.queryTableDescription(getPathByRow(tableType, row), ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -4126,8 +4112,7 @@ public class CcddScriptDataAccessHandler
     {
         // Display the supplied text in an information dialog
         new CcddDialogHandler().showMessageDialog(parent,
-                                                  "<html><b>"
-                                                          + text,
+                                                  "<html><b>" + text,
                                                   "Script Message",
                                                   JOptionPane.INFORMATION_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -4145,8 +4130,7 @@ public class CcddScriptDataAccessHandler
     {
         // Display the supplied text in a warning dialog
         new CcddDialogHandler().showMessageDialog(parent,
-                                                  "<html><b>"
-                                                          + text,
+                                                  "<html><b>" + text,
                                                   "Script Warning",
                                                   JOptionPane.WARNING_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -4164,8 +4148,7 @@ public class CcddScriptDataAccessHandler
     {
         // Display the supplied text in an error dialog
         new CcddDialogHandler().showMessageDialog(parent,
-                                                  "<html><b>"
-                                                          + text,
+                                                  "<html><b>" + text,
                                                   "Script Error",
                                                   JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);
@@ -4378,9 +4361,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
-        return dbTable.queryDatabase(sqlCommand,
-                                     ccddMain.getMainFrame())
-                      .toArray(new String[0][0]);
+        return dbTable.queryDatabase(sqlCommand, ccddMain.getMainFrame()).toArray(new String[0][0]);
     }
 
     /**********************************************************************************************
@@ -4414,9 +4395,7 @@ public class CcddScriptDataAccessHandler
             if (pairSeparator != null)
             {
                 // Separate the enumeration parameters into an array
-                pairs = getArrayFromString(enumeration,
-                                           enumSeparator,
-                                           pairSeparator);
+                pairs = getArrayFromString(enumeration, enumSeparator, pairSeparator);
             }
         }
 
@@ -4437,8 +4416,7 @@ public class CcddScriptDataAccessHandler
      * @return Array representing the substrings in the supplied text after being parsed using the
      *         separator; returns null if the input text is empty
      *********************************************************************************************/
-    public String[] getArrayFromString(String text,
-                                       String columnSeparator)
+    public String[] getArrayFromString(String text, String columnSeparator)
     {
         return getArrayFromString(text, columnSeparator, null)[0];
     }
@@ -4463,9 +4441,7 @@ public class CcddScriptDataAccessHandler
      * @return Two-dimensional array representing the substrings in the supplied text after being
      *         parsed using the separator; returns null if the input text is empty
      *********************************************************************************************/
-    public String[][] getArrayFromString(String text,
-                                         String columnSeparator,
-                                         String rowSeparator)
+    public String[][] getArrayFromString(String text, String columnSeparator, String rowSeparator)
     {
         String[][] array = null;
 
@@ -4495,8 +4471,7 @@ public class CcddScriptDataAccessHandler
             {
                 // Split the text using the column separator, and remove leading and trailing white
                 // space characters if present
-                array[row] = rowArray[row].split("\\s*[" + columnSeparator
-                                                 + "]\\s*");
+                array[row] = rowArray[row].split("\\s*[" + columnSeparator + "]\\s*");
             }
         }
 
@@ -4560,9 +4535,7 @@ public class CcddScriptDataAccessHandler
      *            variable list of arguments referenced by the format specifiers in the format
      *            string
      *********************************************************************************************/
-    public void writeToFileFormat(PrintWriter printWriter,
-                                  String format,
-                                  Object... args)
+    public void writeToFileFormat(PrintWriter printWriter, String format, Object... args)
     {
         fileIOHandler.writeToFileFormat(printWriter, format, args);
     }
@@ -5064,7 +5037,10 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getMessageIDOwnersIDsAndNames()
     {
-        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER, parent).toArray(new String[0][0]);
+        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
+                                                                               true,
+                                                                               parent)
+                                                        .toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

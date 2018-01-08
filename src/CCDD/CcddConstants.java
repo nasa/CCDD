@@ -143,7 +143,7 @@ public class CcddConstants
     // Characters used to encompass a macro name
     protected static final String MACRO_IDENTIFIER = "##";
 
-    // Chacter to append to a message ID to indicta eit's protected from automatic reassignment
+    // Character to append to a message ID to indicate it's protected from automatic reassignment
     protected static final String PROTECTED_MSG_ID_IDENT = "#";
 
     // Regular expression to detect reserved characters. The backslash character as a reserved
@@ -178,8 +178,8 @@ public class CcddConstants
     protected static final String ALL_TABLES_GROUP_NODE_NAME = "All tables";
 
     // Variable name prefix and data type for padding variables
-    protected static String PAD_VARIABLE = "__pad";
-    protected static String PAD_DATA_TYPE = "char";
+    protected static final String PAD_VARIABLE = "__pad";
+    protected static final String PAD_DATA_TYPE = "char";
 
     // Main window initial and minimum window size
     protected static final int INIT_WINDOW_WIDTH = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() / 2;
@@ -4958,8 +4958,7 @@ public class CcddConstants
          * @param toolTip
          *            tool tip text to display for the table verification column
          *****************************************************************************************/
-        AssociationsTableColumnInfo(String columnName,
-                                    String toolTip)
+        AssociationsTableColumnInfo(String columnName, String toolTip)
         {
             this.columnName = columnName;
             this.toolTip = toolTip;
@@ -5288,6 +5287,16 @@ public class CcddConstants
         }
 
         /******************************************************************************************
+         * Get the message ID table column name
+         *
+         * @return Message ID table column name
+         *****************************************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /******************************************************************************************
          * Get the message ID table owner, name, and ID table column names
          *
          * @return Array containing the message ID table owner, name, and ID table column names
@@ -5571,6 +5580,7 @@ public class CcddConstants
         MACRO_DEFN("Macro Definition"),
         RESERVED_MSG_ID_DEFN("Reserved Message ID Definition"),
         VARIABLE_PATH("Variable Path"),
+        MESSAGE_ID("Message ID Owner, Name, and Value"),
         TABLE_DEFN("Table Definition"),
         TABLE_NAMES("Table Names"),
         TABLE_NAME("Table Name"),

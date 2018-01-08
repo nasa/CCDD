@@ -363,6 +363,20 @@ public class CcddMessageIDHandler
     }
 
     /**********************************************************************************************
+     * Get the message ID, minus the auto-assign protection flag (if present), from the supplied
+     * message ID
+     *
+     * @param msgID
+     *            message ID
+     *
+     * @return Message ID, minus the auto-assign protection flag (if present)
+     *********************************************************************************************/
+    protected static String removeProtectionFlag(String msgID)
+    {
+        return msgID.replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
+    }
+
+    /**********************************************************************************************
      * Get the list containing every message ID name and its corresponding message ID, and the
      * owning entity from every table cell, data field (table or group), and telemetry message. ID
      * names and IDs are determined by the input data type assigned to the table column or data
@@ -374,6 +388,10 @@ public class CcddMessageIDHandler
      * @param sortOrder
      *            order in which to sort the message ID list: BY_OWNER or BY_NAME
      *
+     * @param hideProtectionFlag
+     *            true to not display the flag character that protects a message ID from being
+     *            changed by the auto-update methods; false to allow the flag to remain
+     *
      * @param parent
      *            GUI component calling this method
      *
@@ -381,6 +399,7 @@ public class CcddMessageIDHandler
      *         owning entity
      *********************************************************************************************/
     protected List<String[]> getMessageIDsAndNames(MessageIDSortOrder sortOrder,
+                                                   boolean hideProtectionFlag,
                                                    Component parent)
     {
         String id;
@@ -472,7 +491,9 @@ public class CcddMessageIDHandler
             if (index != -1)
             {
                 // Get the ID with the matching owner and remove it from the ID list
-                id = tableIDs.get(index)[1];
+                id = hideProtectionFlag
+                                        ? removeProtectionFlag(tableIDs.get(index)[1])
+                                        : tableIDs.get(index)[1];
                 tableIDs.remove(index);
             }
             // No matching owner exists
@@ -492,7 +513,9 @@ public class CcddMessageIDHandler
         {
             // Get the ID owner and ID from the first list member, then remove it from the ID list
             String idOwner = tableIDs.get(0)[0];
-            id = tableIDs.get(0)[1];
+            id = hideProtectionFlag
+                                    ? removeProtectionFlag(tableIDs.get(0)[1])
+                                    : tableIDs.get(0)[1];
             tableIDs.remove(0);
 
             // Add the owner, default ID name (a blank), and ID to the list
@@ -552,7 +575,8 @@ public class CcddMessageIDHandler
                     @Override
                     public int compare(final String[] msgID1, final String[] msgID2)
                     {
-                        return msgID1[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase().compareTo(msgID2[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase());
+                        return msgID1[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase()
+                                                                           .compareTo(msgID2[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase());
                     }
                 });
 

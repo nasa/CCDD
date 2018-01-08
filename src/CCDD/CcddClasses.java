@@ -276,20 +276,13 @@ public class CcddClasses
                          boolean isRootStructure,
                          Object[][] fieldDefinition)
         {
-            this(tableType,
-                 tablePath,
-                 tableData,
-                 columnOrder,
-                 description,
-                 isRootStructure);
+            this(tableType, tablePath, tableData, columnOrder, description, isRootStructure);
 
             // Check if the data field definitions array is provided
             if (fieldDefinition != null)
             {
                 // Build the data field information
-                fieldHandler.buildFieldInformation(fieldDefinition,
-                                                   getTablePath(),
-                                                   isRootStructure);
+                fieldHandler.buildFieldInformation(fieldDefinition, getTablePath(), isRootStructure);
             }
         }
 
@@ -333,12 +326,7 @@ public class CcddClasses
                          boolean isRootStructure,
                          List<FieldInformation> fieldInfo)
         {
-            this(tableType,
-                 tablePath,
-                 tableData,
-                 columnOrder,
-                 description,
-                 isRootStructure);
+            this(tableType, tablePath, tableData, columnOrder, description, isRootStructure);
 
             fieldHandler.setFieldInformation(fieldInfo);
         }
@@ -2156,9 +2144,7 @@ public class CcddClasses
          * @param description
          *            link description
          *****************************************************************************************/
-        LinkInformation(String rateName,
-                        String linkName,
-                        String description)
+        LinkInformation(String rateName, String linkName, String description)
         {
             this(rateName, linkName, "0", description);
         }
@@ -3450,10 +3436,7 @@ public class CcddClasses
          * @param msg
          *            parent of the sub-message
          *****************************************************************************************/
-        Message(String subMessageName,
-                String subMsgID,
-                int bytes,
-                Message msg)
+        Message(String subMessageName, String subMsgID, int bytes, Message msg)
         {
             this(subMessageName, subMsgID, bytes, msg, null);
         }
@@ -3947,9 +3930,7 @@ public class CcddClasses
          * @param rateName
          *            rate column name
          *****************************************************************************************/
-        DataStream(List<Message> messages,
-                   List<Variable> varList,
-                   String rateName)
+        DataStream(List<Message> messages, List<Variable> varList, String rateName)
         {
             this.messages = messages;
             this.varList = varList;
@@ -4210,8 +4191,7 @@ public class CcddClasses
          * @param font
          *            combo box list item font
          *****************************************************************************************/
-        private void setListItemCharacteristics(final String[] toolTips,
-                                                Font font)
+        private void setListItemCharacteristics(final String[] toolTips, Font font)
         {
             // Create the padded border for the list items
             final Border paddedBorder = BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() / 2,
@@ -4322,10 +4302,7 @@ public class CcddClasses
          * @param fontSize
          *            font size
          *****************************************************************************************/
-        ModifiableFont(String fontIdentifier,
-                       String fontFamily,
-                       int fontStyle,
-                       int fontSize)
+        ModifiableFont(String fontIdentifier, String fontFamily, int fontStyle, int fontSize)
         {
             // Create the font
             super(fontFamily, fontStyle, fontSize);
@@ -4373,10 +4350,7 @@ public class CcddClasses
          * @param blue
          *            blue color component
          *****************************************************************************************/
-        ModifiableColor(String colorIdentifier,
-                        int red,
-                        int green,
-                        int blue)
+        ModifiableColor(String colorIdentifier, int red, int green, int blue)
         {
             // Create the color
             super(red, green, blue);
@@ -5524,15 +5498,9 @@ public class CcddClasses
         {
             try
             {
-                int startIndex = Math.min(getCaret().getDot(),
-                                          getCaret().getMark());
-                int length = Math.max(getCaret().getDot(),
-                                      getCaret().getMark())
-                             - startIndex;
-                ((AutoDocument) getDocument()).replace(startIndex,
-                                                       length,
-                                                       selectedTxt,
-                                                       null);
+                int startIndex = Math.min(getCaret().getDot(), getCaret().getMark());
+                int length = Math.max(getCaret().getDot(), getCaret().getMark()) - startIndex;
+                ((AutoDocument) getDocument()).replace(startIndex, length, selectedTxt, null);
             }
             catch (Exception exception)
             {
@@ -5641,9 +5609,9 @@ public class CcddClasses
         };
 
         // Default font sizes
-        private static final String[] DEFAULT_FONT_SIZE_STRINGS = {
-                                                                   "8", "9", "10", "11", "12", "13", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72",
-        };
+        private static final String[] DEFAULT_FONT_SIZE_STRINGS = {"8", "9", "10", "11", "12", "13",
+                                                                   "14", "16", "18", "20", "22", "24",
+                                                                   "26", "28", "36", "48", "72"};
 
         // Arrays containing the available font families, styles, and sizes
         private String[] fontStyleNames;

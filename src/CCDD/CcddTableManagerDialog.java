@@ -878,9 +878,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Add a listener for changes to the Replace Existing Tables check box selection status
         replaceExistingTablesCb.addActionListener(new ActionListener()
         {
-            /******************************************************************************
+            /**************************************************************************************
              * Handle a change to the Replace Existing Tables check box selection status
-             *****************************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -900,12 +900,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         appendExistingFieldsCb.setEnabled(false);
 
-        // Add a listener for changes to the Append Original Fields check box selection status
+        // Add a listener for changes to the Append Existing Fields check box selection status
         appendExistingFieldsCb.addActionListener(new ActionListener()
         {
-            /******************************************************************************
+            /**************************************************************************************
              * Handle a change to the Append Existing Fields check box selection status
-             *****************************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {

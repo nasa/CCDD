@@ -44,6 +44,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -64,6 +65,7 @@ import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddImportExportInterface.ImportType;
@@ -738,9 +740,7 @@ public class CcddFileIOHandler
 
                         // Create the data tables from the imported table definitions from all
                         // files
-                        createTablesFromDefinitions(allTableDefinitions,
-                                                    replaceExisting,
-                                                    parent);
+                        createTablesFromDefinitions(allTableDefinitions, replaceExisting, parent);
 
                         // Commit the change(s) to the database
                         dbCommand.getConnection().commit();
@@ -1235,6 +1235,7 @@ public class CcddFileIOHandler
                                                  numColumns,
                                                  false,
                                                  true,
+                                                 true,
                                                  true))
             {
                 // Set the flags to indicate that importing should stop and that this table is not
@@ -1293,16 +1294,34 @@ public class CcddFileIOHandler
                                                         0,
                                                         0);
 
+        // Create an empty border
+        Border emptyBorder = BorderFactory.createEmptyBorder();
+
         // Create overwrite check box
         JCheckBox overwriteChkBx = new JCheckBox("Overwrite existing cells");
-        overwriteChkBx.setBorder(BorderFactory.createEmptyBorder());
         overwriteChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        overwriteChkBx.setBorder(emptyBorder);
+        overwriteChkBx.setToolTipText(CcddUtilities.wrapText("Overwrite existing cell data; if unchecked then new "
+                                                             + "rows are inserted to contain the imported data",
+                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         overwriteChkBx.setSelected(false);
 
+        // Create a check box for indicating existing tables can be replaced
+        JCheckBox useExistingFieldsCb = new JCheckBox("Use existing field if duplicate");
+        useExistingFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        useExistingFieldsCb.setBorder(emptyBorder);
+        useExistingFieldsCb.setToolTipText(CcddUtilities.wrapText("Use the existing data field definition if "
+                                                                  + "a field with the same name is imported",
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        useExistingFieldsCb.setSelected(true);
+
         // Create a panel to contain the overwrite check box
-        JPanel overwritePnl = new JPanel(new GridBagLayout());
-        overwritePnl.setBorder(BorderFactory.createEmptyBorder());
-        overwritePnl.add(overwriteChkBx, gbc);
+        JPanel checkBoxPnl = new JPanel(new GridBagLayout());
+        checkBoxPnl.setBorder(emptyBorder);
+        checkBoxPnl.add(overwriteChkBx, gbc);
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.gridy++;
+        checkBoxPnl.add(useExistingFieldsCb, gbc);
 
         // Allow the user to select the data file path + name to import from
         File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
@@ -1319,10 +1338,10 @@ public class CcddFileIOHandler
                                                                                                                             FileExtension.XTCE.getExtensionName())},
                                                                  false,
                                                                  false,
-                                                                 "Load Table Data",
+                                                                 "Import Table Data",
                                                                  ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.LOAD_OPTION,
-                                                                 overwritePnl);
+                                                                 DialogOption.IMPORT_OPTION,
+                                                                 checkBoxPnl);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -1388,7 +1407,9 @@ public class CcddFileIOHandler
                         // Get a short-cut to the table definition to shorten subsequent calls
                         TableDefinition tableDefn = tableDefinitions.get(0);
 
-                        // TODO
+                        // End any active edit sequence, then disable auto-ending so that the
+                        // import operation can be handled as a single edit for undo/redo purposes
+                        tableHandler.getTable().getUndoManager().endEditSequence();
                         tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(false);
 
                         // Update the table description field in case the description changed
@@ -1398,8 +1419,7 @@ public class CcddFileIOHandler
                         addImportedDataField(tableHandler.getFieldHandler(),
                                              tableDefn,
                                              tableHandler.getTableInformation().getTablePath(),
-                                             true);// TODO useExistingFields - SHOULD THIS OPTION
-                                                   // BE ADDED?);
+                                             useExistingFieldsCb.isSelected());
 
                         // Update the field information in case the field values changed
                         tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
@@ -1419,16 +1439,10 @@ public class CcddFileIOHandler
                             // importing the table following a cell validation error
                             if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
                                                                    tableHandler.getTable().getColumnCount(),
-                                                                   !overwriteChkBx.isSelected(), // true,
-                                                                                                 // //
-                                                                                                 // TODO
-                                                                                                 // SHOULD
-                                                                                                 // BE
-                                                                                                 // OPTIONAL
-                                                                   true, // TODO DEPENDS ON THE
-                                                                         // OPTION ABOVE?
-                                                                   true)) // TODO BASED ON COLUMN
-                                                                          // NAME IF PROVIDED?
+                                                                   !overwriteChkBx.isSelected(),
+                                                                   !overwriteChkBx.isSelected(),
+                                                                   true,
+                                                                   false))
                             {
                                 // Let the user know how many rows were added
                                 new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
@@ -1445,7 +1459,8 @@ public class CcddFileIOHandler
                         // Restore the table types to the values prior to the import operation
                         tableTypeHandler.setTypeDefinitions(originalTableTypes);
 
-                        // TODO
+                        // Re-enable auto-ending of the edit sequence and end the sequence. The
+                        // imported data can be removed with a single undo if desired
                         tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(true);
                         tableHandler.getTable().getUndoManager().endEditSequence();
 
@@ -1489,7 +1504,6 @@ public class CcddFileIOHandler
         }
     }
 
-    // TODO
     /**********************************************************************************************
      * Import one or more data fields into a table, appending them to any existing fields. If the
      * imported field already exists then the input flag determines if the existing or imported
@@ -1517,9 +1531,12 @@ public class CcddFileIOHandler
         // can be removed if needed
         for (int index = tableDefn.getDataFields().size() - 1; index >= 0; index--)
         {
+            // Get the reference to the data field definitions to shorten subsequent calls
             String[] fieldDefn = tableDefn.getDataFields().get(index);
 
-            // TODO DOES THIS AFFECT IMPORTING WHOLE TABLES?
+            // Set the data field owner to the specified table (if importing entire tables this
+            // isn't necessary, but is when importing into an existing table since the owner in the
+            // import file may differ)
             fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
 
             // Get the reference to the data field based on the table name and field name
@@ -1652,9 +1669,7 @@ public class CcddFileIOHandler
                 List<String> skippedTables = new ArrayList<String>();
 
                 // Create a data field handler
-                CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                                     null,
-                                                                     parent);
+                CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
 
                 // Check if the user elected to store all tables in a single file. The path must
                 // include a file name
@@ -1711,9 +1726,7 @@ public class CcddFileIOHandler
                     {
                         // Check if the file doesn't exist, or if it does and the user elects to
                         // overwrite it
-                        if (isOverwriteExportFileIfExists(file,
-                                                          overwriteFile,
-                                                          parent))
+                        if (isOverwriteExportFileIfExists(file, overwriteFile, parent))
                         {
                             // Export the formatted table data to the specified file
                             if (ioHandler.exportToFile(file,
@@ -1752,9 +1765,7 @@ public class CcddFileIOHandler
 
                             // Check if the file doesn't exist, or if it does and the user elects
                             // to overwrite it
-                            if (isOverwriteExportFileIfExists(file,
-                                                              overwriteFile,
-                                                              parent))
+                            if (isOverwriteExportFileIfExists(file, overwriteFile, parent))
                             {
                                 // Export the formatted table data; the file name is derived from
                                 // the table name
@@ -2258,9 +2269,7 @@ public class CcddFileIOHandler
      * @param args
      *            arguments referenced by the format specifiers in the format string
      *********************************************************************************************/
-    public void writeToFileFormat(PrintWriter printWriter,
-                                  String format,
-                                  Object... args)
+    public void writeToFileFormat(PrintWriter printWriter, String format, Object... args)
     {
         // Check if the PrintWriter object exists
         if (printWriter != null)

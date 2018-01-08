@@ -152,8 +152,7 @@ public class CcddVariableSizeHandler
      *
      * @return Input string with each instance of sizeof(data type) replaced by its numeric value
      *********************************************************************************************/
-    protected String replaceSizeofWithValue(String expression,
-                                            List<String> validDataTypes)
+    protected String replaceSizeofWithValue(String expression, List<String> validDataTypes)
     {
         isInvalid = false;
 
@@ -442,9 +441,7 @@ public class CcddVariableSizeHandler
      *
      * @return The adjusted byte offset to the target variable
      *********************************************************************************************/
-    private int adjustVariableOffset(String dataType,
-                                     String bitLength,
-                                     int offset)
+    private int adjustVariableOffset(String dataType, String bitLength, int offset)
     {
         // Get the size in bytes based on the variable's data type
         int byteSize = dataTypeHandler.getSizeInBytes(dataType);

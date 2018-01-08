@@ -80,6 +80,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     private void initialize(CcddMessageIDHandler msgIDHandler, Component parent)
     {
         final List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
+                                                                         false,
                                                                          parent);
 
         // Set the initial layout manager characteristics
