@@ -2912,6 +2912,9 @@ public class CcddDbTableCommandHandler
             {
                 // Rebuild the variable paths and offsets lists
                 varSizeHandler.buildPathAndOffsetLists();
+
+                // Reinitialize the variable path lists
+                ccddMain.getVariableConversionHandler().initializeVariableConversion();
             }
 
             // Make changes to any open table editors
@@ -5913,8 +5916,8 @@ public class CcddDbTableCommandHandler
      *            values; false to not overwrite existing values
      *
      * @param additions
-     *            list of new columns to add to the tables. . Each list item is an array
-     *            containing: [0] column name (user), [1] column input type
+     *            list of new columns to add to the tables. Each list item is an array containing:
+     *            [0] column name (user), [1] column input type
      *
      * @param modifications
      *            list of name changes of existing columns in the tables. Each list item is an
@@ -6745,8 +6748,7 @@ public class CcddDbTableCommandHandler
                 for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                 {
                     // Update the data type combo box list if the table contains one
-                    editor.setUpDataTypeColumns(allStructureTables,
-                                                newTableTree);
+                    editor.setUpDataTypeColumns(allStructureTables, newTableTree);
 
                     // Update the variable path column, if present, with the data type changes
                     editor.updateVariablePaths();
@@ -7569,7 +7571,10 @@ public class CcddDbTableCommandHandler
             protected void complete()
             {
                 // Rebuild the variable paths and offsets
-                ccddMain.getVariableSizeHandler().buildPathAndOffsetLists();
+                varSizeHandler.buildPathAndOffsetLists();
+
+                // Reinitialize the variable path lists
+                ccddMain.getVariableConversionHandler().initializeVariableConversion();
 
                 // Check if this is a data type change
                 if (isDataType)

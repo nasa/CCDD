@@ -906,7 +906,7 @@ public class CcddMacroHandler
                 {
                     // Set the expanded text to the comma-separated integers, removing the trailing
                     // comma added above
-                    expandedText = CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", ");;
+                    expandedText = CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", ");
                 }
             }
         }

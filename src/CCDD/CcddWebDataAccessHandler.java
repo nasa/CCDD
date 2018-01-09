@@ -58,7 +58,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
-    private CcddVariableConversionHandler varConvHandler;
+    private final CcddVariableConversionHandler varConvHandler;
     private CcddVariableSizeHandler varSizeHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
@@ -88,6 +88,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         dbControl = ccddMain.getDbControlHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
+        varConvHandler = ccddMain.getVariableConversionHandler();
     }
 
     /**********************************************************************************************
@@ -874,9 +875,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the data for this table as a JSON string, then format it as a JSON
                         // object so that is can be added to the response array. This is needed to
                         // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getTableData(name,
-                                                                 true,
-                                                                 separators)));
+                        responseJA.add(parser.parse(getTableData(name, true, separators)));
                     }
                     catch (ParseException pe)
                     {
@@ -891,14 +890,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // A table name is provided
         else
         {
-            // Check if variable paths are to be included and the variable handler hasn't been
-            // created already
-            if (isIncludePath && varConvHandler == null)
-            {
-                // Create the variable handler
-                varConvHandler = new CcddVariableConversionHandler(ccddMain);
-            }
-
             // Get the table data
             JSONObject tableNameAndData = jsonHandler.getTableData(tableName,
                                                                    getDescription,
@@ -1288,8 +1279,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *             If an error occurs while parsing the table information
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getTableInformation(String tableName,
-                                       String[] separators) throws CCDDException
+    private String getTableInformation(String tableName, String[] separators) throws CCDDException
     {
         JSONArray responseJA = new JSONArray();
         JSONParser parser = new JSONParser();
@@ -1329,14 +1319,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         }
         // A table name is provided
         {
-            // Check if variable paths are to be included and the variable handler hasn't been
-            // created already
-            if (isIncludePath && varConvHandler == null)
-            {
-                // Create the variable handler
-                varConvHandler = new CcddVariableConversionHandler(ccddMain);
-            }
-
             // Get the tables information
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
                                                                      isReplaceMacro,
@@ -2038,8 +2020,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *             is detected
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getVariableNames(String variablePath,
-                                    String parameters) throws CCDDException
+    private String getVariableNames(String variablePath, String parameters) throws CCDDException
     {
         String response = null;
 
@@ -2057,13 +2038,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             boolean hideDataTypes = Boolean.valueOf(separators[1]);
             String typeNameSeparator = separators[2];
 
-            // Check if the variable handler hasn't been created already
-            if (varConvHandler == null)
-            {
-                // Create the variable handler
-                varConvHandler = new CcddVariableConversionHandler(ccddMain);
-            }
-
             // Check if a variable path is specified
             if (!variablePath.isEmpty())
             {
@@ -2078,12 +2052,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             else
             {
                 // Step through each row in the variables table
-                for (int row = 0; row < varConvHandler.getAllVariableNameList().size(); row++)
+                for (int row = 0; row < varConvHandler.getAllVariableName().size(); row++)
                 {
                     // Store the variable paths and names in the application and user-specified
                     // formats
-                    responseJO.put(varConvHandler.getAllVariableNameList().get(row).toString(),
-                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableNameList().get(row).toString(),
+                    responseJO.put(varConvHandler.getAllVariableName().get(row).toString(),
+                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableName().get(row).toString(),
                                                                       varPathSeparator,
                                                                       hideDataTypes,
                                                                       typeNameSeparator));

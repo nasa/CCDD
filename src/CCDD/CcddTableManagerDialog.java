@@ -642,8 +642,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                   DialogOption.EXPORT_OPTION,
                                                   true) == OK_BUTTON)
                             {
-                                CcddVariableConversionHandler variableHandler = null;
-
                                 // Create storage for the list of table paths
                                 List<String> tablePaths = new ArrayList<String>();
 
@@ -671,13 +669,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                     tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
                                 }
 
-                                // Check if variable paths are to be included
-                                if (includeVariablePaths.isSelected())
-                                {
-                                    // Create the variable handler
-                                    variableHandler = new CcddVariableConversionHandler(ccddMain);
-                                }
-
                                 // Export the contents of the selected table(s) in the specified
                                 // format
                                 fileIOHandler.exportSelectedTables(pathFld.getText(),
@@ -687,7 +678,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    replaceMacrosCb.isSelected(),
                                                                    includeReservedMsgIDsCb.isSelected(),
                                                                    includeVariablePaths.isSelected(),
-                                                                   variableHandler,
+                                                                   (includeVariablePaths.isSelected()
+                                                                                                      ? ccddMain.getVariableConversionHandler()
+                                                                                                      : null),
                                                                    new String[] {varPathSepFld.getText(),
                                                                                  Boolean.toString(hideDataTypeCb.isSelected()),
                                                                                  typeNameSepFld.getText()},

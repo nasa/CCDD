@@ -61,7 +61,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
     // Class references
     private final CcddMain ccddMain;
     private CcddJTableHandler variableTable;
-    private final CcddVariableConversionHandler variableHandler;
+    private final CcddVariableConversionHandler varConvHandler;
     private CcddTableTreeHandler tableTree;
 
     // Components referenced from multiple methods
@@ -82,9 +82,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
     CcddVariablesDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
-
-        // Create the variable handler
-        variableHandler = new CcddVariableConversionHandler(ccddMain);
+        varConvHandler = ccddMain.getVariableConversionHandler();
 
         // Create the variable paths & names dialog
         initialize();
@@ -346,6 +344,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
                 // Add a listener for the Show button
                 btnShow.addActionListener(new ActionListener()
                 {
+                    // Initialize the current values
+                    String varPathSep = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+                    String typeNameSep = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+                    String hideDataType = ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "_");
+
                     /******************************************************************************
                      * Convert the variables and display the results
                      *****************************************************************************/
@@ -369,12 +372,17 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                       DialogOption.OK_OPTION);
                         }
                         // Check if the separator values changed
-                        else if (!ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_").equals(varPathSepFld.getText())
-                                 || !ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_").equals(typeNameSepFld.getText())
-                                 || !ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "_").equals(String.valueOf(hideDataTypeCb.isSelected())))
+                        else if (!varPathSep.equals(varPathSepFld.getText())
+                                 || !typeNameSep.equals(typeNameSepFld.getText())
+                                 || !hideDataType.equals(String.valueOf(hideDataTypeCb.isSelected())))
                         {
+                            // Store the current values
+                            varPathSep = varPathSepFld.getText();
+                            typeNameSep = typeNameSepFld.getText();
+                            hideDataType = String.valueOf(hideDataTypeCb.isSelected());
+
                             // Get the variables (matching the filtering tables, if applicable) and
-                            // display the them in the table
+                            // display them in the table
                             tableData = getVariables();
                             variableTable.loadAndFormatData();
                         }
@@ -421,10 +429,8 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         // Store the separator information in the program preferences
-                        ccddMain.getProgPrefs().put(VARIABLE_PATH_SEPARATOR,
-                                                    varPathSepFld.getText());
-                        ccddMain.getProgPrefs().put(TYPE_NAME_SEPARATOR,
-                                                    typeNameSepFld.getText());
+                        ccddMain.getProgPrefs().put(VARIABLE_PATH_SEPARATOR, varPathSepFld.getText());
+                        ccddMain.getProgPrefs().put(TYPE_NAME_SEPARATOR, typeNameSepFld.getText());
                         ccddMain.getProgPrefs().put(HIDE_DATA_TYPE,
                                                     String.valueOf(hideDataTypeCb.isSelected()));
 
@@ -513,17 +519,17 @@ public class CcddVariablesDialog extends CcddDialogHandler
         }
 
         // Step through each variable in the project
-        for (String variableName : variableHandler.getAllVariableNameList())
+        for (String variableName : varConvHandler.getAllVariableName())
         {
             // Check if no tables are selected for use as filters
             if (filterTables.isEmpty())
             {
                 // Add the variable to the list
                 variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                               variableHandler.getFullVariableName(variableName,
-                                                                                   varPathSepFld.getText(),
-                                                                                   hideDataTypeCb.isSelected(),
-                                                                                   typeNameSepFld.getText())});
+                                               varConvHandler.getFullVariableName(variableName,
+                                                                                  varPathSepFld.getText(),
+                                                                                  hideDataTypeCb.isSelected(),
+                                                                                  typeNameSepFld.getText())});
             }
             // One or more tables are selected for use as filters
             else
@@ -536,10 +542,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     {
                         // Add the variable to the list
                         variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                                       variableHandler.getFullVariableName(variableName,
-                                                                                           varPathSepFld.getText(),
-                                                                                           hideDataTypeCb.isSelected(),
-                                                                                           typeNameSepFld.getText())});
+                                                       varConvHandler.getFullVariableName(variableName,
+                                                                                          varPathSepFld.getText(),
+                                                                                          hideDataTypeCb.isSelected(),
+                                                                                          typeNameSepFld.getText())});
                     }
                 }
             }

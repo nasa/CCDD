@@ -1,0 +1,28 @@
+# Format:
+# short name, type, output file path+name, input file path+name [, input file path+name 2 [, ...]]
+
+# NOTE: Replace '...' with the cfe or apps folder paths
+
+# cFE systems
+ES, cFE, cFE_ES_tables.csv, .../cfe/fsw/cfe-core/src/inc/cfe_es_msg.h
+EVS, cFE, cFE_EVS_tables.csv, .../cfe/fsw/cfe-core/src/inc/cfe_evs_msg.h
+SB, cFE, cFE_SB_tables.csv, .../cfe/fsw/cfe-core/src/inc/cfe_sb_msg.h
+TBL, cFE, cFE_TBL_tables.csv, .../cfe/fsw/cfe-core/src/inc/cfe_tbl_msg.h
+TIME, cFE, cFE_TIME_tables.csv, .../cfe/fsw/cfe-core/src/inc/cfe_time_msg.h
+
+# cFS apps
+CF, cFS application, cFS_CF_tables.csv, .../apps/cf/fsw/src/cf_msg.h
+CI, cFS application, cFS_CI_tables.csv, .../apps/ci/fsw/src/ci_app.h, .../apps/ci/fsw/src/ci_hktlm.h
+CI_lab, cFS application, cFS_CI_lab_tables.csv, .../apps/ci_lab/fsw/src/ci_lab_msg.h
+CS, cFS application, cFS_CS_tables.csv, .../apps/cs/fsw/src/cs_msg.h
+DS, cFS application, cFS_DS_tables.csv, .../apps/ds/fsw/src/ds_msg.h
+FM, cFS application, cFS_FM_tables.csv, .../apps/fm/fsw/src/fm_msg.h
+HK, cFS application, cFS_HK_tables.csv, .../apps/hk/fsw/src/hk_msg.h
+HS, cFS application, cFS_HS_tables.csv, .../apps/hs/fsw/src/hs_msg.h
+LC, cFS application, cFS_LC_tables.csv, .../apps/lc/fsw/src/lc_msg.h
+MD, cFS application, cFS_MD_tables.csv, .../apps/md/fsw/src/md_msg.h
+MM, cFS application, cFS_MM_tables.csv, .../apps/mm/fsw/src/mm_msg.h
+SC, cFS application, cFS_SC_tables.csv, .../apps/sc/fsw/src/sc_msg.h
+SCH, cFS application, cFS_SCH_tables.csv, .../apps/sch/fsw/src/sch_msg.h
+TO, cFS application, cFS_TO_tables.csv, .../apps/to/fsw/src/to_app.h, .../apps/to/fsw/src/to_hktlm.h
+TO_lab, cFS application, cFS_TO_lab_tables.csv, .../apps/to_lab/fsw/src/to_lab_msg.h

@@ -2086,7 +2086,7 @@ public class CcddConstants
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
         VARIABLE_PATH("Variable path",
-                      "",
+                      ".*", // TODO
                       "variable path",
                       "Display a variable's full path"),
 
@@ -2113,10 +2113,7 @@ public class CcddConstants
          * @param inputDescription
          *            input type description
          *****************************************************************************************/
-        InputDataType(String inputName,
-                      String inputMatch,
-                      String inputFormat,
-                      String inputDescription)
+        InputDataType(String inputName, String inputMatch, String inputFormat, String inputDescription)
         {
             this.inputName = inputName;
             this.inputMatch = inputMatch;

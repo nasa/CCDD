@@ -113,6 +113,7 @@ public class CcddMain
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddVariableSizeHandler varSizeHandler;
+    private CcddVariableConversionHandler varConvHandler;
     private CcddWebServer webServer;
 
     // References to the various search dialogs
@@ -518,6 +519,9 @@ public class CcddMain
         keyboardHandler.setHandlers();
         macroHandler.setHandlers(varSizeHandler);
 
+        // Create a variable conversion handler for the project database
+        varConvHandler = new CcddVariableConversionHandler(CcddMain.this);
+
         // Check if the web server is activated
         if (webServer != null)
         {
@@ -613,6 +617,16 @@ public class CcddMain
     protected CcddVariableSizeHandler getVariableSizeHandler()
     {
         return varSizeHandler;
+    }
+
+    /**********************************************************************************************
+     * Get the variable conversion handler
+     *
+     * @return Variable conversion handler reference
+     *********************************************************************************************/
+    protected CcddVariableConversionHandler getVariableConversionHandler()
+    {
+        return varConvHandler;
     }
 
     /**********************************************************************************************

@@ -17,13 +17,16 @@ import CCDD.CcddConstants.TableTreeType;
  *************************************************************************************************/
 public class CcddVariableConversionHandler
 {
+    // Class reference
+    private CcddMain ccddMain;
+
     // Table tree with table instances only and including primitive variables
     private CcddTableTreeHandler allVariableTree;
 
     // Lists that show all the original variables' full names, and the variable's full name before
     // and after converting any commas and brackets to underscores. Only variable's where the
     // converted name matches another variable's are saved in the latter two lists
-    private final List<String> allVariableNameList;
+    private List<String> allVariableNameList;
     private List<String> originalVariableNameList;
     private List<String> convertedVariableNameList;
 
@@ -48,69 +51,23 @@ public class CcddVariableConversionHandler
      *
      * @param ccddMain
      *            main class reference
-     *
-     * @param treeType
-     *            type of tree contents to obtain as defined by TableTreeType
-     *
-     * @param cleanName
-     *            true to convert any macros in the path and to strip off the bit length, if
-     *            present
-     *********************************************************************************************/
-    CcddVariableConversionHandler(CcddMain ccddMain, TableTreeType treeType, boolean cleanName)
-    {
-        // Create a tree containing all of the variables
-        allVariableTree = new CcddTableTreeHandler(ccddMain, treeType, ccddMain.getMainFrame());
-
-        // Get the list of all variables
-        allVariableNameList = allVariableTree.getTableTreePathList(null);
-
-        // Check if the path should have the macros expanded and the bit length removed
-        if (cleanName)
-        {
-            // Step through each variable
-            for (int index = 0; index < allVariableNameList.size(); index++)
-            {
-                // Expand any macro(s) in the variable name and remove the bit length (if present)
-                allVariableNameList.set(index,
-                                        ccddMain.getMacroHandler()
-                                                .getMacroExpansion(allVariableNameList.get(index))
-                                                .replaceFirst("\\:\\d+$", ""));
-            }
-        }
-    }
-
-    /**********************************************************************************************
-     * Variable conversion handler class constructor for all variables in the project database
-     *
-     * @param ccddMain
-     *            main class reference
      *********************************************************************************************/
     CcddVariableConversionHandler(CcddMain ccddMain)
     {
-        this(ccddMain, TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES, true);
+        this.ccddMain = ccddMain;
+
+        // Initialize the variable tree and lists
+        initializeVariableConversion();
     }
 
     /**********************************************************************************************
-     * Variable conversion handler class constructor for the tables and/or variables in the project
-     * database as specified by the tree type
+     * Get the reference to the table tree of instance structure tables, including the primitive
+     * variables
      *
-     * @param ccddMain
-     *            main class reference
-     *
-     * @param treeType
-     *            type of tree contents to obtain as defined by TableTreeType
+     * @return Reference to the table tree of instance structure tables, including the primitive
+     *         variables
      *********************************************************************************************/
-    CcddVariableConversionHandler(CcddMain ccddMain, TableTreeType treeType)
-    {
-        this(ccddMain, treeType, false);
-    }
-
-    /**********************************************************************************************
-     * Get the reference to the table tree of instance tables, including the primitive variables
-     *
-     * @return Reference to the table tree of instance tables, including the primitive variables
-     *********************************************************************************************/
-    protected CcddTableTreeHandler getTableTree()
+    protected CcddTableTreeHandler getVariableTree()
     {
         return allVariableTree;
     }
@@ -120,9 +77,36 @@ public class CcddVariableConversionHandler
      *
      * @return List of all variable names
      *********************************************************************************************/
-    protected List<String> getAllVariableNameList()
+    protected List<String> getAllVariableName()
     {
         return allVariableNameList;
+    }
+
+    /**********************************************************************************************
+     * Initialize the variable tree and lists
+     *********************************************************************************************/
+    protected void initializeVariableConversion()
+    {
+        originalVariableNameList = null;
+        convertedVariableNameList = new ArrayList<String>();
+
+        // Create a tree containing all of the variables
+        allVariableTree = new CcddTableTreeHandler(ccddMain,
+                                                   TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES,
+                                                   ccddMain.getMainFrame());
+
+        // Get the list of all variables
+        allVariableNameList = allVariableTree.getTableTreePathList(null);
+
+        // Step through each variable
+        for (int index = 0; index < allVariableNameList.size(); index++)
+        {
+            // Expand any macro(s) in the variable name and remove the bit length (if present)
+            allVariableNameList.set(index,
+                                    ccddMain.getMacroHandler()
+                                            .getMacroExpansion(allVariableNameList.get(index))
+                                            .replaceFirst("\\:\\d+$", ""));
+        }
     }
 
     /**********************************************************************************************
@@ -239,7 +223,6 @@ public class CcddVariableConversionHandler
                     // Remove the data types from the variable path + name
                     fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
                 }
-
             }
             // The separator character isn't an underscore or the variable name isn't in the list
             else
@@ -270,7 +253,6 @@ public class CcddVariableConversionHandler
     private void createConvertedVariableNameList(List<String> allVariableNameList)
     {
         originalVariableNameList = new ArrayList<String>();
-        convertedVariableNameList = new ArrayList<String>();
 
         // Step through each variable
         for (String variableName : allVariableNameList)

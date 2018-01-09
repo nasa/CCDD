@@ -20,7 +20,6 @@ import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -91,6 +90,12 @@ public class CcddDbVerificationHandler
     private final CcddMacroHandler macroHandler;
     private TypeDefinition typeDefn;
     private CcddJTableHandler updateTable;
+
+    // Component referenced by multiple methods
+    private JProgressBar progBar;
+
+    // Number of divisions in the progress bar per verification step
+    private int numDivisionPerStep;
 
     // Comments for all tables
     private String[][] comments;
@@ -589,24 +594,30 @@ public class CcddDbVerificationHandler
                                              + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
                                                                            + "to terminate verification ***",
                                                                            Color.RED)
-                                             + "<br><br>",
+                                             + "</b><br><br>",
                                              SwingConstants.CENTER);
                 textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
                 gbc.gridy++;
                 dialogPnl.add(textLbl2, gbc);
 
+                // Set the total number of verification steps (this is the number of methods called
+                // to verify each portion of the database) and use it to calculate the number of
+                // divisions within each step
+                int numVerificationSteps = 6;
+                numDivisionPerStep = 100 / numVerificationSteps;
+
                 // Add a progress bar to the dialog
-                JProgressBar progBar = new JProgressBar(0, 6);
+                progBar = new JProgressBar(0, numVerificationSteps * numDivisionPerStep);
                 progBar.setValue(0);
                 progBar.setStringPainted(true);
-                progBar.setPreferredSize(new Dimension(100, 20));
+                progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
                 dialogPnl.add(progBar, gbc);
 
-                // Display he verification cancellation dialog
+                // Display the verification cancellation dialog
                 cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
                                                dialogPnl,
                                                "Verifying Project",
@@ -640,7 +651,7 @@ public class CcddDbVerificationHandler
                         if (!canceled)
                         {
                             // Update the progress bar
-                            progBar.setValue(1);
+                            progBar.setValue(numDivisionPerStep);
 
                             // Check for inconsistencies in the internal tables
                             verifyInternalTables(tableResult);
@@ -649,7 +660,7 @@ public class CcddDbVerificationHandler
                             if (!canceled)
                             {
                                 // Update the progress bar
-                                progBar.setValue(2);
+                                progBar.setValue(numDivisionPerStep * 2);
 
                                 // Verify the table and variable path references in the internal
                                 // tables
@@ -659,7 +670,7 @@ public class CcddDbVerificationHandler
                                 if (!canceled)
                                 {
                                     // Update the progress bar
-                                    progBar.setValue(3);
+                                    progBar.setValue(numDivisionPerStep * 3);
 
                                     // verify the input data types in the table types and data
                                     // fields internal tables
@@ -669,7 +680,7 @@ public class CcddDbVerificationHandler
                                     if (!canceled)
                                     {
                                         // Update the progress bar
-                                        progBar.setValue(4);
+                                        progBar.setValue(numDivisionPerStep * 4);
 
                                         // Check for inconsistencies between the table type
                                         // definitions and the tables of that type
@@ -679,13 +690,13 @@ public class CcddDbVerificationHandler
                                         if (!canceled)
                                         {
                                             // Update the progress bar
-                                            progBar.setValue(5);
+                                            progBar.setValue(numDivisionPerStep * 5);
 
                                             // Check for inconsistencies within the data tables
                                             verifyDataTables();
 
                                             // Update the progress bar
-                                            progBar.setValue(6);
+                                            progBar.setValue(numDivisionPerStep * numVerificationSteps);
                                         }
                                     }
                                 }
@@ -883,8 +894,16 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Go to the first row in the result set
-            tableResult.first();
+            // Initialize the progress bar within-step value counters
+            int count = 0;
+            int startProgress = progBar.getValue();
+
+            // Get the total number of rows in the result set
+            tableResult.last();
+            int total = tableResult.getRow();
+
+            // Start before the first row in the result set
+            tableResult.beforeFirst();
 
             // Step through each database table
             while (tableResult.next())
@@ -1052,6 +1071,9 @@ public class CcddDbVerificationHandler
                                                   "DROP TABLE " + tableNameDb + "; "));
                     }
                 }
+
+                // Update the within-step progress value
+                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
         catch (SQLException se)
@@ -1082,8 +1104,16 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Go to the first row in the result set
-            tableResult.first();
+            // Initialize the progress bar within-step value counters
+            int count = 0;
+            int startProgress = progBar.getValue();
+
+            // Get the total number of rows in the result set
+            tableResult.last();
+            int total = tableResult.getRow();
+
+            // Start before the first row in the result set
+            tableResult.beforeFirst();
 
             // Step through each database table
             while (tableResult.next())
@@ -1148,6 +1178,9 @@ public class CcddDbVerificationHandler
                         }
                     }
                 }
+
+                // Update the within-step progress value
+                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
         catch (
@@ -1188,15 +1221,25 @@ public class CcddDbVerificationHandler
 
             // Get the list of table and variable paths and names, retaining any macros and bit
             // lengths
-            CcddVariableConversionHandler variableHandler = new CcddVariableConversionHandler(ccddMain,
-                                                                                              TableTreeType.TABLES_WITH_PRIMITIVES);
+            CcddTableTreeHandler allTableAndVariableTree = new CcddTableTreeHandler(ccddMain,
+                                                                                    TableTreeType.TABLES_WITH_PRIMITIVES,
+                                                                                    ccddMain.getMainFrame());
+            List<String> allTableAndVariableList = allTableAndVariableTree.getTableTreePathList(null);
 
             // List to contain invalid table or variable references. This is used to prevent
             // logging multiple issues for the same table/variable in the same internal table
             List<String> badRefs = new ArrayList<String>();
 
-            // Go to the first row in the result set
-            tableResult.first();
+            // Initialize the progress bar within-step value counters
+            int count = 0;
+            int startProgress = progBar.getValue();
+
+            // Get the total number of rows in the result set
+            tableResult.last();
+            int total = tableResult.getRow();
+
+            // Start before the first row in the result set
+            tableResult.beforeFirst();
 
             // Step through each database table
             while (tableResult.next())
@@ -1218,7 +1261,7 @@ public class CcddDbVerificationHandler
                             break;
                         }
 
-                        // Check if a this association references a table . If no table is
+                        // Check if a this association references a table. If no table is
                         // associated the member column contains a space
                         if (!member[0].trim().isEmpty())
                         {
@@ -1262,7 +1305,7 @@ public class CcddDbVerificationHandler
                                     }
                                 }
                                 // Check if the table doesn't exist
-                                else if (!variableHandler.getAllVariableNameList().contains(table))
+                                else if (!allTableAndVariableList.contains(table))
                                 {
                                     // Association table reference is invalid
                                     issues.add(new TableIssue("Internal table '"
@@ -1316,7 +1359,7 @@ public class CcddDbVerificationHandler
                         // of valid names
                         if (!member[0].matches("^.*:.*")
                             && !badRefs.contains(member[0])
-                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                            && !allTableAndVariableList.contains(member[0]))
                         {
                             // Data field table owner reference is invalid
                             issues.add(new TableIssue("Internal table '"
@@ -1361,7 +1404,7 @@ public class CcddDbVerificationHandler
                         // been detected, and if the table isn't in the list of valid names
                         if (!member[0].matches("^\\d+.*")
                             && !badRefs.contains(member[0])
-                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                            && !allTableAndVariableList.contains(member[0]))
                         {
                             // Group table member reference is invalid
                             issues.add(new TableIssue("Internal table '"
@@ -1406,7 +1449,7 @@ public class CcddDbVerificationHandler
                         // detected, and if it isn't in the list of valid names
                         if (!member[0].matches("^\\d+.*")
                             && !badRefs.contains(member[0])
-                            && !variableHandler.getAllVariableNameList().contains(member[0]))
+                            && !allTableAndVariableList.contains(member[0]))
                         {
                             // Link variable member reference is invalid
                             issues.add(new TableIssue("Internal table '"
@@ -1451,9 +1494,9 @@ public class CcddDbVerificationHandler
                         // already been detected, and if it isn't in the list of valid names
                         if (!member[0].isEmpty()
                             && !badRefs.contains(member[0])
-                            && !variableHandler.getAllVariableNameList().contains(member[0].replaceFirst(InputDataType.FLOAT_POSITIVE.getInputMatch()
-                                                                                                         + Pattern.quote(TLM_SCH_SEPARATOR),
-                                                                                                         "")))
+                            && !allTableAndVariableList.contains(member[0].replaceFirst(InputDataType.FLOAT_POSITIVE.getInputMatch()
+                                                                                        + Pattern.quote(TLM_SCH_SEPARATOR),
+                                                                                        "")))
                         {
                             // Telemetry scheduler message variable member reference is invalid
                             issues.add(new TableIssue("Internal table '"
@@ -1490,7 +1533,7 @@ public class CcddDbVerificationHandler
                     List<String> cleanName = new ArrayList<String>();
 
                     // Step through each variable in the list
-                    for (String variablePath : variableHandler.getAllVariableNameList())
+                    for (String variablePath : allTableAndVariableList)
                     {
                         // Check if the user canceled verification
                         if (canceled)
@@ -1507,8 +1550,7 @@ public class CcddDbVerificationHandler
                         {
                             // Strip the array index form the end to create a reference to the
                             // variable's array definition
-                            String name = variablePath.substring(0,
-                                                                 variablePath.lastIndexOf("["));
+                            String name = variablePath.substring(0, variablePath.lastIndexOf("["));
 
                             // Check if this array definition isn't already in the new list
                             if (!cleanName.contains(name))
@@ -1532,8 +1574,7 @@ public class CcddDbVerificationHandler
 
                         // Check if the variable hasn't already been detected and if it isn't in
                         // the list of valid names
-                        if (!badRefs.contains(member[0])
-                            && !cleanName.contains(member[0]))
+                        if (!badRefs.contains(member[0]) && !cleanName.contains(member[0]))
                         {
                             // Custom values variable member reference is invalid
                             issues.add(new TableIssue("Internal table '"
@@ -1557,6 +1598,9 @@ public class CcddDbVerificationHandler
                         }
                     }
                 }
+
+                // Update the within-step progress value
+                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
         catch (SQLException se)
@@ -1634,8 +1678,16 @@ public class CcddDbVerificationHandler
             List<String[]> orders = dbTable.retrieveInformationTable(InternalTable.ORDERS,
                                                                      ccddMain.getMainFrame());
 
-            // Go to the first row in the result set
-            tableResult.first();
+            // Initialize the progress bar within-step value counters
+            int count = 0;
+            int startProgress = progBar.getValue();
+
+            // Get the total number of rows in the result set
+            tableResult.last();
+            int total = tableResult.getRow();
+
+            // Start before the first row in the result set
+            tableResult.beforeFirst();
 
             // Step through each database table
             while (tableResult.next())
@@ -1826,6 +1878,9 @@ public class CcddDbVerificationHandler
                                                   "DROP TABLE " + tableNameDb + "; "));
                     }
                 }
+
+                // Update the within-step progress value
+                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
 
             tableResult.close();
@@ -1862,9 +1917,18 @@ public class CcddDbVerificationHandler
         // Initialize the storage for each table's information and committed data
         tableStorage = new ArrayList<TableStorage>();
 
+        // Initialize the progress bar within-step value counters
+        int count = 0;
+        int startProgress = progBar.getValue();
+
+        // Get the total number of rows in the table tree
+        int total = tableTree.getNodeCount(tableTree.getRootNode());
+
         // Step through the root node's children
         for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
+            count++;
+
             // Check if the user canceled verification
             if (canceled)
             {
@@ -2042,6 +2106,9 @@ public class CcddDbVerificationHandler
                     checkForDuplicates(tableInfo);
                 }
             }
+
+            // Update the within-step progress value
+            progBar.setValue(startProgress + (numDivisionPerStep * count / total));
         }
     }
 

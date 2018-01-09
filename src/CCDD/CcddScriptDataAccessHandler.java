@@ -152,19 +152,21 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Create the variable handler. This creates a table tree of instance tables, including
-     * primitive variables, and lists that show all the original variables' full names, and the
-     * variable's full name before and after converting any commas and brackets to underscores.
-     * Only variable's where the converted name matches another variable's are saved in the latter
-     * two lists
+     * Create the variable conversion handler. This creates a table tree of instance tables,
+     * including primitive variables, and lists that show all the original variables' full names,
+     * and the variable's full name before and after converting any commas and brackets to
+     * underscores. Only variable's where the converted name matches another variable's are saved
+     * in the latter two lists
+     *
+     * @param getAllVariables
+     *            true to get all variables
      *********************************************************************************************/
-    private void createVariableHandler(boolean getAllVariables)
+    private void createVariableConversionHandler(boolean getAllVariables)
     {
         // Check if the variable handler hasn't already been created, or if it has then check if
         // the previous handler only included the subset of variables within the associated
         // structure tables, but now all variables are required
-        if (varConvHandler == null
-            || (getAllVariables == true && isAllVariables != true))
+        if (varConvHandler == null || (getAllVariables == true && isAllVariables != true))
         {
             // Check if only the variables referenced within the associated structure tables are
             // needed
@@ -207,14 +209,14 @@ public class CcddScriptDataAccessHandler
             // All variables in the project database are needed
             else
             {
-                // Set the flag indicating all variables have been loaded and create the variable
+                // Set the flag indicating all variables have been loaded and get the variable
                 // handler for all variables
                 isAllVariables = true;
-                varConvHandler = new CcddVariableConversionHandler(ccddMain);
+                varConvHandler = ccddMain.getVariableConversionHandler();
             }
 
-            // Get the reference to the table tree used in the variable handler
-            tableTree = varConvHandler.getTableTree();
+            // Get the reference to the table tree used in the variable conversion handler
+            tableTree = varConvHandler.getVariableTree();
         }
     }
 
@@ -2972,7 +2974,7 @@ public class CcddScriptDataAccessHandler
     {
         // Create the variable handler for only those variables referenced in the associated
         // structure tables, if it hasn't already been created
-        createVariableHandler(false);
+        createVariableConversionHandler(false);
 
         // Expand any macros in the variable name before getting the full name
         return varConvHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
@@ -3264,7 +3266,7 @@ public class CcddScriptDataAccessHandler
         {
             // Create the variable handler for all the project's variables, if it hasn't already
             // been created
-            createVariableHandler(true);
+            createVariableConversionHandler(true);
 
             // Get the list table tree paths for which the target structure is a member
             List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName);
@@ -3305,9 +3307,9 @@ public class CcddScriptDataAccessHandler
     {
         // Create the variable handler for all the project's variables, if it hasn't already been
         // created
-        createVariableHandler(true);
+        createVariableConversionHandler(true);
 
-        return varConvHandler.getAllVariableNameList().toArray(new String[0]);
+        return varConvHandler.getAllVariableName().toArray(new String[0]);
     }
 
     /**********************************************************************************************

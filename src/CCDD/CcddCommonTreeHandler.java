@@ -159,6 +159,27 @@ public class CcddCommonTreeHandler extends JTree
     }
 
     /**********************************************************************************************
+     * Get the total number of nodes that descend from the specified node
+     *
+     * @return Total number of nodes that descend from the specified node. The node itself is
+     *         counted, so the minimum return value is 1
+     *********************************************************************************************/
+    protected int getNodeCount(Object node)
+    {
+        // Initialize the count to include the node itself
+        int count = 1;
+
+        // Step through each child of this node
+        for (int index = 0; index < getModel().getChildCount(node); index++)
+        {
+            // Add the number of the child node's children to the overall count
+            count += getNodeCount(getModel().getChild(node, index));
+        }
+
+        return count;
+    }
+
+    /**********************************************************************************************
      * Remove HTML tag(s). Override to remove other text
      *
      * @param text
