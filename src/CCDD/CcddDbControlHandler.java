@@ -1958,8 +1958,9 @@ public class CcddDbControlHandler
                             throw new CCDDException();
                         }
 
-                        // Read the table types, macros, and rate parameters from the database
-                        ccddMain.setDbSpecificHandlers();
+                        // Create and set the project-specific handlers that must be created prior
+                        // to creating the project-specific PostgreSQL functions
+                        ccddMain.setPreFunctionDbSpecificHandlers();
 
                         // Check if the database functions should be created; if so create the
                         // database functions that collect structure table members and
@@ -1970,12 +1971,9 @@ public class CcddDbControlHandler
                             throw new CCDDException();
                         }
 
-                        // Check if the web server is enabled
-                        if (ccddMain.isWebServer())
-                        {
-                            // Start the web server
-                            ccddMain.getWebServer().startServer();
-                        }
+                        // Create and set the project-specific handlers that must be created after
+                        // creating the project-specific PostgreSQL functions
+                        ccddMain.setPostFunctionDbSpecificHandlers();
 
                         // Perform any patches to update this project database to the latest schema
                         new CcddPatchHandler(ccddMain);

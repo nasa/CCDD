@@ -553,15 +553,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 String variableName = tableModel.getValueAt(row, variableNameIndex).toString();
                 String dataType = tableModel.getValueAt(row, dataTypeIndex).toString();
 
-                // Check that the variable name and data type are present, and the variable path
-                // isn't manually set
+                // Check that the variable name and data type are present, the variable path
+                // isn't manually set, and this isn't an array definition
                 if (!variableName.isEmpty()
                     && !dataType.isEmpty()
-                    && committedInfo.getData()[row][variablePathIndex].isEmpty())
+                    && committedInfo.getData()[row][variablePathIndex].isEmpty()
+                    && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
+                        || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex))))
                 {
                     // Build the variable path and store it in the table model's variable path
                     // column
-                    tableModel.setValueAt(getVariablePath(variableName, dataType),
+                    tableModel.setValueAt(getVariablePath(variableName, dataType, true),
                                           row,
                                           variablePathIndex,
                                           false);
@@ -579,9 +581,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param dataType
      *            data type
      *
+     * @param includeCustom
+     *            true to substitute the user-defined variable path (if present); false to ignore
+     *            the user-defined path and use the auto-generated one based on the conversion
+     *            flags
+     *
      * @return Variable path for the specified variable name and data type
      *********************************************************************************************/
-    private String getVariablePath(String variableName, String dataType)
+    private String getVariablePath(String variableName, String dataType, boolean includeCustom)
     {
         return varConvHandler.getFullVariableName(tableInfo.getTablePath()
                                                   + ","
@@ -590,7 +597,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                   + variableName,
                                                   varPathSep,
                                                   hideDataType,
-                                                  typeNameSep);
+                                                  typeNameSep,
+                                                  includeCustom);
     }
 
     /**********************************************************************************************
@@ -1257,72 +1265,73 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                 && !ArrayVariable.isArrayMember(rowCopy[variableNameIndex]);
 
                     // Check if the cell is non-alterable based on the following criteria:
-                    if ((
+                    if
                     // This is the variable name, data type, array size, or bit length cell and
                     // this is not a prototype table
-                    (column == variableNameIndex
-                     || column == dataTypeIndex
-                     || column == arraySizeIndex
-                     || column == bitLengthIndex)
-                         && !tableInfo.isPrototype())
+                    (((column == variableNameIndex
+                       || column == dataTypeIndex
+                       || column == arraySizeIndex
+                       || column == bitLengthIndex)
+                      && !tableInfo.isPrototype())
 
-                        // This is the variable name, data type, or array size cell and the row
-                        // displays an array member
-                        || ((column == variableNameIndex
-                             || column == dataTypeIndex
-                             || column == arraySizeIndex)
-                            && ArrayVariable.isArrayMember(rowCopy[variableNameIndex]))
+                     // This is the variable name, data type, or array size cell and the row
+                     // displays an array member
+                     || ((column == variableNameIndex
+                          || column == dataTypeIndex
+                          || column == arraySizeIndex)
+                         && ArrayVariable.isArrayMember(rowCopy[variableNameIndex]))
 
                     // This data type is not a primitive (i.e., it's a structure) and the column
                     // isn't valid for structures
-                        || (dataTypeIndex != -1
-                            && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString())
-                            && !typeDefn.isStructureAllowed()[column])
+                     || (dataTypeIndex != -1
+                         && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString())
+                         && !typeDefn.isStructureAllowed()[column])
 
                     // This data type is a pointer and the column isn't valid for pointers
-                        || (dataTypeIndex != -1
-                            && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
-                            && !typeDefn.isPointerAllowed()[column])
+                     || (dataTypeIndex != -1
+                         && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
+                         && !typeDefn.isPointerAllowed()[column])
 
-                    // This is the enumeration or rate cell and the row displays an array
-                    // definition,
-                        || ((enumerationIndex.contains(column)
-                             && rateIndex.contains(column))
-                            && isArrayDefinition)
+                    // This is the enumeration or rate cell in a row displaying an array definition
+                     || ((isArrayDefinition
+                          && enumerationIndex.contains(column)
+                          && rateIndex.contains(column)))
 
                     // This is the bit length cell and either the array size is present or the data
                     // type is not an integer (signed or unsigned)
-                        || (column == bitLengthIndex
-                            && ((arraySizeIndex != -1
-                                 && !rowCopy[arraySizeIndex].toString().isEmpty())
-                                || (dataTypeIndex != -1
-                                    && !dataTypeHandler.isInteger(rowCopy[dataTypeIndex].toString()))))
+                     || (column == bitLengthIndex
+                         && ((arraySizeIndex != -1
+                              && !rowCopy[arraySizeIndex].toString().isEmpty())
+                             || (dataTypeIndex != -1
+                                 && !dataTypeHandler.isInteger(rowCopy[dataTypeIndex].toString()))))
 
                     // This is the array size cell and either no variable name is present or a bit
                     // length is present
-                        || (column == arraySizeIndex
-                            && ((variableNameIndex != -1
-                                 && rowCopy[variableNameIndex].toString().isEmpty())
-                                || (bitLengthIndex != -1
-                                    && !rowCopy[bitLengthIndex].toString().isEmpty())))
+                     || (column == arraySizeIndex
+                         && ((variableNameIndex != -1
+                              && rowCopy[variableNameIndex].toString().isEmpty())
+                             || (bitLengthIndex != -1
+                                 && !rowCopy[bitLengthIndex].toString().isEmpty())))
 
                     // This is a rate cell, and a data type exists that is not a primitive
-                        || (rateIndex.contains(column)
-                            && dataTypeIndex != -1
-                            && !rowCopy[dataTypeIndex].toString().isEmpty()
-                            && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString()))
+                     || (rateIndex.contains(column)
+                         && dataTypeIndex != -1
+                         && !rowCopy[dataTypeIndex].toString().isEmpty()
+                         && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString()))
 
                     // This is any column in an array variable of type 'string' other than the
                     // first array member
-                        || (variableNameIndex != -1
-                            && dataTypeIndex != -1
-                            && dataTypeHandler.isString(rowCopy[dataTypeIndex].toString())
-                            && ArrayVariable.isArrayMember(rowCopy[variableNameIndex])
-                            && !rowCopy[variableNameIndex].toString().endsWith("[0]"))
+                     || (variableNameIndex != -1
+                         && dataTypeIndex != -1
+                         && dataTypeHandler.isString(rowCopy[dataTypeIndex].toString())
+                         && ArrayVariable.isArrayMember(rowCopy[variableNameIndex])
+                         && !rowCopy[variableNameIndex].toString().endsWith("[0]"))
 
-                    // This is an array definition and the column input type is 'message ID'
-                        || (isArrayDefinition
-                            && typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)))
+                    // This is an array definition, and the column input type is 'message ID' or is
+                    // the variable path
+                     || (isArrayDefinition
+                         && (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
+                             || column == variablePathIndex)))
                     {
                         // Set the flag to prevent altering the data value
                         isAlterable = false;
@@ -1699,12 +1708,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                                                                                         : variableName),
                                                                                                            (column == dataTypeIndex
                                                                                                                                     ? oldValueS
-                                                                                                                                    : dataType))))
+                                                                                                                                    : dataType),
+                                                                                                           true)))
                             {
                                 // Update the variable path with the new variable name and/or data
                                 // type
                                 tableData.get(row)[variablePathIndex] = getVariablePath(variableName,
-                                                                                        dataType);
+                                                                                        dataType,
+                                                                                        true);
                             }
                         }
                         // Check if this is the array size column
@@ -1788,38 +1799,47 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             startRow = row;
                         }
                         // Check if this is the variable path column
-                        else if (column == variablePathIndex)
+                        else if (column == variablePathIndex
+                                 && variableName != null
+                                 && !variableName.isEmpty()
+                                 && dataType != null
+                                 && !dataType.isEmpty())
                         {
                             // Check if the variable path isn't empty; i.e. a name is manually
                             // entered
                             if (!newValueS.isEmpty())
                             {
-                                // TODO Check for duplicate name ... how? Can only 'see' the
-                                // auto-generated paths and the manual paths in this table, but not
-                                // the manually set names in other tables (where a duplicate could
-                                // exist). Could add to the conversion lists? That would allow
-                                // manual names to appear in the variable dialog
-
+                                // Check if the variable path entered matches one already in use in
+                                // another structure table
+                                if (varConvHandler.isVariablePathInUse(tableInfo.getTablePath()
+                                                                       + ","
+                                                                       + dataType
+                                                                       + "."
+                                                                       + variableName,
+                                                                       newValueS))
+                                {
+                                    throw new CCDDException("Variable path already in use in another structure");
+                                }
                             }
-                            // Check if the variable name and data type are present
-                            else if (variableName != null
-                                     && !variableName.isEmpty()
-                                     && dataType != null
-                                     && !dataType.isEmpty())
+                            // The cell has been blanked
+                            else
                             {
                                 // Build the variable path from the variable name and data type
                                 tableData.get(row)[variablePathIndex] = getVariablePath(variableName,
-                                                                                        dataType);
+                                                                                        dataType,
+                                                                                        false);
                             }
                         }
-                        // Check if a column other than the variable name, data type, or array size
-                        // is changed for an array definition or for a string array
+                        // Check if a column other than the variable name, data type, array size,
+                        // or variable path is changed for an array definition or for a string
+                        // array
                         else if (variableName != null
                                  && dataType != null
                                  && arraySize != null
                                  && column != variableNameIndex
                                  && column != dataTypeIndex
                                  && column != arraySizeIndex
+                                 && column != variablePathIndex
                                  && !arraySize.isEmpty()
                                  && (!ArrayVariable.isArrayMember(variableName)
                                      || newDataTypeHandler.isString(dataType)))
@@ -4230,7 +4250,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 // Update the array member variable paths
                 tableData.get(tableRow)[variablePathIndex] = getVariablePath(tableData.get(tableRow)[variableNameIndex].toString(),
-                                                                             tableData.get(tableRow)[dataTypeIndex].toString());
+                                                                             tableData.get(tableRow)[dataTypeIndex].toString(),
+                                                                             true);
             }
         }
 
@@ -4649,28 +4670,34 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Step through each row in the table
             for (int row = 0; row < tableModel.getRowCount(); row++)
             {
-                // Set the flag to indicate if the variable path is automatically set
-                boolean isVarPathAuto = committedInfo.getData()[row][variablePathIndex].isEmpty();
-
                 // Get the variable path as currently displayed in the table
                 String varPath = tableModel.getValueAt(row, variablePathIndex).toString();
 
-                // Check if the variable path was manually set and has been changed (either to a
-                // new name or allowed to be automatically), or the path wasn't manually set but it
-                // is now
-                if ((!isVarPathAuto
-                     && !varPath.equals(committedInfo.getData()[row][variablePathIndex]))
-                    || (isVarPathAuto
-                        && !varPath.equals(getVariablePath(tableModel.getValueAt(row,
-                                                                                 variableNameIndex)
-                                                                     .toString(),
-                                                           tableModel.getValueAt(row,
-                                                                                 dataTypeIndex)
-                                                                     .toString()))))
+                // Check if the variable path isn't blank (the path is blank if the table row is an
+                // array definition, which doesn't allow a variable path)
+                if (!varPath.isEmpty())
                 {
-                    // Set the flag to indicate a change exists and stop searching
-                    isChanged = true;
-                    break;
+                    // Set the flag to indicate if the variable path is automatically set
+                    boolean isVarPathAuto = committedInfo.getData()[row][variablePathIndex].isEmpty();
+
+                    // Check if the variable path was manually set and has been changed (either to
+                    // a new name or allowed to be automatically), or the path wasn't manually set
+                    // but it is now
+                    if ((!isVarPathAuto
+                         && !varPath.equals(committedInfo.getData()[row][variablePathIndex]))
+                        || (isVarPathAuto
+                            && !varPath.equals(getVariablePath(tableModel.getValueAt(row,
+                                                                                     variableNameIndex)
+                                                                         .toString(),
+                                                               tableModel.getValueAt(row,
+                                                                                     dataTypeIndex)
+                                                                         .toString(),
+                                                               true))))
+                    {
+                        // Set the flag to indicate a change exists and stop searching
+                        isChanged = true;
+                        break;
+                    }
                 }
             }
         }
@@ -4740,7 +4767,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 && variableNameIndex != -1
                 && dataTypeIndex != -1
                 && tableData[tblRow][variablePathIndex].toString().equals(getVariablePath(tableData[tblRow][variableNameIndex].toString(),
-                                                                                          tableData[tblRow][dataTypeIndex].toString())))
+                                                                                          tableData[tblRow][dataTypeIndex].toString(),
+                                                                                          true)))
             {
                 // Blank the data for this column so that it isn't stored in the database (paths
                 // not manually entered by the user are constructed on-the-fly for display in the

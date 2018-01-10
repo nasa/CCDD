@@ -2086,7 +2086,7 @@ public class CcddConstants
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
         VARIABLE_PATH("Variable path",
-                      ".*", // TODO
+                      ".*",
                       "variable path",
                       "Display a variable's full path"),
 
@@ -2994,8 +2994,7 @@ public class CcddConstants
          * @return true if the supplied table type and input data type match a protected table type
          *         and input type combination, and if this pair is flagged as protected
          *****************************************************************************************/
-        protected static boolean isInputTypeUnique(String compareTableType,
-                                                   String compareInputType)
+        protected static boolean isInputTypeUnique(String compareTableType, String compareInputType)
         {
             boolean isUniqueInputType = false;
 
@@ -5782,8 +5781,13 @@ public class CcddConstants
                 + InternalTable.SCRIPT.getTableName()
                 + "') alias1) alias2 ORDER BY script_name ASC;"),
 
-        // Get the list of table and column names that contain the specified search text. '___'
-        // should be replaced by the text for which to search
+        // Get the list of table and column names that contain the specified search text.
+        // Replace '_search_text_' with the text for which to search, '_case_insensitive_' with
+        // 'true' for a case insensitive search or 'false' for a case sensitive search,
+        // '_allow_regex_' with 'true' to allow the search text to be a regular expression or
+        // 'false' otherwise, '_selected_tables_' with the text representation of one of the
+        // SearchType enumeration values, and '_columns_' with the column name(s) (database
+        // version) to which to limit the search (empty to allow a match in any column)
         SEARCH("SELECT table_name::text || E'"
                + TABLE_DESCRIPTION_SEPARATOR
                + "' || column_name || E'"
@@ -5795,6 +5799,19 @@ public class CcddConstants
                + "_case_insensitive_, _allow_regex_, "
                + "'_selected_tables_', '{_columns_}') "
                + "ORDER BY table_name, column_name ASC;"),
+
+        // Get the list of table paths and values from the custom values table that match the
+        // specified column name(s). Replace '_match_column_name_' with the match criteria (e.g.,
+        // column_name = 'Variable Path')
+        VAR_PATH("SELECT "
+                 + ValuesColumn.TABLE_PATH.getColumnName()
+                 + " || E'\\\\' || "
+                 + ValuesColumn.VALUE.getColumnName()
+                 + " FROM "
+                 + InternalTable.VALUES.getTableName()
+                 + " AS variable_path WHERE _match_column_name_ ORDER BY "
+                 + ValuesColumn.TABLE_PATH.getColumnName()
+                 + ";"),
 
         // ////////////////////////////////////////////////////////////////////////////////////////
         // THE REMAINING COMMANDS ARE NOT USED BUT ARE RETAINED AS EXAMPLES

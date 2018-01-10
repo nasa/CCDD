@@ -1038,10 +1038,13 @@ public class CcddMacroHandler
     {
         String macroValue = null;
 
+        // Step through each macro definition
         for (String[] macro : macros)
         {
+            // Check if the macro name provided matches the definition's name
             if (macroName.equals(macro[MacrosColumn.MACRO_NAME.ordinal()]))
             {
+                // Get the associated macro value and stop searching
                 macroValue = macro[MacrosColumn.VALUE.ordinal()];
                 break;
             }

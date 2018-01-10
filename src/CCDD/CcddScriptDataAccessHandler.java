@@ -70,10 +70,10 @@ public class CcddScriptDataAccessHandler
     private final CcddGroupHandler groupHandler;
     private final CcddRateParameterHandler rateHandler;
     private final CcddMacroHandler macroHandler;
-    private CcddTableTreeHandler tableTree;
+    private final CcddTableTreeHandler tableTree;
     private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
-    private CcddVariableConversionHandler varConvHandler;
+    private final CcddVariableConversionHandler varConvHandler;
     private final CcddVariableSizeHandler varSizeHandler;
 
     // Calling GUI component
@@ -87,10 +87,6 @@ public class CcddScriptDataAccessHandler
 
     // Data table information array
     private final TableInformation[] tableInformation;
-
-    // Flag indicating if the variable handler references all variables (true) or only those
-    // contained in the associated structure tables (false)
-    private boolean isAllVariables;
 
     /**********************************************************************************************
      * Script data access class constructor
@@ -146,78 +142,9 @@ public class CcddScriptDataAccessHandler
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
         varSizeHandler = ccddMain.getVariableSizeHandler();
-        tableTree = null;
+        varConvHandler = ccddMain.getVariableConversionHandler();
+        tableTree = varConvHandler.getVariableTree();
         copyHandler = null;
-        isAllVariables = false;
-    }
-
-    /**********************************************************************************************
-     * Create the variable conversion handler. This creates a table tree of instance tables,
-     * including primitive variables, and lists that show all the original variables' full names,
-     * and the variable's full name before and after converting any commas and brackets to
-     * underscores. Only variable's where the converted name matches another variable's are saved
-     * in the latter two lists
-     *
-     * @param getAllVariables
-     *            true to get all variables
-     *********************************************************************************************/
-    private void createVariableConversionHandler(boolean getAllVariables)
-    {
-        // Check if the variable handler hasn't already been created, or if it has then check if
-        // the previous handler only included the subset of variables within the associated
-        // structure tables, but now all variables are required
-        if (varConvHandler == null || (getAllVariables == true && isAllVariables != true))
-        {
-            // Check if only the variables referenced within the associated structure tables are
-            // needed
-            if (!getAllVariables)
-            {
-                // Create storage for the variable paths and names. This is used to create a list
-                // of converted names. This is done for the first call to this method; subsequent
-                // calls use the list built in the initial call
-                List<String> variableInformation = new ArrayList<String>();
-
-                // Step through each structure table row
-                for (int tableRow = 0; tableRow < getStructureTableNumRows(); tableRow++)
-                {
-                    // Get the name of the variable name column
-                    String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(tableRow),
-                                                                                              InputDataType.VARIABLE);
-                    // Check that the variable name column exists
-                    if (variableNameColumnName != null)
-                    {
-                        // Get the variable path and name for this row
-                        String varPath = getStructureTableVariablePathByRow(tableRow);
-                        String varName = macroHandler.getMacroExpansion(getStructureTableData(variableNameColumnName, tableRow));
-
-                        // Check that the path and name are not null or blank
-                        if (varPath != null
-                            && !varPath.isEmpty()
-                            && varName != null
-                            && !varName.isEmpty())
-                        {
-                            // Add the variable's path and name to the list
-                            variableInformation.add(varPath + "," + varName);
-                        }
-                    }
-                }
-
-                // Create the variable handler for only those variables in the associated structure
-                // tables
-                varConvHandler = new CcddVariableConversionHandler(variableInformation);
-            }
-            // All variables in the project database are needed
-            else
-            {
-                // Set the flag indicating all variables have been loaded and get the variable
-                // handler for all variables
-                isAllVariables = true;
-                varConvHandler = ccddMain.getVariableConversionHandler();
-            }
-
-            // Get the reference to the table tree used in the variable conversion handler
-            tableTree = varConvHandler.getVariableTree();
-        }
     }
 
     /**********************************************************************************************
@@ -2929,9 +2856,7 @@ public class CcddScriptDataAccessHandler
         String fullName = "";
 
         // Check that the path and name are not blank
-        if (!variablePath.isEmpty()
-            && variableName != null
-            && !variableName.isEmpty())
+        if (!variablePath.isEmpty() && variableName != null && !variableName.isEmpty())
         {
             // Get the full variable name
             fullName = getFullVariableName(variablePath + "," + variableName,
@@ -2972,11 +2897,6 @@ public class CcddScriptDataAccessHandler
                                       boolean excludeDataTypes,
                                       String typeNameSeparator)
     {
-        // Create the variable handler for only those variables referenced in the associated
-        // structure tables, if it hasn't already been created
-        createVariableConversionHandler(false);
-
-        // Expand any macros in the variable name before getting the full name
         return varConvHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
                                                   varPathSeparator,
                                                   excludeDataTypes,
@@ -3264,10 +3184,6 @@ public class CcddScriptDataAccessHandler
         // Check if a structure name is provided
         if (structureName != null && !structureName.isEmpty())
         {
-            // Create the variable handler for all the project's variables, if it hasn't already
-            // been created
-            createVariableConversionHandler(true);
-
             // Get the list table tree paths for which the target structure is a member
             List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName);
 
@@ -3305,11 +3221,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[] getVariablePaths()
     {
-        // Create the variable handler for all the project's variables, if it hasn't already been
-        // created
-        createVariableConversionHandler(true);
-
-        return varConvHandler.getAllVariableName().toArray(new String[0]);
+        return varConvHandler.getAllVariableNames().toArray(new String[0]);
     }
 
     /**********************************************************************************************

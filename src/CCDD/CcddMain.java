@@ -484,10 +484,11 @@ public class CcddMain
 
     /**********************************************************************************************
      * Create the handler classes that rely on a successful connection to a project database (other
-     * than the default): table type, macro, and rate parameter handlers. Set the references to
-     * these handlers in the persistent classes that use them
+     * than the default). Set the references to these handlers in the persistent classes that use
+     * them. Any handlers that are needed to create the project-specific PostgreSQL functions must
+     * be created here
      *********************************************************************************************/
-    protected void setDbSpecificHandlers()
+    protected void setPreFunctionDbSpecificHandlers()
     {
         // Read the table type definitions from the database
         tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
@@ -519,13 +520,27 @@ public class CcddMain
         keyboardHandler.setHandlers();
         macroHandler.setHandlers(varSizeHandler);
 
-        // Create a variable conversion handler for the project database
-        varConvHandler = new CcddVariableConversionHandler(CcddMain.this);
-
         // Check if the web server is activated
         if (webServer != null)
         {
             webServer.getWebAccessHandler().setHandlers();
+        }
+    }
+
+    /**********************************************************************************************
+     * Create the handler classes that rely on the project-specific PostgreSQL functions. Start the
+     * web server if enabled
+     *********************************************************************************************/
+    protected void setPostFunctionDbSpecificHandlers()
+    {
+        // Create a variable conversion handler for the project database
+        varConvHandler = new CcddVariableConversionHandler(CcddMain.this);
+
+        // Check if the web server is enabled
+        if (isWebServer())
+        {
+            // Start the web server
+            getWebServer().startServer();
         }
     }
 
@@ -689,8 +704,7 @@ public class CcddMain
      * @param parent
      *            GUI component over which to center the dialog
      *********************************************************************************************/
-    protected void showSearchDialog(SearchDialogType searchType,
-                                    Component parent)
+    protected void showSearchDialog(SearchDialogType searchType, Component parent)
     {
         showSearchDialog(searchType, null, null, parent);
     }

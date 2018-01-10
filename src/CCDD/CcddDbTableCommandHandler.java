@@ -2061,8 +2061,8 @@ public class CcddDbTableCommandHandler
         // Strip the variable name, if present, from the table name
         String tableName = tableInfo.getPrototypeName();
 
-        // Convert the table name to lower case. PostgreSQL automatically does this, so it's done
-        // here just to differentiate the table name from the database commands in the event log
+        // Convert the table name to lower case. PostgreSQL ignores case; it's done here just to
+        // differentiate the table name from the database commands in the event log
         String dbTableName = tableName.toLowerCase();
 
         // Check if the table exists in the database
@@ -2144,16 +2144,29 @@ public class CcddDbTableCommandHandler
                 int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
 
                 // Check if the variable name and data type columns exist, and if the table has a
-                // path. If so it may have values in the custom values table that must be loaded
-                if (varNameIndex != -1
-                    && dataTypeIndex != -1
-                    && tablePath.contains(","))
+                // path (i.e., it's a child table). If so it may have values in the custom values
+                // table that must be loaded
+                if (varNameIndex != -1 && dataTypeIndex != -1 && tablePath.contains(","))
                 {
+                    // Get the column index for the variable path
+                    int varPathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+
+                    // Check if the variable path column is present
+                    if (varPathIndex != -1)
+                    {
+                        // Step through each row in the table
+                        for (int row = 0; row < tableInfo.getData().length; row++)
+                        {
+                            // Blank the variable path. This prevents the child table from
+                            // inheriting a user-defined variable path from the prototype
+                            tableInfo.getData()[row][varPathIndex] = "";
+                        }
+                    }
+
                     // Place double back slashes before each square brace character in an array
                     // index so that the brackets are interpreted correctly in the query's regular
                     // expression comparisons
-                    tablePath = tablePath.replaceAll("\\[(\\d+)\\]",
-                                                     "\\\\\\\\[$1\\\\\\\\]");
+                    tablePath = tablePath.replaceAll("\\[(\\d+)\\]", "\\\\\\\\[$1\\\\\\\\]");
 
                     // Get the rows from the custom values table that match the specified parent
                     // table and variable path. These values replace those loaded for the prototype

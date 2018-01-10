@@ -519,7 +519,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
         }
 
         // Step through each variable in the project
-        for (String variableName : varConvHandler.getAllVariableName())
+        for (String variableName : varConvHandler.getAllVariableNames())
         {
             // Check if no tables are selected for use as filters
             if (filterTables.isEmpty())

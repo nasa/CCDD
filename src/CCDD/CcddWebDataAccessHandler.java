@@ -2052,12 +2052,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             else
             {
                 // Step through each row in the variables table
-                for (int row = 0; row < varConvHandler.getAllVariableName().size(); row++)
+                for (int row = 0; row < varConvHandler.getAllVariableNames().size(); row++)
                 {
                     // Store the variable paths and names in the application and user-specified
                     // formats
-                    responseJO.put(varConvHandler.getAllVariableName().get(row).toString(),
-                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableName().get(row).toString(),
+                    responseJO.put(varConvHandler.getAllVariableNames().get(row).toString(),
+                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableNames().get(row).toString(),
                                                                       varPathSeparator,
                                                                       hideDataTypes,
                                                                       typeNameSeparator));

@@ -610,10 +610,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 instance.add(instGroupNode);
 
                 // Add the group member tables to the group node by table type
-                addByType(protoGroupNode,
-                          instGroupNode,
-                          groupInfo,
-                          parent);
+                addByType(protoGroupNode, instGroupNode, groupInfo, parent);
             }
 
             // Add the pseudo-group containing all tables to the prototype and instance nodes
