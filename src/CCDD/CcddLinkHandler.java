@@ -25,7 +25,7 @@ public class CcddLinkHandler
     private final CcddMain ccddMain;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddMacroHandler macroHandler;
-    private final CcddVariableSizeHandler varSizeHandler;
+    private final CcddVariableSizeAndConversionHandler variableHandler;
 
     // List to contain the link definitions (link names and variable paths) retrieved from the
     // database
@@ -49,7 +49,7 @@ public class CcddLinkHandler
         this.ccddMain = ccddMain;
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        varSizeHandler = ccddMain.getVariableSizeHandler();
+        variableHandler = ccddMain.getVariableHandler();
 
         // Remove any variable references in the link definitions that aren't found in the links
         // tree
@@ -282,8 +282,8 @@ public class CcddLinkHandler
             {
                 // Get the offset of this variable relative to its root structure. A variable's bit
                 // length is ignored if provided
-                int index = varSizeHandler.getStructureAndVariablePaths().indexOf(macroHandler.getMacroExpansion(linkMember).replaceFirst(":.+$", ""));
-                int offset = varSizeHandler.getStructureAndVariableOffsets().get(index);
+                int index = variableHandler.getStructureAndVariablePaths().indexOf(macroHandler.getMacroExpansion(linkMember).replaceFirst(":.+$", ""));
+                int offset = variableHandler.getStructureAndVariableOffsets().get(index);
 
                 // Check if this variable is not bit-packed with the previous one. The variables
                 // are packed together if this variable immediately follows the previous one in the
@@ -474,7 +474,7 @@ public class CcddLinkHandler
             // variable isn't in the link tree
             if (linkMember.contains(".")
                 && !linkMember.matches("\\d.*")
-                && varSizeHandler.getStructureAndVariablePaths().indexOf(linkMember.replaceFirst(":.+$", "")) == -1)
+                && variableHandler.getStructureAndVariablePaths().indexOf(linkMember.replaceFirst(":.+$", "")) == -1)
             {
                 // Store the invalid link
                 invalidLinks.add(linkDefn);

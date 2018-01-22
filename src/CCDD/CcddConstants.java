@@ -84,6 +84,7 @@ public class CcddConstants
     protected static final String SCRIPT_DESCRIPTION_TAG = "description:";
 
     // Data field owner name identifiers for table type and group fields
+    protected static final String PROJECT_DATA_FIELD_IDENT = "Project:";
     protected static final String TYPE_DATA_FIELD_IDENT = "Type:";
     protected static final String GROUP_DATA_FIELD_IDENT = "Group:";
 
@@ -371,11 +372,12 @@ public class CcddConstants
         // Prototype and instance tables, all types
         TABLES,
 
-        // Prototype and instance tables, structure types only, with primitive variables
+        // Prototype and instance tables, structure types only, with primitive variables.
+        // Structures that are not root tables appear in the prototype node, but include the child
+        // nodes as if they were root tables. The separation allows non-root tables to be
+        // identified; the inclusion of the non-root children is necessary when calculating the
+        // structure size and offsets
         STRUCTURES_WITH_PRIMITIVES,
-
-        // Prototype tables only, structure types only, with primitive variables
-        PROTOTYPE_STRUCTURES_WITH_PRIMITIVES,
 
         // Instance tables only, structure types only, with primitive variables
         INSTANCE_STRUCTURES_WITH_PRIMITIVES,
@@ -5599,7 +5601,8 @@ public class CcddConstants
         COPY_TABLE_STREAM("Stream Name"),
         COPY_TABLE_HDR_SIZE("Header Size"),
         COPY_TABLE_OPTIMIZE("Optimized"),
-        COPY_TABLE_DATA("Copy Table");
+        COPY_TABLE_DATA("Copy Table"),
+        PROJECT_FIELD("Project Data Field");
 
         private final String tag;
 

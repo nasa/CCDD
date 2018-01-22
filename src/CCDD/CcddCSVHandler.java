@@ -953,7 +953,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
                                 boolean includeVariablePaths,
-                                CcddVariableConversionHandler variableHandler,
+                                CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
                                 String... extraInfo)
     {

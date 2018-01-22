@@ -87,11 +87,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private CcddGroupTreeHandler groupTree;
     private CcddFieldHandler fieldHandler;
     private CcddGroupHandler groupHandler;
-    private FieldPanel fieldPnlHndlr;
+    private CcddInputFieldPanelHandler fieldPnlHndlr;
     private CcddUndoManager undoManager;
     private CcddUndoHandler undoHandler;
 
-    // Component referenced by multiple methods
+    // Components referenced by multiple methods
     private Border border;
     private Border emptyBorder;
     private JTextField groupNameFld;
@@ -132,24 +132,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private static final String DIALOG_TITLE = "Manage Groups";
 
     /**********************************************************************************************
-     * Description and data field panel handler class
-     *
-     * @param ccddMain
-     *            main class
-     *********************************************************************************************/
-    private class FieldPanel extends CcddInputFieldPanelHandler
-    {
-        /******************************************************************************************
-         * Update the group manager change indicator
-         *****************************************************************************************/
-        @Override
-        protected void updateOwnerChangeIndicator()
-        {
-            updateChangeIndicator();
-        }
-    }
-
-    /**********************************************************************************************
      * Group manager dialog class constructor
      *
      * @param ccddMain
@@ -167,7 +149,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Set the reference to this dialog in main
         ccddMain.setGroupManager(this);
 
-        // Create the group selection dialog
+        // Create the group manager dialog
         initialize();
     }
 
@@ -254,7 +236,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     {
         minDialogWidth = 0;
 
-        // Build the variable group manager dialog in the background
+        // Build the group manager dialog in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
             // Create panels to hold the components of the dialog
@@ -263,7 +245,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             JButton btnClose;
 
             /**************************************************************************************
-             * Build the variable link manager dialog
+             * Build the group manager dialog
              *************************************************************************************/
             @Override
             protected void execute()
@@ -477,7 +459,17 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                               gbc);
 
                 // Create the field panel for the description and data fields
-                fieldPnlHndlr = new FieldPanel();
+                fieldPnlHndlr = new CcddInputFieldPanelHandler()
+                {
+                    /******************************************************************************
+                     * Update the group manager change indicator
+                     *****************************************************************************/
+                    @Override
+                    protected void updateOwnerChangeIndicator()
+                    {
+                        updateChangeIndicator();
+                    }
+                };
 
                 // Set the undo/redo manager and handler for the description and data field values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
@@ -486,11 +478,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 fieldPnlHndlr.createDescAndDataFieldPanel(groupMgr,
                                                           null,
                                                           null,
-                                                          "",
+                                                          null,
                                                           fieldHandler);
 
-                // Set the modal undo manager and table references in the keyboard handler while
-                // the group manager is active
+                // Set the modal undo manager in the keyboard handler while the group manager is
+                // active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
 
                 // Re-enable storage of edit actions
@@ -703,6 +695,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                      CLEAR_ICON,
                                                                      KeyEvent.VK_C,
                                                                      "Clear the data fields");
+
                 // Add a listener for the Clear values command
                 btnClearValues.addActionListener(new ActionListener()
                 {
@@ -751,7 +744,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
                                                                       REDO_ICON,
                                                                       KeyEvent.VK_Y,
-                                                                      "Redo the last udone edit action");
+                                                                      "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
                 ActionListener redoAction = new ActionListener()
@@ -895,7 +888,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
-                // Display the group management dialog
+                // Display the group manager dialog
                 showOptionsDialog(ccddMain.getMainFrame(),
                                   dialogPnl,
                                   buttonPnl,

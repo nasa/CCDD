@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 
 /**************************************************************************************************
@@ -668,8 +669,8 @@ public class CcddCommandLineHandler
                         {
                             String[] association;
 
-                            // Break the supplied association into the script name and table(s) (if
-                            // any)
+                            // Break the supplied association into the script or script association
+                            // name, and table(s) (if any)
                             String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
 
                             // Remove any leading/trailing white space characters from the script
@@ -689,10 +690,9 @@ public class CcddCommandLineHandler
                                 {
                                     // Set the association tables. If multiple tables are provided
                                     // then separate these with the expected separator string
-                                    association[2] = scriptAndTable[1].replaceAll(" ",
-                                                                                  "")
-                                                                      .replaceAll(Pattern.quote("+"),
-                                                                                  ASSN_TABLE_SEPARATOR);
+                                    association[AssociationsColumn.MEMBERS.ordinal()] = scriptAndTable[1].replaceAll(" ", "")
+                                                                                                         .replaceAll(Pattern.quote("+"),
+                                                                                                                     ASSN_TABLE_SEPARATOR);
                                 }
 
                                 // Add the association to the list

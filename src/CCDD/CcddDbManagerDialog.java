@@ -941,8 +941,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         }
 
         // Remove the column containing the database version of the project name
-        arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData),
-                                                            DB_DBNAME)
+        arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData), DB_DBNAME)
                                      .toArray(new String[0][0]);
     }
 }

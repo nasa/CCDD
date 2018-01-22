@@ -26,7 +26,7 @@ public class CcddCopyTableHandler
     private final CcddRateParameterHandler rateHandler;
     private final CcddSchedulerDbIOHandler schedulerDb;
     private final CcddMacroHandler macroHandler;
-    private final CcddVariableSizeHandler varSizeHandler;
+    private final CcddVariableSizeAndConversionHandler variableHandler;
 
     // List of copy table entries
     private final List<String[]> copyTable;
@@ -44,7 +44,7 @@ public class CcddCopyTableHandler
                                                    SchedulerType.TELEMETRY_SCHEDULER,
                                                    null);
         macroHandler = ccddMain.getMacroHandler();
-        varSizeHandler = ccddMain.getVariableSizeHandler();
+        variableHandler = ccddMain.getVariableHandler();
 
         // Load the telemetry scheduler information from the project database
         schedulerDb.loadStoredData();
@@ -121,7 +121,7 @@ public class CcddCopyTableHandler
 
                     // Get the offset in the root structure of the variable indicated by the packet
                     // definition
-                    int structureOffset = varSizeHandler.getVariableOffset(variable.getFullName());
+                    int structureOffset = variableHandler.getVariableOffset(variable.getFullName());
 
                     // Ceck if the message ID name field name is provided
                     if (messageIDNameField != null)

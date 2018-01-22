@@ -731,6 +731,11 @@ public class CcddScriptDataAccessHandlerStatic
         accessHandler.closeFile(printWriter);
     }
 
+    public String[][] getProjectFields()
+    {
+        return accessHandler.getProjectFields();
+    }
+
     public static String getLinkDescription(String streamName, String linkName)
     {
         return accessHandler.getLinkDescription(streamName, linkName);

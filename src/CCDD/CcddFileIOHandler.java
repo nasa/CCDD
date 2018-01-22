@@ -1639,7 +1639,7 @@ public class CcddFileIOHandler
                                         final boolean replaceMacros,
                                         final boolean includeReservedMsgIDs,
                                         final boolean includeVariablePaths,
-                                        final CcddVariableConversionHandler variableHandler,
+                                        final CcddVariableSizeAndConversionHandler variableHandler,
                                         final String[] separators,
                                         final FileExtension fileExtn,
                                         final String system,

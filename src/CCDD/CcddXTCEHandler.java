@@ -425,7 +425,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
                                 boolean includeVariablePaths,
-                                CcddVariableConversionHandler variableHandler,
+                                CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
                                 String... extraInfo)
     {
@@ -539,7 +539,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                      boolean replaceMacros,
                                      boolean includeReservedMsgIDs,
                                      boolean includeVariablePaths,
-                                     CcddVariableConversionHandler variableHandler,
+                                     CcddVariableSizeAndConversionHandler variableHandler,
                                      String[] separators,
                                      String system,
                                      String version,
@@ -2068,7 +2068,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     private void buildSpaceSystems(String[] tableNames,
                                    boolean includeVariablePaths,
-                                   CcddVariableConversionHandler variableHandler,
+                                   CcddVariableSizeAndConversionHandler variableHandler,
                                    String[] separators,
                                    SpaceSystemType parentSystem)
     {

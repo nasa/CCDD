@@ -679,7 +679,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    includeReservedMsgIDsCb.isSelected(),
                                                                    includeVariablePaths.isSelected(),
                                                                    (includeVariablePaths.isSelected()
-                                                                                                      ? ccddMain.getVariableConversionHandler()
+                                                                                                      ? ccddMain.getVariableHandler()
                                                                                                       : null),
                                                                    new String[] {varPathSepFld.getText(),
                                                                                  Boolean.toString(hideDataTypeCb.isSelected()),

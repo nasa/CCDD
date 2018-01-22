@@ -1251,6 +1251,25 @@ public class CcddUndoHandler
         /******************************************************************************************
          * Text area value undo/redo class constructor
          *
+         * @param rows
+         *            number of rows
+         *
+         * @param columns
+         *            the number of columns to use to calculate the preferred width of the text
+         *            area
+         *****************************************************************************************/
+        UndoableTextArea(int rows, int columns)
+        {
+            // Create the text area
+            super("", rows, columns);
+
+            // Set the edit and focus listeners
+            setListeners("");
+        }
+
+        /******************************************************************************************
+         * Text area value undo/redo class constructor
+         *
          * @param text
          *            text to display in the text area
          *

@@ -847,7 +847,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 JButton btnRedo = CcddButtonPanelHandler.createButton("Redo",
                                                                       REDO_ICON,
                                                                       KeyEvent.VK_Y,
-                                                                      "Redo the last udone edit action");
+                                                                      "Redo the last undone edit action");
 
                 // Create a listener for the Redo command
                 ActionListener redoAction = new ValidateCellActionListener()

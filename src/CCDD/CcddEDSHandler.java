@@ -364,7 +364,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
                                 boolean includeVariablePaths,
-                                CcddVariableConversionHandler variableHandler,
+                                CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
                                 String... extraInfo)
     {
@@ -458,7 +458,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     boolean replaceMacros,
                                     boolean includeReservedMsgIDs,
                                     boolean includeVariablePaths,
-                                    CcddVariableConversionHandler variableHandler,
+                                    CcddVariableSizeAndConversionHandler variableHandler,
                                     String[] separators,
                                     String system)
     {
@@ -1724,7 +1724,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *********************************************************************************************/
-    private void buildVariablePathNameSpace(CcddVariableConversionHandler variableHandler,
+    private void buildVariablePathNameSpace(CcddVariableSizeAndConversionHandler variableHandler,
                                             String[] separators)
     {
         // Check if a variable path exists
@@ -1760,7 +1760,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private void buildNameSpaces(String[] tableNames,
                                  boolean includeVariablePaths,
-                                 CcddVariableConversionHandler variableHandler,
+                                 CcddVariableSizeAndConversionHandler variableHandler,
                                  String[] separators)
     {
         // Step through each table name

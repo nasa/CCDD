@@ -119,8 +119,7 @@ public abstract class CcddInputFieldPanelHandler
      * @param undoHandler
      *            undoable component handler
      *********************************************************************************************/
-    protected void setEditPanelUndo(CcddUndoManager undoManager,
-                                    CcddUndoHandler undoHandler)
+    protected void setEditPanelUndo(CcddUndoManager undoManager, CcddUndoHandler undoHandler)
     {
         this.undoManager = undoManager;
         this.undoHandler = undoHandler;
@@ -294,7 +293,7 @@ public abstract class CcddInputFieldPanelHandler
      * @param fieldPnlHndlrOwner
      *            reference to the owner of this description and data field handler
      *
-     * @param scrollPane
+     * @param tableScrollPane
      *            scroll pane containing the table; null if this field panel handler does not
      *            contain a table
      *
@@ -303,13 +302,13 @@ public abstract class CcddInputFieldPanelHandler
      *            associated with it
      *
      * @param description
-     *            description field text
+     *            description field text; null if the description is initially blank and disabled
      *
      * @param fieldHandler
      *            field handler reference
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(Component fieldPnlHndlrOwner,
-                                               JScrollPane scrollPane,
+                                               JScrollPane tableScrollPane,
                                                String ownerName,
                                                String description,
                                                CcddFieldHandler fieldHandler)
@@ -334,18 +333,18 @@ public abstract class CcddInputFieldPanelHandler
                                      0,
                                      0);
 
-        // Create an outer panel to put the editor panel in (the border doesn't
-        // appear without this) and add the table description text field
+        // Create an outer panel to put the editor panel in (the border doesn't appear without
+        // this) and add the table description text field
         inputPnl = new JPanel(new GridBagLayout());
 
         // Check if this editor contains a table
-        if (scrollPane != null)
+        if (tableScrollPane != null)
         {
             // Define the editor panel to contain the table
             JPanel innerPanel = new JPanel();
             innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
             innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            innerPanel.add(scrollPane);
+            innerPanel.add(tableScrollPane);
             inputPnl.add(innerPanel, gbc);
         }
 
@@ -359,8 +358,8 @@ public abstract class CcddInputFieldPanelHandler
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
-        // Create a panel to hold the table's system name, description and, if
-        // applicable, message ID information
+        // Create a panel to hold the table's system name, description and, if applicable, message
+        // ID information
         JPanel descriptionPnl = new JPanel(new GridBagLayout());
 
         // Create the description label
@@ -369,7 +368,7 @@ public abstract class CcddInputFieldPanelHandler
         descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
 
         // Check if this editor doesn't contain a table
-        if (scrollPane == null)
+        if (tableScrollPane == null)
         {
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -384,7 +383,7 @@ public abstract class CcddInputFieldPanelHandler
         descriptionPnl.add(descriptionLbl, gbc);
 
         // Create the description input field
-        descriptionFld = undoHandler.new UndoableTextArea(description, 3, 1);
+        descriptionFld = undoHandler.new UndoableTextArea(3, 1);
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         descriptionFld.setBorder(emptyBorder);
         descriptionFld.setEditable(true);
@@ -393,19 +392,34 @@ public abstract class CcddInputFieldPanelHandler
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
         descScrollPane = new JScrollPane(descriptionFld);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
 
-        // Check if this editor doesn't contain a table
-        if (scrollPane == null)
+        // Check if the description field is initially disabled
+        if (description == null)
         {
-            // Place the description field within a scroll pane, initially
-            // disabled, and add the field to the editor
-            inputPnl.setBorder(BorderFactory.createEtchedBorder());
+            // Set the description field and description field scroll pane background color to
+            // indicate these are disabled
             descriptionFld.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
             descScrollPane.setBackground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        }
+        else
+        {
+            // Set the description field and description field scroll pane background color to
+            // indicate these are enabled, and set the description field text
+            descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            descriptionFld.setText(description);
+        }
+
+        // Check if this editor doesn't contain a table
+        if (tableScrollPane == null)
+        {
+            // Place the description field within a scroll pane and add the field to the editor
+            inputPnl.setBorder(BorderFactory.createEtchedBorder());
             descScrollPane.setBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
             gbc.gridy++;
@@ -414,28 +428,35 @@ public abstract class CcddInputFieldPanelHandler
         // The editor contains a table
         else
         {
-            // Place the description field within a scroll pane and add the
-            // field to the editor
+            // Place the description field within a scroll pane and add the field to the editor
             inputPnl.setBorder(emptyBorder);
             descriptionFld.setToolTipText(CcddUtilities.wrapText("Table description",
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-            descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             descScrollPane.setBorder(emptyBorder);
             descScrollPane.setViewportBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
             gbc.gridx++;
             descriptionPnl.add(descScrollPane, gbc);
-
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         }
 
         // Add the description panel to the editor
-        gbc.weighty = 0.0;
         gbc.gridx = 0;
         gbc.gridy++;
         inputPnl.add(descriptionPnl, gbc);
+
+        // Check if this editor doesn't contain a table
+        if (tableScrollPane == null)
+        {
+            // Add an invisible component in order to force the description panel and data fields
+            // to the top of the panel
+            JLabel invisibleLbl = new JLabel("");
+            gbc.weighty = 1.0;
+            gbc.gridy++;
+            inputPnl.add(invisibleLbl, gbc);
+            gbc.weighty = 0.0;
+        }
 
         // Add the data field panel to the editor
         gbc.gridy++;
@@ -462,10 +483,9 @@ public abstract class CcddInputFieldPanelHandler
                     @Override
                     public void run()
                     {
-                        // Revalidate to force the editor panel to redraw to
-                        // the new sizes, which causes the data fields to be
-                        // correctly sized so that all of the fields are
-                        // visible
+                        // Revalidate to force the editor panel to redraw to the new sizes, which
+                        // causes the data fields to be correctly sized so that all of the fields
+                        // are visible
                         inputPnl.revalidate();
                     }
                 });
@@ -499,13 +519,11 @@ public abstract class CcddInputFieldPanelHandler
         if (dataFieldHandler.getFieldInformation() != null
             && !dataFieldHandler.getFieldInformation().isEmpty())
         {
-            // Create a panel to contain the data fields. As the editor is
-            // resized the field panel is resized to contain the data fields,
-            // wrapping them to new lines as needed
+            // Create a panel to contain the data fields. As the editor is resized the field panel
+            // is resized to contain the data fields, wrapping them to new lines as needed
             fieldPnl = new JPanel(new WrapLayout(FlowLayout.LEADING));
 
-            // Adjust the border to align the first field with the description
-            // label
+            // Adjust the border to align the first field with the description label
             fieldPnl.setBorder(BorderFactory.createEmptyBorder(-ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                -ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                0,
@@ -517,8 +535,8 @@ public abstract class CcddInputFieldPanelHandler
                 switch (fieldInfo.getInputType())
                 {
                     case BREAK:
-                        // Create a text field for the separator so it can be
-                        // handled like other fields
+                        // Create a text field for the separator so it can be handled like other
+                        // fields
                         fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
                         // Add a vertical separator to the field panel
@@ -526,8 +544,8 @@ public abstract class CcddInputFieldPanelHandler
                         break;
 
                     case SEPARATOR:
-                        // Create a text field for the separator so it can be
-                        // handled like other fields
+                        // Create a text field for the separator so it can be handled like other
+                        // fields
                         fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
                         // Add a horizontal separator to the field panel
@@ -543,16 +561,14 @@ public abstract class CcddInputFieldPanelHandler
                         booleanCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         booleanCb.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
 
-                        // Set the check box's name so that the undo handler
-                        // can identify the check box, even if it's destroyed
-                        // and recreated
+                        // Set the check box's name so that the undo handler can identify the check
+                        // box, even if it's destroyed and recreated
                         booleanCb.setName(fieldInfo.getOwnerName()
                                           + DATA_FIELD_IDENTIFIER_SEPARATOR
                                           + fieldInfo.getFieldName());
 
-                        // Adjust the left and right padding around the check
-                        // box so that it is spaced the same as a text field
-                        // data field
+                        // Adjust the left and right padding around the check box so that it is
+                        // spaced the same as a text field data field
                         booleanCb.setBorder(BorderFactory.createEmptyBorder(0,
                                                                             ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                             0,
@@ -561,8 +577,7 @@ public abstract class CcddInputFieldPanelHandler
                         // Check if a description exists for this field
                         if (!fieldInfo.getDescription().isEmpty())
                         {
-                            // Set the description as the tool tip text for
-                            // this check box
+                            // Set the description as the tool tip text for this check box
                             booleanCb.setToolTipText(CcddUtilities.wrapText(fieldInfo.getDescription(),
                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
@@ -570,8 +585,7 @@ public abstract class CcddInputFieldPanelHandler
                         // And the check box to the field panel
                         fieldPnl.add(booleanCb);
 
-                        // Store this check box's width if it is the largest
-                        // data field width
+                        // Store this check box's width if it is the largest data field width
                         maxFieldWidth = Math.max(maxFieldWidth,
                                                  booleanCb.getPreferredSize().width);
 
@@ -580,10 +594,9 @@ public abstract class CcddInputFieldPanelHandler
                     default:
                         final JTextComponent inputFld;
 
-                        // Create a panel for a single label and text field
-                        // pair. This is necessary so that the two will stay
-                        // together if line wrapping occurs due to a window
-                        // size change
+                        // Create a panel for a single label and text field pair. This is necessary
+                        // so that the two will stay together if line wrapping occurs due to a
+                        // window size change
                         JPanel singleFldPnl = new JPanel(new FlowLayout(FlowLayout.LEADING,
                                                                         ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                         ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 4));
@@ -598,9 +611,9 @@ public abstract class CcddInputFieldPanelHandler
                         // Check if the input type is for multi-line text
                         if (fieldInfo.getInputType().equals(InputDataType.TEXT_MULTI))
                         {
-                            // Create the data field input field as a text
-                            // area, which allows new line characters which
-                            // cause the field to be displayed in multiple rows
+                            // Create the data field input field as a text area, which allows new
+                            // line characters which cause the field to be displayed in multiple
+                            // rows
                             fieldInfo.setInputFld(undoHandler.new UndoableTextArea(fieldInfo.getValue(),
                                                                                    1,
                                                                                    fieldInfo.getSize()));
@@ -609,8 +622,8 @@ public abstract class CcddInputFieldPanelHandler
                         // The input type is one other than for multi-line text
                         else
                         {
-                            // Create the data field input field as a text
-                            // field, which allows a single rows
+                            // Create the data field input field as a text field, which allows a
+                            // single rows
                             fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
                                                                                     fieldInfo.getSize()));
                             inputFld = (UndoableTextField) fieldInfo.getInputFld();
@@ -625,9 +638,8 @@ public abstract class CcddInputFieldPanelHandler
                                                                          ? ModifiableColorInfo.REQUIRED_BACK.getColor()
                                                                          : ModifiableColorInfo.INPUT_BACK.getColor());
 
-                        // Set the text field's name so that the undo handler
-                        // can identify the text field, even if it's destroyed
-                        // and recreated
+                        // Set the text field's name so that the undo handler can identify the text
+                        // field, even if it's destroyed and recreated
                         inputFld.setName(fieldInfo.getOwnerName()
                                          + DATA_FIELD_IDENTIFIER_SEPARATOR
                                          + fieldInfo.getFieldName());
@@ -635,8 +647,7 @@ public abstract class CcddInputFieldPanelHandler
                         // Check if a description exists for this field
                         if (!fieldInfo.getDescription().isEmpty())
                         {
-                            // Set the description as the tool tip text for
-                            // this text field
+                            // Set the description as the tool tip text for this text field
                             inputFld.setToolTipText(CcddUtilities.wrapText(fieldInfo.getDescription(),
                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
@@ -647,18 +658,16 @@ public abstract class CcddInputFieldPanelHandler
                         // And the single field to the field panel
                         fieldPnl.add(singleFldPnl);
 
-                        // Store this field's width if it is the largest data
-                        // field width
+                        // Store this field's width if it is the largest data field width
                         maxFieldWidth = Math.max(maxFieldWidth,
                                                  singleFldPnl.getPreferredSize().width);
 
                         // Create an input field verifier for the data field
                         inputFld.setInputVerifier(new InputVerifier()
                         {
-                            // Storage for the last valid value entered; used
-                            // to restore the data field value if an invalid
-                            // value is entered. Initialize to the value at the
-                            // time the field is created
+                            // Storage for the last valid value entered; used to restore the data
+                            // field value if an invalid value is entered. Initialize to the value
+                            // at the time the field is created
                             String lastValid = inputFld.getText();
 
                             /**********************************************************************
@@ -669,32 +678,27 @@ public abstract class CcddInputFieldPanelHandler
                             {
                                 boolean isValid = true;
 
-                                // Get the data field reference to shorten
-                                // subsequent calls
+                                // Get the data field reference to shorten subsequent calls
                                 JTextComponent inFld = (JTextComponent) input;
 
                                 // Get the data field contents
                                 String inputTxt = inFld.getText();
 
-                                // Check if the field's input type doesn't
-                                // allow leading and trailing white space
-                                // characters
+                                // Check if the field's input type doesn't allow leading and
+                                // trailing white space characters
                                 if (fieldInfo.getInputType() != InputDataType.TEXT_WHT_SPC
                                     && fieldInfo.getInputType() != InputDataType.TEXT_MULTI_WHT_SPC)
                                 {
-                                    // Remove leading and trailing white space
-                                    // characters
+                                    // Remove leading and trailing white space characters
                                     inputTxt = inputTxt.trim();
                                 }
 
-                                // Check if the field contains an illegal
-                                // character
+                                // Check if the field contains an illegal character
                                 if (!fieldInfo.getInputType().getInputMatch().isEmpty()
                                     && !inputTxt.isEmpty()
                                     && !inputTxt.matches(fieldInfo.getInputType().getInputMatch()))
                                 {
-                                    // Inform the user that the data field
-                                    // contents is invalid
+                                    // Inform the user that the data field contents is invalid
                                     new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
                                                                               "<html><b>Invalid characters in field '</b>"
                                                                                                   + fieldInfo.getFieldName()
@@ -706,8 +710,8 @@ public abstract class CcddInputFieldPanelHandler
                                                                               JOptionPane.WARNING_MESSAGE,
                                                                               DialogOption.OK_OPTION);
 
-                                    // Toggle the controls enable status so
-                                    // that the buttons are redrawn correctly
+                                    // Toggle the controls enable status so that the buttons are
+                                    // redrawn correctly
                                     if (fieldPnlHndlrOwner instanceof CcddFrameHandler)
                                     {
                                         ((CcddFrameHandler) fieldPnlHndlrOwner).setControlsEnabled(false);
@@ -722,39 +726,32 @@ public abstract class CcddInputFieldPanelHandler
                                     // Check if the data field is a text field
                                     if (input instanceof UndoableTextField)
                                     {
-                                        // Restore the previous value in the
-                                        // data field
+                                        // Restore the previous value in the data field
                                         ((UndoableTextField) inFld).setText(lastValid, false);
                                     }
-                                    // Check if the data field is a text area
-                                    // (multi-line)
+                                    // Check if the data field is a text area (multi-line)
                                     else if (input instanceof UndoableTextArea)
                                     {
-                                        // Restore the previous value in the
-                                        // data field
+                                        // Restore the previous value in the data field
                                         ((UndoableTextArea) inFld).setText(lastValid);
                                     }
 
-                                    // Set the flag to indicate an invalid
-                                    // value was entered
+                                    // Set the flag to indicate an invalid value was entered
                                     isValid = false;
                                 }
                                 // The input is valid
                                 else
                                 {
-                                    // Store the 'cleaned' text back into the
-                                    // text field. For numeric types, reformat
-                                    // the input value
+                                    // Store the 'cleaned' text back into the text field. For
+                                    // numeric types, reformat the input value
                                     inFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
                                     fieldInfo.setValue(inFld.getText());
 
-                                    // Store the new value as the last valid
-                                    // value
+                                    // Store the new value as the last valid value
                                     lastValid = inFld.getText();
 
-                                    // Set the text field background color. If
-                                    // the field is empty and is flagged as
-                                    // required then set the background to
+                                    // Set the text field background color. If the field is empty
+                                    // and is flagged as required then set the background to
                                     // indicate a value should be supplied
                                     setFieldBackground(fieldInfo);
                                 }
@@ -775,18 +772,17 @@ public abstract class CcddInputFieldPanelHandler
             }
         }
 
-        // Check if the data field panel change should be put in the undo/redo
-        // stack
+        // Check if the data field panel change should be put in the undo/redo stack
         if (undoable)
         {
-            // Store the field information in the undo handler in case the
-            // update needs to be undone
+            // Store the field information in the undo handler in case the update needs to be
+            // undone
             undoFieldPnl.addDataFieldEdit(this,
                                           dataFieldHandler.getFieldInformationCopy());
         }
 
-        // Force the owner of the editor panel to redraw so that changes to the
-        // fields are displayed and the owner's size is adjusted
+        // Force the owner of the editor panel to redraw so that changes to the fields are
+        // displayed and the owner's size is adjusted
         fieldPnlHndlrOwner.revalidate();
         fieldPnlHndlrOwner.repaint();
     }
@@ -796,9 +792,8 @@ public abstract class CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void clearFieldValues()
     {
-        // Disable automatically ending the edit sequence. This allows all of
-        // the cleared fields to be grouped into a single sequence so that if
-        // undone, all fields are restored
+        // Disable automatically ending the edit sequence. This allows all of the cleared fields to
+        // be grouped into a single sequence so that if undone, all fields are restored
         undoHandler.setAutoEndEditSequence(false);
 
         for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
@@ -822,15 +817,14 @@ public abstract class CcddInputFieldPanelHandler
                 fieldInfo.setValue("");
                 inputFld.setText("");
 
-                // Set the text field background color. If the field is flagged
-                // as required then set the background to indicate a value
-                // should be supplied
+                // Set the text field background color. If the field is flagged as required then
+                // set the background to indicate a value should be supplied
                 setFieldBackground(fieldInfo);
             }
         }
 
-        // Re-enable automatic edit sequence ending, then end the edit sequence
-        // to group the cleared fields
+        // Re-enable automatic edit sequence ending, then end the edit sequence to group the
+        // cleared fields
         undoHandler.setAutoEndEditSequence(true);
         undoManager.endEditSequence();
     }
@@ -858,14 +852,12 @@ public abstract class CcddInputFieldPanelHandler
                     // Step through each field
                     for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
                     {
-                        // Check if this isn't a boolean input (check box) data
-                        // field
+                        // Check if this isn't a boolean input (check box) data field
                         if (fieldInfo.getInputType() != InputDataType.BOOLEAN)
                         {
-                            // Set the text field background color. If the
-                            // field is empty and is flagged as required then
-                            // set the background to indicate a value should be
-                            // supplied
+                            // Set the text field background color. If the field is empty and is
+                            // flagged as required then set the background to indicate a value
+                            // should be supplied
                             setFieldBackground(fieldInfo);
                         }
                     }
@@ -882,9 +874,8 @@ public abstract class CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void setFieldBackground(FieldInformation fieldInfo)
     {
-        // Set the text field background color. If the field is empty and is
-        // flagged as required then set the background to indicate a value
-        // should be supplied
+        // Set the text field background color. If the field is empty and is flagged as required
+        // then set the background to indicate a value should be supplied
         ((JTextComponent) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
                                                                  && fieldInfo.isRequired()
                                                                                            ? ModifiableColorInfo.REQUIRED_BACK.getColor()

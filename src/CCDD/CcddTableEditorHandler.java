@@ -91,7 +91,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private final CcddMacroHandler macroHandler;
     private final CcddMacroHandler newMacroHandler;
     private final CcddRateParameterHandler rateHandler;
-    private final CcddVariableConversionHandler varConvHandler;
+    private final CcddVariableSizeAndConversionHandler variableHandler;
     private CcddJTableHandler table;
     private final TableInformation tableInfo;
     private UndoableTableModel tableModel;
@@ -208,7 +208,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-        varConvHandler = ccddMain.getVariableConversionHandler();
+        variableHandler = ccddMain.getVariableHandler();
 
         // Initialize the lists of table content changes
         additions = new ArrayList<TableModification>();
@@ -590,15 +590,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private String getVariablePath(String variableName, String dataType, boolean includeCustom)
     {
-        return varConvHandler.getFullVariableName(tableInfo.getTablePath()
-                                                  + ","
-                                                  + dataType
-                                                  + "."
-                                                  + variableName,
-                                                  varPathSep,
-                                                  hideDataType,
-                                                  typeNameSep,
-                                                  includeCustom);
+        return variableHandler.getFullVariableName(tableInfo.getTablePath()
+                                                   + ","
+                                                   + dataType
+                                                   + "."
+                                                   + variableName,
+                                                   varPathSep,
+                                                   hideDataType,
+                                                   typeNameSep,
+                                                   includeCustom);
     }
 
     /**********************************************************************************************
@@ -1331,7 +1331,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // the variable path
                      || (isArrayDefinition
                          && (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
-                             || column == variablePathIndex)))
+                             || column == variablePathIndex))
+
+                    // This is the variable path column and the path is empty. This is the case for
+                    // variables in a non-root prototype structure
+                     || (column == variablePathIndex
+                         && rowCopy[variablePathIndex].toString().isEmpty()))
                     {
                         // Set the flag to prevent altering the data value
                         isAlterable = false;
@@ -1506,7 +1511,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check if a sizeof() call in the text makes a recursive reference. Example:
                     // If this is a structure table then this can occur if a sizeof() call refers
                     // to this structure's prototype or the prototype of one of its children
-                    if (ccddMain.getVariableSizeHandler().isInvalidReference())
+                    if (variableHandler.isInvalidReference())
                     {
                         throw new CCDDException("Invalid input value in column '</b>"
                                                 + typeDefn.getColumnNamesUser()[column]
@@ -1811,12 +1816,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             {
                                 // Check if the variable path entered matches one already in use in
                                 // another structure table
-                                if (varConvHandler.isVariablePathInUse(tableInfo.getTablePath()
-                                                                       + ","
-                                                                       + dataType
-                                                                       + "."
-                                                                       + variableName,
-                                                                       newValueS))
+                                if (variableHandler.isVariablePathInUse(tableInfo.getTablePath()
+                                                                        + ","
+                                                                        + dataType
+                                                                        + "."
+                                                                        + variableName,
+                                                                        newValueS))
                                 {
                                     throw new CCDDException("Variable path already in use in another structure");
                                 }
@@ -4628,11 +4633,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void updateDataFields()
     {
-        // Get the reference to the table's field handler to shorten subsequent calls
-        CcddFieldHandler fieldHandler = tableInfo.getFieldHandler();
-
         // Update the field information with the current text field values
-        updateCurrentFieldValues(fieldHandler.getFieldInformation());
+        updateCurrentFieldValues(tableInfo.getFieldHandler().getFieldInformation());
 
         // Rebuild the data field panel in the table editor using the updated fields
         createDataFieldPanel(true);

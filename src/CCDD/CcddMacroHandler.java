@@ -60,7 +60,7 @@ public class CcddMacroHandler
     // Class references
     private CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
-    private CcddVariableSizeHandler varSizeHandler;
+    private CcddVariableSizeAndConversionHandler variableHandler;
 
     // Pop-up combo box for displaying the macro names and the dialog to contain it
     private PaddedComboBox macroCbox;
@@ -177,9 +177,9 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Set the reference to the variable size handler class
      *********************************************************************************************/
-    protected void setHandlers(CcddVariableSizeHandler varSizeHandler)
+    protected void setHandlers(CcddVariableSizeAndConversionHandler variableHandler)
     {
-        this.varSizeHandler = varSizeHandler;
+        this.variableHandler = variableHandler;
     }
 
     /**********************************************************************************************
@@ -692,11 +692,11 @@ public class CcddMacroHandler
                     if (macroName.equalsIgnoreCase(macro[MacrosColumn.MACRO_NAME.ordinal()]))
                     {
                         // Replace each sizeof() call with its numeric value
-                        macroValue = varSizeHandler.replaceSizeofWithValue(macro[MacrosColumn.VALUE.ordinal()],
-                                                                           validDataTypes);
+                        macroValue = variableHandler.replaceSizeofWithValue(macro[MacrosColumn.VALUE.ordinal()],
+                                                                            validDataTypes);
 
                         // Check if the sizeof() call references an invalid data type
-                        if (varSizeHandler.isInvalidReference())
+                        if (variableHandler.isInvalidReference())
                         {
                             // Set the flag to indicate a recursive reference exists
                             isMacroRecursive = true;
@@ -830,10 +830,10 @@ public class CcddMacroHandler
             Expression expr;
 
             // Convert any sizeof() calls to the equivalent data type size
-            text = varSizeHandler.replaceSizeofWithValue(text, validDataTypes);
+            text = variableHandler.replaceSizeofWithValue(text, validDataTypes);
 
             // Check if the sizeof() call references an invalid data type
-            if (varSizeHandler.isInvalidReference())
+            if (variableHandler.isInvalidReference())
             {
                 // Set the flag to indicate a recursive reference exists
                 isMacroRecursive = true;
@@ -989,7 +989,7 @@ public class CcddMacroHandler
         for (String[] macro : macros)
         {
             // Check if the maco's value has a sizeof() call for the specified data type
-            if (CcddVariableSizeHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()], dataType))
+            if (CcddVariableSizeAndConversionHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()], dataType))
             {
                 // Add the macro and its related macros to the list
                 addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);
@@ -1145,7 +1145,7 @@ public class CcddMacroHandler
     {
         // Check if the text string contains any macros
         if (text != null
-            && (hasMacro(text) || CcddVariableSizeHandler.hasSizeof(text)))
+            && (hasMacro(text) || CcddVariableSizeAndConversionHandler.hasSizeof(text)))
         {
             // Replace any macro names in the text with the associated macro values
             text = getMacroExpansion(text);

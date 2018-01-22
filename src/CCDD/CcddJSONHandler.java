@@ -825,7 +825,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
                                 boolean includeVariablePaths,
-                                CcddVariableConversionHandler variableHandler,
+                                CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
                                 String... extraInfo)
     {
@@ -1107,7 +1107,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                       boolean getDescription,
                                       boolean replaceMacros,
                                       boolean includeVariablePaths,
-                                      CcddVariableConversionHandler variableHandler,
+                                      CcddVariableSizeAndConversionHandler variableHandler,
                                       String[] separators,
                                       JSONObject outputJO)
     {
@@ -1300,7 +1300,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     protected JSONObject getTableInformation(String tableName,
                                              boolean replaceMacros,
                                              boolean includeVariablePaths,
-                                             CcddVariableConversionHandler variableHandler,
+                                             CcddVariableSizeAndConversionHandler variableHandler,
                                              String[] separators)
     {
         // Store the table's data
@@ -1333,8 +1333,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             if (systemField != null && !systemField.getValue().isEmpty())
             {
                 // Store the system name
-                tableInformation.put(JSONTags.TABLE_SYSTEM.getTag(),
-                                     systemField.getValue());
+                tableInformation.put(JSONTags.TABLE_SYSTEM.getTag(), systemField.getValue());
             }
         }
 

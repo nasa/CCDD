@@ -61,7 +61,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
     // Class references
     private final CcddMain ccddMain;
     private CcddJTableHandler variableTable;
-    private final CcddVariableConversionHandler varConvHandler;
+    private final CcddVariableSizeAndConversionHandler variableHandler;
     private CcddTableTreeHandler tableTree;
 
     // Components referenced from multiple methods
@@ -82,7 +82,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
     CcddVariablesDialog(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
-        varConvHandler = ccddMain.getVariableConversionHandler();
+        variableHandler = ccddMain.getVariableHandler();
 
         // Create the variable paths & names dialog
         initialize();
@@ -519,17 +519,17 @@ public class CcddVariablesDialog extends CcddDialogHandler
         }
 
         // Step through each variable in the project
-        for (String variableName : varConvHandler.getAllVariableNames())
+        for (String variableName : variableHandler.getAllVariableNames())
         {
             // Check if no tables are selected for use as filters
             if (filterTables.isEmpty())
             {
                 // Add the variable to the list
                 variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                               varConvHandler.getFullVariableName(variableName,
-                                                                                  varPathSepFld.getText(),
-                                                                                  hideDataTypeCb.isSelected(),
-                                                                                  typeNameSepFld.getText())});
+                                               variableHandler.getFullVariableName(variableName,
+                                                                                   varPathSepFld.getText(),
+                                                                                   hideDataTypeCb.isSelected(),
+                                                                                   typeNameSepFld.getText())});
             }
             // One or more tables are selected for use as filters
             else
@@ -542,10 +542,10 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     {
                         // Add the variable to the list
                         variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                                       varConvHandler.getFullVariableName(variableName,
-                                                                                          varPathSepFld.getText(),
-                                                                                          hideDataTypeCb.isSelected(),
-                                                                                          typeNameSepFld.getText())});
+                                                       variableHandler.getFullVariableName(variableName,
+                                                                                           varPathSepFld.getText(),
+                                                                                           hideDataTypeCb.isSelected(),
+                                                                                           typeNameSepFld.getText())});
                     }
                 }
             }

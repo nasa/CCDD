@@ -59,10 +59,9 @@ public interface CcddImportExportInterface
      *
      * @throws Exception
      *********************************************************************************************/
-    abstract void importFromFile(File importFile,
-                                 ImportType importType) throws CCDDException,
-                                                        IOException,
-                                                        Exception;
+    abstract void importFromFile(File importFile, ImportType importType) throws CCDDException,
+                                                                         IOException,
+                                                                         Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file
@@ -101,7 +100,7 @@ public interface CcddImportExportInterface
                                   boolean replaceMacros,
                                   boolean includeReservedMsgIDs,
                                   boolean includeVariablePaths,
-                                  CcddVariableConversionHandler variableHandler,
+                                  CcddVariableSizeAndConversionHandler variableHandler,
                                   String[] separators,
                                   String... extraInfo);
 }

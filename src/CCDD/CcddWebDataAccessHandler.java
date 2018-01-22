@@ -58,8 +58,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
-    private final CcddVariableConversionHandler varConvHandler;
-    private CcddVariableSizeHandler varSizeHandler;
+    private CcddVariableSizeAndConversionHandler variableHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
@@ -88,7 +87,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         dbControl = ccddMain.getDbControlHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
-        varConvHandler = ccddMain.getVariableConversionHandler();
     }
 
     /**********************************************************************************************
@@ -98,7 +96,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-        varSizeHandler = ccddMain.getVariableSizeHandler();
+        variableHandler = ccddMain.getVariableHandler();
         fieldHandler = new CcddFieldHandler(ccddMain,
                                             null,
                                             ccddMain.getMainFrame());
@@ -587,9 +585,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // The request type is unrecognized
             else
             {
-                throw new CCDDException("unrecognized request component '"
-                                        + component
-                                        + "'");
+                throw new CCDDException("unrecognized request component '" + component + "'");
             }
         }
         catch (CCDDException ce)
@@ -787,7 +783,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             }
         }
 
-        // Store the lock status, name, and description in the JSON object
+        // Store the project name, equivalent database name, description, lock status, user name,
+        // owner, server, port, and data fields in the JSON object
         projectJO.put("Project", dbControl.getProjectName());
         projectJO.put("Database", dbControl.getDatabaseName());
         projectJO.put("Description", dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
@@ -798,6 +795,10 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         projectJO.put("Owner", dbControl.getOwner());
         projectJO.put("Server", dbControl.getHost());
         projectJO.put("Port", dbControl.getPort());
+        // TODO NEW (undocumented)
+        projectJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldProjectName(),
+                                              JSONTags.PROJECT_FIELD.getTag(),
+                                              projectJO);
 
         return projectJO.toString();
     }
@@ -895,7 +896,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                    getDescription,
                                                                    isReplaceMacro,
                                                                    isIncludePath,
-                                                                   varConvHandler,
+                                                                   variableHandler,
                                                                    separators,
                                                                    new JSONObject());
 
@@ -1007,8 +1008,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *             If an error occurs while parsing the table data field data
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getTableFields(String tableName,
-                                  boolean checkExists) throws CCDDException
+    private String getTableFields(String tableName, boolean checkExists) throws CCDDException
     {
         String response = null;
 
@@ -1229,7 +1229,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                              ? tableName
                                              : namesAndType[0]));
                     responseJO.put(JSONTags.TABLE_BYTE_SIZE.getTag(),
-                                   varSizeHandler.getDataTypeSizeInBytes(namesAndType[0]));
+                                   variableHandler.getDataTypeSizeInBytes(namesAndType[0]));
 
                     // Check if only one table is being processed
                     if (isSingle)
@@ -1304,8 +1304,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         // Get the fields for this table as a JSON string, then format it as a JSON
                         // object so that is can be added to the response array. This is needed to
                         // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getTableInformation(name,
-                                                                        separators)));
+                        responseJA.add(parser.parse(getTableInformation(name, separators)));
                     }
                     catch (ParseException pe)
                     {
@@ -1323,7 +1322,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             JSONObject tableInfoJO = jsonHandler.getTableInformation(tableName,
                                                                      isReplaceMacro,
                                                                      isIncludePath,
-                                                                     varConvHandler,
+                                                                     variableHandler,
                                                                      separators);
 
             // Check if the table loaded successfully
@@ -2043,24 +2042,24 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 // Store the variable path and name in the application and user-specified formats
                 responseJO.put(variablePath,
-                               varConvHandler.getFullVariableName(variablePath,
-                                                                  varPathSeparator,
-                                                                  hideDataTypes,
-                                                                  typeNameSeparator));
+                               variableHandler.getFullVariableName(variablePath,
+                                                                   varPathSeparator,
+                                                                   hideDataTypes,
+                                                                   typeNameSeparator));
             }
             // Get the conversion for all variables
             else
             {
                 // Step through each row in the variables table
-                for (int row = 0; row < varConvHandler.getAllVariableNames().size(); row++)
+                for (int row = 0; row < variableHandler.getAllVariableNames().size(); row++)
                 {
                     // Store the variable paths and names in the application and user-specified
                     // formats
-                    responseJO.put(varConvHandler.getAllVariableNames().get(row).toString(),
-                                   varConvHandler.getFullVariableName(varConvHandler.getAllVariableNames().get(row).toString(),
-                                                                      varPathSeparator,
-                                                                      hideDataTypes,
-                                                                      typeNameSeparator));
+                    responseJO.put(variableHandler.getAllVariableNames().get(row).toString(),
+                                   variableHandler.getFullVariableName(variableHandler.getAllVariableNames().get(row).toString(),
+                                                                       varPathSeparator,
+                                                                       hideDataTypes,
+                                                                       typeNameSeparator));
                 }
             }
 

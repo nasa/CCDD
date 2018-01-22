@@ -559,9 +559,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String[] queryDatabaseList(Component parent)
     {
-        return dbCommand.getList(DatabaseListCommand.DATABASES,
-                                 null,
-                                 parent);
+        return dbCommand.getList(DatabaseListCommand.DATABASES, null, parent);
     }
 
     /**********************************************************************************************
@@ -594,9 +592,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     private String getServerAndDatabase(String databaseName)
     {
-        return getServer()
-               + "/"
-               + databaseName;
+        return getServer() + "/" + databaseName;
     }
 
     /**********************************************************************************************
@@ -784,9 +780,9 @@ public class CcddDbControlHandler
      *
      * @return Command to create the database comment
      *********************************************************************************************/
-    private String buildDatabaseCommentCommand(String projectName,
-                                               boolean lockStatus,
-                                               String description)
+    protected String buildDatabaseCommentCommand(String projectName,
+                                                 boolean lockStatus,
+                                                 String description)
     {
         return "COMMENT ON DATABASE "
                + convertProjectNameToDatabase(projectName)
@@ -1977,10 +1973,6 @@ public class CcddDbControlHandler
 
                         // Perform any patches to update this project database to the latest schema
                         new CcddPatchHandler(ccddMain);
-
-                        // Determine the variable offsets (note that the class must be fully
-                        // instantiated before calling the list build method)
-                        ccddMain.getVariableSizeHandler().buildPathAndOffsetLists();
 
                         // Check if the GUI is visible. If the application is started with the GUI
                         // hidden (for command line script execution or as a web server) then the

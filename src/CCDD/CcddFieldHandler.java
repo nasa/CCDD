@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.PROJECT_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 
 import java.awt.Component;
@@ -645,6 +646,16 @@ public class CcddFieldHandler
         }
 
         return count;
+    }
+
+    /**********************************************************************************************
+     * Get the project indicator that identifies project data fields in the fields table
+     *
+     * @return Project indicator
+     *********************************************************************************************/
+    protected static String getFieldProjectName()
+    {
+        return PROJECT_DATA_FIELD_IDENT;
     }
 
     /**********************************************************************************************

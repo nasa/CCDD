@@ -112,8 +112,7 @@ public class CcddMain
     private final CcddKeyboardHandler keyboardHandler;
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
-    private CcddVariableSizeHandler varSizeHandler;
-    private CcddVariableConversionHandler varConvHandler;
+    private CcddVariableSizeAndConversionHandler variableHandler;
     private CcddWebServer webServer;
 
     // References to the various search dialogs
@@ -167,6 +166,7 @@ public class CcddMain
     private JMenuItem mntmReserveMsgID;
     private JMenuItem mntmShowAllMsgID;
     private JMenuItem mntmDuplicateMsgID;
+    private JMenuItem mntmManageProjectFields;
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmShowVariables;
     private JMenuItem mntmSearchTable;
@@ -508,9 +508,6 @@ public class CcddMain
         // Read the reserved message IDs from the project database
         rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
-        // Create a variable size handler for the project database
-        varSizeHandler = new CcddVariableSizeHandler(CcddMain.this);
-
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
         CcddClasses.setHandlers(CcddMain.this);
@@ -518,7 +515,6 @@ public class CcddMain
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
-        macroHandler.setHandlers(varSizeHandler);
 
         // Check if the web server is activated
         if (webServer != null)
@@ -533,8 +529,16 @@ public class CcddMain
      *********************************************************************************************/
     protected void setPostFunctionDbSpecificHandlers()
     {
-        // Create a variable conversion handler for the project database
-        varConvHandler = new CcddVariableConversionHandler(CcddMain.this);
+        // Create a variable size and conversion handler for the project database
+        variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
+
+        // Now that the variable handler exists, store its reference in the other macro handler
+        macroHandler.setHandlers(variableHandler);
+
+        // Determine the variable offsets (note that the variable size class must be fully
+        // instantiated and the macro handler updated with the variable handler reference before
+        // calling the path and offset list build method)
+        variableHandler.buildPathAndOffsetLists();
 
         // Check if the web server is enabled
         if (isWebServer())
@@ -625,23 +629,13 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Get the variable size handler
+     * Get the variable size and conversion handler
      *
-     * @return Variable size handler reference
+     * @return Variable size and conversion handler reference
      *********************************************************************************************/
-    protected CcddVariableSizeHandler getVariableSizeHandler()
+    protected CcddVariableSizeAndConversionHandler getVariableHandler()
     {
-        return varSizeHandler;
-    }
-
-    /**********************************************************************************************
-     * Get the variable conversion handler
-     *
-     * @return Variable conversion handler reference
-     *********************************************************************************************/
-    protected CcddVariableConversionHandler getVariableConversionHandler()
-    {
-        return varConvHandler;
+        return variableHandler;
     }
 
     /**********************************************************************************************
@@ -878,6 +872,7 @@ public class CcddMain
         mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmShowAllMsgID.setEnabled(dbControl.isDatabaseConnected());
         mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
+        mntmManageProjectFields.setEnabled(dbControl.isDatabaseConnected());
         mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
         mntmShowVariables.setEnabled(dbControl.isDatabaseConnected());
         mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
@@ -1365,8 +1360,9 @@ public class CcddMain
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
         mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
         mntmReserveMsgID = createMenuItem(mnMessageID, "Reserve IDs", KeyEvent.VK_R, 1, "Reserve message ID numbers");
-        mntmShowAllMsgID = createMenuItem(mnMessageID, "Show all IDs", KeyEvent.VK_F, 1, "Show all message ID owners, names, and IDs");
+        mntmShowAllMsgID = createMenuItem(mnMessageID, "Show all IDs", KeyEvent.VK_S, 1, "Show all message ID owners, names, and IDs");
         mntmDuplicateMsgID = createMenuItem(mnMessageID, "Find duplicates", KeyEvent.VK_F, 1, "Detect duplicate message ID numbers");
+        mntmManageProjectFields = createMenuItem(mnData, "Manage project fields", KeyEvent.VK_J, 1, "Manage project description and data fields");
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
         JMenu mnPadding = createSubMenu(mnData, "Padding", KeyEvent.VK_P, 1, null);
@@ -2063,6 +2059,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddDuplicateMsgIDDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Manage Fields Project menu item
+        mntmManageProjectFields.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Manage a project's data fields
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddProjectFieldDialog(CcddMain.this);
             }
         });
 

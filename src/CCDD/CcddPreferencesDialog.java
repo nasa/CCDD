@@ -338,10 +338,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         outerPnl.add(innerPnl, BorderLayout.PAGE_START);
 
         // Add the look & feel selection tab to the tabbed pane
-        tabbedPane.addTab(LAF,
-                          null,
-                          outerPnl,
-                          "Change program look & feel");
+        tabbedPane.addTab(LAF, null, outerPnl, "Change program look & feel");
 
         // Obtain the list of available look & feels to use in creating the radio buttons
         LookAndFeelInfo[] lafInfo = UIManager.getInstalledLookAndFeels();

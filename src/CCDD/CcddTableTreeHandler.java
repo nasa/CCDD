@@ -19,7 +19,6 @@ import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIV
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES_WITH_PRIMITIVES;
-import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.TABLES_WITH_PRIMITIVES;
@@ -362,9 +361,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
-    CcddTableTreeHandler(CcddMain ccddMain,
-                         TableTreeType treeType,
-                         Component parent)
+    CcddTableTreeHandler(CcddMain ccddMain, TableTreeType treeType, Component parent)
     {
         // Build the table tree
         this(ccddMain,
@@ -491,7 +488,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Get the tables and their members from the database, sorted by variable name
         tableMembers = dbTable.loadTableMembers((treeType == TABLES_WITH_PRIMITIVES
                                                  || treeType == STRUCTURES_WITH_PRIMITIVES
-                                                 || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                                                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
                                                  || treeType == INSTANCE_TABLES_WITH_PRIMITIVES)
@@ -650,10 +646,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         else if (isByType)
         {
             // Add all tables to the prototype and instances nodes by table type
-            addByType(prototype,
-                      instance,
-                      null,
-                      parent);
+            addByType(prototype, instance, null, parent);
         }
         // Do not use the groups or types to filter the tree
         else
@@ -742,7 +735,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (leaf
                     && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
                     && (treeType == STRUCTURES_WITH_PRIMITIVES
-                        || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
                 {
@@ -856,10 +848,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             protoNode.add(protoTypeNode);
 
             // Build the prototype and instance nodes filtered by type (and group, if applicable)
-            buildTopLevelNodes(tables,
-                               instTypeNode,
-                               protoTypeNode,
-                               parent);
+            buildTopLevelNodes(tables, instTypeNode, protoTypeNode, parent);
         }
     }
 
@@ -897,50 +886,53 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Check if the name is in the supplied list or if the list is empty. Only show
             // structure type tables for a tree showing structure instances with primitives
-            if ((nameList == null
-                 || nameList.contains(member.getTableName()))
+            if ((nameList == null || nameList.contains(member.getTableName()))
                 && ((treeType != STRUCTURES_WITH_PRIMITIVES
-                     && treeType != PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
                     || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
             {
-                // Add the table to the prototype node
-                protoNode.add(new ToolTipTreeNode(member.getTableName(),
-                                                  getTableDescription(member.getTableName(),
-                                                                      "")));
+                // Check if this isn't the special structures with primitives tree type (normal
+                // prototype nodes are excluded if it is)
+                if (treeType != STRUCTURES_WITH_PRIMITIVES)
+                {
+                    // Add the table to the prototype node
+                    protoNode.add(new ToolTipTreeNode(member.getTableName(),
+                                                      getTableDescription(member.getTableName(),
+                                                                          "")));
+                }
 
                 boolean isParent = true;
 
-                // Check if only parent tables should be included
-                if (treeType != STRUCTURES_WITH_PRIMITIVES)
+                // Step through each table
+                for (TableMembers otherMember : tableMembers)
                 {
-                    // Step through each table
-                    for (TableMembers otherMember : tableMembers)
+                    // Check if the current table has this table as a member, that the table isn't
+                    // referencing itself, and, if the tree is filtered by group, that this table
+                    // is a member of the group
+                    if (otherMember.getDataTypes().contains(member.getTableName())
+                        && !member.equals(otherMember)
+                        && (!isByGroup ||
+                            (nameList != null && nameList.contains(otherMember.getTableName()))))
                     {
-                        // Check if the current table has this table as a member, that the table
-                        // isn't referencing itself, and, if the tree is filtered by group, that
-                        // this table is a member of the group
-                        if (otherMember.getDataTypes().contains(member.getTableName())
-                            && !member.equals(otherMember)
-                            && (!isByGroup ||
-                                (nameList != null && nameList.contains(otherMember.getTableName()))))
-                        {
-                            // Clear the flag indicating this is a parent table and stop searching
-                            isParent = false;
-                            break;
-                        }
+                        // Clear the flag indicating this is a parent table and stop searching
+                        isParent = false;
+                        break;
                     }
                 }
 
-                // Check if this is a parent table
-                if (isParent)
+                // Check if this is a parent table or the special structures with primitives tree
+                // type. For the latter child nodes are created for non-root tables and placed in
+                // the prototype node
+                if (isParent || treeType == STRUCTURES_WITH_PRIMITIVES)
                 {
                     recursionTable = null;
 
                     // Build the nodes in the tree for this table and its member tables
                     buildNodes(member,
-                               instNode,
+                               (!isParent && treeType == STRUCTURES_WITH_PRIMITIVES
+                                                                                    ? protoNode
+                                                                                    : instNode),
                                new ToolTipTreeNode(member.getTableName(),
                                                    getTableDescription(member.getTableName(),
                                                                        "")));
@@ -1101,7 +1093,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if primitive variables are included in the tree and this node has no children
             // (variables)
             if ((treeType == STRUCTURES_WITH_PRIMITIVES
-                 || treeType == PROTOTYPE_STRUCTURES_WITH_PRIMITIVES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
                  || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
                 && childNode.getChildCount() == 0)
@@ -1125,8 +1116,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *         description exists for it then use the prototype table's description. If the
      *         prototype table has no description then return null
      *********************************************************************************************/
-    protected String getTableDescription(String tablePath,
-                                         String dataType)
+    protected String getTableDescription(String tablePath, String dataType)
     {
         String description = null;
         String protoDescription = null;
@@ -1929,9 +1919,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @return JPanel containing the table tree components
      *********************************************************************************************/
-    protected JPanel createTreePanel(String label,
-                                     int selectionMode,
-                                     final Component parent)
+    protected JPanel createTreePanel(String label, int selectionMode, final Component parent)
     {
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
@@ -2207,10 +2195,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     String expState = getExpansionState();
 
                     // Rebuild the tree based on the filter selection
-                    buildTableTree(expandChkBx.isSelected(),
-                                   rateName,
-                                   rateFilter,
-                                   parent);
+                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, parent);
 
                     // Adjust the expansion state to account for the change in filtering, then
                     // restore the expansion state

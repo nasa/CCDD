@@ -73,8 +73,7 @@ public class CcddScriptDataAccessHandler
     private final CcddTableTreeHandler tableTree;
     private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
-    private final CcddVariableConversionHandler varConvHandler;
-    private final CcddVariableSizeHandler varSizeHandler;
+    private final CcddVariableSizeAndConversionHandler variableHandler;
 
     // Calling GUI component
     private final Component parent;
@@ -141,9 +140,8 @@ public class CcddScriptDataAccessHandler
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
-        varSizeHandler = ccddMain.getVariableSizeHandler();
-        varConvHandler = ccddMain.getVariableConversionHandler();
-        tableTree = varConvHandler.getVariableTree();
+        variableHandler = ccddMain.getVariableHandler();
+        tableTree = variableHandler.getVariableTree();
         copyHandler = null;
     }
 
@@ -451,7 +449,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public int getDataTypeSizeInBytes(String dataType)
     {
-        return varSizeHandler.getDataTypeSizeInBytes(dataType);
+        return variableHandler.getDataTypeSizeInBytes(dataType);
     }
 
     /**********************************************************************************************
@@ -2897,10 +2895,10 @@ public class CcddScriptDataAccessHandler
                                       boolean excludeDataTypes,
                                       String typeNameSeparator)
     {
-        return varConvHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
-                                                  varPathSeparator,
-                                                  excludeDataTypes,
-                                                  typeNameSeparator);
+        return variableHandler.getFullVariableName(macroHandler.getMacroExpansion(fullName),
+                                                   varPathSeparator,
+                                                   excludeDataTypes,
+                                                   typeNameSeparator);
     }
 
     /**********************************************************************************************
@@ -3221,7 +3219,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[] getVariablePaths()
     {
-        return varConvHandler.getAllVariableNames().toArray(new String[0]);
+        return variableHandler.getAllVariableNames().toArray(new String[0]);
     }
 
     /**********************************************************************************************
@@ -4465,6 +4463,37 @@ public class CcddScriptDataAccessHandler
         fileIOHandler.closeFile(printWriter);
     }
 
+    // TODO NEW (undocumented)
+    /**********************************************************************************************
+     * Get an array containing the data field information for the project
+     *
+     * @return Array containing the data field information for the project; an empty array if the
+     *         project has no data fields. The array in is the format: field name, description,
+     *         size, input type, required (true or false), applicability, value[,...]
+     *********************************************************************************************/
+    public String[][] getProjectFields()
+    {
+        List<String[]> projectFields = new ArrayList<String[]>();
+
+        // Build the project's data field information
+        fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldProjectName());
+
+        // Step through each data field belonging to the project
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+        {
+            // Add the data field information to the list
+            projectFields.add(new String[] {fieldInfo.getFieldName(),
+                                            fieldInfo.getDescription(),
+                                            Integer.toString(fieldInfo.getSize()),
+                                            fieldInfo.getInputType().getInputName(),
+                                            Boolean.toString(fieldInfo.isRequired()),
+                                            fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                            fieldInfo.getValue()});
+        }
+
+        return projectFields.toArray(new String[0][0]);
+    }
+
     /**********************************************************************************************
      * Get the description of the specified link
      *
@@ -4556,7 +4585,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public int getVariableOffset(String path)
     {
-        return varSizeHandler.getVariableOffset(path);
+        return variableHandler.getVariableOffset(path);
     }
 
     /**********************************************************************************************
