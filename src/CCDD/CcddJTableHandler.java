@@ -4138,9 +4138,7 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Get the cell row and column that has the focus
                 editRow = getSelectedRow() + getSelectedRowCount() - 1;
-                editColumn = getSelectedColumn()
-                             + getSelectedColumnCount()
-                             - 1;
+                editColumn = getSelectedColumn() + getSelectedColumnCount() - 1;
 
                 // Initiate editing on the selected cell. This covers a specific case where the
                 // editor doesn't engage following resizing (smaller) a single table column

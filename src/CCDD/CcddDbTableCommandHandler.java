@@ -3252,10 +3252,8 @@ public class CcddDbTableCommandHandler
                                                          + newVariableName;
 
                                 // If the structure chosen as the variable's data type is a root
-                                // structure, then any custom values for this the root structure
-                                // (which becomes a child structure) are transferred to its new
-                                // parent structure. References in the other internal tables are
-                                // also changed to the structure's new path as a child
+                                // structure, then any references in the internal tables are
+                                // changed to the structure's new path as a child
                                 valuesModCmd.append("UPDATE "
                                                     + InternalTable.VALUES.getTableName()
                                                     + " SET "
@@ -3278,6 +3276,33 @@ public class CcddDbTableCommandHandler
                                                     + "(,|$)', E'"
                                                     + newVariablePath
                                                     + "\\\\1'); ");
+                                ordersModCmd.append("UPDATE "
+                                                    + InternalTable.ORDERS.getTableName()
+                                                    + " SET "
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + " = regexp_replace("
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "(,|$)', E'"
+                                                    + newVariablePath
+                                                    + "\\\\1'); ");
+                                String orgPathWithChildren = newDataType + "(," + PATH_IDENT + ")?";
+                                assnsModCmd.append("UPDATE "
+                                                   + InternalTable.ASSOCIATIONS.getTableName()
+                                                   + " SET "
+                                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                                   + " = regexp_replace("
+                                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                                   + ", E'(?:^"
+                                                   + orgPathWithChildren
+                                                   + "|("
+                                                   + assnsSeparator
+                                                   + ")"
+                                                   + orgPathWithChildren
+                                                   + ")', E'\\\\2"
+                                                   + newVariablePath
+                                                   + "\\\\1\\\\3', 'g'); ");
 
                                 // Build the command to copy the data fields from the table's
                                 // prototype
@@ -3317,34 +3342,6 @@ public class CcddDbTableCommandHandler
                                                     + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
                                                     + "'; ");
 
-                                ordersModCmd.append("UPDATE "
-                                                    + InternalTable.ORDERS.getTableName()
-                                                    + " SET "
-                                                    + OrdersColumn.TABLE_PATH.getColumnName()
-                                                    + " = regexp_replace("
-                                                    + OrdersColumn.TABLE_PATH.getColumnName()
-                                                    + ", E'^"
-                                                    + newDataType
-                                                    + "(,|$)', E'"
-                                                    + newVariablePath
-                                                    + "\\\\1'); ");
-                                String orgPathWithChildren = newDataType + "(," + PATH_IDENT + ")?";
-                                assnsModCmd.append("UPDATE "
-                                                   + InternalTable.ASSOCIATIONS.getTableName()
-                                                   + " SET "
-                                                   + AssociationsColumn.MEMBERS.getColumnName()
-                                                   + " = regexp_replace("
-                                                   + AssociationsColumn.MEMBERS.getColumnName()
-                                                   + ", E'(?:^"
-                                                   + orgPathWithChildren
-                                                   + "|("
-                                                   + assnsSeparator
-                                                   + ")"
-                                                   + orgPathWithChildren
-                                                   + ")', E'\\\\2"
-                                                   + newVariablePath
-                                                   + "\\\\1\\\\3', 'g'); ");
-
                                 // References in the links and telemetry scheduler to the root
                                 // structure and its children are not automatically amended to
                                 // include the new parent structure path, but are instead removed
@@ -3357,6 +3354,14 @@ public class CcddDbTableCommandHandler
                             // doesn't change even if multiple modifications are made to the table
                             if (tablePathList == null)
                             {
+                                // TODO
+                                // tablePathList = tableTree.getTableTreePathArray(null,
+                                // (ToolTipTreeNode) tableTree.getRootNode(),
+                                // -1);
+                                // for (Object[] path : tablePathList) // TODO
+                                // System.out.println(Arrays.toString(path)); // TODO
+                                // end TODO
+
                                 // Create a list of table path arrays that are instances of this
                                 // prototype table
                                 // TODO CHECK THAT THE NODE IS OK SINCE THE ARRANGEMENT OF THE
@@ -3370,10 +3375,17 @@ public class CcddDbTableCommandHandler
                                 // NODE) LIKE IT USED TO - DOES IT NEED THESE? DOES MAKE A
                                 // DIFFERENCE IN SOME CASES TO THE COMMAND OUTPUT, SUCH AS WHEN A
                                 // PROTOTYPE IS REFERENCED IN CHILD TABLES (E.G., QUAT_T). NEED TO
-                                // VERIFY THESE EXTRA CMDS ARE VALID
-                                tablePathList.addAll(tableTree.getTableTreePathArray(tableInfo.getPrototypeName(),
-                                                                                     tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME),
-                                                                                     -1));
+                                // VERIFY THESE EXTRA CMDS ARE VALID/NEEDED
+                                // Check if the data type changed from a structure to either a
+                                // primitive or another structure
+                                if (dataTypeChanged && !dataTypeHandler.isPrimitive(oldDataType))
+                                {
+                                    // Add the paths for references to the prototype in non-root
+                                    // prototype tables
+                                    tablePathList.addAll(tableTree.getTableTreePathArray(tableInfo.getPrototypeName(),
+                                                                                         tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME),
+                                                                                         -1));
+                                }
 
                                 // for (Object[] path : tablePathList) // TODO
                                 // System.out.println(Arrays.toString(path)); // TODO
@@ -3416,7 +3428,7 @@ public class CcddDbTableCommandHandler
                                          && (oldArraySize.isEmpty()
                                              || newArraySize.isEmpty())))
                                 {
-                                    // Create the command to update the internal tables for
+                                    // Create the commands to update the internal tables for
                                     // instances of non-array member variables of the prototype
                                     // table
                                     valuesModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
@@ -3597,14 +3609,6 @@ public class CcddDbTableCommandHandler
                                                        + ", E'"
                                                        + assnsSeparator
                                                        + orgPathWithChildren
-                                                       + "', E'', 'g'); UPDATE "
-                                                       + InternalTable.ASSOCIATIONS.getTableName()
-                                                       + " SET "
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + ", E'^"
-                                                       + assnsSeparator
                                                        + "', E'', 'g'); ");
 
                                     // Check if the rate didn't change as well (if the rate changed
@@ -3640,7 +3644,8 @@ public class CcddDbTableCommandHandler
                                     // original variable path and any children
                                     String pathMatch = orgVarPathEsc + "(?:,|\\\\[|$)";
 
-                                    // Remove all references to the structure and its children
+                                    // Remove all references to the structure and its children in
+                                    // the internal tables (other than the custom values table)
                                     groupsModCmd.append("DELETE FROM "
                                                         + InternalTable.GROUPS.getTableName()
                                                         + " WHERE "
@@ -3694,15 +3699,7 @@ public class CcddDbTableCommandHandler
                                                        + orgVarPathEsc
                                                        + "(?:"
                                                        + assnsSeparator
-                                                       + "|$)', E'', 'g'); UPDATE "
-                                                       + InternalTable.ASSOCIATIONS.getTableName()
-                                                       + " SET "
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + ", E'^"
-                                                       + assnsSeparator
-                                                       + "', E'', 'g'); ");
+                                                       + "|$)', E'', 'g'); ");
 
                                     // Check if the rate didn't change as well (if the rate changed
                                     // then updates to the links and telemetry scheduler tables are
@@ -3732,6 +3729,21 @@ public class CcddDbTableCommandHandler
                                 }
                             }
                         }
+                    }
+
+                    // Check is a command was created to change the associations table
+                    if (assnsModCmd.length() != 0)
+                    {
+                        // Clean up any associations that no longer have a table referenced
+                        assnsModCmd.append("UPDATE "
+                                           + InternalTable.ASSOCIATIONS.getTableName()
+                                           + " SET "
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + " = regexp_replace("
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + ", E'^"
+                                           + assnsSeparator
+                                           + "', E'', 'g'); ");
                     }
 
                     // Remove the trailing comma and space, then add the condition based on the
@@ -3832,6 +3844,21 @@ public class CcddDbTableCommandHandler
                     }
                 }
             }
+
+            // Check if a deletion to the links table exists
+            if (linksDelCmd.length() != 0)
+            {
+                // Terminate the links table command and add it to the modification command
+                modCmd.append(linksDelCmd.toString());
+            }
+
+            // Check if a deletion to the telemetry scheduler table exists
+            if (tlmDelCmd.length() != 0)
+            {
+                // Terminate the telemetry scheduler table command and add it to the modification
+                // command
+                modCmd.append(tlmDelCmd.toString());
+            }
         }
 
         return modCmd.toString();
@@ -3927,6 +3954,10 @@ public class CcddDbTableCommandHandler
                     valuesDelCmd.append("DELETE FROM "
                                         + InternalTable.VALUES.getTableName()
                                         + " WHERE "
+                                        + ValuesColumn.TABLE_PATH.getColumnName()
+                                        + " ~ E'^"
+                                        + protoVarPathEsc
+                                        + "(?:,|:|$)' OR "
                                         + ValuesColumn.TABLE_PATH.getColumnName()
                                         + " ~ E'^"
                                         + instanceVarPathEsc
@@ -4026,17 +4057,24 @@ public class CcddDbTableCommandHandler
                                            + ", E'"
                                            + assnsSeparator
                                            + instancePathWithChildren
-                                           + "', E'', 'g'); UPDATE "
-                                           + InternalTable.ASSOCIATIONS.getTableName()
-                                           + " SET "
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + " = regexp_replace("
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + ", E'^"
-                                           + assnsSeparator
                                            + "', E'', 'g'); ");
                     }
                 }
+            }
+
+            // Check is a command was created to change the associations table
+            if (assnsDelCmd.length() != 0)
+            {
+                // Clean up any associations that no longer have a table referenced
+                assnsDelCmd.append("UPDATE "
+                                   + InternalTable.ASSOCIATIONS.getTableName()
+                                   + " SET "
+                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                   + " = regexp_replace("
+                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                   + ", E'^"
+                                   + assnsSeparator
+                                   + "', E'', 'g'); ");
             }
 
             // Append the command's closing semi-colon and add the commands to update the internal

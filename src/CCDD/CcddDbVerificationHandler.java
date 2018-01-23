@@ -3029,6 +3029,7 @@ public class CcddDbVerificationHandler
                         // Update the various handlers so that the updated internal tables will now
                         // be in use
                         ccddMain.setPreFunctionDbSpecificHandlers();
+                        ccddMain.setPostFunctionDbSpecificHandlers();
 
                         // Log that the table update(s) succeeded
                         message = "One or more project database inconsistencies were detected and corrected";

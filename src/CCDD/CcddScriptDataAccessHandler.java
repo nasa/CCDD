@@ -3267,6 +3267,17 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Get the name(s) of the data field(s) associated with the project
+     *
+     * @return Array of the data field names associated with the project; returns an empty array if
+     *         the project has no data fields
+     *********************************************************************************************/
+    public String[] getProjectFieldNames()
+    {
+        return getDataFieldNames(CcddFieldHandler.getFieldProjectName());
+    }
+
+    /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified owner
      *
      * @param ownerName
@@ -3423,6 +3434,19 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Get the value for the specified project data field
+     *
+     * @param fieldName
+     *            data field name
+     *
+     * @return Data field value; returns a null if the project field name is invalid
+     *********************************************************************************************/
+    public String getProjectDataFieldValue(String fieldName)
+    {
+        return getDataFieldValue(CcddFieldHandler.getFieldProjectName(), fieldName);
+    }
+
+    /**********************************************************************************************
      * Get the contents of the data field for the specified table's specified data field
      *
      * @param ownerName
@@ -3507,6 +3531,19 @@ public class CcddScriptDataAccessHandler
     public String getTypeDataFieldDescription(String typeName, String fieldName)
     {
         return getDataFieldDescription(CcddFieldHandler.getFieldTypeName(typeName), fieldName);
+    }
+
+    /**********************************************************************************************
+     * Get the description for the specified project data field
+     *
+     * @param fieldName
+     *            data field name
+     *
+     * @return Data field description; returns a blank if the project field name is invalid
+     *********************************************************************************************/
+    public String getProjectDataFieldDescription(String fieldName)
+    {
+        return getDataFieldDescription(CcddFieldHandler.getFieldProjectName(), fieldName);
     }
 
     /**********************************************************************************************
@@ -4463,7 +4500,6 @@ public class CcddScriptDataAccessHandler
         fileIOHandler.closeFile(printWriter);
     }
 
-    // TODO NEW (undocumented)
     /**********************************************************************************************
      * Get an array containing the data field information for the project
      *

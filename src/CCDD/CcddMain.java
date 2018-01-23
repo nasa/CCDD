@@ -511,7 +511,6 @@ public class CcddMain
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
         CcddClasses.setHandlers(CcddMain.this);
-        dbTable.setHandlers();
         fileIOHandler.setHandlers();
         scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
@@ -532,7 +531,9 @@ public class CcddMain
         // Create a variable size and conversion handler for the project database
         variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
 
-        // Now that the variable handler exists, store its reference in the other macro handler
+        // Now that the variable handler exists, store its reference in the table command and macro
+        // handlers
+        dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler);
 
         // Determine the variable offsets (note that the variable size class must be fully
@@ -1262,11 +1263,9 @@ public class CcddMain
 
         // Create the main application frame and set its characteristics
         frameCCDD = new JFrame();
-        frameCCDD.setTitle("CFS Command & Data Dictionary  "
-                           + ccddVersion);
+        frameCCDD.setTitle("CFS Command & Data Dictionary  " + ccddVersion);
         frameCCDD.setBounds(100, 100, INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
-        frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH,
-                                               MIN_WINDOW_HEIGHT));
+        frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT));
 
         // Set the default close operation so that the main window frame's close button doesn't
         // automatically exit the program. Instead, if this close button is pressed a 'click' event
@@ -1536,8 +1535,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddServerPropertyDialog(CcddMain.this,
-                                             ServerPropertyDialogType.WEB_SERVER);
+                new CcddServerPropertyDialog(CcddMain.this, ServerPropertyDialogType.WEB_SERVER);
             }
         });
 
@@ -1550,8 +1548,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.OPEN);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.OPEN);
             }
         });
 

@@ -4922,7 +4922,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     @Override
     protected void updateOwnerChangeIndicator()
     {
-
         editorDialog.updateChangeIndicator(this);
     }
 }

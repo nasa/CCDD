@@ -64,13 +64,13 @@ public class CcddUndoManager extends UndoManager
             // Initiate a new compound edit sequence and adjust the stack pointer
             compoundEdits.add(new CompoundEdit());
             pointer++;
-
-            // Send event indicating the owner has changed
-            ownerHasChanged();
         }
 
         // Add the edit action to the sequence
         compoundEdits.get(pointer).addEdit(editAction);
+
+        // Send event indicating the owner has changed
+        ownerHasChanged();
     }
 
     /**********************************************************************************************
