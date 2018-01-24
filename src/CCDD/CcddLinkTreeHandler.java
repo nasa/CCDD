@@ -802,7 +802,10 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         if (prefTreeWidth != 0)
         {
             // Set the tree's preferred width
-            setPreferredSize(new Dimension(prefTreeWidth, 0));
+            treeScroll.setPreferredSize(new Dimension(prefTreeWidth
+                                                      + treeScroll.getBorder().getBorderInsets(treeScroll).left
+                                                        * 2,
+                                                      0));
         }
 
         // Add the tree to the panel

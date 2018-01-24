@@ -1592,10 +1592,7 @@ public class CcddUndoHandler
          * @param undoable
          *            true if the change can be undone
          *****************************************************************************************/
-        protected void setValueAt(Object value,
-                                  int row,
-                                  int column,
-                                  boolean undoable)
+        protected void setValueAt(Object value, int row, int column, boolean undoable)
         {
             // Perform any clean-up actions on the cell
             value = cleanUpCellValue(value, row, column);

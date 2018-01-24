@@ -251,9 +251,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                         }
 
                         // Set the search result table values
-                        target = SearchTarget.TABLE.getTargetName(true)
-                                 + ": "
-                                 + nameAndType[0];
+                        target = SearchTarget.TABLE.getTargetName(true) + nameAndType[0];
                         location = "Column '"
                                    + typeDefn.getColumnNamesUser()[colIndex]
                                    + "', "
@@ -313,49 +311,45 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the data types internal table
                     else if (hitTableName.equals(InternalTable.DATA_TYPES.getTableName()))
                     {
-                        target = SearchTarget.DATA_TYPE.getTargetName(true);
-                        location = "Data type '"
-                                   + CcddDataTypeHandler.getDataTypeName(columnValue[DataTypesColumn.USER_NAME.ordinal()],
-                                                                         columnValue[DataTypesColumn.C_NAME.ordinal()])
-                                   + "' ";
+                        target = SearchTarget.DATA_TYPE.getTargetName(true)
+                                 + CcddDataTypeHandler.getDataTypeName(columnValue[DataTypesColumn.USER_NAME.ordinal()],
+                                                                       columnValue[DataTypesColumn.C_NAME.ordinal()]);
 
                         // Check if the match is with the user-defined name
                         if (hitColumnName.equals(DataTypesColumn.USER_NAME.getColumnName()))
                         {
-                            location += "user-defined name";
+                            location = "User-defined name";
                             context = columnValue[DataTypesColumn.USER_NAME.ordinal()];
                         }
                         // Check if the match is with the C-language name
                         else if (hitColumnName.equals(DataTypesColumn.C_NAME.getColumnName()))
                         {
-                            location += "C-language name";
+                            location = "C-language name";
                             context = columnValue[DataTypesColumn.C_NAME.ordinal()];
                         }
                         // Check if the match is with the data type size
                         else if (hitColumnName.equals(DataTypesColumn.SIZE.getColumnName()))
                         {
-                            location += "data type size";
+                            location = "Data type size";
                             context = columnValue[DataTypesColumn.SIZE.ordinal()];
                         }
                         // Check if the match is with the base type
                         else if (hitColumnName.equals(DataTypesColumn.BASE_TYPE.getColumnName()))
                         {
-                            location += "base data type";
+                            location += "Base data type";
                             context = columnValue[DataTypesColumn.BASE_TYPE.ordinal()];
                         }
                     }
                     // Check if the match is in the groups table
                     else if (hitTableName.equals(InternalTable.GROUPS.getTableName()))
                     {
-                        target = SearchTarget.GROUP.getTargetName(true);
-                        location = "Group '"
-                                   + columnValue[GroupsColumn.GROUP_NAME.ordinal()]
-                                   + "' ";
+                        target = SearchTarget.GROUP.getTargetName(true)
+                                 + columnValue[GroupsColumn.GROUP_NAME.ordinal()];
 
                         // Check if the match is with the group name
                         if (hitColumnName.equals(GroupsColumn.GROUP_NAME.getColumnName()))
                         {
-                            location += "name";
+                            location = "Name";
                             context = columnValue[GroupsColumn.GROUP_NAME.ordinal()];
                         }
                         // The match is with a group definition or member
@@ -373,7 +367,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                                 // dummy number and comma aren't part of the match)
                                 if (context.toLowerCase().contains(searchText.toLowerCase()))
                                 {
-                                    location += "description";
+                                    location = "Description";
                                 }
                                 // The match includes the dummy number and comma; ignore
                                 else
@@ -384,7 +378,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             // This is a group member
                             else
                             {
-                                location += "member table";
+                                location = "Member table";
                                 context = columnValue[GroupsColumn.MEMBERS.ordinal()];
                             }
                         }
@@ -392,31 +386,28 @@ public class CcddSearchHandler extends CcddDialogHandler
                     // Check if the match is in the fields internal table
                     else if (hitTableName.equals(InternalTable.FIELDS.getTableName()))
                     {
-                        location = "Field name '"
-                                   + columnValue[FieldsColumn.FIELD_NAME.ordinal()]
-                                   + "' ";
-
                         // Check if this is a default data field
                         if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
                         {
                             target = SearchTarget.DEFAULT_FIELD.getTargetName(true)
-                                     + ": "
                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a group data field
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
                             target = SearchTarget.GROUP_FIELD.getTargetName(true)
-                                     + ": "
                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // This is a table data field
                         else
                         {
                             target = CcddUtilities.highlightDataType(SearchTarget.TABLE_FIELD.getTargetName(true)
-                                                                     + ": "
                                                                      + columnValue[FieldsColumn.OWNER_NAME.ordinal()]);
                         }
+
+                        location = "Field name '"
+                                   + columnValue[FieldsColumn.FIELD_NAME.ordinal()]
+                                   + "' ";
 
                         // Check if the match is with the field owner name
                         if (hitColumnName.equals(FieldsColumn.OWNER_NAME.getColumnName()))
@@ -476,13 +467,13 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // Check if the match is with the script file path and/or name
                         if (hitColumnName.equals(AssociationsColumn.SCRIPT_FILE.getColumnName()))
                         {
-                            location += "File path and name";
+                            location = "File path and name";
                             context = columnValue[AssociationsColumn.SCRIPT_FILE.ordinal()];
                         }
                         // The match is with a script association member
                         else
                         {
-                            location += "Member table";
+                            location = "Member table";
                             context = columnValue[AssociationsColumn.MEMBERS.ordinal()];
                         }
                     }
@@ -495,19 +486,19 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // Check if the match is with the message name
                         if (hitColumnName.equals(TlmSchedulerColumn.MESSAGE_NAME.getColumnName()))
                         {
-                            location += "Name";
+                            location = "Name";
                             context = columnValue[TlmSchedulerColumn.MESSAGE_NAME.ordinal()];
                         }
                         // Check if the match is with the message rate name
                         else if (hitColumnName.equals(TlmSchedulerColumn.RATE_NAME.getColumnName()))
                         {
-                            location += "Rate name";
+                            location = "Rate name";
                             context = columnValue[TlmSchedulerColumn.RATE_NAME.ordinal()];
                         }
                         // Check if the match is with the message ID
                         else if (hitColumnName.equals(TlmSchedulerColumn.MESSAGE_ID.getColumnName()))
                         {
-                            location += "ID";
+                            location = "ID";
                             context = columnValue[TlmSchedulerColumn.MESSAGE_ID.ordinal()];
                         }
                         // The match is with a message definition or member
@@ -519,12 +510,12 @@ public class CcddSearchHandler extends CcddDialogHandler
                             // definition
                             if (columnValue[TlmSchedulerColumn.MEMBER.ordinal()].matches("^\\d+"))
                             {
-                                location += "rate and description";
+                                location = "Rate and description";
                             }
                             // This is a message member
                             else
                             {
-                                location += "member rate, table, and variable";
+                                location = "Member rate, table, and variable";
                             }
                         }
                     }

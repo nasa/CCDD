@@ -6045,7 +6045,7 @@ public class CcddConstants
             if (isFormat)
             {
                 // Add the formatting to the name
-                name = "<html><i>" + name + "</i>";
+                name = "<html><i>" + name + "</i>: ";
             }
 
             return name;

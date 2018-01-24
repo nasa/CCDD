@@ -2751,17 +2751,6 @@ public class CcddDbTableCommandHandler
                 description = "";
             }
 
-            /*******************************************************************/
-            /*******************************************************************/
-            /*******************************************************************/
-            /*******************************************************************/
-            // System.out.println(command); // TODO
-            // System.exit(0); // TESTING!
-            /*******************************************************************/
-            /*******************************************************************/
-            /*******************************************************************/
-            /*******************************************************************/
-
             // Combine the table, data fields table, table description, and column order update
             // commands, then execute the commands
             dbCommand.executeDbUpdate(command
@@ -2990,9 +2979,41 @@ public class CcddDbTableCommandHandler
                                             + FieldsColumn.OWNER_NAME.getColumnName()
                                             + ", E'^"
                                             + dataType
-                                            + "(,|$)', E'"
+                                            + ",', E'"
                                             + newVariablePath
-                                            + "\\\\1'); ");
+                                            + ",'); INSERT INTO "
+                                            + InternalTable.FIELDS.getTableName()
+                                            + " SELECT regexp_replace("
+                                            + FieldsColumn.OWNER_NAME.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + "', E'"
+                                            + newVariablePath
+                                            + "'), "
+                                            + FieldsColumn.FIELD_NAME.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_DESC.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_SIZE.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_TYPE.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_REQUIRED.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                            + ", "
+                                            + FieldsColumn.FIELD_VALUE.getColumnName()
+                                            + " FROM "
+                                            + InternalTable.FIELDS.getTableName()
+                                            + " WHERE "
+                                            + FieldsColumn.OWNER_NAME.getColumnName()
+                                            + " = '"
+                                            + dataType
+                                            + "' AND "
+                                            + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                            + " != '"
+                                            + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                                            + "'; ");
                         ordersAddCmd.append("UPDATE "
                                             + InternalTable.ORDERS.getTableName()
                                             + " SET "
@@ -3001,9 +3022,27 @@ public class CcddDbTableCommandHandler
                                             + OrdersColumn.TABLE_PATH.getColumnName()
                                             + ", E'^"
                                             + dataType
-                                            + "(,|$)', E'"
+                                            + ",', E'"
                                             + newVariablePath
-                                            + "\\\\1'); ");
+                                            + ",'); INSERT INTO "
+                                            + InternalTable.ORDERS.getTableName()
+                                            + " SELECT "
+                                            + OrdersColumn.USER_NAME.getColumnName()
+                                            + ", regexp_replace("
+                                            + OrdersColumn.TABLE_PATH.getColumnName()
+                                            + ", E'^"
+                                            + dataType
+                                            + "', E'"
+                                            + newVariablePath
+                                            + "'), "
+                                            + OrdersColumn.COLUMN_ORDER.getColumnName()
+                                            + " FROM "
+                                            + InternalTable.ORDERS.getTableName()
+                                            + " WHERE "
+                                            + OrdersColumn.TABLE_PATH.getColumnName()
+                                            + " = '"
+                                            + dataType
+                                            + "'; ");
                         String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
                         assnsAddCmd.append("UPDATE "
                                            + InternalTable.ASSOCIATIONS.getTableName()
@@ -3055,20 +3094,6 @@ public class CcddDbTableCommandHandler
                         }
                     }
                 }
-            }
-
-            // Check if a change to the links table exists
-            if (linksDelCmd.length() != 0)
-            {
-                // Terminate the command
-                linksDelCmd.append("; ");
-            }
-
-            // Check if a change to the telemetry scheduler table exists
-            if (tlmDelCmd.length() != 0)
-            {
-                // Terminate the command
-                tlmDelCmd.append("; ");
             }
 
             // Remove the ending comma and space, and append the command's closing semi-colon
@@ -3276,6 +3301,49 @@ public class CcddDbTableCommandHandler
                                                     + "(,|$)', E'"
                                                     + newVariablePath
                                                     + "\\\\1'); ");
+                                fieldsModCmd.append("UPDATE "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " SET "
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + " = regexp_replace("
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + ",', E'"
+                                                    + newVariablePath
+                                                    + ",'); INSERT INTO "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " SELECT regexp_replace("
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "', E'"
+                                                    + newVariablePath
+                                                    + "'), "
+                                                    + FieldsColumn.FIELD_NAME.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_DESC.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_SIZE.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_REQUIRED.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                    + ", "
+                                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                    + " FROM "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " WHERE "
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + " = '"
+                                                    + newDataType
+                                                    + "' AND "
+                                                    + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                    + " != '"
+                                                    + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                                                    + "'; ");
                                 ordersModCmd.append("UPDATE "
                                                     + InternalTable.ORDERS.getTableName()
                                                     + " SET "
@@ -3284,9 +3352,27 @@ public class CcddDbTableCommandHandler
                                                     + OrdersColumn.TABLE_PATH.getColumnName()
                                                     + ", E'^"
                                                     + newDataType
-                                                    + "(,|$)', E'"
+                                                    + ",', E'"
                                                     + newVariablePath
-                                                    + "\\\\1'); ");
+                                                    + ",'); INSERT INTO "
+                                                    + InternalTable.ORDERS.getTableName()
+                                                    + " SELECT "
+                                                    + OrdersColumn.USER_NAME.getColumnName()
+                                                    + ", regexp_replace("
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + ", E'^"
+                                                    + newDataType
+                                                    + "', E'"
+                                                    + newVariablePath
+                                                    + "'), "
+                                                    + OrdersColumn.COLUMN_ORDER.getColumnName()
+                                                    + " FROM "
+                                                    + InternalTable.ORDERS.getTableName()
+                                                    + " WHERE "
+                                                    + OrdersColumn.TABLE_PATH.getColumnName()
+                                                    + " = '"
+                                                    + newDataType
+                                                    + "'; ");
                                 String orgPathWithChildren = newDataType + "(," + PATH_IDENT + ")?";
                                 assnsModCmd.append("UPDATE "
                                                    + InternalTable.ASSOCIATIONS.getTableName()
@@ -3302,45 +3388,7 @@ public class CcddDbTableCommandHandler
                                                    + orgPathWithChildren
                                                    + ")', E'\\\\2"
                                                    + newVariablePath
-                                                   + "\\\\1\\\\3', 'g'); ");
-
-                                // Build the command to copy the data fields from the table's
-                                // prototype
-                                fieldsModCmd.append("INSERT INTO "
-                                                    + InternalTable.FIELDS.getTableName()
-                                                    + " SELECT regexp_replace("
-                                                    + FieldsColumn.OWNER_NAME.getColumnName()
-                                                    + ", E'^"
-                                                    + newDataType
-                                                    + "(,|$)', E'"
-                                                    + newVariablePath
-                                                    + "\\\\1')");
-
-                                // Step through each column in the data field table
-                                for (FieldsColumn fldCol : FieldsColumn.values())
-                                {
-                                    // Check if this isn't the owner name column
-                                    if (!fldCol.equals(FieldsColumn.OWNER_NAME))
-                                    {
-                                        // Add the column name to those to be copied
-                                        fieldsModCmd.append(", " + fldCol.getColumnName());
-                                    }
-                                }
-
-                                // Complete the command to copy the prototype's fields to the
-                                // child. Do not copy fields flagged as being applicable only to
-                                // root tables
-                                fieldsModCmd.append(" FROM "
-                                                    + InternalTable.FIELDS.getTableName()
-                                                    + " WHERE "
-                                                    + FieldsColumn.OWNER_NAME.getColumnName()
-                                                    + " = '"
-                                                    + newDataType
-                                                    + "' AND "
-                                                    + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                                    + " != '"
-                                                    + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                                                    + "'; ");
+                                                   + "\\\\1\\\\3', 'ng'); ");
 
                                 // References in the links and telemetry scheduler to the root
                                 // structure and its children are not automatically amended to
@@ -3354,28 +3402,12 @@ public class CcddDbTableCommandHandler
                             // doesn't change even if multiple modifications are made to the table
                             if (tablePathList == null)
                             {
-                                // TODO
-                                // tablePathList = tableTree.getTableTreePathArray(null,
-                                // (ToolTipTreeNode) tableTree.getRootNode(),
-                                // -1);
-                                // for (Object[] path : tablePathList) // TODO
-                                // System.out.println(Arrays.toString(path)); // TODO
-                                // end TODO
-
                                 // Create a list of table path arrays that are instances of this
                                 // prototype table
-                                // TODO CHECK THAT THE NODE IS OK SINCE THE ARRANGEMENT OF THE
-                                // STRUCTURES_WITH_PRIMITIVES TREE TYPE HAS BEEN CHANGED SO THAT
-                                // NON-ROOT CHILDREN AREN'T IN THE INSTANCE NODE
                                 tablePathList = tableTree.getTableTreePathArray(tableInfo.getPrototypeName(),
                                                                                 tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
                                                                                 -1);
 
-                                // TODO THIS ADDS THE PROTOTYPE REFS (NOW LOCATED IN THE Prototypes
-                                // NODE) LIKE IT USED TO - DOES IT NEED THESE? DOES MAKE A
-                                // DIFFERENCE IN SOME CASES TO THE COMMAND OUTPUT, SUCH AS WHEN A
-                                // PROTOTYPE IS REFERENCED IN CHILD TABLES (E.G., QUAT_T). NEED TO
-                                // VERIFY THESE EXTRA CMDS ARE VALID/NEEDED
                                 // Check if the data type changed from a structure to either a
                                 // primitive or another structure
                                 if (dataTypeChanged && !dataTypeHandler.isPrimitive(oldDataType))
@@ -3386,9 +3418,6 @@ public class CcddDbTableCommandHandler
                                                                                          tableTree.getNodeByNodeName(DEFAULT_PROTOTYPE_NODE_NAME),
                                                                                          -1));
                                 }
-
-                                // for (Object[] path : tablePathList) // TODO
-                                // System.out.println(Arrays.toString(path)); // TODO
                             }
 
                             // Step through each table path found
@@ -3477,7 +3506,7 @@ public class CcddDbTableCommandHandler
                                                        + orgPathWithChildren
                                                        + ")', E'\\\\2"
                                                        + newVariablePath
-                                                       + "\\\\1\\\\3', 'g'); ");
+                                                       + "\\\\1\\\\3', 'ng'); ");
 
                                     // Check if the data type, bit length, and rate didn't also
                                     // change (updates to the links and telemetry scheduler tables
@@ -3600,7 +3629,7 @@ public class CcddDbTableCommandHandler
                                                        + AssociationsColumn.MEMBERS.getColumnName()
                                                        + ", E'^"
                                                        + orgPathWithChildren
-                                                       + "', E'', 'g'); UPDATE "
+                                                       + "', E'', 'ng'); UPDATE "
                                                        + InternalTable.ASSOCIATIONS.getTableName()
                                                        + " SET "
                                                        + AssociationsColumn.MEMBERS.getColumnName()
@@ -3609,7 +3638,7 @@ public class CcddDbTableCommandHandler
                                                        + ", E'"
                                                        + assnsSeparator
                                                        + orgPathWithChildren
-                                                       + "', E'', 'g'); ");
+                                                       + "', E'', 'ng'); ");
 
                                     // Check if the rate didn't change as well (if the rate changed
                                     // then updates to the links and telemetry scheduler tables are
@@ -3667,39 +3696,28 @@ public class CcddDbTableCommandHandler
                                                         + " ~ E'^"
                                                         + pathMatch
                                                         + "'; ");
-                                    String orgPathWithChildren = orgVarPathEsc
-                                                                 + "(?:,|\\\\[\\d+\\\\])"
-                                                                 + PATH_IDENT;
-                                    assnsModCmd.append("UPDATE "
-                                                       + InternalTable.ASSOCIATIONS.getTableName()
-                                                       + " SET "
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + ", E'^"
-                                                       + orgPathWithChildren
-                                                       + "', E'', 'g'); UPDATE "
-                                                       + InternalTable.ASSOCIATIONS.getTableName()
-                                                       + " SET "
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + ", E'"
-                                                       + assnsSeparator
-                                                       + orgPathWithChildren
-                                                       + "', E'', 'g'); UPDATE "
-                                                       + InternalTable.ASSOCIATIONS.getTableName()
-                                                       + " SET "
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + " = regexp_replace("
-                                                       + AssociationsColumn.MEMBERS.getColumnName()
-                                                       + ", E'(?:^|"
-                                                       + assnsSeparator
-                                                       + ")"
-                                                       + orgVarPathEsc
-                                                       + "(?:"
-                                                       + assnsSeparator
-                                                       + "|$)', E'', 'g'); ");
+
+                                    // Check if the variable changed from not an array to an array
+                                    if (!newArraySize.isEmpty())
+                                    {
+                                        // Remove all non-array references to the structure and its
+                                        // children in the script associations. If the variable
+                                        // changed from an array to not an array then updates to
+                                        // the associations are handled by the row deletion method
+                                        assnsModCmd.append("UPDATE "
+                                                           + InternalTable.ASSOCIATIONS.getTableName()
+                                                           + " SET "
+                                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                                           + " = regexp_replace("
+                                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                                           + ", E'^"
+                                                           + orgVarPathEsc
+                                                           + "(?:"
+                                                           + assnsSeparator
+                                                           + "|,"
+                                                           + PATH_IDENT
+                                                           + "|$)', E'', 'ng'); ");
+                                    }
 
                                     // Check if the rate didn't change as well (if the rate changed
                                     // then updates to the links and telemetry scheduler tables are
@@ -3743,7 +3761,15 @@ public class CcddDbTableCommandHandler
                                            + AssociationsColumn.MEMBERS.getColumnName()
                                            + ", E'^"
                                            + assnsSeparator
-                                           + "', E'', 'g'); ");
+                                           + "', E'', 'ng'); UPDATE "
+                                           + InternalTable.ASSOCIATIONS.getTableName()
+                                           + " SET "
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + " = regexp_replace("
+                                           + AssociationsColumn.MEMBERS.getColumnName()
+                                           + ", E'"
+                                           + assnsSeparator
+                                           + "$', E'', 'ng'); ");
                     }
 
                     // Remove the trailing comma and space, then add the condition based on the
@@ -4031,16 +4057,7 @@ public class CcddDbTableCommandHandler
                                            + AssociationsColumn.MEMBERS.getColumnName()
                                            + ", E'^"
                                            + protoPathWithChildren
-                                           + "', E'', 'g'); UPDATE "
-                                           + InternalTable.ASSOCIATIONS.getTableName()
-                                           + " SET "
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + " = regexp_replace("
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + ", E'"
-                                           + assnsSeparator
-                                           + protoPathWithChildren
-                                           + "', E'', 'g'); UPDATE "
+                                           + "', E'', 'ng'); UPDATE "
                                            + InternalTable.ASSOCIATIONS.getTableName()
                                            + " SET "
                                            + AssociationsColumn.MEMBERS.getColumnName()
@@ -4048,16 +4065,7 @@ public class CcddDbTableCommandHandler
                                            + AssociationsColumn.MEMBERS.getColumnName()
                                            + ", E'^"
                                            + instancePathWithChildren
-                                           + "', E'', 'g'); UPDATE "
-                                           + InternalTable.ASSOCIATIONS.getTableName()
-                                           + " SET "
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + " = regexp_replace("
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + ", E'"
-                                           + assnsSeparator
-                                           + instancePathWithChildren
-                                           + "', E'', 'g'); ");
+                                           + "', E'', 'ng'); ");
                     }
                 }
             }
@@ -4074,7 +4082,15 @@ public class CcddDbTableCommandHandler
                                    + AssociationsColumn.MEMBERS.getColumnName()
                                    + ", E'^"
                                    + assnsSeparator
-                                   + "', E'', 'g'); ");
+                                   + "', E'', 'ng'); UPDATE "
+                                   + InternalTable.ASSOCIATIONS.getTableName()
+                                   + " SET "
+                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                   + " = regexp_replace("
+                                   + AssociationsColumn.MEMBERS.getColumnName()
+                                   + ", E'"
+                                   + assnsSeparator
+                                   + "$', E'', 'ng'); ");
             }
 
             // Append the command's closing semi-colon and add the commands to update the internal

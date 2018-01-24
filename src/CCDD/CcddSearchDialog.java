@@ -1054,13 +1054,12 @@ public class CcddSearchDialog extends CcddFrameHandler
 
                 // Check if the the cell is selected and the owner is a data table
                 if (resultsTable.isCellSelected(row, column)
-                    && tableName.startsWith(SearchTarget.TABLE.getTargetName(true) + ":"))
+                    && tableName.startsWith(SearchTarget.TABLE.getTargetName(true)))
                 {
                     // Remove the owner identifier. The table path for the search results uses a
                     // colon after the root table name instead of the usual comma, so this must be
                     // altered for the table path to be used to open the table
-                    tableName = tableName.substring(SearchTarget.TABLE.getTargetName(true).length() + 1)
-                                         .trim()
+                    tableName = tableName.substring(SearchTarget.TABLE.getTargetName(true).length())
                                          .replaceFirst(":", ",");
 
                     // Check if the table isn't already in the list of those to be opened

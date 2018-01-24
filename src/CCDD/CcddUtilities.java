@@ -766,6 +766,7 @@ public class CcddUtilities
     protected static String escapePostgreSQLReservedChars(String text)
     {
         return text.replaceAll("\\\\", "\\\\\\\\\\\\\\\\")
+                   .replaceAll("\n", "\\\\\\\\n")
                    .replaceAll(POSTGRESQL_RESERVED_CHARS, "$1\\\\\\\\$2$3");
     }
 

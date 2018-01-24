@@ -2024,9 +2024,7 @@ public abstract class CcddJTableHandler extends JTable
                         public void run()
                         {
                             // Update the table cell value to match the text entered
-                            table.setValueAt(textArea.getText(),
-                                             row,
-                                             column);
+                            table.setValueAt(textArea.getText(), row, column);
                         }
                     });
                 }
