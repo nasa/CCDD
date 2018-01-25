@@ -607,8 +607,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param isTlmName
      *            true if this is the tab for the telemetry message name assignment
      *********************************************************************************************/
-    private void addMessageIDTab(final MsgTabInfo tabInfo,
-                                 boolean isTlmName)
+    private void addMessageIDTab(final MsgTabInfo tabInfo, boolean isTlmName)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -742,10 +741,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabPnl.add(tabInfo.getOverwriteCbx(), gbc);
 
         // Add the tab
-        tabbedPane.addTab(tabInfo.getName(),
-                          null,
-                          tabPnl,
-                          tabInfo.getToolTip());
+        tabbedPane.addTab(tabInfo.getName(), null, tabPnl, tabInfo.getToolTip());
 
         // Disable the tab components initially
         setTabGUIComponentsEnable(tabInfo, false);
@@ -1011,8 +1007,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @return true if a message ID value changed
      *********************************************************************************************/
-    private boolean assignGroupMessageIDs(MsgTabInfo type,
-                                          List<FieldInformation> fieldInformation)
+    private boolean assignGroupMessageIDs(MsgTabInfo type, List<FieldInformation> fieldInformation)
     {
         boolean isChanges = false;
 
@@ -1062,8 +1057,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         for (Message message : messages)
         {
             // Use the pattern and current message number to create the message name
-            String msgName = String.format(tlmName.getPatternFld().getText(),
-                                           startNum);
+            String msgName = String.format(tlmName.getPatternFld().getText(), startNum);
 
             // Adjust the message number by the interval amount
             startNum += interval;
@@ -1113,10 +1107,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             {
                 // Set the sub-message's ID to the next one in the sequence (for the default
                 // sub-message use the parent message's ID
-                startID = setMessageID(tlmID,
-                                       message.getSubMessage(index),
-                                       startID,
-                                       interval);
+                startID = setMessageID(tlmID, message.getSubMessage(index), startID, interval);
             }
         }
     }
@@ -1140,10 +1131,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @return Next ID value in the sequence
      *********************************************************************************************/
-    private int setMessageID(MsgTabInfo tlmID,
-                             Message message,
-                             int idValue,
-                             int interval)
+    private int setMessageID(MsgTabInfo tlmID, Message message, int idValue, int interval)
     {
         int nextID = idValue;
 
@@ -1217,7 +1205,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
         try
         {
-            // Step through each table type
+            // Step through each message ID tab
             for (MsgTabInfo tabInfo : msgTabs)
             {
                 // Remove any excess white space

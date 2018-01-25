@@ -68,6 +68,8 @@ def makeCopyTableFile()
 
     # Check if the copy table file successfully opened
     if copyTableFile != nil
+        totalEntries = 0
+        entryIndex = 1
         allTableEntries = []
 
         # Add the build information to the output file
@@ -119,12 +121,51 @@ def makeCopyTableFile()
             if copyTableEntries.length > 0
                 # Adjust the minimum column widths
                 columnWidth = $ccdd.getLongestStrings(copyTableEntries, columnWidth)
+             
+                # Update the total number of copy table entries
+                totalEntries += copyTableEntries.length
             end
         end
 
+        # Check if there are unused copy table entries 
+        if totalEntries < $HK_COPY_TABLE_ENTRIES
+            # Update the maximum width of the input message ID column
+            if columnWidth[$INPUT_MSG_ID] < "HK_UNDEFINED_ENTRY".length
+                columnWidth[$INPUT_MSG_ID] = "HK_UNDEFINED_ENTRY".length
+            end
+
+            # Update the maximum width of the output message ID column
+            if columnWidth[$OUTPUT_MSG_ID] < "HK_UNDEFINED_ENTRY".length
+                columnWidth[$OUTPUT_MSG_ID] = "HK_UNDEFINED_ENTRY".length
+            end
+        end
+
+        # Write the standard include files to the copy table file
+        $ccdd.writeToFileLn(copyTableFile, "#include \"cfe.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_utils.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_app.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_msgids.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_tbldefs.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "#include \"cfe_tbl_filedef.h\"")
+        $ccdd.writeToFileLn(copyTableFile, "")
+        
+        # Get the number of rows for the Includes table data
+        numIncludeRows = $ccdd.getTableNumRows("Includes")
+        
+        # Check if there are any data to include
+        if numIncludeRows > 0
+            # Step through each row of Includes data
+            for row in 0..numIncludeRows - 1
+                # Output the Includes table's 'includes' column data
+                $ccdd.writeToFileLn(copyTableFile, $ccdd.getTableData("Includes", "includes", row))
+            end
+            
+            $ccdd.writeToFileLn(copyTableFile, "")
+        end
+        
         # Build the format strings so that the columns in each row are aligned
         formatHeader = "/* %-" + columnWidth[$INPUT_MSG_ID].to_s + "s| %-" + columnWidth[$INPUT_OFFSET].to_s + "s| %-" + columnWidth[$OUTPUT_MSG_ID].to_s + "s| %-" + columnWidth[$OUTPUT_OFFSET].to_s + "s| %-" + columnWidth[$VARIABLE_BYTES].to_s + "s */\n"
-        formatBody = "  {%-" + columnWidth[$INPUT_MSG_ID].to_s + "s, %" + columnWidth[$INPUT_OFFSET].to_s + "s, %-" + columnWidth[$OUTPUT_MSG_ID].to_s + "s, %" + columnWidth[$OUTPUT_OFFSET].to_s + "s, %" + columnWidth[$VARIABLE_BYTES].to_s + "s}%s  /* %s : %s */\n"
+        formatBody = "  {%-" + columnWidth[$INPUT_MSG_ID].to_s + "s, %" + columnWidth[$INPUT_OFFSET].to_s + "s, %-" + columnWidth[$OUTPUT_MSG_ID].to_s + "s, %" + columnWidth[$OUTPUT_OFFSET].to_s + "s, %" + columnWidth[$VARIABLE_BYTES].to_s + "s}%s  /* (%" + $HK_COPY_TABLE_ENTRIES.to_s.length.to_s + "s) %s : %s */\n"
 
         # Write the copy table definition statement
         $ccdd.writeToFileLn(copyTableFile, "hk_copy_table_entry_t HK_CopyTable[$HK_COPY_TABLE_ENTRIES] =")
@@ -147,40 +188,50 @@ def makeCopyTableFile()
                 for row in 0..copyTableEntries.length - 1
                     # Set the value so that it will append a comma to all but
                     # the last row
-                    if rowsRemaining > 0
-                        comma = "'"
+                    if entryIndex == $HK_COPY_TABLE_ENTRIES
+                        comma = " "
                     else
-                        comma = ""
+                        comma = ","
                     end
 
                     # Write the entry to the copy table file
-                    $ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][$INPUT_MSG_ID], copyTableEntries[row][$INPUT_OFFSET], copyTableEntries[row][$OUTPUT_MSG_ID], copyTableEntries[row][$OUTPUT_OFFSET], copyTableEntries[row][$VARIABLE_BYTES], comma, copyTableEntries[row][$VARIABLE_PARENT], copyTableEntries[row][$VARIABLE_NAME])
-
-                    # Decrement the number of rows remaining counter
-                    rowsRemaining = rowsRemaining - 1
+                    $ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][$INPUT_MSG_ID], copyTableEntries[row][$INPUT_OFFSET], copyTableEntries[row][$OUTPUT_MSG_ID], copyTableEntries[row][$OUTPUT_OFFSET], copyTableEntries[row][$VARIABLE_BYTES], comma, entryIndex.to_s, copyTableEntries[row][$VARIABLE_PARENT], copyTableEntries[row][$VARIABLE_NAME])
 
                     # Check if no available rows remain in the copy table
-                    if rowsRemaining < 0
+                    if entryIndex == $HK_COPY_TABLE_ENTRIES
                         # Exit the loop since no more entries can be added to
                         # the copy table
                         break
                     end
+
+                    # Increment the copy table entry index
+                    entryIndex += 1
                 end
             end
         end
 
         # Check if there are any unfilled rows in the copy table
-        if rowsRemaining >= 0
-            # Create a blank entry to use as filler
-            blankEntry = "  { HK_UNDEFINED_ENTRY,    0,   HK_UNDEFINED_ENTRY,       0,   0 }"
-
+        if entryIndex < $HK_COPY_TABLE_ENTRIES
+            # Build the format string for the empty entries so that the
+            # columns in each row are aligned
+            emptyFormatBody = "  {%-" + columnWidth[$INPUT_MSG_ID].to_s + "s, %" + columnWidth[$INPUT_OFFSET].to_s + "s, %-" + columnWidth[$OUTPUT_MSG_ID].to_s + "s, %" + columnWidth[$OUTPUT_OFFSET].to_s + "s, %" + columnWidth[$VARIABLE_BYTES].to_s + "s}%s  /* (%" + $HK_COPY_TABLE_ENTRIES.to_s.length.to_s + "s) */\n"
+            
             # Step through the remaining, empty rows in the copy table
-            for index in 0..rowsRemaining - 1
+            for index in entryIndex..$HK_COPY_TABLE_ENTRIES
+                # Set the value so that it will append a comma to all but
+                # the last row
+                if entryIndex == $HK_COPY_TABLE_ENTRIES
+                    comma = " "
+                else
+                    comma = ","
+                end
+  
                 # Add the blank entry to the copy table
-                $ccdd.writeToFileLn(copyTableFile, "/* " + (index + $HK_COPY_TABLE_ENTRIES - rowsRemaining).to_s + " */ " + blankEntry + ", ")
-            end
+                $ccdd.writeToFileFormat(copyTableFile, emptyFormatBody, "HK_UNDEFINED_ENTRY", "0", "HK_UNDEFINED_ENTRY", "0", "0", comma, entryIndex.to_s)
 
-            $ccdd.writeToFileLn(copyTableFile, "/* " + $HK_COPY_TABLE_ENTRIES.to_s + " */ " + blankEntry)
+                # Increment the copy table entry index
+                entryIndex += 1
+            end
         end
 
         # Terminate the table definition statement

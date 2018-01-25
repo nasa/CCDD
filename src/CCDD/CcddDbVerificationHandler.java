@@ -850,6 +850,12 @@ public class CcddDbVerificationHandler
             // Step through each function with a mismatched owner
             while (mismatch.next())
             {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
                 // Function owner differs from database owner
                 issues.add(new TableIssue("Owner for function "
                                           + mismatch.getString(1)
@@ -1244,6 +1250,12 @@ public class CcddDbVerificationHandler
             // Step through each database table
             while (tableResult.next())
             {
+                // Check if the user canceled verification
+                if (canceled)
+                {
+                    break;
+                }
+
                 // Get the table name
                 tableNameDb = tableResult.getString("TABLE_NAME");
 
@@ -1561,40 +1573,44 @@ public class CcddDbVerificationHandler
                         }
                     }
 
-                    // Step through the custom values variables
-                    for (String[] member : getInternalTableMembers(tableNameDb,
-                                                                   ValuesColumn.TABLE_PATH.getColumnName(),
-                                                                   null))
+                    // Check if the user hasn't canceled verification
+                    if (!canceled)
                     {
-                        // Check if the user canceled verification
-                        if (canceled)
+                        // Step through the custom values variables
+                        for (String[] member : getInternalTableMembers(tableNameDb,
+                                                                       ValuesColumn.TABLE_PATH.getColumnName(),
+                                                                       null))
                         {
-                            break;
-                        }
+                            // Check if the user canceled verification
+                            if (canceled)
+                            {
+                                break;
+                            }
 
-                        // Check if the variable hasn't already been detected and if it isn't in
-                        // the list of valid names
-                        if (!badRefs.contains(member[0]) && !cleanName.contains(member[0]))
-                        {
-                            // Custom values variable member reference is invalid
-                            issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
-                                                      + "' references a non-existent variable, '"
-                                                      + member[0]
-                                                      + "'",
-                                                      "Delete variable reference",
-                                                      "DELETE FROM "
-                                                                                   + tableNameDb
-                                                                                   + " WHERE "
-                                                                                   + ValuesColumn.TABLE_PATH.getColumnName()
-                                                                                   + " = "
-                                                                                   + dbTable.delimitText(member[0])
-                                                                                   + "; "));
+                            // Check if the variable hasn't already been detected and if it isn't
+                            // in the list of valid names
+                            if (!badRefs.contains(member[0]) && !cleanName.contains(member[0]))
+                            {
+                                // Custom values variable member reference is invalid
+                                issues.add(new TableIssue("Internal table '"
+                                                          + tableNameDb
+                                                          + "' references a non-existent variable, '"
+                                                          + member[0]
+                                                          + "'",
+                                                          "Delete variable reference",
+                                                          "DELETE FROM "
+                                                                                       + tableNameDb
+                                                                                       + " WHERE "
+                                                                                       + ValuesColumn.TABLE_PATH.getColumnName()
+                                                                                       + " = "
+                                                                                       + dbTable.delimitText(member[0])
+                                                                                       + "; "));
 
-                            // Add the invalid entry to the bad reference list so that any other
-                            // references to it (for other columns) aren't logged as duplicate
-                            // issues
-                            badRefs.add(member[0]);
+                                // Add the invalid entry to the bad reference list so that any
+                                // other references to it (for other columns) aren't logged as
+                                // duplicate issues
+                                badRefs.add(member[0]);
+                            }
                         }
                     }
                 }
@@ -1720,14 +1736,8 @@ public class CcddDbVerificationHandler
                     if (typeDefinition != null)
                     {
                         // Step through each table in the column order table
-                        for (int index = 0; index < orders.size(); index++)
+                        for (int index = 0; index < orders.size() && !canceled; index++)
                         {
-                            // Check if the user canceled verification
-                            if (canceled)
-                            {
-                                break;
-                            }
-
                             // Check if the number of columns indicated in the column order table
                             // doesn't match the number of columns for this table's type
                             if (orders.get(index)[OrdersColumn.TABLE_PATH.ordinal()].matches("^"
@@ -1837,14 +1847,8 @@ public class CcddDbVerificationHandler
                         columnResult.close();
 
                         // Step through the column found flags
-                        for (int index = 0; index < isFound.length; index++)
+                        for (int index = 0; index < isFound.length && !canceled; index++)
                         {
-                            // Check if the user canceled verification
-                            if (canceled)
-                            {
-                                break;
-                            }
-
                             // Check if the column wasn't located in the table
                             if (!isFound[index])
                             {
@@ -1987,6 +1991,12 @@ public class CcddDbVerificationHandler
                         {
                             // Check if the cell value doesn't match the cell's input type
                             checkInputType(tableInfo, row, column);
+                        }
+
+                        // Check if the user canceled verification
+                        if (canceled)
+                        {
+                            continue;
                         }
 
                         // Check if this is a structure table
@@ -2451,7 +2461,7 @@ public class CcddDbVerificationHandler
     private void checkForRowIndexMismatch(TableInformation tableInfo)
     {
         // Step through each row in the table
-        for (int row = 0; row < tableInfo.getData().length; row++)
+        for (int row = 0; row < tableInfo.getData().length && !canceled; row++)
         {
             // Check if the row index doesn't match the next consecutive row number
             if (!tableInfo.getData()[row][rowIndex].equals(String.valueOf(row + 1)))
@@ -2483,6 +2493,8 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void checkForDuplicates(TableInformation tableInfo)
     {
+        String[] columnValues = new String[tableInfo.getData().length];
+
         // Get the comment array for this table
         String[] comment = dbTable.getTableComment(tableInfo.getProtoVariableName().toLowerCase(),
                                                    comments);
@@ -2491,22 +2503,33 @@ public class CcddDbVerificationHandler
         TypeDefinition typeDefinition = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
         // Step through each column in the table
-        for (int column = 0; column < tableInfo.getData()[0].length; column++)
+        for (int column = 0; column < tableInfo.getData()[0].length && !canceled; column++)
         {
             // Check if the values in this column must be unique
             if (typeDefinition.isRowValueUnique()[column])
             {
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().length - 1; row++)
+                for (int row = 0; row < tableInfo.getData().length - 1 && !canceled; row++)
+                {
+                    // Store the column value in the temporary column value array, expanding any
+                    // macros in the value. The temporary column values are stored so that macro
+                    // expansion need only be done once per table cell, which speeds the comparison
+                    // below
+                    columnValues[row] = !tableInfo.getData()[row][column].isEmpty()
+                                                                                    ? macroHandler.getMacroExpansion(tableInfo.getData()[row][column])
+                                                                                    : "";
+                }
+
+                // Step through each row in the table
+                for (int row = 0; row < tableInfo.getData().length - 1 && !canceled; row++)
                 {
                     // Step through the remaining rows in the table
-                    for (int otherRow = row + 1; otherRow < tableInfo.getData().length; otherRow++)
+                    for (int otherRow = row + 1; otherRow < tableInfo.getData().length && !canceled; otherRow++)
                     {
                         // Check if the values in the columns for these two rows match and that the
                         // values aren't blank
-                        if (!tableInfo.getData()[row][column].isEmpty()
-                            && macroHandler.getMacroExpansion(tableInfo.getData()[row][column])
-                                           .equals(macroHandler.getMacroExpansion(tableInfo.getData()[otherRow][column])))
+                        if (!columnValues[row].isEmpty()
+                            && columnValues[row].equals(columnValues[otherRow]))
                         {
                             // Duplicate item exists in a column designated as having unique values
                             issues.add(new TableIssue("Table '"
@@ -2523,9 +2546,6 @@ public class CcddDbVerificationHandler
                                                       column,
                                                       "",
                                                       tableInfo));
-
-                            // Stop checking the row indices
-                            break;
                         }
                     }
                 }

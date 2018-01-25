@@ -65,6 +65,8 @@ def makeCopyTableFile():
 
     # Check if the copy table file successfully opened
     if copyTableFile is not None:
+        totalEntries = 0
+        entryIndex = 1
         allTableEntries = []
 
         # Add the build information to the output file
@@ -112,19 +114,50 @@ def makeCopyTableFile():
             if len(copyTableEntries) > 0:
                 # Adjust the minimum column widths
                 columnWidth = ccdd.getLongestStrings(copyTableEntries, columnWidth)
+                
+                # Update the total number of copy table entries
+                totalEntries += len(copyTableEntries)
 
+        # Check if there are unused copy table entries 
+        if totalEntries < HK_COPY_TABLE_ENTRIES:
+            # Update the maximum width of the input message ID column
+            if columnWidth[INPUT_MSG_ID] < len("HK_UNDEFINED_ENTRY"):
+                columnWidth[INPUT_MSG_ID] = len("HK_UNDEFINED_ENTRY")
+            
+            # Update the maximum width of the output message ID column
+            if columnWidth[OUTPUT_MSG_ID] < len("HK_UNDEFINED_ENTRY"):
+                columnWidth[OUTPUT_MSG_ID] = len("HK_UNDEFINED_ENTRY")
+        
+        # Write the standard include files to the copy table file
+        ccdd.writeToFileLn(copyTableFile, "#include \"cfe.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_utils.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_app.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_msgids.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_tbldefs.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"cfe_tbl_filedef.h\"")
+        ccdd.writeToFileLn(copyTableFile, "")
+ 
+        # Get the number of rows for the Includes table data
+        numIncludeRows = ccdd.getTableNumRows("Includes")
+
+        # Check if there are any data to include
+        if numIncludeRows > 0:
+            # Step through each row of Includes data
+            for row in range(numIncludeRows):
+                # Output the Includes table's 'includes' column data
+                ccdd.writeToFileLn(copyTableFile, ccdd.getTableData("Includes", "includes", row))
+
+            ccdd.writeToFileLn(copyTableFile, "")
+        
         # Build the format strings so that the columns in each row are aligned
         formatHeader = "/* %-" + str(columnWidth[INPUT_MSG_ID]) + "s| %-" + str(columnWidth[INPUT_OFFSET]) + "s| %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s| %-" + str(columnWidth[OUTPUT_OFFSET]) + "s| %-" + str(columnWidth[VARIABLE_BYTES]) + "s */\n"
-        formatBody = "  {%-" + str(columnWidth[INPUT_MSG_ID]) + "s, %" + str(columnWidth[INPUT_OFFSET]) + "s, %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s, %" + str(columnWidth[OUTPUT_OFFSET]) + "s, %" + str(columnWidth[VARIABLE_BYTES]) + "s}%s  /* %s : %s */\n"
+        formatBody = "  {%-" + str(columnWidth[INPUT_MSG_ID]) + "s, %" + str(columnWidth[INPUT_OFFSET]) + "s, %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s, %" + str(columnWidth[OUTPUT_OFFSET]) + "s, %" + str(columnWidth[VARIABLE_BYTES]) + "s}%s  /* (%" + str(len(str(HK_COPY_TABLE_ENTRIES))) + "s) %s : %s */\n"
 
         # Write the copy table definition statement
         ccdd.writeToFileLn(copyTableFile, "hk_copy_table_entry_t HK_CopyTable[HK_COPY_TABLE_ENTRIES] =")
         ccdd.writeToFileLn(copyTableFile, "{")
         ccdd.writeToFileFormat(copyTableFile, formatHeader, "Input", "Input", "Output", "Output", "Num")
         ccdd.writeToFileFormat(copyTableFile, formatHeader, "Message ID", "Offset", "Message ID", "Offset", "Bytes")
-
-        # Set the counter for the number of entries remaining in the copy table
-        rowsRemaining = HK_COPY_TABLE_ENTRIES - 1
 
         # Step through each entry in the copy table
         for copyTable in range(len(copyTables)):
@@ -138,34 +171,43 @@ def makeCopyTableFile():
                 for row in range(len(copyTableEntries)):
                     # Set the value so that it will append a comma to all but
                     # the last row
-                    if rowsRemaining > 0:
-                        comma = "'"
+                    if entryIndex == HK_COPY_TABLE_ENTRIES:
+                        comma = " "
                     else:
-                        comma = ""
-
+                        comma = ","
+ 
                     # Write the entry to the copy table file
-                    ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][INPUT_MSG_ID], copyTableEntries[row][INPUT_OFFSET], copyTableEntries[row][OUTPUT_MSG_ID], copyTableEntries[row][OUTPUT_OFFSET], copyTableEntries[row][VARIABLE_BYTES], comma, copyTableEntries[row][VARIABLE_PARENT], copyTableEntries[row][VARIABLE_NAME])
-
-                    # Decrement the number of rows remaining counter
-                    rowsRemaining = rowsRemaining - 1
+                    ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][INPUT_MSG_ID], copyTableEntries[row][INPUT_OFFSET], copyTableEntries[row][OUTPUT_MSG_ID], copyTableEntries[row][OUTPUT_OFFSET], copyTableEntries[row][VARIABLE_BYTES], comma, str(entryIndex), copyTableEntries[row][VARIABLE_PARENT], copyTableEntries[row][VARIABLE_NAME])
 
                     # Check if no available rows remain in the copy table
-                    if rowsRemaining < 0:
+                    if entryIndex == HK_COPY_TABLE_ENTRIES:
                         # Exit the loop since no more entries can be added to
                         # the copy table
                         break
-
+                
+                    # Increment the copy table entry index
+                    entryIndex += 1
+    
         # Check if there are any unfilled rows in the copy table
-        if rowsRemaining >= 0:
-            # Create a blank entry to use as filler
-            blankEntry = "  { HK_UNDEFINED_ENTRY,    0,   HK_UNDEFINED_ENTRY,       0,   0 }"
+        if entryIndex < HK_COPY_TABLE_ENTRIES:
+            # Build the format string for the empty entries so that the
+            # columns in each row are aligned
+            emptyFormatBody = "  {%-" + str(columnWidth[INPUT_MSG_ID]) + "s, %" + str(columnWidth[INPUT_OFFSET]) + "s, %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s, %" + str(columnWidth[OUTPUT_OFFSET]) + "s, %" + str(columnWidth[VARIABLE_BYTES]) + "s}%s  /* (%" + str(len(str(HK_COPY_TABLE_ENTRIES))) + "s) */\n"
 
             # Step through the remaining, empty rows in the copy table
-            for index in range(rowsRemaining):
-                # Add the blank entry to the copy table
-                ccdd.writeToFileLn(copyTableFile, "/* " + str(index + HK_COPY_TABLE_ENTRIES - rowsRemaining) + " */ " + blankEntry + ", ")
+            for index in range(entryIndex, HK_COPY_TABLE_ENTRIES + 1):
+                # Set the value so that it will append a comma to all but
+                # the last row
+                if entryIndex == HK_COPY_TABLE_ENTRIES:
+                    comma = " "
+                else:
+                    comma = ","
 
-            ccdd.writeToFileLn(copyTableFile, "/* " + str(HK_COPY_TABLE_ENTRIES) + " */ " + blankEntry)
+                # Add the blank entry to the copy table
+                ccdd.writeToFileFormat(copyTableFile, emptyFormatBody, "HK_UNDEFINED_ENTRY", "0", "HK_UNDEFINED_ENTRY", "0", "0", comma, str(entryIndex))
+
+                # Increment the copy table entry index
+                entryIndex += 1
 
         # Terminate the table definition statement
         ccdd.writeToFileLn(copyTableFile, "};")

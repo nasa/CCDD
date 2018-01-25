@@ -795,7 +795,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         projectJO.put("Owner", dbControl.getOwner());
         projectJO.put("Server", dbControl.getHost());
         projectJO.put("Port", dbControl.getPort());
-        // TODO NEW (undocumented)
         projectJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldProjectName(),
                                               JSONTags.PROJECT_FIELD.getTag(),
                                               projectJO);

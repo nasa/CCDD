@@ -9,12 +9,14 @@ package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -457,6 +459,12 @@ public class CcddLinkManagerHandler
                     gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = 0;
+
+        // Adjust the variable tree's width by the width in pixels of a scroll bar. This causes the
+        // link tree to initialize to the same width
+        variableTree.setPreferredSize(new Dimension(variableTree.getPreferredSize().width
+                                                    + LAF_SCROLL_BAR_WIDTH,
+                                                    variableTree.getPreferredSize().height));
 
         // Create a split pane containing the variable tree in the left pane and the link tree in
         // the right pane and add it to the panel. The arrow button panel is used as the split pane

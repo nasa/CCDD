@@ -2774,7 +2774,7 @@ public class CcddDbTableCommandHandler
                 {
                     // Build the command to delete bit-packed variable references in the links and
                     // telemetry scheduler tables that changed due to the table modifications
-                    command = updateLinksAndTlmForPackingChange(tableTree, orgTableNode, parent);
+                    command = updateLinksAndTlmForPackingChange(orgTableNode, parent);
 
                     // Check if there are any bit-packed variable references to delete
                     if (!command.isEmpty())
@@ -4265,18 +4265,13 @@ public class CcddDbTableCommandHandler
      * Build the commands to delete variable references in the links and telemetry scheduler tables
      * that are no longer valid due to changes in bit-packing
      *
-     * @param tableTree
-     *            CcddTableTreeHandler reference describing the table tree prior to applying any
-     *            updates
-     *
      * @param parent
      *            reference to the GUI component over which any error dialogs should be centered
      *
      * @return Commands to delete variable references in the links and telemetry scheduler tables
      *         that are no longer valid due to changes in bit-packing
      *********************************************************************************************/
-    private String updateLinksAndTlmForPackingChange(CcddTableTreeHandler tableTree,
-                                                     ToolTipTreeNode orgTableNode,
+    private String updateLinksAndTlmForPackingChange(ToolTipTreeNode orgTableNode,
                                                      Component parent)
     {
         StringBuilder linksDelCmd = new StringBuilder("");
@@ -4285,43 +4280,49 @@ public class CcddDbTableCommandHandler
         List<List<String>> updatedPacking = new ArrayList<List<String>>();
 
         // Create the table tree after any changes have been applied
-        tableTree = new CcddTableTreeHandler(ccddMain,
-                                             TableTreeType.STRUCTURES_WITH_PRIMITIVES,
-                                             parent);
+        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                  TableTreeType.STRUCTURES_WITH_PRIMITIVES,
+                                                                  parent);
 
         // Get the tree node for the updated prototype table
         ToolTipTreeNode updTableNode = tableTree.getNodeByNodeName(orgTableNode.getUserObject().toString());
 
-        // ////////////////////////////////////////////////////////////////////////////////////////
-        // Create a list containing lists of each group of bit-packed variables in the table as it
-        // exists after the updates are applied. Also create a list containing every bit-packed
-        // variable; this list is pruned later to remove those variables that haven't changed their
-        // bit-packing
-        // ////////////////////////////////////////////////////////////////////////////////////////
-        // Step through each variable in the table as it exists after the updates
-        for (int childIndex = 0; childIndex < updTableNode.getChildCount(); childIndex++)
+        // Check if the table node exists in the updated tree. If all variables are removed from a
+        // table then in no longer appears in the tree
+        if (updTableNode != null)
         {
-            // Get the indices of all variables bit-packed the variable at the current child index
-            BitPackNodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) updTableNode.getChildAt(childIndex));
-
-            // Check if any variables are bit-packed with the current variable
-            if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())
+            // ////////////////////////////////////////////////////////////////////////////////////
+            // Create a list containing lists of each group of bit-packed variables in the table as
+            // it exists after the updates are applied. Also create a list containing every
+            // bit-packed variable; this list is pruned later to remove those variables that
+            // haven't changed their bit-packing
+            // ////////////////////////////////////////////////////////////////////////////////////
+            // Step through each variable in the table as it exists after the updates
+            for (int childIndex = 0; childIndex < updTableNode.getChildCount(); childIndex++)
             {
-                List<String> packMembers = new ArrayList<String>();
+                // Get the indices of all variables bit-packed the variable at the current child
+                // index
+                BitPackNodeIndex nodeIndex = tableTree.getBitPackedVariables((ToolTipTreeNode) updTableNode.getChildAt(childIndex));
 
-                // Step through the bit-packed variables
-                for (int packIndex = nodeIndex.getFirstIndex(); packIndex <= nodeIndex.getLastIndex(); packIndex++)
+                // Check if any variables are bit-packed with the current variable
+                if (nodeIndex.getFirstIndex() != nodeIndex.getLastIndex())
                 {
-                    // Add the variable to the pack member list
-                    packMembers.add(((ToolTipTreeNode) updTableNode.getChildAt(packIndex)).getUserObject().toString().replaceFirst(":\\d+", ""));
+                    List<String> packMembers = new ArrayList<String>();
+
+                    // Step through the bit-packed variables
+                    for (int packIndex = nodeIndex.getFirstIndex(); packIndex <= nodeIndex.getLastIndex(); packIndex++)
+                    {
+                        // Add the variable to the pack member list
+                        packMembers.add(((ToolTipTreeNode) updTableNode.getChildAt(packIndex)).getUserObject().toString().replaceFirst(":\\d+", ""));
+                    }
+
+                    // Store the pack member list and the individual members
+                    updatedPacking.add(packMembers);
+                    removeMembers.addAll(packMembers);
+
+                    // Adjust the child index to skip these bit-packed variables
+                    childIndex = nodeIndex.getLastIndex();
                 }
-
-                // Store the pack member list and the individual members
-                updatedPacking.add(packMembers);
-                removeMembers.addAll(packMembers);
-
-                // Adjust the child index to skip these bit-packed variables
-                childIndex = nodeIndex.getLastIndex();
             }
         }
 
@@ -4400,20 +4401,6 @@ public class CcddDbTableCommandHandler
             // Delete the variable from the links and telemetry scheduler tables
             deleteLinkPathRef("(?:^|[^,]*,)" + packPath, linksDelCmd);
             deleteTlmPathRef("(?:[^,]+,)*" + packPath, tlmDelCmd);
-        }
-
-        // Check if a change to the links table exists
-        if (linksDelCmd.length() != 0)
-        {
-            // Terminate the command
-            linksDelCmd.append("; ");
-        }
-
-        // Check if a change to the telemetry scheduler table exists
-        if (tlmDelCmd.length() != 0)
-        {
-            // Terminate the command
-            tlmDelCmd.append("; ");
         }
 
         return linksDelCmd.toString() + tlmDelCmd.toString();

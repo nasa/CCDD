@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.FIELD_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
@@ -442,6 +443,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.bottom = 0;
 
+                // Adjust the table tree's width by the width in pixels of a scroll bar. This
+                // causes the group tree to initialize to the same width
+                tableTree.setPreferredSize(new Dimension(tableTree.getPreferredSize().width
+                                                         + LAF_SCROLL_BAR_WIDTH,
+                                                         tableTree.getPreferredSize().height));
+
                 // Create a split pane containing the table tree in the left pane and the group
                 // tree in the right pane and add it to the panel. The arrow button panel is used
                 // as the split pane divider
@@ -498,7 +505,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 dialogPnl.add(fieldPnlHndlr.getFieldPanel(), gbc);
 
                 // Create a check box for showing/changing the group CFS application status
-                applicationCb = undoHandler.new UndoableCheckBox("Group represents a CFS application", false);
+                applicationCb = undoHandler.new UndoableCheckBox("Group represents a CFS application",
+                                                                 false);
 
                 applicationCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 applicationCb.setBorder(emptyBorder);
@@ -965,8 +973,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Update the dialog's minimum size to accommodate the change in the size or number of data
         // fields, then revalidate the dialog so that the components are sized correctly
-        setMinimumSize(new Dimension(Math.max(minDialogWidth,
-                                              fieldPnlHndlr.getMaxFieldWidth()),
+        setMinimumSize(new Dimension(Math.max(minDialogWidth, fieldPnlHndlr.getMaxFieldWidth()),
                                      getPreferredSize().height));
         setPreferredSize(getPreferredSize());
 
@@ -1006,8 +1013,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         btnRenameGroup.setEnabled(enable);
         btnCopyGroup.setEnabled(enable);
         btnManageFields.setEnabled(enable);
-        btnClearValues.setEnabled(enable
-                                  && !fieldHandler.getFieldInformation().isEmpty());
+        btnClearValues.setEnabled(enable && !fieldHandler.getFieldInformation().isEmpty());
     }
 
     /**********************************************************************************************
@@ -1164,9 +1170,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         JPanel dialogPnl = new JPanel(new GridBagLayout());
 
         // Create the group name input dialog label and field
-        GridBagConstraints gbc = addGroupNameField("Enter new group name",
-                                                   "",
-                                                   dialogPnl);
+        GridBagConstraints gbc = addGroupNameField("Enter new group name", "", dialogPnl);
 
         // Create the group description label
         JLabel descriptionLbl = new JLabel("Description");
@@ -1417,9 +1421,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 undoHandler.setAutoEndEditSequence(false);
 
                 // Copy the group node in the group tree
-                groupTree.copyNodeTree(groupInfo.getName(),
-                                       groupNameFld.getText(),
-                                       groupInfo);
+                groupTree.copyNodeTree(groupInfo.getName(), groupNameFld.getText(), groupInfo);
 
                 // Copy the target group's data fields to the copy of the group
                 groupHandler.getGroupInformationByName(groupNameFld.getText()).setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
@@ -1456,7 +1458,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *
      * @return The GridBagConstraints used to arrange the dialog
      *********************************************************************************************/
-    private GridBagConstraints addGroupNameField(String fieldText, String currentName, JPanel dialogPnl)
+    private GridBagConstraints addGroupNameField(String fieldText,
+                                                 String currentName,
+                                                 JPanel dialogPnl)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,

@@ -685,8 +685,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Check if a preferred width is specified
         if (prefTreeWidth != 0)
         {
-            // TODO THE WIDTH APPEARS TO BE TOO LARGE - THE LAYOUT MGR MAY BE ADDING WIDTH TO FILL
-            // OUT THE DIALOG?
             // Set the tree's preferred width
             treeScroll.setPreferredSize(new Dimension(prefTreeWidth
                                                       + treeScroll.getBorder().getBorderInsets(treeScroll).left

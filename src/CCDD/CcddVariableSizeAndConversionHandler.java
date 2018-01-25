@@ -486,19 +486,6 @@ public class CcddVariableSizeAndConversionHandler
             // Store the offset as the size for this structure
             structureAndVariableOffsets.set(structIndex, offset);
         }
-
-        // TODO The structureAndVariablePaths list contains children of prototypes that aren't
-        // roots. These are needed for size (typedefs) but not for converted paths - how to
-        // differentiate? THIS (SHOULD BE) IS ADDRESSED BY THE CHANGE TO THE STRUCT_WITH_PRIMITIVES
-        // TABLE TREE TYPE
-        // System.out.println("VAR SIZE:");
-        // int i = 0;
-        // for (String s : structureAndVariablePaths)
-        // {
-        // System.out.println(s + " " + structureAndVariableOffsets.get(i) + " " +
-        // isVariable.get(i));
-        // i++;
-        // }
     }
 
     /**********************************************************************************************

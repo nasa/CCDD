@@ -12,6 +12,8 @@ import static CCDD.CcddConstants.DATA_FIELD_IDENTIFIER_SEPARATOR;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1034,6 +1036,41 @@ public class CcddUndoHandler
                     oldValue = getText();
                 }
             });
+
+            // TODO THIS IS TO ALLOW A TABLE'S (ETC.) CHANGE INDICATOR TO UPDATE AS EACH CHARACTER
+            // IS TYPED. It works, but is inefficient (arrow, shift, etc. keys cause a check to be
+            // made)
+            // Add a listener for keyboard inputs
+            addKeyListener(new KeyAdapter()
+            {
+                /**********************************************************************************
+                 * Handle a key press event
+                 *********************************************************************************/
+                @Override
+                public void keyPressed(final KeyEvent ke)
+                {
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        /**************************************************************************
+                         * Since the cell text change involves a GUI update use invokeLater to
+                         * execute the call on the event dispatch thread following any pending
+                         * events
+                         *************************************************************************/
+                        @Override
+                        public void run()
+                        {
+                            if (!ke.isActionKey())// WOULD HAVE TO CHECK IT'S NOT SHIFT. CTRL, ETC.
+                            {
+                                // Inform the owner of the text field that the value has changed
+                                undoManager.ownerHasChanged(); // works, but is inefficient
+                                // setText(getText(), isAllowUndo); // works, but each keystroke is
+                                // undoable
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         /******************************************************************************************
@@ -1341,6 +1378,39 @@ public class CcddUndoHandler
                     setText();
                 }
             });
+
+            // TODO THIS IS TO ALLOW A TABLE'S (ETC>) CHANGE INDICATOR TO UPDATE AS EACH CHARACTER
+            // IS TYPED. It works, but is inefficient (arrow, shift, etc. keys cause a check to be
+            // made)
+            // Add a listener for keyboard inputs
+            addKeyListener(new KeyAdapter()
+            {
+                /**********************************************************************************
+                 * Handle a key press event
+                 *********************************************************************************/
+                @Override
+                public void keyPressed(final KeyEvent ke)
+                {
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        /**************************************************************************
+                         * Since the cell text change involves a GUI update use invokeLater to
+                         * execute the call on the event dispatch thread following any pending
+                         * events
+                         *************************************************************************/
+                        @Override
+                        public void run()
+                        {
+                            if (!ke.isActionKey())// WOULD HAVE TO CHECK IT'S NOT SHIFT. CTRL, ETC.
+                            {
+                                //
+                                undoManager.ownerHasChanged();
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         /******************************************************************************************
@@ -1640,8 +1710,7 @@ public class CcddUndoHandler
          * change in the undo stack
          *****************************************************************************************/
         @Override
-        public void setDataVector(Object[][] dataVector,
-                                  Object[] columnIdentifiers)
+        public void setDataVector(Object[][] dataVector, Object[] columnIdentifiers)
         {
             // Set the table data and add this update to the undo stack
             setDataVector(dataVector, columnIdentifiers, true);
