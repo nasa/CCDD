@@ -417,9 +417,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
                 // Check if the table has a sorter (i.e., has at least one visible row), that the
                 // filter hasn't been set, and that there is an event type row filter
-                if (sorter != null
-                    && sorter.getRowFilter() != rowFilter
-                    && rowFilter != null)
+                if (sorter != null && sorter.getRowFilter() != rowFilter && rowFilter != null)
                 {
                     // Apply the row filter that shows/hides the event types
                     sorter.setRowFilter(rowFilter);
@@ -434,8 +432,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
             public void doLayout()
             {
                 // Get a reference to the column being resized
-                if (getTableHeader() != null
-                    && getTableHeader().getResizingColumn() == null)
+                if (getTableHeader() != null && getTableHeader().getResizingColumn() == null)
                 {
                     // Get a reference to the event table's column model to shorten subsequent
                     // calls

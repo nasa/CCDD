@@ -1037,14 +1037,12 @@ public class CcddUndoHandler
                 }
             });
 
-            // TODO THIS IS TO ALLOW A TABLE'S (ETC.) CHANGE INDICATOR TO UPDATE AS EACH CHARACTER
-            // IS TYPED. It works, but is inefficient (arrow, shift, etc. keys cause a check to be
-            // made)
             // Add a listener for keyboard inputs
             addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event
+                 * Handle a key press event. This allows the text field's owner to be informed of a
+                 * change in text, such as to update the text field container's change indicator
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -1060,12 +1058,12 @@ public class CcddUndoHandler
                         @Override
                         public void run()
                         {
-                            if (!ke.isActionKey())// WOULD HAVE TO CHECK IT'S NOT SHIFT. CTRL, ETC.
+                            // Check if the key produces a change in the text (i.e., a character,
+                            // backspace, or delete key, but not an arrow, shift, or control key)
+                            if (ke.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
                             {
                                 // Inform the owner of the text field that the value has changed
-                                undoManager.ownerHasChanged(); // works, but is inefficient
-                                // setText(getText(), isAllowUndo); // works, but each keystroke is
-                                // undoable
+                                undoManager.ownerHasChanged();
                             }
                         }
                     });
@@ -1379,14 +1377,12 @@ public class CcddUndoHandler
                 }
             });
 
-            // TODO THIS IS TO ALLOW A TABLE'S (ETC>) CHANGE INDICATOR TO UPDATE AS EACH CHARACTER
-            // IS TYPED. It works, but is inefficient (arrow, shift, etc. keys cause a check to be
-            // made)
             // Add a listener for keyboard inputs
             addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event
+                 * Handle a key press event. This allows the text field's owner to be informed of a
+                 * change in text, such as to update the text area container's change indicator
                  *********************************************************************************/
                 @Override
                 public void keyPressed(final KeyEvent ke)
@@ -1402,9 +1398,11 @@ public class CcddUndoHandler
                         @Override
                         public void run()
                         {
-                            if (!ke.isActionKey())// WOULD HAVE TO CHECK IT'S NOT SHIFT. CTRL, ETC.
+                            // Check if the key produces a change in the text (i.e., a character,
+                            // backspace, or delete key, but not an arrow, shift, or control key)
+                            if (ke.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
                             {
-                                //
+                                // Inform the owner of the text field that the value has changed
                                 undoManager.ownerHasChanged();
                             }
                         }

@@ -730,12 +730,12 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String removeHTMLTags(String text)
     {
-        return text.replaceAll("<br>", " ")
+        return text.replaceAll(HTMLTag.BREAK.getHTMLTag(), " ")
                    .replaceAll("<[^>]*>", "")
-                   .replaceAll("&#160;", " ")
-                   .replaceAll("&amp;", "&")
-                   .replaceAll("&gt;", ">")
-                   .replaceAll("&lt;", "<")
+                   .replaceAll(HTMLTag.SPACE.getHTMLTag(), " ")
+                   .replaceAll(HTMLTag.AMP.getHTMLTag(), "&")
+                   .replaceAll(HTMLTag.GREAT.getHTMLTag(), ">")
+                   .replaceAll(HTMLTag.LESS.getHTMLTag(), "<")
                    .replaceAll("&.+;", "");
     }
 
@@ -1171,8 +1171,8 @@ public class CcddUtilities
             // Check if the path doesn't already begin with the HTML marker
             if (!path.startsWith("<html>"))
             {
-                // Add the HTML marker
-                path = "<html>" + path;
+                // Add the HTML marker and replace any spaces with the HTML equivalent
+                path = "<html>" + path.replaceAll(" ", HTMLTag.SPACE.getHTMLTag());
             }
 
             // Add HTML tags to highlight the data type portion and replace each line feed

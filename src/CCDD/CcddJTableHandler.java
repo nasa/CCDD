@@ -2002,11 +2002,13 @@ public abstract class CcddJTableHandler extends JTable
             textArea.addKeyListener(new KeyAdapter()
             {
                 /**********************************************************************************
-                 * Handle a key press event so that the table's content can be updated, which in
-                 * turn allows the row height to be adjusted automatically
+                 * Handle a key press event so that the table's content can be updated. This causes
+                 * the cell's row height to be expanded/contracted automatically as text is
+                 * added/removed. This also allows the cell's owner to be informed of a change in
+                 * text, such as to update the table container's change indicator
                  *********************************************************************************/
                 @Override
-                public void keyPressed(KeyEvent ke)
+                public void keyPressed(final KeyEvent ke)
                 {
                     // Store the row and column indices for the cell being edited
                     final int row = table.getEditingRow();
@@ -2023,8 +2025,13 @@ public abstract class CcddJTableHandler extends JTable
                         @Override
                         public void run()
                         {
-                            // Update the table cell value to match the text entered
-                            table.setValueAt(textArea.getText(), row, column);
+                            // Check if the key produces a change in the text (i.e., a character,
+                            // backspace, or delete key, but not an arrow, shift, or control key)
+                            if (ke.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
+                            {
+                                // Update the table cell value to match the text entered
+                                table.setValueAt(textArea.getText(), row, column);
+                            }
                         }
                     });
                 }
@@ -2721,7 +2728,7 @@ public abstract class CcddJTableHandler extends JTable
             // Select the new row
             setRowSelectionInterval(viewRow, viewRow);
 
-            // Adjust the cell focus to the inserted row
+            // Adjust the cell focus to the row
             setFocusCell(viewRow, focusColumn);
 
             // Scroll the window to keep the inserted row visible

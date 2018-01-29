@@ -1272,9 +1272,7 @@ public class CcddSchedulerEditorHandler
      * @param subMsgIndex
      *            message index if the variable is assigned to a sub-message, -1 if not
      *********************************************************************************************/
-    protected void addVariableToMessage(Variable variable,
-                                        int messageIndex,
-                                        int subMsgIndex)
+    protected void addVariableToMessage(Variable variable, int messageIndex, int subMsgIndex)
     {
         int index = -1;
         Message targetMsg;
@@ -1309,8 +1307,7 @@ public class CcddSchedulerEditorHandler
      *********************************************************************************************/
     protected void updateAssignmentDefinitions()
     {
-        assignmentTree.updateAssignmentDefinitions(messages,
-                                                   schedulerHndlr.getRateName());
+        assignmentTree.updateAssignmentDefinitions(messages, schedulerHndlr.getRateName());
     }
 
     /**********************************************************************************************
@@ -1327,14 +1324,16 @@ public class CcddSchedulerEditorHandler
     }
 
     /**********************************************************************************************
-     * Set the table to select the specified row
+     * Select the message name column in the specified row of the scheduler table
      *
      * @param row
-     *            row to select
+     *            row to select, model coordinates
      *********************************************************************************************/
     protected void setSelectedRow(int row)
     {
-        schedulerTable.getSelectionModel().setSelectionInterval(row, row);
+        schedulerTable.setColumnSelectionInterval(SchedulerColumn.NAME.ordinal(),
+                                                  SchedulerColumn.NAME.ordinal());
+        schedulerTable.setSelectedRow(schedulerTable.convertRowIndexToView(row));
     }
 
     /**********************************************************************************************
@@ -1367,8 +1366,9 @@ public class CcddSchedulerEditorHandler
             && !selectedVars.isEmpty()
             && !selectedVars.get(0).equals(MESSAGE_EMPTY))
         {
-            // Row of selected variable
-            int row = schedulerTable.getSelectedRow();
+            // Row of selected variable. Convert the row index to view coordinates in case teh
+            // Scheduler table is sorted
+            int row = schedulerTable.convertRowIndexToModel(schedulerTable.getSelectedRow());
 
             // List of variables to be removed
             List<Variable> removedVars = new ArrayList<Variable>();
@@ -1442,8 +1442,7 @@ public class CcddSchedulerEditorHandler
      *
      * @return List of the variable names removed
      *********************************************************************************************/
-    private List<String> removeVariablesFromMessages(List<Variable> variables,
-                                                     int row)
+    private List<String> removeVariablesFromMessages(List<Variable> variables, int row)
     {
         List<Integer> msgIndices;
         List<String> removedVarNames = new ArrayList<String>();
@@ -1628,6 +1627,10 @@ public class CcddSchedulerEditorHandler
      *********************************************************************************************/
     protected void setMessageAvailability(int messageIndex, int size)
     {
+        // Convert the index to the scheduler table row index, which accounts for any sorting of
+        // the rows
+        messageIndex = schedulerTable.convertRowIndexToView(messageIndex);
+
         // Check if the size is not negative
         if (size >= 0)
         {
@@ -1644,9 +1647,7 @@ public class CcddSchedulerEditorHandler
         }
 
         // Set the bytes to display the new size
-        schedulerTable.setValueAt(size,
-                                  messageIndex,
-                                  SchedulerColumn.SIZE.ordinal());
+        schedulerTable.setValueAt(size, messageIndex, SchedulerColumn.SIZE.ordinal());
     }
 
     /**********************************************************************************************

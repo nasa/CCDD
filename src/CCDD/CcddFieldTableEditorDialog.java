@@ -39,14 +39,18 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -85,6 +89,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     // Components that need to be accessed by multiple methods
     private CcddJTableHandler dataFieldTable;
     private UndoableCellSelection cellSelect;
+    private final Border emptyBorder;
 
     // Data field information
     private List<String[]> dataFields;
@@ -116,6 +121,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     // Cell selection container
     private CellSelectionHandler selectedCells;
 
+    // Row filter, used to show/hide event types
+    private RowFilter<TableModel, Object> rowFilter;
+
+    // Data field display filter flags
+    private boolean isProjectFilter;
+    private boolean isTableFilter;
+    private boolean isGroupFilter;
+    private boolean isTypeFilter;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Show/Edit Data Fields";
 
@@ -136,6 +150,15 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Initialize the list of table content changes and deletions
         fieldModifications = new ArrayList<String[]>();
         fieldDeletions = new ArrayList<String[]>();
+
+        // Create an empty border to surround the components
+        emptyBorder = BorderFactory.createEmptyBorder();
+
+        // Set the initial filter selection states
+        isProjectFilter = true;
+        isTableFilter = true;
+        isGroupFilter = true;
+        isTypeFilter = true;
 
         // Allow the user to select the data fields to display in the table
         selectDataFields();
@@ -249,15 +272,16 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             && !redrawnTables.contains(mod[0]))
                         {
                             // Get the reference to the modified field
-                            FieldInformation fieldInfo = tableInfo.getFieldHandler().getFieldInformationByName(mod[0],
-                                                                                                               mod[1]);
+                            FieldInformation fieldInfo = tableInfo.getFieldHandler()
+                                                                  .getFieldInformationByName(mod[0],
+                                                                                             mod[1]);
 
                             // Update the field's value. Also update the value in the committed
                             // information so that this value change is ignored when updating or
                             // closing the table
                             fieldInfo.setValue(mod[2]);
-                            editor.getCommittedTableInformation().getFieldHandler().getFieldInformationByName(mod[0],
-                                                                                                              mod[1])
+                            editor.getCommittedTableInformation().getFieldHandler()
+                                  .getFieldInformationByName(mod[0], mod[1])
                                   .setValue(mod[2]);
 
                             // Check that this isn't a boolean input (check box) data field
@@ -296,9 +320,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected void execute()
             {
-                // Create an empty border to surround the panels
-                Border emptyBorder = BorderFactory.createEmptyBorder();
-
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
                                                                 1,
@@ -563,7 +584,110 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 gbc.fill = GridBagConstraints.BOTH;
                 gbc.weighty = 1.0;
                 dialogPnl.add(tablePnl, gbc);
-                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Add the field display filter label and a filter check box for each field owner
+                // type
+                JLabel fieldFilterLbl = new JLabel("Show fields belonging to:");
+                fieldFilterLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                fieldFilterLbl.setBorder(emptyBorder);
+                gbc.gridwidth = 1;
+                gbc.weightx = 0.0;
+                gbc.weighty = 0.0;
+                gbc.gridy++;
+                dialogPnl.add(fieldFilterLbl, gbc);
+
+                final JCheckBox projectFilterCbx = new JCheckBox("Project", isProjectFilter);
+                projectFilterCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                projectFilterCbx.setBorder(emptyBorder);
+                gbc.gridx++;
+                dialogPnl.add(projectFilterCbx, gbc);
+
+                final JCheckBox tableFilterCbx = new JCheckBox("Tables", isTableFilter);
+                tableFilterCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                tableFilterCbx.setBorder(emptyBorder);
+                gbc.gridx++;
+                dialogPnl.add(tableFilterCbx, gbc);
+
+                final JCheckBox groupFilterCbx = new JCheckBox("Groups", isGroupFilter);
+                groupFilterCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                groupFilterCbx.setBorder(emptyBorder);
+                gbc.gridx++;
+                dialogPnl.add(groupFilterCbx, gbc);
+
+                final JCheckBox typeFilterCbx = new JCheckBox("Table types", isTypeFilter);
+                typeFilterCbx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                typeFilterCbx.setBorder(emptyBorder);
+                gbc.gridx++;
+                dialogPnl.add(typeFilterCbx, gbc);
+
+                // Create a row filter for displaying the fields based on selected filter
+                rowFilter = new RowFilter<TableModel, Object>()
+                {
+                    /******************************************************************************
+                     * Override method that determines if a row should be displayed
+                     *****************************************************************************/
+                    @Override
+                    public boolean include(Entry<? extends TableModel, ? extends Object> owner)
+                    {
+                        boolean isFilter = true;
+
+                        // Get the data field owner's name
+                        String ownerName = highlightFieldOwner(owner.getValue(FieldTableEditorColumnInfo.OWNER.ordinal()).toString(),
+                                                               false);
+
+                        // Check if this field belongs to the project
+                        if (ownerName.startsWith(CcddFieldHandler.getFieldProjectName()))
+                        {
+                            // Show this row if the project filter check box is selected
+                            isFilter = projectFilterCbx.isSelected();
+                        }
+                        // Check if this field belongs to a group
+                        else if (ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
+                        {
+                            // Show this row if the group filter check box is selected
+                            isFilter = groupFilterCbx.isSelected();
+                        }
+                        // Check if this field belongs to a table type
+                        else if (ownerName.startsWith(CcddFieldHandler.getFieldTypeName("")))
+                        {
+                            // Show this row if the table type filter check box is selected
+                            isFilter = typeFilterCbx.isSelected();
+                        }
+                        // The field belongs to a table
+                        else
+                        {
+                            // Show this row if the table filter check box is selected
+                            isFilter = tableFilterCbx.isSelected();
+                        }
+
+                        return isFilter;
+                    }
+                };
+
+                // Create a listener for check box selection changes
+                ActionListener filterListener = new ActionListener()
+                {
+                    /******************************************************************************
+                     * Handle check box selection changes
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Set the table's row sorter based on whether or not any rows are visible
+                        dataFieldTable.setRowSorter(null);
+                        dataFieldTable.setTableSortable();
+
+                        // Issue a table change event so the rows are filtered
+                        ((DefaultTableModel) dataFieldTable.getModel()).fireTableDataChanged();
+                        ((DefaultTableModel) dataFieldTable.getModel()).fireTableStructureChanged();
+                    }
+                };
+
+                // Add the listener to the filter check boxes
+                projectFilterCbx.addActionListener(filterListener);
+                tableFilterCbx.addActionListener(filterListener);
+                groupFilterCbx.addActionListener(filterListener);
+                typeFilterCbx.addActionListener(filterListener);
 
                 // Define the buttons for the lower panel: Select data fields button
                 JButton btnSelect = CcddButtonPanelHandler.createButton("Select",
@@ -588,6 +712,12 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                           JOptionPane.QUESTION_MESSAGE,
                                                                           DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
                         {
+                            // Store the current filter selections
+                            isProjectFilter = projectFilterCbx.isSelected();
+                            isTableFilter = tableFilterCbx.isSelected();
+                            isGroupFilter = groupFilterCbx.isSelected();
+                            isTypeFilter = typeFilterCbx.isSelected();
+
                             // Allow the user to select the data fields to display
                             selectDataFields();
                         }
@@ -938,9 +1068,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
              * Allow pasting data into the data field cells
              *************************************************************************************/
             @Override
-            protected boolean isDataAlterable(Object[] rowData,
-                                              int row,
-                                              int column)
+            protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
                 return isCellEditable(convertRowIndexToView(row),
                                       convertColumnIndexToView(column));
@@ -1073,16 +1201,33 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
 
             /**************************************************************************************
+             * Override the CcddJTableHandler method in order to show/hide the data fields based on
+             * the selected field filters
+             *************************************************************************************/
+            @Override
+            protected void setTableSortable()
+            {
+                super.setTableSortable();
+
+                // Get the table's row sorter and add the event type filter
+                TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
+
+                // Check if the table has a sorter (i.e., has at least one visible row), that the
+                // filter hasn't been set, and that there is a field owner row filter
+                if (sorter != null && sorter.getRowFilter() != rowFilter && rowFilter != null)
+                {
+                    // Apply the row filter that shows/hides the event types
+                    sorter.setRowFilter(rowFilter);
+                }
+            }
+
+            /**************************************************************************************
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
@@ -1100,21 +1245,25 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     TableModel tableModel = getModel();
 
                     // Get the contents of the owner and path columns
-                    String ownerValue = tableModel.getValueAt(rowModel,
-                                                              FieldTableEditorColumnInfo.OWNER.ordinal())
-                                                  .toString().trim();
+                    String ownerName = tableModel.getValueAt(rowModel,
+                                                             FieldTableEditorColumnInfo.OWNER.ordinal())
+                                                 .toString();
                     String pathValue = tableModel.getValueAt(rowModel,
                                                              FieldTableEditorColumnInfo.PATH.ordinal())
                                                  .toString();
 
+                    // Get the owner, including the path (if a child structure table), with any
+                    // highlighting removed (this is the field owner as stored in the project's
+                    // data field table)
+                    String ownerPath = getOwnerWithPath(ownerName, pathValue);
+
                     // Check if this is the structure path column
                     if (columnModel == FieldTableEditorColumnInfo.PATH.ordinal())
                     {
-                        // Check if the cell is blank, and that the owner is not a structure table
-                        // or a group
+                        // Check if the cell is blank and that the owner is a structure table
                         if (pathValue.isEmpty()
-                            && (nonStructureTableNames.contains(ownerValue)
-                                || ownerValue.startsWith(CcddFieldHandler.getFieldGroupName(""))))
+                            && (nonStructureTableNames.contains(ownerPath)
+                                || ownerIsNotTable(ownerName)))
                         {
                             // Set the cell's background color to indicate the structure path isn't
                             // applicable for this table
@@ -1122,8 +1271,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         }
                     }
                     // Check if this table has the data field identified by the column
-                    else if (fieldHandler.getFieldInformationByName(getOwnerWithPath(ownerValue,
-                                                                                     pathValue),
+                    else if (fieldHandler.getFieldInformationByName(ownerPath,
                                                                     columnNames[columnModel]) != null)
                     {
                         // Check if the cell is a data field selected for removal
@@ -1139,8 +1287,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         else if (!checkBoxColumns.contains(columnModel))
                         {
                             // Get the input data type for this data field
-                            InputDataType inputType = fieldHandler.getFieldInformationByName(getOwnerWithPath(ownerValue,
-                                                                                                              pathValue),
+                            InputDataType inputType = fieldHandler.getFieldInformationByName(ownerPath,
                                                                                              columnNames[columnModel])
                                                                   .getInputType();
 
@@ -1246,19 +1393,20 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             for (int column = 0; column < dataFieldTable.getColumnCount(); column++)
             {
                 // Get the owner for this row
-                String ownerName = dataFieldTable.getModel().getValueAt(row,
-                                                                        FieldTableEditorColumnInfo.OWNER.ordinal())
-                                                 .toString().trim();
+                String ownerName = dataFieldTable.getModel()
+                                                 .getValueAt(row,
+                                                             FieldTableEditorColumnInfo.OWNER.ordinal())
+                                                 .toString();
 
                 // Check if the cell at these coordinates is selected and that the data field for
-                // this row belongs to a table (versus a group or type)
+                // this row belongs to a table (versus the project, a group, or a table type)
                 if (dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row), column)
-                    && !ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
-                    && !ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
+                    && !ownerIsNotTable(ownerName))
                 {
                     // Get the structure path for this row
-                    String path = dataFieldTable.getModel().getValueAt(row,
-                                                                       FieldTableEditorColumnInfo.PATH.ordinal())
+                    String path = dataFieldTable.getModel()
+                                                .getValueAt(row,
+                                                            FieldTableEditorColumnInfo.PATH.ordinal())
                                                 .toString();
 
                     // Add the table path to the list and stop checking the columns in this row
@@ -1272,8 +1420,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         if (!tablePaths.isEmpty())
         {
             // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
-                                              null);
+            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
         }
     }
 
@@ -1327,8 +1474,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Create a field handler and populate it with the field definitions for all of the tables
         // and groups in the database
         fieldHandler = new CcddFieldHandler(ccddMain);
-        fieldHandler.buildFieldInformation(dataFields.toArray(new String[0][0]),
-                                           null);
+        fieldHandler.buildFieldInformation(dataFields.toArray(new String[0][0]), null);
         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
 
         // Sort the field information by owner name so that sequence order of the data field values
@@ -1355,12 +1501,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Get the data field owner's name
             String ownerName = fieldInfo.getOwnerName();
 
-            // Check that this is not a default table type field and if the field is in a table
-            // selected by the user (if no table is selected then all tables are considered to
-            // match)
-            if (!ownerName.startsWith(CcddFieldHandler.getFieldTypeName(""))
-                && (filterTables.isEmpty()
-                    || filterTables.contains(ownerName)))
+            // Check if the field is in a table selected by the user (if no table is selected then
+            // all tables are considered to match)
+            if (filterTables.isEmpty() || filterTables.contains(ownerName))
             {
                 String pathName = "";
 
@@ -1448,14 +1591,26 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         Object[] newTable = new Object[columnNames.length];
                         Arrays.fill(newTable, "");
 
+                        // Check if the field owner isn't a table
+                        if (ownerIsNotTable(ownerName))
+                        {
+                            // Highlight the field owner indicator
+                            newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = highlightFieldOwner(ownerName, true);
+                        }
+                        // The field belongs to a data table
+                        else
+                        {
+                            // Highlight the data type(s) in the table
+                            newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities.highlightDataType(ownerName);
+                        }
+
                         // Insert the owner name, path, and the data field value into the new row
-                        newTable[FieldTableEditorColumnInfo.OWNER.ordinal()] = CcddUtilities.highlightDataType(ownerName);
                         newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = CcddUtilities.highlightDataType(pathName);
                         newTable[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
                                                                                                      ? Boolean.valueOf(fieldInfo.getValue())
                                                                                                      : fieldInfo.getValue();
 
-                        // Add the new row to the list
+                        // Add the field row to the list
                         ownerDataFields.add(newTable);
 
                         // Check if this owner has a path (i.e., it's a structure table)
@@ -1558,31 +1713,26 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Step through each data field
         for (String[] dataField : dataFields)
         {
-            // Check that this isn't a default data field
-            if (!dataField[FieldsColumn.OWNER_NAME.ordinal()].startsWith(CcddFieldHandler.getFieldTypeName("")))
+            boolean found = false;
+
+            // Step through the list of data fields in the list to this point
+            for (String[] item : nameList)
             {
-                boolean found = false;
-
-                // Step through the list of data fields in the list to this point
-                for (String[] item : nameList)
+                // Check if the current data field's name is in the list
+                if (item[0].equals(dataField[FieldsColumn.FIELD_NAME.ordinal()]))
                 {
-                    // Check if the current data field's name is in the list
-                    if (item[0].equals(dataField[FieldsColumn.FIELD_NAME.ordinal()]))
-                    {
-                        // Set the flag indicating the data field name is already in the list and
-                        // stop searching
-                        found = true;
-                        break;
-                    }
+                    // Set the flag indicating the data field name is already in the list and stop
+                    // searching
+                    found = true;
+                    break;
                 }
+            }
 
-                // Check if the data field name isn't in the list
-                if (!found)
-                {
-                    // Add the data field name to the list. Set the description field to null
-                    nameList.add(new String[] {dataField[FieldsColumn.FIELD_NAME.ordinal()],
-                                               null});
-                }
+            // Check if the data field name isn't in the list
+            if (!found)
+            {
+                // Add the data field name to the list. Set the description field to null
+                nameList.add(new String[] {dataField[FieldsColumn.FIELD_NAME.ordinal()], null});
             }
         }
 
@@ -1618,14 +1768,120 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private String getOwnerWithPath(String ownerName, String path)
     {
-        // Remove and leading spaces used for indenting child structure names
-        ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
-
         // Check if the owner has a path
         if (!path.isEmpty())
         {
             // Prepend the path to the table name
-            ownerName = CcddUtilities.removeHTMLTags(path).replaceAll(" ", "") + "," + ownerName;
+            ownerName = CcddUtilities.removeHTMLTags(path).replaceAll(" ", "") + ","
+                        + CcddUtilities.removeHTMLTags(ownerName).replaceAll(" ", "");
+        }
+        // No path provided - either this is a root-level table or the owner is the project, a
+        // group, or a table type
+        else
+        {
+            // Remove any highlighting and extra spaces (such as that used for indenting child
+            // structure names) from the owner name
+            ownerName = highlightFieldOwner(ownerName, false);
+        }
+
+        return ownerName;
+    }
+
+    /**********************************************************************************************
+     * Determine if the data field owner isn't a table. This is the case for project, group, and
+     * table type fields
+     *
+     * @param ownerName
+     *            name of the data field's owner
+     *
+     * @return true if the field owner isn't a table
+     *********************************************************************************************/
+    private boolean ownerIsNotTable(String ownerName)
+    {
+        boolean isNotTable = false;
+
+        // Remove the HTML tags from the owner name and trim any leading/trailing spaces (such as
+        // those used for indenting child structure names)
+        ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
+
+        // Check if this field belongs to the project
+        if (ownerName.startsWith(CcddFieldHandler.getFieldProjectName()))
+        {
+            // Set the flag to indicate the owner isn't a table
+            isNotTable = true;
+        }
+        // Check if this field belongs to a group
+        else if (ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
+        {
+            // Set the flag to indicate the owner isn't a table
+            isNotTable = true;
+        }
+        // Check if this field belongs to a table type
+        else if (ownerName.startsWith(CcddFieldHandler.getFieldTypeName("")))
+        {
+            // Set the flag to indicate the owner isn't a table
+            isNotTable = true;
+        }
+
+        return isNotTable;
+    }
+
+    /**********************************************************************************************
+     * Highlight the data field owner's indicator text (the indicator determines if the field
+     * belongs to the project, a group, or a table type)
+     *
+     * @param ownerName
+     *            name of the data field's owner
+     *
+     * @param enable
+     *            true to highlight the data field indicator; false to remove any highlighting
+     *
+     * @return The data field owner with the indicator highlighted or not highlighted
+     *********************************************************************************************/
+    private String highlightFieldOwner(String ownerName, boolean enable)
+    {
+        String prepend = null;
+
+        // Remove the HTML tags from the owner name and trim any leading/trailing spaces (such as
+        // those used for indenting child structure names)
+        ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
+
+        // Check if this field belongs to the project
+        if (ownerName.startsWith(CcddFieldHandler.getFieldProjectName()))
+        {
+            // Get the project field indicator
+            prepend = CcddFieldHandler.getFieldProjectName();
+        }
+        // Check if this field belongs to a group
+        else if (ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
+        {
+            // Get the group field indicator
+            prepend = CcddFieldHandler.getFieldGroupName("");
+        }
+        // Check if this field belongs to a table type
+        else if (ownerName.startsWith(CcddFieldHandler.getFieldTypeName("")))
+        {
+            // Get the table type field indicator
+            prepend = CcddFieldHandler.getFieldTypeName("");
+        }
+
+        // Check if the field belongs to the project, a group, or a table type
+        if (prepend != null)
+        {
+            // Check if highlighting is to be applied
+            if (enable)
+            {
+                // Highlight the field owner indicator and append a space to it
+                ownerName = ownerName.replaceFirst("^(" + prepend + ")(.*)",
+                                                   "<html><i>$1</i>&#160;$2");
+            }
+            // Highlighting is to be removed
+            else
+            {
+                // Restore the field owner to its original form (remove the added space; the HTML
+                // tags are removed above)
+                ownerName = ownerName.replaceFirst(prepend + " ", prepend);
+            }
         }
 
         return ownerName;
