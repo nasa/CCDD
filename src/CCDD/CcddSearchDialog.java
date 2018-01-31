@@ -28,8 +28,6 @@ import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +56,7 @@ import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.MultilineLabel;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -361,20 +360,10 @@ public class CcddSearchDialog extends CcddFrameHandler
             // Check if any columns are defined
             if (columns.size() != 0)
             {
-                List<String[]> columnNames = new ArrayList<String[]>();
+                ArrayListMultiple columnNames = new ArrayListMultiple();
 
                 // Sort the column names alphabetically
-                Collections.sort(columns, new Comparator<String[]>()
-                {
-                    /******************************************************************************
-                     * Sort the column names, ignoring case
-                     *****************************************************************************/
-                    @Override
-                    public int compare(String[] col1, String[] col2)
-                    {
-                        return col1[0].toLowerCase().compareTo(col2[0].toLowerCase());
-                    }
-                });
+                columns.sort(ArrayListMultipleSortType.STRING);
 
                 // Create the column selection check box and label to display the selected
                 // column(s)

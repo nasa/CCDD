@@ -1262,8 +1262,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         {
             // Convert the path array to a string, stripping off the nodes names prior to the start
             // index and the HTML tags
-            String variable = removeExtraText(createNameFromPath(path,
-                                                                 getHeaderNodeLevel()));
+            String variable = removeExtraText(createNameFromPath(path, getHeaderNodeLevel()));
 
             // Check if the path is not already in the list and that the path isn't blank
             if (!variablePaths.contains(variable) && !variable.isEmpty())

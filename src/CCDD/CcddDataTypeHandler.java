@@ -42,6 +42,7 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.BaseDataTypeInfo;
+import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -99,14 +100,51 @@ public class CcddDataTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the data type data
+     * Get the data type definitions
      *
-     * @return List of string arrays containing data type names and the corresponding data type
-     *         definitions
+     * @return List of string arrays containing the data type definitions
      *********************************************************************************************/
     protected List<String[]> getDataTypeData()
     {
         return dataTypes;
+    }
+
+    /**********************************************************************************************
+     * Determine if the specified column contains integer values
+     *
+     * @return true if the specified column contains integer values; false otherwise
+     *********************************************************************************************/
+    private boolean isInteger(int column)
+    {
+        return column == DataTypeEditorColumnInfo.SIZE.ordinal();
+    }
+
+    /**********************************************************************************************
+     * Get the data type definitions as an object array. The object array allows preserving the
+     * column value's type (string, integer, etc.)
+     *
+     * @return Data type definitions as an object array
+     *********************************************************************************************/
+    protected Object[][] getDataTypeDataArray()
+    {
+
+        // Create storage for the data type definitions
+        Object[][] dataTypesArray = new Object[dataTypes.size()][DataTypeEditorColumnInfo.values().length];
+
+        // Step through each data type definition
+        for (int row = 0; row < dataTypes.size(); row++)
+        {
+            // Step through each column in the data type definition
+            for (int column = 0; column < DataTypeEditorColumnInfo.values().length; column++)
+            {
+                // Store the column value as a string or integer
+                dataTypesArray[row][column] = isInteger(column)
+                                                                ? Integer.valueOf(dataTypes.get(row)[column].toString())
+                                                                : dataTypes.get(row)[column].toString();
+            }
+        }
+
+        return dataTypesArray;
     }
 
     /**********************************************************************************************
@@ -663,7 +701,7 @@ public class CcddDataTypeHandler
             // Check if any structures exist
             if (structures.length != 0)
             {
-                // Sort the structure names alphabetically
+                // Sort the structure names alphabetically, ignoring case
                 Arrays.sort(structures, String.CASE_INSENSITIVE_ORDER);
             }
 

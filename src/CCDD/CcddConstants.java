@@ -501,6 +501,13 @@ public class CcddConstants
         APPLICATION_SCHEDULER
     }
 
+    // ArrayListMultiple sort types
+    protected static enum ArrayListMultipleSortType
+    {
+        STRING,
+        HEXADECIMAL
+    }
+
     // Modifiable font information
     protected static enum ModifiableFontInfo
     {
@@ -1865,257 +1872,277 @@ public class CcddConstants
     }
 
     /**********************************************************************************************
+     * Input type formats
+     *********************************************************************************************/
+    protected static enum InputTypeFormat
+    {
+        TEXT,
+        ARRAY,
+        INTEGER,
+        FLOAT,
+        RATE,
+        HEXADECIMAL,
+        BOOLEAN,
+        ENUMERATION,
+        DATA_TYPE,
+        MINIMUM,
+        MAXIMUM,
+        VARIABLE_PATH,
+        PAGE_FORMAT
+    }
+
+    /**********************************************************************************************
      * Input data types. The Break and Separator types are used by data fields
      *********************************************************************************************/
     protected static enum InputDataType
     {
         ALPHANUMERIC("Alphanumeric",
                      "[a-zA-Z_][a-zA-Z0-9_]*",
-                     "text",
+                     InputTypeFormat.TEXT,
                      "Alphabetic or underscore first character followed by zero "
-                             + "or more alphabetic, numeric, and underscore characters"),
+                                           + "or more alphabetic, numeric, and underscore characters"),
 
         ALPHANUMERIC_MULTI("Alphanumeric (multi)",
                            "(?:" + ALPHANUMERIC.getInputMatch() + "\\s*?)+",
-                           "text",
+                           InputTypeFormat.TEXT,
                            "One or more alphanumeric entries (see Alphanumeric) "
-                                   + "separated by one or more white space characters"),
+                                                 + "separated by one or more white space characters"),
 
         ARGUMENT_NAME("Argument name",
                       ALPHANUMERIC.getInputMatch(),
-                      "text",
+                      InputTypeFormat.TEXT,
                       "Command argument name; same constraints as for an "
-                              + "alphanumeric (see Alphanumeric)"),
+                                            + "alphanumeric (see Alphanumeric)"),
 
         ARRAY_INDEX("Array index",
                     "^\\s*\\+??\\s*0*([2-9]|[1-9]\\d+)(\\s*,\\s*\\+??\\s*0*([2-9]|[1-9]\\d+))*",
-                    "array",
+                    InputTypeFormat.ARRAY,
                     "Variable array index in the format #<, #<...>>"),
 
         BIT_LENGTH("Bit length",
                    "^\\+??\\s*0*([1-9]\\d*)",
-                   "integer",
+                   InputTypeFormat.INTEGER,
                    "Bit length; positive integer (initial '+' and leading "
-                              + "zeroes are optional)"),
+                                            + "zeroes are optional)"),
 
         BOOLEAN("Boolean",
                 "(?i)true|false",
-                "boolean",
+                InputTypeFormat.BOOLEAN,
                 "Boolean value; true or false"),
 
         COMMAND_CODE("Command code",
                      "^(?:0x)?[a-fA-F0-9]*",
-                     "hexadecimal",
+                     InputTypeFormat.HEXADECIMAL,
                      "Command code; hexadecimal number (see Hexadecimal)"),
 
         COMMAND_NAME("Command name",
                      ALPHANUMERIC.getInputMatch(),
-                     "text",
+                     InputTypeFormat.TEXT,
                      "Command name; same constraints as for an "
-                             + "alphanumeric (see Alphanumeric)"),
+                                           + "alphanumeric (see Alphanumeric)"),
 
         DESCRIPTION("Description",
                     "(?s).*",
-                    "text",
+                    InputTypeFormat.TEXT,
                     "Data description; same constraints as for text (see Text)"),
 
         ENUMERATION("Enumeration",
                     ".*",
-                    "enumeration",
+                    InputTypeFormat.ENUMERATION,
                     "Text, including alphabetic, numeric, and special characters"),
 
         FLOAT("Floating point",
               "^[\\+-]??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-              "float",
+              InputTypeFormat.FLOAT,
               "Floating point value consisting of one or more of the numerals "
-                       + "0 - 9 and a single optional decimal point (leading '+' or "
-                       + "'-' is optional)"),
+                                     + "0 - 9 and a single optional decimal point (leading '+' or "
+                                     + "'-' is optional)"),
 
         FLOAT_POSITIVE("Positive float",
                        "^\\+??\\s*0*\\.??0*[1-9]+\\d*(\\.\\d*)??",
-                       "float",
+                       InputTypeFormat.FLOAT,
                        "Floating point value > 0.0 (leading '+' is optional; "
-                                + "see Floating point)"),
+                                              + "see Floating point)"),
 
         FLOAT_NON_NEGATIVE("Non-negative float",
                            "^\\+??\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                           "float",
+                           InputTypeFormat.FLOAT,
                            "Floating point value >= 0.0 (leading '+' is "
-                                    + "optional; see Floating point)"),
+                                                  + "optional; see Floating point)"),
 
         FLOAT_NEGATIVE("Negative float",
                        "^-\\s*0*(\\.0*)??\\d+\\d*(\\.\\d*)??",
-                       "float",
+                       InputTypeFormat.FLOAT,
                        "Floating point value < 0.0 (leading '-' is required; "
-                                + "see Floating point)"),
+                                              + "see Floating point)"),
 
         INTEGER("Integer",
                 "^[\\+-]??\\s*\\d*",
-                "integer",
+                InputTypeFormat.INTEGER,
                 "Integer value consisting of one or more of the "
-                           + "numerals 0 - 9 (leading '+' or '-' is optional)"),
+                                         + "numerals 0 - 9 (leading '+' or '-' is optional)"),
 
         INT_POSITIVE("Positive integer",
                      "^\\+??\\s*0*([1-9][0-9]*)",
-                     "integer",
+                     InputTypeFormat.INTEGER,
                      "Integer value > 0 (leading '+' is optional; see Integer)"),
 
         INT_GTR_THN_1("Integer > 1",
                       "^\\+??\\s*0*([2-9]|[1-9]\\d+)",
-                      "integer",
+                      InputTypeFormat.INTEGER,
                       "Integer value > 1 (leading '+' is optional; see Integer)"),
 
         INT_NON_NEGATIVE("Non-negative integer",
                          "^\\+??\\s*0*\\d+",
-                         "integer",
+                         InputTypeFormat.INTEGER,
                          "Integer value > -1 (leading '+' is optional; see Integer)"),
 
         INT_NEGATIVE("Negative integer",
                      "^-\\s*0*\\d+",
-                     "integer",
+                     InputTypeFormat.INTEGER,
                      "Integer value < 0 (leading '-' is required; see Integer)"),
 
         HEXADECIMAL("Hexadecimal",
                     "^(?:0x)?[a-fA-F0-9]*",
-                    "hexadecimal",
+                    InputTypeFormat.HEXADECIMAL,
                     "Hexadecimal number; optional initial '0x' or '0X' "
-                                   + "followed by one or more hexadecimal digits (0 - 9, "
-                                   + "a - f (case insensitive))"),
+                                                 + "followed by one or more hexadecimal digits (0 - 9, "
+                                                 + "a - f (case insensitive))"),
 
         HEXADECIMAL_NON_ZERO("Non-zero hexadecimal",
                              "^(?:0x)?0*[a-fA-F1-9][a-fA-F0-9]*",
-                             "hexadecimal",
+                             InputTypeFormat.HEXADECIMAL,
                              "Non-zero hexadecimal number; optional initial '0x' or '0X' "
-                                            + "followed by one or more hexadecimal digits (0 - 9, "
-                                            + "a - f (case insensitive))"),
+                                                          + "followed by one or more hexadecimal digits (0 - 9, "
+                                                          + "a - f (case insensitive))"),
 
         HEXADECIMAL_RANGE("Hexadecimal range",
                           "^(?:$|(?:0x)?([a-fA-F0-9]+)(?:\\s*-\\s*(?:0x)?([a-fA-F0-9]*)|$))",
-                          "hexadecimal",
+                          InputTypeFormat.HEXADECIMAL,
                           "Hexadecimal range; hexadecimal value followed optionally by a "
-                                         + "hyphen and a second hexadecimal value (see Hexadecimal)"),
+                                                       + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
         MESSAGE_ID("Message ID",
                    "^(?:0x)?[a-fA-F0-9]*\\s*" + PROTECTED_MSG_ID_IDENT + "?",
-                   "hexadecimal",
+                   InputTypeFormat.HEXADECIMAL,
                    "Message ID: hexadecimal; optional initial '0x' or '0X' "
-                                  + "followed by one or more hexadecimal digits (0 - 9, "
-                                  + "a - f (case insensitive)). Append '"
-                                  + PROTECTED_MSG_ID_IDENT
-                                  + "' to protect this ID from automatic reassignment"),
+                                                + "followed by one or more hexadecimal digits (0 - 9, "
+                                                + "a - f (case insensitive)). Append '"
+                                                + PROTECTED_MSG_ID_IDENT
+                                                + "' to protect this ID from automatic reassignment"),
 
         MESSAGE_ID_NAME("Message ID name",
                         "[a-zA-Z_][a-zA-Z0-9_]*",
-                        "text",
+                        InputTypeFormat.TEXT,
                         "Message ID name: same constraints as for an "
-                                + "alphanumeric (see Alphanumeric)"),
+                                              + "alphanumeric (see Alphanumeric)"),
 
         MESSAGE_ID_NAMES_AND_IDS("Message names & IDs",
                                  ".*",
-                                 "text",
+                                 InputTypeFormat.TEXT,
                                  "Message ID names & ID numbers in the "
-                                         + "format '<ID name> (<ID number>)'"),
+                                                       + "format '<ID name> (<ID number>)'"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|("
                            + FLOAT.getInputMatch() + ")",
-                "minimum",
+                InputTypeFormat.MINIMUM,
                 "Minimum value; a boolean, integer, floating point, or "
-                           + "hexadecimal value (depending on context; see Boolean, "
-                           + "Integer, Floating point, and Hexadecimal) that must be "
-                           + "less than or equal to the corresponding maximum value "
-                           + "(see Maximum)"),
+                                         + "hexadecimal value (depending on context; see Boolean, "
+                                         + "Integer, Floating point, and Hexadecimal) that must be "
+                                         + "less than or equal to the corresponding maximum value "
+                                         + "(see Maximum)"),
 
         MAXIMUM("Maximum",
                 "(" + INTEGER.getInputMatch() + ")|("
                            + FLOAT.getInputMatch() + ")",
-                "maximum",
+                InputTypeFormat.MAXIMUM,
                 "Maximum value; a boolean, integer, floating point, or "
-                           + "hexadecimal value (depending on context; see Boolean, "
-                           + "Integer, Floating point, and Hexadecimal) that must be "
-                           + "greater than or equal to the corresponding minimum value "
-                           + "(see Minimum)"),
+                                         + "hexadecimal value (depending on context; see Boolean, "
+                                         + "Integer, Floating point, and Hexadecimal) that must be "
+                                         + "greater than or equal to the corresponding minimum value "
+                                         + "(see Minimum)"),
 
         PRIMITIVE("Primitive",
                   ".*",
-                  "data type",
+                  InputTypeFormat.DATA_TYPE,
                   "A primitive data type as defined in the data type editor "
-                               + "(for example, int16, float)"),
+                                             + "(for example, int16, float)"),
 
         PRIM_AND_STRUCT("Primitive & Structure",
                         ".*",
-                        "data type",
+                        InputTypeFormat.DATA_TYPE,
                         "A primitive data type (see Primitive) or a prototype "
-                                     + "structure name"),
+                                                   + "structure name"),
 
         RATE("Rate",
              "^\\+??\\s*(0*+1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
-             "rate",
+             InputTypeFormat.RATE,
              "Rate value; positive integer value (see Positive integer) or a "
-                     + "positive integer followed by a '/' and another positive "
-                     + "integer to denote rates faster than 1 Hz"),
+                                   + "positive integer followed by a '/' and another positive "
+                                   + "integer to denote rates faster than 1 Hz"),
 
         TEXT("Text",
              "(?s).*",
-             "text",
+             InputTypeFormat.TEXT,
              "Text, including alphabetic, numeric, and special characters"),
 
         TEXT_MULTI("Text (multi-line)",
                    "(?s).*",
-                   "text",
+                   InputTypeFormat.TEXT,
                    "Multi-line text, including alphabetic, "
-                           + "numeric, special, and new line characters"),
+                                         + "numeric, special, and new line characters"),
 
         TEXT_WHT_SPC("Text (spaces)",
                      "(?s).*",
-                     "text",
+                     InputTypeFormat.TEXT,
                      "Text (see Text) with leading/traling white space characters preserved"),
 
         TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
                            "(?s).*",
-                           "text",
+                           InputTypeFormat.TEXT,
                            "Multi-line text (see Text (multi-line)) with "
-                                   + "leading/trailing white space characters preserved"),
+                                                 + "leading/trailing white space characters preserved"),
 
         UNITS("Units",
               ".*",
-              "text",
+              InputTypeFormat.TEXT,
               "Data units; same constraints as for text (see Text)"),
 
         VARIABLE("Variable name",
                  "[a-zA-Z_][a-zA-Z0-9_]*",
-                 "text",
+                 InputTypeFormat.TEXT,
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
         VARIABLE_PATH("Variable path",
                       ".*",
-                      "variable path",
+                      InputTypeFormat.VARIABLE_PATH,
                       "Display a variable's full path"),
 
-        BREAK("Break", "", "page format", "Line break"),
-        SEPARATOR("Separator", "", "page format", "Line separator");
+        BREAK("Break", "", InputTypeFormat.PAGE_FORMAT, "Line break"),
+        SEPARATOR("Separator", "", InputTypeFormat.PAGE_FORMAT, "Line separator");
 
         private final String inputName;
         private final String inputMatch;
-        private final String inputFormat;
+        private final InputTypeFormat inputFormat;
         private final String inputDescription;
 
         /******************************************************************************************
          * Input data types constructor
          *
          * @param inputName
-         *            input data type
+         *            input data type name
          *
          * @param inputMatch
          *            regular expression match for the input type
          *
          * @param inputFormat
-         *            field numerical type
+         *            input type format
          *
          * @param inputDescription
          *            input type description
          *****************************************************************************************/
-        InputDataType(String inputName, String inputMatch, String inputFormat, String inputDescription)
+        InputDataType(String inputName, String inputMatch, InputTypeFormat inputFormat, String inputDescription)
         {
             this.inputName = inputName;
             this.inputMatch = inputMatch;
@@ -2124,9 +2151,9 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Get the input data type
+         * Get the input data type name
          *
-         * @return Input data type
+         * @return Input data type name
          *****************************************************************************************/
         protected String getInputName()
         {
@@ -2141,6 +2168,16 @@ public class CcddConstants
         protected String getInputMatch()
         {
             return inputMatch;
+        }
+
+        /******************************************************************************************
+         * Get the input type format
+         *
+         * @return Input type format
+         *****************************************************************************************/
+        protected InputTypeFormat getInputFormat()
+        {
+            return inputFormat;
         }
 
         /******************************************************************************************
@@ -2190,19 +2227,19 @@ public class CcddConstants
             if (!valueS.isEmpty())
             {
                 // Check if the value is an integer
-                if (inputFormat.equals("integer"))
+                if (inputFormat.equals(InputTypeFormat.INTEGER))
                 {
                     // Format the string as an integer
                     valueS = Integer.valueOf(valueS).toString();
                 }
                 // Check if the value is a floating point
-                else if (inputFormat.equals("float"))
+                else if (inputFormat.equals(InputTypeFormat.FLOAT))
                 {
                     // Format the string as a floating point
                     valueS = Double.valueOf(valueS).toString();
                 }
                 // Check if the value is in hexadecimal
-                else if (inputFormat.equals("hexadecimal"))
+                else if (inputFormat.equals(InputTypeFormat.HEXADECIMAL))
                 {
                     // Set the string to append that indicates if this is a protected message ID or
                     // not
@@ -2236,13 +2273,13 @@ public class CcddConstants
                              + protect;
                 }
                 // Check if the value is a boolean
-                else if (inputFormat.equals("boolean"))
+                else if (inputFormat.equals(InputTypeFormat.BOOLEAN))
                 {
                     // Format the string as a boolean
                     valueS = valueS.toLowerCase();
                 }
                 // Check if the values represents array index values
-                else if (inputFormat.equals("array"))
+                else if (inputFormat.equals(InputTypeFormat.ARRAY))
                 {
                     // Remove all spaces and replace any commas with a comma and space
                     valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
@@ -2299,11 +2336,11 @@ public class CcddConstants
             {
                 // Check that this isn't a page format type and, if special types are to be
                 // excluded, that this isn't one of those types
-                if (!inputType.inputFormat.equals("page format")
+                if (!inputType.inputFormat.equals(InputTypeFormat.PAGE_FORMAT)
                     && (includeSpecialTypes
-                        || (!inputType.inputFormat.equals("data type")
-                            && !inputType.inputFormat.equals("enumeration")
-                            && !inputType.inputFormat.equals("variable path"))))
+                        || (!inputType.inputFormat.equals(InputTypeFormat.DATA_TYPE)
+                            && !inputType.inputFormat.equals(InputTypeFormat.ENUMERATION)
+                            && !inputType.inputFormat.equals(InputTypeFormat.VARIABLE_PATH))))
                 {
                     // Store the input type name in the array
                     inputNames.add(inputType.inputName);

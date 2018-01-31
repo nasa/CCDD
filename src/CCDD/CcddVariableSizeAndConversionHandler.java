@@ -713,6 +713,10 @@ public class CcddVariableSizeAndConversionHandler
                                          String typeNameSeparator,
                                          boolean includeCustom)
     {
+        // TODO ISSUE: IF THE LIST HAS BEE CREATED, THEN THIS IS CALLED WITH DIFFERENT SEPARATORS,
+        // THE ORIGINAL SEPARATORS ARE USED RESULTING IN ERRONEOUS OUTPUT (SUCH AS WHEN THE SCRIPT
+        // METHOD TO GET THE ITOS SOURCE FIELD IS CALLED)
+
         String convertedFullName = "";
 
         // Check if the full variable name is provided

@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
@@ -2630,7 +2631,7 @@ public class CcddScriptDataAccessHandler
             // Step through the structure names
             for (String structureName : structureNames)
             {
-                // Check if the structure isn't already in the list. This is true for the top-level
+                // Check if the structure isn't already in the list. This is true for the root
                 // structure(s) without children
                 if (!orderedNames.contains(structureName))
                 {
@@ -2911,12 +2912,12 @@ public class CcddScriptDataAccessHandler
      *
      * @return The structure path to the current row's parameter with any embedded macro replaced
      *         by its corresponding value; returns a blank if an instance of the table type doesn't
-     *         exist. The path starts with the top-level table name and is followed by a comma and
-     *         then the parent structure and variable name(s) that define(s) the table's path. Each
+     *         exist. The path starts with the root table name and is followed by a comma and then
+     *         the parent structure and variable name(s) that define(s) the table's path. Each
      *         parent and its associated variable name are separated by a period. Each
      *         parent/variable pair in the path is separated by a comma. The format is:
      *
-     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
     public String getStructurePathByRow(int row)
     {
@@ -2932,12 +2933,12 @@ public class CcddScriptDataAccessHandler
      *
      * @return The structure path to the current row's parameter with any embedded macro(s) left in
      *         place; returns a blank if an instance of the table type doesn't exist. The path
-     *         starts with the top-level table name and is followed by a comma and then the parent
+     *         starts with the root table name and is followed by a comma and then the parent
      *         structure and variable name(s) that define(s) the table's path. Each parent and its
      *         associated variable name are separated by a period. Each parent/variable pair in the
      *         path is separated by a comma. The format is:
      *
-     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
     public String getStructurePathByRowWithMacros(int row)
     {
@@ -2958,13 +2959,13 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
      *         corresponding value; returns a blank if an instance of the table type doesn't exist.
-     *         The path starts with the top-level table name. For structure tables the top-level
-     *         name is followed by a comma and then the parent structure and variable name(s) that
+     *         The path starts with the root table name. For structure tables the root name is
+     *         followed by a comma and then the parent structure and variable name(s) that
      *         define(s) the table's path. Each parent and its associated variable name are
      *         separated by a period. Each parent/variable pair in the path is separated by a
      *         comma. The format is:
      *
-     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
     public String getPathByRow(String tableType, int row)
     {
@@ -2985,12 +2986,12 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place;
      *         returns a blank if an instance of the table type doesn't exist. The path starts with
-     *         the top-level table name. For structure tables the top-level name is followed by a
-     *         comma and then the parent structure and variable name(s) that define(s) the table's
-     *         path. Each parent and its associated variable name are separated by a period. Each
+     *         the root table name. For structure tables the root name is followed by a comma and
+     *         then the parent structure and variable name(s) that define(s) the table's path. Each
+     *         parent and its associated variable name are separated by a period. Each
      *         parent/variable pair in the path is separated by a comma. The format is:
      *
-     *         top-level<,variable1.parent1<,variable2.parent2<...>>>
+     *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
     public String getPathByRowWithMacros(String tableType, int row)
     {
@@ -2998,7 +2999,7 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get the structure path to which the specified row's data belongs, showing only the top-level
+     * Get the structure path to which the specified row's data belongs, showing only the root
      * structure and variable names and with any embedded macro replaced by its corresponding value
      *
      * @param row
@@ -3006,11 +3007,11 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
      *         corresponding value; returns a blank if an instance of the table type doesn't exist.
-     *         The path starts with the top-level table name. The top-level name is followed by a
-     *         comma and then the variable name(s) that define(s) the table's path. Each variable
-     *         in the path is separated by a comma. The format is:
+     *         The path starts with the root table name. The root name is followed by a comma and
+     *         then the variable name(s) that define(s) the table's path. Each variable in the path
+     *         is separated by a comma. The format is:
      *
-     *         top-level<,variable1<,variable2<...>>>
+     *         rootTable[,variable1[,variable2[...]]]
      *********************************************************************************************/
     public String getStructureTableVariablePathByRow(int row)
     {
@@ -3018,7 +3019,7 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get the structure path to which the specified row's data belongs, showing only the top-level
+     * Get the structure path to which the specified row's data belongs, showing only the root
      * structure and variable names and with any embedded macro(s) left in place
      *
      * @param row
@@ -3026,11 +3027,11 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place;
      *         returns a blank if an instance of the table type doesn't exist. The path starts with
-     *         the top-level table name. The top-level name is followed by a comma and then the
-     *         variable name(s) that define(s) the table's path. Each variable in the path is
-     *         separated by a comma. The format is:
+     *         the root table name. The root name is followed by a comma and then the variable
+     *         name(s) that define(s) the table's path. Each variable in the path is separated by a
+     *         comma. The format is:
      *
-     *         top-level<,variable1<,variable2<...>>>
+     *         rootTable[,variable1[,variable2[...]]]
      *********************************************************************************************/
     public String getStructureTableVariablePathByRowWithMacros(int row)
     {
@@ -3046,12 +3047,12 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record
      *         statement and with any embedded macro replaced by its corresponding value; returns a
-     *         blank if an instance of the table type doesn't exist. The path starts with the
-     *         top-level table name. The top-level name is followed by a period and then the
-     *         variable name(s) that define(s) the table's path. Each variable in the path is
-     *         separated by an period. The format is:
+     *         blank if an instance of the table type doesn't exist. The path starts with the root
+     *         table name. The root name is followed by a period and then the variable name(s) that
+     *         define(s) the table's path. Each variable in the path is separated by a period. The
+     *         format is:
      *
-     *         top-level<.variable1_parent1<.variable2_parent2<...>>>
+     *         rootTable[.variable1[.variable2[...]]]
      *********************************************************************************************/
     public String getStructureTableITOSPathByRow(int row)
     {
@@ -3067,12 +3068,12 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record
      *         statement and with any embedded macro(s) left in place; returns a blank if an
-     *         instance of the table type doesn't exist. The path starts with the top-level table
-     *         name. The top-level name is followed by a period and then the variable name(s) that
-     *         define(s) the table's path. Each variable in the path is separated by an period. The
-     *         format is:
+     *         instance of the table type doesn't exist. The path starts with the root table name.
+     *         The root name is followed by a period and then the variable name(s) that define(s)
+     *         the table's path. Each variable in the path is separated by an period. The format
+     *         is:
      *
-     *         top-level<.variable1_parent1<.variable2_parent2<...>>>
+     *         rootTable[.variable1[.variable2[...]]]
      *********************************************************************************************/
     public String getStructureTableITOSPathByRowWithMacros(int row)
     {
@@ -3170,9 +3171,9 @@ public class CcddScriptDataAccessHandler
      * Determine if the specified structure is referenced by more than one root structure
      *
      * @param structureName
-     *            name of the structure to check
+     *            prototype name of the structure to check
      *
-     * @return true if the specified structure is referenced by more than one table; false
+     * @return true if the specified structure is referenced by more than one root structure; false
      *         otherwise
      *********************************************************************************************/
     public boolean isStructureShared(String structureName)
@@ -3182,8 +3183,10 @@ public class CcddScriptDataAccessHandler
         // Check if a structure name is provided
         if (structureName != null && !structureName.isEmpty())
         {
-            // Get the list table tree paths for which the target structure is a member
-            List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName);
+            // Get the list root table paths for which the target structure is a member
+            List<Object[]> memberPaths = tableTree.getTableTreePathArray(structureName,
+                                                                         tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
+                                                                         -1);
 
             // Check that the target structure appears in at least two paths
             if (memberPaths.size() > 1)

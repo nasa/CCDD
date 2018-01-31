@@ -33,6 +33,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -73,6 +75,7 @@ import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -4862,17 +4865,17 @@ public class CcddClasses
     @SuppressWarnings("serial")
     protected static class ArrayListMultiple extends ArrayList<String[]>
     {
-        private final int compareColumn;
+        private int compareColumn;
 
         /******************************************************************************************
          * Array list class constructor with string arrays; sets the comparison column
          *
          * @param compareColumn
-         *            index of the column for indexOf and contains comparisons
+         *            index of the column for indexOf, contains, and sort comparisons
          ******************************************************************************************/
         protected ArrayListMultiple(int compareColumn)
         {
-            this.compareColumn = compareColumn;
+            setComparisonColumn(compareColumn);
         }
 
         /******************************************************************************************
@@ -4882,6 +4885,17 @@ public class CcddClasses
         protected ArrayListMultiple()
         {
             this(0);
+        }
+
+        /******************************************************************************************
+         * Set the comparison column
+         *
+         * @param compareColumn
+         *            index of the column for indexOf, contains, and sort comparisons
+         ******************************************************************************************/
+        protected void setComparisonColumn(int compareColumn)
+        {
+            this.compareColumn = compareColumn;
         }
 
         /******************************************************************************************
@@ -4921,6 +4935,43 @@ public class CcddClasses
             }
 
             return matchIndex;
+        }
+
+        /******************************************************************************************
+         * Sort the list based on the comparison column, and converting the column value based on
+         * the specified sort type
+         *
+         * @param sortType
+         *            ArrayListMultipleSortType conversion type; determines how the values are
+         *            compared (string (case insensitive) or hexadecimal)
+         *****************************************************************************************/
+        protected void sort(final ArrayListMultipleSortType sortType)
+        {
+            Collections.sort(this, new Comparator<String[]>()
+            {
+                /**********************************************************************************
+                 * Sort the list based on the comparison column and sort type
+                 *********************************************************************************/
+                @Override
+                public int compare(final String[] item1, final String[] item2)
+                {
+                    int result = 0;
+
+                    switch (sortType)
+                    {
+                        case STRING:
+                            // Compare the two values as text (case insensitive)
+                            result = item1[compareColumn].compareToIgnoreCase(item2[compareColumn]);
+                            break;
+
+                        case HEXADECIMAL:
+                            // Compare the two hexadecimal values as integers, converted to base 10
+                            result = Integer.decode(item1[compareColumn]).compareTo(Integer.decode(item2[compareColumn]));
+                    }
+
+                    return result;
+                }
+            });
         }
     }
 

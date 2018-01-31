@@ -2752,56 +2752,66 @@ public class CcddDbTableCommandHandler
             }
 
             // Combine the table, data fields table, table description, and column order update
-            // commands, then execute the commands
-            dbCommand.executeDbUpdate(command
-                                      + (updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(),
-                                                                               tableInfo.getFieldHandler().getFieldInformation())
-                                                         : "")
-                                      + (updateDescription ? buildTableDescription(tableInfo.getTablePath(),
-                                                                                   description)
-                                                           : "")
-                                      + (updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(),
-                                                                              tableInfo.getColumnOrder())
-                                                           : ""),
-                                      parent);
+            // commands
+            command += (updateFieldInfo
+                                        ? modifyFieldsCommand(tableInfo.getTablePath(),
+                                                              tableInfo.getFieldHandler().getFieldInformation())
+                                        : "")
+                       + (updateDescription
+                                            ? buildTableDescription(tableInfo.getTablePath(),
+                                                                    description)
+                                            : "")
+                       + (updateColumnOrder
+                                            ? buildColumnOrder(tableInfo.getTablePath(),
+                                                               tableInfo.getColumnOrder())
+                                            : "");
 
-            // Check if references in the internal tables are to be updated
-            if (!skipInternalTables && typeDefinition.isStructure())
+            // Check if no command was generated (e.g., the additions, modifications, and deletions
+            // lists are empty)
+            if (!command.isEmpty())
             {
-                // Check if the table is a structure prototype and that the table had one or more
-                // variables to begin with
-                if (tableInfo.isPrototype() && tableInfo.getData().length > 0)
+                // Execute the commands
+                dbCommand.executeDbUpdate(command, parent);
+
+                // Check if references in the internal tables are to be updated
+                if (!skipInternalTables && typeDefinition.isStructure())
                 {
-                    // Build the command to delete bit-packed variable references in the links and
-                    // telemetry scheduler tables that changed due to the table modifications
-                    command = updateLinksAndTlmForPackingChange(orgTableNode, parent);
-
-                    // Check if there are any bit-packed variable references to delete
-                    if (!command.isEmpty())
+                    // Check if the table is a structure prototype and that the table had one or
+                    // more variables to begin with
+                    if (tableInfo.isPrototype() && tableInfo.getData().length > 0)
                     {
-                        // Delete invalid bit-packed variable references
-                        dbCommand.executeDbUpdate(command, parent);
+                        // Build the command to delete bit-packed variable references in the links
+                        // and telemetry scheduler tables that changed due to the table
+                        // modifications
+                        command = updateLinksAndTlmForPackingChange(orgTableNode, parent);
+
+                        // Check if there are any bit-packed variable references to delete
+                        if (!command.isEmpty())
+                        {
+                            // Delete invalid bit-packed variable references
+                            dbCommand.executeDbUpdate(command, parent);
+                        }
+
+                        // Check if the link definitions changed
+                        if (updateLinks)
+                        {
+                            // Store the updated link definitions in the project database
+                            storeInformationTable(InternalTable.LINKS,
+                                                  addLinkHandler.getLinkDefinitions(),
+                                                  null,
+                                                  parent);
+                        }
                     }
 
-                    // Check if the link definitions changed
-                    if (updateLinks)
-                    {
-                        // Store the updated link definitions in the project database
-                        storeInformationTable(InternalTable.LINKS,
-                                              addLinkHandler.getLinkDefinitions(),
-                                              null,
-                                              parent);
-                    }
+                    // Execute the command to reset the rate for links that no longer contain any
+                    // variables
+                    dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
                 }
 
-                // Execute the command to reset the rate for links that no longer contain any
-                // variables
-                dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
+                // Log that inserting data into the table succeeded
+                eventLog.logEvent(SUCCESS_MSG,
+                                  "Table '" + tableInfo.getProtoVariableName() + "' data modified");
             }
-
-            // Log that inserting data into the table succeeded
-            eventLog.logEvent(SUCCESS_MSG,
-                              "Table '" + tableInfo.getProtoVariableName() + "' data modified");
         }
         catch (SQLException se)
         {

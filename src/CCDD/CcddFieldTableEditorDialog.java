@@ -54,10 +54,12 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.CellSelectionHandler;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
@@ -1070,8 +1072,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
-                return isCellEditable(convertRowIndexToView(row),
-                                      convertColumnIndexToView(column));
+                return isCellEditable(convertRowIndexToView(row), convertColumnIndexToView(column));
             }
 
             /**************************************************************************************
@@ -1708,7 +1709,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private String[][] getDataFieldNames()
     {
-        List<String[]> nameList = new ArrayList<String[]>();
+        ArrayListMultiple nameList = new ArrayListMultiple();
 
         // Step through each data field
         for (String[] dataField : dataFields)
@@ -1736,23 +1737,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             }
         }
 
-        // Convert the list of unique data field names into an array
-        String[][] nameArray = nameList.toArray(new String[0][0]);
+        // Sort the list based on the data field name
+        nameList.sort(ArrayListMultipleSortType.STRING);
 
-        // Sort the data field array based on the field name
-        Arrays.sort(nameArray, new Comparator<String[]>()
-        {
-            /**************************************************************************************
-             * Sort the data field array based on the field name (first column)
-             *************************************************************************************/
-            @Override
-            public int compare(final String[] entry1, final String[] entry2)
-            {
-                return entry1[0].compareTo(entry2[0]);
-            }
-        });
-
-        return nameArray;
+        return nameList.toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

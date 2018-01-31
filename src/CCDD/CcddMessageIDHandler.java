@@ -16,13 +16,12 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -403,7 +402,7 @@ public class CcddMessageIDHandler
                                                    Component parent)
     {
         String id;
-        List<String[]> ownersNamesAndIDs = new ArrayList<String[]>();
+        ArrayListMultiple ownersNamesAndIDs = new ArrayListMultiple();
         ArrayListMultiple tableIDNames = new ArrayListMultiple();
         ArrayListMultiple tableIDs = new ArrayListMultiple();
 
@@ -567,37 +566,14 @@ public class CcddMessageIDHandler
         {
             case BY_OWNER:
                 // Sort the message ID list by owner
-                Collections.sort(ownersNamesAndIDs, new Comparator<String[]>()
-                {
-                    /**************************************************************************************
-                     * Sort the message IDs list based on the message ID owner, ignoring case
-                     *************************************************************************************/
-                    @Override
-                    public int compare(final String[] msgID1, final String[] msgID2)
-                    {
-                        return msgID1[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase()
-                                                                           .compareTo(msgID2[MsgIDListColumnIndex.OWNER.ordinal()].toLowerCase());
-                    }
-                });
-
+                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.OWNER.ordinal());
+                ownersNamesAndIDs.sort(ArrayListMultipleSortType.STRING);
                 break;
 
             case BY_NAME:
                 // Sort the message ID list by ID name
-                Collections.sort(ownersNamesAndIDs, new Comparator<String[]>()
-                {
-                    /**********************************************************************************
-                     * Sort the message names & IDs list based on the message ID name, ignoring
-                     * case
-                     *********************************************************************************/
-                    @Override
-                    public int compare(final String[] msgID1, final String[] msgID2)
-                    {
-                        return msgID1[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase()
-                                                                                     .compareTo(msgID2[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].toLowerCase());
-                    }
-                });
-
+                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal());
+                ownersNamesAndIDs.sort(ArrayListMultipleSortType.STRING);
                 break;
         }
 

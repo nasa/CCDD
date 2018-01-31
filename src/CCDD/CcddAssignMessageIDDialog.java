@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,7 +39,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.Message;
 import CCDD.CcddClasses.TableInformation;
@@ -607,7 +608,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param isTlmName
      *            true if this is the tab for the telemetry message name assignment
      *********************************************************************************************/
-    private void addMessageIDTab(final MsgTabInfo tabInfo, boolean isTlmName)
+    private void addMessageIDTab(final MsgTabInfo tabInfo, final boolean isTlmName)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -647,6 +648,61 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             tabInfo.getPatternFld().setBorder(border);
             tabInfo.getPatternFld().setToolTipText(CcddUtilities.wrapText("<html>Format: <i>alphanumeric</i>#<i>&lt;alphanumeric&gt;",
                                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+            // Create an input field verifier for the pattern field
+            tabInfo.getPatternFld().setInputVerifier(new InputVerifier()
+            {
+                // Storage for the last valid value entered; used to restore the pattern field
+                // value if an invalid value is entered. Initialize to the value at the time the
+                // field is created
+                String lastValid = tabInfo.getPatternFld().getText();
+
+                /**********************************************************************************
+                 * Verify the contents of a the pattern field
+                 *********************************************************************************/
+                @Override
+                public boolean verify(JComponent input)
+                {
+                    boolean isValid = true;
+
+                    // Check if the message name pattern isn't in the format text%<0#>d<text> where
+                    // # is one or more digits
+                    if (!tabInfo.getPatternFld().getText().matches(InputDataType.MESSAGE_ID_NAME.getInputMatch()
+                                                                   + "%(0\\d+)?d[a-zA-Z0-9_]*"))
+                    {
+                        // Inform the user that the input value is invalid
+                        new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                                  "<html><b>Message name pattern must be in the format:<br><br></b>"
+                                                                                                  + "&#160;&#160;&#160;<i>startText</i>%&lt;0#&gt;d<i>&lt;"
+                                                                                                  + "endText&gt;</i><b><br><br>where </b><i>startText</i><b> "
+                                                                                                  + "and </b><i>endText</i><b> consist of alphanumeric "
+                                                                                                  + "characters and/or underscores, </b><i>startText</i><b> "
+                                                                                                  + "begins with a letter or underscore, and </b><i>#</i><b> "
+                                                                                                  + "is one or more digits.&#160;&#160;Note: </b><i>0#</i><b> "
+                                                                                                  + "and </b><i>endText</i><b> are optional",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+
+                        // Restore the previous value in the field
+                        tabInfo.getPatternFld().setText(lastValid);
+
+                        isValid = false;
+                    }
+                    // The value is valid
+                    else
+                    {
+                        // Clean up the field value
+                        tabInfo.getPatternFld().setText(tabInfo.getPatternFld().getText().trim());
+
+                        // Store the new value as the last valid value
+                        lastValid = tabInfo.getPatternFld().getText();
+                    }
+
+                    return isValid;
+                }
+            });
+
             gbc.gridx++;
             inputPnl.add(tabInfo.getPatternFld(), gbc);
             gbc.gridx = 0;
@@ -675,6 +731,84 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                        ? null
                                                        : CcddUtilities.wrapText("<html>Format: <i>&lt;</i>0x<i>&gt;hexadecimal digits",
                                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        // Create an input field verifier for the start field
+        tabInfo.getStartFld().setInputVerifier(new InputVerifier()
+        {
+            // Storage for the last valid value entered; used to restore the start field value if
+            // an invalid value is entered. Initialize to the value at the time the field is
+            // created
+            String lastValid = tabInfo.getStartFld().getText();
+
+            /**************************************************************************************
+             * Verify the contents of a the start field
+             *************************************************************************************/
+            @Override
+            public boolean verify(JComponent input)
+            {
+                boolean isValid = true;
+
+                // Check if this is the telemetry message name assignment tab
+                if (isTlmName)
+                {
+                    // Check if the starting message number is not a non-negative integer
+                    if (!tabInfo.getStartFld().getText().matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
+                    {
+                        // Inform the user that the input value is invalid
+                        new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                                  "<html><b>Message starting number must be an integer >= 0",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+
+                        // Restore the previous value in the field
+                        tabInfo.getStartFld().setText(lastValid);
+
+                        isValid = false;
+                    }
+                    // The value is valid
+                    else
+                    {
+                        // Clean up the field value
+                        tabInfo.getStartFld().setText(InputDataType.INT_NON_NEGATIVE.formatInput(tabInfo.getStartFld().getText()));
+
+                        // Store the new value as the last valid value
+                        lastValid = tabInfo.getStartFld().getText();
+                    }
+                }
+                // Not the telemetry message name assignment tab
+                else
+                {
+                    // Check if the starting message ID value is not in hexadecimal format
+                    if (!tabInfo.getStartFld().getText().matches(InputDataType.HEXADECIMAL.getInputMatch()))
+                    {
+                        // Inform the user that the input value is invalid
+                        new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                                  "<html><b>Starting ID must be in the format<br>&#160;&#160;<i>&lt;</i>"
+                                                                                                  + "0x<i>&gt;</i>#<br>where # is one or more hexadecimal digits",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+
+                        // Restore the previous value in the field
+                        tabInfo.getStartFld().setText(lastValid);
+
+                        isValid = false;
+                    }
+                    // The value is valid
+                    else
+                    {
+                        // Clean up the field value
+                        tabInfo.getStartFld().setText(InputDataType.HEXADECIMAL.formatInput(tabInfo.getStartFld().getText()));
+
+                        // Store the new value as the last valid value
+                        lastValid = tabInfo.getStartFld().getText();
+                    }
+                }
+
+                return isValid;
+            }
+        });
+
         gbc.gridx++;
         inputPnl.add(tabInfo.getStartFld(), gbc);
 
@@ -695,6 +829,52 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabInfo.getIntervalFld().setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         tabInfo.getIntervalFld().setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         tabInfo.getIntervalFld().setBorder(border);
+
+        // Create an input field verifier for the interval field
+        tabInfo.getIntervalFld().setInputVerifier(new InputVerifier()
+        {
+            // Storage for the last valid value entered; used to restore the interval field value
+            // if an invalid value is entered. Initialize to the value at the time the field is
+            // created
+            String lastValid = tabInfo.getIntervalFld().getText();
+
+            /**************************************************************************************
+             * Verify the contents of a the interval field
+             *************************************************************************************/
+            @Override
+            public boolean verify(JComponent input)
+            {
+                boolean isValid = true;
+
+                // Check if the message ID interval value is not a positive integer
+                if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                {
+                    // Inform the user that the input value is invalid
+                    new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
+                                                              "<html><b>ID interval must be a positive integer",
+                                                              "Missing/Invalid Input",
+                                                              JOptionPane.WARNING_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+
+                    // Restore the previous value in the field
+                    tabInfo.getIntervalFld().setText(lastValid);
+
+                    isValid = false;
+                }
+                // The value is valid
+                else
+                {
+                    // Clean up the field value
+                    tabInfo.getIntervalFld().setText(InputDataType.INT_POSITIVE.formatInput(tabInfo.getIntervalFld().getText()));
+
+                    // Store the new value as the last valid value
+                    lastValid = tabInfo.getIntervalFld().getText();
+                }
+
+                return isValid;
+            }
+        });
+
         gbc.gridx++;
         inputPnl.add(tabInfo.getIntervalFld(), gbc);
 
@@ -819,7 +999,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         boolean isChanges = false;
 
         // Get the starting message ID and ID interval values
-        int startID = Integer.parseInt(type.getStartFld().getText().replaceFirst("^0x", ""), 16);
+        int startID = Integer.decode(type.getStartFld().getText());
         int interval = Integer.valueOf(type.getIntervalFld().getText());
 
         // ////////////////////////////////////////////////////////////////////////////////////////
@@ -1190,104 +1370,5 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private String formatMessageID(int idValue)
     {
         return String.format("0x%04x", idValue);
-    }
-
-    /**********************************************************************************************
-     * Verify that the dialog content is valid
-     *
-     * @return true if the input values are valid
-     *********************************************************************************************/
-    @Override
-    protected boolean verifySelection()
-    {
-        // Assume the dialog input is valid
-        boolean isValid = true;
-
-        try
-        {
-            // Step through each message ID tab
-            for (MsgTabInfo tabInfo : msgTabs)
-            {
-                // Remove any excess white space
-                tabInfo.getStartFld().setText(tabInfo.getStartFld().getText().trim());
-
-                // Check if the assignment check box is selected
-                if (tabInfo.getAssignCbx().isSelected())
-                {
-                    // Check if this is a message ID tab
-                    if (tabInfo.getPatternFld() == null)
-                    {
-                        // Check if the starting message ID value is not in hexadecimal format
-                        if (!tabInfo.getStartFld().getText().matches(InputDataType.HEXADECIMAL.getInputMatch()))
-                        {
-                            // Inform the user that the starting ID is invalid
-                            throw new CCDDException("Starting ID must be in the format<br>&#160;&#160;<i>&lt;</i>"
-                                                    + "0x<i>&gt;</i>#<br>where # is one or more hexadecimal digits");
-                        }
-
-                        // Check if the message ID interval value is not a positive integer
-                        if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
-                        {
-                            // Inform the user that the interval is invalid
-                            throw new CCDDException("ID interval must be a positive integer");
-                        }
-                    }
-                    // This is the telemetry message name tab
-                    else
-                    {
-                        // Remove any excess white space
-                        tabInfo.getPatternFld().setText(tabInfo.getPatternFld().getText().trim());
-
-                        // Get the name pattern
-                        String pattern = tabInfo.getPatternFld().getText();
-
-                        // Check if the message name pattern isn't in the format text%<0#>d<text>
-                        // where # is one or more digits
-                        if (!pattern.matches(InputDataType.MESSAGE_ID_NAME.getInputMatch()
-                                             + "%(0\\d+)?d[a-zA-Z0-9_]*"))
-                        {
-                            // Inform the user that the name pattern is invalid
-                            throw new CCDDException("Message name pattern must be in the format:<br><br></b>"
-                                                    + "&#160;&#160;&#160;<i>startText</i>%&lt;0#&gt;d<i>&lt;"
-                                                    + "endText&gt;</i><b><br><br>where </b><i>startText</i><b> "
-                                                    + "and </b><i>endText</i><b> consist of alphanumeric "
-                                                    + "characters and/or underscores, </b><i>startText</i><b> "
-                                                    + "begins with a letter or underscore, and </b><i>#</i><b> "
-                                                    + "is one or more digits.&#160;&#160;Note: </b><i>0#</i><b> "
-                                                    + "and </b><i>endText</i><b> are optional");
-                        }
-
-                        // Check if the starting message number is not a non-negative integer
-                        if (!tabInfo.getStartFld().getText().matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
-                        {
-                            // Inform the user that the starting number is invalid
-                            throw new CCDDException("Message starting number must be an integer >= 0");
-                        }
-
-                        // Check if the message name interval value is not a positive integer
-                        if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
-                        {
-                            // Inform the user that the interval is invalid
-                            throw new CCDDException("Message interval must be a positive integer");
-                        }
-                    }
-                }
-            }
-        }
-        catch (CCDDException ce)
-        {
-            // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
-                                                      "<html><b>"
-                                                                                      + ce.getMessage(),
-                                                      "Missing/Invalid Input",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-
-            // Set the flag to indicate the dialog input is invalid
-            isValid = false;
-        }
-
-        return isValid;
     }
 }

@@ -607,8 +607,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
             // Enable or disable the web server message filter check box based on if the web server
             // exists or if this isn't the session log
-            setServerFilterEnable(ccddMain.getWebServer() != null
-                                  || !isSessionLog);
+            setServerFilterEnable(ccddMain.getWebServer() != null || !isSessionLog);
 
             // Add the filter check box panel to the log & filter panel
             logAndFilterPnl.add(filterPanel, BorderLayout.PAGE_END);
@@ -661,8 +660,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @return New check box with the specified characteristics
      *********************************************************************************************/
-    private JCheckBox createCheckBox(EventLogMessageType eventType,
-                                     ActionListener filterListener)
+    private JCheckBox createCheckBox(EventLogMessageType eventType, ActionListener filterListener)
     {
         // Create a check box with label
         JCheckBox checkBox = new JCheckBox(eventType.getTypeName());
@@ -1070,9 +1068,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param dialogMessage
      *            error dialog message
      *********************************************************************************************/
-    protected void logFailEvent(Component parent,
-                                String logMessage,
-                                String dialogMessage)
+    protected void logFailEvent(Component parent, String logMessage, String dialogMessage)
     {
         logFailEvent(parent, "Database Error", logMessage, dialogMessage);
     }

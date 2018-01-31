@@ -113,7 +113,7 @@ def isTelemetry(row)
  ******************************************************************************/
 def getCommandEnumerationName(row, argumentNum)
 {
-    return ccdd.getCommandName(row) + "_" + ccdd.getCommandArgumentName(argumentNum, row) + "_ENUMERATION"
+    return ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row) + "_ENUMERATION"
 }
 
 /*******************************************************************************
@@ -575,8 +575,8 @@ def outputCommands(prefix, msgIDOffset, system)
             for (def argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
             {
                 // Get the command argument's name, data type, and array size
-                def name = ccdd.getCommandArgumentName(argumentNum, row)
-                def dataType = ccdd.getCommandArgumentDataType(argumentNum, row)
+                def name = ccdd.getCommandArgName(argumentNum, row)
+                def dataType = ccdd.getCommandArgDataType(argumentNum, row)
 
                 // Get the size in bytes based on the data type
                 def sizeInBytes = ccdd.getDataTypeSizeInBytes(dataType);
@@ -594,7 +594,7 @@ def outputCommands(prefix, msgIDOffset, system)
                     if (itosEncode1Char.equals("I") || itosEncode1Char.equals("U"))
                     {
                         // Get the command argument's enumeration value
-                        def enumeration = ccdd.getCommandArgumentEnumeration(argumentNum, row)
+                        def enumeration = ccdd.getCommandArgEnumeration(argumentNum, row)
 
                         // Check if this command has an enumeration
                         if (enumeration != null && !enumeration.isEmpty())
@@ -608,8 +608,8 @@ def outputCommands(prefix, msgIDOffset, system)
                         {
                             // Get the command argument's minimum and maximum
                             // values
-                            def minimumValue = ccdd.getCommandArgumentMinimum(argumentNum, row)
-                            def maximumValue = ccdd.getCommandArgumentMaximum(argumentNum, row)
+                            def minimumValue = ccdd.getCommandArgMinimum(argumentNum, row)
+                            def maximumValue = ccdd.getCommandArgMaximum(argumentNum, row)
 
                             // Check if a minimum value doesn't exist for this
                             // argument
@@ -653,7 +653,7 @@ def outputCommands(prefix, msgIDOffset, system)
                     else if (itosEncode1Char.equals("S"))
                     {
                         // Get the command argument's array size value
-                        def arraySize = ccdd.getCommandArgumentArraySize(argumentNum, row)
+                        def arraySize = ccdd.getCommandArgArraySize(argumentNum, row)
 
                         // Check if there is no array size provided
                         if (arraySize == null || arraySize.isEmpty())
@@ -735,9 +735,6 @@ def outputMnemonicDefinition(row)
         if (isOutputMnemonic)
         {
             def structurePath = ccdd.getFullVariableName(row, ".")
-
-            // In case this is an array member replace the square brackets
-            variableName = ccdd.getFullVariableName(variableName, "_")
 
             // Get the full variable name for this variable, which includes all
             // of the variable names in its structure path
@@ -962,7 +959,7 @@ def outputCommandDiscreteConversions()
             // argument number. Null is returned if no match is found for the
             // column name; it's assumed that no more argument columns exists
             // for this command
-            def discreteConversion = ccdd.getCommandArgumentEnumeration(argumentNum, row)
+            def discreteConversion = ccdd.getCommandArgEnumeration(argumentNum, row)
 
             // Check if the parameter has a discrete conversion
             if (discreteConversion != null && !discreteConversion.isEmpty())
@@ -977,7 +974,7 @@ def outputCommandDiscreteConversions()
 
                 // Build the name for the conversion using the command and
                 // argument names
-                def fullCommandName = ccdd.getCommandName(row) + "_" + ccdd.getCommandArgumentName(argumentNum, row)
+                def fullCommandName = ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row)
 
                 // Output the discrete conversion for this row in the data table
                 outputDiscreteConversion(cmdFile, discreteConversion, fullCommandName)
@@ -1047,7 +1044,7 @@ def outputCommandEnumerations(systemName)
             for (def argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
             {
                 // Get the command argument's enumeration value
-                def enumeration = ccdd.getCommandArgumentEnumeration(argumentNum, row)
+                def enumeration = ccdd.getCommandArgEnumeration(argumentNum, row)
 
                 // Check if this command has an enumeration
                 if (enumeration != null && !enumeration.isEmpty())
@@ -1092,9 +1089,6 @@ def outputLimitDefinition(row, limitSets, isFirst)
     // definitions)
     if (isVariable(variableName, arraySize))
     {
-        // In case this is an array member replace the square brackets
-        variableName = ccdd.getFullVariableName(variableName, "_")
-
         // Separate the limits into an array
         def limits = ccdd.getArrayFromString(limitSets, "|", ",")
 

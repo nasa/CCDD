@@ -105,7 +105,7 @@ end
 # @return Command enumeration name
 #******************************************************************************
 def getCommandEnumerationName(row, argumentNum)
-    return $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgumentName(argumentNum, row) + "_ENUMERATION"
+    return $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgName(argumentNum, row) + "_ENUMERATION"
 end
 
 #******************************************************************************
@@ -499,8 +499,8 @@ def outputCommands(prefix, msgIDOffset, system)
             # Process all of the command arguments for this command
             for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
                 # Get the command argument's name, data type, and array size
-                name = $ccdd.getCommandArgumentName(argumentNum, row)
-                dataType = $ccdd.getCommandArgumentDataType(argumentNum, row)
+                name = $ccdd.getCommandArgName(argumentNum, row)
+                dataType = $ccdd.getCommandArgDataType(argumentNum, row)
 
                 # Get the size in bytes based on the data type
                 sizeInBytes = $ccdd.getDataTypeSizeInBytes(dataType);
@@ -516,7 +516,7 @@ def outputCommands(prefix, msgIDOffset, system)
                     # Check if the parameter is an integer (signed or unsigned)
                     if itosEncode1Char == "I" || itosEncode1Char == "U"
                         # Get the command argument's enumeration value
-                        enumeration = $ccdd.getCommandArgumentEnumeration(argumentNum, row)
+                        enumeration = $ccdd.getCommandArgEnumeration(argumentNum, row)
 
                         # Check if this command has an enumeration
                         if enumeration != nil && !enumeration.empty?
@@ -528,8 +528,8 @@ def outputCommands(prefix, msgIDOffset, system)
                         if sizeInBytes != 0
                             # Get the command argument's minimum and maximum
                             # values
-                            minimumValue = $ccdd.getCommandArgumentMinimum(argumentNum, row)
-                            maximumValue = $ccdd.getCommandArgumentMaximum(argumentNum, row)
+                            minimumValue = $ccdd.getCommandArgMinimum(argumentNum, row)
+                            maximumValue = $ccdd.getCommandArgMaximum(argumentNum, row)
 
                             # Check if a minimum value doesn't exist for this
                             # argument
@@ -567,7 +567,7 @@ def outputCommands(prefix, msgIDOffset, system)
                     # Check if the parameter is a string
                    elsif itosEncode1Char == "S"
                         # Get the command argument's array size value
-                        arraySize = $ccdd.getCommandArgumentArraySize(argumentNum, row)
+                        arraySize = $ccdd.getCommandArgArraySize(argumentNum, row)
 
                         # Check if there is no array size provided
                         if arraySize == nil || arraySize.empty?
@@ -641,9 +641,6 @@ def outputMnemonicDefinition(row)
         # definitions)
         if isOutputMnemonic
             structurePath = $ccdd.getFullVariableName(row, ".")
-
-            # In case this is an array member replace the square brackets
-            variableName = $ccdd.getFullVariableName(variableName, "_")
 
             # Get the full variable name for this variable, which includes all
             # of the variable names in its structure path
@@ -842,7 +839,7 @@ def outputCommandDiscreteConversions()
             # argument number. Null is returned if no match is found for the
             # column name; it's assumed that no more argument columns exists
             # for this command
-            discreteConversion = $ccdd.getCommandArgumentEnumeration(argumentNum, row)
+            discreteConversion = $ccdd.getCommandArgEnumeration(argumentNum, row)
 
             # Check if the parameter has a discrete conversion
             if discreteConversion != nil && !discreteConversion.empty?
@@ -855,7 +852,7 @@ def outputCommandDiscreteConversions()
 
                 # Build the name for the conversion using the command and
                 # argument names
-                fullCommandName = $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgumentName(argumentNum, row)
+                fullCommandName = $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgName(argumentNum, row)
 
                 # Output the discrete conversion for this row in the data table
                 outputDiscreteConversion($cmdFile, discreteConversion, fullCommandName)
@@ -918,7 +915,7 @@ def outputCommandEnumerations(systemName)
             # Step through each of the commands arguments
             for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
                 # Get the command argument's enumeration value
-                enumeration = $ccdd.getCommandArgumentEnumeration(argumentNum, row)
+                enumeration = $ccdd.getCommandArgEnumeration(argumentNum, row)
 
                 # Check if this command has an enumeration
                 if enumeration != nil && !enumeration.empty?
@@ -959,9 +956,6 @@ def outputLimitDefinition(row, limitSets, isFirst)
     # Only output non-array variables or array members (i.e., skip array
     # definitions)
     if isVariable(variableName, arraySize)
-        # In case this is an array member replace the square brackets
-        variableName = $ccdd.getFullVariableName(variableName, "_")
-
         # Separate the limits into an array
         limits = $ccdd.getArrayFromString(limitSets, "|", ",")
 
@@ -1011,7 +1005,7 @@ def outputLimitDefinition(row, limitSets, isFirst)
                     end
 
                     # Output the limit header
-                    $ccdd.writeToFileLn($tlmFile, "  Limit limit" + set)
+                    $ccdd.writeToFileLn($tlmFile, "  Limit limit" + set.to_s)
                     $ccdd.writeToFileLn($tlmFile, "  {")
 
                     limitIndex = 0
@@ -1059,7 +1053,7 @@ def outputLimitDefinitions()
         # Check if the parameter has limits
         if limitSets != nil && !limitSets.empty?
             # Output the limit definition for this row in the data table
-            isFirst = outputLimitDefinition(row, limitSets)
+            isFirst = outputLimitDefinition(row, limitSets, isFirst)
         end
     end
 end

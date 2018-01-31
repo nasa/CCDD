@@ -80,7 +80,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     // Table instance model data. Current copy is the table information as it exists in the table
     // editor and is used to determine what changes have been made to the table since the previous
     // field editor update
-    private String[][] committedData;
+    private Object[][] committedData;
 
     // List of data type table content changes to process
     private List<TableModification> modifications;
@@ -175,7 +175,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
             // Update the copy of the data type data so it can be used to determine if changes are
             // made
-            storeCurrentData();
+            committedData = dataTypeHandler.getDataTypeDataArray();
 
             // Clear the stored calculated macro values since the value may have changed due to the
             // data type update
@@ -183,25 +183,6 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
             // Accept all edits for this table
             dataTypeTable.getUndoManager().discardAllEdits();
-        }
-    }
-
-    /**********************************************************************************************
-     * Copy the data type data so it can be used to determine if changes are made
-     *********************************************************************************************/
-    private void storeCurrentData()
-    {
-        // Check if the table has fields
-        if (!dataTypeHandler.getDataTypeData().isEmpty())
-        {
-            // Store the data type information
-            committedData = dataTypeHandler.getDataTypeData().toArray(new String[0][0]);
-        }
-        // The table has no date types
-        else
-        {
-            // Initialize the fields
-            committedData = new String[0][0];
         }
     }
 
@@ -245,7 +226,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                 // Create a copy of the data type data so it can be used to determine if changes
                 // are made
-                storeCurrentData();
+                committedData = dataTypeHandler.getDataTypeDataArray();
 
                 // Define the panel to contain the table and place it in the editor
                 JPanel tablePnl = new JPanel();
@@ -535,9 +516,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
              * Allow pasting data into the data type cells
              *************************************************************************************/
             @Override
-            protected boolean isDataAlterable(Object[] rowData,
-                                              int row,
-                                              int column)
+            protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
                 return isCellEditable(convertRowIndexToView(row),
                                       convertColumnIndexToView(column));
@@ -698,7 +677,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             }
 
                             // Remove any unneeded characters and store the cleaned number
-                            tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(), "$1");
+                            tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(), "$1"));
                         }
                         // Check if this is the data type base type column
                         else if (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal())
@@ -757,7 +736,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     // the current name in the editor, in case it's been changed)
                                     // since this is how the data type is referenced in the data
                                     // tables
-                                    String dataTypeName = CcddDataTypeHandler.getDataTypeName(committedData[commRow]);
+                                    String dataTypeName = CcddDataTypeHandler.getDataTypeName(CcddUtilities.convertObjectToString(committedData[commRow]));
 
                                     DataTypeReference dataTypeRefs = null;
 
@@ -944,13 +923,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
@@ -1213,7 +1188,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         int numCommitted = committedData.length;
 
         // Get the data type table cell values
-        String[][] tableData = CcddUtilities.convertObjectToString(dataTypeTable.getTableData(true));
+        Object[][] tableData = dataTypeTable.getTableData(true);
 
         // Step through each row in the data type table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)

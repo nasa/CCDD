@@ -93,7 +93,7 @@ public class CcddApplicationSchedulerTableHandler
                     sdtEntry[msgIndex][1] = ACTIVITY;
                     sdtEntry[msgIndex][2] = "1";
                     sdtEntry[msgIndex][3] = "0";
-                    sdtEntry[msgIndex][4] = getMessageIndex(Integer.valueOf(appData.getWakeUpID().replace("0x", ""), 16));
+                    sdtEntry[msgIndex][4] = getMessageIndex(Integer.decode(appData.getWakeUpID()));
                     sdtEntry[msgIndex][5] = appData.getSchGroup();
                 }
                 // No message is assigned
@@ -172,8 +172,8 @@ public class CcddApplicationSchedulerTableHandler
             @Override
             public int compare(Variable var, Variable otherVar)
             {
-                return Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16)
-                              .compareTo(Integer.valueOf(((ApplicationData) otherVar).getWakeUpID().replace("0x", ""), 16));
+                return Integer.decode(((ApplicationData) var).getWakeUpID())
+                              .compareTo(Integer.decode(((ApplicationData) otherVar).getWakeUpID()));
             }
         });
 
@@ -185,7 +185,7 @@ public class CcddApplicationSchedulerTableHandler
         {
             // Store the application wake-up message ID define statement parameters
             defines[index][0] = app.getFullName().toUpperCase() + "_WAKEUP_MID";
-            defines[index][1] = Integer.valueOf(((ApplicationData) app).getWakeUpID().replace("0x", ""), 16).toString();
+            defines[index][1] = Integer.decode(((ApplicationData) app).getWakeUpID()).toString();
             index++;
         }
     }
@@ -216,7 +216,7 @@ public class CcddApplicationSchedulerTableHandler
 
             for (Variable var : appList)
             {
-                if (mdtIndex == Integer.valueOf(((ApplicationData) var).getWakeUpID().replace("0x", ""), 16))
+                if (mdtIndex == Integer.decode(((ApplicationData) var).getWakeUpID()))
                 {
                     command = var.getFullName().toUpperCase() + "_WAKEUP_MID";
                     break;

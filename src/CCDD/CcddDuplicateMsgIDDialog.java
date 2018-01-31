@@ -11,8 +11,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Collections;
-import java.util.Comparator;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -22,6 +20,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
 import CCDD.CcddClasses.ArrayListMultiple;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DuplicateMsgIDColumnInfo;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -68,20 +67,11 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
         msgIDHandler.getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
 
         // Get the list of duplicate message IDs
-        duplicates = msgIDHandler.getDuplicates();
+        duplicates = new ArrayListMultiple(1);
+        duplicates.addAll(msgIDHandler.getDuplicates());
 
-        // Sort the duplicates list
-        Collections.sort(duplicates, new Comparator<String[]>()
-        {
-            /**************************************************************************************
-             * Sort the duplicates list based on the message ID (second column)
-             *************************************************************************************/
-            @Override
-            public int compare(final String[] msgID1, final String[] msgID2)
-            {
-                return Integer.decode(msgID1[1]).compareTo(Integer.decode(msgID2[1]));
-            }
-        });
+        // Sort the list based on the message ID values
+        duplicates.sort(ArrayListMultipleSortType.HEXADECIMAL);
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,

@@ -20,6 +20,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -41,6 +42,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -328,7 +330,7 @@ public class CcddSchedulerEditorHandler
                         if (!newValueS.isEmpty())
                         {
                             // Convert the ID to an integer
-                            int id = Integer.valueOf(newValueS.replaceFirst("^0x|^0X", ""), 16);
+                            int id = Integer.decode(newValueS);
 
                             // Step through each row in the table
                             for (int checkRow = 0; checkRow < tableData.size(); checkRow++)
@@ -341,7 +343,7 @@ public class CcddSchedulerEditorHandler
                                     if (!(row == checkRow
                                           && column == checkCol)
                                         && !tableData.get(checkRow)[checkCol].toString().isEmpty()
-                                        && id == Integer.valueOf(tableData.get(checkRow)[checkCol].toString().replaceFirst("^0x|^0X", ""), 16))
+                                        && id == Integer.decode(tableData.get(checkRow)[checkCol].toString()))
                                     {
                                         // Inform the user that the message name already is in use
                                         throw new CCDDException("Message ID is already in use");
@@ -438,6 +440,53 @@ public class CcddSchedulerEditorHandler
 
                 return comp;
             }
+
+            /**************************************************************************************
+             * Override the CcddJTableHandler method to handle sorting the Size column
+             *************************************************************************************/
+            @Override
+            protected void setTableSortable()
+            {
+                super.setTableSortable();
+
+                // Get the table's row sorter
+                TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
+
+                // Check if the table has a sorter (i.e., has at least one row)
+                if (sorter != null)
+                {
+                    // Add a hexadecimal sort comparator
+                    sorter.setComparator(SchedulerColumn.ID.ordinal(), new Comparator<String>()
+                    {
+                        /**************************************************************************
+                         * Override the comparison when sorting columns with a hexadecimal input
+                         * type format
+                         *************************************************************************/
+                        @Override
+                        public int compare(String cell1, String cell2)
+                        {
+                            int result;
+
+                            // Check if either cell is empty
+                            if (cell1.isEmpty() || cell2.isEmpty())
+                            {
+                                // Compare as text (alphabetically)
+                                result = cell1.compareTo(cell2);
+                            }
+                            // Neither cell is empty
+                            else
+                            {
+                                // Get the hexadecimal cell values and convert them to base 10
+                                // integers for comparison
+                                result = Integer.compare(Integer.decode(cell1),
+                                                         Integer.decode(cell2));
+                            }
+
+                            return result;
+                        }
+                    });
+                }
+            }
         };
 
         // Create a listener for scheduler table row and column selection changes
@@ -479,16 +528,7 @@ public class CcddSchedulerEditorHandler
         schedulerScrollPane.setBorder(border);
 
         // Set common table parameters and characteristics
-        schedulerTable.setFixedCharacteristics(schedulerScrollPane,
-                                               false,
-                                               ListSelectionModel.SINGLE_SELECTION,
-                                               TableSelectionMode.SELECT_BY_CELL,
-                                               false,
-                                               ModifiableColorInfo.TABLE_BACK.getColor(),
-                                               true,
-                                               true,
-                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
-                                               true);
+        schedulerTable.setFixedCharacteristics(schedulerScrollPane, false, ListSelectionModel.SINGLE_SELECTION, TableSelectionMode.SELECT_BY_CELL, false, ModifiableColorInfo.TABLE_BACK.getColor(), true, true, ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
 
         // Get the table model and undo manager to shorten later calls
         schTableModel = (UndoableTableModel) schedulerTable.getModel();
@@ -544,8 +584,7 @@ public class CcddSchedulerEditorHandler
                         + (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
                                                                                       ? colWidths[2]
                                                                                       : 0);
-        schedulerScrollPane.setPreferredSize(new Dimension(prefWidth,
-                                                           schedulerScrollPane.getPreferredSize().height));
+        schedulerScrollPane.setPreferredSize(new Dimension(prefWidth, schedulerScrollPane.getPreferredSize().height));
         schedulerPnl.setMinimumSize(schedulerScrollPane.getPreferredSize());
 
         // Create the scheduler table label
@@ -656,10 +695,7 @@ public class CcddSchedulerEditorHandler
         }
 
         // Add the scheduler table and assignment tree/list to the split pane
-        tableSpltPn = new CustomSplitPane(schedulerPnl,
-                                          assignmentPnl,
-                                          null,
-                                          JSplitPane.HORIZONTAL_SPLIT);
+        tableSpltPn = new CustomSplitPane(schedulerPnl, assignmentPnl, null, JSplitPane.HORIZONTAL_SPLIT);
     }
 
     /**********************************************************************************************

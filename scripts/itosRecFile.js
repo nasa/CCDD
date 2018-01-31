@@ -96,7 +96,7 @@ function isTelemetry(row)
     for (var index = 0; index < rates.length; index++)
     {
         // Check if a rate value is present in the column
-        if (!rates[index].isEmpty())
+        if (rates[index] != "")
         {
             // Set the flag to indicate the variable is telemetered and stop
             // searching
@@ -121,7 +121,7 @@ function isTelemetry(row)
  ******************************************************************************/
 function getCommandEnumerationName(row, argumentNum)
 {
-    return ccdd.getCommandName(row) + "_" + ccdd.getCommandArgumentName(argumentNum, row) + "_ENUMERATION";
+    return ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row) + "_ENUMERATION";
 }
 
 /*******************************************************************************
@@ -289,7 +289,7 @@ function outputStructureDefinition(structureName, isPacket, outFile)
 
                     // Check if the variable is a string; a string is handled as
                     // a single entity rather than an array of characters
-                    if (arraySize != null && arraySize != "" && dataType == "string")
+                    if (arraySize  && arraySize != "" && dataType == "string")
                     {
                         // Check if this is the first character in the string
                         if (variableName.endsWith("_0"))
@@ -341,7 +341,7 @@ function outputStructureDefinition(structureName, isPacket, outFile)
                         var otherParameters = "";
 
                         // Check if the length in bits is specified
-                        if (bitLength != null && !bitLength.isEmpty())
+                        if (bitLength && bitLength != "")
                         {
                             // Add the length in bits parameter
                             otherParameters = "lengthInBits=" + bitLength;
@@ -356,7 +356,7 @@ function outputStructureDefinition(structureName, isPacket, outFile)
                         if (itosEncode2Char != null)
                         {
                             // Check if other parameters have been defined
-                            if (!otherParameters.isEmpty())
+                            if (otherParameters)
                             {
                                 // Add a space to separate the parameters
                                 otherParameters += " ";
@@ -495,7 +495,7 @@ function outputStructures(structureNames)
         var msgID = ccdd.getTableDataFieldValue(structureName, "Message ID");
 
         // Check if the structure doesn't have a message ID
-        if (msgID == null || msgID.isEmpty())
+        if (!msgID || msgID == "")
         {
             // Check if the structure is referenced by more than one structure
             if (ccdd.isStructureShared(structureName))
@@ -582,17 +582,17 @@ function outputCommands(prefix, msgIDOffset, system)
             // Process all of the command arguments for this command
             for (var argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
             {
-                // Get the command argument's name, data type, and array size
-                var name = ccdd.getCommandArgumentName(argumentNum, row);
-                var dataType = ccdd.getCommandArgumentDataType(argumentNum, row);
+                // Get the command argument's name and data type
+                var name = ccdd.getCommandArgName(argumentNum, row);
+                var dataType = ccdd.getCommandArgDataType(argumentNum, row);
 
                 // Get the size in bytes based on the data type
                 var sizeInBytes = ccdd.getDataTypeSizeInBytes(dataType);
 
                 // Check if the parameter has an argument
-                if (name != null && !name.isEmpty() && dataType != null && !dataType.isEmpty())
+                if (name && name != "" && dataType && dataType != "")
                 {
-                    var argumentInfo = "";
+                     var argumentInfo = "";
 
                     // Get the single character ITOS encoded form of the data
                     // type
@@ -602,10 +602,10 @@ function outputCommands(prefix, msgIDOffset, system)
                     if (itosEncode1Char.equals("I") || itosEncode1Char.equals("U"))
                     {
                         // Get the command argument's enumeration value
-                        var enumeration = ccdd.getCommandArgumentEnumeration(argumentNum, row);
+                        var enumeration = ccdd.getCommandArgEnumeration(argumentNum, row);
 
                         // Check if this command has an enumeration
-                        if (enumeration != null && !enumeration.isEmpty())
+                        if (enumeration && enumeration != "")
                         {
                             // Add the associated enumeration definition
                             argumentInfo += "enumeration = " + getCommandEnumerationName(row, argumentNum) + ", ";
@@ -616,12 +616,12 @@ function outputCommands(prefix, msgIDOffset, system)
                         {
                             // Get the command argument's minimum and maximum
                             // values
-                            var minimumValue = ccdd.getCommandArgumentMinimum(argumentNum, row);
-                            var maximumValue = ccdd.getCommandArgumentMaximum(argumentNum, row);
+                            var minimumValue = ccdd.getCommandArgMinimum(argumentNum, row);
+                            var maximumValue = ccdd.getCommandArgMaximum(argumentNum, row);
 
                             // Check if a minimum value doesn't exist for this
                             // argument
-                            if (minimumValue == null || minimumValue.isEmpty())
+                            if (!minimumValue || minimumValue == "")
                             {
                                 // Set the minimum value to zero, assuming this
                                 // is an unsigned integer
@@ -638,7 +638,7 @@ function outputCommands(prefix, msgIDOffset, system)
 
                             // Check if a maximum value doesn't exist for this
                             // argument
-                            if (maximumValue == null || maximumValue.isEmpty())
+                            if (!maximumValue || maximumValue == "")
                             {
                                 // Set the maximum value to the largest positive
                                 // value for an unsigned integer
@@ -661,10 +661,10 @@ function outputCommands(prefix, msgIDOffset, system)
                     else if (itosEncode1Char.equals("S"))
                     {
                         // Get the command argument's array size value
-                        var arraySize = ccdd.getCommandArgumentArraySize(argumentNum, row);
+                        var arraySize = ccdd.getCommandArgArraySize(argumentNum, row);
 
                         // Check if there is no array size provided
-                        if (arraySize == null || arraySize.isEmpty())
+                        if (!arraySize || arraySize == "")
                         {
                             // Default to a single character
                             arraySize = "1";
@@ -725,7 +725,7 @@ function outputMnemonicDefinition(row)
         var isVar = isVariable(variableName, arraySize);
 
         // Check if the variable is a string
-        var isString = itosEncode.equals("S") && !arraySize.isEmpty();
+        var isString = itosEncode.equals("S") && arraySize != "";
 
         // Set the output flag if this is a non-string variable
         var isOutputMnemonic = isVar && !isString;
@@ -744,9 +744,6 @@ function outputMnemonicDefinition(row)
         {
             var structurePath = ccdd.getFullVariableName(row, ".");
 
-            // In case this is an array member replace the square brackets
-            variableName = ccdd.getFullVariableName(variableName, "_");
-
             // Get the full variable name for this variable, which includes all
             // of the variable names in its structure path
             var fullVariableName = ccdd.getFullVariableName(row);
@@ -757,7 +754,7 @@ function outputMnemonicDefinition(row)
             var enumerations = ccdd.getStructureEnumerations(row);
 
             // Check if any enumeration exists
-            if (enumerations != null && enumerations.length != 0)
+            if (enumerations && enumerations.length != 0)
             {
                 // Store the first enumeration
                 enumeration = enumerations[0];
@@ -777,7 +774,7 @@ function outputMnemonicDefinition(row)
                 var isMultiple = false;
 
                 // Check if the parameter includes an enumeration
-                if (enumeration != null && !enumeration.isEmpty())
+                if (enumeration && enumeration != "")
                 {
                     isConversion = true;
                     isMultiple = false;
@@ -785,7 +782,7 @@ function outputMnemonicDefinition(row)
 
                 // Check if this parameter includes a discrete or polynomial
                 // conversion
-                if (polynomial != null && !polynomial.isEmpty())
+                if (polynomial && polynomial != "")
                 {
                     isConversion = true;
                     isMultiple = polynomial.split("\\;").length > 1;
@@ -811,7 +808,7 @@ function outputMnemonicDefinition(row)
                 }
 
                 // Check if this parameter includes a limit or limit set
-                if (limitSet != null && !limitSet.isEmpty())
+                if (limitSet && limitSet != "")
                 {
                     // Output the limit reference
                     ccdd.writeToFile(tlmFile, " limits = " + fullVariableName + "_LIMIT");
@@ -883,14 +880,14 @@ function outputDiscreteConversion(file, discreteConversion, conversionName)
             ccdd.writeToFile(file, "  Dsc " + enumerations[discrete][DISP_NAME] + " {range = " + enumerations[discrete][VALUE]);
 
             // Check if a background color is supplied
-            if (enumerations[discrete][BACK_COLOR] != null && !enumerations[discrete][BACK_COLOR].isEmpty())
+            if (enumerations[discrete][BACK_COLOR])
             {
                 // Output the background color
                 ccdd.writeToFile(file, ", bgColor = " + enumerations[discrete][BACK_COLOR]);
             }
 
             // Check if a foreground (text) color is supplied
-            if (enumerations[discrete][TEXT_COLOR] != null && !enumerations[discrete][TEXT_COLOR].isEmpty())
+            if (enumerations[discrete][TEXT_COLOR])
             {
                 // Output the foreground color
                 ccdd.writeToFile(file, ", fgColor = " + enumerations[discrete][TEXT_COLOR]);
@@ -926,7 +923,7 @@ function outputTelemetryDiscreteConversions()
         }
 
         // Check if the parameter has a discrete conversion
-        if (discreteConversion != null && !discreteConversion.isEmpty())
+        if (discreteConversion)
         {
             // Check if this is the first discrete conversion
             if (isFirst)
@@ -970,10 +967,10 @@ function outputCommandDiscreteConversions()
             // argument number. Null is returned if no match is found for the
             // column name; it's assumed that no more argument columns exists
             // for this command
-            var discreteConversion = ccdd.getCommandArgumentEnumeration(argumentNum, row);
+            var discreteConversion = ccdd.getCommandArgEnumeration(argumentNum, row);
 
             // Check if the parameter has a discrete conversion
-            if (discreteConversion != null && !discreteConversion.isEmpty())
+            if (discreteConversion && discreteConversion != "")
             {
                 // Check if this is the first discrete conversion
                 if (argumentNum == 0)
@@ -985,7 +982,7 @@ function outputCommandDiscreteConversions()
 
                 // Build the name for the conversion using the command and
                 // argument names
-                var fullCommandName = ccdd.getCommandName(row) + "_" + ccdd.getCommandArgumentName(argumentNum, row);
+                var fullCommandName = ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row);
 
                 // Output the discrete conversion for this row in the data table
                 outputDiscreteConversion(cmdFile, discreteConversion, fullCommandName);
@@ -1055,10 +1052,10 @@ function outputCommandEnumerations(systemName)
             for (var argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
             {
                 // Get the command argument's enumeration value
-                var enumeration = ccdd.getCommandArgumentEnumeration(argumentNum, row);
+                var enumeration = ccdd.getCommandArgEnumeration(argumentNum, row);
 
                 // Check if this command has an enumeration
-                if (enumeration != null && !enumeration.isEmpty())
+                if (enumeration && enumeration != "")
                 {
                     // Check if this is the first enumeration for the command
                     if (argumentNum == 0)
@@ -1100,9 +1097,6 @@ function outputLimitDefinition(row, limitSets, isFirst)
     // definitions)
     if (isVariable(variableName, arraySize))
     {
-        // In case this is an array member replace the square brackets
-        variableName = ccdd.getFullVariableName(variableName, "_");
-
         // Separate the limits into an array
         var limits = ccdd.getArrayFromString(limitSets, "|", ",");
 
@@ -1131,7 +1125,7 @@ function outputLimitDefinition(row, limitSets, isFirst)
                 {
                     // Check if this is is the red-low, yellow-low, yellow-high,
                     // or red-high limit
-                    if (index < 4 && !limits[0][index].isEmpty())
+                    if (index < 4 && limits[0][index] != "")
                     {
                         // Output the limit
                         ccdd.writeToFileLn(tlmFile, "  " + ccdd.getITOSLimitName(index) + " = " + limits[0][index]);
@@ -1170,7 +1164,7 @@ function outputLimitDefinition(row, limitSets, isFirst)
                     for (var index = 0; index < limits[set].length; index++)
                     {
                         // Check if the limit value exists
-                        if (!limits[set][index].isEmpty())
+                        if (limits[set][index] != "")
                         {
                             // Check if this is the context range
                             if (limits[set][index].contains(".."))
@@ -1214,7 +1208,7 @@ function outputLimitDefinitions()
         var limitSets = ccdd.getStructureTableData("limit sets", row);
 
         // Check if the parameter has limits
-        if (limitSets != null && !limitSets.isEmpty())
+        if (limitSets && limitSets != "")
         {
             // Output the limit definition for this row in the data table
             isFirst = outputLimitDefinition(row, limitSets, isFirst);
@@ -1347,7 +1341,7 @@ function outputPolynomialConversions()
         var polynomialCoefficients = ccdd.getStructureTableData("polynomial coefficients", row);
 
         // Check if the parameter has polynomial coefficients
-        if (polynomialCoefficients != null && !polynomialCoefficients.isEmpty())
+        if (polynomialCoefficients && polynomialCoefficients != "")
         {
             // Check if this is the first polynomial conversion
             if (isFirst)
@@ -1392,7 +1386,7 @@ else
     var msgIDSkip = ccdd.getGroupDataFieldValue("globals", "MID_delta");
 
     // Check if the data field exists or is empty
-    if (msgIDSkip == null || msgIDSkip.isEmpty())
+    if (!msgIDSkip || msgIDSkip == "")
     {
         // Use the default skip value
         msgIDSkip = "0x600";
@@ -1403,7 +1397,7 @@ else
     var fcOffsetVal = ccdd.getGroupDataFieldValue("globals", "FC_Offset");
 
     // Check if the data field exists or is empty
-    if (fcOffsetVal == null || fcOffsetVal.isEmpty())
+    if (!fcOffsetVal || fcOffsetVal == "")
     {
         // Use the default offset value
         fcOffset = ["0x0000"];
@@ -1413,7 +1407,7 @@ else
     var fcBase = ccdd.getGroupDataFieldValue("globals", "prefix");
 
     // Check if the data field exists or is empty
-    if (fcBase == null || fcBase.isEmpty())
+    if (!fcBase|| fcBase == "")
     {
         // Use the default base value
         fcBase = "FC";
@@ -1523,7 +1517,7 @@ else
             }
 
             // Check if the system name wasn't found in the group data field
-            if (systemName == null || systemName.isEmpty())
+            if (!systemName || systemName == "")
             {
                 // Get the value of the first root structure's 'System' data
                 // field

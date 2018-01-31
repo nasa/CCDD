@@ -278,8 +278,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             @Override
             protected void execute()
             {
-                // Menu //////////////////////////////////////////////////////////// Create the
-                // table menu bar
+                // Menu ///////////////////////////////////////////////////////////////////////////
+                // Create the table menu bar
                 JMenuBar menuBar = new JMenuBar();
                 setJMenuBar(menuBar);
 
@@ -983,7 +983,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 // Distribute the buttons across two rows
                 setButtonRows(2);
 
-                // Table Editors ////////////////////////////////////////////////////////////
+                // Table Editors //////////////////////////////////////////////////////////////////
                 // Create a tabbed pane for the editors to appear in
                 tabbedPane = new JTabbedPane(SwingConstants.TOP);
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());

@@ -14,12 +14,13 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
+import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
+import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -1089,32 +1090,19 @@ public class CcddTableTypeHandler
      *********************************************************************************************/
     protected String[][] getTypeInformation()
     {
-        // Get the available tables types and sort them alphabetically
-        String[][] typeInfo = new String[getTypes().length][];
-        int index = 0;
+        ArrayListMultiple typeInfo = new ArrayListMultiple();
 
-        // Step through each type definition
+        // Step through each table type definition
         for (TypeDefinition typeDefn : typeDefinitions)
         {
-            typeInfo[index] = new String[] {typeDefn.getName(),
-                                            typeDefn.getDescription()};
-            index++;
+            // Add the table type name and description to the list
+            typeInfo.add(new String[] {typeDefn.getName(), typeDefn.getDescription()});
         }
 
-        // Sort the type information array
-        Arrays.sort(typeInfo, new Comparator<String[]>()
-        {
-            /**************************************************************************************
-             * Sort the type information array based on the type name (first column)
-             *************************************************************************************/
-            @Override
-            public int compare(final String[] entry1, final String[] entry2)
-            {
-                return entry1[0].compareTo(entry2[0]);
-            }
-        });
+        // Sort the list based on the table type name
+        typeInfo.sort(ArrayListMultipleSortType.STRING);
 
-        return typeInfo;
+        return typeInfo.toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

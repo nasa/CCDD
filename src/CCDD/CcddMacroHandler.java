@@ -814,20 +814,22 @@ public class CcddMacroHandler
      *            there are no data type constraints for a sizeof() call
      *
      * @return Text string with any embedded macro names and sizeof() calls replaced with the
-     *         associated macro values and data type sizes
+     *         associated macro values and data type sizes; if no macro or sizeof() call is present
+     *         the text is returned unchanged
      *********************************************************************************************/
     protected String getMacroExpansion(String text, List<String> validDataTypes)
     {
-        this.validDataTypes = validDataTypes;
         isMacroRecursive = false;
 
-        String expandedText = "";
+        String expandedText;
         int lastEnd = 0;
 
-        // Check if the text string to expand isn't blank
-        if (!text.trim().isEmpty())
+        // Check if the text string contains a macro or sizeof() call
+        if (hasMacro(text) || CcddVariableSizeAndConversionHandler.hasSizeof(text))
         {
             Expression expr;
+            expandedText = "";
+            this.validDataTypes = validDataTypes;
 
             // Convert any sizeof() calls to the equivalent data type size
             text = variableHandler.replaceSizeofWithValue(text, validDataTypes);
@@ -909,11 +911,17 @@ public class CcddMacroHandler
                     expandedText = CcddUtilities.removeTrailer(multiText, ",").replaceAll(",", ", ");
                 }
             }
-        }
 
-        // Reset the valid data types so this list is doesn't inadvertently affect macro checks
-        // where there is no data type constraint
-        this.validDataTypes = null;
+            // Reset the valid data types so this list is doesn't inadvertently affect macro checks
+            // where there is no data type constraint
+            this.validDataTypes = null;
+        }
+        // The text doesn't contain a macro or sizeof() call
+        else
+        {
+            // Return the text string as-is
+            expandedText = text;
+        }
 
         return expandedText;
     }

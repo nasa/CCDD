@@ -44,7 +44,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.ApplicabilityType;
@@ -70,7 +69,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
     // Components referenced by multiple methods
     private JPanel outerPanel;
-    private final List<FieldInformation> fieldInformation;
     private PaddedComboBox inputTypeCbox;
     private PaddedComboBox applicabilityCBox;
     private JButton btnInsertRow;
@@ -130,9 +128,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
 
-        // Get the reference to the data field information
-        fieldInformation = fieldPnlHandler.getFieldHandler().getFieldInformation();
-
         // Store the old data fields in case an undo is requested
         fieldPnlHandler.storeCurrentFieldInformation();
 
@@ -148,18 +143,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize(final int minimumWidth)
     {
-        // Check if the table has fields
-        if (!fieldInformation.isEmpty())
-        {
-            // Store the field information
-            currentData = fieldPnlHandler.getFieldHandler().getFieldEditorDefinition();
-        }
-        // The table has no data fields
-        else
-        {
-            // Initialize the fields
-            currentData = new Object[0][0];
-        }
+        // Store the field information
+        currentData = fieldPnlHandler.getFieldHandler().getFieldEditorDefinition();
 
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()
@@ -219,9 +204,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 if (fieldTable.getRowCount() != 0)
                 {
                     // Get the text in the input type column
-                    String cellValue = fieldTable.getValueAt(row,
-                                                             inputTypeIndex)
-                                                 .toString();
+                    String cellValue = fieldTable.getValueAt(row, inputTypeIndex).toString();
 
                     // Check if the row represents a separator or line break
                     if (cellValue.equals(InputDataType.SEPARATOR.getInputName())
@@ -239,12 +222,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              * Allow pasting data into the data field cells
              *************************************************************************************/
             @Override
-            protected boolean isDataAlterable(Object[] rowData,
-                                              int row,
-                                              int column)
+            protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
-                return isCellEditable(convertRowIndexToView(row),
-                                      convertColumnIndexToView(column));
+                return isCellEditable(convertRowIndexToView(row), convertColumnIndexToView(column));
             }
 
             /**************************************************************************************
@@ -351,8 +331,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         }
 
                         // Remove any unneeded characters and store the cleaned number
-                        tableData.get(row)[column] = newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(),
-                                                                          "$1");
+                        tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(),
+                                                                                          "$1"));
                     }
                 }
                 catch (CCDDException ce)
@@ -365,8 +345,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
-                                                                  "<html><b>"
-                                                                                              + ce.getMessage(),
+                                                                  "<html><b>" + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -402,13 +381,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
@@ -548,7 +523,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Create the lower (button) panel
         JPanel buttonPnl = new JPanel();
 
-        // Define the buttons for the lower panel: //////////////////////////// New button
+        // Insert button
         btnInsertRow = CcddButtonPanelHandler.createButton("Ins Row",
                                                            INSERT_ICON,
                                                            KeyEvent.VK_I,
@@ -780,8 +755,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Set the modal undo manager and table references in the keyboard handler while the data
         // field editor is active
-        keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(),
-                                                fieldTable);
+        keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(), fieldTable);
 
         // Display the table data field editor dialog
         showOptionsDialog(fieldPnlHandler.getOwner(),
