@@ -462,6 +462,11 @@ public class CcddVariablesDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
+                        // Remove the converted variable name list(s) other than the one created
+                        // using the separators stored in the program preferences
+                        variableHandler.removeUnusedLists();
+
+                        // Close the dialog
                         closeDialog(CANCEL_BUTTON);
                     }
                 });

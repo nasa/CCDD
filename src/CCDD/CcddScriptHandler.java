@@ -90,6 +90,7 @@ public class CcddScriptHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
+    private CcddVariableSizeAndConversionHandler variableHandler;
     private CcddJTableHandler assnsTable;
     private CcddFrameHandler scriptDialog = null;
 
@@ -136,6 +137,7 @@ public class CcddScriptHandler
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        variableHandler = ccddMain.getVariableHandler();
     }
 
     /**********************************************************************************************
@@ -159,14 +161,12 @@ public class CcddScriptHandler
      * @return Array containing the script association having the same name; null if no association
      *         has the specified name
      *********************************************************************************************/
-    protected String[] getScriptAssociationByName(String assnName,
-                                                  Component parent)
+    protected String[] getScriptAssociationByName(String assnName, Component parent)
     {
         String[] association = null;
 
         // Step through each association stored in the project database
-        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
-                                                              parent))
+        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS, parent))
         {
             // Check if the association's name matches the one supplied
             if (assnName.equals(assn[AssociationsColumn.NAME.ordinal()]))
@@ -195,8 +195,7 @@ public class CcddScriptHandler
      *
      * @return Object array containing the script associations
      *********************************************************************************************/
-    private Object[][] getScriptAssociationData(boolean allowSelectDisabled,
-                                                Component parent)
+    private Object[][] getScriptAssociationData(boolean allowSelectDisabled, Component parent)
     {
         List<Object[]> associationsData = new ArrayList<Object[]>();
 
@@ -209,9 +208,7 @@ public class CcddScriptHandler
         protoNamesAndTableTypes.addAll(dbTable.queryTableAndTypeList(parent));
 
         // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                             null,
-                                                             parent);
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
         // Create a list to contain the variables (dataType.variableName) that have been verified
         // to exist. This reduces the number of database transactions in the event the same
@@ -312,8 +309,7 @@ public class CcddScriptHandler
                     if (numVerifications != 0)
                     {
                         // Complete the verification command
-                        verifications = CcddUtilities.removeTrailer(verifications,
-                                                                    "UNION ALL ")
+                        verifications = CcddUtilities.removeTrailer(verifications, "UNION ALL ")
                                                      .append(";");
 
                         // Query the tables for the variables to be checked
@@ -942,8 +938,7 @@ public class CcddScriptHandler
         for (String engine : engineInfo)
         {
             // Append the information to the output string
-            engineOutput += "<br>&#160;&#160;&#160;"
-                            + engine;
+            engineOutput += "<br>&#160;&#160;&#160;" + engine;
         }
 
         // Check if no engines exist
@@ -998,9 +993,7 @@ public class CcddScriptHandler
         if (selectedAssn.size() != 0)
         {
             // Execute the script script association(s)
-            getDataAndExecuteScriptInBackground(tableTree,
-                                                selectedAssn,
-                                                dialog);
+            getDataAndExecuteScriptInBackground(tableTree, selectedAssn, dialog);
         }
     }
 
@@ -1041,6 +1034,10 @@ public class CcddScriptHandler
 
                 // Execute the script association(s) and obtain the completion status(es)
                 isBad = getDataAndExecuteScript(tree, associations, dialog);
+
+                // Remove the converted variable name list(s) other than the one created using the
+                // separators stored in the program preferences
+                variableHandler.removeUnusedLists();
 
                 // Close the script cancellation dialog. This also logs the association completion
                 // status and re-enables the calling dialog's- controls
@@ -1138,9 +1135,7 @@ public class CcddScriptHandler
         if (tableTree == null)
         {
             // Build the table tree
-            tableTree = new CcddTableTreeHandler(ccddMain,
-                                                 TableTreeType.INSTANCE_TABLES,
-                                                 parent);
+            tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.INSTANCE_TABLES, parent);
         }
 
         // Create storage for the individual tables' data and table path+names
@@ -1151,14 +1146,10 @@ public class CcddScriptHandler
         CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, parent);
 
         // Load the data field information from the database
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                             null,
-                                                             parent);
+        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
 
         // Load the group information from the database
-        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                             null,
-                                                             parent);
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
         // Get the list of the table paths in the order of appearance in the table tree. This is
         // used to sort the association table paths
@@ -1232,7 +1223,7 @@ public class CcddScriptHandler
                             {
                                 throw new CCDDException("table '"
                                                         + tableInfo.getProtoVariableName()
-                                                        + "' failed to load");
+                                                        + "' (or one of its children) failed to load");
                             }
                             // The table loaded successfully
                             else
@@ -1458,8 +1449,7 @@ public class CcddScriptHandler
      *            Array containing flags that indicate, for each association, if the association
      *            did not complete successfully
      *********************************************************************************************/
-    protected void logScriptCompletionStatus(List<Object[]> associations,
-                                             boolean[] isBad)
+    protected void logScriptCompletionStatus(List<Object[]> associations, boolean[] isBad)
     {
         int assnIndex = 0;
 
@@ -1596,9 +1586,7 @@ public class CcddScriptHandler
         if (!new File(scriptFileName).isFile())
         {
             // Inform the user that the selected file is missing
-            throw new CCDDException("cannot locate script file '"
-                                    + scriptFileName
-                                    + "'");
+            throw new CCDDException("cannot locate script file '" + scriptFileName + "'");
         }
 
         // Get the location of the file extension indicator
@@ -1608,9 +1596,7 @@ public class CcddScriptHandler
         if (!(extensionStart > 0 && extensionStart != scriptFileName.length() - 1))
         {
             // Inform the user that the selected file is missing the file extension
-            throw new CCDDException("script file '"
-                                    + scriptFileName
-                                    + "' has no file extension");
+            throw new CCDDException("script file '" + scriptFileName + "' has no file extension");
         }
 
         // Extract the file extension from the file name
@@ -1663,9 +1649,7 @@ public class CcddScriptHandler
                 catch (FileNotFoundException fnfe)
                 {
                     // Inform the user that the selected file cannot be read
-                    throw new CCDDException("cannot read script file '"
-                                            + scriptFileName
-                                            + "'");
+                    throw new CCDDException("cannot read script file '" + scriptFileName + "'");
                 }
                 catch (ScriptException se)
                 {
@@ -1723,12 +1707,7 @@ public class CcddScriptHandler
             loadedTablePaths.add(tablePath);
 
             // Read the table's data from the database
-            tableInfo = dbTable.loadTableData(tablePath,
-                                              false,
-                                              false,
-                                              false,
-                                              false,
-                                              parent);
+            tableInfo = dbTable.loadTableData(tablePath, false, false, false, false, parent);
 
             // Check that the data was successfully loaded from the database and that the table
             // isn't empty

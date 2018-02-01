@@ -195,10 +195,7 @@ public class CcddSearchDialog extends CcddFrameHandler
      *********************************************************************************************/
     private void initialize(final Long targetRow, Component parent)
     {
-        searchHandler = new CcddSearchHandler(ccddMain,
-                                              searchDlgType,
-                                              targetRow,
-                                              eventLog);
+        searchHandler = new CcddSearchHandler(ccddMain, searchDlgType, targetRow, eventLog);
 
         searchColumns = "";
 
@@ -992,12 +989,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         }
 
         // Display the search dialog
-        createFrame(parent,
-                    dialogPnl,
-                    buttonPnl,
-                    btnSearch,
-                    title,
-                    null);
+        createFrame(parent, dialogPnl, buttonPnl, btnSearch, title, null);
     }
 
     /**********************************************************************************************
@@ -1066,8 +1058,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         if (!tablePaths.isEmpty())
         {
             // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
-                                              null);
+            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
         }
     }
 }

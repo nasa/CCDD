@@ -40,6 +40,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.BitPackNodeIndex;
+import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddClasses.TableInformation;
@@ -1967,6 +1968,15 @@ public class CcddDbTableCommandHandler
      * @return TableInformation class containing the table data from the database. If the error
      *         flag is set the an error occurred and the data is invalid
      *********************************************************************************************/
+    /**
+     * @param tablePath
+     * @param isRootStructure
+     * @param loadDescription
+     * @param loadColumnOrder
+     * @param loadFieldInfo
+     * @param parent
+     * @return
+     */
     protected TableInformation loadTableData(String tablePath,
                                              boolean isRootStructure,
                                              boolean loadDescription,
@@ -1984,184 +1994,186 @@ public class CcddDbTableCommandHandler
         // differentiate the table name from the database commands in the event log
         String dbTableName = tableName.toLowerCase();
 
-        // Check if the table exists in the database
-        if (isTableExists(dbTableName, parent))
+        try
         {
-            try
+            // Check if the table doesn't exist in the database
+            if (!isTableExists(dbTableName, parent))
             {
-                // Get the table comment
-                String[] comment = queryDataTableComment(tableName, parent);
+                throw new CCDDException("table doesn't exist");
+            }
 
-                // Get the table type definition for this table
-                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+            // Get the table comment
+            String[] comment = queryDataTableComment(tableName, parent);
 
-                // Get a comma-separated list of the columns for this table's type
-                String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase());
+            // Get the table type definition for this table
+            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
-                // Get the table's row information for the specified columns. The table must have
-                // all of its table type's columns or else it fails to load
-                ResultSet rowData = dbCommand.executeDbQuery("SELECT "
-                                                             + columnNames
-                                                             + " FROM "
-                                                             + dbTableName
-                                                             + " ORDER BY "
-                                                             + DefaultColumn.ROW_INDEX.getDbName()
-                                                             + ";",
-                                                             parent);
+            // Get a comma-separated list of the columns for this table's type
+            String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase());
 
-                // Create a list to contain the database table rows
-                List<String[]> dbRows = new ArrayList<String[]>();
+            // Get the table's row information for the specified columns. The table must have all
+            // of its table type's columns or else it fails to load
+            ResultSet rowData = dbCommand.executeDbQuery("SELECT "
+                                                         + columnNames
+                                                         + " FROM "
+                                                         + dbTableName
+                                                         + " ORDER BY "
+                                                         + DefaultColumn.ROW_INDEX.getDbName()
+                                                         + ";",
+                                                         parent);
+
+            // Create a list to contain the database table rows
+            List<String[]> dbRows = new ArrayList<String[]>();
+
+            // Step through each of the query results
+            while (rowData.next())
+            {
+                // Create an array to contain the column values
+                String[] columnValues = new String[typeDefn.getColumnCountDatabase()];
+
+                // Step through each column in the row
+                for (int column = 0; column < typeDefn.getColumnCountDatabase(); column++)
+                {
+                    // Add the column value to the array. Note that the first column's index in
+                    // the database is 1, not 0
+                    columnValues[column] = rowData.getString(column + 1);
+
+                    // Check if the value is null
+                    if (columnValues[column] == null)
+                    {
+                        // Replace the null with a blank
+                        columnValues[column] = "";
+                    }
+                }
+
+                // Add the row data to the list
+                dbRows.add(columnValues);
+            }
+
+            rowData.close();
+
+            // Create the table information handler for this table
+            tableInfo = new TableInformation(comment[TableCommentIndex.TYPE.ordinal()],
+                                             tablePath,
+                                             dbRows.toArray(new String[0][0]),
+                                             (loadColumnOrder
+                                                              ? queryColumnOrder(tablePath,
+                                                                                 comment[TableCommentIndex.TYPE.ordinal()],
+                                                                                 parent)
+                                                              : ""),
+                                             (loadDescription
+                                                              ? queryTableDescription(tablePath,
+                                                                                      parent)
+                                                              : ""),
+                                             isRootStructure,
+                                             (loadFieldInfo
+                                                            ? retrieveInformationTable(InternalTable.FIELDS,
+                                                                                       parent).toArray(new String[0][0])
+                                                            : null));
+
+            // Get the index of the variable name and data type columns
+            int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+            int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+
+            // Check if the variable name and data type columns exist, and if the table has a path
+            // (i.e., it's a child table). If so it may have values in the custom values table that
+            // must be loaded
+            if (varNameIndex != -1 && dataTypeIndex != -1 && tablePath.contains(","))
+            {
+                // Get the column index for the variable path
+                int varPathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+
+                // Check if the variable path column is present
+                if (varPathIndex != -1)
+                {
+                    // Step through each row in the table
+                    for (int row = 0; row < tableInfo.getData().length; row++)
+                    {
+                        // Blank the variable path. This prevents the child table from inheriting a
+                        // user-defined variable path from the prototype
+                        tableInfo.getData()[row][varPathIndex] = "";
+                    }
+                }
+
+                // Place double back slashes before each square brace character in an array index
+                // so that the brackets are interpreted correctly in the query's regular expression
+                // comparisons
+                tablePath = tablePath.replaceAll("\\[(\\d+)\\]", "\\\\\\\\[$1\\\\\\\\]");
+
+                // Get the rows from the custom values table that match the specified parent table
+                // and variable path. These values replace those loaded for the prototype of this
+                // table
+                rowData = dbCommand.executeDbQuery("SELECT * FROM "
+                                                   + InternalTable.VALUES.getTableName()
+                                                   + " WHERE "
+                                                   + ValuesColumn.TABLE_PATH.getColumnName()
+                                                   + " ~ E'^"
+                                                   + tablePath
+                                                   + ",[^,]+$' AND "
+                                                   + ValuesColumn.COLUMN_NAME.getColumnName()
+                                                   + " != '';",
+                                                   parent);
 
                 // Step through each of the query results
                 while (rowData.next())
                 {
-                    // Create an array to contain the column values
-                    String[] columnValues = new String[typeDefn.getColumnCountDatabase()];
+                    // Get the variable name that will have its value replaced
+                    String variableName = rowData.getString(ValuesColumn.TABLE_PATH.getColumnName());
 
-                    // Step through each column in the row
-                    for (int column = 0; column < typeDefn.getColumnCountDatabase(); column++)
+                    // Get the index of the last data type/variable name separator character (if
+                    // present)
+                    int varIndex = variableName.lastIndexOf(".");
+
+                    // Check if a variable name exists
+                    if (varIndex != -1)
                     {
-                        // Add the column value to the array. Note that the first column's index in
-                        // the database is 1, not 0
-                        columnValues[column] = rowData.getString(column + 1);
+                        // Get the row index for the referenced variable
+                        int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(),
+                                                                    variableName.substring(varIndex + 1),
+                                                                    varNameIndex);
 
-                        // Check if the value is null
-                        if (columnValues[column] == null)
+                        // Check if the table contains the variable and if the data type of the
+                        // variable in the table matches the data type in the path from the custom
+                        // values table
+                        if (row != -1
+                            && tableInfo.getData()[row][dataTypeIndex].equals(variableName.subSequence(variableName.lastIndexOf(",")
+                                                                                                       + 1,
+                                                                                                       varIndex)))
                         {
-                            // Replace the null with a blank
-                            columnValues[column] = "";
-                        }
-                    }
+                            // Get the index of the column that will have its data replaced
+                            int column = typeDefn.getColumnIndexByUserName(rowData.getString(ValuesColumn.COLUMN_NAME.getColumnName()));
 
-                    // Add the row data to the list
-                    dbRows.add(columnValues);
-                }
-
-                rowData.close();
-
-                // Create the table information handler for this table
-                tableInfo = new TableInformation(comment[TableCommentIndex.TYPE.ordinal()],
-                                                 tablePath,
-                                                 dbRows.toArray(new String[0][0]),
-                                                 (loadColumnOrder
-                                                                  ? queryColumnOrder(tablePath,
-                                                                                     comment[TableCommentIndex.TYPE.ordinal()],
-                                                                                     parent)
-                                                                  : ""),
-                                                 (loadDescription
-                                                                  ? queryTableDescription(tablePath,
-                                                                                          parent)
-                                                                  : ""),
-                                                 isRootStructure,
-                                                 (loadFieldInfo
-                                                                ? retrieveInformationTable(InternalTable.FIELDS,
-                                                                                           parent).toArray(new String[0][0])
-                                                                : null));
-
-                // Get the index of the variable name and data type columns
-                int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-
-                // Check if the variable name and data type columns exist, and if the table has a
-                // path (i.e., it's a child table). If so it may have values in the custom values
-                // table that must be loaded
-                if (varNameIndex != -1 && dataTypeIndex != -1 && tablePath.contains(","))
-                {
-                    // Get the column index for the variable path
-                    int varPathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
-
-                    // Check if the variable path column is present
-                    if (varPathIndex != -1)
-                    {
-                        // Step through each row in the table
-                        for (int row = 0; row < tableInfo.getData().length; row++)
-                        {
-                            // Blank the variable path. This prevents the child table from
-                            // inheriting a user-defined variable path from the prototype
-                            tableInfo.getData()[row][varPathIndex] = "";
-                        }
-                    }
-
-                    // Place double back slashes before each square brace character in an array
-                    // index so that the brackets are interpreted correctly in the query's regular
-                    // expression comparisons
-                    tablePath = tablePath.replaceAll("\\[(\\d+)\\]", "\\\\\\\\[$1\\\\\\\\]");
-
-                    // Get the rows from the custom values table that match the specified parent
-                    // table and variable path. These values replace those loaded for the prototype
-                    // of this table
-                    rowData = dbCommand.executeDbQuery("SELECT * FROM "
-                                                       + InternalTable.VALUES.getTableName()
-                                                       + " WHERE "
-                                                       + ValuesColumn.TABLE_PATH.getColumnName()
-                                                       + " ~ E'^"
-                                                       + tablePath
-                                                       + ",[^,]+$' AND "
-                                                       + ValuesColumn.COLUMN_NAME.getColumnName()
-                                                       + " != '';",
-                                                       parent);
-
-                    // Step through each of the query results
-                    while (rowData.next())
-                    {
-                        // Get the variable name that will have its value replaced
-                        String variableName = rowData.getString(ValuesColumn.TABLE_PATH.getColumnName());
-
-                        // Get the index of the last data type/variable name separator character
-                        // (if present)
-                        int varIndex = variableName.lastIndexOf(".");
-
-                        // Check if a variable name exists
-                        if (varIndex != -1)
-                        {
-                            // Get the row index for the referenced variable
-                            int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(),
-                                                                        variableName.substring(varIndex + 1),
-                                                                        varNameIndex);
-
-                            // Check if the table contains the variable and if the data type of the
-                            // variable in the table matches the data type in the path from the
-                            // custom values table
-                            if (row != -1
-                                && tableInfo.getData()[row][dataTypeIndex].equals(variableName.subSequence(variableName.lastIndexOf(",")
-                                                                                                           + 1,
-                                                                                                           varIndex)))
+                            // Check if the table contains the column
+                            if (column != -1)
                             {
-                                // Get the index of the column that will have its data replaced
-                                int column = typeDefn.getColumnIndexByUserName(rowData.getString(ValuesColumn.COLUMN_NAME.getColumnName()));
-
-                                // Check if the table contains the column
-                                if (column != -1)
-                                {
-                                    // Replace the value in the table with the one from the custom
-                                    // values table
-                                    tableInfo.getData()[row][column] = rowData.getString(ValuesColumn.VALUE.getColumnName());
-                                }
+                                // Replace the value in the table with the one from the custom
+                                // values table
+                                tableInfo.getData()[row][column] = rowData.getString(ValuesColumn.VALUE.getColumnName());
                             }
                         }
                     }
-
-                    rowData.close();
                 }
+
+                rowData.close();
             }
-            catch (SQLException se)
-            {
-                // Inform the user that loading the table failed
-                eventLog.logFailEvent(parent,
-                                      "Cannot load table '"
-                                              + tableInfo.getProtoVariableName()
-                                              + "'; cause '"
-                                              + se.getMessage()
-                                              + "'",
-                                      "<html><b>Cannot load table '</b>"
-                                                     + tableInfo.getProtoVariableName()
-                                                     + "<b>'");
-            }
-            catch (Exception e)
-            {
-                // Display a dialog providing details on the unanticipated error
-                CcddUtilities.displayException(e, parent);
-            }
+        }
+        catch (SQLException | CCDDException se)
+        {
+            // Inform the user that loading the table failed
+            eventLog.logFailEvent(parent,
+                                  "Cannot load table '"
+                                          + tableInfo.getProtoVariableName()
+                                          + "'; cause '"
+                                          + se.getMessage()
+                                          + "'",
+                                  "<html><b>Cannot load table '</b>"
+                                                 + tableInfo.getProtoVariableName()
+                                                 + "<b>'");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
         }
 
         return tableInfo;

@@ -133,9 +133,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         // Add a listener for the Update button
         btnUpdateAll.addActionListener(new ActionListener()
         {
-            /******************************************************************************
+            /**************************************************************************************
              * Update the program preference values
-             *****************************************************************************/
+             *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
@@ -437,10 +437,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         fontPnl.add(fontScrollPane, BorderLayout.CENTER);
 
         // Add the font selection tab to the tabbed pane
-        tabbedPane.addTab(FONT,
-                          null,
-                          fontPnl,
-                          "Change program fonts");
+        tabbedPane.addTab(FONT, null, fontPnl, "Change program fonts");
 
         // Create a listener for the font button presses
         ActionListener fontBtnListener = new ActionListener()
@@ -534,10 +531,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JLabel[] fontLbl = new JLabel[ModifiableFontInfo.values().length];
 
         int index = 0;
-        String[] fontStyles = new String[] {"Plain",
-                                            "Bold",
-                                            "Italic",
-                                            "BoldItalic"};
+        String[] fontStyles = new String[] {"Plain", "Bold", "Italic", "BoldItalic"};
 
         // Step through each modifiable font
         for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
@@ -657,10 +651,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         colorPnl.add(colorScrollPane, BorderLayout.CENTER);
 
         // Add the color selection tab to the tabbed pane
-        tabbedPane.addTab(COLOR,
-                          null,
-                          colorPnl,
-                          "Change program colors");
+        tabbedPane.addTab(COLOR, null, colorPnl, "Change program colors");
 
         // Create a listener for the color check box selections
         ActionListener colorCboxListener = new ActionListener()
@@ -745,11 +736,8 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                 // Display the color selection dialog
                 dialog.showOptionsDialog(CcddPreferencesDialog.this,
-                                         dialog.getColorChoicePanel(chooser,
-                                                                    modColor.getColor()),
-                                         getButtonPanel(okayAction,
-                                                        defaultAction,
-                                                        dialog),
+                                         dialog.getColorChoicePanel(chooser, modColor.getColor()),
+                                         getButtonPanel(okayAction, defaultAction, dialog),
                                          btnClose,
                                          "Select Color: " + modColor.getName(),
                                          false);
@@ -762,8 +750,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         for (ModifiableColorInfo modColor : ModifiableColorInfo.values())
         {
             // Create and add a color selection check box
-            colorCbox[index] = new ColorCheckBox(modColor.getName(),
-                                                 modColor.getColor());
+            colorCbox[index] = new ColorCheckBox(modColor.getName(), modColor.getColor());
             colorCbox[index].setName(modColor.getPreferenceKey());
             colorCbox[index].setToolTipText(CcddUtilities.wrapText(modColor.getDescription(),
                                                                    ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
@@ -892,10 +879,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         sizePnl.add(sizeScrollPane, BorderLayout.CENTER);
 
         // Add the size update tab to the tabbed pane
-        tabbedPane.addTab(SIZE,
-                          null,
-                          sizePnl,
-                          "Change program maximum width and length values");
+        tabbedPane.addTab(SIZE, null, sizePnl, "Change program maximum width and length values");
 
         // Create a listener for the default size buttons
         ActionListener defaultListener = new ActionListener()
@@ -968,8 +952,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Check if the size field is empty
                         if (size.isEmpty())
                         {
-                            throw new CCDDException(modSize.getName()
-                                                    + "<b>' cannot be blank");
+                            throw new CCDDException(modSize.getName() + "<b>' cannot be blank");
                         }
 
                         // Check if the size value isn't a positive integer
@@ -1109,10 +1092,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         spacingPnl.add(noteLbl, BorderLayout.PAGE_END);
 
         // Add the spacing update tab to the tabbed pane
-        tabbedPane.addTab(SPACING,
-                          null,
-                          spacingPnl,
-                          "Change program spacing values");
+        tabbedPane.addTab(SPACING, null, spacingPnl, "Change program spacing values");
 
         // Create a listener for the default spacing buttons
         ActionListener defaultListener = new ActionListener()
@@ -1185,8 +1165,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         // Check if the spacing field is empty
                         if (spacing.isEmpty())
                         {
-                            throw new CCDDException(modSpacing.getName()
-                                                    + "<b>' cannot be blank");
+                            throw new CCDDException(modSpacing.getName() + "<b>' cannot be blank");
                         }
 
                         // Check if the spacing value isn't a positive integer
@@ -1315,10 +1294,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         pathPnl.add(pathScrollPane, BorderLayout.PAGE_START);
 
         // Add the path update tab to the tabbed pane
-        tabbedPane.addTab(PATH,
-                          null,
-                          pathPnl,
-                          "Change program paths");
+        tabbedPane.addTab(PATH, null, pathPnl, "Change program paths");
 
         // Create a listener for the path selection buttons
         ActionListener defaultListener = new ActionListener()

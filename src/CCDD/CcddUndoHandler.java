@@ -853,9 +853,7 @@ public class CcddUndoHandler
          * @param newValue
          *            new check box selection state
          *****************************************************************************************/
-        CheckBoxEdit(UndoableCheckBox checkBox,
-                     boolean oldValue,
-                     boolean newValue)
+        CheckBoxEdit(UndoableCheckBox checkBox, boolean oldValue, boolean newValue)
         {
             this.checkBox = checkBox;
             this.oldValue = oldValue;
@@ -928,8 +926,7 @@ public class CcddUndoHandler
             }
 
             // Update the check box selection state
-            ((UndoableToggleButtonModel) checkBox.getModel()).setSelected(selected,
-                                                                          false);
+            ((UndoableToggleButtonModel) checkBox.getModel()).setSelected(selected, false);
 
             // Request a focus change to the check box that was changed
             setComponentFocus(checkBox);
@@ -2065,8 +2062,7 @@ public class CcddUndoHandler
          * @param newSortKeys
          *            sort keys after sorting the rows
          *****************************************************************************************/
-        RowSort(List<? extends SortKey> oldSortKeys,
-                List<? extends SortKey> newSortKeys)
+        RowSort(List<? extends SortKey> oldSortKeys, List<? extends SortKey> newSortKeys)
         {
             this.oldSortKeys = oldSortKeys;
             this.newSortKeys = newSortKeys;
@@ -2382,9 +2378,7 @@ public class CcddUndoHandler
          * @param undoable
          *            true if the row deletion can be undone
          *****************************************************************************************/
-        private void moveColumn(int columnIndex,
-                                int newIndex,
-                                boolean undoable)
+        private void moveColumn(int columnIndex, int newIndex, boolean undoable)
         {
             // Check if this column movement is undoable
             if (isAllowUndo && undoable)
@@ -2609,9 +2603,7 @@ public class CcddUndoHandler
          * @param isSelected
          *            true if the cell is selected
          *****************************************************************************************/
-        CellSelectEdit(int row,
-                       int column,
-                       boolean isSelected)
+        CellSelectEdit(int row, int column, boolean isSelected)
         {
             this.row = row;
             this.column = column;
@@ -2761,8 +2753,7 @@ public class CcddUndoHandler
          * @param newPaths
          *            array of new tree path(s) selected
          *****************************************************************************************/
-        TreePathSelectEdit(TreePath[] oldPaths,
-                           TreePath[] newPaths)
+        TreePathSelectEdit(TreePath[] oldPaths, TreePath[] newPaths)
         {
             this.oldPaths = oldPaths;
             this.newPaths = newPaths;
@@ -2896,9 +2887,7 @@ public class CcddUndoHandler
          *            position in the existing node at which to place the new node
          *****************************************************************************************/
         @Override
-        public void insertNodeInto(MutableTreeNode child,
-                                   MutableTreeNode parent,
-                                   int index)
+        public void insertNodeInto(MutableTreeNode child, MutableTreeNode parent, int index)
         {
             super.insertNodeInto(child, parent, index);
 
@@ -3053,9 +3042,7 @@ public class CcddUndoHandler
              * @param index
              *            node index at which to insert the child in the parent
              *************************************************************************************/
-            UndoableNodeAddEdit(MutableTreeNode parent,
-                                MutableTreeNode child,
-                                int index)
+            UndoableNodeAddEdit(MutableTreeNode parent, MutableTreeNode child, int index)
             {
                 this.child = child;
                 this.parent = parent;
@@ -3174,9 +3161,7 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Tree node change edit event handler constructor
              *************************************************************************************/
-            UndoableNodeChangeEdit(TreePath path,
-                                   Object oldValue,
-                                   Object newValue)
+            UndoableNodeChangeEdit(TreePath path, Object oldValue, Object newValue)
             {
                 this.path = path;
                 this.oldValue = oldValue;
@@ -3257,9 +3242,7 @@ public class CcddUndoHandler
             /**************************************************************************************
              * Tree node remove edit event handler constructor
              *************************************************************************************/
-            UndoableNodeRemoveEdit(MutableTreeNode parent,
-                                   final MutableTreeNode child,
-                                   int index)
+            UndoableNodeRemoveEdit(MutableTreeNode parent, final MutableTreeNode child, int index)
             {
                 this.parent = parent;
                 this.child = child;

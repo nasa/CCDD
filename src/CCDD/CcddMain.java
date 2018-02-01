@@ -103,8 +103,8 @@ public class CcddMain
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
     private CcddGroupManagerDialog groupManagerDialog;
     private final CcddFileIOHandler fileIOHandler;
-    private final CcddScriptHandler scriptHandler;
     private CcddFieldTableEditorDialog fieldTblEditorDialog;
+    private final CcddScriptHandler scriptHandler;
     private CcddScriptExecutiveDialog scriptExecutiveDialog;
     private CcddScriptManagerDialog scriptManagerDialog;
     private CcddRateParameterHandler rateHandler;
@@ -512,7 +512,6 @@ public class CcddMain
         // use them
         CcddClasses.setHandlers(CcddMain.this);
         fileIOHandler.setHandlers();
-        scriptHandler.setHandlers();
         keyboardHandler.setHandlers();
 
         // Check if the web server is activated
@@ -535,6 +534,7 @@ public class CcddMain
         // handlers
         dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler);
+        scriptHandler.setHandlers();
 
         // Determine the variable offsets (note that the variable size class must be fully
         // instantiated and the macro handler updated with the variable handler reference before
@@ -2765,10 +2765,8 @@ public class CcddMain
         ModifiablePathInfo.setPaths(progPrefs);
 
         // Retrieve the preferences from the backing store
-        dbControl.setHost(progPrefs.get(POSTGRESQL_SERVER_HOST,
-                                        DEFAULT_POSTGRESQL_HOST));
-        dbControl.setPort(progPrefs.get(POSTGRESQL_SERVER_PORT,
-                                        DEFAULT_POSTGRESQL_PORT));
+        dbControl.setHost(progPrefs.get(POSTGRESQL_SERVER_HOST, DEFAULT_POSTGRESQL_HOST));
+        dbControl.setPort(progPrefs.get(POSTGRESQL_SERVER_PORT, DEFAULT_POSTGRESQL_PORT));
         dbControl.setSSL(progPrefs.getBoolean(POSTGRESQL_SERVER_SSL, false));
         dbControl.setProjectName(progPrefs.get(DATABASE, DEFAULT_DATABASE));
         dbControl.setUser(progPrefs.get(USER, System.getProperty("user.name")));

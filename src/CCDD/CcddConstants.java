@@ -1141,7 +1141,8 @@ public class CcddConstants
         INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
         INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
         MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
-        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20);
+        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20),
+        MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100);
 
         private final String name;
         private final String description;

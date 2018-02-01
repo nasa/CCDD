@@ -8,8 +8,11 @@
 package CCDD;
 
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
+import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
+import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -21,6 +24,7 @@ import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.TableTreeType;
@@ -64,7 +68,12 @@ public class CcddVariableSizeAndConversionHandler
     // corresponds to the index of the variable path in the structureAndVariablePaths list
     private List<Boolean> isVariable;
 
-    // Lists containing all of the program-formatted variable paths, and their corresponding name
+    // List containing a converted variable name list and the separators used to create the list.
+    // Until forced to empty the list, the application stores each list if one with the specified
+    // separators doesn't already exist
+    private List<ConversionListStorage> conversionLists;
+
+    // List containing all of the program-formatted variable paths, and their corresponding name
     // after converting any commas and brackets based on the specified separator characters. The
     // index of a value in this list corresponds to the index of the variable path in the
     // structureAndVariablePaths list
@@ -76,6 +85,77 @@ public class CcddVariableSizeAndConversionHandler
 
     // List containing the/ user-defined variable path names. The userDefinedVariablePathKey list
     private List<String> userDefinedVariableName;
+
+    /**********************************************************************************************
+     * Conversion list storage class
+     *********************************************************************************************/
+    class ConversionListStorage
+    {
+        private final String varPathSeparator;
+        private final boolean excludeDataTypes;
+        private final String typeNameSeparator;
+        private final List<String> convertedVariableName;
+
+        /******************************************************************************************
+         * Conversion list storage class constructor
+         *
+         * @param varPathSeparator
+         *            character(s) to place between variables path members
+         *
+         * @param excludeDataTypes
+         *            true to remove the data types from the variable path + name
+         *
+         * @param typeNameSeparator
+         *            character(s) to place between data types and variable names
+         *
+         * @param convertedVariableName
+         *            converted variable name list built using the specified separators
+         *****************************************************************************************/
+        ConversionListStorage(String varPathSeparator,
+                              boolean excludeDataTypes,
+                              String typeNameSeparator,
+                              List<String> convertedVariableName)
+        {
+            this.varPathSeparator = varPathSeparator;
+            this.excludeDataTypes = excludeDataTypes;
+            this.typeNameSeparator = typeNameSeparator;
+            this.convertedVariableName = convertedVariableName;
+        }
+
+        /******************************************************************************************
+         * Get the converted variable name list built using the associated separators
+         *
+         * @return The converted variable name list built using the associated separators
+         *****************************************************************************************/
+        protected List<String> getConvertedVariableName()
+        {
+            return convertedVariableName;
+        }
+
+        /******************************************************************************************
+         * Get the converted variable name list built using the associated separators
+         *
+         * @param varPathSeparator
+         *            character(s) to place between variables path members
+         *
+         * @param excludeDataTypes
+         *            true to remove the data types from the variable path + name
+         *
+         * @param typeNameSeparator
+         *            character(s) to place between data types and variable names
+         *
+         * @return true if the separators provided match those used to create the associated
+         *         converted variable name list
+         *****************************************************************************************/
+        protected boolean isSeparatorsEqual(String varPathSeparator,
+                                            boolean excludeDataTypes,
+                                            String typeNameSeparator)
+        {
+            return varPathSeparator.equals(this.varPathSeparator)
+                   && excludeDataTypes == this.excludeDataTypes
+                   && typeNameSeparator.equals(this.typeNameSeparator);
+        }
+    }
 
     /**********************************************************************************************
      * Variable size and conversion handler class constructor
@@ -359,6 +439,7 @@ public class CcddVariableSizeAndConversionHandler
         structureAndVariablePaths = new ArrayList<String>();
         structureAndVariableOffsets = new ArrayList<Integer>();
         isVariable = new ArrayList<Boolean>();
+        conversionLists = null;
         convertedVariableName = null;
 
         int lastIndex = 0;
@@ -542,56 +623,6 @@ public class CcddVariableSizeAndConversionHandler
     }
 
     /**********************************************************************************************
-     * Retain or remove the data types in the supplied variable path + name based on the input
-     * flag, replace the commas in the (which separate each structure variable in the path) with
-     * the specified separator character, replace any left brackets with underscores and right
-     * brackets with blanks (in case there are any array members in the path), and remove the bit
-     * length (if one is present)
-     *
-     * @param fullName
-     *            variable path + name
-     *
-     * @param varPathSeparator
-     *            character(s) to place between variables path members
-     *
-     * @param excludeDataTypes
-     *            true to remove the data types from the variable path + name
-     *
-     * @param typeNameSeparator
-     *            character(s) to place between data types and variable names
-     *
-     * @return Variable path + name with the data types retained or removed, commas replaced by the
-     *         separator character(s), left brackets replaced by underscores, right brackets
-     *         removed, and the bit length removed (if present)
-     *********************************************************************************************/
-    private String convertVariableName(String fullName,
-                                       String varPathSeparator,
-                                       boolean excludeDataTypes,
-                                       String typeNameSeparator)
-    {
-        // Check if data types are to be excluded
-        if (excludeDataTypes)
-        {
-            // Remove the data types from the variable path + name
-            fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
-        }
-        // Data types are retained
-        else
-        {
-            // Replace the data type/variable name separator with marker characters. These are used
-            // to detect and replace the data type and variable name separator below, and prevents
-            // collisions between the two separators and their original characters
-            fullName = fullName.replaceAll("\\.", "@~~@");
-        }
-
-        return fullName.replaceAll("[,]", varPathSeparator)
-                       .replaceAll("@~~@", typeNameSeparator)
-                       .replaceAll("[\\[]", "_")
-                       .replaceAll("\\]", "")
-                       .replaceFirst("\\:\\d+$", "");
-    }
-
-    /**********************************************************************************************
      * Determine if the supplied variable path is already in use in a structure
      *
      * @param progDefinedPath
@@ -699,7 +730,7 @@ public class CcddVariableSizeAndConversionHandler
      * @param typeNameSeparator
      *            character(s) to place between data types and variable names
      *
-     * @param includeCustom
+     * @param substituteUserDefined
      *            true to substitute the user-defined variable name (if present); false to ignore
      *            the user-defined name and use the auto-generated one based on the conversion
      *            flags
@@ -711,19 +742,35 @@ public class CcddVariableSizeAndConversionHandler
                                          String varPathSeparator,
                                          boolean excludeDataTypes,
                                          String typeNameSeparator,
-                                         boolean includeCustom)
+                                         boolean substituteUserDefined)
     {
-        // TODO ISSUE: IF THE LIST HAS BEE CREATED, THEN THIS IS CALLED WITH DIFFERENT SEPARATORS,
-        // THE ORIGINAL SEPARATORS ARE USED RESULTING IN ERRONEOUS OUTPUT (SUCH AS WHEN THE SCRIPT
-        // METHOD TO GET THE ITOS SOURCE FIELD IS CALLED)
-
         String convertedFullName = "";
 
         // Check if the full variable name is provided
         if (fullName != null && !fullName.isEmpty())
         {
-            // Check if the conversion list hasn't been created already
-            if (convertedVariableName == null)
+            // Check if a conversion list is stored
+            if (conversionLists != null)
+            {
+                convertedVariableName = null;
+
+                // Step through each of the stored conversion lists
+                for (ConversionListStorage conversionList : conversionLists)
+                {
+                    // Check if this conversion lists uses the same separators as those requested
+                    if (conversionList.isSeparatorsEqual(varPathSeparator, excludeDataTypes, typeNameSeparator))
+                    {
+                        // Set the converted variable name list to the stored list and stop
+                        // searching
+                        convertedVariableName = conversionList.getConvertedVariableName();
+                        break;
+                    }
+                }
+            }
+
+            // Check if the conversion list hasn't been created already, of if the converted
+            // variable name list doesn't already exists
+            if (conversionLists == null || convertedVariableName == null)
             {
                 // Create the conversion list. The conversion list is needed since it's possible
                 // that duplicate variable path + names can occur if underscores are part of the
@@ -735,7 +782,7 @@ public class CcddVariableSizeAndConversionHandler
             }
 
             // Check if the user-defined variable name should be substituted, if present
-            if (includeCustom)
+            if (substituteUserDefined)
             {
                 // Get the index of the variable name from the list of original names
                 int index = userDefinedVariablePathKey.indexOf(fullName);
@@ -763,13 +810,6 @@ public class CcddVariableSizeAndConversionHandler
                     // underscores appended since it would otherwise duplicate another variable's
                     // name
                     convertedFullName = convertedVariableName.get(index);
-
-                    // Check if data types are to be excluded
-                    if (excludeDataTypes)
-                    {
-                        // Remove the data types from the variable path + name
-                        convertedFullName = convertedFullName.replaceAll(",[^\\.]*\\.", ",");
-                    }
                 }
             }
         }
@@ -834,96 +874,212 @@ public class CcddVariableSizeAndConversionHandler
             convertedVariableName.add(fullName);
         }
 
-        // Step through each table type definition
-        for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+        // Check if the user-defined variable name list should be (re)created
+        if (conversionLists == null)
         {
-            // Check if the table type represents a structure
-            if (typeDefn.isStructure())
-            {
-                // Get the index of the column containing the variable path
-                int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+            conversionLists = new ArrayList<ConversionListStorage>();
 
-                // Check if the variable path column is present
-                if (variablePathIndex != -1)
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+            {
+                // Check if the table type represents a structure
+                if (typeDefn.isStructure())
                 {
-                    // Append the database and user column names to the search criteria
-                    varPathColumnsDb += typeDefn.getColumnNamesDatabase()[variablePathIndex] + ",";
-                    varPathColumnsUser += ValuesColumn.COLUMN_NAME.getColumnName()
-                                          + " = '"
-                                          + typeDefn.getColumnNamesUser()[variablePathIndex]
-                                          + "' OR ";
+                    // Get the index of the column containing the variable path
+                    int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+
+                    // Check if the variable path column is present
+                    if (variablePathIndex != -1)
+                    {
+                        // Append the database and user column names to the search criteria
+                        varPathColumnsDb += typeDefn.getColumnNamesDatabase()[variablePathIndex] + ",";
+                        varPathColumnsUser += ValuesColumn.COLUMN_NAME.getColumnName()
+                                              + " = '"
+                                              + typeDefn.getColumnNamesUser()[variablePathIndex]
+                                              + "' OR ";
+                    }
+                }
+            }
+
+            // Check if any variable path column exists
+            if (!varPathColumnsDb.isEmpty())
+            {
+                // Remove the unneeded trailing text
+                varPathColumnsDb = CcddUtilities.removeTrailer(varPathColumnsDb, ",");
+                varPathColumnsUser = CcddUtilities.removeTrailer(varPathColumnsUser, " OR ");
+
+                // Get the references in the prototype tables that contain user-defined (i.e.,
+                // non-blank) variable paths. This accounts for root tables with user-defined paths
+                String[] matches = dbCommand.getList(DatabaseListCommand.SEARCH,
+                                                     new String[][] {{"_search_text_",
+                                                                      ".+"},
+                                                                     {"_case_insensitive_",
+                                                                      "false"},
+                                                                     {"_allow_regex_",
+                                                                      "true"},
+                                                                     {"_selected_tables_",
+                                                                      SearchType.DATA.toString()},
+                                                                     {"_columns_",
+                                                                      varPathColumnsDb}},
+                                                     ccddMain.getMainFrame());
+
+                // Step through each variable path
+                for (String match : matches)
+                {
+                    // Split the reference into table name, column name, table type, and context
+                    String[] tblColDescAndCntxt = match.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                    // Create a reference to the search result's database table name and row data
+                    // to shorten comparisons below
+                    String[] rowData = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                    // Set the viewable table name (with capitalization intact)
+                    String[] tableNameAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
+
+                    // Get the table's type definition and from that the variable name, data type,
+                    // and variable path column indices
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableNameAndType[1]);
+                    int variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                    int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                    int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+
+                    // Add the variable path to the lists (program- and user-defined)
+                    userDefinedVariablePathKey.add(tableNameAndType[0]
+                                                   + ","
+                                                   + rowData[dataTypeIndex]
+                                                   + "."
+                                                   + rowData[variableNameIndex]);
+                    userDefinedVariableName.add(rowData[variablePathIndex]);
+                }
+
+                // Get the references in the custom values table for all user-defined variable
+                // paths. This accounts for child tables with user-defined paths
+                matches = dbCommand.getList(DatabaseListCommand.VAR_PATH,
+                                            new String[][] {{"_match_column_name_",
+                                                             varPathColumnsUser}},
+                                            ccddMain.getMainFrame());
+
+                // Step through each variable path
+                for (String match : matches)
+                {
+                    // Split the reference into table name and variable path
+                    String[] tableNameAndPath = match.split(TABLE_DESCRIPTION_SEPARATOR, 2);
+
+                    // Add the variable path to the lists (program- and user-defined)
+                    userDefinedVariablePathKey.add(tableNameAndPath[0]);
+                    userDefinedVariableName.add(tableNameAndPath[1]);
                 }
             }
         }
 
-        // Check if any variable path column exists
-        if (!varPathColumnsDb.isEmpty())
+        // Create the storage for the new conversion list
+        ConversionListStorage conversionList = new ConversionListStorage(varPathSeparator,
+                                                                         excludeDataTypes,
+                                                                         typeNameSeparator,
+                                                                         convertedVariableName);
+
+        // Check if the number of stored conversion lists has reached the maximum allowed
+        if (conversionLists.size() == ModifiableSizeInfo.MAX_STORED_CONVERSIONS.getSize()
+            && ModifiableSizeInfo.MAX_STORED_CONVERSIONS.getSize() > 1)
         {
-            // Remove the unneeded trailing text
-            varPathColumnsDb = CcddUtilities.removeTrailer(varPathColumnsDb, ",");
-            varPathColumnsUser = CcddUtilities.removeTrailer(varPathColumnsUser, " OR ");
+            // Remove the second converted variable name list from the conversion lists. This
+            // assumes that the first one likely contains the list built using the separators
+            // stored in the program preferences
+            conversionLists.remove(1);
+        }
 
-            // Get the references in the prototype tables that contain user-defined (i.e.,
-            // non-blank) variable paths. This accounts for root tables with user-defined paths
-            String[] matches = dbCommand.getList(DatabaseListCommand.SEARCH,
-                                                 new String[][] {{"_search_text_",
-                                                                  ".+"},
-                                                                 {"_case_insensitive_",
-                                                                  "false"},
-                                                                 {"_allow_regex_",
-                                                                  "true"},
-                                                                 {"_selected_tables_",
-                                                                  SearchType.DATA.toString()},
-                                                                 {"_columns_",
-                                                                  varPathColumnsDb}},
-                                                 ccddMain.getMainFrame());
+        // Add the new variable name conversion list to the list of conversions
+        conversionLists.add(conversionList);
+    }
 
-            // Step through each variable path
-            for (String match : matches)
+    /**********************************************************************************************
+     * Retain or remove the data types in the supplied variable path + name based on the input
+     * flag, replace the commas in the (which separate each structure variable in the path) with
+     * the specified separator character, replace any left brackets with underscores and right
+     * brackets with blanks (in case there are any array members in the path), and remove the bit
+     * length (if one is present)
+     *
+     * @param fullName
+     *            variable path + name in the normal application format
+     *
+     * @param varPathSeparator
+     *            character(s) to place between variables path members
+     *
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     *
+     * @param typeNameSeparator
+     *            character(s) to place between data types and variable names
+     *
+     * @return Variable path + name with the data types retained or removed, commas replaced by the
+     *         separator character(s), left brackets replaced by underscores, right brackets
+     *         removed, and the bit length removed (if present)
+     *********************************************************************************************/
+    private String convertVariableName(String fullName,
+                                       String varPathSeparator,
+                                       boolean excludeDataTypes,
+                                       String typeNameSeparator)
+    {
+        // Check if data types are to be excluded
+        if (excludeDataTypes)
+        {
+            // Remove the data types from the variable path + name
+            fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
+        }
+        // Data types are retained
+        else
+        {
+            // Replace the data type/variable name separator with marker characters. These are used
+            // to detect and replace the data type and variable name separator below, and prevents
+            // collisions between the two separators and their original characters
+            fullName = fullName.replaceAll("\\.", "@~~@");
+        }
+
+        return fullName.replaceAll(",", varPathSeparator)
+                       .replaceAll("@~~@", typeNameSeparator)
+                       .replaceAll("\\[", "_")
+                       .replaceAll("\\]", "")
+                       .replaceFirst("\\:\\d+$", "");
+    }
+
+    /**********************************************************************************************
+     * Remove the converted variable name list(s) other than the one created using the separators
+     * stored in the program preferences
+     *********************************************************************************************/
+    protected void removeUnusedLists()
+    {
+        // Get the separators stored in the program preferences
+        String varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+        boolean excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+        String typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+
+        // Check if any converted variable name list exists
+        if (conversionLists != null)
+        {
+            List<ConversionListStorage> unusedConversionList = new ArrayList<ConversionListStorage>();
+
+            convertedVariableName = null;
+
+            // Step through each of the stored conversion lists
+            for (ConversionListStorage conversionList : conversionLists)
             {
-                // Split the reference into table name, column name, table type, and context
-                String[] tblColDescAndCntxt = match.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-                // Create a reference to the search result's database table name and row data to
-                // shorten comparisons below
-                String[] rowData = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                // Set the viewable table name (with capitalization intact)
-                String[] tableNameAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
-
-                // Get the table's type definition and from that the variable name, data type, and
-                // variable path column indices
-                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableNameAndType[1]);
-                int variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
-
-                // Add the variable path to the lists (program- and user-defined)
-                userDefinedVariablePathKey.add(tableNameAndType[0]
-                                               + ","
-                                               + rowData[dataTypeIndex]
-                                               + "."
-                                               + rowData[variableNameIndex]);
-                userDefinedVariableName.add(rowData[variablePathIndex]);
+                // Check if this conversion lists uses the separators stored in the program
+                // preferences
+                if (conversionList.isSeparatorsEqual(varPathSeparator, excludeDataTypes, typeNameSeparator))
+                {
+                    // Set the converted variable name list to the stored list
+                    convertedVariableName = conversionList.getConvertedVariableName();
+                }
+                // This list uses separators other than those stored in the program preferences
+                else
+                {
+                    // Add this conversion list to the list of ones to be removed
+                    unusedConversionList.add(conversionList);
+                }
             }
 
-            // Get the references in the custom values table for all user-defined variable paths.
-            // This accounts for child tables with user-defined paths
-            matches = dbCommand.getList(DatabaseListCommand.VAR_PATH,
-                                        new String[][] {{"_match_column_name_",
-                                                         varPathColumnsUser}},
-                                        ccddMain.getMainFrame());
-
-            // Step through each variable path
-            for (String match : matches)
-            {
-                // Split the reference into table name and variable path
-                String[] tableNameAndPath = match.split(TABLE_DESCRIPTION_SEPARATOR, 2);
-
-                // Add the variable path to the lists (program- and user-defined)
-                userDefinedVariablePathKey.add(tableNameAndPath[0]);
-                userDefinedVariableName.add(tableNameAndPath[1]);
-            }
+            // Remove the unused conversion list(s)
+            conversionLists.removeAll(unusedConversionList);
         }
     }
 }
