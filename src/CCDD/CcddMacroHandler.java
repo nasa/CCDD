@@ -41,8 +41,6 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import org.mariuszgromada.math.mxparser.Expression;
-
 import CCDD.CcddClasses.PaddedComboBox;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
@@ -621,14 +619,14 @@ public class CcddMacroHandler
                     // values and evaluating any sizeof() calls
                     macroValue = getMacroValue(macroName, new ArrayList<String>());
 
-                    // Create the macro formula
-                    Expression expr = new Expression(macroValue);
+                    // TODO
+                    Double exprResult = CcddMathExpressionHandler.evaluateExpression(macroValue);
 
-                    // Check if the expression is a valid mathematical expression
-                    if (expr.checkSyntax())
+                    if (exprResult != null)
                     {
                         // Evaluate the text as a mathematical expression
-                        macroValue = String.valueOf((int) expr.calculate());
+                        macroValue = String.valueOf((int) ((double) exprResult));
+
                     }
 
                     // Store the expanded macro value
@@ -827,7 +825,6 @@ public class CcddMacroHandler
         // Check if the text string contains a macro or sizeof() call
         if (hasMacro(text) || CcddVariableSizeAndConversionHandler.hasSizeof(text))
         {
-            Expression expr;
             expandedText = "";
             this.validDataTypes = validDataTypes;
 
@@ -864,14 +861,14 @@ public class CcddMacroHandler
             // expression)
             if (parts.length == 1)
             {
-                // Create the macro formula
-                expr = new Expression(expandedText);
+                // TODO
+                Double exprResult = CcddMathExpressionHandler.evaluateExpression(expandedText);
 
-                // Check if the text is a valid mathematical expression
-                if (expr.checkSyntax())
+                if (exprResult != null)
                 {
                     // Evaluate the text as a mathematical expression
-                    expandedText = String.valueOf((int) expr.calculate());
+                    expandedText = String.valueOf((int) ((double) exprResult));
+
                 }
             }
             // The string contains one or more commas. Each substring is evaluated as an expression
@@ -883,15 +880,14 @@ public class CcddMacroHandler
                 // Step through each substring
                 for (String part : parts)
                 {
-                    // Create the macro formula
-                    expr = new Expression(part);
+                    // TODO
+                    Double exprResult = CcddMathExpressionHandler.evaluateExpression(part);
 
-                    // Check if the substring is a valid mathematical expression
-                    if (expr.checkSyntax())
+                    if (exprResult != null)
                     {
-                        // Evaluate the text as a mathematical expression and append it to the
-                        // expanded text string
-                        multiText += String.valueOf((int) expr.calculate()) + ",";
+                        // Evaluate the text as a mathematical expression
+                        expandedText = String.valueOf((int) ((double) exprResult));
+
                     }
                     // The substring isn't an expression
                     else

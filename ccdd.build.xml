@@ -23,7 +23,6 @@
         <copy file="/opt/JDBC/postgresql-9.4.1207.jre7.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/EDS.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/XTCE.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/README.txt" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/json-simple-1.1.1/json-simple-1.1.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-http-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-io-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
@@ -32,7 +31,6 @@
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-servlet-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/jetty-util-9.2.18.v20160721.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <copy file="/opt/jetty-distribution-9.2.18.v20160721/lib/servlet-api-3.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
-        <copy file="/opt/MathParser.org-mXparser-v.4.1.1/bin-only/jdk.1.7/MathParser.org-mXparser-jdk17-4.1.1.jar" todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
     </target>
 </project>
 

@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.PAD_VARIABLE;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
@@ -34,7 +35,7 @@ public class CcddPaddingVariableHandler
     private CcddDataTypeHandler dataTypeHandler;
 
     // Variable padding byte alignment value
-    int byteAlignment;
+    private int byteAlignment;
 
     // List containing the variable padding information for each structure table
     private List<StructurePaddingHandler> paddingInformation;
@@ -247,6 +248,7 @@ public class CcddPaddingVariableHandler
                     removedRowsArray[row] = removedRows.get(row);
                 }
 
+                System.out.println(tableInfo.getProtoVariableName() + " : remove rows " + Arrays.toString(removedRowsArray)); // TODO
                 // Remove the row(s) from the table
                 tableEditor.getTable().removeRows(removedRowsArray);
             }
@@ -269,6 +271,9 @@ public class CcddPaddingVariableHandler
 
                 int variableSize = 0;
                 int numPads = 0;
+
+                // TODO NOT HANDLING ARRAYS CORRECTLY - NEEDS TO SKIP MEMBERS WHEN GOING TO THE
+                // NEXT ROW?
 
                 // Check if the data type is a primitive
                 if (dataTypeHandler.isPrimitive(dataType))
@@ -413,70 +418,86 @@ public class CcddPaddingVariableHandler
          *****************************************************************************************/
         private int addPaddingVariable(int row, int padSize, int numPadBits)
         {
-            // Check if any padding is needed
-            if (padSize > 0)
+            try
             {
-                // Create an empty row array and set the padding variable name
-                Object[] rowData = tableEditor.getTable().getEmptyRow();
-                rowData[varNameColumn] = PAD_VARIABLE + padCounter;
-
-                // Check if the padding variable is not for filling up one or more bit-packed
-                // variables
-                if (numPadBits == 0)
+                // Check if any padding is needed
+                if (padSize > 0)
                 {
-                    // Set the padding variable data type
-                    rowData[dataTypeColumn] = PAD_DATA_TYPE;
+                    // Create an empty row array and set the padding variable name
+                    Object[] rowData = tableEditor.getTable().getEmptyRow();
+                    rowData[varNameColumn] = PAD_VARIABLE + padCounter;
+
+                    // Check if the padding variable is not for filling up one or more bit-packed
+                    // variables
+                    if (numPadBits == 0)
+                    {
+                        // Set the padding variable data type
+                        rowData[dataTypeColumn] = PAD_DATA_TYPE;
+                    }
+                    // Padding is added to fill up one or more packed variables
+                    else
+                    {
+                        // Set the padding variable data type to match that of the bit-wise
+                        // variable(s)
+                        // and set the bit length to the number of bits needed to fill up the
+                        // packing
+                        rowData[dataTypeColumn] = getDataType(row - 1);
+                        rowData[bitLengthColumn] = String.valueOf(numPadBits);
+                    }
+
+                    // Check if multiple padding variables are to be added
+                    if (padSize > 1)
+                    {
+                        // Set the array size value to match the number of padding variables needed
+                        rowData[arraySizeColumn] = String.valueOf(padSize);
+                    }
+
+                    System.out.println(tableInfo.getProtoVariableName() + " : add " + padSize + " padding rows @ " + row); // TODO
+                    // Insert the padding variable row into the table
+                    tableEditor.getTable().insertRowData(row - 1, rowData);
+
+                    // Check if multiple padding variables are to be added
+                    if (padSize > 1)
+                    {
+                        // Get the table data as a list
+                        List<Object[]> tableData = tableEditor.getTable().getTableDataList(false);
+
+                        System.out.println(Arrays.toString(rowData)); // TODO
+                        // Add the padding variable array members
+                        tableEditor.adjustArrayMember(tableData,
+                                                      new int[] {0},
+                                                      new int[] {padSize},
+                                                      row,
+                                                      arraySizeColumn);
+
+                        // Load the array of data into the table to reflect the added array members
+                        tableEditor.getTable().loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
+                                                                      false);
+
+                        // Account for the array definition row
+                        row++; // TODO
+                    }
+
+                    // Adjust the row index past the padding variables
+                    row += padSize;
+
+                    // Update the padding name counter
+                    padCounter++;
+
+                    // Check if the padding variable is not for filling up one or more bit-packed
+                    // variables. The byte count is unaffected when adding padding for bit-packing
+                    if (numPadBits == 0)
+                    {
+                        // Update the byte count to account for the number of added bytes
+                        byteCount += padSize;
+                    }
                 }
-                // Padding is added to fill up one or more packed variables
-                else
-                {
-                    // Set the padding variable data type to match that of the bit-wise variable(s)
-                    // and set the bit length to the number of bits needed to fill up the packing
-                    rowData[dataTypeColumn] = getDataType(row - 1);
-                    rowData[bitLengthColumn] = String.valueOf(numPadBits);
-                }
-
-                // Check if multiple padding variables are to be added
-                if (padSize > 1)
-                {
-                    // Set the array size value to match the number of padding variables needed
-                    rowData[arraySizeColumn] = String.valueOf(padSize);
-                }
-
-                // Insert the padding variable row into the table
-                tableEditor.getTable().insertRowData(row - 1, rowData);
-
-                // Check if multiple padding variables are to be added
-                if (padSize > 1)
-                {
-                    // Get the table data as a list
-                    List<Object[]> tableData = tableEditor.getTable().getTableDataList(false);
-
-                    // Add the padding variable array members
-                    tableEditor.adjustArrayMember(tableData,
-                                                  new int[] {0},
-                                                  new int[] {padSize},
-                                                  row,
-                                                  arraySizeColumn);
-
-                    // Load the array of data into the table to reflect the added array members
-                    tableEditor.getTable().loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
-                                                                  false);
-                }
-
-                // Adjust the row index past the padding variables
-                row += padSize;
-
-                // Update the padding name counter
-                padCounter++;
-
-                // Check if the padding variable is not for filling up one or more bit-packed
-                // variables. The byte count is unaffected when adding padding for bit-packing
-                if (numPadBits == 0)
-                {
-                    // Update the byte count to account for the number of added bytes
-                    byteCount += padSize;
-                }
+            }
+            catch (Exception e) // TODO
+            {
+                System.out.println("addPaddingVariable error @ row " + row + " in " + tableInfo.getProtoVariableName()); // TODO
+                e.printStackTrace();
+                System.exit(0);
             }
 
             return row;
@@ -491,8 +512,7 @@ public class CcddPaddingVariableHandler
             tableEditor.buildUpdates();
 
             // Check if any updates were made (padding variables added or deleted)
-            if (!tableEditor.getAdditions().isEmpty()
-                || !tableEditor.getDeletions().isEmpty())
+            if (!tableEditor.getAdditions().isEmpty() || !tableEditor.getDeletions().isEmpty())
             {
                 // Update the table in the database
                 dbTable.modifyTableData(tableInfo,
@@ -581,6 +601,7 @@ public class CcddPaddingVariableHandler
                         // Step through each successfully loaded table
                         for (StructurePaddingHandler paddingInfo : paddingInformation)
                         {
+                            // Check if the structure contains a variable with a non-zero size
                             if (paddingInfo.largestDataType != 0)
                             {
                                 // Add any padding variables to the table needed to align the

@@ -52,8 +52,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
-import org.mariuszgromada.math.mxparser.Expression;
-
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.BitPackRowIndex;
@@ -533,6 +531,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void updateVariablePaths()
     {
+        // Get the variable path separators and the show/hide data type flag from the program
+        // preferences
+        varPathSep = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+        typeNameSep = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+        hideDataType = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+
         // Check if the variable path, variable name, and data type columns are present, the table
         // represents a structure, the table has been created, and the table is open in a table
         // editor (versus open for a macro or data type change)
@@ -543,12 +547,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             && table != null
             && editorDialog != null)
         {
-            // Get the variable path separators and the show/hide data type flag from the program
-            // preferences
-            varPathSep = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
-            typeNameSep = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
-            hideDataType = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
-
             // Step through each row of the data
             for (int row = 0; row < tableModel.getRowCount(); row++)
             {
@@ -2243,19 +2241,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                         break;
 
                                                     case RATE:
-                                                        // Create mathematical expressions for each
-                                                        // cell. Rate values can be expressed as
-                                                        // fractions (e.g., 1/4) so the math parser
-                                                        // is used to convert these to floating
-                                                        // point values for comparison
-                                                        Expression cell1Expr = new Expression(cell1);
-                                                        Expression cell2Expr = new Expression(cell2);
-
                                                         // Calculate the value of the cells'
                                                         // expressions, then compare the results as
                                                         // floating point values
-                                                        result = Double.compare(Double.valueOf(cell1Expr.calculate()),
-                                                                                Double.valueOf(cell2Expr.calculate()));
+                                                        result = Double.compare(CcddMathExpressionHandler.evaluateExpression(cell1),
+                                                                                CcddMathExpressionHandler.evaluateExpression(cell2));
                                                         break;
 
                                                     case ARRAY:
@@ -3356,14 +3346,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Set the mouse listener to expand and collapse arrays
         setArrayExpansionListener();
 
+        // Get the variable path separators and create the variable path column content, if present
+        updateVariablePaths();
+
         // Check that the table is open in a table editor (versus open for a macro or data type
         // change)
         if (editorDialog != null)
         {
-            // Get the variable path separators and create the variable path column content, if
-            // present
-            updateVariablePaths();
-
             // Create the input field panel to contain the table editor
             createDescAndDataFieldPanel(editorDialog,
                                         scrollPane,

@@ -2373,10 +2373,6 @@ public class CcddMain
                                                                      + CcddUtilities.colorHTMLText("Jetty: ",
                                                                                                    ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                                      + org.eclipse.jetty.util.Jetty.VERSION
-                                                                     + "<br>&#160;&#160;&#160;"
-                                                                     + CcddUtilities.colorHTMLText("mXparser: ",
-                                                                                                   ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                                                     + org.mariuszgromada.math.mxparser.mXparser.LICENSE.replaceAll("(?s).*?([0-9\\.]+).*", "$1")
                                                                      + "<br><br><b>Scripting language versions:</b>"
                                                                      + scriptHandler.getEngineInformation()
                                                                      + "<br><br>Copyright 2017 United States Government "
