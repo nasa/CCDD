@@ -126,7 +126,7 @@ public class CcddDbVerificationHandler
     private boolean isChanges;
 
     // Flag indicating that the user elected to cancel project database verification
-    private boolean canceled = false;
+    private boolean canceled;
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -524,6 +524,8 @@ public class CcddDbVerificationHandler
         // Initialize the database issues list
         issues = new ArrayList<TableIssue>();
 
+        canceled = false;
+
         // Execute the consistency check
         verifyDatabase();
     }
@@ -609,6 +611,7 @@ public class CcddDbVerificationHandler
                 // Add a progress bar to the dialog
                 progBar = new JProgressBar(0, numVerificationSteps * numDivisionPerStep);
                 progBar.setValue(0);
+                progBar.setString("Verify owners");
                 progBar.setStringPainted(true);
                 progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
@@ -652,6 +655,7 @@ public class CcddDbVerificationHandler
                         {
                             // Update the progress bar
                             progBar.setValue(numDivisionPerStep);
+                            progBar.setString("Verify internal tables");
 
                             // Check for inconsistencies in the internal tables
                             verifyInternalTables(tableResult);
@@ -661,6 +665,7 @@ public class CcddDbVerificationHandler
                             {
                                 // Update the progress bar
                                 progBar.setValue(numDivisionPerStep * 2);
+                                progBar.setString("Verify path references");
 
                                 // Verify the table and variable path references in the internal
                                 // tables
@@ -671,6 +676,7 @@ public class CcddDbVerificationHandler
                                 {
                                     // Update the progress bar
                                     progBar.setValue(numDivisionPerStep * 3);
+                                    progBar.setString("Verify input data types");
 
                                     // verify the input data types in the table types and data
                                     // fields internal tables
@@ -681,6 +687,7 @@ public class CcddDbVerificationHandler
                                     {
                                         // Update the progress bar
                                         progBar.setValue(numDivisionPerStep * 4);
+                                        progBar.setString("Verify table types");
 
                                         // Check for inconsistencies between the table type
                                         // definitions and the tables of that type
@@ -691,6 +698,7 @@ public class CcddDbVerificationHandler
                                         {
                                             // Update the progress bar
                                             progBar.setValue(numDivisionPerStep * 5);
+                                            progBar.setString("Verify data tables");
 
                                             // Check for inconsistencies within the data tables
                                             verifyDataTables();

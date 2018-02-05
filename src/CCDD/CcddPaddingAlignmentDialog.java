@@ -129,7 +129,7 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         {
             // Store the padding alignment value
             ccddMain.getProgPrefs().put(PADDING_ALIGNMENT,
-                                        String.valueOf((int) Math.pow(byteAlignmentSld.getValue(), 2)));
+                                        String.valueOf((int) Math.pow(2, byteAlignmentSld.getValue())));
         }
     }
 }

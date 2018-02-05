@@ -1799,7 +1799,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         {
                             // Check if a bit length is present and it exceeds the bit size of the
                             // data type
-                            if (!bitLength.isEmpty()
+                            if (bitLength != null
+                                && !bitLength.isEmpty()
                                 && dataType != null
                                 && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                             {
@@ -2096,7 +2097,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     else if (variableNameIndex != -1
                              && getExpandedValueAt(table.convertRowIndexToModel(row),
                                                    variableNameIndex).toString().matches(PAD_VARIABLE
-                                                                                         + "[0-9]+$"))
+                                                                                         + "[0-9]+(?:\\[[0-9]+\\])?$"))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
