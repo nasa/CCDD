@@ -3530,6 +3530,7 @@ public class CcddDbTableCommandHandler
                                                        + newVariablePath
                                                        + "\\\\1\\\\3', 'ng'); ");
 
+                                    // TODO Note states the tlm & links handled elsewhere
                                     // Check if the data type, bit length, and rate didn't also
                                     // change (updates to the links and telemetry scheduler tables
                                     // due to changes to any of these are handled elsewhere)
@@ -3544,6 +3545,7 @@ public class CcddDbTableCommandHandler
                                                                                     "",
                                                                                     "",
                                                                                     true));
+
                                         // Since the variable still fits within any message in the
                                         // telemetry scheduler table to which it's assigned just
                                         // change all references to the variable
@@ -3554,6 +3556,15 @@ public class CcddDbTableCommandHandler
                                                                                   "(.*" + tlmSchSeparator + ")",
                                                                                   "\\\\1",
                                                                                   true));
+                                    }
+                                    // TODO
+                                    // The data type, bit length, or rate changed
+                                    else
+                                    {
+                                        // Set the flag to indicate that references to the variable
+                                        // and any children should be removed from the links and
+                                        // telemetry scheduler tables
+                                        isDelLinksAndTlm = true;
                                     }
                                 }
 

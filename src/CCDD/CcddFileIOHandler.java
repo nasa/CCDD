@@ -397,7 +397,7 @@ public class CcddFileIOHandler
                             // Extract the project name (with case preserved) and description, and
                             // set the flag indicating the comment is located
                             projectName = parts[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "'");
+                            projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "';");
                             commentFound = true;
 
                             // Insert a comment indicator into the file so that this line isn't

@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -447,45 +448,67 @@ public class CcddSchedulerEditorHandler
             @Override
             protected void setTableSortable()
             {
+                // Remove the current sorter, if present. The number of columns may have changed
+                // (due to adding/removing sub-messages) so the sorter must be rebuilt
+                setRowSorter(null);
+
                 super.setTableSortable();
 
-                // Get the table's row sorter
-                TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
-
-                // Check if the table has a sorter (i.e., has at least one row)
-                if (sorter != null)
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
                 {
-                    // Add a hexadecimal sort comparator
-                    sorter.setComparator(SchedulerColumn.ID.ordinal(), new Comparator<String>()
+                    /******************************************************************************
+                     * Execute after all pending Swing events are finished. This allows the number
+                     * of viewable columns to catch up with the column model when a column is added
+                     * or removed
+                     *****************************************************************************/
+                    @Override
+                    public void run()
                     {
-                        /**************************************************************************
-                         * Override the comparison when sorting columns with a hexadecimal input
-                         * type format
-                         *************************************************************************/
-                        @Override
-                        public int compare(String cell1, String cell2)
+                        // Get the table's row sorter
+                        TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
+
+                        // Check if the table has a sorter (i.e., has at least one row)
+                        if (sorter != null)
                         {
-                            int result;
-
-                            // Check if either cell is empty
-                            if (cell1.isEmpty() || cell2.isEmpty())
+                            // Step through each column containing a message ID (only applicable to
+                            // the telemetry scheduler)
+                            for (int column = SchedulerColumn.ID.ordinal(); column < getModel().getColumnCount(); column++)
                             {
-                                // Compare as text (alphabetically)
-                                result = cell1.compareTo(cell2);
-                            }
-                            // Neither cell is empty
-                            else
-                            {
-                                // Get the hexadecimal cell values and convert them to base 10
-                                // integers for comparison
-                                result = Integer.compare(Integer.decode(cell1),
-                                                         Integer.decode(cell2));
-                            }
+                                // Add a hexadecimal sort comparator
+                                sorter.setComparator(column, new Comparator<String>()
+                                {
+                                    /**************************************************************
+                                     * Override the comparison when sorting columns with a
+                                     * hexadecimal input type format
+                                     *************************************************************/
+                                    @Override
+                                    public int compare(String cell1, String cell2)
+                                    {
+                                        int result;
 
-                            return result;
+                                        // Check if either cell is empty
+                                        if (cell1.isEmpty() || cell2.isEmpty())
+                                        {
+                                            // Compare as text (alphabetically)
+                                            result = cell1.compareTo(cell2);
+                                        }
+                                        // Neither cell is empty
+                                        else
+                                        {
+                                            // Get the hexadecimal cell values and convert them to
+                                            // base 10 integers for comparison
+                                            result = Integer.compare(Integer.decode(cell1),
+                                                                     Integer.decode(cell2));
+                                        }
+
+                                        return result;
+                                    }
+                                });
+                            }
                         }
-                    });
-                }
+                    }
+                });
             }
         };
 
@@ -1942,6 +1965,10 @@ public class CcddSchedulerEditorHandler
         // deallocate them if present
         if (message != null && deAllocateSubVariables(message))
         {
+            // Store the selected row and column indices
+            int row = schedulerTable.getSelectedRow();
+            int column = schedulerTable.getSelectedColumn();
+
             // Check if a sub-message tab is selected
             if (message.getParentMessage() != null)
             {
@@ -1963,6 +1990,10 @@ public class CcddSchedulerEditorHandler
 
             // Update the scheduler table to reflect the added sub-message
             updateSchedulerTable(true);
+
+            // Reselect the original row and column indices
+            schedulerTable.setRowSelectionInterval(row, row);
+            schedulerTable.setColumnSelectionInterval(column, column);
         }
     }
 
@@ -1991,6 +2022,10 @@ public class CcddSchedulerEditorHandler
             // there are variables in the sub-messages
             if (index > 1 && deAllocateSubVariables(message))
             {
+                // Store the selected row and column indices
+                int row = schedulerTable.getSelectedRow();
+                int column = schedulerTable.getSelectedColumn();
+
                 // Remove the sub-message from the message
                 message.removeSubMessage(index - 1);
 
@@ -2009,10 +2044,18 @@ public class CcddSchedulerEditorHandler
 
                 // Update the remaining bytes column values
                 updateRemainingBytesColumn();
-            }
 
-            // Update the scheduler table to reflect the deleted sub-message
-            updateSchedulerTable(true);
+                // Update the scheduler table to reflect the deleted sub-message
+                updateSchedulerTable(true);
+
+                // Adjust the selected column index in case the one that had been selected was
+                // removed
+                column = Math.min(column, schedulerTable.getColumnCount() - 1);
+
+                // Reselect the original row and column indices
+                schedulerTable.setRowSelectionInterval(row, row);
+                schedulerTable.setColumnSelectionInterval(column, column);
+            }
         }
     }
 

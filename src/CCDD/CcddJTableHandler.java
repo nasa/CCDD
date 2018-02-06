@@ -2538,6 +2538,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected class MoveCellSelection
     {
+        // Start and end selected row(s) and column(s), model coordinates
         private final int startRow;
         private final int endRow;
         private final int startColumn;
@@ -2559,6 +2560,8 @@ public abstract class CcddJTableHandler extends JTable
 
         /******************************************************************************************
          * Return the first selected row
+         *
+         * @return First selected row, model coordinates
          *****************************************************************************************/
         protected int getStartRow()
         {
@@ -2567,6 +2570,8 @@ public abstract class CcddJTableHandler extends JTable
 
         /******************************************************************************************
          * Return the last selected row
+         *
+         * @return Last selected row, model coordinates
          *****************************************************************************************/
         protected int getEndRow()
         {
@@ -2575,6 +2580,8 @@ public abstract class CcddJTableHandler extends JTable
 
         /******************************************************************************************
          * Return the first selected column
+         *
+         * @return First selected column, model coordinates
          *****************************************************************************************/
         protected int getStartColumn()
         {
@@ -2583,6 +2590,8 @@ public abstract class CcddJTableHandler extends JTable
 
         /******************************************************************************************
          * Return the last selected column
+         *
+         * @return Last selected column, model coordinates
          *****************************************************************************************/
         protected int getEndColumn()
         {
@@ -2594,12 +2603,14 @@ public abstract class CcddJTableHandler extends JTable
          * are highlighted are those at the intersection of the selected rows and columns
          *
          * @param rowDelta
-         *            -1 if the cells were moved up, +1 if the cells were moved down, 0 if the cell
-         *            row position is unchanged
+         *            Negative value equal to the number of rows the selected row or rows are moved
+         *            up, positive value equal to the number of rows the selected row or rows are
+         *            moved down, 0 if the cell row position is unchanged
          *
          * @param columnDelta
-         *            -1 if the cells were moved left, +1 if the cells were moved right, 0 if the
-         *            cell column position is unchanged
+         *            Negative value equal to the number of columns the selected column or columns
+         *            are moved up, positive value equal to the number of columns the selected
+         *            column or columns are moved down, 0 if the cell column position is unchanged
          *****************************************************************************************/
         protected void moveCellSelection(int rowDelta, int columnDelta)
         {
@@ -2620,8 +2631,8 @@ public abstract class CcddJTableHandler extends JTable
                 }
 
                 // Set the row selection
-                setRowSelectionInterval(convertRowIndexToView(startRow) + rowDelta,
-                                        convertRowIndexToView(endRow) + rowDelta);
+                setRowSelectionInterval(convertRowIndexToView(startRow + rowDelta),
+                                        convertRowIndexToView(endRow + rowDelta));
             }
 
             // Check if a valid column is selected

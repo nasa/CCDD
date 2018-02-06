@@ -344,8 +344,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
      *         -2 if the variable is already in the list
      *********************************************************************************************/
     @Override
-    public int getVariableRelativeIndex(Variable newVariable,
-                                        List<Variable> existingVariables)
+    public int getVariableRelativeIndex(Variable newVariable, List<Variable> existingVariables)
     {
         int insertIndex = -1;
 
@@ -548,8 +547,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         updateVariableTree(rate);
 
         // Get all the paths of the variables in the current variable tree
-        pathList.addAll(variableTree.getPrimitiveVariablePaths(variableTree.getRootNode(),
-                                                               true));
+        pathList.addAll(variableTree.getPrimitiveVariablePaths(variableTree.getRootNode(), true));
 
         // Step through each path in the list
         for (String path : pathList)

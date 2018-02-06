@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -79,6 +80,7 @@ public class CcddSchedulerHandler
     private PaddedComboBox rateFilter;
     private JButton leftArrowBtn;
     private JButton rightArrowBtn;
+    private JProgressBar progBar;
 
     // List of the message options
     private JList<String> optionList;
@@ -88,6 +90,9 @@ public class CcddSchedulerHandler
 
     // Name of the rate column
     private final String rateName;
+
+    // Flag indicating that the user elected to cancel padding adjustment
+    boolean canceled;
 
     // No options message
     private final String NO_OPTION = "<html><i>No Available Options";
@@ -434,6 +439,30 @@ public class CcddSchedulerHandler
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, schedulerDlg.getDialog(), new BackgroundCommand()
         {
+            /**********************************************************************************
+             * Padding adjustment progress/cancellation dialog class
+             *********************************************************************************/
+            @SuppressWarnings("serial")
+            class HaltDialog extends CcddDialogHandler
+            {
+                /******************************************************************************
+                 * Handle the close dialog button action
+                 *****************************************************************************/
+                @Override
+                protected void closeDialog(int button)
+                {
+                    // TODO SPACE BAR ACTUATES THE HALT BUTTON, BUT THE MOUSE DOESN'T WORK.
+                    // ALSO, THE SCHEDULER'S SYSTEM CLOSE BUTTON IS STILL ACTIVE - IT SHOULD BE
+                    // IGNORED
+
+                    // Set the flag to cancel padding adjustment
+                    canceled = true;
+
+                    super.closeDialog(button);
+                };
+            }
+
+            HaltDialog cancelDialog = new HaltDialog();
             int unassigned = 0;
 
             /**************************************************************************************
@@ -442,6 +471,91 @@ public class CcddSchedulerHandler
             @Override
             protected void execute()
             {
+                int progress = 0;
+
+                // Set the initial layout manager characteristics
+                GridBagConstraints gbc = new GridBagConstraints(0,
+                                                                0,
+                                                                1,
+                                                                1,
+                                                                1.0,
+                                                                0.0,
+                                                                GridBagConstraints.LINE_START,
+                                                                GridBagConstraints.BOTH,
+                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                           0,
+                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                                0,
+                                                                0);
+
+                // Create the progress/cancellation dialog
+                JPanel dialogPnl = new JPanel(new GridBagLayout());
+                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+                JLabel textLbl = new JLabel("<html><b>Assigning "
+                                            + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                                         ? "variables to telemetry messages"
+                                                                                                         : "applications to time slots")
+                                            + "...</b><br><br>",
+                                            SwingConstants.LEFT);
+                textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+                gbc.gridy++;
+                dialogPnl.add(textLbl, gbc);
+                JLabel textLbl2 = new JLabel("<html><b>"
+                                             + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
+                                                                           + "to terminate auto-fill ***",
+                                                                           Color.RED)
+                                             + "</b><br><br>",
+                                             SwingConstants.CENTER);
+                textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+                gbc.gridy++;
+                dialogPnl.add(textLbl2, gbc);
+
+                int numVariables = 0;
+                String[] availableRates = schedulerInput.getAvailableRates();
+
+                // Step through available rates getting the highest one each time. Add the
+                // variables at each rate until no more rates are available
+                for (String rate : availableRates)
+                {
+                    // Check if the rate has any parameters. Rates with no parameters are grayed
+                    // out using HTML tags
+                    if (!rate.startsWith("<html>"))
+                    {
+                        // Get a list of all variables at the given rate
+                        numVariables += schedulerInput.getVariablesAtRate(rate).size();
+                    }
+                }
+
+                // Add a progress bar to the dialog
+                progBar = new JProgressBar(0, numVariables);
+                progBar.setValue(0);
+                progBar.setStringPainted(true);
+                progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.insets.bottom = 0;
+                gbc.gridy++;
+                dialogPnl.add(progBar, gbc);
+
+                // TODO TEMPORARILY MAKE THE DIALOG NON-MODAL SO THAT THE progress/cancellation
+                // DIALOG CAN BE ACTIVE
+                schedulerDlg.getDialog().setModal(false);// TODO
+
+                // Display the padding adjustment progress/cancellation dialog
+                cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
+                                               dialogPnl,
+                                               (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                                          ? "Auto-fill Telemetry Messages"
+                                                                                                          : "Auto-fill Time Slots"),
+                                               DialogOption.HALT_OPTION,
+                                               false,
+                                               false);
+
+                // Wait until the progress/cancellation dialog is showing before proceeding with
+                // the auto-fill operation
+                while (!cancelDialog.isShowing()); // TODO
+
                 // Total size of the variable or link
                 int totalSize;
 
@@ -463,12 +577,25 @@ public class CcddSchedulerHandler
 
                 // Step through available rates getting the highest one each time. Add the
                 // variables at each rate until no more rates are available
-                for (String rate : schedulerInput.getAvailableRates())
+                for (String rate : availableRates)
                 {
+                    // Check if the user canceled auto-fill
+                    if (canceled)
+                    {
+                        break;
+                    }
+
                     // Check if the rate has any parameters. Rates with no parameters are grayed
                     // out using HTML tags
                     if (!rate.startsWith("<html>"))
                     {
+                        // Show the current rate being processed in the progress bar
+                        progBar.setString("Assigning "
+                                          + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                                       ? "variables"
+                                                                                                       : "applications")
+                                          + " for rate: " + rate);
+
                         // Get the rate as a floating point value
                         float rateVal = CcddUtilities.convertStringToFloat(rate);
 
@@ -481,6 +608,12 @@ public class CcddSchedulerHandler
                         // Loop through the list of variables until all are removed
                         while (!varList.isEmpty())
                         {
+                            // Check if the user canceled padding adjustment
+                            if (canceled)
+                            {
+                                break;
+                            }
+
                             // Total size of the variable or link
                             totalSize = 0;
 
@@ -566,6 +699,10 @@ public class CcddSchedulerHandler
 
                             // Clear the removed variables list
                             removedVars.clear();
+
+                            // Update the auto-fill progress
+                            progBar.setValue(progress);
+                            progress++;
                         }
                     }
                 }
@@ -583,6 +720,11 @@ public class CcddSchedulerHandler
             @Override
             protected void complete()
             {
+                // Close the progress/cancellation dialog
+                cancelDialog.closeDialog();
+
+                schedulerDlg.getDialog().setModal(true);// TODO
+
                 // Display the originally selected rate's variable tree
                 schedulerInput.updateVariableTree(rateFilter.getSelectedItem().toString());
 

@@ -141,11 +141,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private String typeNameSep;
     private boolean hideDataType;
 
-    // Start, end, and target row indices, in model coordinates, for moving rows
-    private int modelStartRow;
-    private int modelEndRow;
-    private int modelToRow;
-
     // Flag indicating if array members are to be displayed in the table
     private boolean isShowArrayMembers;
 
@@ -2396,102 +2391,113 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
-             * Adjust the start and end selections for a row move to encompass the array members if
-             * the start or end selection falls within the array's rows. If the table doesn't
-             * represent a structure then only the selected row(s) are checked to determine if
-             * moving is possible
+             * Move the selected row(s) in the specified direction if possible. Account for if the
+             * selection or target is an array definition or member
              *
              * @param rowDelta
-             *            row move direction
-             *
-             * @param selected
-             *            cell selection class
-             *
-             * @return true if the row(s) can be moved
+             *            row move direction (-1 for up, +1 for down)
              *************************************************************************************/
-            private boolean encompassArray(int rowDelta, MoveCellSelection selected)
+            private void adjustAndMoveSelectedRows(int rowDelta)
             {
+                int modelStartRow;
+                int modelEndRow;
                 boolean isCanMove = false;
 
-                // Get the selected row model coordinates
+                // Set the selected start and end rows
+                MoveCellSelection selected = new MoveCellSelection();
+
+                // Set the selected start and end rows (model coordinates), and the direction to
+                // move
                 modelStartRow = selected.getStartRow();
                 modelEndRow = selected.getEndRow();
 
-                // Check if the table array members are set to display
-                if (isShowArrayMembers)
-                {
-                    // While the start row references an array member
-                    while (ArrayVariable.isArrayMember(getExpandedValueAt(modelStartRow,
-                                                                          variableNameIndex)))
-                    {
-                        // Decrement the start index to get to the array definition row
-                        modelStartRow--;
-                    }
-
-                    // Check if the selected ending row references an array definition
-                    if (!getExpandedValueAt(modelEndRow, arraySizeIndex).isEmpty()
-                        && !ArrayVariable.isArrayMember(getExpandedValueAt(modelEndRow,
-                                                                           variableNameIndex)))
-                    {
-                        // Increment the end row so that the members will be included below
-                        modelEndRow++;
-                    }
-
-                    boolean isIncludeMember = false;
-
-                    // While the end row references an array member and the end of the table model
-                    // hasn't been reached
-                    while (modelEndRow < tableModel.getRowCount()
-                           && ArrayVariable.isArrayMember(getExpandedValueAt(modelEndRow,
-                                                                             variableNameIndex)))
-                    {
-                        // Increment the end index to get to the end of the array
-                        modelEndRow++;
-                        isIncludeMember = true;
-                    }
-
-                    // Check if the ending row was adjusted to include an array member
-                    if (isIncludeMember)
-                    {
-                        // Decrement the row index since the row selection is inclusive
-                        modelEndRow--;
-                    }
-                }
-
-                // Check if the selected row(s) are not at the top (if moving up) or bottom (if
-                // moving down) of the table
+                // Check if the selected row(s) can be moved in the desired direction
                 if ((rowDelta < 0 && modelStartRow > 0)
                     || (rowDelta > 0 && modelEndRow < tableModel.getRowCount() - 1))
                 {
-                    isCanMove = true;
-
-                    // Calculate the row that the selected row(s) will be moved to
-                    modelToRow = modelStartRow + rowDelta;
-
-                    // Check if the table has an array size column
-                    if (arraySizeIndex != -1)
+                    // Check if the table can display arrays
+                    if (isCanHaveArrays())
                     {
-                        // Get the array size column value for the start row
-                        String arraySize = getExpandedValueAt(modelStartRow, arraySizeIndex);
-
-                        // Check if the array size is present on this row
-                        if (!arraySize.isEmpty())
+                        // While the start row references an array member
+                        while (ArrayVariable.isArrayMember(getExpandedValueAt(modelStartRow,
+                                                                              variableNameIndex)))
                         {
-                            // Adjust the row index past the array definition and member rows
-                            int arrayEndRow = modelStartRow
-                                              + ArrayVariable.getNumMembersFromArraySize(arraySize);
+                            // Decrement the start index to get to the array definition row
+                            modelStartRow--;
+                        }
 
-                            // Check if the new ending row is below the selected row
-                            if (modelEndRow < arrayEndRow)
+                        // Check if the selected ending row references an array definition
+                        if (!getExpandedValueAt(modelEndRow, arraySizeIndex).isEmpty()
+                            && !ArrayVariable.isArrayMember(getExpandedValueAt(modelEndRow,
+                                                                               variableNameIndex)))
+                        {
+                            // Increment the end row so that the members will be included below
+                            modelEndRow++;
+                        }
+
+                        boolean isIncludeMember = false;
+
+                        // While the end row references an array member and the end of the table
+                        // model hasn't been reached
+                        while (modelEndRow < tableModel.getRowCount()
+                               && ArrayVariable.isArrayMember(getExpandedValueAt(modelEndRow,
+                                                                                 variableNameIndex)))
+                        {
+                            // Increment the end index to get to the end of the array
+                            modelEndRow++;
+                            isIncludeMember = true;
+                        }
+
+                        // Check if the ending row was adjusted to include an array member
+                        if (isIncludeMember)
+                        {
+                            // Decrement the row index since the row selection is inclusive
+                            modelEndRow--;
+                        }
+
+                        // Check if the selected row(s) can be moved in the desired direction
+                        if ((rowDelta < 0 && modelStartRow > 0)
+                            || (rowDelta > 0 && modelEndRow < tableModel.getRowCount() - 1))
+                        {
+                            // Get the array size column value for the target row
+                            String arraySize = getExpandedValueAt((rowDelta < 0
+                                                                                ? modelStartRow
+                                                                                : modelEndRow)
+                                                                  + rowDelta,
+                                                                  arraySizeIndex);
+
+                            // Check if the array size is present on this row
+                            if (!arraySize.isEmpty())
                             {
-                                // Set the end selection to the end of the array
-                                modelEndRow = arrayEndRow;
+                                // Get the total number of array members
+                                int totalSize = ArrayVariable.getNumMembersFromArraySize(arraySize);
+
+                                // Adjust the number of rows to move based on the number of array
+                                // members
+                                rowDelta += totalSize * rowDelta;
                             }
+
+                            // Set the flag to indicate the selected row(s) can be moved
+                            isCanMove = true;
                         }
                     }
-                }
+                    // The table can't have an array
+                    else
+                    {
+                        // Set the flag to indicate the selected row(s) can be moved
+                        isCanMove = true;
+                    }
 
-                return isCanMove;
+                    // Calculate the row that the selected row(s) will be moved to
+                    int modelToRow = modelStartRow + rowDelta;
+
+                    // Check if the selected row(s) can be moved
+                    if (isCanMove)
+                    {
+                        // Move the row(s) in the specified direction and update the cell selection
+                        performRowMove(modelStartRow, modelEndRow, modelToRow, selected, rowDelta);
+                    }
+                }
             }
 
             /**************************************************************************************
@@ -2502,44 +2508,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected void moveRowUp()
             {
-                // Get the selected cells
-                MoveCellSelection selected = new MoveCellSelection();
-
-                // Check if at least one row is selected and it doesn't include the topmost row
-                if (selected.getStartRow() > 0)
-                {
-                    int rowDelta = -1;
-
-                    // Convert the start and end rows to model coordinates and adjust to encompass
-                    // the array members within the range, then check if the starting row isn't at
-                    // the top of the table and if so adjust the end selection if the start
-                    // selection falls on an array definition
-                    if (encompassArray(rowDelta, selected))
-                    {
-                        // Check if the table can display arrays
-                        if (isCanHaveArrays())
-                        {
-                            // While the target row contains an array member
-                            while (ArrayVariable.isArrayMember(getExpandedValueAt(modelToRow,
-                                                                                  variableNameIndex)))
-                            {
-                                // Decrement the target row
-                                modelToRow--;
-
-                                // Check if the array members are displayed
-                                if (isShowArrayMembers)
-                                {
-                                    // Adjust the row delta to keep the correct rows highlighted
-                                    // after the move
-                                    rowDelta--;
-                                }
-                            }
-                        }
-
-                        // Move the row(s) up and update the cell selection
-                        performRowMove(modelStartRow, modelEndRow, modelToRow, selected, rowDelta);
-                    }
-                }
+                // Move the selected row(s) up if possible
+                adjustAndMoveSelectedRows(-1);
             }
 
             /**************************************************************************************
@@ -2550,47 +2520,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected void moveRowDown()
             {
-                // Get the selected cells
-                MoveCellSelection selected = new MoveCellSelection();
-
-                // Check if at least one row is selected and it doesn't include the bottom row
-                if (selected.getStartRow() != -1
-                    && selected.getEndRow() < table.getRowCount() - 1)
-                {
-                    int rowDelta = 1;
-
-                    // Convert the start and end rows to model coordinates and adjust to encompass
-                    // the array members within the range, then check if the end row isn't the
-                    // bottom of the table and if not adjust the end selection if the start
-                    // selection falls on an array definition
-                    if (encompassArray(rowDelta, selected))
-                    {
-                        // Check if the table can display arrays
-                        if (isCanHaveArrays())
-                        {
-                            // Get the array size column value for the target row
-                            String arraySize = getExpandedValueAt(modelEndRow + 1, arraySizeIndex);
-
-                            // Check if the array size is present on this row
-                            if (!arraySize.isEmpty())
-                            {
-                                // Get the total number of array members
-                                int totalSize = ArrayVariable.getNumMembersFromArraySize(arraySize);
-
-                                // Adjust the target row and the number of rows to move based on
-                                // the number of array members and the visibility of the array
-                                // members
-                                rowDelta += isShowArrayMembers
-                                                               ? totalSize
-                                                               : 0;
-                                modelToRow += totalSize;
-                            }
-                        }
-
-                        // Move the row(s) down and update the cell selection
-                        performRowMove(modelStartRow, modelEndRow, modelToRow, selected, rowDelta);
-                    }
-                }
+                // Move the selected row(s) down if possible
+                adjustAndMoveSelectedRows(1);
             }
 
             /**************************************************************************************
@@ -2619,6 +2550,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                           MoveCellSelection selected,
                                           int rowDelta)
             {
+
                 // Move the row(s)
                 super.performRowMove(startRow, endRow, toRow, selected, rowDelta);
 
