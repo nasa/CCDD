@@ -2324,6 +2324,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         for (FieldInformation field : fieldInformation)
         {
             // Store the data field information
+            // TODO
             fieldData.add(new String[] {XTCETags.DATA_FIELD.getTag()
                                         + (identifier == null
                                                               ? ""
@@ -2343,6 +2344,41 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                              + "\",\""
                                                                              + field.getValue()
                                                                              + "\""});
+
+            // DataField dataField;
+            //
+            // fieldData.add(new String[] {XTCETags.DATA_FIELD.getTag()
+            // + (identifier == null
+            // ? ""
+            // : identifier),
+            // FieldsColumn.FIELD_NAME.toString().toLowerCase()
+            // + "=\""
+            // + field.getFieldName()
+            // + "\" "
+            // + FieldsColumn.FIELD_DESC.toString().toLowerCase()
+            // + "=\""
+            // + field.getDescription()
+            // + "\" "
+            // + FieldsColumn.FIELD_SIZE.toString().toLowerCase()
+            // + "=\""
+            // + field.getSize()
+            // + "\" "
+            // + FieldsColumn.FIELD_TYPE.toString().toLowerCase()
+            // + "=\""
+            // + field.getInputType().getInputName()
+            // + "\" "
+            // + FieldsColumn.FIELD_REQUIRED.toString().toLowerCase()
+            // + "=\""
+            // + field.isRequired()
+            // + "\" "
+            // + FieldsColumn.FIELD_APPLICABILITY.toString().toLowerCase()
+            // + "=\""
+            // + field.getApplicabilityType().getApplicabilityName()
+            // + "\" "
+            // + FieldsColumn.FIELD_VALUE.toString().toLowerCase()
+            // + "=\""
+            // + field.getValue()
+            // + "\""});
         }
     }
 

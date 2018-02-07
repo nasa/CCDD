@@ -113,6 +113,7 @@ public class CcddConstants
 
     // Script association item separators
     protected static final String ASSN_TABLE_SEPARATOR = ";\n";
+    protected static final String ASSN_TABLE_SEPARATOR_CMD_LN = "+";
     protected static final String SCRIPT_MEMBER_SEPARATOR = ":";
 
     // Separator for the project database comment

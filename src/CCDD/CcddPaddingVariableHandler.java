@@ -80,6 +80,7 @@ public class CcddPaddingVariableHandler
         private int arraySizeColumn;
         private int bitLengthColumn;
         private int largestDataType;
+        private List<Integer> rateColumn;
 
         // Structure's total size in bytes
         private int totalSize;
@@ -164,6 +165,7 @@ public class CcddPaddingVariableHandler
                 dataTypeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
                 arraySizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
                 bitLengthColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+                rateColumn = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
 
                 // Set the flag indicating that the structure's total size and largest member
                 // variable haven't been calculated
@@ -231,6 +233,39 @@ public class CcddPaddingVariableHandler
         protected String getBitLength(int row)
         {
             return tableEditor.getExpandedValueAt(row, bitLengthColumn).toString();
+        }
+
+        /******************************************************************************************
+         * Get the rate for the specified structure table row and rate column
+         *
+         * @param row
+         *            structure table row index
+         *
+         * @param column
+         *            structure table rate column index
+         *
+         * @return Rate for the specified structure table row and rate column
+         *****************************************************************************************/
+        protected String getRate(int row, int column)
+        {
+            return tableEditor.getTable().getModel().getValueAt(row, column).toString();
+        }
+
+        /******************************************************************************************
+         * Set the rate for the specified structure table row and rate column
+         *
+         * @param rate
+         *            rate for the specified structure table row and rate column
+         *
+         * @param row
+         *            structure table row index
+         *
+         * @param column
+         *            structure table rate column index
+         *****************************************************************************************/
+        protected void setRate(String rate, int row, int column)
+        {
+            tableEditor.getTable().getModel().setValueAt(rate, row, column);
         }
 
         /******************************************************************************************
@@ -369,15 +404,23 @@ public class CcddPaddingVariableHandler
                             // Check if there are any unused bits in the packed variable
                             if (numPadBits != 0)
                             {
+                                // Get the row at which to insert the bit-pack padding variable
+                                int insertRow = packIndex.getLastIndex() + numPads + 1;
+
                                 // Add a padding variable to fill in the unused bits
-                                addPaddingVariable(packIndex.getLastIndex() + numPads + 1,
-                                                   1,
-                                                   numPadBits);
+                                addPaddingVariable(insertRow, 1, numPadBits);
+
+                                // Step through each of the bit-packed variable's rate columns
+                                for (int column : rateColumn)
+                                {
+                                    // Assign the rate to the padding variable
+                                    setRate(getRate(row, column), insertRow, column);
+                                }
                             }
 
                             // Update the row index to skip the other variables packed with the
                             // current one
-                            row += packIndex.getLastIndex() - packIndex.getFirstIndex();
+                            row += packIndex.getLastIndex() - packIndex.getFirstIndex() + 1;
                         }
 
                         // Add the size of the variable to the byte counter, then adjust the byte

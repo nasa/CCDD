@@ -148,7 +148,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Object enclosed by delimiters if the object is a text string
      *********************************************************************************************/
-    protected Object delimitText(Object object)
+    protected static Object delimitText(Object object)
     {
         // Check if this is a string
         if (object instanceof String)
@@ -3530,10 +3530,10 @@ public class CcddDbTableCommandHandler
                                                        + newVariablePath
                                                        + "\\\\1\\\\3', 'ng'); ");
 
-                                    // TODO Note states the tlm & links handled elsewhere
                                     // Check if the data type, bit length, and rate didn't also
-                                    // change (updates to the links and telemetry scheduler tables
-                                    // due to changes to any of these are handled elsewhere)
+                                    // change (updates to these attributes result in deletion of
+                                    // any references to the variable and any children in the links
+                                    // and telemetry scheduler tables, which is handled elsewhere)
                                     if (!dataTypeChanged && !bitLengthChanged && !rateChanged)
                                     {
                                         // Create the command to update the links table for
@@ -3557,7 +3557,6 @@ public class CcddDbTableCommandHandler
                                                                                   "\\\\1",
                                                                                   true));
                                     }
-                                    // TODO
                                     // The data type, bit length, or rate changed
                                     else
                                     {

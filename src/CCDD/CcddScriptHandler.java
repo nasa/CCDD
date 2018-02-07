@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR_CMD_LN;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
@@ -671,8 +672,7 @@ public class CcddScriptHandler
             {
                 // Check if the reference to the script manager is set (i.e., the script
                 // associations manager dialog is open)
-                if (scriptDialog != null
-                    && scriptDialog instanceof CcddScriptManagerDialog)
+                if (scriptDialog != null && scriptDialog instanceof CcddScriptManagerDialog)
                 {
                     // Update the script associations manager change indicator
                     ((CcddScriptManagerDialog) scriptDialog).updateChangeIndicator();
@@ -1440,6 +1440,34 @@ public class CcddScriptHandler
     }
 
     /**********************************************************************************************
+     * Convert the supplied string containing the association members from the internal table to
+     * the viewable format, or vice versa, depending on the input flag. The viewable format can be
+     * used directly with the command line 'execute' command
+     *
+     * @param assnMembers
+     *            tables and/or groups associated with the script, in either the internal or
+     *            viewable format
+     *
+     * @param toInternal
+     *            true to convert the member string to the internal format; false to convert to the
+     *            viewable format
+     *
+     * @return Supplied string containing the association members converted from the internal table
+     *         to the viewable format, or vice versa
+     *********************************************************************************************/
+    protected static String convertAssociationMembersFormat(String assnMembers, boolean toInternal)
+    {
+        return assnMembers.replaceAll(Pattern.quote((toInternal
+                                                                ? "\\s*"
+                                                                  + ASSN_TABLE_SEPARATOR_CMD_LN
+                                                                  + "\\s*"
+                                                                : ASSN_TABLE_SEPARATOR)),
+                                      (toInternal
+                                                  ? ASSN_TABLE_SEPARATOR
+                                                  : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " "));
+    }
+
+    /**********************************************************************************************
      * Log the result of the script association execution(s)
      *
      * @param associations
@@ -1456,32 +1484,31 @@ public class CcddScriptHandler
         // Initialize the success/fail flags and log messages
         boolean isSuccess = false;
         boolean isFail = false;
-        String successMessage = "Following script(s) completed execution: ";
-        String failMessage = "Following script(s) failed to execute: ";
+        String successMessage = "Following script(s) completed execution: '";
+        String failMessage = "Following script(s) failed to execute: '";
 
         // Step through each script association
         for (Object[] assn : associations)
         {
+            // Get the association (script name and members) in the viewable format
+            String association = assn[AssociationsColumn.SCRIPT_FILE.ordinal()]
+                                 + " : "
+                                 + convertAssociationMembersFormat(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
+                                                                   false)
+                                 + ";";
+
             // Check if the script executed successfully
             if (isBad != null && !isBad[assnIndex])
             {
-                // Append the script name and table(s) to the success message
-                successMessage += " '"
-                                  + assn[AssociationsColumn.SCRIPT_FILE.ordinal()]
-                                  + " : "
-                                  + assn[AssociationsColumn.MEMBERS.ordinal()]
-                                  + "',";
+                // Append the association to the success message
+                successMessage += association;
                 isSuccess = true;
             }
             // The script failed to execute
             else
             {
-                // Append the script name and table(s) to the fail message
-                failMessage += " '"
-                               + assn[AssociationsColumn.SCRIPT_FILE.ordinal()]
-                               + " : "
-                               + assn[AssociationsColumn.MEMBERS.ordinal()]
-                               + "',";
+                // Append the association to the fail message
+                failMessage += association;
                 isFail = true;
             }
 
@@ -1489,8 +1516,8 @@ public class CcddScriptHandler
         }
 
         // Remove the trailing commas
-        successMessage = CcddUtilities.removeTrailer(successMessage, ",");
-        failMessage = CcddUtilities.removeTrailer(failMessage, ",");
+        successMessage = CcddUtilities.removeTrailer(successMessage, ";") + "'";
+        failMessage = CcddUtilities.removeTrailer(failMessage, ";" + "'");
 
         // Check if any script executed successfully
         if (isSuccess)
@@ -1513,8 +1540,8 @@ public class CcddScriptHandler
      * @param scriptFileName
      *            script file name
      *
-     * @param tables
-     *            tables associated with the script
+     * @param members
+     *            tables and/or groups associated with the script, in the internal format
      *
      * @param cause
      *            cause of the execution error
@@ -1523,24 +1550,27 @@ public class CcddScriptHandler
      *            GUI component calling this method
      *********************************************************************************************/
     private void logScriptError(String scriptFileName,
-                                String tables,
+                                String members,
                                 String cause,
                                 Component parent)
     {
+        // Convert the member list from the internal to the viewable format
+        members = convertAssociationMembersFormat(members, false);
+
         // Inform the user that the script can't be executed
         eventLog.logFailEvent(parent,
                               "Script Error",
                               "Cannot execute script '"
                                               + scriptFileName
                                               + "' using table(s) '"
-                                              + tables
+                                              + members
                                               + "'; cause '"
                                               + cause.replaceAll("\\n", " ")
                                               + "'",
                               "<html><b>Cannot execute script '</b>"
                                                      + scriptFileName
                                                      + "<b>' using table(s) '</b>"
-                                                     + tables
+                                                     + members
                                                      + "<b>'");
     }
 

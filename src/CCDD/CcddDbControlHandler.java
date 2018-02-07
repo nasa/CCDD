@@ -241,17 +241,18 @@ public class CcddDbControlHandler
      * @param databaseName
      *            database name
      *
-     * @return The project name for the specified database
+     * @return The project name for the specified database; the database name is used if the
+     *         project name can't be retrieved
      *********************************************************************************************/
     protected String getProjectName(String databaseName)
     {
-        String projectName = null;
+        String projectName = databaseName;
 
         // Get the database comment
         String comment = getDatabaseComment(databaseName);
 
-        // Check if a comment was successfully retrieved
-        if (comment != null)
+        // Check if a comment was successfully retrieved and contains the expected components
+        if (comment != null && comment.split(DATABASE_COMMENT_SEPARATOR, 3).length == 3)
         {
             // Get the project name
             projectName = comment.split(DATABASE_COMMENT_SEPARATOR, 3)[DatabaseComment.PROJECT_NAME.ordinal()];
@@ -787,12 +788,12 @@ public class CcddDbControlHandler
         return "COMMENT ON DATABASE "
                + convertProjectNameToDatabase(projectName)
                + " IS "
-               + ccddMain.getDbTableCommandHandler().delimitText(CCDD_PROJECT_IDENTIFIER
-                                                                 + (lockStatus ? "1" : "0")
-                                                                 + DATABASE_COMMENT_SEPARATOR
-                                                                 + projectName
-                                                                 + DATABASE_COMMENT_SEPARATOR
-                                                                 + description)
+               + CcddDbTableCommandHandler.delimitText(CCDD_PROJECT_IDENTIFIER
+                                                       + (lockStatus ? "1" : "0")
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + projectName
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + description)
                + "; ";
     }
 

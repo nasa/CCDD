@@ -211,8 +211,7 @@ public class CcddDialogHandler extends JDialog
             {
                 // Check if the Cancel button was pressed, or if the Okay button was pressed and
                 // the selection is verified
-                if (button == CANCEL_BUTTON
-                    || (button == OK_BUTTON && verifySelection()))
+                if (button == CANCEL_BUTTON || (button == OK_BUTTON && verifySelection()))
                 {
                     // Close the dialog, indicating the selected button
                     closeDialog(button);

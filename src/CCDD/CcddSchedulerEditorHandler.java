@@ -1425,7 +1425,7 @@ public class CcddSchedulerEditorHandler
             && !selectedVars.isEmpty()
             && !selectedVars.get(0).equals(MESSAGE_EMPTY))
         {
-            // Row of selected variable. Convert the row index to view coordinates in case teh
+            // Row of selected variable. Convert the row index to view coordinates in case the
             // Scheduler table is sorted
             int row = schedulerTable.convertRowIndexToModel(schedulerTable.getSelectedRow());
 

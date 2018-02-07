@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
@@ -91,11 +92,36 @@ public class CcddSchedulerHandler
     // Name of the rate column
     private final String rateName;
 
-    // Flag indicating that the user elected to cancel padding adjustment
+    // Flag indicating that the user elected to cancel the auto-fill operation
     boolean canceled;
+
+    // Auto-fill progress/cancellation dialog
+    private HaltDialog cancelDialog;
+
+    // Auto-fill progress counter
+    private int progress;
 
     // No options message
     private final String NO_OPTION = "<html><i>No Available Options";
+
+    /**********************************************************************************************
+     * Auto-fill progress/cancellation dialog class
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    class HaltDialog extends CcddDialogHandler
+    {
+        /******************************************************************************************
+         * Handle the close dialog button action
+         *****************************************************************************************/
+        @Override
+        protected void closeDialog(int button)
+        {
+            // Set the flag to cancel the auto-fill operation
+            canceled = true;
+
+            super.closeDialog(button);
+        };
+    }
 
     /**********************************************************************************************
      * Scheduler handler class constructor
@@ -436,43 +462,303 @@ public class CcddSchedulerHandler
      *********************************************************************************************/
     protected void autoFill()
     {
+        canceled = false;
+        cancelDialog = new HaltDialog();
+        progBar = new JProgressBar();
+        progress = 0;
+
+        // Create the panel to contain the progress/cancellation dialog components
+        final JPanel dialogPnl = new JPanel(new GridBagLayout());
+
+        // Get the scheduler dialog type
+        final SchedulerType schedulerType = getSchedulerOption();
+
+        // Get the text that describes the type of object being assigned
+        final String variableType = schedulerType == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                       ? "variables"
+                                                                                       : (schedulerType == SchedulerType.APPLICATION_SCHEDULER
+                                                                                                                                               ? "applications"
+                                                                                                                                               : "unknown");
+
+        // Create a thread to perform the auto-fill operation in the background
+        final Thread progressThread = new Thread(new Runnable()
+        {
+            /**************************************************************************************
+             * Auto-fill the telemetry messages (if this is the telemetry scheduler) or application
+             * time slots (if this is the application scheduler). Note that in the comments below
+             * 'variable' is used to describe the object being assigned, which is accurate for the
+             * telemetry scheduler. For the application scheduler substitute 'application' for
+             * 'variable'
+             *************************************************************************************/
+            @Override
+            public void run()
+            {
+                int numVariables = 0;
+                int unassigned = 0;
+
+                // Get an array of the available rates
+                String[] availableRates = schedulerInput.getAvailableRates();
+
+                // Step through available rates getting the highest one each time. Add the
+                // variables at each rate until no more rates are available
+                for (String rate : availableRates)
+                {
+                    // Check if the rate has any parameters. Rates with no parameters are grayed
+                    // out using HTML tags
+                    if (!rate.startsWith("<html>"))
+                    {
+                        // Check if this is a telemetry scheduler
+                        if (schedulerType == SchedulerType.TELEMETRY_SCHEDULER)
+                        {
+                            // Get the reference to the variable tree in order to shorten the
+                            // subsequent call
+                            CcddTableTreeHandler variableTree = ((CcddTelemetrySchedulerInput) schedulerInput).getVariableTree();
+
+                            // Add the number of unassigned variables at the given rate.
+                            // getVariablesAtRate() could be used, but it performs other operations
+                            // associated with links and is slower
+                            numVariables += variableTree.getPrimitiveVariablePaths(variableTree.getRootNode(), true).size();
+                        }
+                        // Check if this is an application scheduler
+                        else if (schedulerType == SchedulerType.APPLICATION_SCHEDULER)
+                        {
+                            // Add the number of unassigned applications at the given rate
+                            numVariables += schedulerInput.getVariablesAtRate(rate).size();
+                        }
+                    }
+                }
+
+                // Check if there are any variables to assign
+                if (numVariables != 0)
+                {
+                    // Update the progress bar now that the number of variables is known
+                    progBar.setMaximum(numVariables);
+                    progBar.setIndeterminate(false);
+
+                    // Total size of the variable or link
+                    int totalSize;
+
+                    // Message option to which the variable or link will be added
+                    String option;
+
+                    // Variable that will be added
+                    Variable variable;
+
+                    // Variables that will be removed from the remaining list
+                    List<Variable> removedVars = new ArrayList<Variable>();
+
+                    // List of variables at a given rate
+                    List<Variable> varList;
+
+                    // List of the variables to exclude from the Variables tree. This should be all
+                    // of the variables unless there are any that can't be assigned
+                    List<String> excludedVars = new ArrayList<String>();
+
+                    // Step through available rates getting the highest one each time. Add the
+                    // variables at each rate until no more rates are available
+                    for (String rate : availableRates)
+                    {
+                        // Check if the user canceled auto-fill
+                        if (canceled)
+                        {
+                            break;
+                        }
+
+                        // Check if the rate has any parameters. Rates with no parameters are
+                        // grayed out using HTML tags
+                        if (!rate.startsWith("<html>"))
+                        {
+                            // Show the current rate being processed in the progress bar
+                            progBar.setString("Assigning " + rate + " Hz " + variableType);
+
+                            // Get the rate as a floating point value
+                            float rateVal = CcddUtilities.convertStringToFloat(rate);
+
+                            // Get a list of all variables at the given rate (ones already assigned
+                            // are not included)
+                            varList = schedulerInput.getVariablesAtRate(rate);
+
+                            // Sort the list from largest to smallest
+                            Collections.sort(varList);
+
+                            // Loop through the list of variables until all are removed
+                            while (!varList.isEmpty())
+                            {
+                                // Check if the user canceled padding adjustment
+                                if (canceled)
+                                {
+                                    break;
+                                }
+
+                                // Total size of the variable or link
+                                totalSize = 0;
+
+                                // Set to the first variable in the list
+                                variable = varList.get(0);
+
+                                // Check if the variable is linked
+                                if (variable.getLink() != null)
+                                {
+                                    // Step through each variable in the variable list
+                                    for (Variable linkVar : varList)
+                                    {
+                                        // Check if the variable is in the link of the given
+                                        // variable
+                                        if (linkVar.getLink() != null
+                                            && linkVar.getLink().equals(variable.getLink()))
+                                        {
+                                            // Add the variable's size to the total size
+                                            totalSize += variable.getSize();
+
+                                            // Add the variable to the list of removed variables
+                                            removedVars.add(linkVar);
+                                        }
+                                    }
+                                }
+                                // The variable is unlinked
+                                else
+                                {
+                                    // Check if this is a telemetry scheduler
+                                    if (schedulerType == SchedulerType.TELEMETRY_SCHEDULER)
+                                    {
+                                        // Set total size to the given variable's size
+                                        totalSize = variable.getSize();
+
+                                        // Get the total size (in bytes) and the list of the
+                                        // variable, or variables if this variable is associated
+                                        // with others due to bit-packing or string membership and
+                                        // therefore must be placed together in a message
+                                        AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput).getAssociatedVariables(varList);
+
+                                        // Set the total size to that of the associated variable(s)
+                                        // and add the variable(s) to the list of those to be
+                                        // removed
+                                        totalSize = associates.getTotalSize();
+                                        removedVars.addAll(associates.getAssociates());
+                                    }
+                                    // This is an application (or unknown type of) scheduler
+                                    else
+                                    {
+                                        // Set total size to the given variable's size
+                                        totalSize = variable.getSize();
+
+                                        // Add the variable to the list of removed variables
+                                        removedVars.add(variable);
+                                    }
+                                }
+
+                                // Find the option with the most room
+                                option = getMessageWithRoom(rateVal, totalSize);
+
+                                // Check to make sure there is an option
+                                if (option != null)
+                                {
+                                    // Parse the option string to extract the sub-index (if this is
+                                    // a sub-option) and the message indices
+                                    Object[] parsedIndices = parseOption(option);
+
+                                    // Add the variable to the given message. If a sub-index is not
+                                    // given it will be set to -1. Add the list of added variables
+                                    // to the list of those to exclude in the Variables tree
+                                    excludedVars.addAll(addVariableToMessage(removedVars,
+                                                                             (Integer[]) parsedIndices[1],
+                                                                             (int) parsedIndices[0]));
+                                }
+                                // No option is available
+                                else
+                                {
+                                    // Increment the unplaced variable counter
+                                    unassigned++;
+                                }
+
+                                // Remove all the variables in removed variables list. This
+                                // includes variables that did not fit into the telemetry table
+                                varList.removeAll(removedVars);
+
+                                // Clear the removed variables list
+                                removedVars.clear();
+
+                                // Update the auto-fill progress
+                                progBar.setValue(progress);
+                                progress++;
+                            }
+                        }
+                    }
+
+                    // Check if the auto-fill operation wasn't canceled by the user
+                    if (!canceled)
+                    {
+                        // Close the auto-fill progress/cancellation dialog
+                        cancelDialog.closeDialog(CANCEL_BUTTON);
+                    }
+
+                    // Perform any updates needed following adding variables to messages
+                    updateAfterVariableAdded();
+
+                    // Set the variable tree to exclude the variable(s)
+                    setVariableUnavailable(excludedVars);
+
+                    // Display the originally selected rate's variable tree
+                    schedulerInput.updateVariableTree(rateFilter.getSelectedItem().toString());
+
+                    // Update the remaining bytes column values
+                    schedulerEditor.updateRemainingBytesColumn();
+
+                    // Update the unused bytes/time field
+                    setUnusedField();
+
+                    // Update the assigned variables/applications list panel
+                    schedulerEditor.updateAssignmentList();
+
+                    // Update the scheduler dialog's change indicator
+                    getSchedulerDialog().updateChangeIndicator();
+
+                    // Check if there are items that are not assigned
+                    if (unassigned != 0)
+                    {
+                        // Inform the user if there are items that are not assigned
+                        new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                                  "<html><b> Auto-fill unable to assign "
+                                                                                            + unassigned
+                                                                                            + " "
+                                                                                            + variableType,
+                                                                  "Auto-fill",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
+                }
+                // There are no unassigned variables
+                else
+                {
+                    // Check if the auto-fill operation isn't already complete or canceled by the
+                    // user
+                    if (!canceled)
+                    {
+                        // Close the auto-fill progress/cancellation dialog
+                        cancelDialog.closeDialog(CANCEL_BUTTON);
+                    }
+
+                    new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
+                                                              "<html><b>All "
+                                                                                        + variableType
+                                                                                        + " with a rate are already assigned",
+                                                              "Auto-fill",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                }
+            }
+        });
+
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, schedulerDlg.getDialog(), new BackgroundCommand()
         {
-            /**********************************************************************************
-             * Padding adjustment progress/cancellation dialog class
-             *********************************************************************************/
-            @SuppressWarnings("serial")
-            class HaltDialog extends CcddDialogHandler
-            {
-                /******************************************************************************
-                 * Handle the close dialog button action
-                 *****************************************************************************/
-                @Override
-                protected void closeDialog(int button)
-                {
-                    // TODO SPACE BAR ACTUATES THE HALT BUTTON, BUT THE MOUSE DOESN'T WORK.
-                    // ALSO, THE SCHEDULER'S SYSTEM CLOSE BUTTON IS STILL ACTIVE - IT SHOULD BE
-                    // IGNORED
-
-                    // Set the flag to cancel padding adjustment
-                    canceled = true;
-
-                    super.closeDialog(button);
-                };
-            }
-
-            HaltDialog cancelDialog = new HaltDialog();
-            int unassigned = 0;
-
             /**************************************************************************************
-             * Auto-fill command
+             * Build and display the auto-fill progress/cancellation dialog. This is done as a
+             * background operation so that the
              *************************************************************************************/
             @Override
             protected void execute()
             {
-                int progress = 0;
-
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
                                                                 0,
@@ -489,13 +775,10 @@ public class CcddSchedulerHandler
                                                                 0,
                                                                 0);
 
-                // Create the progress/cancellation dialog
-                JPanel dialogPnl = new JPanel(new GridBagLayout());
+                // Build the progress/cancellation dialog
                 dialogPnl.setBorder(BorderFactory.createEmptyBorder());
                 JLabel textLbl = new JLabel("<html><b>Assigning "
-                                            + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                                         ? "variables to telemetry messages"
-                                                                                                         : "applications to time slots")
+                                            + variableType
                                             + "...</b><br><br>",
                                             SwingConstants.LEFT);
                 textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
@@ -511,25 +794,11 @@ public class CcddSchedulerHandler
                 gbc.gridy++;
                 dialogPnl.add(textLbl2, gbc);
 
-                int numVariables = 0;
-                String[] availableRates = schedulerInput.getAvailableRates();
-
-                // Step through available rates getting the highest one each time. Add the
-                // variables at each rate until no more rates are available
-                for (String rate : availableRates)
-                {
-                    // Check if the rate has any parameters. Rates with no parameters are grayed
-                    // out using HTML tags
-                    if (!rate.startsWith("<html>"))
-                    {
-                        // Get a list of all variables at the given rate
-                        numVariables += schedulerInput.getVariablesAtRate(rate).size();
-                    }
-                }
-
                 // Add a progress bar to the dialog
-                progBar = new JProgressBar(0, numVariables);
+                progBar.setIndeterminate(true);
+                progBar.setMinimum(0);
                 progBar.setValue(0);
+                progBar.setString("Calculating number of variables");
                 progBar.setStringPainted(true);
                 progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
@@ -538,224 +807,28 @@ public class CcddSchedulerHandler
                 gbc.gridy++;
                 dialogPnl.add(progBar, gbc);
 
-                // TODO TEMPORARILY MAKE THE DIALOG NON-MODAL SO THAT THE progress/cancellation
-                // DIALOG CAN BE ACTIVE
-                schedulerDlg.getDialog().setModal(false);// TODO
-
-                // Display the padding adjustment progress/cancellation dialog
-                cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                               dialogPnl,
-                                               (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                                          ? "Auto-fill Telemetry Messages"
-                                                                                                          : "Auto-fill Time Slots"),
-                                               DialogOption.HALT_OPTION,
-                                               false,
-                                               false);
-
-                // Wait until the progress/cancellation dialog is showing before proceeding with
-                // the auto-fill operation
-                while (!cancelDialog.isShowing()); // TODO
-
-                // Total size of the variable or link
-                int totalSize;
-
-                // Message option to which the variable or link will be added
-                String option;
-
-                // Variable that will be added
-                Variable variable;
-
-                // Variables that will be removed from the remaining list
-                List<Variable> removedVars = new ArrayList<Variable>();
-
-                // List of variables at a given rate
-                List<Variable> varList;
-
-                // List of the variables to exclude from the Variables tree. This should be all of
-                // the variables unless there are any that can't be assigned
-                List<String> excludedVars = new ArrayList<String>();
-
-                // Step through available rates getting the highest one each time. Add the
-                // variables at each rate until no more rates are available
-                for (String rate : availableRates)
+                // Check if the auto-fill hasn't already been canceled. This prevents displaying
+                // the dialog if there are no variables to assign
+                if (!canceled)
                 {
-                    // Check if the user canceled auto-fill
-                    if (canceled)
-                    {
-                        break;
-                    }
-
-                    // Check if the rate has any parameters. Rates with no parameters are grayed
-                    // out using HTML tags
-                    if (!rate.startsWith("<html>"))
-                    {
-                        // Show the current rate being processed in the progress bar
-                        progBar.setString("Assigning "
-                                          + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                                       ? "variables"
-                                                                                                       : "applications")
-                                          + " for rate: " + rate);
-
-                        // Get the rate as a floating point value
-                        float rateVal = CcddUtilities.convertStringToFloat(rate);
-
-                        // Get a list of all variables at the given rate
-                        varList = schedulerInput.getVariablesAtRate(rate);
-
-                        // Sort the list from largest to smallest
-                        Collections.sort(varList);
-
-                        // Loop through the list of variables until all are removed
-                        while (!varList.isEmpty())
-                        {
-                            // Check if the user canceled padding adjustment
-                            if (canceled)
-                            {
-                                break;
-                            }
-
-                            // Total size of the variable or link
-                            totalSize = 0;
-
-                            // Set to the first variable in the list
-                            variable = varList.get(0);
-
-                            // Check if the variable is linked
-                            if (variable.getLink() != null)
-                            {
-                                // Step through each variable in the variable list
-                                for (Variable linkVar : varList)
-                                {
-                                    // Check if the variable is in the link of the given variable
-                                    if (linkVar.getLink() != null
-                                        && linkVar.getLink().equals(variable.getLink()))
-                                    {
-                                        // Add the variable's size to the total size
-                                        totalSize += variable.getSize();
-
-                                        // Add the variable to the list of removed variables
-                                        removedVars.add(linkVar);
-                                    }
-                                }
-                            }
-                            // The variable is unlinked
-                            else
-                            {
-                                // Check if this is a telemetry scheduler
-                                if (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER)
-                                {
-                                    // Set total size to the given variable's size
-                                    totalSize = variable.getSize();
-
-                                    // Get the total size (in bytes) and the list of the variable,
-                                    // or variables if this variable is associated with others due
-                                    // to bit-packing or string membership and therefore must be
-                                    // placed together in a message
-                                    AssociatedVariable associates = ((CcddTelemetrySchedulerInput) schedulerInput).getAssociatedVariables(varList);
-
-                                    // Set the total size to that of the associated variable(s) and
-                                    // add the variable(s) to the list of those to be removed
-                                    totalSize = associates.getTotalSize();
-                                    removedVars.addAll(associates.getAssociates());
-                                }
-                                // This is an application (or unknown type of) scheduler
-                                else
-                                {
-                                    // Set total size to the given variable's size
-                                    totalSize = variable.getSize();
-
-                                    // Add the variable to the list of removed variables
-                                    removedVars.add(variable);
-                                }
-                            }
-
-                            // Find the option with the most room
-                            option = getMessageWithRoom(rateVal, totalSize);
-
-                            // Check to make sure there is an option
-                            if (option != null)
-                            {
-                                // Parse the option string to extract the sub-index (if this is a
-                                // sub-option) and the message indices
-                                Object[] parsedIndices = parseOption(option);
-
-                                // Add the variable to the given message. If a sub-index is not
-                                // given it will be set to -1. Add the list of added variables to
-                                // the list of those to exclude in the Variables tree
-                                excludedVars.addAll(addVariableToMessage(removedVars,
-                                                                         (Integer[]) parsedIndices[1],
-                                                                         (int) parsedIndices[0]));
-                            }
-                            // No option is available
-                            else
-                            {
-                                // Increment the unplaced variable counter
-                                unassigned++;
-                            }
-
-                            // Remove all the variables in removed variables list. This includes
-                            // variables that did not fit into the telemetry table
-                            varList.removeAll(removedVars);
-
-                            // Clear the removed variables list
-                            removedVars.clear();
-
-                            // Update the auto-fill progress
-                            progBar.setValue(progress);
-                            progress++;
-                        }
-                    }
-                }
-
-                // Perform any updates needed following adding variables to messages
-                updateAfterVariableAdded();
-
-                // Set the variable tree to exclude the variable(s)
-                setVariableUnavailable(excludedVars);
-            }
-
-            /**************************************************************************************
-             * Auto-fill command complete
-             *************************************************************************************/
-            @Override
-            protected void complete()
-            {
-                // Close the progress/cancellation dialog
-                cancelDialog.closeDialog();
-
-                schedulerDlg.getDialog().setModal(true);// TODO
-
-                // Display the originally selected rate's variable tree
-                schedulerInput.updateVariableTree(rateFilter.getSelectedItem().toString());
-
-                // Update the remaining bytes column values
-                schedulerEditor.updateRemainingBytesColumn();
-
-                // Update the unused bytes/time field
-                setUnusedField();
-
-                // Update the assigned variables/applications list panel
-                schedulerEditor.updateAssignmentList();
-
-                // Update the scheduler dialog's change indicator
-                getSchedulerDialog().updateChangeIndicator();
-
-                // Check if there are items that are not assigned
-                if (unassigned != 0)
-                {
-                    // Inform the user if there are items that are not assigned
-                    new CcddDialogHandler().showMessageDialog(schedulerDlg.getDialog(),
-                                                              "<html><b> Auto-fill unable to assign "
-                                                                                        + unassigned
-                                                                                        + (getSchedulerOption() == SchedulerType.TELEMETRY_SCHEDULER
-                                                                                                                                                     ? " variables"
-                                                                                                                                                     : " applications"),
-                                                              "Assign Failure",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
+                    // Display the auto-fill progress/cancellation dialog
+                    cancelDialog.showOptionsDialog(schedulerDlg.getDialog(),
+                                                   dialogPnl,
+                                                   "Auto-fill "
+                                                              + (schedulerType == SchedulerType.TELEMETRY_SCHEDULER
+                                                                                                                    ? "Telemetry Messages"
+                                                                                                                    : (schedulerType == SchedulerType.APPLICATION_SCHEDULER
+                                                                                                                                                                            ? "Time Slots"
+                                                                                                                                                                            : "")),
+                                                   DialogOption.HALT_OPTION,
+                                                   false,
+                                                   true);
                 }
             }
         });
+
+        // Perform the auto-fill operation in a background thread
+        progressThread.start();
     }
 
     /**********************************************************************************************

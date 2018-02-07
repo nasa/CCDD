@@ -66,6 +66,8 @@ public class CcddPatchHandler
 
         // Patch #07112017: Update the database comment to include the project name with
         // capitalization intact
+        // NOTE: This patch is no longer valid due to changes in the database opening sequence
+        // where the lock status is set
         updateDataBaseComment();
 
         // Patch #0712017: Update the associations table to include a description column and to
@@ -447,7 +449,6 @@ public class CcddPatchHandler
         try
         {
             CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
 
             // Get the comment for the currently open database
             String comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
@@ -470,12 +471,12 @@ public class CcddPatchHandler
                 dbCommand.executeDbCommand("COMMENT ON DATABASE "
                                            + dbControl.getDatabaseName()
                                            + " IS "
-                                           + dbTable.delimitText(CCDD_PROJECT_IDENTIFIER
-                                                                 + comment.substring(0, 1)
-                                                                 + DATABASE_COMMENT_SEPARATOR
-                                                                 + dbControl.getProjectName()
-                                                                 + DATABASE_COMMENT_SEPARATOR
-                                                                 + nameAndDesc[0].substring(1))
+                                           + CcddDbTableCommandHandler.delimitText(CCDD_PROJECT_IDENTIFIER
+                                                                                   + comment.substring(0, 1)
+                                                                                   + DATABASE_COMMENT_SEPARATOR
+                                                                                   + dbControl.getProjectName()
+                                                                                   + DATABASE_COMMENT_SEPARATOR
+                                                                                   + nameAndDesc[0].substring(1))
                                            + "; ",
                                            ccddMain.getMainFrame());
 

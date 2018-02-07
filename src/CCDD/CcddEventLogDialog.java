@@ -138,10 +138,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param isSessionLog
      *            true if this is the event log for the current session
      *********************************************************************************************/
-    CcddEventLogDialog(final CcddMain ccddMain,
-                       File logFile,
-                       Long targetRow,
-                       boolean isSessionLog)
+    CcddEventLogDialog(final CcddMain ccddMain, File logFile, Long targetRow, boolean isSessionLog)
     {
         this.ccddMain = ccddMain;
         this.isSessionLog = isSessionLog;
@@ -470,8 +467,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 {
                     // Make the logo image semi-transparent
                     Graphics2D g2 = (Graphics2D) g;
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                               0.15f));
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.15f));
 
                     // Display the CCDD logo, centered in the panel
                     g2.drawImage(image,
@@ -520,7 +516,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     // Display the row if this message type, reflected in the type column, is
                     // selected for display. The type column text contains HTML tags that must be
                     // stripped to get the type name
-                    return isFilter(getMessageType(entry.getValue(EventColumns.TYPE.ordinal()).toString().replaceAll("\\<.*?>", "")));
+                    return isFilter(getMessageType(entry.getValue(EventColumns.TYPE.ordinal())
+                                                        .toString().replaceAll("\\<.*?>", "")));
                 }
             };
 
@@ -1232,10 +1229,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                     {
                         // Open a new event log displaying the selected log entry, without
                         // constraining the message length
-                        new CcddEventLogDialog(ccddMain,
-                                               logFile,
-                                               row + 1,
-                                               false);
+                        new CcddEventLogDialog(ccddMain, logFile, row + 1, false);
                     }
                 }
             }

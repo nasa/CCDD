@@ -1311,11 +1311,11 @@ public class CcddDbVerificationHandler
                                                                                                + " WHERE "
                                                                                                + AssociationsColumn.SCRIPT_FILE.getColumnName()
                                                                                                + " = "
-                                                                                               + dbTable.delimitText(member[1])
+                                                                                               + CcddDbTableCommandHandler.delimitText(member[1])
                                                                                                + " AND "
                                                                                                + AssociationsColumn.MEMBERS.getColumnName()
                                                                                                + " = "
-                                                                                               + dbTable.delimitText(member[0])
+                                                                                               + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                                + "; "));
 
                                         // Skip any other invalid references in this association;
@@ -1341,11 +1341,11 @@ public class CcddDbVerificationHandler
                                                                                            + " WHERE "
                                                                                            + AssociationsColumn.SCRIPT_FILE.getColumnName()
                                                                                            + " = "
-                                                                                           + dbTable.delimitText(member[1])
+                                                                                           + CcddDbTableCommandHandler.delimitText(member[1])
                                                                                            + " AND "
                                                                                            + AssociationsColumn.MEMBERS.getColumnName()
                                                                                            + " = "
-                                                                                           + dbTable.delimitText(member[0])
+                                                                                           + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                            + "; "));
 
                                     // Skip any other invalid references in this association; this
@@ -1393,7 +1393,7 @@ public class CcddDbVerificationHandler
                                                                                       + " WHERE "
                                                                                       + FieldsColumn.OWNER_NAME.getColumnName()
                                                                                       + " = "
-                                                                                      + dbTable.delimitText(member[0])
+                                                                                      + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                       + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
@@ -1438,7 +1438,7 @@ public class CcddDbVerificationHandler
                                                                                  + " WHERE "
                                                                                  + GroupsColumn.MEMBERS.getColumnName()
                                                                                  + " = "
-                                                                                 + dbTable.delimitText(member[0])
+                                                                                 + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                  + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
@@ -1483,7 +1483,7 @@ public class CcddDbVerificationHandler
                                                                                    + " WHERE "
                                                                                    + LinksColumn.MEMBER.getColumnName()
                                                                                    + " = "
-                                                                                   + dbTable.delimitText(member[0])
+                                                                                   + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                    + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
@@ -1532,7 +1532,7 @@ public class CcddDbVerificationHandler
                                                                                          + " WHERE "
                                                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
                                                                                          + " = "
-                                                                                         + dbTable.delimitText(member[0])
+                                                                                         + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                          + "; "));
 
                             // Add the invalid entry to the bad reference list so that any other
@@ -1611,7 +1611,7 @@ public class CcddDbVerificationHandler
                                                                                        + " WHERE "
                                                                                        + ValuesColumn.TABLE_PATH.getColumnName()
                                                                                        + " = "
-                                                                                       + dbTable.delimitText(member[0])
+                                                                                       + CcddDbTableCommandHandler.delimitText(member[0])
                                                                                        + "; "));
 
                                 // Add the invalid entry to the bad reference list so that any

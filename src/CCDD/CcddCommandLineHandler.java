@@ -7,7 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
@@ -690,9 +689,8 @@ public class CcddCommandLineHandler
                                 {
                                     // Set the association tables. If multiple tables are provided
                                     // then separate these with the expected separator string
-                                    association[AssociationsColumn.MEMBERS.ordinal()] = scriptAndTable[1].replaceAll(" ", "")
-                                                                                                         .replaceAll(Pattern.quote("+"),
-                                                                                                                     ASSN_TABLE_SEPARATOR);
+                                    association[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler.convertAssociationMembersFormat(scriptAndTable[1],
+                                                                                                                                          true);
                                 }
 
                                 // Add the association to the list

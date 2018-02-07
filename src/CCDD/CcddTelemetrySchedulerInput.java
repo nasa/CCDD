@@ -683,8 +683,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
     @Override
     public String[] getAvailableRates()
     {
-        return ccddMain.getRateParameterHandler().getRatesInUse(rateName,
-                                                                schedulerDlg);
+        return ccddMain.getRateParameterHandler().getRatesInUse(rateName, schedulerDlg);
     }
 
     /**********************************************************************************************
