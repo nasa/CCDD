@@ -28,14 +28,27 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.ccsds.schema.sois.seds.CCDDDataFieldSet;
+import org.ccsds.schema.sois.seds.CCDDDataFieldSet.CCDDDataFieldData;
 import org.ccsds.schema.sois.seds.CommandArgumentType;
 import org.ccsds.schema.sois.seds.DataSheetType;
 import org.ccsds.schema.sois.seds.DataTypeSetType;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDDataTypeSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDDataTypeSet.CCDDDataTypeData;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDMacroSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDMacroSet.CCDDMacroData;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDReservedMessageIDSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDReservedMessageIDSet.CCDDReservedMessageIDData;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDTableColumnSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDTableColumnSet.CCDDTableColumnData;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDTableTypeDefinitionSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDTableTypeDefinitionSet.CCDDTableTypeDefinitionData;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDTableTypeDefinitionSet.CCDDTableTypeDefinitionData.CCDDTableTypeDefinitionColumn;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDVariablePathSet;
+import org.ccsds.schema.sois.seds.DescriptionType.CCDDVariablePathSet.CCDDVariablePathData;
 import org.ccsds.schema.sois.seds.DeviceType;
 import org.ccsds.schema.sois.seds.EnumeratedDataType;
 import org.ccsds.schema.sois.seds.EnumerationListType;
-import org.ccsds.schema.sois.seds.FloatDataType;
-import org.ccsds.schema.sois.seds.GenericTypeType;
 import org.ccsds.schema.sois.seds.IntegerDataEncodingType;
 import org.ccsds.schema.sois.seds.IntegerDataType;
 import org.ccsds.schema.sois.seds.IntegerEncodingType;
@@ -46,7 +59,6 @@ import org.ccsds.schema.sois.seds.NamespaceType;
 import org.ccsds.schema.sois.seds.ObjectFactory;
 import org.ccsds.schema.sois.seds.RootDataType;
 import org.ccsds.schema.sois.seds.SemanticsType;
-import org.ccsds.schema.sois.seds.StringDataType;
 import org.ccsds.schema.sois.seds.Unit;
 import org.ccsds.schema.sois.seds.ValueEnumerationType;
 
@@ -57,13 +69,10 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
-import CCDD.CcddConstants.BaseDataTypeInfo;
-import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
-import CCDD.CcddConstants.TableTypeEditorColumnInfo;
+import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -118,14 +127,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private enum EDSTags
     {
         TABLE("Table"),
-        TABLE_TYPE("Table type"),
-        COLUMN("Column data"),
-        DATA_FIELD("Data field"),
-        ENUMERATION("Enumeration"),
-        PRIMITIVE("Primitive"),
-        STRUCTURE("Structure"),
-        DATA_TYPE("Data type"),
-        MACRO("Macro"),
+        TABLE_TYPE("Table Type Definition"),
+        DATA_TYPE("Data Type Definition"),
+        MACRO("Macro Definition"),
         RESERVED_MSG_ID("Reserved Message ID"),
         VARIABLE_PATH("Variable Path");
 
@@ -150,42 +154,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         protected String getTag()
         {
             return tag;
-        }
-
-        /******************************************************************************************
-         * Get the column tag
-         *
-         * @param columnName
-         *            column name
-         *
-         * @param row
-         *            row number for which the column data applies
-         *
-         * @return Text describing the column, using the column name and row number
-         *****************************************************************************************/
-        protected String getColumnIdentifier(String columnName, int row)
-        {
-            return columnName + " : Row: " + String.valueOf(row);
-        }
-
-        /******************************************************************************************
-         * Get the index of the column name within the column tag string
-         *
-         * @return Index of the column name within the column tag string
-         *****************************************************************************************/
-        protected static int getColumnNameIndex()
-        {
-            return 0;
-        }
-
-        /******************************************************************************************
-         * Get the index of the row index within the column tag string
-         *
-         * @return Index of the row index within the column tag string
-         *****************************************************************************************/
-        protected static int getRowIndex()
-        {
-            return 2;
         }
     }
 
@@ -486,30 +454,30 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         separators);
 
         // Build a name space for the table types
-        buildTableTypesNameSpace();
+        exportTableTypesNameSpace();
 
         // Build a name space for the primitive data types
-        buildDataTypesNameSpace();
+        exportDataTypesNameSpace();
 
         // Check if the macro names are to be retained
         if (!replaceMacros)
         {
             // Create a name space and populate it with the macro definitions
-            buildMacrosNameSpace();
+            exportMacrosNameSpace();
         }
 
         // Check if the user elected to store the reserved message IDs
         if (includeReservedMsgIDs)
         {
             // Build a name space for the reserved message IDs
-            buildReservedMsgIDNameSpace();
+            exportReservedMsgIDNameSpace();
         }
 
         // Check if the user elected to store the variable paths
         if (includeVariablePaths)
         {
             // Build a name space for the variable paths (if any)
-            buildVariablePathNameSpace(variableHandler, separators);
+            exportVariablePathNameSpace(variableHandler, separators);
         }
     }
 
@@ -537,13 +505,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
         // Flags indicating if importing should continue after an input error is detected
-        boolean continueOnTableTypeError = false;
-        boolean continueOnDataTypeError = false;
-        boolean continueOnMacroError = false;
-        boolean continueOnReservedMsgIDError = false;
         boolean continueOnColumnError = false;
         boolean continueOnDataFieldError = false;
-        boolean continueOnTableTypeFieldError = false;
 
         // Get a list of defined name spaces
         List<NamespaceType> nameSpaces = dataSheet.getNamespace();
@@ -558,466 +521,38 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Step through each name space
                 for (NamespaceType nameSpace : nameSpaces)
                 {
-                    // Check if this is the table type definitions name space and if an interface
-                    // set exists
-                    if (pass == 1
-                        && nameSpace.getName().equals(EDSTags.TABLE_TYPE.getTag())
-                        && nameSpace.getDeclaredInterfaceSet() != null)
+                    // Check if this is the table type definitions name space
+                    if (pass == 1 && nameSpace.getName().equals(EDSTags.TABLE_TYPE.getTag()))
                     {
-                        List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
-
-                        // Step through the interfaces in order to locate the name space's
-                        // parameter and command sets
-                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                        {
-                            // Check if this interface contains a generic type set
-                            if (intfcDecType.getGenericTypeSet() != null
-                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
-                            {
-                                // Check if this is the table type definition
-                                if (intfcDecType.getName().startsWith(EDSTags.TABLE_TYPE.getTag()))
-                                {
-                                    // Step through each generic type data
-                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                                    {
-                                        // Check if the table type inputs are present
-                                        if (genType.getName() != null
-                                            && genType.getShortDescription() != null)
-                                        {
-                                            // Get the table type inputs. If not present use a
-                                            // blank to prevent an error when separating the inputs
-                                            String inputs = genType.getShortDescription() != null
-                                                                                                  ? genType.getShortDescription()
-                                                                                                  : "";
-
-                                            // Extract the table type information
-                                            String[] definition = CcddUtilities.splitAndRemoveQuotes("\""
-                                                                                                     + genType.getName()
-                                                                                                     + "\","
-                                                                                                     + inputs);
-
-                                            // Check if the expected number of inputs is present
-                                            if ((definition.length - 2) % (TableTypeEditorColumnInfo.values().length - 1) == 0)
-                                            {
-                                                // Create the table type definition, supplying the
-                                                // name and description
-                                                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(definition[0],
-                                                                                                            definition[1]);
-                                                tableTypeDefns.add(tableTypeDefn);
-
-                                                // Step through each column definition (ignoring
-                                                // the primary key and row index columns)
-                                                for (int columnNumber = NUM_HIDDEN_COLUMNS, index = 2; index < definition.length; columnNumber++, index += TableTypeEditorColumnInfo.values().length - 1)
-                                                {
-                                                    // Add the table type column definition,
-                                                    // checking for (and if possible, correcting)
-                                                    // errors
-                                                    continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
-                                                                                                              tableTypeDefn,
-                                                                                                              new String[] {String.valueOf(columnNumber),
-                                                                                                                            definition[TableTypeEditorColumnInfo.NAME.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.UNIQUE.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.REQUIRED.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() + index - 1],
-                                                                                                                            definition[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() + index - 1]},
-                                                                                                              importFileName,
-                                                                                                              parent);
-                                                }
-                                            }
-                                            // The number of inputs is incorrect
-                                            else
-                                            {
-                                                // Check if the error should be ignored or the
-                                                // import canceled
-                                                continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                            "<html><b>Table type '"
-                                                                                                                      + genType.getName()
-                                                                                                                      + "' definition has missing or extra "
-                                                                                                                      + "input(s) in import file '</b>"
-                                                                                                                      + importFileName
-                                                                                                                      + "<b>'; continue?",
-                                                                                            "Table Type Error",
-                                                                                            "Ignore this table type",
-                                                                                            "Ignore this and any remaining invalid table types",
-                                                                                            "Stop importing",
-                                                                                            parent);
-                                            }
-                                        }
-                                        // The name and/or description is missing
-                                        else
-                                        {
-                                            // Check if the error should be ignored or the import
-                                            // canceled
-                                            continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                        "<html><b>Missing table type "
-                                                                                                                  + "name in import file '</b>"
-                                                                                                                  + importFileName
-                                                                                                                  + "<b>'; continue?",
-                                                                                        "Table Type Error",
-                                                                                        "Ignore this table type",
-                                                                                        "Ignore this and any remaining invalid table types",
-                                                                                        "Stop importing",
-                                                                                        parent);
-                                        }
-                                    }
-                                }
-                                // Check if this is the table type data field definition
-                                else if (intfcDecType.getName().startsWith(EDSTags.DATA_FIELD.getTag()))
-                                {
-                                    // Step through each generic type data
-                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                                    {
-                                        // Check if the table type data field inputs are present
-                                        if (genType.getName() != null
-                                            && genType.getShortDescription() != null)
-                                        {
-                                            // Extract the table type owner of this data field
-                                            String tableTypeName = genType.getName().replaceFirst(".*:", "");
-
-                                            // Step through the table type definitions
-                                            for (TableTypeDefinition tableTypeDefn : tableTypeDefns)
-                                            {
-                                                // Check if the table type name matches
-                                                if (tableTypeName.equals(tableTypeDefn.getTypeName()))
-                                                {
-                                                    // Get the data field inputs. If not present
-                                                    // use a blank to prevent an error when
-                                                    // separating the inputs
-                                                    String inputs = genType.getShortDescription() != null
-                                                                                                          ? genType.getShortDescription()
-                                                                                                          : "";
-
-                                                    // Parse data field. The values are
-                                                    // comma-separated; however, commas within
-                                                    // quotes are ignored - this allows commas to
-                                                    // be included in the data values
-                                                    String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
-                                                                                                            + CcddFieldHandler.getFieldTypeName(tableTypeName)
-                                                                                                            + "\","
-                                                                                                            + inputs);
-
-                                                    // Check if the expected number of inputs is
-                                                    // present
-                                                    if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
-                                                    {
-                                                        // Add the data field definition, checking
-                                                        // for (and if possible, correcting) errors
-                                                        continueOnTableTypeFieldError = addImportedDataFieldDefinition(continueOnTableTypeFieldError,
-                                                                                                                       tableTypeDefn,
-                                                                                                                       fieldDefn,
-                                                                                                                       importFileName,
-                                                                                                                       parent);
-                                                    }
-                                                    // The number of inputs is incorrect
-                                                    else
-                                                    {
-                                                        // Check if the error should be ignored or
-                                                        // the import canceled
-                                                        continueOnTableTypeFieldError = getErrorResponse(continueOnTableTypeFieldError,
-                                                                                                         "<html><b>Table type '</b>"
-                                                                                                                                        + tableTypeName
-                                                                                                                                        + "<b>' has missing or extra data field "
-                                                                                                                                        + "input(s) in import file '</b>"
-                                                                                                                                        + importFileName
-                                                                                                                                        + "<b>'; continue?",
-                                                                                                         "Data Field Error",
-                                                                                                         "Ignore this invalid data field",
-                                                                                                         "Ignore this and any remaining invalid data fields",
-                                                                                                         "Stop importing",
-                                                                                                         parent);
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Add the table type if it's new or match it to an existing one with the
-                        // same name if the type definitions are the same
-                        String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
-                                                                           fieldHandler);
-
-                        // Check if a table type isn't new and doesn't match an existing one with
-                        // the same name
-                        if (badDefn != null)
-                        {
-                            throw new CCDDException("Imported table type '"
-                                                    + badDefn
-                                                    + "' doesn't match the existing definition");
-                        }
+                        // Import the table type definitions
+                        importTableTypeDefinitions(nameSpace, importFileName);
                     }
-                    // Check if all definitions are to be loaded, this is the primitive data type
-                    // definitions name space, and an interface set exists
+                    // Check if all definitions are to be loaded and this is the primitive data
+                    // type definitions name space
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
-                             && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag())
-                             && nameSpace.getDataTypeSet() != null)
+                             && nameSpace.getName().equals(EDSTags.DATA_TYPE.getTag()))
                     {
-                        // Get the data types defined in the data set
-                        List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
-
-                        // Step through each data type
-                        for (RootDataType rDataType : dataTypes)
-                        {
-                            // Set the data type name and initialize the size and base type values
-                            String dataType = rDataType.getName();
-                            String sizeInBytes = "";
-                            String baseType = "";
-
-                            // Check if this is an integer data type
-                            if (rDataType instanceof IntegerDataType)
-                            {
-                                IntegerDataType iDataType = (IntegerDataType) rDataType;
-                                IntegerDataEncodingType intEncode = iDataType.getIntegerDataEncoding();
-
-                                // Check if the size exists
-                                if (intEncode.getSizeInBits() != null)
-                                {
-                                    // Get the integer's size in bytes
-                                    sizeInBytes = String.valueOf(intEncode.getSizeInBits().intValue() / 8);
-                                }
-
-                                // Check if the integer is unsigned
-                                if (intEncode.getEncoding() == IntegerEncodingType.UNSIGNED)
-                                {
-                                    // Set the base type to indicate an unsigned integer
-                                    baseType = BaseDataTypeInfo.UNSIGNED_INT.getName();
-                                }
-                                // The integer is signed
-                                else
-                                {
-                                    // Set the base type to indicate a signed integer
-                                    baseType = BaseDataTypeInfo.SIGNED_INT.getName();
-                                }
-                            }
-                            // Check if this is a floating point data type
-                            else if (rDataType instanceof FloatDataType)
-                            {
-                                // Set the base type to indicate a floating point
-                                baseType = BaseDataTypeInfo.FLOATING_POINT.getName();
-                            }
-                            // Check if this is a string data type
-                            else if (rDataType instanceof StringDataType)
-                            {
-                                // Set the base type to indicate a character
-                                baseType = BaseDataTypeInfo.CHARACTER.getName();
-                            }
-
-                            // Add the data type definition to the list (add a blank for the OID
-                            // column)
-                            dataTypeDefns.add(new String[] {dataType,
-                                                            dataType,
-                                                            sizeInBytes,
-                                                            baseType,
-                                                            ""});
-                        }
-
-                        // Step through the interfaces in order to locate the name space's
-                        // parameter and command sets
-                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                        {
-                            // Check if this interface contains a generic type set
-                            if (intfcDecType.getGenericTypeSet() != null
-                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
-                            {
-                                // Step through each generic type data
-                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                                {
-                                    // Check if the expected inputs are present
-                                    if (genType.getName() != null
-                                        && genType.getShortDescription() != null)
-                                    {
-                                        boolean isFound = false;
-
-                                        // Build the data type definition from the generic type
-                                        // data
-                                        String[] typeDefn = (genType.getName()
-                                                             + ","
-                                                             + genType.getShortDescription()
-                                                             + ",\"\"").split(",", -1);
-
-                                        // Step through the data type definitions already added
-                                        for (int index = 0; index < dataTypeDefns.size(); index++)
-                                        {
-                                            // Check if the data type in the generic set matches an
-                                            // existing one from the data set
-                                            if (CcddDataTypeHandler.getDataTypeName(typeDefn).equals(CcddDataTypeHandler.getDataTypeName(dataTypeDefns.get(index))))
-                                            {
-                                                // Set the flag to indicate a match exists
-                                                isFound = true;
-
-                                                // Check if the user name is empty in either the
-                                                // data set or generic type set. This accounts for
-                                                // definitions with a blank user name (i.e., the C
-                                                // name is used as the data type name)
-                                                if (dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()].isEmpty()
-                                                    || typeDefn[DataTypesColumn.USER_NAME.ordinal()].isEmpty())
-                                                {
-                                                    // Set the user name to the one from the
-                                                    // generic set
-                                                    dataTypeDefns.get(index)[DataTypesColumn.USER_NAME.ordinal()] = typeDefn[DataTypesColumn.USER_NAME.ordinal()];
-                                                }
-
-                                                // Check if the data set C name is blank
-                                                if (dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()].isEmpty())
-                                                {
-                                                    // Set the C name to the one from the generic
-                                                    // set
-                                                    dataTypeDefns.get(index)[DataTypesColumn.C_NAME.ordinal()] = typeDefn[DataTypesColumn.C_NAME.ordinal()];
-                                                }
-
-                                                // Check if the data set size is blank
-                                                if (dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()].isEmpty())
-                                                {
-                                                    // Set the size to the one from the generic set
-                                                    dataTypeDefns.get(index)[DataTypesColumn.SIZE.ordinal()] = typeDefn[DataTypesColumn.SIZE.ordinal()];
-                                                }
-
-                                                // Check if the data set base type is blank
-                                                if (dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()].isEmpty())
-                                                {
-                                                    // Set the base type to the one from the
-                                                    // generic set
-                                                    dataTypeDefns.get(index)[DataTypesColumn.BASE_TYPE.ordinal()] = typeDefn[DataTypesColumn.BASE_TYPE.ordinal()];
-                                                }
-
-                                                break;
-                                            }
-                                        }
-
-                                        // Check if the data type doesn't match one already added
-                                        // from the data set
-                                        if (!isFound)
-                                        {
-                                            // Add the data type definition to the list (add a
-                                            // blank for the OID column)
-                                            dataTypeDefns.add(typeDefn);
-                                        }
-                                    }
-                                    // The name and/or description is missing
-                                    else
-                                    {
-                                        // Check if the error should be ignored or the import
-                                        // canceled
-                                        continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
-                                                                                   "<html><b>Missing or extra data type definition input(s) in import file '</b>"
-                                                                                                            + importFileName
-                                                                                                            + "<b>'; continue?",
-                                                                                   "Data Type Error",
-                                                                                   "Ignore this data type",
-                                                                                   "Ignore this and any remaining invalid data types",
-                                                                                   "Stop importing",
-                                                                                   parent);
-                                    }
-                                }
-                            }
-                        }
+                        // Import the data type definitions
+                        importDataTypeDefinitions(nameSpace, importFileName);
                     }
-                    // Check if all definitions are to be loaded, this is the macro definitions
-                    // name space, and an interface set exists
+                    // Check if all definitions are to be loaded and this is the macro definitions
+                    // name space
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
-                             && nameSpace.getName().equals(EDSTags.MACRO.getTag())
-                             && nameSpace.getDeclaredInterfaceSet() != null)
+                             && nameSpace.getName().equals(EDSTags.MACRO.getTag()))
                     {
-                        // Step through the interfaces in order to locate the name space's
-                        // parameter and command sets
-                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                        {
-                            // Check if this interface contains a generic type set
-                            if (intfcDecType.getGenericTypeSet() != null
-                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                                && intfcDecType.getName().startsWith(EDSTags.MACRO.getTag()))
-                            {
-                                // Step through each generic type data
-                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                                {
-                                    // Check that the macro name is present
-                                    if (genType.getName() != null)
-                                    {
-                                        // Add the macro definition to the list (add a blank for
-                                        // the OID column)
-                                        macroDefns.add(new String[] {genType.getName(),
-                                                                     (genType.getShortDescription() != null
-                                                                                                            ? genType.getShortDescription()
-                                                                                                            : ""),
-                                                                     ""});
-                                    }
-                                    // The name is missing
-                                    else
-                                    {
-                                        // Check if the error should be ignored or the import
-                                        // canceled
-                                        continueOnMacroError = getErrorResponse(continueOnMacroError,
-                                                                                "<html><b>Missing or extra macro definition "
-                                                                                                      + "input(s) in import file '</b>"
-                                                                                                      + importFileName
-                                                                                                      + "<b>'; continue?",
-                                                                                "Macro Error",
-                                                                                "Ignore this macro",
-                                                                                "Ignore this and any remaining invalid macros",
-                                                                                "Stop importing",
-                                                                                parent);
-                                    }
-                                }
-                            }
-                        }
+                        // Import the macro definitions
+                        importMacroDefinitions(nameSpace, importFileName);
                     }
-                    // Check if all definitions are to be loaded, this is the reserved message ID
-                    // definitions name space, and an interface set exists
+                    // Check if all definitions are to be loaded and this is the reserved message
+                    // ID definitions name space
                     else if (pass == 1
                              && importType == ImportType.IMPORT_ALL
-                             && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag())
-                             && nameSpace.getDeclaredInterfaceSet() != null)
+                             && nameSpace.getName().equals(EDSTags.RESERVED_MSG_ID.getTag()))
                     {
-                        // Step through the interfaces in order to locate the name space's
-                        // parameter and command sets
-                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-                        {
-                            // Check if this interface contains a generic type set
-                            if (intfcDecType.getGenericTypeSet() != null
-                                && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty()
-                                && intfcDecType.getName().startsWith(EDSTags.RESERVED_MSG_ID.getTag()))
-                            {
-                                // Step through each generic type data
-                                for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
-                                {
-                                    // Check that the reserved message ID is present
-                                    if (genType.getName() != null)
-                                    {
-                                        // Add the reserved message ID definition to the list (add
-                                        // a blank for the OID column)
-                                        reservedMsgIDDefns.add(new String[] {genType.getName(),
-                                                                             (genType.getShortDescription() != null
-                                                                                                                    ? genType.getShortDescription()
-                                                                                                                    : ""),
-                                                                             ""});
-                                    }
-                                    // The name is missing
-                                    else
-                                    {
-                                        // Check if the error should be ignored or the import
-                                        // canceled
-                                        continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
-                                                                                        "<html><b>Missing or extra reserved message ID "
-                                                                                                                      + "definition input(s) in import file '</b>"
-                                                                                                                      + importFileName
-                                                                                                                      + "<b>'; continue?",
-                                                                                        "Reserved Message ID Error",
-                                                                                        "Ignore this reserved message ID",
-                                                                                        "Ignore this and any remaining invalid reserved message IDs",
-                                                                                        "Stop importing",
-                                                                                        parent);
-                                    }
-                                }
-                            }
-                        }
+                        // Import the reserved message ID definitions
+                        importReservedMsgIDDefinitions(nameSpace, importFileName);
                     }
                     // Check if all definitions are to be loaded or that this is the first table,
                     // this is a table definition name space, an interface set exists, and that the
@@ -1036,8 +571,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         int descriptionIndex = -1;
                         int commandNameIndex = -1;
                         int cmdDescriptionIndex = -1;
-                        int cmdArgIndex = -1;
-                        String command = "";
                         TableDefinition tableDefn = null;
 
                         // Separate the name space name into the tag, table name, and (optional)
@@ -1050,382 +583,468 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         tableDefn = new TableDefinition(nameParts[1].trim(),
                                                         nameSpace.getShortDescription());
 
-                        // Make three passes through the name space interface. The first pass
-                        // processes the telemetry and command interfaces, and the generic types
-                        // not associated with table column data. The second pass processes the
-                        // enumerations in the data set. The third pass processes the generic type
-                        // column data, only using it if a cell value is still empty after being
-                        // populated by the telemetry or command interface data
-                        for (int loop = 1; loop <= 3; loop++)
+                        /**************************************************************************
+                         * Overall table information processing
+                         *************************************************************************/
+                        // Check if the table type name exists
+                        if (nameSpace.getCCDDTableType() != null)
                         {
-                            // Check if this is the second pass, a data set exists, and the command
-                            // name column is present in the data type
-                            if (loop == 2
-                                && nameSpace.getDataTypeSet() != null
-                                && commandNameIndex != -1)
+                            tableDefn.setTypeName(nameSpace.getCCDDTableType());
+
+                            // Get the table's type definition based on the type name
+                            typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
+
+                            // Check if the table type isn't recognized
+                            if (typeDefn == null)
                             {
-                                // Get the reference to the data type sets
-                                List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
+                                throw new CCDDException("unknown table type '"
+                                                        + tableDefn.getTypeName()
+                                                        + "'");
+                            }
 
-                                // Step through each data type set
-                                for (RootDataType rDataType : dataTypes)
+                            // Get the number of visible columns for this table type
+                            numColumns = typeDefn.getColumnCountVisible();
+
+                            // Check if this is a structure type table
+                            if (typeDefn.isStructure())
+                            {
+                                // Get the structure column indices, if this is a structure type
+                                variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
+                                dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
+                                descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+                            }
+                            // Check if this is a command type table
+                            else if (typeDefn.isCommand())
+                            {
+                                // Get the list containing command argument name, data type,
+                                // enumeration, minimum, maximum, and other associated column
+                                // indices for each argument grouping
+                                commandArguments = typeDefn.getAssociatedCommandArgumentColumns(true);
+
+                                // Get the command name column
+                                commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
+
+                                // Get the command description column. If the default command
+                                // description column name isn't used then the first column
+                                // containing 'description' is selected that doesn't refer to a
+                                // command argument
+                                cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+
+                                // Check if the description column belongs to a command argument
+                                if (commandArguments.size() != 0
+                                    && cmdDescriptionIndex > commandArguments.get(0).getName())
                                 {
-                                    // Check if this is an enumerated data type set
-                                    if (rDataType instanceof EnumeratedDataType)
+                                    // Reset the command description index to indicate no
+                                    // description exists
+                                    cmdDescriptionIndex = -1;
+                                }
+                            }
+                        }
+
+                        // Check if the table has any data field assigned
+                        if (nameSpace.getCCDDTableDataFieldSet() != null)
+                        {
+                            // Step through the table type data field definitions
+                            for (CCDDDataFieldData dataFieldData : nameSpace.getCCDDTableDataFieldSet().getCCDDDataFieldData())
+                            {
+                                // Check if the expected number of inputs is present
+                                if (dataFieldData.getName() != null
+                                    && dataFieldData.getDescription() != null
+                                    && dataFieldData.getSize() != null
+                                    && dataFieldData.getApplicability() != null
+                                    && dataFieldData.getValue() != null)
+                                {
+                                    // Add the data field definition, checking for (and if
+                                    // possible, correcting) errors
+                                    continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
+                                                                                              tableDefn,
+                                                                                              new String[] {CcddFieldHandler.getFieldTypeName(tableDefn.getName()),
+                                                                                                            dataFieldData.getName(),
+                                                                                                            dataFieldData.getDescription(),
+                                                                                                            dataFieldData.getSize().toString(),
+                                                                                                            dataFieldData.getInputType(),
+                                                                                                            Boolean.toString(dataFieldData.isRequired()),
+                                                                                                            dataFieldData.getApplicability(),
+                                                                                                            dataFieldData.getValue()},
+                                                                                              importFileName,
+                                                                                              parent);
+                                }
+                                // The number of inputs is incorrect
+                                else
+                                {
+                                    // Check if the error should be ignored or the import canceled
+                                    continueOnDataFieldError = getErrorResponse(continueOnDataFieldError,
+                                                                                "<html><b>Table '</b>"
+                                                                                                          + tableDefn.getName()
+                                                                                                          + "<b>' has missing data "
+                                                                                                          + "field input(s) in import file '</b>"
+                                                                                                          + importFileName
+                                                                                                          + "<b>'; continue?",
+                                                                                "Data Field Error",
+                                                                                "Ignore this invalid data field",
+                                                                                "Ignore this and any remaining invalid data fields",
+                                                                                "Stop importing",
+                                                                                parent);
+                                }
+                            }
+                        }
+
+                        /**************************************************************************
+                         * Non-telemetry and non-command table processing
+                         *************************************************************************/
+                        // Check if column data exists
+                        if (nameSpace.getCCDDTableColumnSet() != null)
+                        {
+                            // Step through each column's data
+                            for (CCDDTableColumnData columnData : nameSpace.getCCDDTableColumnSet().getCCDDTableColumnData())
+                            {
+                                // Get the row number and column name, and use the column name to
+                                // get the column index
+                                int row = Integer.valueOf(columnData.getRowNumber().toString());
+                                String columnName = columnData.getColumnName();
+                                int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
+
+                                // Check that the column exists in the table
+                                if (column != -1)
+                                {
+                                    // Add one or more rows until the row is created containing
+                                    // this column value
+                                    while (row * numColumns >= tableDefn.getData().size())
                                     {
-                                        EnumeratedDataType eDataType = (EnumeratedDataType) rDataType;
+                                        // Create a row with empty columns and add the new row to
+                                        // the table data
+                                        String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                        Arrays.fill(newRow, null);
+                                        tableDefn.addData(newRow);
+                                    }
 
-                                        // Get the list of enumerated values and associated labels
-                                        EnumerationListType enumList = eDataType.getEnumerationList();
+                                    // Replace the value for the specified column
+                                    tableDefn.getData().set(row * numColumns + column,
+                                                            columnData.getValue());
+                                }
+                                // The column doesn't exist
+                                else
+                                {
+                                    // Check if the error should be ignored or the import canceled
+                                    continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                                             "<html><b>Table '</b>"
+                                                                                                    + tableDefn.getName()
+                                                                                                    + "<b>' column name '</b>"
+                                                                                                    + columnName
+                                                                                                    + "<b>' unrecognized in import file '</b>"
+                                                                                                    + importFileName
+                                                                                                    + "<b>'; continue?",
+                                                                             "Column Error",
+                                                                             "Ignore this invalid column name",
+                                                                             "Ignore this and any remaining invalid column names",
+                                                                             "Stop importing",
+                                                                             parent);
+                                }
+                            }
+                        }
 
-                                        // Check if any enumerations exist
-                                        if (enumList != null)
+                        // Step through the interfaces in order to locate the name space's
+                        // parameter, command, and generic sets
+                        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                        {
+                            /**********************************************************************
+                             * Telemetry processing
+                             *********************************************************************/
+                            // Check if the interface contains a parameter set
+                            if (intfcDecType.getParameterSet() != null
+                                && !intfcDecType.getParameterSet().getParameter().isEmpty())
+                            {
+                                // Step through each parameter
+                                for (InterfaceParameterType parmType : intfcDecType.getParameterSet().getParameter())
+                                {
+                                    // Create a new row of data in the table definition to contain
+                                    // this structure's information. Initialize all columns to
+                                    // blanks except for the variable name
+                                    String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                    Arrays.fill(newRow, null);
+                                    newRow[variableNameIndex] = parmType.getName();
+
+                                    // Check if a data type exists
+                                    if (parmType.getType() != null
+                                        && !parmType.getType().isEmpty())
+                                    {
+                                        // Store the data type for this variable
+                                        newRow[dataTypeIndex] = parmType.getType().replaceFirst("^[^/]*/",
+                                                                                                "");
+                                    }
+
+                                    // Check if the description column exists in the table type
+                                    // definition and that a description exists
+                                    if (descriptionIndex != -1
+                                        && parmType.getShortDescription() != null)
+                                    {
+                                        // Store the description for this variable
+                                        newRow[descriptionIndex] = parmType.getShortDescription();
+                                    }
+
+                                    // Check if column data exists for this row
+                                    if (parmType.getCCDDTableColumnSet() != null)
+                                    {
+                                        // Step through each column's data
+                                        for (CCDDTableColumnData columnData : parmType.getCCDDTableColumnSet().getCCDDTableColumnData())
                                         {
-                                            String enumeration = null;
+                                            // Get the column name and use it to get the column
+                                            // index
+                                            String columnName = columnData.getColumnName();
+                                            int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
-                                            // Step through each enumeration
-                                            for (ValueEnumerationType enumType : enumList.getEnumeration())
+                                            // Check that the column exists in the table
+                                            if (column != -1)
                                             {
-                                                // Check if this is the first value
-                                                if (enumeration == null)
-                                                {
-                                                    enumeration = "";
-                                                }
-                                                // Not the first value
-                                                else
-                                                {
-                                                    enumeration += ", ";
-                                                }
-
-                                                // Build the enumeration
-                                                enumeration += enumType.getValue()
-                                                               + " | "
-                                                               + enumType.getLabel();
+                                                // Store the column's value in the row data
+                                                newRow[column] = columnData.getValue();
                                             }
-
-                                            // Check if the command name changed
-                                            if (!eDataType.getShortDescription().equals(command))
+                                            // The column doesn't exist
+                                            else
                                             {
-                                                // Reset the argument index
-                                                cmdArgIndex = -1;
-                                            }
-
-                                            // Increment the argument index and store the command
-                                            // name for which this argument is a member
-                                            cmdArgIndex++;
-                                            command = eDataType.getShortDescription();
-
-                                            // Step through each row of table data
-                                            for (int row = 0; row < tableDefn.getData().size(); row += numColumns)
-                                            {
-                                                // Check if the command name matches the one in the
-                                                // table data for this row
-                                                if (tableDefn.getData().get(row + commandNameIndex) != null
-                                                    && tableDefn.getData().get(row + commandNameIndex).equals(command)
-                                                    && cmdArgIndex < commandArguments.size())
-                                                {
-                                                    // Get the command argument reference
-                                                    AssociatedColumns cmdArg = commandArguments.get(cmdArgIndex);
-
-                                                    // Check if the command argument enumeration is
-                                                    // present
-                                                    if (cmdArg.getEnumeration() != -1
-                                                        && enumeration != null)
-                                                    {
-                                                        // Store the command argument enumeration
-                                                        tableDefn.getData().set(row
-                                                                                + cmdArg.getEnumeration(),
-                                                                                enumeration);
-                                                    }
-                                                }
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                                                         "<html><b>Table '</b>"
+                                                                                                                + tableDefn.getName()
+                                                                                                                + "<b>' column name '</b>"
+                                                                                                                + columnName
+                                                                                                                + "<b>' unrecognized in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                         "Column Error",
+                                                                                         "Ignore this invalid column name",
+                                                                                         "Ignore this and any remaining invalid column names",
+                                                                                         "Stop importing",
+                                                                                         parent);
                                             }
                                         }
                                     }
+
+                                    // Add the new row to the table definition
+                                    tableDefn.addData(newRow);
                                 }
                             }
 
-                            // Step through the interfaces in order to locate the name space's
-                            // parameter, command, and generic sets
-                            for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+                            /**********************************************************************
+                             * Command processing
+                             *********************************************************************/
+                            // Check if the interface contains a command set
+                            if (intfcDecType.getCommandSet() != null
+                                && !intfcDecType.getCommandSet().getCommand().isEmpty())
                             {
-                                // Check if this is the first pass
-                                if (loop == 1)
+                                // Step through each command
+                                for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
                                 {
-                                    /**************************************************************
-                                     * Telemetry processing
-                                     *************************************************************/
-                                    // Check if the interface contains a parameter set
-                                    if (intfcDecType.getParameterSet() != null
-                                        && !intfcDecType.getParameterSet().getParameter().isEmpty())
+                                    // Create a new row of data in the table definition to contain
+                                    // this command's information. Initialize all columns to blanks
+                                    // except for the command name
+                                    String[] newRow = new String[typeDefn.getColumnCountVisible()];
+                                    Arrays.fill(newRow, null);
+                                    newRow[commandNameIndex] = cmdType.getName();
+
+                                    // Check if the command description is present and the
+                                    // description column exists in the table type definition
+                                    if (cmdType.getShortDescription() != null
+                                        && cmdDescriptionIndex != -1)
                                     {
-                                        // Step through each parameter
-                                        for (InterfaceParameterType parmType : intfcDecType.getParameterSet().getParameter())
-                                        {
-                                            // Create a new row of data in the table definition to
-                                            // contain this structure's information. Initialize all
-                                            // columns to blanks except for the variable name
-                                            String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                            Arrays.fill(newRow, null);
-                                            newRow[variableNameIndex] = parmType.getName();
-
-                                            // Check if a data type exists
-                                            if (parmType.getType() != null
-                                                && !parmType.getType().isEmpty())
-                                            {
-                                                // Store the data type for this variable
-                                                newRow[dataTypeIndex] = parmType.getType().replaceFirst("^[^/]*/",
-                                                                                                        "");
-                                            }
-
-                                            // Check if the description column exists in the table
-                                            // type definition and that a description exists
-                                            if (descriptionIndex != -1
-                                                && parmType.getShortDescription() != null)
-                                            {
-                                                // Store the description for this variable
-                                                newRow[descriptionIndex] = parmType.getShortDescription();
-                                            }
-
-                                            // Add the new row to the table definition
-                                            tableDefn.addData(newRow);
-                                        }
+                                        // Store the command description in the row's description
+                                        // column
+                                        newRow[cmdDescriptionIndex] = cmdType.getShortDescription();
                                     }
 
-                                    /**************************************************************
-                                     * Command processing
-                                     *************************************************************/
-                                    // Check if the interface contains a command set
-                                    if (intfcDecType.getCommandSet() != null
-                                        && !intfcDecType.getCommandSet().getCommand().isEmpty())
+                                    // Check if any overall columns are defined for this row
+                                    if (cmdType.getCCDDTableColumnSet() != null)
                                     {
-                                        // Step through each command
-                                        for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
+                                        // Step through each column's data
+                                        for (CCDDTableColumnData columnData : cmdType.getCCDDTableColumnSet().getCCDDTableColumnData())
                                         {
-                                            // Create a new row of data in the table definition to
-                                            // contain this command's information. Initialize all
-                                            // columns to blanks except for the command name
-                                            String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                            Arrays.fill(newRow, null);
-                                            newRow[commandNameIndex] = cmdType.getName();
+                                            // Get the column name
+                                            String columnName = columnData.getColumnName();
 
-                                            // Check if the command description is present and the
-                                            // description column exists in the table type
+                                            // Get the column index for the column described in the
+                                            // column data
+                                            int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
+
+                                            // Check if the column exists in the table type
                                             // definition
-                                            if (cmdType.getShortDescription() != null
-                                                && cmdDescriptionIndex != -1)
+                                            if (column != -1)
                                             {
-                                                // Store the command description in the row's
-                                                // description column
-                                                newRow[cmdDescriptionIndex] = cmdType.getShortDescription();
+                                                // Store the column's value in the row data
+                                                newRow[column] = columnData.getValue();
                                             }
-
-                                            // Step through each command argument
-                                            for (int index = 0; index < commandArguments.size(); index++)
+                                            // The column doesn't exist
+                                            else
                                             {
-                                                // Check if this argument is applicable to this
-                                                // command (not all commands may have the same
-                                                // number of arguments)
-                                                if (index < cmdType.getArgument().size())
-                                                {
-                                                    // Store the command argument name and data
-                                                    // types
-                                                    newRow[commandArguments.get(index).getName()] = cmdType.getArgument().get(index).getName();
-
-                                                    // Check if a data type exists
-                                                    if (cmdType.getArgument().get(index).getType() != null)
-                                                    {
-                                                        newRow[commandArguments.get(index).getDataType()] = cmdType.getArgument().get(index).getType();
-                                                    }
-
-                                                    // Check if a command argument description
-                                                    // exists and if this is the command argument
-                                                    // description column
-                                                    if (cmdType.getArgument().get(index).getShortDescription() != null)
-                                                    {
-                                                        newRow[commandArguments.get(index).getDescription()] = cmdType.getArgument().get(index).getShortDescription();
-                                                    }
-                                                }
+                                                // Check if the error should be ignored or the
+                                                // import canceled
+                                                continueOnColumnError = getErrorResponse(continueOnColumnError,
+                                                                                         "<html><b>Table '</b>"
+                                                                                                                + tableDefn.getName()
+                                                                                                                + "<b>' column name '</b>"
+                                                                                                                + columnName
+                                                                                                                + "<b>' unrecognized in import file '</b>"
+                                                                                                                + importFileName
+                                                                                                                + "<b>'; continue?",
+                                                                                         "Column Error",
+                                                                                         "Ignore this invalid column name",
+                                                                                         "Ignore this and any remaining invalid column names",
+                                                                                         "Stop importing",
+                                                                                         parent);
                                             }
-
-                                            // Add the new row to the table definition
-                                            tableDefn.addData(newRow);
                                         }
                                     }
-                                }
 
-                                /******************************************************************
-                                 * Generic type processing
-                                 *****************************************************************/
-                                // Check if this interface contains a generic type set. The generic
-                                // type set is used to column data, data fields, and enumeration
-                                // parameters for tables that aren't structure or command tables,
-                                // and to store extra columns, data fields, and extra enumeration
-                                // parameters for structure and command tables
-                                if (intfcDecType.getGenericTypeSet() != null
-                                    && !intfcDecType.getGenericTypeSet().getGenericType().isEmpty())
-                                {
-                                    // Step through each generic type data
-                                    for (GenericTypeType genType : intfcDecType.getGenericTypeSet().getGenericType())
+                                    int cmdArgIndex = 0;
+
+                                    // Step through each of the command's arguments
+                                    for (CommandArgumentType argList : cmdType.getArgument())
                                     {
-                                        // Check if this is the first pass
-                                        if (loop == 1)
+                                        // Check if the command argument index is within the range
+                                        // dictated by the table type definition
+                                        if (cmdArgIndex < commandArguments.size())
                                         {
-                                            // Check if this is the table type
-                                            if (intfcDecType.getName().equals(EDSTags.TABLE_TYPE.getTag()))
+                                            String dataType = argList.getType();
+                                            String description = argList.getShortDescription();
+                                            String enumeration = null;
+                                            String units = null;
+
+                                            // Check if a data set exists and the command name
+                                            // column is present in the data type
+                                            if (nameSpace.getDataTypeSet() != null && commandNameIndex != -1)
                                             {
-                                                // Store the table's type name
-                                                tableDefn.setTypeName(genType.getShortDescription());
+                                                // Get the reference to the data type sets
+                                                List<RootDataType> dataTypes = nameSpace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType();
 
-                                                // Get the table's type definition based on the
-                                                // type name
-                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
-
-                                                // Check if the table type isn't recognized
-                                                if (typeDefn == null)
+                                                // Step through each data type set
+                                                for (RootDataType rDataType : dataTypes)
                                                 {
-                                                    throw new CCDDException("unknown table type '"
-                                                                            + tableDefn.getTypeName()
-                                                                            + "'");
-                                                }
-
-                                                // Get the number of visible columns for this table
-                                                // type
-                                                numColumns = typeDefn.getColumnCountVisible();
-
-                                                // Check if this is a structure type table
-                                                if (typeDefn.isStructure())
-                                                {
-                                                    // Get the structure column indices, if this is
-                                                    // a structure type
-                                                    variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
-                                                    dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
-                                                    descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
-                                                }
-                                                // Check if this is a command type table
-                                                else if (typeDefn.isCommand())
-                                                {
-                                                    // Get the list containing command argument
-                                                    // name, data type, enumeration, minimum,
-                                                    // maximum, and other associated column indices
-                                                    // for each argument grouping
-                                                    commandArguments = typeDefn.getAssociatedCommandArgumentColumns(true);
-
-                                                    // Get the command name column
-                                                    commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
-
-                                                    // Get the command description column. If the
-                                                    // default command description column name
-                                                    // isn't used then the first column containing
-                                                    // 'description' is selected that doesn't refer
-                                                    // to a command argument
-                                                    cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
-
-                                                    // Check if the description column belongs to a
-                                                    // command argument
-                                                    if (commandArguments.size() != 0
-                                                        && cmdDescriptionIndex > commandArguments.get(0).getName())
+                                                    // Check if this is the same command argument
+                                                    // referenced in the root data (by matching the
+                                                    // command and argument names between the two)
+                                                    if (cmdType.getName().equals(rDataType.getShortDescription())
+                                                        && argList.getName().equals(rDataType.getName()))
                                                     {
-                                                        // Reset the command description index to
-                                                        // indicate no description exists
-                                                        cmdDescriptionIndex = -1;
+                                                        // Check if this is an enumerated data type
+                                                        // set
+                                                        if (rDataType instanceof EnumeratedDataType)
+                                                        {
+                                                            EnumeratedDataType eDataType = (EnumeratedDataType) rDataType;
+
+                                                            // Get the list of enumerated values
+                                                            // and associated labels
+                                                            EnumerationListType enumList = eDataType.getEnumerationList();
+
+                                                            // Check if any enumerations exist
+                                                            if (enumList != null)
+                                                            {
+                                                                // Step through each enumeration
+                                                                for (ValueEnumerationType enumType : enumList.getEnumeration())
+                                                                {
+                                                                    // Check if this is the first
+                                                                    // value
+                                                                    if (enumeration == null)
+                                                                    {
+                                                                        enumeration = "";
+                                                                    }
+                                                                    // Not the first value
+                                                                    else
+                                                                    {
+                                                                        enumeration += ", ";
+                                                                    }
+
+                                                                    // Build the enumeration
+                                                                    enumeration += enumType.getValue()
+                                                                                   + " | "
+                                                                                   + enumType.getLabel();
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // Check if units exist
+                                                        if (rDataType.getSemantics() != null
+                                                            && rDataType.getSemantics().getUnit() != null)
+                                                        {
+                                                            // Store the units
+                                                            units = rDataType.getSemantics().getUnit().value();
+                                                        }
+
+                                                        break;
                                                     }
                                                 }
                                             }
-                                            // Check if this is a table data field definition
-                                            else if (intfcDecType.getName().equals(EDSTags.DATA_FIELD.getTag()))
+
+                                            // Get the command argument reference
+                                            AssociatedColumns acmdArg = commandArguments.get(cmdArgIndex);
+
+                                            // Check if the command argument name is present
+                                            if (acmdArg.getName() != -1
+                                                && !argList.getName().isEmpty())
                                             {
-                                                // Get the data field inputs. If not present use a
-                                                // blank to prevent an error when separating the
-                                                // inputs
-                                                String inputs = genType.getShortDescription() != null
-                                                                                                      ? genType.getShortDescription()
-                                                                                                      : "";
-
-                                                // Parse data field. The values are
-                                                // comma-separated; however, commas within quotes
-                                                // are ignored - this allows commas to be included
-                                                // in the data values
-                                                String[] fieldDefn = CcddUtilities.splitAndRemoveQuotes("\""
-                                                                                                        + tableDefn.getName()
-                                                                                                        + "\","
-                                                                                                        + inputs);
-
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (fieldDefn.length == FieldEditorColumnInfo.values().length + 1)
-                                                {
-                                                    // Add the data field definition, checking for
-                                                    // (and if possible, correcting) errors
-                                                    continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
-                                                                                                              tableDefn,
-                                                                                                              fieldDefn,
-                                                                                                              importFileName,
-                                                                                                              parent);
-                                                }
-                                                // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnDataFieldError = getErrorResponse(continueOnDataFieldError,
-                                                                                                "<html><b>Table '</b>"
-                                                                                                                          + tableDefn.getName()
-                                                                                                                          + "<b>' has missing or extra data field "
-                                                                                                                          + "input(s) in import file '</b>"
-                                                                                                                          + importFileName
-                                                                                                                          + "<b>'; continue?",
-                                                                                                "Data Field Error",
-                                                                                                "Ignore this invalid data field",
-                                                                                                "Ignore this and any remaining invalid data fields",
-                                                                                                "Stop importing",
-                                                                                                parent);
-                                                }
+                                                // Store the command argument name
+                                                newRow[acmdArg.getName()] = argList.getName();
                                             }
-                                        }
-                                        // Check if this is the third pass
-                                        else if (loop == 3)
-                                        {
-                                            // Check if this is column data
-                                            if (intfcDecType.getName().equals(EDSTags.COLUMN.getTag()))
+
+                                            // Check if the command argument data type is present
+                                            if (acmdArg.getDataType() != -1 && dataType != null)
                                             {
-                                                // Extract the column name and row number, and use
-                                                // the column name to get the column index
-                                                String[] parts = genType.getName().split(":");
-                                                String columnName = parts[EDSTags.getColumnNameIndex()].trim();
-                                                int row = Integer.valueOf(parts[EDSTags.getRowIndex()].trim());
+                                                // Store the command argument data type
+                                                newRow[acmdArg.getDataType()] = dataType;
+                                            }
+
+                                            // Check if the command argument enumeration is present
+                                            if (acmdArg.getEnumeration() != -1
+                                                && enumeration != null)
+                                            {
+                                                // Store the command argument enumeration
+                                                newRow[acmdArg.getEnumeration()] = enumeration;
+                                            }
+
+                                            // Check if the command argument description is present
+                                            if (acmdArg.getDescription() != -1
+                                                && description != null)
+                                            {
+                                                // Store the command argument description
+                                                newRow[acmdArg.getDescription()] = description;
+                                            }
+
+                                            // Check if the command argument units is present
+                                            if (acmdArg.getUnits() != -1 && units != null)
+                                            {
+                                                // Store the command argument units
+                                                newRow[acmdArg.getUnits()] = units;
+                                            }
+
+                                            // Increment the argument index
+                                            cmdArgIndex++;
+                                        }
+
+                                        // Check if any argument columns are defined for this row
+                                        if (argList.getCCDDTableColumnSet() != null)
+                                        {
+                                            // Step through each column's data
+                                            for (CCDDTableColumnData columnData : argList.getCCDDTableColumnSet().getCCDDTableColumnData())
+                                            {
+                                                // Get column name
+                                                String columnName = columnData.getColumnName();
+
+                                                // Get the column index for the column described in
+                                                // the command data
                                                 int column = typeDefn.getVisibleColumnIndexByUserName(columnName);
 
-                                                // Check that the column exists in the table
+                                                // Check if the column exists in the table type
+                                                // definition
                                                 if (column != -1)
                                                 {
-                                                    // Add one or more rows until the row is
-                                                    // created containing this column value
-                                                    while (row * numColumns >= tableDefn.getData().size())
+                                                    // Check if the cell hasn't already been
+                                                    // populated by other command metadata
+                                                    if (newRow[column] == null
+                                                        || newRow[column].isEmpty())
                                                     {
-                                                        // Create a row with empty columns and add
-                                                        // the new row to the table data
-                                                        String[] newRow = new String[typeDefn.getColumnCountVisible()];
-                                                        Arrays.fill(newRow, null);
-                                                        tableDefn.addData(newRow);
-                                                    }
-
-                                                    // Check if the cell is empty (i.e., don't
-                                                    // replace the cell value if it already is
-                                                    // present)
-                                                    if (tableDefn.getData().get(row
-                                                                                * numColumns
-                                                                                + column) == null
-                                                        || tableDefn.getData().get(row
-                                                                                   * numColumns
-                                                                                   + column)
-                                                                    .isEmpty())
-                                                    {
-                                                        // Replace the value for the specified
-                                                        // column
-                                                        tableDefn.getData().set(row
-                                                                                * numColumns
-                                                                                + column,
-                                                                                genType.getShortDescription());
+                                                        // Update the table data at the row and
+                                                        // column specified with the value from the
+                                                        // column data
+                                                        newRow[column] = columnData.getValue();
                                                     }
                                                 }
                                                 // The column doesn't exist
@@ -1450,6 +1069,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             }
                                         }
                                     }
+
+                                    // Add the new row to the table definition
+                                    tableDefn.addData(newRow);
                                 }
                             }
                         }
@@ -1492,14 +1114,358 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
             }
         }
+
+    }
+
+    /**********************************************************************************************
+     * Extract the table type definitions, if present, from the imported root system
+     *
+     * @param nameSpace
+     *            top-level name space
+     *
+     * @param importFileName
+     *            import file name
+     *
+     * @throws CCDDException
+     *             If an input error is detected
+     *********************************************************************************************/
+    private void importTableTypeDefinitions(NamespaceType nameSpace,
+                                            String importFileName) throws CCDDException
+    {
+        // Get the table type definitions
+        CCDDTableTypeDefinitionSet tableTypeSet = nameSpace.getCCDDTableTypeDefinitionSet();
+
+        // Check if a table type exists
+        if (tableTypeSet != null)
+        {
+            List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
+
+            // Flags indicating if importing should continue after an input error is detected
+            boolean continueOnTableTypeError = false;
+            boolean continueOnDataFieldError = false;
+
+            // Step through the table type data
+            for (CCDDTableTypeDefinitionData tableTypeData : tableTypeSet.getCCDDTableTypeDefinitionData())
+            {
+                // Create the table type definition, supplying the name and description
+                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(tableTypeData.getTableType(),
+                                                                            tableTypeData.getDescription());
+                tableTypeDefns.add(tableTypeDefn);
+
+                // Step through each column defined in the table type
+                for (CCDDTableTypeDefinitionColumn tableTypeColumn : tableTypeData.getCCDDTableTypeDefinitionColumn())
+                {
+                    // Check if the expected inputs are present
+                    if (tableTypeColumn.getColumnNumber() != null
+                        && tableTypeColumn.getNameVisible() != null
+                        && tableTypeColumn.getDescription() != null
+                        && tableTypeColumn.getInputType() != null)
+                    {
+                        // Add the table type column definition, checking for (and if possible,
+                        // correcting) errors
+                        continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                                                                  tableTypeDefn,
+                                                                                  new String[] {tableTypeColumn.getColumnNumber().toString(),
+                                                                                                tableTypeColumn.getNameVisible(),
+                                                                                                tableTypeColumn.getDescription(),
+                                                                                                tableTypeColumn.getInputType(),
+                                                                                                Boolean.toString(tableTypeColumn.isRowValueUnique()),
+                                                                                                Boolean.toString(tableTypeColumn.isRequired()),
+                                                                                                Boolean.toString(tableTypeColumn.isStructureAllowed()),
+                                                                                                Boolean.toString(tableTypeColumn.isPointerAllowed())},
+                                                                                  importFileName,
+                                                                                  parent);
+                    }
+                    // An expected input is missing
+                    else
+                    {
+                        // Check if the error should be ignored or the import canceled
+                        continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                    "<html><b>Table type '"
+                                                                                              + tableTypeData.getTableType()
+                                                                                              + "' definition has missing input(s) in import file '</b>"
+                                                                                              + importFileName
+                                                                                              + "<b>'; continue?",
+                                                                    "Table Type Error",
+                                                                    "Ignore this table type",
+                                                                    "Ignore this and any remaining invalid table types",
+                                                                    "Stop importing",
+                                                                    parent);
+                    }
+                }
+
+                // Check if this is a table type data field definition
+                if (tableTypeData.getCCDDTableTypeDefinitionDataFieldSet() != null)
+                {
+                    // Step through the table type data field definitions
+                    for (CCDDDataFieldData dataFieldData : tableTypeData.getCCDDTableTypeDefinitionDataFieldSet().getCCDDDataFieldData())
+                    {
+                        // Check if the expected number of inputs is present
+                        if (dataFieldData.getName() != null
+                            && dataFieldData.getDescription() != null
+                            && dataFieldData.getSize() != null
+                            && dataFieldData.getApplicability() != null
+                            && dataFieldData.getValue() != null)
+                        {
+                            // Add the data field definition, checking for (and if possible,
+                            // correcting) errors
+                            continueOnDataFieldError = addImportedDataFieldDefinition(continueOnDataFieldError,
+                                                                                      tableTypeDefn,
+                                                                                      new String[] {CcddFieldHandler.getFieldTypeName(tableTypeData.getTableType()),
+                                                                                                    dataFieldData.getName(),
+                                                                                                    dataFieldData.getDescription(),
+                                                                                                    dataFieldData.getSize().toString(),
+                                                                                                    dataFieldData.getInputType(),
+                                                                                                    Boolean.toString(dataFieldData.isRequired()),
+                                                                                                    dataFieldData.getApplicability(),
+                                                                                                    dataFieldData.getValue()},
+                                                                                      importFileName,
+                                                                                      parent);
+                        }
+                        // The number of inputs is incorrect
+                        else
+                        {
+                            // Check if the error should be ignored or the import canceled
+                            continueOnDataFieldError = getErrorResponse(continueOnDataFieldError,
+                                                                        "<html><b>Table type '</b>"
+                                                                                                  + tableTypeData.getTableType()
+                                                                                                  + "<b>' has missing data field "
+                                                                                                  + "input(s) in import file '</b>"
+                                                                                                  + importFileName
+                                                                                                  + "<b>'; continue?",
+                                                                        "Data Field Error",
+                                                                        "Ignore this invalid data field",
+                                                                        "Ignore this and any remaining invalid data fields",
+                                                                        "Stop importing",
+                                                                        parent);
+                        }
+                    }
+                }
+            }
+
+            // Add the table type if it's new or match it to an existing one with the same name if
+            // the type definitions are the same
+            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+
+            // Check if a table type isn't new and doesn't match an existing one with the same name
+            if (badDefn != null)
+            {
+                throw new CCDDException("Imported table type '"
+                                        + badDefn
+                                        + "' doesn't match the existing definition");
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Extract the data type definitions, if present, from the imported root system
+     *
+     * @param nameSpace
+     *            top-level name space
+     *
+     * @param importFileName
+     *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of data type inputs is incorrect and the user cancels the import,
+     *             or the data type doesn't match an existing one of the same name
+     *********************************************************************************************/
+    private void importDataTypeDefinitions(NamespaceType nameSpace,
+                                           String importFileName) throws CCDDException
+    {
+        List<String[]> dataTypeDefns = new ArrayList<String[]>();
+
+        // Get the data type definitions
+        CCDDDataTypeSet dataTypeSet = nameSpace.getCCDDDataTypeSet();
+
+        // Check if a data type definition exists
+        if (dataTypeSet != null)
+        {
+            // Flag indicating if importing should continue after an input error is detected
+            boolean continueOnDataTypeError = false;
+
+            // Step through the data type definitions
+            for (CCDDDataTypeData dataTypeData : dataTypeSet.getCCDDDataTypeData())
+            {
+                // Check if the expected inputs are present
+                if (dataTypeData.getUserName() != null
+                    && dataTypeData.getCName() != null
+                    && dataTypeData.getSizeInBytes() != null
+                    && dataTypeData.getBaseType() != null)
+                {
+                    // Add the data type definition to the list (add a blank for the OID
+                    // column)
+                    dataTypeDefns.add(new String[] {dataTypeData.getUserName(),
+                                                    dataTypeData.getCName(),
+                                                    dataTypeData.getSizeInBytes().toString(),
+                                                    dataTypeData.getBaseType(),
+                                                    ""});
+                }
+                // An expected input is missing
+                else
+                {
+                    // Check if the error should be ignored or the import canceled
+                    continueOnDataTypeError = getErrorResponse(continueOnDataTypeError,
+                                                               "<html><b>Missing data type definition "
+                                                                                        + "input(s) in import file '</b>"
+                                                                                        + importFileName
+                                                                                        + "<b>'; continue?",
+                                                               "Data Type Error",
+                                                               "Ignore this data type",
+                                                               "Ignore this and any remaining invalid data types",
+                                                               "Stop importing",
+                                                               parent);
+                }
+            }
+
+            // Add the data type if it's new or match it to an existing one with the same name if
+            // the type definitions are the same
+            String badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
+
+            // Check if a data type isn't new and doesn't match an existing one with the same name
+            if (badDefn != null)
+            {
+                throw new CCDDException("data type '"
+                                        + badDefn
+                                        + "' already exists and doesn't match the import definition");
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Extract the macro definitions, if present, from the imported root system
+     *
+     * @param nameSpace
+     *            top-level name space
+     *
+     * @param importFileName
+     *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of macro inputs is incorrect and the user cancels the import, or
+     *             the macro doesn't match an existing one of the same name
+     *********************************************************************************************/
+    private void importMacroDefinitions(NamespaceType nameSpace,
+                                        String importFileName) throws CCDDException
+    {
+        List<String[]> macroDefns = new ArrayList<String[]>();
+
+        // Get the macro definitions
+        CCDDMacroSet macroSet = nameSpace.getCCDDMacroSet();
+
+        // Check if a macro definition exists
+        if (macroSet != null)
+        {
+            // Flag indicating if importing should continue after an input error is detected
+            boolean continueOnMacroError = false;
+
+            // Step through the extra data
+            for (CCDDMacroData macroData : macroSet.getCCDDMacroData())
+            {
+                // Check if the expected inputs are present
+                if (macroData.getName() != null && macroData.getMacroValue() != null)
+                {
+                    // Add the macro definition to the list (add a blank for the OID column)
+                    macroDefns.add(new String[] {macroData.getName(), macroData.getMacroValue(), ""});
+                }
+                // An expected input is missing
+                else
+                {
+                    // Check if the error should be ignored or the import canceled
+                    continueOnMacroError = getErrorResponse(continueOnMacroError,
+                                                            "<html><b>Missing macro definition "
+                                                                                  + "input(s) in import file '</b>"
+                                                                                  + importFileName
+                                                                                  + "<b>'; continue?",
+                                                            "Macro Error",
+                                                            "Ignore this macro",
+                                                            "Ignore this and any remaining invalid macros",
+                                                            "Stop importing",
+                                                            parent);
+                }
+            }
+
+            // Add the macro if it's new or match it to an existing one with the same name if the
+            // values are the same
+            String badDefn = macroHandler.updateMacros(macroDefns);
+
+            // Check if a macro isn't new and doesn't match an existing one with the same name
+            if (badDefn != null)
+            {
+                throw new CCDDException("macro '"
+                                        + badDefn
+                                        + "' already exists and doesn't match the import definition");
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Extract the reserved message ID definitions, if present, from the imported root system
+     *
+     * @param nameSpace
+     *            top-level space system
+     *
+     * @param importFileName
+     *            import file name
+     *
+     * @throws CCDDException
+     *             If the number of reserved message inputs is incorrect and the user cancels the
+     *             import
+     *********************************************************************************************/
+    private void importReservedMsgIDDefinitions(NamespaceType nameSpace,
+                                                String importFileName) throws CCDDException
+    {
+        List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
+
+        // Get the reserved message ID definitions
+        CCDDReservedMessageIDSet msgIDSet = nameSpace.getCCDDReservedMessageIDSet();
+
+        // Check if a reserved message ID exists
+        if (msgIDSet != null)
+        {
+            // Flag indicating if importing should continue after an input error is detected
+            boolean continueOnReservedMsgIDError = false;
+
+            // Step through the extra data
+            for (CCDDReservedMessageIDData msgIDData : msgIDSet.getCCDDReservedMessageIDData())
+            {
+                // Check if the expected inputs are present
+                if (msgIDData.getMessageID() != null && msgIDData.getDescription() != null)
+                {
+                    // Add the reserved message ID definition to the list (add a blank for the OID
+                    // column)
+                    reservedMsgIDDefns.add(new String[] {msgIDData.getMessageID(),
+                                                         msgIDData.getDescription(),
+                                                         ""});
+                }
+                // An expected input is missing
+                else
+                {
+                    // Check if the error should be ignored or the import canceled
+                    continueOnReservedMsgIDError = getErrorResponse(continueOnReservedMsgIDError,
+                                                                    "<html><b>Missing reserved message ID "
+                                                                                                  + "definition input(s) in import file '</b>"
+                                                                                                  + importFileName
+                                                                                                  + "<b>'; continue?",
+                                                                    "Reserved Message ID Error",
+                                                                    "Ignore this reserved message ID",
+                                                                    "Ignore this and any remaining invalid reserved message IDs",
+                                                                    "Stop importing",
+                                                                    parent);
+                }
+            }
+        }
+
+        // Add the reserved message ID definition if it's new
+        rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
     }
 
     /**********************************************************************************************
      * Create a name space to contain the referenced table type definitions
      *********************************************************************************************/
-    private void buildTableTypesNameSpace()
+    private void exportTableTypesNameSpace()
     {
-        List<String[]> tableTypeDefinitions = new ArrayList<String[]>();
+        CCDDTableTypeDefinitionSet tableTypeSet = new CCDDTableTypeDefinitionSet();
 
         // Step through each referenced table type
         for (String refTableType : referencedTableTypes)
@@ -1510,85 +1476,70 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the table type exists
             if (tableTypeDefn != null)
             {
-                // Create the type definition string beginning with the name, description, and
-                // number of columns
-                StringBuilder definition = new StringBuilder("\""
-                                                             + tableTypeDefn.getDescription()
-                                                             + "\"");
+                CCDDTableTypeDefinitionData tableTypeData = new CCDDTableTypeDefinitionData();
+                tableTypeData.setTableType(tableTypeDefn.getName());
+                tableTypeData.setDescription(tableTypeDefn.getDescription());
 
                 // Step through each column definition in the table type, skipping the primary key
                 // and row index columns
                 for (int column = NUM_HIDDEN_COLUMNS; column < tableTypeDefn.getColumnCountDatabase(); column++)
                 {
-                    // Add the column information to the definition
-                    definition.append(",\""
-                                      + tableTypeDefn.getColumnNamesUser()[column]
-                                      + "\",\""
-                                      + tableTypeDefn.getColumnToolTips()[column]
-                                      + "\",\""
-                                      + tableTypeDefn.getInputTypes()[column].getInputName()
-                                      + "\",\""
-                                      + tableTypeDefn.isRowValueUnique()[column]
-                                      + "\",\""
-                                      + tableTypeDefn.isRequired()[column]
-                                      + "\",\""
-                                      + tableTypeDefn.isStructureAllowed()[column]
-                                      + "\",\""
-                                      + tableTypeDefn.isPointerAllowed()[column]
-                                      + "\"");
+                    // Store the table type column definition
+                    CCDDTableTypeDefinitionColumn tableTypeColumn = new CCDDTableTypeDefinitionColumn();
+                    tableTypeColumn.setColumnNumber(BigInteger.valueOf(column - NUM_HIDDEN_COLUMNS));
+                    tableTypeColumn.setNameVisible(tableTypeDefn.getColumnNamesUser()[column]);
+                    tableTypeColumn.setNameDatabase(tableTypeDefn.getColumnNamesDatabase()[column]);
+                    tableTypeColumn.setDescription(tableTypeDefn.getColumnToolTips()[column]);
+                    tableTypeColumn.setInputType(tableTypeDefn.getInputTypes()[column].getInputName());
+                    tableTypeColumn.setRowValueUnique(tableTypeDefn.isRowValueUnique()[column]);
+                    tableTypeColumn.setRequired(tableTypeDefn.isRequired()[column]);
+                    tableTypeColumn.setStructureAllowed(tableTypeDefn.isStructureAllowed()[column]);
+                    tableTypeColumn.setPointerAllowed(tableTypeDefn.isPointerAllowed()[column]);
+                    tableTypeData.getCCDDTableTypeDefinitionColumn().add(tableTypeColumn);
                 }
 
-                // Add the table type definition to the list
-                tableTypeDefinitions.add(new String[] {tableTypeDefn.getName(),
-                                                       definition.toString()});
+                // Build the data field information for this table type and export it
+                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getName()));
+                tableTypeData.setCCDDTableTypeDefinitionDataFieldSet(getDataFields(fieldHandler.getFieldInformation()));
+
+                // Store the table type definition
+                tableTypeSet.getCCDDTableTypeDefinitionData().add(tableTypeData);
             }
         }
 
-        // Check if a table type is defined
-        if (!tableTypeDefinitions.isEmpty())
+        // Check if a table type is referenced
+        if (!tableTypeSet.getCCDDTableTypeDefinitionData().isEmpty())
         {
             // Create a name space to contain the table type definitions
-            NamespaceType tableTypesNameSpace = addNameSpace("",
+            NamespaceType tableTypesNameSpace = addNameSpace(null,
                                                              EDSTags.TABLE_TYPE.getTag(),
-                                                             "Table type definitions");
+                                                             "Table type definitions",
+                                                             null,
+                                                             null,
+                                                             null);
 
-            // Store the table type definitions as ancillary data
-            storeOtherAttributes(tableTypesNameSpace, EDSTags.TABLE_TYPE, tableTypeDefinitions);
-
-            // Step through each table type definition
-            for (String[] tableType : tableTypeDefinitions)
-            {
-                // Build the data field information for this table type
-                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableType[0]));
-
-                // Store the table type data field attribute information
-                storeOtherAttributes(tableTypesNameSpace,
-                                     EDSTags.DATA_FIELD,
-                                     getDataFields(fieldHandler.getFieldInformation(),
-                                                   tableType[0]));
-            }
+            // Store the table type definition(s)
+            tableTypesNameSpace.setCCDDTableTypeDefinitionSet(tableTypeSet);
         }
     }
 
     /**********************************************************************************************
      * Create a name space to contain the referenced primitive data types
      *********************************************************************************************/
-    private void buildDataTypesNameSpace()
+    private void exportDataTypesNameSpace()
     {
         // Check if any data types are referenced
         if (!referencedDataTypes.isEmpty())
         {
-            List<String[]> dataTypeDefinitions = new ArrayList<String[]>();
+            CCDDDataTypeSet dataTypeSet = new CCDDDataTypeSet();
 
             // Create a name space to contain the primitive data types
-            NamespaceType dataTypeNameSpace = addNameSpace("",
+            NamespaceType dataTypeNameSpace = addNameSpace(null,
                                                            EDSTags.DATA_TYPE.getTag(),
-                                                           "Data type definitions");
-
-            dataTypeNameSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
-
-            // Create a data type set to contain the primitive data type information
-            DataTypeSetType dataTypeSet = factory.createDataTypeSetType();
+                                                           "Data type definitions",
+                                                           null,
+                                                           null,
+                                                           null);
 
             // Step through each referenced primitive data type
             for (String refDataType : referencedDataTypes)
@@ -1637,24 +1588,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     // Set the data type name
                     type.setName(CcddDataTypeHandler.getDataTypeName(dataType));
 
-                    // Add the data type to the name space
-                    dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(type);
-
-                    // Parse the definition and add it to the list
-                    dataTypeDefinitions.add(new String[] {dataType[DataTypesColumn.USER_NAME.ordinal()],
-                                                          dataType[DataTypesColumn.C_NAME.ordinal()]
-                                                                                                         + ","
-                                                                                                         + dataType[DataTypesColumn.SIZE.ordinal()]
-                                                                                                         + ","
-                                                                                                         + dataType[DataTypesColumn.BASE_TYPE.ordinal()]});
+                    // Store the data type definition
+                    CCDDDataTypeData dataTypeData = new CCDDDataTypeData();
+                    dataTypeData.setUserName(dataType[DataTypesColumn.USER_NAME.ordinal()]);
+                    dataTypeData.setCName(dataType[DataTypesColumn.C_NAME.ordinal()]);
+                    dataTypeData.setSizeInBytes(BigInteger.valueOf(Integer.valueOf(dataType[DataTypesColumn.SIZE.ordinal()])));
+                    dataTypeData.setBaseType(dataType[DataTypesColumn.BASE_TYPE.ordinal()]);
+                    dataTypeSet.getCCDDDataTypeData().add(dataTypeData);
                 }
             }
 
             // Check if a data type is defined
-            if (!dataTypeDefinitions.isEmpty())
+            if (!dataTypeSet.getCCDDDataTypeData().isEmpty())
             {
-                // Store the data type definitions as ancillary data
-                storeOtherAttributes(dataTypeNameSpace, EDSTags.DATA_TYPE, dataTypeDefinitions);
+                // Store the data type definition(s)
+                dataTypeNameSpace.setCCDDDataTypeSet(dataTypeSet);
             }
         }
     }
@@ -1662,9 +1610,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create a name space to contain the referenced macro definitions
      *********************************************************************************************/
-    private void buildMacrosNameSpace()
+    private void exportMacrosNameSpace()
     {
-        List<String[]> macroDefinitions = new ArrayList<String[]>();
+        CCDDMacroSet macroSet = new CCDDMacroSet();
 
         // Step through each referenced macro
         for (String refMacro : referencedMacros)
@@ -1675,41 +1623,60 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the macro exists
             if (macroValue != null)
             {
-                // Create the macro definition
-                macroDefinitions.add(new String[] {refMacro, macroValue});
+                // Store the macro definition
+                CCDDMacroData macroData = new CCDDMacroData();
+                macroData.setName(refMacro);
+                macroData.setMacroValue(macroValue);
+                macroSet.getCCDDMacroData().add(macroData);
             }
         }
 
-        // Check if a macro is defined
-        if (!macroDefinitions.isEmpty())
+        // Check if a macro is referenced
+        if (!macroSet.getCCDDMacroData().isEmpty())
         {
             // Create a name space to contain the macro definitions
-            NamespaceType macroNameSpace = addNameSpace("",
+            NamespaceType macroNameSpace = addNameSpace(null,
                                                         EDSTags.MACRO.getTag(),
-                                                        "Macro definitions");
+                                                        "Macro definitions",
+                                                        null,
+                                                        null,
+                                                        null);
 
-            // Store the macro definitions as ancillary data
-            storeOtherAttributes(macroNameSpace, EDSTags.MACRO, macroDefinitions);
+            // Store the macro definition(s)
+            macroNameSpace.setCCDDMacroSet(macroSet);
         }
     }
 
     /**********************************************************************************************
      * Create a name space to contain all reserved message IDs
      *********************************************************************************************/
-    private void buildReservedMsgIDNameSpace()
+    private void exportReservedMsgIDNameSpace()
     {
-        // Check if a reserved message ID is defined
-        if (!rsvMsgIDHandler.getReservedMsgIDData().isEmpty())
+        CCDDReservedMessageIDSet msgIDSet = new CCDDReservedMessageIDSet();
+
+        // Step through each reserved message ID definition
+        for (String[] reservedMsgIDDefn : rsvMsgIDHandler.getReservedMsgIDData())
+        {
+            // Store the reserved message ID definition
+            CCDDReservedMessageIDData msgIDData = new CCDDReservedMessageIDData();
+            msgIDData.setMessageID(reservedMsgIDDefn[ReservedMsgIDsColumn.MSG_ID.ordinal()]);
+            msgIDData.setDescription(reservedMsgIDDefn[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]);
+            msgIDSet.getCCDDReservedMessageIDData().add(msgIDData);
+        }
+
+        // Check if a reserved message ID exists
+        if (!msgIDSet.getCCDDReservedMessageIDData().isEmpty())
         {
             // Create a name space to contain the reserved message ID definitions
-            NamespaceType reservedMsgIDNameSpace = addNameSpace("",
+            NamespaceType reservedMsgIDNameSpace = addNameSpace(null,
                                                                 EDSTags.RESERVED_MSG_ID.getTag(),
-                                                                "Reserved message ID definitions");
+                                                                "Reserved message ID definitions",
+                                                                null,
+                                                                null,
+                                                                null);
 
-            // Store the reserved message ID definitions as ancillary data
-            storeOtherAttributes(reservedMsgIDNameSpace,
-                                 EDSTags.RESERVED_MSG_ID,
-                                 rsvMsgIDHandler.getReservedMsgIDData());
+            // Store the reserved message ID(s)
+            reservedMsgIDNameSpace.setCCDDReservedMessageIDSet(msgIDSet);
         }
     }
 
@@ -1724,20 +1691,65 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *********************************************************************************************/
-    private void buildVariablePathNameSpace(CcddVariableSizeAndConversionHandler variableHandler,
-                                            String[] separators)
+    private void exportVariablePathNameSpace(CcddVariableSizeAndConversionHandler variableHandler,
+                                             String[] separators)
     {
+        CCDDVariablePathSet variablePathSet = new CCDDVariablePathSet();
+
+        // Step through each variable path
+        for (String[] variablePath : referencedVariablePaths)
+        {
+            // Store the variable path
+            CCDDVariablePathData variablePathData = new CCDDVariablePathData();
+            variablePathData.setPath(variablePath[0]);
+            variablePathData.setPathConverted(variablePath[1]);
+            variablePathSet.getCCDDVariablePathData().add(variablePathData);
+        }
+
         // Check if a variable path exists
-        if (!referencedVariablePaths.isEmpty())
+        if (!variablePathSet.getCCDDVariablePathData().isEmpty())
         {
             // Create a name space to contain the variable paths
-            NamespaceType variablePathNameSpace = addNameSpace("",
+            NamespaceType variablePathNameSpace = addNameSpace(null,
                                                                EDSTags.VARIABLE_PATH.getTag(),
-                                                               "Variable paths");
+                                                               "Variable paths",
+                                                               null,
+                                                               null,
+                                                               null);
 
-            // Store the variable paths as ancillary data
-            storeOtherAttributes(variablePathNameSpace, EDSTags.VARIABLE_PATH, referencedVariablePaths);
+            // Store the variable path(s)
+            variablePathNameSpace.setCCDDVariablePathSet(variablePathSet);
         }
+    }
+
+    /**********************************************************************************************
+     * Get the table data field definition set for export
+     *
+     * @param fieldInformation
+     *            list containing data field information
+     *
+     * @return Table data field definition set
+     *********************************************************************************************/
+    private CCDDDataFieldSet getDataFields(List<FieldInformation> fieldInformation)
+    {
+        CCDDDataFieldSet dataFieldSet = new CCDDDataFieldSet();
+
+        // Step through the command table's data field information
+        for (FieldInformation field : fieldInformation)
+        {
+            // Store the data field definition
+            CCDDDataFieldData dataField = new CCDDDataFieldData();
+            dataField.setName(field.getFieldName());
+            dataField.setDescription(field.getDescription());
+            dataField.setSize(BigInteger.valueOf(field.getSize()));
+            dataField.setInputType(field.getInputType().getInputName());
+            dataField.setRequired(field.isRequired());
+            dataField.setApplicability(field.getApplicabilityType().getApplicabilityName());
+            dataField.setValue(field.getValue());
+            dataFieldSet.getCCDDDataFieldData().add(dataField);
+        }
+
+        return dataFieldSet;
     }
 
     /**********************************************************************************************
@@ -1866,21 +1878,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                               : tableInfo.getDescription();
 
                     // Add the structure to the telemetry data sheet
-                    nameSpace = addNameSpace(systemName, tableName, description);
-
-                    // Create a list containing the table type
-                    List<String[]> typeData = new ArrayList<String[]>();
-                    typeData.add(new String[] {EDSTags.TABLE_TYPE.getTag(),
-                                               tableInfo.getType()});
-
-                    // Store the table type attribute information
-                    storeOtherAttributes(nameSpace, EDSTags.TABLE_TYPE, typeData);
-
-                    // Store the data field attribute information
-                    storeOtherAttributes(nameSpace,
-                                         EDSTags.DATA_FIELD,
-                                         getDataFields(tableInfo.getFieldHandler().getFieldInformation(),
-                                                       null));
+                    nameSpace = addNameSpace(systemName,
+                                             tableName,
+                                             description,
+                                             tableInfo.getType(),
+                                             null,
+                                             getDataFields(tableInfo.getFieldHandler().getFieldInformation()));
 
                     // Step through each row in the table
                     for (int row = 0; row < tableInfo.getData().length; row++)
@@ -1926,109 +1929,58 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                               ? null
                                                                               : tableInfo.getDescription();
 
-                    // Create a name space if not already present
-                    nameSpace = addNameSpace(systemName, tableName, description);
-
-                    // Create a list containing the table type
-                    List<String[]> typeData = new ArrayList<String[]>();
-                    typeData.add(new String[] {EDSTags.TABLE_TYPE.getTag(),
-                                               tableInfo.getType()});
-
-                    // Store the table type attribute information
-                    storeOtherAttributes(nameSpace, EDSTags.TABLE_TYPE, typeData);
-
-                    // Store the data field attribute information
-                    storeOtherAttributes(nameSpace,
-                                         EDSTags.DATA_FIELD,
-                                         getDataFields(tableInfo.getFieldHandler().getFieldInformation(),
-                                                       null));
-
                     // Check if this is a command table
                     if (tableType.equals(TYPE_COMMAND))
                     {
+                        // Create a name space if not already present
+                        nameSpace = addNameSpace(systemName,
+                                                 tableName,
+                                                 description,
+                                                 tableInfo.getType(),
+                                                 null,
+                                                 getDataFields(tableInfo.getFieldHandler().getFieldInformation()));
+
                         // Add the command(s) from this table to the data sheet
                         addNameSpaceCommands(nameSpace, tableInfo);
                     }
                     // Not a command (or structure) table; i.e., it's a user-defined table type
                     else
                     {
-                        // Create a list to contain the table's data field names and associated
-                        // values, description, column information (for a non-command table type),
-                        // and table name and type
-                        List<String[]> otherData = new ArrayList<String[]>();
+                        // Create storage for the column rows, names, and values
+                        CCDDTableColumnSet tableColumnSet = new CCDDTableColumnSet();
 
-                        // Store this table's data as additional data for the current data sheet.
+                        // Store this table's data as column data for the current space system.
                         // Step through each row of the table
                         for (int row = 0; row < tableInfo.getData().length; row++)
                         {
-                            // Step through each column in the row
-                            for (int column = 0; column < tableInfo.getData()[row].length; column++)
+                            // Step through each visible column in the row
+                            for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
                             {
-                                // Check that this isn't the primary key or row index column, and
-                                // that the column value isn't blank
-                                if (column != DefaultColumn.PRIMARY_KEY.ordinal()
-                                    && column != DefaultColumn.ROW_INDEX.ordinal()
-                                    && !tableInfo.getData()[row][column].isEmpty())
+                                // Check that this column is visible and that the column value
+                                // isn't blank
+                                if (!tableInfo.getData()[row][column].isEmpty())
                                 {
-                                    // Store the data column name, value, and row number
-                                    otherData.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(typeDefn.getColumnNamesUser()[column],
-                                                                                                   row),
-                                                                tableInfo.getData()[row][column]});
+                                    // Store the row number, column name, and value
+                                    CCDDTableColumnData columnData = new CCDDTableColumnData();
+                                    columnData.setRowNumber(BigInteger.valueOf(row));
+                                    columnData.setColumnName(typeDefn.getColumnNamesUser()[column]);
+                                    columnData.setValue(tableInfo.getData()[row][column]);
+                                    tableColumnSet.getCCDDTableColumnData().add(columnData);
                                 }
                             }
                         }
 
-                        // Store the additional column attribute information
-                        storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherData);
+                        // Create a name space if not already present
+                        nameSpace = addNameSpace(systemName,
+                                                 tableName,
+                                                 description,
+                                                 tableInfo.getType(),
+                                                 tableColumnSet,
+                                                 getDataFields(tableInfo.getFieldHandler().getFieldInformation()));
                     }
                 }
             }
         }
-    }
-
-    /**********************************************************************************************
-     * Return an array containing the specified table's data field names and values
-     *
-     * @param fieldInformation
-     *            list containing data field information
-     *
-     * @param identifier
-     *            string to append to the data field tag used to identify the table type to which a
-     *            data field belongs; null if the data type doesn't belong to a table type
-     *
-     * @return List containing the data field names and values
-     *********************************************************************************************/
-    private List<String[]> getDataFields(List<FieldInformation> fieldInformation,
-                                         String identifier)
-    {
-        List<String[]> fieldData = new ArrayList<String[]>();
-
-        // Step through the command table's data field information
-        for (FieldInformation field : fieldInformation)
-        {
-            // Store the data field information
-            fieldData.add(new String[] {EDSTags.DATA_FIELD.getTag()
-                                        + (identifier == null
-                                                              ? ""
-                                                              : ":" + identifier),
-                                        "\""
-                                                                                   + field.getFieldName()
-                                                                                   + "\",\""
-                                                                                   + field.getDescription()
-                                                                                   + "\",\""
-                                                                                   + field.getSize()
-                                                                                   + "\",\""
-                                                                                   + field.getInputType().getInputName()
-                                                                                   + "\",\""
-                                                                                   + field.isRequired()
-                                                                                   + "\",\""
-                                                                                   + field.getApplicabilityType().getApplicabilityName()
-                                                                                   + "\",\""
-                                                                                   + field.getValue()
-                                                                                   + "\""});
-        }
-
-        return fieldData;
     }
 
     /**********************************************************************************************
@@ -2044,11 +1996,23 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param shortDescription
      *            data sheet description
      *
+     * @param tableType
+     *            table's type name
+     *
+     * @param tableColumnSet
+     *            list containing row number, column name, and value for each column
+     *
+     * @param dataFieldSet
+     *            list containing the data field definitions
+     *
      * @return Reference to the new name space
      *********************************************************************************************/
     private NamespaceType addNameSpace(String systemName,
                                        String nameSpaceName,
-                                       String shortDescription)
+                                       String shortDescription,
+                                       String tableType,
+                                       CCDDTableColumnSet tableColumnSet,
+                                       CCDDDataFieldSet dataFieldSet)
     {
         // Check if a system name is provided
         if (systemName != null && !systemName.isEmpty())
@@ -2080,8 +2044,33 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 nameSpace.setShortDescription(shortDescription);
             }
 
-            // Create an interface set for the name space
-            nameSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
+            // Check if a system name is provided (i.e., this is a table)
+            if (systemName != null && !systemName.isEmpty())
+            {
+                // Create an interface set for the name space
+                nameSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
+
+                // Check if the table's type name is supplied
+                if (tableType != null)
+                {
+                    // Store the table type name
+                    nameSpace.setCCDDTableType(tableType);
+                }
+
+                // Check if any table column data are supplied
+                if (tableColumnSet != null && !tableColumnSet.getCCDDTableColumnData().isEmpty())
+                {
+                    // Store the table column data
+                    nameSpace.setCCDDTableColumnSet(tableColumnSet);
+                }
+
+                // Check if any data field definitions are supplied
+                if (dataFieldSet != null && !dataFieldSet.getCCDDDataFieldData().isEmpty())
+                {
+                    // Store the data field definitions
+                    nameSpace.setCCDDTableDataFieldSet(dataFieldSet);
+                }
+            }
 
             // Add the new names space
             dataSheet.getNamespace().add(nameSpace);
@@ -2174,7 +2163,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         List<String> enumerations = null;
         String units = null;
         String description = null;
-        List<String[]> otherCols = new ArrayList<String[]>();
+        CCDDTableColumnSet tableColumnSet = new CCDDTableColumnSet();
 
         // Separate the variable name and bit length (if present) and store the variable name
         String[] nameAndBit = variableName.split(":");
@@ -2188,9 +2177,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         // Get the index of the row in the table for this variable
-        int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(),
-                                                    variableName,
-                                                    varColumn);
+        int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(), variableName, varColumn);
 
         // Check that a valid row index exists for this variable. Since the table tree is built
         // from the existing tables, a valid variable row index is always returned
@@ -2211,21 +2198,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
 
             // Step through each column in the row
-            for (int column = 0; column < tableInfo.getData()[row].length; column++)
+            for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
             {
-                // Check that this is not the primary key, row index, variable or name column, or
-                // the bit length column and the variable has no bit length, and that a value
-                // exists in the column
-                if (((column != DefaultColumn.PRIMARY_KEY.ordinal()
-                      && column != DefaultColumn.ROW_INDEX.ordinal()
-                      && column != varColumn)
+                // Check that this is not the variable name column, or the bit length column and
+                // the variable has no bit length, and that a value exists in the column
+                if ((column != varColumn
                      || (column == bitColumn && bitLength != null))
                     && !tableInfo.getData()[row][column].isEmpty())
                 {
-                    // Store the column value size. This is treated as ancillary data
-                    otherCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(typeDefn.getColumnNamesUser()[column],
-                                                                                   row),
-                                                tableInfo.getData()[row][column]});
+                    // Store the column name and value
+                    CCDDTableColumnData columnData = new CCDDTableColumnData();
+                    columnData.setColumnName(typeDefn.getColumnNamesUser()[column]);
+                    columnData.setValue(tableInfo.getData()[row][column]);
+                    tableColumnSet.getCCDDTableColumnData().add(columnData);
 
                     // Check if this is an enumeration column
                     if (enumColumns.contains(column))
@@ -2263,10 +2248,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                      dataType,
                      enumerations,
                      units,
-                     description);
-
-        // Add any additional column data
-        storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherCols);
+                     description,
+                     tableColumnSet);
     }
 
     /**********************************************************************************************
@@ -2280,8 +2263,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private void addNameSpaceCommands(NamespaceType nameSpace, TableInformation tableInfo)
     {
-        List<String[]> otherCols = new ArrayList<String[]>();
-
         // Get the list containing command argument name, data type, enumeration, minimum, maximum,
         // and other associated column indices for each argument grouping
         List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
@@ -2293,6 +2274,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             String commandName = null;
             String commandDescription = null;
             List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
+            CCDDTableColumnSet commandColumnSet = new CCDDTableColumnSet();
 
             // Create an array of flags to indicate if the column is a command argument that has
             // been processed
@@ -2323,7 +2305,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         String enumeration = null;
                         String units = null;
                         String description = null;
-                        List<String[]> otherArgCols = new ArrayList<String[]>();
+                        CCDDTableColumnSet argColumnSet = new CCDDTableColumnSet();
 
                         // Step through each command argument column grouping
                         for (AssociatedColumns cmdArg : commandArguments)
@@ -2337,89 +2319,60 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Set the flag indicating the column is a command argument
                                 isCmdArg[colA] = true;
 
-                                // Step through each column in the row again to look for the
-                                // remaining members of this argument grouping
-                                for (int colB = NUM_HIDDEN_COLUMNS; colB < rowData.length; colB++)
+                                // Step through the remaining columns in the row to look for the
+                                // other members of this argument grouping
+                                for (int colB = colA + 1; colB < rowData.length; colB++)
                                 {
-                                    // Check if a value is present
-                                    if (!rowData[colB].isEmpty())
-                                    {
-                                        // Get the column name
-                                        colName = typeDefn.getColumnNamesUser()[colB];
+                                    // Set the flag to indicate if the column is associated with a
+                                    // command argument
+                                    isCmdArg[colB] = colB == cmdArg.getDataType()
+                                                     || colB == cmdArg.getEnumeration()
+                                                     || colB == cmdArg.getDescription()
+                                                     || colB == cmdArg.getUnits()
+                                                     || colB == cmdArg.getMinimum()
+                                                     || colB == cmdArg.getMaximum()
+                                                     || cmdArg.getOther().contains(colB);
 
-                                        // Store the column name and value. This is treated as
-                                        // ancillary data for this command argument set
-                                        otherArgCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(colName,
-                                                                                                          Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()]) - 1),
-                                                                       rowData[colB]});
+                                    // Check if this is a command argument column and that the
+                                    // value isn't blank
+                                    if (isCmdArg[colB] && !rowData[colB].isEmpty())
+                                    {
+                                        // Store the column row number, column name, and value
+                                        CCDDTableColumnData columnData = new CCDDTableColumnData();
+                                        columnData.setColumnName(typeDefn.getColumnNamesUser()[colB]);
+                                        columnData.setValue(rowData[colB]);
+                                        argColumnSet.getCCDDTableColumnData().add(columnData);
 
                                         // Check if this is the command argument data type column
                                         if (colB == cmdArg.getDataType())
                                         {
                                             // Store the command argument data type
                                             dataType = rowData[colB];
-
-                                            // Set the flag indicating the column is a command
-                                            // argument
-                                            isCmdArg[colB] = true;
                                         }
                                         // Check if this is the command argument enumeration column
                                         else if (colB == cmdArg.getEnumeration())
                                         {
-                                            // Store the command argument enumeration and column
-                                            // name
+                                            // Store the command argument enumeration
                                             enumeration = rowData[colB];
-
-                                            // Set the flag indicating the column is a command
-                                            // argument
-                                            isCmdArg[colB] = true;
                                         }
                                         // Check if this is the command argument description column
                                         else if (colB == cmdArg.getDescription())
                                         {
-                                            // Store the command argument description and column
-                                            // name
+                                            // Store the command argument description
                                             description = rowData[colB];
-
-                                            // Set the flag indicating the column is a command
-                                            // argument
-                                            isCmdArg[colB] = true;
                                         }
                                         // Check if this is the command argument units column
                                         else if (colB == cmdArg.getUnits())
                                         {
-                                            // Store the command argument description and column
-                                            // name
+                                            // Store the command argument units
                                             units = rowData[colB];
-
-                                            // Set the flag indicating the column is a command
-                                            // argument
-                                            isCmdArg[colB] = true;
-                                        }
-                                        // Check if this is the command argument minimum or maximum
-                                        // column
-                                        else if (colB == cmdArg.getMinimum()
-                                                 || colB == cmdArg.getMaximum())
-                                        {
-                                            // Set the flag indicating the column is a command
-                                            // argument
-                                            isCmdArg[colB] = true;
-                                        }
-                                        // The column isn't associated with this command argument
-                                        else if (!cmdArg.getOther().contains(colB))
-                                        {
-                                            // Remove the column information
-                                            otherArgCols.remove(otherArgCols.size() - 1);
-                                            colName = null;
                                         }
                                     }
                                 }
 
                                 // Check if the command argument has the minimum parameters
                                 // required: a name and data type
-                                if (argName != null
-                                    && !argName.isEmpty()
-                                    && dataType != null)
+                                if (argName != null && !argName.isEmpty() && dataType != null)
                                 {
                                     // Add the command argument to the list
                                     arguments.add(addCommandArgument(nameSpace,
@@ -2429,7 +2382,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                      enumeration,
                                                                      units,
                                                                      description,
-                                                                     otherArgCols));
+                                                                     argColumnSet));
                                 }
 
                                 // Stop searching since a match was found
@@ -2449,21 +2402,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // information
                 if (!isCmdArg[col] && !rowData[col].isEmpty())
                 {
-                    // Get the column name
-                    String colName = typeDefn.getColumnNamesUser()[col];
-
                     // Check if this column is for the command description
                     if (col == typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION))
                     {
                         // Store the command description
                         commandDescription = rowData[col];
                     }
-
-                    // Store the column name and value. This is treated as generic data for this
-                    // command
-                    otherCols.add(new String[] {EDSTags.COLUMN.getColumnIdentifier(colName,
-                                                                                   Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()]) - 1),
-                                                rowData[col]});
+                    // Check if this column isn't the command name
+                    else if (col != typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME))
+                    {
+                        // Store the column column name and value
+                        CCDDTableColumnData columnData = new CCDDTableColumnData();
+                        columnData.setColumnName(typeDefn.getColumnNamesUser()[col]);
+                        columnData.setValue(rowData[col]);
+                        commandColumnSet.getCCDDTableColumnData().add(columnData);
+                    }
                 }
             }
 
@@ -2471,12 +2424,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             if (commandName != null)
             {
                 // Add the command information
-                addCommand(nameSpace, commandName, arguments, commandDescription);
+                addCommand(nameSpace, commandName, arguments, commandDescription, commandColumnSet);
             }
         }
-
-        // Add any additional column data
-        storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherCols);
     }
 
     /**********************************************************************************************
@@ -2512,22 +2462,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Create a user-defined set for the specified name space
-     *
-     * @param nameSpace
-     *            name space
-     *
-     * @return Reference to the user-defined set
-     *********************************************************************************************/
-    private InterfaceDeclarationType createUserSet(NamespaceType nameSpace)
-    {
-        InterfaceDeclarationType intUserType = factory.createInterfaceDeclarationType();
-        intUserType.setGenericTypeSet(factory.createGenericTypeSetType());
-        nameSpace.getDeclaredInterfaceSet().getInterface().add(intUserType);
-        return intUserType;
-    }
-
-    /**********************************************************************************************
      * Add a telemetry parameter to the name space's parameter set. Create the parameter set for
      * the name space if it does not exist
      *
@@ -2553,6 +2487,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param shortDescription
      *            short description of the parameter
+     *
+     * @param columnDataSet
+     *            list containing column name and value for each of the parameter's columns
      *********************************************************************************************/
     private void addParameter(NamespaceType nameSpace,
                               String systemPath,
@@ -2560,7 +2497,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                               String dataType,
                               List<String> enumerations,
                               String units,
-                              String shortDescription)
+                              String shortDescription,
+                              CCDDTableColumnSet columnDataSet)
     {
         // Build the parameter attributes
         InterfaceParameterType parameter = factory.createInterfaceParameterType();
@@ -2671,6 +2609,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         // Add the parameter to the parameter set
         intParmType.getParameterSet().getParameter().add(parameter);
+
+        // Check if structure column row number, column name, and value data are supplied
+        if (!columnDataSet.getCCDDTableColumnData().isEmpty())
+        {
+            // Store the column column name and value data
+            parameter.setCCDDTableColumnSet(columnDataSet);
+        }
     }
 
     /**********************************************************************************************
@@ -2687,11 +2632,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param shortDescription
      *            short description of the command
+     *
+     * @param commandColumnSet
+     *            list containing column name and value for each of the command's columns
      *********************************************************************************************/
     private void addCommand(NamespaceType nameSpace,
                             String commandName,
                             List<CommandArgumentType> arguments,
-                            String shortDescription)
+                            String shortDescription,
+                            CCDDTableColumnSet commandColumnSet)
     {
         // Build the command attributes
         InterfaceCommandType command = factory.createInterfaceCommandType();
@@ -2732,6 +2681,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         // Add the command to the command set
         intCmdType.getCommandSet().getCommand().add(command);
+
+        // Check if command column row number, column name, and value data are supplied
+        if (commandColumnSet != null && !commandColumnSet.getCCDDTableColumnData().isEmpty())
+        {
+            // Store the column row number, column name, and value data
+            command.setCCDDTableColumnSet(commandColumnSet);
+        }
     }
 
     /**********************************************************************************************
@@ -2764,9 +2720,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param shortDescription
      *            short description of the command
      *
-     * @param otherArgCols
-     *            list of string arrays containing other argument column data in the format [column
-     *            name][data value]
+     * @param argColumnSet
+     *            list containing column name and value for each of the command argument's columns
      *********************************************************************************************/
     private CommandArgumentType addCommandArgument(NamespaceType nameSpace,
                                                    String commandName,
@@ -2775,7 +2730,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                    String enumeration,
                                                    String units,
                                                    String shortDescription,
-                                                   List<String[]> otherArgCols)
+                                                   CCDDTableColumnSet argColumnSet)
     {
         CommandArgumentType argType = factory.createCommandArgumentType();
         argType.setName(argumentName);
@@ -2826,14 +2781,30 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             nameSpace.setDataTypeSet(dataTypeSet);
         }
 
+        try
+        {
+            // This throws an illegal argument exception if the unit is not one of those in the
+            // Unit enum class
+            Unit unit = Unit.fromValue(units);
+            SemanticsType semType = factory.createSemanticsType();
+            semType.setUnit(unit);
+            argType.setSemantics(semType);
+        }
+        catch (IllegalArgumentException iae)
+        {
+            // TODO User-supplied units don't match one of the hard-coded Unit types (from
+            // Units.java), which are the only ones that are accepted by the Unit fromValue()
+            // method. The hard-coded unit types list is limited
+        }
+
         // Set the command argument data type
         argType.setType(dataType.toString().toLowerCase());
 
-        // Check if other column data exists
-        if (!otherArgCols.isEmpty())
+        // Check if column row number, column name, and value data is supplied
+        if (argColumnSet != null && !argColumnSet.getCCDDTableColumnData().isEmpty())
         {
-            // Add any additional column data
-            storeOtherAttributes(nameSpace, EDSTags.COLUMN, otherArgCols);
+            // Store the column column name and value data
+            argType.setCCDDTableColumnSet(argColumnSet);
         }
 
         // Check if this data type hasn't already been referenced
@@ -2915,45 +2886,5 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         return enumList;
-    }
-
-    /**********************************************************************************************
-     * Store any additional attribute information in the specified name space under the generic
-     * interface declaration
-     *
-     * @param nameSpace
-     *            parent data sheet for the new system; null for the root data sheet
-     *
-     * @param attrType
-     *            type of the additional attributes
-     *
-     * @param otherAttrs
-     *            list containing other attribute data in the format [attribute name][attribute
-     *            value]
-     *********************************************************************************************/
-    private void storeOtherAttributes(NamespaceType nameSpace,
-                                      EDSTags attrType,
-                                      List<String[]> otherAttrs)
-    {
-        // Check if other attribute data is provided
-        if (otherAttrs != null && !otherAttrs.isEmpty())
-        {
-            // Create the user-defined set in this name space for this parameter to store the other
-            // attribute information
-            InterfaceDeclarationType intUserType = createUserSet(nameSpace);
-            intUserType.setName(attrType.getTag());
-
-            // Step through each other attribute
-            for (String[] attr : otherAttrs)
-            {
-                // Build the attribute information
-                GenericTypeType genType = factory.createGenericTypeType();
-                genType.setName(attr[0]);
-                genType.setShortDescription(attr[1]);
-
-                // Add the attribute to the user-defined set
-                intUserType.getGenericTypeSet().getGenericType().add(genType);
-            }
-        }
     }
 }

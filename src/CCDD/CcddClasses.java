@@ -987,6 +987,8 @@ public class CcddClasses
          *****************************************************************************************/
         TableDefinition()
         {
+            typeName = "";
+
             // Initialize storage for the table information
             data = new ArrayList<String>();
             dataFields = new ArrayList<String[]>();

@@ -1,0 +1,208 @@
+<!--  Extend the EDS schema with CCDD-specific types
+      Version 1.0   2/12/2018
+      ER6/Kevin McCluney
+ 
+	  Copyright 2017 United States Government as represented by the Administrator of the National
+	  Aeronautics and Space Administration. No copyright is claimed in the United States under
+	  Title 17, U.S. Code. All Other Rights Reserved.
+-->
+
+<xs:schema xmlns:seds="http://www.ccsds.org/schema/sois/seds" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ccsds.org/schema/sois/seds" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+    <xs:include schemaLocation="seds.xsd" />
+    
+    <xs:redefine schemaLocation="seds.xsd">
+    
+    <!--  Extend DescriptionType -->
+	    <xs:complexType name="DescriptionType" abstract="true">
+	        <xs:complexContent>
+	            <xs:extension base="seds:DescriptionType">
+		            <xs:sequence>
+		            
+					    <!-- Table Type Name -->
+					    <xs:element name="CCDDTableType" type="xs:string" />
+					   
+                        <!--  CCDD Table Data Field -->
+                        <xs:element name="CCDDTableDataFieldSet" type="seds:CCDDDataFieldSet" minOccurs="0" />
+                        
+                        <!--  CCDD Table Type -->
+                        <xs:element name="CCDDTableTypeDefinitionSet" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="CCDDTableTypeDefinitionData" maxOccurs="unbounded">
+                                        <xs:annotation>
+                                            <xs:documentation xml:lang="en">CCDD table type definition. </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="tableType" type="xs:string" />
+                                                <xs:element name="description" type="xs:string" />
+                                                <xs:element name="CCDDTableTypeDefinitionColumn" maxOccurs="unbounded">
+                                                    <xs:annotation>
+                                                        <xs:documentation xml:lang="en">CCDD table type column definition. </xs:documentation>
+                                                    </xs:annotation>
+                                                    <xs:complexType>
+                                                        <xs:simpleContent>
+                                                            <xs:extension base="xs:string">
+                                                                <xs:attribute name="columnNumber" type="xs:integer" use="required" />
+                                                                <xs:attribute name="nameVisible" type="xs:string" use="required" />
+                                                                <xs:attribute name="nameDatabase" type="xs:string" use="required" />
+                                                                <xs:attribute name="description" type="xs:string" use="required" />
+                                                                <xs:attribute name="inputType" type="xs:string" use="required" />
+                                                                <xs:attribute name="rowValueUnique" type="xs:boolean" use="required" />
+                                                                <xs:attribute name="required" type="xs:boolean" use="required" />
+                                                                <xs:attribute name="structureAllowed" type="xs:boolean" use="required" />
+                                                                <xs:attribute name="pointerAllowed" type="xs:boolean" use="required" />
+                                                            </xs:extension>
+                                                        </xs:simpleContent>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                                
+                                                <!--  CCDD Table Type Data Field -->
+                                                <xs:element name="CCDDTableTypeDefinitionDataFieldSet" type="seds:CCDDDataFieldSet" minOccurs="0" />
+                                                                                                                                                                         
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        
+                        <!--  CCDD Data Type -->
+                        <xs:element name="CCDDDataTypeSet" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="CCDDDataTypeData" maxOccurs="unbounded">
+                                        <xs:annotation>
+                                            <xs:documentation xml:lang="en">CCDD data type definition. </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="userName" type="xs:string" use="required" />
+                                                    <xs:attribute name="cName" type="xs:string" use="required" />
+                                                    <xs:attribute name="sizeInBytes" type="xs:positiveInteger" use="required" />
+                                                    <xs:attribute name="baseType" type="xs:string" use="required" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        
+                        <!--  CCDD Macro Type -->
+                        <xs:element name="CCDDMacroSet" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="CCDDMacroData" maxOccurs="unbounded">
+                                        <xs:annotation>
+                                            <xs:documentation xml:lang="en">CCDD macro definition. </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                                    <xs:attribute name="macroValue" type="xs:string" use="required" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        
+                        <!--  CCDD Reserved Message ID Type -->
+                        <xs:element name="CCDDReservedMessageIDSet" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="CCDDReservedMessageIDData" maxOccurs="unbounded">
+                                        <xs:annotation>
+                                            <xs:documentation xml:lang="en">CCDD reserved message ID definition. </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="messageID" type="xs:string" use="required" />
+                                                    <xs:attribute name="description" type="xs:string" use="required" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        
+                        <!--  CCDD Variable Path Type -->
+                        <xs:element name="CCDDVariablePathSet" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="CCDDVariablePathData" maxOccurs="unbounded">
+                                        <xs:annotation>
+                                            <xs:documentation xml:lang="en">CCDD variable path. </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="path" type="xs:string" use="required" />
+                                                    <xs:attribute name="pathConverted" type="xs:string" use="required" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                        <!-- Custom Table Column Values -->
+					    <xs:element name="CCDDTableColumnSet" minOccurs="0">
+						    <xs:complexType>
+						        <xs:sequence>
+						            <xs:element name="CCDDTableColumnData" maxOccurs="unbounded">
+						                <xs:annotation>
+						                    <xs:documentation xml:lang="en">CCDD table column data. </xs:documentation>
+						                </xs:annotation>
+						                <xs:complexType>
+						                    <xs:simpleContent>
+						                        <xs:extension base="xs:string">
+						                            <xs:attribute name="rowNumber" type="xs:integer" use="required" /> <!--  IS ROW NUMBER NEEDED? THE DATA IS SUB'D TO THE PARAMETER, etc. (OR IS THIS TRUE FOR OTHET TABLE TYPES?) -->
+						                            <xs:attribute name="columnName" type="xs:string" use="required" />
+						                        </xs:extension>
+						                    </xs:simpleContent>
+						                </xs:complexType>
+						            </xs:element>
+						        </xs:sequence>
+						    </xs:complexType>
+					    </xs:element>
+                                    
+		            </xs:sequence>
+	            </xs:extension>
+	        </xs:complexContent>
+	    </xs:complexType>
+    <!--  End extend DescriptionType -->
+        
+    </xs:redefine>
+	    
+    <!-- Data Field Definition -->
+    <xs:complexType name="CCDDDataFieldSet">
+	    <xs:sequence>
+	        <xs:element name="CCDDDataFieldData" maxOccurs="unbounded">
+	            <xs:annotation>
+	                <xs:documentation xml:lang="en">CCDD data field definition. </xs:documentation>
+	            </xs:annotation>
+	            <xs:complexType>
+	                <xs:simpleContent>
+	                    <xs:extension base="xs:string">
+	                        <xs:attribute name="name" type="xs:string" use="required" />
+	                        <xs:attribute name="description" type="xs:string" use="required" />
+	                        <xs:attribute name="size" type="xs:positiveInteger" use="required" />
+	                        <xs:attribute name="inputType" type="xs:string" use="required" />
+	                        <xs:attribute name="required" type="xs:boolean" use="required" />
+	                        <xs:attribute name="applicability" type="xs:string" use="required" />
+	                    </xs:extension>
+	                </xs:simpleContent>
+	            </xs:complexType>
+	        </xs:element>
+	    </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
