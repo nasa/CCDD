@@ -4247,6 +4247,7 @@ public abstract class CcddJTableHandler extends JTable
 
                     // Force table to redraw
                     tableModel.fireTableDataChanged();
+                    tableModel.fireTableStructureChanged();
                 }
 
                 // Generate event to reset the cursor

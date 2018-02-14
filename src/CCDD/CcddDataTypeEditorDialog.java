@@ -110,7 +110,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         {
             this.dataTypeName = dataTypeName;
 
-            // Get the references to the specified data type in the data tables
+            // Get the references to the specified data type in the prototype tables
             references = dataTypeHandler.getDataTypeReferences(dataTypeName,
                                                                CcddDataTypeEditorDialog.this);
         }
@@ -282,28 +282,88 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         for (int row : dataTypeTable.getSelectedRows())
                         {
                             // Get the data type name
-                            String name = CcddDataTypeHandler.getDataTypeName(dataTypeTable.getValueAt(row,
-                                                                                                       DataTypesColumn.USER_NAME.ordinal())
-                                                                                           .toString(),
-                                                                              dataTypeTable.getValueAt(row,
-                                                                                                       DataTypesColumn.C_NAME.ordinal())
-                                                                                           .toString());
+                            String dataType = CcddDataTypeHandler.getDataTypeName(dataTypeTable.getValueAt(row,
+                                                                                                           DataTypesColumn.USER_NAME.ordinal())
+                                                                                               .toString(),
+                                                                                  dataTypeTable.getValueAt(row,
+                                                                                                           DataTypesColumn.C_NAME.ordinal())
+                                                                                               .toString());
 
-                            // Check if the data type is used in any of the data tables
-                            if (!name.isEmpty()
-                                && dataTypeHandler.getDataTypeReferences(name, CcddDataTypeEditorDialog.this).length != 0)
+                            // Check if the data type name is present
+                            if (!dataType.isEmpty())
                             {
-                                // Deselect the data type
-                                dataTypeTable.removeRowSelectionInterval(row, row);
+                                boolean isInUse = false;
 
-                                // Inform the user that the data type can't be deleted
-                                new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                          "<html><b>Cannot delete data type '"
-                                                                                                         + name
-                                                                                                         + "'; data type is referenced by a data table",
-                                                                          "Delete Data Type",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_OPTION);
+                                // Step through each reference to the data type name. The
+                                // references are checked to determine if it's to the actual data
+                                // type, and not just text matching the data type's name
+                                for (String dataTypeRef : getDataTypeReferences(dataType).getReferences())
+                                {
+                                    // Split the reference into table name, column name, table
+                                    // type, and context
+                                    String[] tblColDescAndCntxt = dataTypeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+                                    String refComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
+
+                                    // Check if the match is within a sizeof() call
+                                    if (CcddVariableSizeAndConversionHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
+                                                                                       dataType))
+                                    {
+                                        // Set the flag to indicate the reference is to the data
+                                        // type, and stop searching
+                                        isInUse = true;
+                                        break;
+                                    }
+
+                                    // Extract the viewable name and type of the table, and the
+                                    // name of the column containing the data type, Separate the
+                                    // column string into the individual column values
+                                    String[] refNameAndType = refComment.split(",");
+                                    String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                                    // Use the type and column to get the column's input data type
+                                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
+
+                                    // Get the indices for all columns that can reference a data
+                                    // type
+                                    List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE);
+                                    primColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
+
+                                    // Step through each of the data type columns
+                                    for (int column : primColumns)
+                                    {
+                                        // Check if the column contents matches the data type name
+                                        if (refColumns[column].equals(dataType))
+                                        {
+                                            // Set the flag to indicate the reference is to the
+                                            // data type, and stop searching
+                                            isInUse = true;
+                                            break;
+                                        }
+                                    }
+
+                                    // Check if the data type has a valid reference
+                                    if (isInUse)
+                                    {
+                                        // Stop searching
+                                        break;
+                                    }
+                                }
+
+                                // Check if the data type is in use by a data table
+                                if (isInUse)
+                                {
+                                    // Deselect the data type
+                                    dataTypeTable.removeRowSelectionInterval(row, row);
+
+                                    // Inform the user that the data type can't be deleted
+                                    new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
+                                                                              "<html><b>Cannot delete data type '"
+                                                                                                             + dataType
+                                                                                                             + "'; data type is referenced by a data table",
+                                                                              "Delete Data Type",
+                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                              DialogOption.OK_OPTION);
+                                }
                             }
                         }
 
@@ -472,6 +532,43 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                   true);
             }
         });
+    }
+
+    /**********************************************************************************************
+     * Get the references to the specified data type in the prototype tables
+     *
+     * @param dataTypeName
+     *            data type name
+     *
+     * @return Reference to the specified data type in the prototype tables
+     *********************************************************************************************/
+    private DataTypeReference getDataTypeReferences(String dataTypeName)
+    {
+        DataTypeReference dataTypeRefs = null;
+
+        // Step through the list of the data type search references already loaded
+        for (DataTypeReference loadedRef : loadedReferences)
+        {
+            // Check if the data type name matches that for an already searched data type
+            if (dataTypeName.equals(loadedRef.getDataTypeName()))
+            {
+                // Store the data type search reference and stop searching
+                dataTypeRefs = loadedRef;
+                break;
+            }
+        }
+
+        // Check if the data type references haven't already been loaded
+        if (dataTypeRefs == null)
+        {
+            // Search for references to this data type
+            dataTypeRefs = new DataTypeReference(dataTypeName);
+
+            // Add the search results to the list so that this search doesn't get performed again
+            loadedReferences.add(dataTypeRefs);
+        }
+
+        return dataTypeRefs;
     }
 
     /**********************************************************************************************
@@ -738,112 +835,76 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     // tables
                                     String dataTypeName = CcddDataTypeHandler.getDataTypeName(CcddUtilities.convertObjectToString(committedData[commRow]));
 
-                                    DataTypeReference dataTypeRefs = null;
-
-                                    // Step through the list of the data type search references
-                                    // already loaded
-                                    for (DataTypeReference loadedRef : loadedReferences)
-                                    {
-                                        // Check if the data type name matches that for an already
-                                        // searched data type
-                                        if (dataTypeName.equals(loadedRef.getDataTypeName()))
-                                        {
-                                            // Store the data type search reference and stop
-                                            // searching
-                                            dataTypeRefs = loadedRef;
-                                            break;
-                                        }
-                                    }
-
-                                    // Check if the data type references haven't already been
-                                    // loaded
-                                    if (dataTypeRefs == null)
-                                    {
-                                        // Search for references to this data type
-                                        dataTypeRefs = new DataTypeReference(dataTypeName);
-
-                                        // Add the search results to the list so that this search
-                                        // doesn't get performed again
-                                        loadedReferences.add(dataTypeRefs);
-                                    }
-
-                                    // Step through each reference to the data type in the tables
-                                    for (String dataTypeRef : dataTypeRefs.getReferences())
+                                    // Step through each reference to the data type in the
+                                    // prototype tables
+                                    for (String dataTypeRef : getDataTypeReferences(dataTypeName).getReferences())
                                     {
                                         // Split the reference into table name, column name, table
                                         // type, and context
                                         String[] tblColDescAndCntxt = dataTypeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
                                         String refComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
 
-                                        // Check if the this is a reference to a prototype data
-                                        // table
-                                        if (!refComment.isEmpty())
+                                        // Extract the viewable name and type of the table, and the
+                                        // name of the column containing the data type. Separate
+                                        // the column string into the individual column values
+                                        String[] refNameAndType = refComment.split(",");
+                                        String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                                        // Use the type and column to get the column's input data
+                                        // type
+                                        TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
+
+                                        // Get the index of the bit length column, if present
+                                        int bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+
+                                        // Check if the byte size changed
+                                        if (column == DataTypeEditorColumnInfo.SIZE.ordinal())
                                         {
-                                            // Extract the viewable name and type of the table, and
-                                            // the name of the column containing the data type and
-                                            // separate the column string into the individual
-                                            // column values
-                                            String[] refNameAndType = refComment.split(",");
-                                            String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                                            // Use the type and column to get the column's input
-                                            // data type
-                                            TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
-
-                                            // Get the index of the bit length column, if present
-                                            int bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-
-                                            // Check if the byte size changed
-                                            if (column == DataTypeEditorColumnInfo.SIZE.ordinal())
+                                            // Check if the referenced table row's bit length value
+                                            // exceeds the capacity of the new data type byte size,
+                                            // and that this table hasn't already been found to
+                                            // have a conflict
+                                            if (bitLengthIndex != -1
+                                                && !refColumns[bitLengthIndex].isEmpty()
+                                                && Integer.valueOf(newValueS) * 8 < Integer.valueOf(refColumns[bitLengthIndex])
+                                                && !tableNames.contains(refNameAndType[0]))
                                             {
-                                                // Check if the referenced table row's bit length
-                                                // value exceeds the capacity of the new data type
-                                                // byte size, and that this table hasn't already
-                                                // been found to have a conflict
-                                                if (bitLengthIndex != -1
-                                                    && !refColumns[bitLengthIndex].isEmpty()
-                                                    && Integer.valueOf(newValueS) * 8 < Integer.valueOf(refColumns[bitLengthIndex])
-                                                    && !tableNames.contains(refNameAndType[0]))
-                                                {
-                                                    // The bit length is now too large; add the
-                                                    // affected table name to the list
-                                                    tableNames.add(refNameAndType[0]);
-                                                }
+                                                // The bit length is now too large; add the
+                                                // affected table name to the list
+                                                tableNames.add(refNameAndType[0]);
                                             }
-                                            // The base type changed
-                                            else
+                                        }
+                                        // The base type changed
+                                        else
+                                        {
+                                            // Check if the referenced table row has a bit length
+                                            // value, and that this table hasn't already been found
+                                            // to have a conflict
+                                            if (bitLengthIndex != -1
+                                                && !refColumns[bitLengthIndex].isEmpty()
+                                                && !tableNames.contains(refNameAndType[0]))
                                             {
-                                                // Check if the referenced table row has a bit
-                                                // length value, and that this table hasn't already
-                                                // been found to have a conflict
-                                                if (bitLengthIndex != -1
-                                                    && !refColumns[bitLengthIndex].isEmpty()
+                                                // A bit length is not valid with the new data
+                                                // type; add the affected table name to the list
+                                                tableNames.add(refNameAndType[0]);
+                                            }
+
+                                            // Get the enumeration column index(ices), if present
+                                            List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+
+                                            // Step through each enumeration column
+                                            for (int enumIndex : enumerationIndices)
+                                            {
+                                                // Check if the referenced table's enumeration
+                                                // column isn't empty, and that this table hasn't
+                                                // already been found to have a conflict
+                                                if (!refColumns[enumIndex].isEmpty()
                                                     && !tableNames.contains(refNameAndType[0]))
                                                 {
-                                                    // A bit length is not valid with the new data
-                                                    // type; add the affected table name to the
-                                                    // list
+                                                    // An enumeration is not valid with the new
+                                                    // data type; add the affected table name to
+                                                    // the list
                                                     tableNames.add(refNameAndType[0]);
-                                                }
-
-                                                // Get the enumeration column index(ices), if
-                                                // present
-                                                List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
-
-                                                // Step through each enumeration column
-                                                for (int enumIndex : enumerationIndices)
-                                                {
-                                                    // Check if the referenced table's enumeration
-                                                    // column isn't empty, and that this table
-                                                    // hasn't already been found to have a conflict
-                                                    if (!refColumns[enumIndex].isEmpty()
-                                                        && !tableNames.contains(refNameAndType[0]))
-                                                    {
-                                                        // An enumeration is not valid with the new
-                                                        // data type; add the affected table name
-                                                        // to the list
-                                                        tableNames.add(refNameAndType[0]);
-                                                    }
                                                 }
                                             }
                                         }

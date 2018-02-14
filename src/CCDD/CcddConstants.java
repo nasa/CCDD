@@ -291,7 +291,8 @@ public class CcddConstants
         MINMAX,
         SIZE,
         COLOR,
-        OPTION
+        OPTION,
+        NONE
     }
 
     // Server connection types

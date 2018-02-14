@@ -183,8 +183,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
                                    "http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd");
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
-                                   new Boolean(true));
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
 
             // Create the factory for building the space system objects
             factory = new ObjectFactory();

@@ -218,6 +218,9 @@ public class CcddMain
         // stored by user so that different users can have their own preferences
         progPrefs = Preferences.userNodeForPackage(this.getClass());
 
+        // Determine the application version and build date
+        findVersionAndBuildDate();
+
         // Set the selected look & feel. This is done prior to creating any of the GUI (including
         // the session event log) so that the GUI components initialize with the preferred look &
         // feel
@@ -345,6 +348,16 @@ public class CcddMain
     protected JFrame getMainFrame()
     {
         return isGUIHidden() ? null : frameCCDD;
+    }
+
+    /**********************************************************************************************
+     * Get the application version and build date
+     *
+     * @return Application version and build date
+     *********************************************************************************************/
+    protected String getCCDDVersionInformation()
+    {
+        return ccddVersion + " (" + buildDate + ")";
     }
 
     /**********************************************************************************************
@@ -480,73 +493,6 @@ public class CcddMain
     protected CcddDbTableCommandHandler getDbTableCommandHandler()
     {
         return dbTable;
-    }
-
-    /**********************************************************************************************
-     * Create the handler classes that rely on a successful connection to a project database (other
-     * than the default). Set the references to these handlers in the persistent classes that use
-     * them. Any handlers that are needed to create the project-specific PostgreSQL functions must
-     * be created here
-     *********************************************************************************************/
-    protected void setPreFunctionDbSpecificHandlers()
-    {
-        // Read the table type definitions from the database
-        tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
-
-        // Read the macro definitions from the database
-        macroHandler = new CcddMacroHandler(CcddMain.this);
-
-        // Read the data types definitions from the database
-        dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
-
-        // Read the rate parameters from the project database
-        rateHandler = new CcddRateParameterHandler(CcddMain.this);
-
-        // Read the application parameters from the project database
-        appHandler = new CcddApplicationParameterHandler(CcddMain.this);
-
-        // Read the reserved message IDs from the project database
-        rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
-
-        // Now that the handlers exist, store its reference in the other persistent classes that
-        // use them
-        CcddClasses.setHandlers(CcddMain.this);
-        fileIOHandler.setHandlers();
-        keyboardHandler.setHandlers();
-
-        // Check if the web server is activated
-        if (webServer != null)
-        {
-            webServer.getWebAccessHandler().setHandlers();
-        }
-    }
-
-    /**********************************************************************************************
-     * Create the handler classes that rely on the project-specific PostgreSQL functions. Start the
-     * web server if enabled
-     *********************************************************************************************/
-    protected void setPostFunctionDbSpecificHandlers()
-    {
-        // Create a variable size and conversion handler for the project database
-        variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
-
-        // Now that the variable handler exists, store its reference in the table command and macro
-        // handlers
-        dbTable.setHandlers();
-        macroHandler.setHandlers(variableHandler);
-        scriptHandler.setHandlers();
-
-        // Determine the variable offsets (note that the variable size class must be fully
-        // instantiated and the macro handler updated with the variable handler reference before
-        // calling the path and offset list build method)
-        variableHandler.buildPathAndOffsetLists();
-
-        // Check if the web server is enabled
-        if (isWebServer())
-        {
-            // Start the web server
-            getWebServer().startServer();
-        }
     }
 
     /**********************************************************************************************
@@ -688,6 +634,73 @@ public class CcddMain
     protected void setGroupManager(CcddGroupManagerDialog groupManagerDialog)
     {
         this.groupManagerDialog = groupManagerDialog;
+    }
+
+    /**********************************************************************************************
+     * Create the handler classes that rely on a successful connection to a project database (other
+     * than the default). Set the references to these handlers in the persistent classes that use
+     * them. Any handlers that are needed to create the project-specific PostgreSQL functions must
+     * be created here
+     *********************************************************************************************/
+    protected void setPreFunctionDbSpecificHandlers()
+    {
+        // Read the table type definitions from the database
+        tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
+
+        // Read the macro definitions from the database
+        macroHandler = new CcddMacroHandler(CcddMain.this);
+
+        // Read the data types definitions from the database
+        dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
+
+        // Read the rate parameters from the project database
+        rateHandler = new CcddRateParameterHandler(CcddMain.this);
+
+        // Read the application parameters from the project database
+        appHandler = new CcddApplicationParameterHandler(CcddMain.this);
+
+        // Read the reserved message IDs from the project database
+        rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
+
+        // Now that the handlers exist, store its reference in the other persistent classes that
+        // use them
+        CcddClasses.setHandlers(CcddMain.this);
+        fileIOHandler.setHandlers();
+        keyboardHandler.setHandlers();
+
+        // Check if the web server is activated
+        if (webServer != null)
+        {
+            webServer.getWebAccessHandler().setHandlers();
+        }
+    }
+
+    /**********************************************************************************************
+     * Create the handler classes that rely on the project-specific PostgreSQL functions. Start the
+     * web server if enabled
+     *********************************************************************************************/
+    protected void setPostFunctionDbSpecificHandlers()
+    {
+        // Create a variable size and conversion handler for the project database
+        variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
+
+        // Now that the variable handler exists, store its reference in the table command and macro
+        // handlers
+        dbTable.setHandlers();
+        macroHandler.setHandlers(variableHandler);
+        scriptHandler.setHandlers();
+
+        // Determine the variable offsets (note that the variable size class must be fully
+        // instantiated and the macro handler updated with the variable handler reference before
+        // calling the path and offset list build method)
+        variableHandler.buildPathAndOffsetLists();
+
+        // Check if the web server is enabled
+        if (isWebServer())
+        {
+            // Start the web server
+            getWebServer().startServer();
+        }
     }
 
     /**********************************************************************************************
@@ -1148,10 +1161,7 @@ public class CcddMain
      *            specifies which occurrence of the character in the item name to highlight; set to
      *            < 2 to use the first occurrence
      *********************************************************************************************/
-    private void setMnemonic(AbstractButton menuItem,
-                             String name,
-                             int key,
-                             int occurrence)
+    private void setMnemonic(AbstractButton menuItem, String name, int key, int occurrence)
     {
         // Convert the menu item name and key character to lower case to make the match case
         // insensitive
@@ -1175,8 +1185,9 @@ public class CcddMain
             occurrence--;
         } while (occurrence > 0 && position != -1);
         // Continue until the specified occurrence is reached or if the key character can't be
-        // found in the remaining portion of the name Check if the specified occurrence of the key
-        // character was located
+        // found in the remaining portion of the name
+
+        // Check if the specified occurrence of the key character was located
         if (position != -1)
         {
             // Highlight the specified occurrence of the key character in the menu item name
@@ -1185,24 +1196,20 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Initialize the contents of the main application frame
+     * Get the CCDD version number and build date
      *********************************************************************************************/
-    private void initialize()
+    private void findVersionAndBuildDate()
     {
-        // Set the font and background color for all tool tip pop-ups. Note that some look & feels
-        // (e.g., Nimbus, GTK+) ignore the tool tip font and color settings
-        UIDefaults uiDefs = UIManager.getDefaults();
-        uiDefs.put("ToolTip.font", ModifiableFontInfo.TOOL_TIP.getFont());
-        uiDefs.put("ToolTip.foreground", ModifiableColorInfo.TOOL_TIP_TEXT.getColor());
-        uiDefs.put("ToolTip.background", ModifiableColorInfo.TOOL_TIP_BACK.getColor());
-
         ccddVersion = null;
         buildDate = null;
 
         try
         {
             // Get the path+name of the .jar file in a format acceptable to all OS's
-            String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
+            String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain()
+                                                                          .getCodeSource()
+                                                                          .getLocation()
+                                                                          .getPath()).getAbsolutePath(),
                                                    "UTF-8");
 
             // Check if the .jar file name exists. This is false if the application is executed
@@ -1260,6 +1267,19 @@ public class CcddMain
                 buildDate = "*unknown*";
             }
         }
+    }
+
+    /**********************************************************************************************
+     * Initialize the contents of the main application frame
+     *********************************************************************************************/
+    private void initialize()
+    {
+        // Set the font and background color for all tool tip pop-ups. Note that some look & feels
+        // (e.g., Nimbus, GTK+) ignore the tool tip font and color settings
+        UIDefaults uiDefs = UIManager.getDefaults();
+        uiDefs.put("ToolTip.font", ModifiableFontInfo.TOOL_TIP.getFont());
+        uiDefs.put("ToolTip.foreground", ModifiableColorInfo.TOOL_TIP_TEXT.getColor());
+        uiDefs.put("ToolTip.background", ModifiableColorInfo.TOOL_TIP_BACK.getColor());
 
         // Create the main application frame and set its characteristics
         frameCCDD = new JFrame();

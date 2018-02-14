@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -145,13 +146,7 @@ public class CcddCommandLineHandler
                                  CommandLineType type,
                                  int priority)
         {
-            this(command,
-                 description,
-                 value,
-                 type,
-                 priority,
-                 null,
-                 null);
+            this(command, description, value, type, priority, null, null);
         }
 
         /******************************************************************************************
@@ -186,23 +181,17 @@ public class CcddCommandLineHandler
                                  int priority,
                                  Object[] conditions)
         {
-            this(command,
-                 description,
-                 value,
-                 type,
-                 priority,
-                 conditions,
-                 null);
+            this(command, description, value, type, priority, conditions, null);
         }
 
         /******************************************************************************************
-         * Get the command priority
+         * Check if the command requires an argument
          *
-         * @return Command priority
+         * @return true if the command requires an argument
          *****************************************************************************************/
-        protected int getPriority()
+        protected boolean hasArgument()
         {
-            return priority;
+            return type != CommandLineType.NONE;
         }
 
         /******************************************************************************************
@@ -239,6 +228,10 @@ public class CcddCommandLineHandler
                 case SIZE:
                     parmVal = handleSize(command, parm, conditions);
                     break;
+
+                case NONE:
+                    parmVal = "";
+                    break;
             }
 
             // Check if a valid command line parameter was found
@@ -274,6 +267,24 @@ public class CcddCommandLineHandler
         this.args = args;
         errorMessage = null;
         argument = new ArrayList<CommandHandler>();
+
+        // Display application version information command
+        argument.add(new CommandHandler("version",
+                                        "Display CCDD version",
+                                        "",
+                                        CommandLineType.NONE,
+                                        0)
+        {
+            /**************************************************************************************
+             * Display the application version and build date, then exit the program
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                System.out.println("CCDD " + ccddMain.getCCDDVersionInformation());
+                System.exit(0);
+            }
+        });
 
         // Event log file path command. This command, if present, is executed prior to all other
         // commands, regardless of relative priorities
@@ -630,9 +641,10 @@ public class CcddCommandLineHandler
         // Execute script command
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
-                                        "[script name] or [\" or ']script file name["
+                                        "[script name] or\n[\" or ']script file name["
                                                              + SCRIPT_MEMBER_SEPARATOR
-                                                             + "table1 or Group:group1[+...[+tableN or Group:groupN]]][;...][\" or ']",
+                                                             + "table1 or Group:group1\n  [+...[+"
+                                                             + "tableN or Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
                                         10)
         {
@@ -773,12 +785,6 @@ public class CcddCommandLineHandler
     {
         try
         {
-            // Check if there are an odd number of arguments
-            if (args.length % 2 != 0)
-            {
-                throw new CCDDException();
-            }
-
             List<Integer> priorities = new ArrayList<Integer>();
             shutdownWhenComplete = false;
             scriptExitStatus = 0;
@@ -787,10 +793,10 @@ public class CcddCommandLineHandler
             for (CommandHandler cmd : argument)
             {
                 // Check if the priority list doesn't contain the priority value for this command
-                if (!priorities.contains(cmd.getPriority()))
+                if (!priorities.contains(cmd.priority))
                 {
                     // Add the priority value to the list
-                    priorities.add(cmd.getPriority());
+                    priorities.add(cmd.priority);
                 }
             }
 
@@ -801,14 +807,13 @@ public class CcddCommandLineHandler
             for (int priority : priorities)
             {
                 // Step through the command line arguments
-                for (int index = 0; index < args.length; index += 2)
+                for (int index = 0; index < args.length; index++)
                 {
-                    // Get the next command line argument and associated parameter
+                    // Get the next command line argument
                     String arg = args[index];
-                    String parm = args[index + 1];
 
                     // Check if the command doesn't start with a recognized delimiter
-                    if (!arg.startsWith("-") && arg.startsWith("/"))
+                    if (!(arg.startsWith("-") || arg.startsWith("/")))
                     {
                         throw new CCDDException();
                     }
@@ -824,13 +829,35 @@ public class CcddCommandLineHandler
                         // Check if the command argument matches a valid command
                         if (arg.equalsIgnoreCase(cmd.command))
                         {
+                            String parm = null;
+
                             // Set the flag to indicate this is a recognized command
                             isValidCmd = true;
+
+                            // Check if the command requires a parameter
+                            if (cmd.hasArgument())
+                            {
+                                // Increment the command line argument index to point to the
+                                // command's parameter
+                                index++;
+
+                                // Check if the number of command line arguments isn't exceeded
+                                if (index < args.length)
+                                {
+                                    // Get the parameter associated with the command
+                                    parm = args[index];
+                                }
+                                // The end of the command line arguments is reached
+                                else
+                                {
+                                    throw new CCDDException();
+                                }
+                            }
 
                             // Check if the command's priority matches the current priority (if
                             // processing all commands) or if this is the log path command (if only
                             // the log path command is to be processed)
-                            if ((!doLogPathOnly && cmd.getPriority() == priority)
+                            if ((!doLogPathOnly && cmd.priority == priority)
                                 || (doLogPathOnly && arg.equals(LOG_PATH)))
                             {
                                 // Handle the command and check if it results in an error condition
@@ -875,17 +902,36 @@ public class CcddCommandLineHandler
                 int cmdLen = 0;
                 int valLen = 0;
 
+                // Sort the list of command arguments
+                Collections.sort(argument, new Comparator<CommandHandler>()
+                {
+                    /******************************************************************************
+                     * Override the compare method to sort based on the command name
+                     *****************************************************************************/
+                    @Override
+                    public int compare(CommandHandler cmd1, CommandHandler cmd2)
+                    {
+                        return cmd1.command.compareTo(cmd2.command);
+                    }
+                });
+
                 // Step through each command
                 for (CommandHandler cmd : argument)
                 {
-                    // Store the longest description, command, and value text
+                    // Store the longest description and command text
                     descLen = Math.max(descLen, cmd.description.length());
                     cmdLen = Math.max(cmdLen, cmd.command.length());
-                    valLen = Math.max(valLen, cmd.value.length());
-                }
 
-                // Adjust the value text to account for the '<>' characters
-                valLen += 2;
+                    // Split the command value based on line feed characters
+                    String[] parts = cmd.value.split("\n");
+
+                    // Step through each portion of the value
+                    for (String part : parts)
+                    {
+                        // Store the longest value text
+                        valLen = Math.max(valLen, part.length());
+                    }
+                }
 
                 // Build the format string using the maximum lengths
                 String format = "  %-"
@@ -898,14 +944,17 @@ public class CcddCommandLineHandler
                                 + cmdLen
                                 + "s  %-"
                                 + valLen
-                                + "."
-                                + valLen
                                 + "s\n";
 
                 // Create a string filled with '-' characters
                 char[] dashes = new char[Math.max(Math.max(descLen, cmdLen), valLen)];
                 Arrays.fill(dashes, '-');
                 String dash = new String(dashes);
+
+                // Create a string filled with spaces for positioning wrapped value lines
+                char[] spaces = new char[descLen + cmdLen + 6];
+                Arrays.fill(spaces, ' ');
+                String space = new String(spaces);
 
                 // Initialize the usage information
                 String usage = String.format("usage:\n"
@@ -927,11 +976,11 @@ public class CcddCommandLineHandler
                     usage += String.format(format,
                                            cmd.description,
                                            cmd.command,
-                                           cmd.value);
+                                           cmd.value.replaceAll("\n", "\n" + space));
                 }
 
                 // Display the usage information
-                System.out.println(usage + "\n");
+                System.out.println(usage);
             }
 
             // Exit the application
@@ -961,13 +1010,10 @@ public class CcddCommandLineHandler
         String[] parts = parm.split("x");
 
         // Check that only two values are provided and that both contain only decimal digits
-        if (parts.length == 2
-            && parts[0].matches("\\d+")
-            && parts[1].matches("\\d+"))
+        if (parts.length == 2 && parts[0].matches("\\d+") && parts[1].matches("\\d+"))
         {
             // Convert the width and height strings to a Dimension variable
-            val = new Dimension(Integer.parseInt(parts[0]),
-                                Integer.parseInt(parts[1]));
+            val = new Dimension(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
 
             // Check if the width is below the minimum allowed
             if (val.width < (int) min[0])
@@ -986,8 +1032,7 @@ public class CcddCommandLineHandler
         // Width or height string contains a non-numeral or the wrong number of values
         else
         {
-            errorMessage = arg
-                           + " width or height not a number, or too many/few values";
+            errorMessage = arg + " width or height not a number, or too many/few values";
         }
 
         return val;
@@ -1021,11 +1066,7 @@ public class CcddCommandLineHandler
             // Check if the value falls outside the limits
             if (val < (int) limit[0] || val > (int) limit[1])
             {
-                errorMessage = arg
-                               + " must be >= "
-                               + limit[0]
-                               + " and <= "
-                               + limit[1];
+                errorMessage = arg + " must be >= " + limit[0] + " and <= " + limit[1];
                 val = null;
             }
         }
@@ -1072,8 +1113,7 @@ public class CcddCommandLineHandler
             {
                 // Check if the parameter is a valid color name; if so, get the RGB value (mask out
                 // the alpha portion)
-                val = ((Color) Color.class.getField(parm).get(null)).getRGB()
-                      & 0xffffff;
+                val = ((Color) Color.class.getField(parm).get(null)).getRGB() & 0xffffff;
             }
             catch (Exception e)
             {

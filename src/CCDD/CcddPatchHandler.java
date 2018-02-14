@@ -33,6 +33,7 @@ import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -168,7 +169,9 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(dbControl.getDatabaseName()
+                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                  + File.separator
+                                                  + dbControl.getDatabaseName()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                   + FileExtension.DBU.getExtension()));
@@ -254,7 +257,9 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(dbControl.getDatabaseName()
+                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                  + File.separator
+                                                  + dbControl.getDatabaseName()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                   + FileExtension.DBU.getExtension()));
@@ -394,7 +399,9 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(dbControl.getDatabaseName()
+                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                  + File.separator
+                                                  + dbControl.getDatabaseName()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                   + FileExtension.DBU.getExtension()));
@@ -462,7 +469,9 @@ public class CcddPatchHandler
             {
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(dbControl.getDatabaseName()
+                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                  + File.separator
+                                                  + dbControl.getDatabaseName()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                   + FileExtension.DBU.getExtension()));
@@ -545,7 +554,9 @@ public class CcddPatchHandler
             {
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(dbControl.getDatabaseName()
+                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                  + File.separator
+                                                  + dbControl.getDatabaseName()
                                                   + "_"
                                                   + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                   + FileExtension.DBU.getExtension()));

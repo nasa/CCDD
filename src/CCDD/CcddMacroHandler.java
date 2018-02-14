@@ -619,14 +619,14 @@ public class CcddMacroHandler
                     // values and evaluating any sizeof() calls
                     macroValue = getMacroValue(macroName, new ArrayList<String>());
 
-                    // TODO
+                    // Evaluate the text as a mathematical expression
                     Double exprResult = CcddMathExpressionHandler.evaluateExpression(macroValue);
 
+                    // Check if the text is a valid mathematical expression
                     if (exprResult != null)
                     {
-                        // Evaluate the text as a mathematical expression
+                        // Set the value to expression result
                         macroValue = String.valueOf((int) ((double) exprResult));
-
                     }
 
                     // Store the expanded macro value
@@ -861,12 +861,13 @@ public class CcddMacroHandler
             // expression)
             if (parts.length == 1)
             {
-                // TODO
+                // Evaluate the text as a mathematical expression
                 Double exprResult = CcddMathExpressionHandler.evaluateExpression(expandedText);
 
+                // Check if the text is a valid mathematical expression
                 if (exprResult != null)
                 {
-                    // Evaluate the text as a mathematical expression
+                    // Set the value to expression result
                     expandedText = String.valueOf((int) ((double) exprResult));
 
                 }
@@ -880,12 +881,13 @@ public class CcddMacroHandler
                 // Step through each substring
                 for (String part : parts)
                 {
-                    // TODO
+                    // Evaluate the text as a mathematical expression
                     Double exprResult = CcddMathExpressionHandler.evaluateExpression(part);
 
+                    // Check if the text is a valid mathematical expression
                     if (exprResult != null)
                     {
-                        // Evaluate the text as a mathematical expression
+                        // Set the value to expression result
                         expandedText = String.valueOf((int) ((double) exprResult));
 
                     }
@@ -992,8 +994,9 @@ public class CcddMacroHandler
         // Step through each macro definition
         for (String[] macro : macros)
         {
-            // Check if the maco's value has a sizeof() call for the specified data type
-            if (CcddVariableSizeAndConversionHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()], dataType))
+            // Check if the macro's value has a sizeof() call for the specified data type
+            if (CcddVariableSizeAndConversionHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
+                                                               dataType))
             {
                 // Add the macro and its related macros to the list
                 addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);

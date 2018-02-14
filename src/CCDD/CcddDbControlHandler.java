@@ -497,9 +497,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String[] queryUserList(Component parent)
     {
-        return dbCommand.getList(DatabaseListCommand.USERS,
-                                 null,
-                                 parent);
+        return dbCommand.getList(DatabaseListCommand.USERS, null, parent);
     }
 
     /**********************************************************************************************
@@ -512,9 +510,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String[] queryActiveList(Component parent)
     {
-        return dbCommand.getList(DatabaseListCommand.ACTIVE_BY_USER,
-                                 null,
-                                 parent);
+        return dbCommand.getList(DatabaseListCommand.ACTIVE_BY_USER, null, parent);
     }
 
     /**********************************************************************************************
@@ -527,9 +523,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String[] queryRoleList(Component parent)
     {
-        return dbCommand.getList(DatabaseListCommand.ROLES,
-                                 null,
-                                 parent);
+        return dbCommand.getList(DatabaseListCommand.ROLES, null, parent);
     }
 
     /**********************************************************************************************
@@ -810,8 +804,7 @@ public class CcddDbControlHandler
      * @return Command to change a database object's owner and grant access privileges to the
      *         current group
      *********************************************************************************************/
-    protected String buildOwnerCommand(DatabaseObject object,
-                                       String objectName)
+    protected String buildOwnerCommand(DatabaseObject object, String objectName)
     {
         return buildOwnerCommand(activeOwner, object, objectName);
     }
@@ -832,9 +825,7 @@ public class CcddDbControlHandler
      * @return Command to change a database object's owner and grant access privileges to the
      *         specified group
      *********************************************************************************************/
-    private String buildOwnerCommand(String ownerName,
-                                     DatabaseObject object,
-                                     String objectName)
+    private String buildOwnerCommand(String ownerName, DatabaseObject object, String objectName)
     {
         return "ALTER "
                + object.toString()
@@ -865,9 +856,7 @@ public class CcddDbControlHandler
         {
             // Inform the user that disabling the database auto-commit flag failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot disable auto-commit; cause '"
-                                                           + se.getMessage()
-                                                           + "'",
+                                  "Cannot disable auto-commit; cause '" + se.getMessage() + "'",
                                   "<html><b>Cannot disable auto-commit");
         }
     }
@@ -886,9 +875,7 @@ public class CcddDbControlHandler
      *
      * @return true if the command completes successfully; false otherwise
      *********************************************************************************************/
-    private boolean createDatabase(final String projectName,
-                                   String ownerName,
-                                   String description)
+    private boolean createDatabase(final String projectName, String ownerName, String description)
     {
         boolean successFlag = true;
 
@@ -913,8 +900,7 @@ public class CcddDbControlHandler
                                       ccddMain.getMainFrame());
 
             // Inform the user that the update succeeded
-            eventLog.logEvent(SUCCESS_MSG,
-                              "Project '" + projectName + "' created");
+            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' created");
         }
         catch (SQLException se)
         {
@@ -925,9 +911,7 @@ public class CcddDbControlHandler
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot create project '</b>"
-                                                                  + projectName
-                                                                  + "<b>'");
+                                  "<html><b>Cannot create project '</b>" + projectName + "<b>'");
             successFlag = false;
         }
         finally
@@ -1599,8 +1583,7 @@ public class CcddDbControlHandler
                + intTable.getTableName()
                + " "
                + intTable.getColumnCommand(true)
-               + buildOwnerCommand(DatabaseObject.TABLE,
-                                   intTable.getTableName());
+               + buildOwnerCommand(DatabaseObject.TABLE, intTable.getTableName());
     }
 
     /**********************************************************************************************
@@ -1633,8 +1616,7 @@ public class CcddDbControlHandler
             if (!activeDatabase.equals(DEFAULT_DATABASE))
             {
                 // Step through each database for which the user has access
-                for (String database : queryDatabaseByUserList(ccddMain.getMainFrame(),
-                                                               userName))
+                for (String database : queryDatabaseByUserList(ccddMain.getMainFrame(), userName))
                 {
                     // Check if the database name is in the list, which indicates that the user has
                     // access to this database
@@ -1702,10 +1684,7 @@ public class CcddDbControlHandler
                 connectionStatus = TO_SERVER_ONLY;
 
                 // Inform the user that the server connection succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                                  "Connected to server as user '"
-                                               + activeUser
-                                               + "'");
+                eventLog.logEvent(SUCCESS_MSG, "Connected to server as user '" + activeUser + "'");
             }
             // A database other than the default is selected
             else
@@ -1761,8 +1740,7 @@ public class CcddDbControlHandler
                 }
 
                 // Get the database owner
-                activeOwner = queryDatabaseOwner(databaseName,
-                                                 ccddMain.getMainFrame())[0];
+                activeOwner = queryDatabaseOwner(databaseName, ccddMain.getMainFrame())[0];
 
                 // Set the connection status to indicate a database is connected
                 connectionStatus = TO_DATABASE;
@@ -1796,7 +1774,8 @@ public class CcddDbControlHandler
         catch (SQLException se)
         {
             // Check if the connection failed due to a missing or invalid password
-            if (se.getMessage().contains("authentication failed")
+            if ((se.getMessage().contains("authentication failed")
+                 || se.getMessage().contains("password"))
                 && !ccddMain.isGUIHidden())
             {
                 // Set the flag that indicates a connection failure occurred due to a missing
@@ -1877,11 +1856,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected boolean openDatabase(String projectName, boolean createFunctions)
     {
-        return openDatabase(projectName,
-                            serverHost,
-                            serverPort,
-                            isSSL,
-                            createFunctions);
+        return openDatabase(projectName, serverHost, serverPort, isSSL, createFunctions);
     }
 
     /**********************************************************************************************
@@ -2034,12 +2009,9 @@ public class CcddDbControlHandler
                         // state in the program preferences backing store
                         ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
                         ccddMain.getProgPrefs().put(USER, activeUser);
-                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST,
-                                                    serverHost);
-                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT,
-                                                    serverPort);
-                        ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL,
-                                                           isSSL);
+                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST, serverHost);
+                        ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT, serverPort);
+                        ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL, isSSL);
                     }
                     catch (Exception e)
                     {
@@ -2081,10 +2053,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void openDatabaseInBackground(final String projectName)
     {
-        openDatabaseInBackground(projectName,
-                                 serverHost,
-                                 serverPort,
-                                 isSSL);
+        openDatabaseInBackground(projectName, serverHost, serverPort, isSSL);
     }
 
     /**********************************************************************************************
@@ -2122,11 +2091,7 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // Open the new database
-                errorFlag = openDatabase(projectName,
-                                         serverHost,
-                                         serverPort,
-                                         isSSL,
-                                         true);
+                errorFlag = openDatabase(projectName, serverHost, serverPort, isSSL, true);
             }
 
             /**************************************************************************************
@@ -2326,10 +2291,7 @@ public class CcddDbControlHandler
                         }
 
                         // Log that the copying the database succeeded
-                        eventLog.logEvent(SUCCESS_MSG,
-                                          "Project '"
-                                                       + targetProject
-                                                       + "' copied");
+                        eventLog.logEvent(SUCCESS_MSG, "Project '" + targetProject + "' copied");
                     }
                 }
                 catch (SQLException se)
@@ -2379,16 +2341,11 @@ public class CcddDbControlHandler
             connection.setAutoCommit(true);
 
             // Delete the database
-            dbCommand.executeDbUpdate("DROP DATABASE "
-                                      + databaseName
-                                      + ";",
+            dbCommand.executeDbUpdate("DROP DATABASE " + databaseName + ";",
                                       ccddMain.getMainFrame());
 
             // Log that the database deletion succeeded
-            eventLog.logEvent(SUCCESS_MSG,
-                              "Project '"
-                                           + projectName
-                                           + "' deleted");
+            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' deleted");
         }
         catch (SQLException se)
         {
@@ -2399,9 +2356,7 @@ public class CcddDbControlHandler
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot delete project '</b>"
-                                                                  + projectName
-                                                                  + "<b>'");
+                                  "<html><b>Cannot delete project '</b>" + projectName + "<b>'");
         }
         finally
         {
@@ -2587,10 +2542,7 @@ public class CcddDbControlHandler
         String databaseName = convertProjectNameToDatabase(projectName);
 
         // Build the command to backup the database
-        String command = "pg_dump "
-                         + getUserHostAndPort()
-                         + databaseName
-                         + " -o -f ";
+        String command = "pg_dump " + getUserHostAndPort() + databaseName + " -o -f ";
 
         // Get the number of command line arguments
         int numArgs = command.split(" ").length + 1;
@@ -2615,10 +2567,7 @@ public class CcddDbControlHandler
                                         ModifiablePathInfo.DATABASE_BACKUP_PATH);
 
             // Log that backing up the database succeeded
-            eventLog.logEvent(SUCCESS_MSG,
-                              "Project '"
-                                           + projectName
-                                           + "' backed up");
+            eventLog.logEvent(SUCCESS_MSG, "Project '" + projectName + "' backed up");
         }
 
         // An error occurred backing up the database
@@ -2631,9 +2580,7 @@ public class CcddDbControlHandler
                                                            + "' backup failed;  cause '"
                                                            + errorType
                                                            + "'",
-                                  "<html><b>Project '</b>"
-                                                                  + projectName
-                                                                  + "<b>' backup failed");
+                                  "<html><b>Project '</b>" + projectName + "<b>' backup failed");
         }
     }
 
