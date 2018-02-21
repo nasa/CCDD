@@ -1121,8 +1121,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && tables.contains(fieldInfo.getOwnerName())
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
-                && (type.getOverwriteCbx().isSelected()
-                    || fieldInfo.getValue().isEmpty()))
+                && (type.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused message ID
                 startID = getNextMessageID(startID, interval);
@@ -1206,8 +1205,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
-                && (type.getOverwriteCbx().isSelected()
-                    || fieldInfo.getValue().isEmpty()))
+                && (type.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused message ID
                 startID = getNextMessageID(startID, interval);

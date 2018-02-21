@@ -596,23 +596,11 @@ public class CcddFileIOHandler
                             // Create a CSV handler
                             ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
                         }
-                        // Check if the file to import is in EDS XML format based on the extension
-                        else if (file.getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
-                        {
-                            // Create an EDS handler
-                            ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
-                        }
                         // Check if the file to import is in JSON format based on the extension
                         else if (file.getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                         {
                             // Create a JSON handler
                             ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
-                        }
-                        // Check if the file to import is in XTCE XML format based on the extension
-                        else if (file.getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
-                        {
-                            // Create an XTCE handler
-                            ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, parent);
                         }
                         // The file extension isn't recognized
                         else
@@ -1073,10 +1061,7 @@ public class CcddFileIOHandler
         }
 
         // Store the table types
-        dbTable.storeInformationTable(InternalTable.TABLE_TYPES,
-                                      null,
-                                      null,
-                                      parent);
+        dbTable.storeInformationTable(InternalTable.TABLE_TYPES, null, null, parent);
 
         // Store the data types
         dbTable.storeInformationTable(InternalTable.DATA_TYPES,
@@ -1611,9 +1596,6 @@ public class CcddFileIOHandler
      * @param fileExtn
      *            file extension type
      *
-     * @param system
-     *            name of the data field containing the system name
-     *
      * @param version
      *            version attribute (XTCE only)
      *
@@ -1642,7 +1624,6 @@ public class CcddFileIOHandler
                                         final CcddVariableSizeAndConversionHandler variableHandler,
                                         final String[] separators,
                                         final FileExtension fileExtn,
-                                        final String system,
                                         final String version,
                                         final String validationStatus,
                                         final String classification1,
@@ -1736,7 +1717,6 @@ public class CcddFileIOHandler
                                                        includeVariablePaths,
                                                        variableHandler,
                                                        separators,
-                                                       system,
                                                        version,
                                                        validationStatus,
                                                        classification1,
@@ -1776,7 +1756,6 @@ public class CcddFileIOHandler
                                                            includeVariablePaths,
                                                            variableHandler,
                                                            separators,
-                                                           system,
                                                            version,
                                                            validationStatus,
                                                            classification1,
@@ -1956,8 +1935,7 @@ public class CcddFileIOHandler
                     if (index != -1)
                     {
                         // Extract the description from the file line
-                        description = line.substring(index
-                                                     + SCRIPT_DESCRIPTION_TAG.length())
+                        description = line.substring(index + SCRIPT_DESCRIPTION_TAG.length())
                                           .trim();
                     }
                 }

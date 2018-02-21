@@ -263,10 +263,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                       String description)
     {
         // Add the new link information
-        linkInformation.add(new LinkInformation(rateName,
-                                                linkName,
-                                                sampleRate,
-                                                description));
+        linkInformation.add(new LinkInformation(rateName, linkName, sampleRate, description));
 
         // Update the link definitions to account for the added link
         updateLinkDefinitions();
@@ -696,8 +693,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                                    String rootNodeDescription)
     {
         // Create a node to contain the matching links
-        ToolTipTreeNode validLinks = new ToolTipTreeNode(rootNodeName,
-                                                         rootNodeDescription);
+        ToolTipTreeNode validLinks = new ToolTipTreeNode(rootNodeName, rootNodeDescription);
 
         // Copy the current links tree to the new node
         copySubTree(getRootNode(), validLinks);

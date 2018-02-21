@@ -143,9 +143,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
-    CcddGroupTreeHandler(CcddMain ccddMain,
-                         CcddUndoHandler undoHandler,
-                         Component parent)
+    CcddGroupTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component parent)
     {
         this(ccddMain, undoHandler, null, false, parent);
     }
@@ -269,11 +267,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         this.isFilterByApp = filterByApp;
         this.scheduleRate = scheduleRate;
 
-        super.buildTree(isFilterByType,
-                        isFilterByApp,
-                        scheduleRate,
-                        isApplicationOnly,
-                        parent);
+        super.buildTree(isFilterByType, isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
         // Get the tree's root node
         root = getRootNode();
@@ -342,8 +336,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         {
             // Create the node storage for the application statuses
             appNodes = new ToolTipTreeNode[2];
-            appNodes[0] = addInformationNode(APP_NODE,
-                                             "Groups representing a CFS application");
+            appNodes[0] = addInformationNode(APP_NODE, "Groups representing a CFS application");
             appNodes[1] = addInformationNode(OTHER_NODE,
                                              "Groups not representing a CFS application");
         }
@@ -449,8 +442,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private void buildFieldInformation(Component parent)
     {
         // Get the data field information from the database
-        fieldDefinitions = dbTable.retrieveInformationTable(InternalTable.FIELDS,
-                                                            parent)
+        fieldDefinitions = dbTable.retrieveInformationTable(InternalTable.FIELDS, parent)
                                   .toArray(new Object[0][0]);
 
         // Step through each group
@@ -908,8 +900,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         else
                         {
                             // Insert Application and Other nodes names into the expansion paths
-                            expState = expState.replaceAll("\\[, ",
-                                                           "[, " + APP_NODE + ", ")
+                            expState = expState.replaceAll("\\[, ", "[, " + APP_NODE + ", ")
                                        + " "
                                        + expState.replaceAll("\\[, ", "[, " + OTHER_NODE + ", ");
                         }

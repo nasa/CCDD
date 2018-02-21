@@ -1654,7 +1654,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         String bitLength = null;
 
                         // Check if the variable name column exists
-                        if (variableNameIndex != -1 && column != variableNameIndex)
+                        if (variableNameIndex != -1)
                         {
                             // Get the variable name for the current row, expanding macros in the
                             // name (if present)
@@ -1662,14 +1662,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
 
                         // Check if the data type column exists
-                        if (dataTypeIndex != -1 && column != dataTypeIndex)
+                        if (dataTypeIndex != -1)
                         {
                             // Get the data type for the current row
                             dataType = tableData.get(row)[dataTypeIndex].toString();
                         }
 
                         // Check if the array size column exists
-                        if (arraySizeIndex != -1 && column != arraySizeIndex)
+                        if (arraySizeIndex != -1)
                         {
                             // Get the array size for the current row, expanding macros in the
                             // value (if present)
@@ -1677,7 +1677,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
 
                         // Check if the bit length column exists
-                        if (bitLengthIndex != -1 && column != bitLengthIndex)
+                        if (bitLengthIndex != -1)
                         {
                             // Get the bit length for the current row, expanding macros in the
                             // value (if present)

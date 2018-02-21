@@ -82,6 +82,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -395,8 +396,8 @@ public class CcddMain
     {
         // Log the Jetty version
         getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                                      "Jetty: "
-                                                                      + org.eclipse.jetty.util.Jetty.VERSION);
+                                      "Jetty: " + org.eclipse.jetty.util.Jetty.VERSION);
+
         // Create the web server
         webServer = new CcddWebServer(this);
 
@@ -1315,8 +1316,7 @@ public class CcddMain
         currentProject.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setCurrentProjectLabel();
         sessionPanel.add(currentProject, BorderLayout.PAGE_START);
-        sessionPanel.add(getSessionEventLog().getEventPanel(),
-                         BorderLayout.CENTER);
+        sessionPanel.add(getSessionEventLog().getEventPanel(), BorderLayout.CENTER);
         frameCCDD.getContentPane().add(sessionPanel);
 
         // Create the main menu bar
@@ -1603,8 +1603,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.CREATE);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.CREATE);
             }
         });
 
@@ -1617,8 +1616,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.RENAME);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.RENAME);
             }
         });
 
@@ -1631,8 +1629,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.COPY);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.COPY);
             }
         });
 
@@ -1645,8 +1642,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.DELETE);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.DELETE);
             }
         });
 
@@ -1694,8 +1690,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddDbManagerDialog(CcddMain.this,
-                                        DbManagerDialogType.UNLOCK);
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.UNLOCK);
             }
         });
 
@@ -1747,8 +1742,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.RENAME);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.RENAME);
             }
         });
 
@@ -1761,8 +1755,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.COPY);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.COPY);
             }
         });
 
@@ -1775,8 +1768,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.DELETE);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.DELETE);
             }
         });
 
@@ -1828,8 +1820,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.IMPORT);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.IMPORT);
             }
         });
 
@@ -1843,8 +1834,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.EXPORT_CSV);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.EXPORT_CSV);
             }
         });
 
@@ -1858,8 +1848,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.EXPORT_EDS);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.EXPORT_EDS);
             }
         });
 
@@ -1873,8 +1862,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.EXPORT_JSON);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.EXPORT_JSON);
             }
         });
 
@@ -1888,8 +1876,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddTableManagerDialog(CcddMain.this,
-                                           ManagerDialogType.EXPORT_XTCE);
+                new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.EXPORT_XTCE);
             }
         });
 
@@ -2275,8 +2262,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddScriptStorageDialog(CcddMain.this,
-                                            ScriptIOType.RETRIEVE);
+                new CcddScriptStorageDialog(CcddMain.this, ScriptIOType.RETRIEVE);
             }
         });
 
@@ -2289,8 +2275,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddScriptStorageDialog(CcddMain.this,
-                                            ScriptIOType.DELETE);
+                new CcddScriptStorageDialog(CcddMain.this, ScriptIOType.DELETE);
             }
         });
 
@@ -2779,6 +2764,9 @@ public class CcddMain
 
         // Set the modifiable paths
         ModifiablePathInfo.setPaths(progPrefs);
+
+        // Set the modifiable other settings
+        ModifiableOtherSettingInfo.setValues(progPrefs);
 
         // Retrieve the preferences from the backing store
         dbControl.setHost(progPrefs.get(POSTGRESQL_SERVER_HOST, DEFAULT_POSTGRESQL_HOST));

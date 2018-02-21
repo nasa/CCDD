@@ -190,8 +190,7 @@ public class CcddKeyboardHandler
                         ArrowFocusOption arrowResponse = USE_DEFAULT_HANDLER;
 
                         // Check if the focus is on a tabbed pane's tab or on a slider
-                        if (comp instanceof JTabbedPane
-                            || comp instanceof JSlider)
+                        if (comp instanceof JTabbedPane || comp instanceof JSlider)
                         {
                             // The left and right arrows traverse the tabs, and the up and down
                             // arrows behave like (Shift+)Tab

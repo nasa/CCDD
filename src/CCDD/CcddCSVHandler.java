@@ -55,9 +55,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     // GUI component instantiating this class
     private final Component parent;
 
-    // Name of the data field containing the system name
-    private String systemFieldName;
-
     // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
 
@@ -943,7 +940,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *            character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
-     *            [0] name of the data field containing the system name
+     *            unused
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -962,8 +959,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
-
-        systemFieldName = extraInfo[0];
 
         try
         {
@@ -1028,15 +1023,17 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     String systemName = "";
 
-                    // Get the table's system from the system name data field, if it exists
-                    FieldInformation systemField = tableInfo.getFieldHandler().getFieldInformationByName(tableInfo.getTablePath(),
-                                                                                                         systemFieldName);
-
-                    // Check that the system data field exists and isn't empty
-                    if (systemField != null && !systemField.getValue().isEmpty())
+                    // Step through the table's data fields
+                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
                     {
-                        // Store the system name
-                        systemName = ",\"" + systemField.getValue() + "\"";
+                        // Check if this field contains the system name and isn't blank
+                        if (fieldInfo.getInputType() == InputDataType.SYSTEM_NAME
+                            && !fieldInfo.getValue().isEmpty())
+                        {
+                            // Store the system name and stop searching
+                            systemName = ",\"" + fieldInfo.getValue() + "\"";
+                            break;
+                        }
                     }
 
                     // Output the table path (if applicable) and name, table type, and system name

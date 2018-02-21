@@ -139,8 +139,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             for (int index = 0; index < tabbedPane.getTabCount(); index++)
             {
                 // Remove the change indicator from the tab title
-                tabbedPane.setTitleAt(index,
-                                      tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
+                tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
             }
 
         }
@@ -510,9 +509,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         JPanel createPnl = new JPanel(new GridBagLayout());
 
         // Create the new link dialog label and field
-        GridBagConstraints gbc = addLinkNameField("Enter new link name",
-                                                  "",
-                                                  createPnl);
+        GridBagConstraints gbc = addLinkNameField("Enter new link name", "", createPnl);
 
         // Create the link description label
         JLabel descriptionLbl = new JLabel("Description");
@@ -651,11 +648,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             JPanel dialogPnl = new JPanel(new GridBagLayout());
 
             // Create the link renaming dialog label and field
-            addLinkNameField("Rename '"
-                             + nameOnly
-                             + "' to:",
-                             nameOnly,
-                             dialogPnl);
+            addLinkNameField("Rename '" + nameOnly + "' to:", nameOnly, dialogPnl);
 
             // Create the link renaming dialog
             CcddDialogHandler linkDlg = new CcddDialogHandler()

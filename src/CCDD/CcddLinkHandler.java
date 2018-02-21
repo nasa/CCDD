@@ -134,8 +134,7 @@ public class CcddLinkHandler
      *
      * @return List of a link's definitions
      *********************************************************************************************/
-    protected List<String[]> getLinkDefinitionsByName(String linkName,
-                                                      String linkRate)
+    protected List<String[]> getLinkDefinitionsByName(String linkName, String linkRate)
     {
         List<String[]> definitions = new ArrayList<String[]>();
 
@@ -167,8 +166,7 @@ public class CcddLinkHandler
      * @return Array containing the rates and links to which the specified variable is a member; an
      *         empty array if the variable does not belong to a link
      *********************************************************************************************/
-    protected String[][] getVariableLinks(String variable,
-                                          boolean useDataStream)
+    protected String[][] getVariableLinks(String variable, boolean useDataStream)
     {
         List<String[]> links = new ArrayList<String[]>();
 

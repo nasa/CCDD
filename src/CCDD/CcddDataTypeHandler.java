@@ -188,7 +188,7 @@ public class CcddDataTypeHandler
      *********************************************************************************************/
     protected static String getDataTypeName(String userName, String cName)
     {
-        String dataTypeName;
+        String dataTypeName = null;
 
         // Check if the user-defined name is blank
         if (userName.isEmpty())
@@ -635,9 +635,7 @@ public class CcddDataTypeHandler
      * @param hightlightColor
      *            color used for highlighting the sizeof() call
      *********************************************************************************************/
-    protected static void highlightSizeof(Component component,
-                                          String text,
-                                          Color hightlightColor)
+    protected static void highlightSizeof(Component component, String text, Color hightlightColor)
     {
         // Highlight 'sizeof(data type)' instances. Create a highlighter painter
         DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(hightlightColor);

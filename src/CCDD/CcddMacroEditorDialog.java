@@ -596,9 +596,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
              * Allow pasting data into the macro cells
              *************************************************************************************/
             @Override
-            protected boolean isDataAlterable(Object[] rowData,
-                                              int row,
-                                              int column)
+            protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
                 return isCellEditable(convertRowIndexToView(row),
                                       convertColumnIndexToView(column));
@@ -890,13 +888,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)

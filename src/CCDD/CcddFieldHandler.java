@@ -326,7 +326,9 @@ public class CcddFieldHandler
      *
      * @return true if the field is applicable to the owner
      *********************************************************************************************/
-    protected boolean isFieldApplicable(String ownerName, String applicability, Boolean isRootStruct)
+    protected boolean isFieldApplicable(String ownerName,
+                                        String applicability,
+                                        Boolean isRootStruct)
     {
         // Set the flag to indicate the owner is a table type or group if the owner name contains a
         // colon

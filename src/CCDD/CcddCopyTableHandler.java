@@ -123,7 +123,7 @@ public class CcddCopyTableHandler
                     // definition
                     int structureOffset = variableHandler.getVariableOffset(variable.getFullName());
 
-                    // Ceck if the message ID name field name is provided
+                    // Check if the message ID name field name is provided
                     if (messageIDNameField != null)
                     {
                         // Get the field information for the message ID name field
@@ -215,8 +215,7 @@ public class CcddCopyTableHandler
                 if (message.getNumberOfSubMessages() <= 1)
                 {
                     // Add the message ID name and ID value to the list
-                    messageIDs.add(new String[] {message.getName(),
-                                                 message.getID()});
+                    messageIDs.add(new String[] {message.getName(), message.getID()});
                 }
                 // This parent has multiple sub-messages
                 else

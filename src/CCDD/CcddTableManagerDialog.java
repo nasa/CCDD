@@ -99,7 +99,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JTextField class1Fld;
     private JTextField class2Fld;
     private JTextField class3Fld;
-    private JTextField systemFld;
     private JTextField pathFld;
 
     // Group selection change in progress flag
@@ -601,12 +600,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                              "export",
                                                              new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
                                                                                                                         FileExtension.CSV.getExtensionName()),
-                                                                                            new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                                        FileExtension.EDS.getExtensionName()),
                                                                                             new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                                        FileExtension.JSON.getExtensionName()),
-                                                                                            new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                                        FileExtension.XTCE.getExtensionName())},
+                                                                                                                        FileExtension.JSON.getExtensionName())},
                                                              false,
                                                              true,
                                                              "Import Table(s)",
@@ -675,17 +670,25 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    tablePaths.toArray(new String[0]),
                                                                    overwriteFileCb.isSelected(),
                                                                    singleFileCb.isSelected(),
-                                                                   replaceMacrosCb.isSelected(),
-                                                                   includeReservedMsgIDsCb.isSelected(),
-                                                                   includeVariablePaths.isSelected(),
-                                                                   (includeVariablePaths.isSelected()
-                                                                                                      ? ccddMain.getVariableHandler()
-                                                                                                      : null),
-                                                                   new String[] {varPathSepFld.getText(),
-                                                                                 Boolean.toString(hideDataTypeCb.isSelected()),
-                                                                                 typeNameSepFld.getText()},
+                                                                   (replaceMacrosCb != null
+                                                                                            ? replaceMacrosCb.isSelected()
+                                                                                            : true),
+                                                                   (includeReservedMsgIDsCb != null
+                                                                                                    ? includeReservedMsgIDsCb.isSelected()
+                                                                                                    : false),
+                                                                   (includeVariablePaths != null
+                                                                                                 ? includeVariablePaths.isSelected()
+                                                                                                 : false),
+                                                                   (includeVariablePaths != null
+                                                                    && includeVariablePaths.isSelected()
+                                                                                                         ? ccddMain.getVariableHandler()
+                                                                                                         : null),
+                                                                   (varPathSepFld != null
+                                                                                          ? new String[] {varPathSepFld.getText(),
+                                                                                                          Boolean.toString(hideDataTypeCb.isSelected()),
+                                                                                                          typeNameSepFld.getText()}
+                                                                                          : null),
                                                                    fileExtn,
-                                                                   systemFld.getText(),
                                                                    versionFld.getText(),
                                                                    validStatFld.getText(),
                                                                    class1Fld.getText(),
@@ -951,8 +954,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *
      * @return Export dialog panel
      *********************************************************************************************/
-    private JPanel createExportPanel(final FileExtension fileExtn,
-                                     GridBagConstraints gbc)
+    private JPanel createExportPanel(final FileExtension fileExtn, GridBagConstraints gbc)
     {
         JPanel dialogPnl = null;
 
@@ -976,75 +978,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Check that the panel was created; i.e., that there are tables available for exporting
         if (dialogPnl != null)
         {
-            int yStore = gbc.gridy;
-
-            // Create a panel to contain the separator character labels and inputs
-            JPanel separatorPnl = new JPanel(new GridBagLayout());
-
-            // Create the check box for inclusion of variable paths
-            includeVariablePaths = new JCheckBox("Include variable paths");
-            includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            includeVariablePaths.setBorder(emptyBorder);
-            includeVariablePaths.setToolTipText(CcddUtilities.wrapText("If checked, each variable's path in a structure table "
-                                                                       + "is included, both in the application format and "
-                                                                       + "using the separator characters specified by the user",
-                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-            gbc.insets.left = 0;
-            gbc.insets.top = 0;
-            gbc.gridy++;
-            separatorPnl.add(includeVariablePaths, gbc);
-
-            // Create the variable path separator label and input field, and add them to the dialog
-            // panel
-            final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
-            varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            varPathSepLbl.setEnabled(false);
-            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            // Add a separator
+            JSeparator separator = new JSeparator();
+            separator.setForeground(dialogPnl.getBackground().darker());
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-            gbc.gridy++;
-            separatorPnl.add(varPathSepLbl, gbc);
-            varPathSepFld = new JTextField("_", 5);
-            varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-            varPathSepFld.setEditable(true);
-            varPathSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-            varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            varPathSepFld.setBorder(border);
-            varPathSepFld.setEnabled(false);
-            gbc.gridx++;
-            separatorPnl.add(varPathSepFld, gbc);
-
-            // Create the data type/variable name separator label and input field, and add them to
-            // the dialog panel
-            final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
-            typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            typeNameSepLbl.setEnabled(false);
-            gbc.gridx = 0;
-            gbc.gridy++;
-            separatorPnl.add(typeNameSepLbl, gbc);
-            typeNameSepFld = new JTextField("_", 5);
-            typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-            typeNameSepFld.setEditable(true);
-            typeNameSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-            typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            typeNameSepFld.setBorder(border);
-            typeNameSepFld.setEnabled(false);
-            gbc.gridx++;
-            separatorPnl.add(typeNameSepFld, gbc);
-
-            // Create a check box for hiding data types
-            hideDataTypeCb = new JCheckBox("Hide data types");
-            hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
-            hideDataTypeCb.setEnabled(false);
             gbc.insets.bottom = 0;
-            gbc.gridx = 0;
             gbc.gridy++;
-            separatorPnl.add(hideDataTypeCb, gbc);
+            dialogPnl.add(separator, gbc);
 
             // Add the export storage path components to the dialog
-            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.weighty = 0.0;
-            gbc.gridy = yStore + 1;
+            gbc.gridy++;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
 
             // Create a check box for indicating existing files can be replaced
@@ -1054,7 +998,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             overwriteFileCb.setToolTipText(CcddUtilities.wrapText("Select to overwrite any file(s) with the same name",
                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             dialogPnl.add(overwriteFileCb, gbc);
 
@@ -1081,88 +1024,144 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 }
             });
 
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+            gbc.insets.bottom = 0;
             gbc.gridy++;
             dialogPnl.add(singleFileCb, gbc);
 
-            // Create the macro replacement check box
-            replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
-            replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            replaceMacrosCb.setBorder(emptyBorder);
-            replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
-                                                                  + "corresponding values prior to exporting the "
-                                                                  + "table(s).  If not checked, the macro names are "
-                                                                  + "retained and the macro information is stored "
-                                                                  + "with the exported table(s)",
-                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-            gbc.gridy++;
-            dialogPnl.add(replaceMacrosCb, gbc);
-
-            // Create the reserved message ID inclusion check box
-            includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
-            includeReservedMsgIDsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            includeReservedMsgIDsCb.setBorder(emptyBorder);
-            includeReservedMsgIDsCb.setToolTipText(CcddUtilities.wrapText("If checked, the contents of the reserved "
-                                                                          + "message ID table (IDs or ID ranges, and "
-                                                                          + "their corresponding descriptions) is "
-                                                                          + "included in each export file",
-                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-            gbc.gridy++;
-            dialogPnl.add(includeReservedMsgIDsCb, gbc);
-
-            // Add the variable path inclusion and separator character inputs panel
-            JSeparator upperSep = new JSeparator();
-            upperSep.setForeground(dialogPnl.getBackground().darker());
-            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-            gbc.gridy++;
-            dialogPnl.add(upperSep, gbc);
-            gbc.fill = GridBagConstraints.VERTICAL;
-            gbc.weightx = 0.0;
-            gbc.gridy++;
-            dialogPnl.add(separatorPnl, gbc);
-            JSeparator lowerSep = new JSeparator();
-            lowerSep.setForeground(dialogPnl.getBackground().darker());
-            gbc.fill = GridBagConstraints.BOTH;
-            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-            gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-            gbc.weightx = 1.0;
-            gbc.gridy++;
-            dialogPnl.add(lowerSep, gbc);
-
-            // Add a listener for the hide data type check box
-            hideDataTypeCb.addActionListener(new ActionListener()
+            // Check if exporting in CSV or JSON format
+            if (dialogType == ManagerDialogType.EXPORT_CSV
+                || dialogType == ManagerDialogType.EXPORT_JSON)
             {
-                /******************************************************************************
-                 * Handle a change in the hide data type check box status
-                 *****************************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
-                {
-                    // Enable/disable the data type/variable name separator input label and field
-                    typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
-                    typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
-                }
-            });
+                // Create a panel to contain the separator character labels and inputs
+                JPanel separatorPnl = new JPanel(new GridBagLayout());
+                separatorPnl.setBorder(emptyBorder);
 
-            // Add a listener for the variable paths check box selection changes
-            includeVariablePaths.addActionListener(new ActionListener()
-            {
-                /**********************************************************************************
-                 * Respond to changes in selection of a the include variable paths check box
-                 *********************************************************************************/
-                @Override
-                public void actionPerformed(ActionEvent ae)
+                // Create the macro replacement check box
+                replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
+                replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                replaceMacrosCb.setBorder(emptyBorder);
+                replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
+                                                                      + "corresponding values prior to exporting the "
+                                                                      + "table(s).  If not checked, the macro names are "
+                                                                      + "retained and the macro information is stored "
+                                                                      + "with the exported table(s)",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.insets.left = 0;
+                gbc.gridy++;
+                separatorPnl.add(replaceMacrosCb, gbc);
+
+                // Create the reserved message ID inclusion check box
+                includeReservedMsgIDsCb = new JCheckBox("Include reserved message IDs");
+                includeReservedMsgIDsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeReservedMsgIDsCb.setBorder(emptyBorder);
+                includeReservedMsgIDsCb.setToolTipText(CcddUtilities.wrapText("If checked, the contents of the reserved "
+                                                                              + "message ID table (IDs or ID ranges, and "
+                                                                              + "their corresponding descriptions) is "
+                                                                              + "included in each export file",
+                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeReservedMsgIDsCb, gbc);
+
+                // Create the check box for inclusion of variable paths
+                includeVariablePaths = new JCheckBox("Include variable paths");
+                includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeVariablePaths.setBorder(emptyBorder);
+                includeVariablePaths.setToolTipText(CcddUtilities.wrapText("If checked each variable's path in a structure table "
+                                                                           + "is included, both in the application format and "
+                                                                           + "using the separator characters specified by the user",
+                                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeVariablePaths, gbc);
+
+                // Create the variable path separator label and input field, and add them to the
+                // dialog panel
+                final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
+                varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                varPathSepLbl.setEnabled(false);
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.gridy++;
+                separatorPnl.add(varPathSepLbl, gbc);
+                varPathSepFld = new JTextField("_", 5);
+                varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                varPathSepFld.setEditable(true);
+                varPathSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                varPathSepFld.setBorder(border);
+                varPathSepFld.setEnabled(false);
+                gbc.gridx++;
+                separatorPnl.add(varPathSepFld, gbc);
+
+                // Create the data type/variable name separator label and input field, and add them
+                // to the dialog panel
+                final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
+                typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                typeNameSepLbl.setEnabled(false);
+                gbc.gridx = 0;
+                gbc.gridy++;
+                separatorPnl.add(typeNameSepLbl, gbc);
+                typeNameSepFld = new JTextField("_", 5);
+                typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                typeNameSepFld.setEditable(true);
+                typeNameSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                typeNameSepFld.setBorder(border);
+                typeNameSepFld.setEnabled(false);
+                gbc.gridx++;
+                separatorPnl.add(typeNameSepFld, gbc);
+
+                // Create a check box for hiding data types
+                hideDataTypeCb = new JCheckBox("Hide data types");
+                hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
+                hideDataTypeCb.setEnabled(false);
+                gbc.gridx = 0;
+                gbc.gridy++;
+                separatorPnl.add(hideDataTypeCb, gbc);
+
+                // Add a listener for the hide data type check box
+                hideDataTypeCb.addActionListener(new ActionListener()
                 {
-                    // Enable/disable the separator inputs based on the inclusion check box state
-                    varPathSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                    varPathSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                    typeNameSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected()
-                                              && !hideDataTypeCb.isSelected());
-                    typeNameSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected()
-                                              && !hideDataTypeCb.isSelected());
-                    hideDataTypeCb.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                }
-            });
+                    /******************************************************************************
+                     * Handle a change in the hide data type check box status
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Enable/disable the data type/variable name separator input label and
+                        // field
+                        typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
+                        typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
+                    }
+                });
+
+                // Add a listener for the variable paths check box selection changes
+                includeVariablePaths.addActionListener(new ActionListener()
+                {
+                    /**********************************************************************************
+                     * Respond to changes in selection of a the include variable paths check box
+                     *********************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Enable/disable the separator inputs based on the inclusion check box
+                        // state
+                        varPathSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                        varPathSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                        typeNameSepLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected()
+                                                  && !hideDataTypeCb.isSelected());
+                        typeNameSepFld.setEnabled(((JCheckBox) ae.getSource()).isSelected()
+                                                  && !hideDataTypeCb.isSelected());
+                        hideDataTypeCb.setEnabled(((JCheckBox) ae.getSource()).isSelected());
+                    }
+                });
+
+                gbc.insets.top = 0;
+                gbc.fill = GridBagConstraints.VERTICAL;
+                gbc.weightx = 0.0;
+                gbc.gridy++;
+                dialogPnl.add(separatorPnl, gbc);
+            }
 
             // Create the XTCE and EDS input fields with their default values. XTCE uses all of
             // these fields; CSV and EDS use only the system input
@@ -1171,35 +1170,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             class1Fld = new JTextField("DOMAIN");
             class2Fld = new JTextField("SYSTEM");
             class3Fld = new JTextField("INTERFACE");
-
-            // Create the panel to hold the system data field components of the dialog
-            JPanel systemPnl = new JPanel(new GridBagLayout());
-
-            // Create the system data field label
-            JLabel systemLbl = new JLabel("System data field name");
-            systemLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-            gbc.insets.bottom = 0;
-            gbc.weightx = 0.0;
-            systemPnl.add(systemLbl, gbc);
-
-            // Create the system data field input field
-            systemFld = new JTextField("System");
-            systemFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-            systemFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-            systemFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-            systemFld.setBorder(border);
-            gbc.fill = GridBagConstraints.BOTH;
-            gbc.weightx = 1.0;
-            gbc.gridx++;
-            systemPnl.add(systemFld, gbc);
-            gbc.insets.top = 0;
-            gbc.insets.left = 0;
-            gbc.insets.right = 0;
-            gbc.gridx = 0;
-            gbc.gridy++;
-            dialogPnl.add(systemPnl, gbc);
 
             // Check if exporting in XTCE XML format
             if (dialogType == ManagerDialogType.EXPORT_XTCE)
@@ -1215,6 +1185,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+                gbc.fill = GridBagConstraints.BOTH;
+                gbc.weightx = 1.0;
                 gbc.gridy++;
                 dialogPnl.add(descriptionLbl, gbc);
 
@@ -1451,7 +1423,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
                                                         GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                        new Insets(0,
                                                                    0,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
@@ -1803,7 +1775,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     if (dialogType == ManagerDialogType.EXPORT_XTCE)
                     {
                         // Remove any excess white space
-                        systemFld.setText(systemFld.getText().trim());
                         versionFld.setText(versionFld.getText().trim());
                         validStatFld.setText(validStatFld.getText().trim());
                         class1Fld.setText(class1Fld.getText().trim());
@@ -1811,8 +1782,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         class3Fld.setText(class3Fld.getText().trim());
 
                         // Check if any of the fields is blank
-                        if (systemFld.getText().isEmpty()
-                            || versionFld.getText().isEmpty()
+                        if (versionFld.getText().isEmpty()
                             || validStatFld.getText().isEmpty()
                             || class1Fld.getText().isEmpty()
                             || class2Fld.getText().isEmpty()
@@ -1822,19 +1792,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             throw new CCDDException("System data field name, version, "
                                                     + "validation status, and/or "
                                                     + "classification missing");
-                        }
-                    }
-                    // Check if exporting in EDS XML format
-                    else if (dialogType == ManagerDialogType.EXPORT_EDS)
-                    {
-                        // Remove any excess white space
-                        systemFld.setText(systemFld.getText().trim());
-
-                        // Check if the system name field is blank
-                        if (systemFld.getText().isEmpty())
-                        {
-                            // Inform the user that a required field is missing
-                            throw new CCDDException("System data field name missing");
                         }
                     }
 

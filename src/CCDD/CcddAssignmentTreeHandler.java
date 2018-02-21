@@ -355,8 +355,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param rateName
      *            rate column name
      *********************************************************************************************/
-    protected void updateAssignmentDefinitions(List<Message> messages,
-                                               String rateName)
+    protected void updateAssignmentDefinitions(List<Message> messages, String rateName)
     {
         // Remove the existing definitions
         assignDefinitions.clear();
@@ -396,9 +395,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * @param variable
      *            variable to add to the assignment definition
      *********************************************************************************************/
-    private void addAssignmentDefinition(Message message,
-                                         String rateName,
-                                         Variable variable)
+    private void addAssignmentDefinition(Message message, String rateName, Variable variable)
     {
         // Create a new array for the row
         String[] msg = new String[TlmSchedulerColumn.values().length];

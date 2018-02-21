@@ -62,8 +62,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @param ccddMain
      *            main class
      *********************************************************************************************/
-    CcddApplicationSchedulerInput(CcddMain ccddMain,
-                                  CcddApplicationSchedulerDialog schedulerDlg)
+    CcddApplicationSchedulerInput(CcddMain ccddMain, CcddApplicationSchedulerDialog schedulerDlg)
     {
         this.ccddMain = ccddMain;
         this.schedulerDlg = schedulerDlg;
@@ -172,8 +171,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      * @return Index at which to insert the target application
      *********************************************************************************************/
     @Override
-    public int getVariableRelativeIndex(Variable application,
-                                        List<Variable> applications)
+    public int getVariableRelativeIndex(Variable application, List<Variable> applications)
     {
         int insertIndex = -1;
 
@@ -305,8 +303,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     public List<Variable> getSelectedVariable()
     {
         // Get the selected application node(s) in the tree (can only be one)
-        return getApplicationFields(applicationTree.getTopLevelSelectedNodeNames(),
-                                    selectedRate);
+        return getApplicationFields(applicationTree.getTopLevelSelectedNodeNames(), selectedRate);
     }
 
     /**********************************************************************************************
@@ -320,8 +317,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *
      * @return List of variable object(s) representing the specified application(s)
      *********************************************************************************************/
-    private List<Variable> getApplicationFields(String[] applications,
-                                                String rate)
+    private List<Variable> getApplicationFields(String[] applications, String rate)
     {
         List<Variable> appList = new ArrayList<Variable>();
 
@@ -438,8 +434,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             }
 
             // Update the node name color if a name was removed
-            applicationTree.adjustNodeText(applicationTree.getRootNode(),
-                                           excludedList);
+            applicationTree.adjustNodeText(applicationTree.getRootNode(), excludedList);
         }
     }
 
@@ -467,8 +462,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             }
 
             // Update the node name color if a name was removed
-            applicationTree.adjustNodeText(applicationTree.getRootNode(),
-                                           excludedList);
+            applicationTree.adjustNodeText(applicationTree.getRootNode(), excludedList);
         }
     }
 
@@ -488,15 +482,10 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
             selectedRate = rate;
 
             // Rebuild the application tree using the selected rate as a filter
-            applicationTree.buildTree(false,
-                                      false,
-                                      rate,
-                                      true,
-                                      ccddMain.getMainFrame());
+            applicationTree.buildTree(false, false, rate, true, ccddMain.getMainFrame());
 
             // Set the node color based on the selected rate
-            applicationTree.adjustNodeText(applicationTree.getRootNode(),
-                                           excludedList);
+            applicationTree.adjustNodeText(applicationTree.getRootNode(), excludedList);
         }
     }
 
@@ -522,8 +511,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *
      * @return Application data field value for the specified application
      *********************************************************************************************/
-    private String getDataFieldValue(String applicationName,
-                                     DefaultApplicationField appField)
+    private String getDataFieldValue(String applicationName, DefaultApplicationField appField)
     {
         // Initialize the value to the default
         String value = appField.getInitialValue();

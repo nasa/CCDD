@@ -633,10 +633,7 @@ public class CcddLinkManagerHandler
                     selectedRate = newRate;
 
                     // Rebuild the variable tree using the selected rate as a filter
-                    variableTree.buildTableTree(null,
-                                                rateName,
-                                                selectedRate,
-                                                linkDialog);
+                    variableTree.buildTableTree(null, rateName, selectedRate, linkDialog);
                 }
 
                 // Get the list of all variable tree paths in the variable tree and set these in
@@ -652,11 +649,7 @@ public class CcddLinkManagerHandler
                     // Force the link tree to be rebuilt now that the tree path order is
                     // established (via setting the rate filter). This forces the link variables to
                     // appear in the same order as they are listed in their prototype tables
-                    linkTree.buildTree(false,
-                                       false,
-                                       rateName,
-                                       false,
-                                       linkDialog);
+                    linkTree.buildTree(false, false, rateName, false, linkDialog);
 
                     // Set the flag to prevent rebuilding the link tree when subsequent rate
                     // selection changes are made
@@ -1080,8 +1073,7 @@ public class CcddLinkManagerHandler
         List<String> checkedLinks = new ArrayList<String>();
         List<String> invalidatedLinks = new ArrayList<String>();
 
-        CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain,
-                                                           committedLinks);
+        CcddLinkHandler oldLinkHndlr = new CcddLinkHandler(ccddMain, committedLinks);
         CcddLinkHandler newLinkHndlr = linkTree.getLinkHandler();
 
         // Step through each link by name

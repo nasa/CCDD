@@ -54,9 +54,7 @@ public class CcddSchedulerDbIOHandler
      * @param dialog
      *            reference to the scheduler dialog
      *********************************************************************************************/
-    CcddSchedulerDbIOHandler(CcddMain ccddMain,
-                             SchedulerType option,
-                             CcddDialogHandler dialog)
+    CcddSchedulerDbIOHandler(CcddMain ccddMain, SchedulerType option, CcddDialogHandler dialog)
     {
         this.ccddMain = ccddMain;
         this.option = option;
@@ -207,8 +205,7 @@ public class CcddSchedulerDbIOHandler
      *
      * @return List of the specified message's definitions
      *********************************************************************************************/
-    private List<String[]> addVariablesToMessage(DataStream stream,
-                                                 Message message)
+    private List<String[]> addVariablesToMessage(DataStream stream, Message message)
     {
         List<String[]> messageList = new ArrayList<String[]>();
 

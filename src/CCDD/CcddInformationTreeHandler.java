@@ -396,8 +396,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *
      * @return Reference to the newly added node
      *********************************************************************************************/
-    protected ToolTipTreeNode addInformationNode(String nodeName,
-                                                 String toolTipText)
+    protected ToolTipTreeNode addInformationNode(String nodeName, String toolTipText)
     {
         return addNode(root, nodeName, toolTipText, TreeChildOrder.ALPHABETICAL);
     }
@@ -520,9 +519,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param startIndex
      *            tree level at which the variable names first appear in the array
      *********************************************************************************************/
-    protected void addNodeToInfoNode(ToolTipTreeNode node,
-                                     Object[] sourcePath,
-                                     int startIndex)
+    protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
     {
         // Check if the tree is filtered by table type
         if (isFilterByType)
@@ -830,9 +827,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param infoToCopy
      *            information object to copy
      *********************************************************************************************/
-    protected void copyNodeTree(String originalName,
-                                String nameOfCopy,
-                                Object infoToCopy)
+    protected void copyNodeTree(String originalName, String nameOfCopy, Object infoToCopy)
     {
         // Step through each row in the information tree
         for (int row = 0; row < infoTreeModel.getChildCount(root); row++)
@@ -851,8 +846,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 ToolTipTreeNode newNode = addInformationNode(nameOfCopy, "");
 
                 // Copy the source node's tree to the copy and stop searching
-                copySubTree((ToolTipTreeNode) path.getLastPathComponent(),
-                            newNode);
+                copySubTree((ToolTipTreeNode) path.getLastPathComponent(), newNode);
                 break;
             }
         }
@@ -868,8 +862,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param nameOfCopy
      *            name of the copy of the node
      *********************************************************************************************/
-    protected abstract void addInformation(Object information,
-                                           String nameOfCopy);
+    protected abstract void addInformation(Object information, String nameOfCopy);
 
     /**********************************************************************************************
      * Recursively copy the tree of a source node to a target node
@@ -966,9 +959,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             if (!leafDefinition.get(1).isEmpty())
             {
                 // Store the leaf node definition in the tree information list
-                addLeafDefinition(treeDefinitions,
-                                  leafDefinition,
-                                  filterValue);
+                addLeafDefinition(treeDefinitions, leafDefinition, filterValue);
             }
         }
         // This node has child nodes (i.e., this node is in the path for a leaf node)

@@ -53,6 +53,7 @@ import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -73,6 +74,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private JTextField[] sizeFld;
     private JTextField[] spacingFld;
     private JTextField[] pathFld;
+    private JTextField[] otherFld;
 
     // Maximum height, in pixels, based on all of the individual tabs' scroll panes
     private int maxScrollPaneHeight;
@@ -84,6 +86,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private final String SIZE = "Size";
     private final String SPACING = "Spacing";
     private final String PATH = "Path";
+    private final String OTHER = "Other";
 
     /**********************************************************************************************
      * Program preferences dialog class constructor
@@ -120,6 +123,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         addSizeTab();
         addSpacingTab();
         addPathTab();
+        addOtherTab();
 
         // Create a panel for the preference dialog buttons
         JPanel buttonPnl = new JPanel();
@@ -213,6 +217,26 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         }
 
                         break;
+
+                    case OTHER:
+                        // Update the other setting preference. Step through each modifiable other
+                        // setting
+                        for (ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values())
+                        {
+                            // Get the current setting value from the other setting text field
+                            String currentValue = otherFld[index].getText().trim();
+
+                            // Check if the setting value has changed
+                            if (!modOther.getValue().equals(currentValue))
+                            {
+                                // Update the other setting to the new value
+                                modOther.setValue(currentValue, ccddMain.getProgPrefs());
+                            }
+
+                            index++;
+                        }
+
+                        break;
                 }
             }
         });
@@ -265,6 +289,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         case SIZE:
                         case SPACING:
                         case PATH:
+                        case OTHER:
                             // Show the update button
                             btnUpdateAll.setVisible(true);
                             break;
@@ -1374,6 +1399,128 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         // (= # of rows * row height)
         maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
                                        10 * pathScrollPane.getPreferredSize().height / pathFld.length);
+    }
+
+    /**********************************************************************************************
+     * Add the other settings update tab to the tabbed pane
+     *********************************************************************************************/
+    private void addOtherTab()
+    {
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.HORIZONTAL,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
+
+        // Create a border for the input fields
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+
+        // Create storage for the description and input field representing each modifiable other
+        // setting
+        JLabel[] otherLbl = new JLabel[ModifiableOtherSettingInfo.values().length];
+        JButton[] otherBtn = new JButton[ModifiableOtherSettingInfo.values().length];
+        otherFld = new JTextField[ModifiableOtherSettingInfo.values().length];
+
+        // Create a panel to contain the other setting components
+        JPanel innerOtherPnl = new JPanel(new GridBagLayout());
+        innerOtherPnl.setBorder(emptyBorder);
+
+        // Create a scroll pane in which to display the other setting labels and fields
+        JScrollPane otherScrollPane = new JScrollPane(innerOtherPnl);
+        otherScrollPane.setBorder(emptyBorder);
+        otherScrollPane.setViewportBorder(emptyBorder);
+
+        // Use an outer panel so that the components can be forced to the top of the tab area
+        JPanel otherPnl = new JPanel(new BorderLayout());
+        otherPnl.setBorder(emptyBorder);
+        otherPnl.add(otherScrollPane, BorderLayout.PAGE_START);
+
+        // Add the other setting update tab to the tabbed pane
+        tabbedPane.addTab(OTHER, null, otherPnl, "Change other program settings");
+
+        // Create a listener for the default other setting buttons
+        ActionListener defaultListener = new ActionListener()
+        {
+            /**************************************************************************************
+             * Update the other setting to the default value
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Get the index of the other setting field array, which is stored as the button's
+                // name
+                int index = Integer.valueOf(((JButton) ae.getSource()).getName());
+
+                // Set the other setting to its default value
+                otherFld[index].setText(String.valueOf(ModifiableOtherSettingInfo.values()[index].getDefault()));
+            }
+        };
+
+        int index = 0;
+
+        // Step through each modifiable other setting
+        for (final ModifiableOtherSettingInfo modOther : ModifiableOtherSettingInfo.values())
+        {
+            // Create the other setting label and input field
+            otherLbl[index] = new JLabel(modOther.getName());
+            otherLbl[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            otherLbl[index].setToolTipText(CcddUtilities.wrapText(modOther.getDescription(),
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            innerOtherPnl.add(otherLbl[index], gbc);
+            otherFld[index] = new JTextField(modOther.getValue(), 40);
+            otherFld[index].setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+            otherFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            otherFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            otherFld[index].setBorder(border);
+            otherFld[index].setName(modOther.getPreferenceKey());
+            otherFld[index].setToolTipText(CcddUtilities.wrapText(modOther.getDescription(),
+                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+            // Add the other setting field to the other panel
+            gbc.gridx++;
+            innerOtherPnl.add(otherFld[index], gbc);
+
+            // Create a button for setting the other setting to its default value and add it to the
+            // other panel
+            otherBtn[index] = new JButton("Default");
+            otherBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+            otherBtn[index].setName(String.valueOf(index));
+            otherBtn[index].addActionListener(defaultListener);
+            gbc.gridx++;
+            innerOtherPnl.add(otherBtn[index], gbc);
+            gbc.weightx = 1.0;
+            gbc.gridx++;
+            innerOtherPnl.add(new JLabel(""), gbc);
+            gbc.weightx = 0.0;
+            gbc.gridx = 0;
+            gbc.gridy++;
+            index++;
+        }
+
+        // Set the scroll bar scroll increment
+        otherScrollPane.getVerticalScrollBar().setUnitIncrement(otherFld[0].getPreferredSize().height / 2
+                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+
+        // Calculate the maximum required height of the panel containing the other setting labels
+        // and fields (= # of rows * row height)
+        maxScrollPaneHeight = Math.max(maxScrollPaneHeight,
+                                       10 * otherScrollPane.getPreferredSize().height / otherFld.length);
     }
 
     /**********************************************************************************************

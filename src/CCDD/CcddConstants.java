@@ -1545,9 +1545,7 @@ public class CcddConstants
          * @param preferenceKey
          *            path program preferences key
          *****************************************************************************************/
-        ModifiablePathInfo(String name,
-                           String description,
-                           String preferenceKey)
+        ModifiablePathInfo(String name, String description, String preferenceKey)
         {
             this.name = name;
             this.description = description;
@@ -1568,7 +1566,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the path description (for tool tip)
          *
-         * @return Path value description (for tool tip)
+         * @return Path description (for tool tip)
          *****************************************************************************************/
         protected String getDescription()
         {
@@ -1627,6 +1625,130 @@ public class CcddConstants
                 // the modifiable path
                 String pathInfo = progPrefs.get(modPath.getPreferenceKey(), "");
                 modPath.path = pathInfo;
+            }
+        }
+    }
+
+    // Modifiable other settings information
+    protected static enum ModifiableOtherSettingInfo
+    {
+        EDS_SCHEMA_LOCATION_URL("EDS schema location", "URL for the EDS schema location", "EDSSchemaLocationURL", "http://www.ccsds.org/schema/sois seds.xsd"),
+        XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20061101 06-11-06.xsd");
+
+        private final String name;
+        private final String description;
+        private final String preferenceKey;
+        private final String defaultValue;
+        private String value;
+
+        /******************************************************************************************
+         * Modifiable other setting information constructor
+         *
+         * @param name
+         *            other setting name (for display)
+         *
+         * @param description
+         *            other setting description (for tool tip)
+         *
+         * @param preferenceKey
+         *            other setting program preferences key
+         *
+         * @param defaultValue
+         *            other setting default value
+         *****************************************************************************************/
+        ModifiableOtherSettingInfo(String name,
+                                   String description,
+                                   String preferenceKey,
+                                   String defaultValue)
+        {
+            this.name = name;
+            this.description = description;
+            this.preferenceKey = preferenceKey;
+            this.defaultValue = defaultValue;
+            value = defaultValue;
+        }
+
+        /******************************************************************************************
+         * Get the other setting name (for display)
+         *
+         * @return Other setting name (for display)
+         *****************************************************************************************/
+        protected String getName()
+        {
+            return name;
+        }
+
+        /******************************************************************************************
+         * Get the other setting description (for tool tip)
+         *
+         * @return Other setting description (for tool tip)
+         *****************************************************************************************/
+        protected String getDescription()
+        {
+            return description;
+        }
+
+        /******************************************************************************************
+         * Get the other setting program preferences key
+         *
+         * @return Other setting program preferences key
+         *****************************************************************************************/
+        protected String getPreferenceKey()
+        {
+            return preferenceKey;
+        }
+
+        /******************************************************************************************
+         * Get the default setting value
+         *
+         * @return Default setting value
+         *****************************************************************************************/
+        protected String getDefault()
+        {
+            return defaultValue;
+        }
+
+        /******************************************************************************************
+         * Get the current setting value
+         *
+         * @return Current setting value
+         *****************************************************************************************/
+        protected String getValue()
+        {
+            return value;
+        }
+
+        /******************************************************************************************
+         * Set the other setting value
+         *
+         * @param value
+         *            new setting value
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *****************************************************************************************/
+        protected void setValue(String value, Preferences progPrefs)
+        {
+            this.value = value;
+            progPrefs.put(preferenceKey, value);
+        }
+
+        /******************************************************************************************
+         * Set the modifiable other settings to the values stored in the program preferences
+         *
+         * @param progPrefs
+         *            reference to the program preferences
+         *****************************************************************************************/
+        protected static void setValues(Preferences progPrefs)
+        {
+            // Step through each modifiable other setting
+            for (ModifiableOtherSettingInfo modSetting : ModifiableOtherSettingInfo.values())
+            {
+                // Retrieve the setting from the program preferences and use this information to
+                // set the modifiable other setting
+                String settingInfo = progPrefs.get(modSetting.getPreferenceKey(),
+                                                   modSetting.getDefault());
+                modSetting.value = settingInfo;
             }
         }
     }
@@ -2084,6 +2206,13 @@ public class CcddConstants
              "Rate value; positive integer value (see Positive integer) or a "
                                    + "positive integer followed by a '/' and another positive "
                                    + "integer to denote rates faster than 1 Hz"),
+
+        // TODO
+        SYSTEM_NAME("System Name",
+                    "[a-zA-Z_][a-zA-Z0-9_]*",
+                    InputTypeFormat.TEXT,
+                    "System name used when importing & exporting; same constraints as for an "
+                                          + "alphanumeric (see Alphanumeric)"),
 
         TEXT("Text",
              "(?s).*",

@@ -114,13 +114,7 @@ public class CcddCommonTreeHandler extends JTree
             }
 
             // Display the node name
-            super.getTreeCellRendererComponent(tree,
-                                               value,
-                                               sel,
-                                               expanded,
-                                               leaf,
-                                               row,
-                                               hasFocus);
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
             // Restore the node's name (if changed)
             ((ToolTipTreeNode) value).setUserObject(name);
@@ -560,8 +554,7 @@ public class CcddCommonTreeHandler extends JTree
                             path = path.replaceAll(Pattern.quote(prefix)
                                                    + typePattern
                                                    + termPattern,
-                                                   prefix
-                                                                  + "$1$3");
+                                                   prefix + "$1$3");
                         }
                         // All groups are to treated equally
                         else
@@ -616,8 +609,7 @@ public class CcddCommonTreeHandler extends JTree
                                                + (isApp ? "" : groupPattern)
                                                + typePattern
                                                + termPattern,
-                                               prefix
-                                                              + "$3$5");
+                                               prefix + "$3$5");
                     }
                     // Check if the type filter changed to enabled
                     else if (isByType && isByTypeChanged)
@@ -631,10 +623,7 @@ public class CcddCommonTreeHandler extends JTree
                             newPath += path.replaceAll(Pattern.quote(prefix)
                                                        + groupPattern
                                                        + termPattern,
-                                                       prefix
-                                                                      + "$1, "
-                                                                      + type
-                                                                      + "$3");
+                                                       prefix + "$1, " + type + "$3");
                         }
 
                         // Add the new type nodes to the path
@@ -648,8 +637,7 @@ public class CcddCommonTreeHandler extends JTree
                                                + groupPattern
                                                + typePattern
                                                + termPattern,
-                                               prefix
-                                                              + "$1$5");
+                                               prefix + "$1$5");
                     }
 
                     break;

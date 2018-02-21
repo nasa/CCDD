@@ -777,8 +777,7 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Store the field information in the undo handler in case the update needs to be
             // undone
-            undoFieldPnl.addDataFieldEdit(this,
-                                          dataFieldHandler.getFieldInformationCopy());
+            undoFieldPnl.addDataFieldEdit(this, dataFieldHandler.getFieldInformationCopy());
         }
 
         // Force the owner of the editor panel to redraw so that changes to the fields are

@@ -386,8 +386,7 @@ public class CcddMacroHandler
 
                 // Set the property to allow the arrow keys to be used to change the macro
                 // selection in the combo box
-                macroCbox.putClientProperty("JComboBox.isTableCellEditor",
-                                            Boolean.TRUE);
+                macroCbox.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 
                 // Add a listener for selection events in the macro pop-up combo box
                 macroCbox.addActionListener(new ActionListener()
@@ -1107,9 +1106,7 @@ public class CcddMacroHandler
      * @param hightlightColor
      *            color used for highlighting the macro name
      *********************************************************************************************/
-    protected void highlightMacro(Component component,
-                                  String text,
-                                  Color hightlightColor)
+    protected void highlightMacro(Component component, String text, Color hightlightColor)
     {
         // Get a reference to the highlighter
         Highlighter highlighter = ((JTextComponent) component).getHighlighter();
@@ -1127,8 +1124,7 @@ public class CcddMacroHandler
             {
                 // Highlight the macro name in the text
                 highlighter.addHighlight(location.getStart(),
-                                         location.getStart()
-                                                              + location.getMacroName().length(),
+                                         location.getStart() + location.getMacroName().length(),
                                          painter);
             }
             catch (BadLocationException ble)

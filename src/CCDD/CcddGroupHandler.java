@@ -58,8 +58,7 @@ public class CcddGroupHandler
      * @param groupInformation
      *            group information list
      *********************************************************************************************/
-    CcddGroupHandler(CcddUndoHandler undoHandler,
-                     List<String[]> groupDefinitions)
+    CcddGroupHandler(CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
     {
         this(undoHandler);
         buildGroupInformation(groupDefinitions);
@@ -78,9 +77,7 @@ public class CcddGroupHandler
      * @param component
      *            GUI component calling this method
      *********************************************************************************************/
-    CcddGroupHandler(CcddMain ccddMain,
-                     CcddUndoHandler undoHandler,
-                     Component component)
+    CcddGroupHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component component)
     {
         this(undoHandler,
              ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,
@@ -99,14 +96,9 @@ public class CcddGroupHandler
      * @param isApplication
      *            true if the group represents a CFS application
      *********************************************************************************************/
-    protected void addGroupInformation(String name,
-                                       String description,
-                                       boolean isApplication)
+    protected void addGroupInformation(String name, String description, boolean isApplication)
     {
-        groupInformation.add(new GroupInformation(name,
-                                                  description,
-                                                  isApplication,
-                                                  null));
+        groupInformation.add(new GroupInformation(name, description, isApplication, null));
 
         // Sort the group information by group name
         sortGroupInformation();

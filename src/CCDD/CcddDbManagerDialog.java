@@ -217,10 +217,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             gbc))
                         {
                             // Create the rename project name and description labels and fields
-                            addDatabaseInputFields("New project name",
-                                                   selectPnl,
-                                                   false,
-                                                   gbc);
+                            addDatabaseInputFields("New project name", selectPnl, false, gbc);
                         }
                         // No project exists to choose
                         else
@@ -247,10 +244,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             gbc))
                         {
                             // Create the copy project name and description labels and fields
-                            addDatabaseInputFields("Project copy name",
-                                                   selectPnl,
-                                                   false,
-                                                   gbc);
+                            addDatabaseInputFields("Project copy name", selectPnl, false, gbc);
 
                             // Create a date and time stamp check box
                             stampChkBx = new JCheckBox("Append date and time to project name");
@@ -366,10 +360,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     {
                         case CREATE:
                             // Create the project name and description labels and fields
-                            addDatabaseInputFields("New project name",
-                                                   selectPnl,
-                                                   true,
-                                                   gbc);
+                            addDatabaseInputFields("New project name", selectPnl, true, gbc);
 
                             // Display the project creation dialog
                             if (showOptionsDialog(ccddMain.getMainFrame(),
@@ -784,8 +775,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                                                  : "unlock";
 
                         // Inform the user that a project must be selected
-                        throw new CCDDException("Must select a project to "
-                                                + action);
+                        throw new CCDDException("Must select a project to " + action);
                     }
 
                     break;
