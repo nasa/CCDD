@@ -55,6 +55,7 @@ import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
@@ -1019,7 +1020,6 @@ public class CcddFileIOHandler
                         // Load the table's prototype data from the database and copy the
                         // prototype's data to the table
                         TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
-                                                                           true,
                                                                            false,
                                                                            false,
                                                                            false,
@@ -1624,6 +1624,7 @@ public class CcddFileIOHandler
                                         final CcddVariableSizeAndConversionHandler variableHandler,
                                         final String[] separators,
                                         final FileExtension fileExtn,
+                                        final EndianType endianess,
                                         final String version,
                                         final String validationStatus,
                                         final String classification1,
@@ -1717,6 +1718,7 @@ public class CcddFileIOHandler
                                                        includeVariablePaths,
                                                        variableHandler,
                                                        separators,
+                                                       endianess,
                                                        version,
                                                        validationStatus,
                                                        classification1,

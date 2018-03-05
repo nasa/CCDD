@@ -15,7 +15,6 @@ import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.FIELD_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
-import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.REDO_ICON;
@@ -33,8 +32,6 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -443,12 +440,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.bottom = 0;
 
-                // Adjust the table tree's width by the width in pixels of a scroll bar. This
-                // causes the group tree to initialize to the same width
-                tableTree.setPreferredSize(new Dimension(tableTree.getPreferredSize().width
-                                                         + LAF_SCROLL_BAR_WIDTH,
-                                                         tableTree.getPreferredSize().height));
-
                 // Create a split pane containing the table tree in the left pane and the group
                 // tree in the right pane and add it to the panel. The arrow button panel is used
                 // as the split pane divider
@@ -459,7 +450,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                   groupTree.createTreePanel("Groups",
                                                                             TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                                             false,
-                                                                            tableTree.getPreferredSize().width,
                                                                             ccddMain.getMainFrame()),
                                                   createArrowButtonPanel(),
                                                   JSplitPane.HORIZONTAL_SPLIT),
@@ -507,7 +497,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Create a check box for showing/changing the group CFS application status
                 applicationCb = undoHandler.new UndoableCheckBox("Group represents a CFS application",
                                                                  false);
-
                 applicationCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 applicationCb.setBorder(emptyBorder);
                 applicationCb.setEnabled(false);
@@ -869,25 +858,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
                 // Reset the flag now that initialization is complete
                 isInitializing = false;
-
-                // Add a listener to capture when the dialog first appears
-                addComponentListener(new ComponentAdapter()
-                {
-                    /******************************************************************************
-                     * Handle the group manager dialog becoming visible
-                     *****************************************************************************/
-                    @Override
-                    public void componentShown(ComponentEvent ce)
-                    {
-                        // Check if the minimum dialog width hasn't been stored
-                        if (minDialogWidth == 0)
-                        {
-                            // Store the dialog's width as the minimum and remove this listener
-                            minDialogWidth = ce.getComponent().getPreferredSize().width;
-                            removeComponentListener(this);
-                        }
-                    }
-                });
             }
 
             /**************************************************************************************
@@ -1206,6 +1176,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Create a check box for setting the group as an application
         JCheckBox appCb = new JCheckBox("Group represents a CFS application");
+        appCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         appCb.setBorder(emptyBorder);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;

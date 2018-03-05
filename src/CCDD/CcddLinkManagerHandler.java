@@ -9,14 +9,12 @@ package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
-import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.LEFT_ICON;
 import static CCDD.CcddConstants.RIGHT_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -415,7 +413,8 @@ public class CcddLinkManagerHandler
                     // Deselect any nodes that are disabled
                     clearDisabledNodes();
 
-                    // Deselect any nodes that don't represent a table
+                    // Deselect any nodes that don't represent a table or the level immediately
+                    // above the table level
                     clearNonTableNodes(1);
 
                     // Reset the flag to allow variable tree updates
@@ -460,12 +459,6 @@ public class CcddLinkManagerHandler
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = 0;
 
-        // Adjust the variable tree's width by the width in pixels of a scroll bar. This causes the
-        // link tree to initialize to the same width
-        variableTree.setPreferredSize(new Dimension(variableTree.getPreferredSize().width
-                                                    + LAF_SCROLL_BAR_WIDTH,
-                                                    variableTree.getPreferredSize().height));
-
         // Create a split pane containing the variable tree in the left pane and the link tree in
         // the right pane and add it to the panel. The arrow button panel is used as the split pane
         // divider
@@ -474,8 +467,7 @@ public class CcddLinkManagerHandler
         gbc.gridy++;
         managerPnl.add(new CustomSplitPane(treePnl,
                                            linkTree.createTreePanel("Links",
-                                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                                    variableTree.getPreferredSize().width),
+                                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION),
                                            createArrowButtonPanel(),
                                            JSplitPane.HORIZONTAL_SPLIT),
                        gbc);

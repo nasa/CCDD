@@ -784,6 +784,59 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
+     * Get the indices of all empty rows in the table. When a table is stored the empty rows are
+     * eliminated. By storing the row indices these empty rows can be reinserted. This allows the
+     * user to insert rows, and periodically press the store button without having to manually
+     * reinsert the empty rows
+     *
+     * @return Array of the empty row indices; an empty array if no empty rows exist
+     *********************************************************************************************/
+    private Integer[] getEmptyRows()
+    {
+        List<Integer> emptyRows = new ArrayList<Integer>();
+
+        // Step through each row in the table
+        for (int row = 0; row < tableModel.getRowCount(); row++)
+        {
+            // Store the current row index
+            int prevRow = row;
+
+            // Adjust the row index to the next non-empty row
+            row = table.getNextPopulatedRowNumber(row);
+
+            // The number of empty rows equals the difference in the previous and current row
+            // indices. Step through each empty row index
+            while (prevRow < row)
+            {
+                // Add the row index to the list of empty row indices
+                emptyRows.add(prevRow);
+                prevRow++;
+            }
+        }
+
+        return emptyRows.toArray(new Integer[0]);
+    }
+
+    /**********************************************************************************************
+     * Restore empty rows in the table at the specified indices
+     *
+     * @param emptyRows
+     *            array of the empty row indices
+     *********************************************************************************************/
+    private void restoreEmptyRows(Integer[] emptyRows)
+    {
+        // Get an empty row for the table
+        Object[] emptyRow = table.getEmptyRow();
+
+        // Step through each empty row index
+        for (Integer row : emptyRows)
+        {
+            // Insert an empty row at the index
+            table.insertRowData(row - 1, emptyRow);
+        }
+    }
+
+    /**********************************************************************************************
      * Perform the steps needed following execution of database table changes
      *
      * @param dbTableInfo
@@ -795,9 +848,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void doTableUpdatesComplete(TableInformation dbTableInfo, boolean applyToChild)
     {
+        Object[][] originalCommData = null;
+        Integer[] emptyRows = null;
+
         // Check if this is the editor for the table that was changed
         if (dbTableInfo.getTablePath().equals(tableInfo.getTablePath()))
         {
+            // Store the indices for any empty rows; the empty rows are restored after the table
+            // data is replaced
+            emptyRows = getEmptyRows();
+
             // Replace any custom value deletion flags with blanks
             clearCustomValueDeletionFlags();
         }
@@ -810,9 +870,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             table.getCellEditor().stopCellEditing();
         }
 
-        Object[][] originalCommData = null;
-
-        // Get the current table description Check if the table contains any committed data
+        // Check if the table contains any committed data
         if (committedInfo.getData().length != 0)
         {
             originalCommData = new Object[committedInfo.getData().length][committedInfo.getData()[0].length];
@@ -837,6 +895,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Store the table information that represents the currently committed table data
         setCommittedInformation(dbTableInfo);
+
+        // Check if this is the editor for the table that was changed
+        if (dbTableInfo.getTablePath().equals(tableInfo.getTablePath()))
+        {
+            // Restore any empty rows
+            restoreEmptyRows(emptyRows);
+        }
 
         // Get the variable path separators and (re)create the variable path column content, if
         // present
@@ -4847,38 +4912,60 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Check if a change wasn't detected above and that the variable path, variable name, and
         // data type columns are present
-        if (!isChanged && variablePathIndex != -1 && variableNameIndex != -1 && dataTypeIndex != -1)
+        if (!isChanged
+            && variablePathIndex != -1
+            && variableNameIndex != -1
+            && dataTypeIndex != -1)
         {
             // Step through each row in the table
-            for (int row = 0; row < tableModel.getRowCount(); row++)
+            for (int row = 0; row < tableModel.getRowCount() && !isChanged; row++)
             {
-                // Get the variable path as currently displayed in the table
-                String varPath = tableModel.getValueAt(row, variablePathIndex).toString();
+                // Get the primary key value for this row
+                String primaryKey = tableModel.getValueAt(row, primaryKeyIndex).toString();
 
-                // Check if the variable path isn't blank (the path is blank if the table row is an
-                // array definition, which doesn't allow a variable path)
-                if (!varPath.isEmpty())
+                // Check if the row has a primary key (indicates it exists in the committed data)
+                if (!primaryKey.isEmpty())
                 {
-                    // Set the flag to indicate if the variable path is automatically set
-                    boolean isVarPathAuto = committedInfo.getData()[row][variablePathIndex].isEmpty();
+                    // Get the variable path as currently displayed in the table
+                    String varPath = tableModel.getValueAt(row, variablePathIndex).toString();
 
-                    // Check if the variable path was manually set and has been changed (either to
-                    // a new name or allowed to be automatically), or the path wasn't manually set
-                    // but it is now
-                    if ((!isVarPathAuto
-                         && !varPath.equals(committedInfo.getData()[row][variablePathIndex]))
-                        || (isVarPathAuto
-                            && !varPath.equals(getVariablePath(tableModel.getValueAt(row,
-                                                                                     variableNameIndex)
-                                                                         .toString(),
-                                                               tableModel.getValueAt(row,
-                                                                                     dataTypeIndex)
-                                                                         .toString(),
-                                                               true))))
+                    // Check if the variable path isn't blank (the path is blank if the table row
+                    // is an array definition, which doesn't allow a variable path, or an empty
+                    // row)
+                    if (!varPath.isEmpty())
                     {
-                        // Set the flag to indicate a change exists and stop searching
-                        isChanged = true;
-                        break;
+                        // Step through each row in the committed data
+                        for (int commRow = 0; commRow < committedInfo.getData().length; commRow++)
+                        {
+                            // Check if the primary key in the table matches the one in this row of
+                            // the committed data
+                            if (primaryKey.equals(committedInfo.getData()[commRow][primaryKeyIndex]))
+                            {
+                                // Set the flag to indicate if the variable path is automatically
+                                // set
+                                boolean isVarPathAuto = committedInfo.getData()[commRow][variablePathIndex].isEmpty();
+
+                                // Check if the variable path was manually set and has been changed
+                                // (either to a new name or allowed to be automatically), or the
+                                // path wasn't manually set but it is now
+                                if ((!isVarPathAuto
+                                     && !varPath.equals(committedInfo.getData()[commRow][variablePathIndex]))
+                                    || (isVarPathAuto
+                                        && !varPath.equals(getVariablePath(tableModel.getValueAt(row,
+                                                                                                 variableNameIndex)
+                                                                                     .toString(),
+                                                                           tableModel.getValueAt(row,
+                                                                                                 dataTypeIndex)
+                                                                                     .toString(),
+                                                                           true))))
+                                {
+                                    // Set the flag to indicate a change exists
+                                    isChanged = true;
+                                }
+
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -4902,8 +4989,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     protected void buildUpdates()
     {
         // Note: The committed table information class is updated during the commit procedure,
-        // which can produce a race condition if it's used for change comparisons Check that the
-        // table is open in a table editor (versus open for a macro name and/or value change)
+        // which can produce a race condition if it's used for change comparisons
+
+        // Check that the table is open in a table editor (versus open for a macro name and/or
+        // value change)
         if (editorDialog != null)
         {
             // Store the description into the table information class so that it can be used to

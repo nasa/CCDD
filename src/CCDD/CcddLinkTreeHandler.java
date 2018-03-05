@@ -13,7 +13,6 @@ import static CCDD.CcddConstants.OK_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -731,27 +730,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode)
     {
-        return createTreePanel(label, selectionMode, 0);
-    }
-
-    /**********************************************************************************************
-     * Create a link tree panel. The table tree is placed in a scroll pane. A check box is added
-     * that allows tree expansion/collapse
-     *
-     * @param label
-     *            link tree title
-     *
-     * @param selectionMode
-     *            tree item selection mode (single versus multiple)
-     *
-     * @param prefTreeWidth
-     *            preferred initial width of the tree in pixels; 0 to let the layout manager
-     *            determine the preferred width
-     *
-     * @return JPanel containing the link tree components
-     *********************************************************************************************/
-    protected JPanel createTreePanel(String label, int selectionMode, int prefTreeWidth)
-    {
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 
@@ -793,16 +771,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
-
-        // Check if a preferred width is specified
-        if (prefTreeWidth != 0)
-        {
-            // Set the tree's preferred width
-            treeScroll.setPreferredSize(new Dimension(prefTreeWidth
-                                                      + treeScroll.getBorder().getBorderInsets(treeScroll).left
-                                                        * 2,
-                                                      0));
-        }
 
         // Add the tree to the panel
         gbc.weighty = 1.0;

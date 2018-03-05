@@ -952,7 +952,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
-                                String... extraInfo)
+                                Object... extraInfo)
     {
         boolean errorFlag = false;
         boolean addLineFeed = false;
@@ -978,7 +978,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = ccddMain.getDbTableCommandHandler().loadTableData(tblName,
-                                                                                               false,
                                                                                                true,
                                                                                                false,
                                                                                                true,
@@ -1021,19 +1020,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
                     }
 
-                    String systemName = "";
+                    String systemName = fieldHandler.getFieldValue(tblName,
+                                                                   InputDataType.SYSTEM_PATH);
 
-                    // Step through the table's data fields
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                    // Check if the system name exists
+                    if (systemName != null && !systemName.isEmpty())
                     {
-                        // Check if this field contains the system name and isn't blank
-                        if (fieldInfo.getInputType() == InputDataType.SYSTEM_NAME
-                            && !fieldInfo.getValue().isEmpty())
-                        {
-                            // Store the system name and stop searching
-                            systemName = ",\"" + fieldInfo.getValue() + "\"";
-                            break;
-                        }
+                        // Store the system name
+                        systemName = ",\"" + systemName + "\"";
                     }
 
                     // Output the table path (if applicable) and name, table type, and system name
@@ -1275,7 +1269,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
         }
-        catch (IOException ioe)
+        catch (
+
+        IOException ioe)
         {
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,

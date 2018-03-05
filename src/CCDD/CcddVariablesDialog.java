@@ -518,8 +518,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
             {
                 // Append the regular expression to match variables of the filter table
                 filterTables.set(index,
-                                 filterTables.get(index)
-                                        + ",[a-zA-Z0-9_]*\\.[a-zA-Z0-9_]*");
+                                 filterTables.get(index) + ",[a-zA-Z0-9_]*\\.[a-zA-Z0-9_]*");
             }
         }
 

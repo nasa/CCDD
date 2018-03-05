@@ -7,13 +7,13 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,29 +26,52 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.ccsds.schema.sois.seds.ArrayDataType;
+import org.ccsds.schema.sois.seds.ArrayDimensionsType;
+import org.ccsds.schema.sois.seds.BaseTypeSetType;
+import org.ccsds.schema.sois.seds.ByteOrderType;
 import org.ccsds.schema.sois.seds.CommandArgumentType;
+import org.ccsds.schema.sois.seds.ContainerDataType;
 import org.ccsds.schema.sois.seds.DataSheetType;
 import org.ccsds.schema.sois.seds.DataTypeSetType;
 import org.ccsds.schema.sois.seds.DeviceType;
+import org.ccsds.schema.sois.seds.DimensionSizeType;
+import org.ccsds.schema.sois.seds.EntryListType;
+import org.ccsds.schema.sois.seds.EntryType;
 import org.ccsds.schema.sois.seds.EnumeratedDataType;
 import org.ccsds.schema.sois.seds.EnumerationListType;
+import org.ccsds.schema.sois.seds.FloatDataEncodingType;
+import org.ccsds.schema.sois.seds.FloatDataType;
+import org.ccsds.schema.sois.seds.FloatDataTypeRangeType;
+import org.ccsds.schema.sois.seds.FloatEncodingAndPrecisionType;
 import org.ccsds.schema.sois.seds.IntegerDataEncodingType;
+import org.ccsds.schema.sois.seds.IntegerDataType;
+import org.ccsds.schema.sois.seds.IntegerDataTypeRangeType;
 import org.ccsds.schema.sois.seds.IntegerEncodingType;
 import org.ccsds.schema.sois.seds.InterfaceCommandType;
 import org.ccsds.schema.sois.seds.InterfaceDeclarationType;
 import org.ccsds.schema.sois.seds.InterfaceParameterType;
+import org.ccsds.schema.sois.seds.InterfaceRefType;
+import org.ccsds.schema.sois.seds.MinMaxRangeType;
 import org.ccsds.schema.sois.seds.NamespaceType;
+import org.ccsds.schema.sois.seds.NumericDataType;
 import org.ccsds.schema.sois.seds.ObjectFactory;
+import org.ccsds.schema.sois.seds.RootDataType;
 import org.ccsds.schema.sois.seds.SemanticsType;
+import org.ccsds.schema.sois.seds.StringDataEncodingType;
+import org.ccsds.schema.sois.seds.StringDataType;
+import org.ccsds.schema.sois.seds.StringEncodingType;
 import org.ccsds.schema.sois.seds.Unit;
 import org.ccsds.schema.sois.seds.ValueEnumerationType;
 
+import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -66,11 +89,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddDataTypeHandler dataTypeHandler;
     private TypeDefinition typeDefn;
     private final CcddMacroHandler macroHandler;
-    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
     private final Component parent;
+
+    // Export endian type
+    private EndianType endianess;
 
     // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
@@ -85,39 +110,51 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     // Conversion setup error flag
     private boolean errorFlag;
 
-    /**********************************************************************************************
-     * EDS data type tags
-     *********************************************************************************************/
-    private enum EDSTags
+    // Names of the tables that represent the common header for all telemetry and command tables
+    private String tlmHeaderTable;
+    private String cmdHeaderTable;
+
+    // Names of the system paths for the common header for all telemetry and command tables
+    private String tlmHeaderPath;
+    private String cmdHeaderPath;
+
+    // EDS data types
+    private enum EDSDataType
     {
-        TABLE("Table"),
-        TABLE_TYPE("Table Type Definition"),
-        DATA_TYPE("Data Type Definition"),
-        MACRO("Macro Definition"),
-        RESERVED_MSG_ID("Reserved Message ID"),
-        VARIABLE_PATH("Variable Path");
+        INTEGER,
+        FLOAT,
+        STRING
+    }
 
-        private String tag;
+    // Text appended to the parameter and command type and array references
+    private static String TYPE = "_Type";
+    private static String ARRAY = "_Array";
+
+    // TODO TLM & CMD INTERFACE NAMES
+    private static String TELEMETRY = "Telemetry";
+    private static String COMMAND = "Command";
+
+    /**********************************************************************************************
+     * Structure member list
+     *********************************************************************************************/
+    class StructureMemberList
+    {
+        private final String structureName;
+        private final EntryListType memberList;
 
         /******************************************************************************************
-         * Additional EDS data type tags constructor
+         * Structure member list constructor
          *
-         * @param tag
-         *            text describing the data
-         *****************************************************************************************/
-        EDSTags(String tag)
-        {
-            this.tag = tag;
-        }
-
-        /******************************************************************************************
-         * Get the data type tag
+         * @param structureName
+         *            structure table name
          *
-         * @return Text describing the data
+         * @param memberList
+         *            member list
          *****************************************************************************************/
-        protected String getTag()
+        StructureMemberList(String structureName, EntryListType memberList)
         {
-            return tag;
+            this.structureName = structureName;
+            this.memberList = memberList;
         }
     }
 
@@ -145,7 +182,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
-        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
 
         errorFlag = false;
 
@@ -235,7 +271,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
-     *            unused
+     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN)
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -247,7 +283,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
-                                String... extraInfo)
+                                Object... extraInfo)
     {
         boolean errorFlag = false;
 
@@ -259,26 +295,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                includeReservedMsgIDs,
                                includeVariablePaths,
                                variableHandler,
-                               separators);
-
-            try
-            {
-                // Output the file creation information
-                marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
-                                       "\n<!-- Created "
-                                                                               + new Date().toString()
-                                                                               + " : project = "
-                                                                               + dbControl.getDatabaseName()
-                                                                               + " : host = "
-                                                                               + dbControl.getServer()
-                                                                               + " : user = "
-                                                                               + dbControl.getUser()
-                                                                               + " -->");
-            }
-            catch (JAXBException je)
-            {
-                // Ignore the error if setting this property fails; the comment is not included
-            }
+                               separators,
+                               (EndianType) extraInfo[0]);
 
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
@@ -331,26 +349,37 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *
-     * @param system
-     *            system name
+     * @param extraInfo
+     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN)
      *********************************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
                                     boolean replaceMacros,
                                     boolean includeReservedMsgIDs,
                                     boolean includeVariablePaths,
                                     CcddVariableSizeAndConversionHandler variableHandler,
-                                    String[] separators)
+                                    String[] separators,
+                                    EndianType endianess)
     {
+        this.endianess = endianess;
+
         // Create the project's data sheet and device
         dataSheet = factory.createDataSheetType();
         project = factory.createDataSheet(dataSheet);
         device = factory.createDeviceType();
         device.setName(dbControl.getDatabaseName());
         device.setShortDescription(dbControl.getDatabaseDescription(dbControl.getDatabaseName()));
+        device.setLongDescription("Author: " + dbControl.getUser()
+                                  + "\nGenerated by CCDD " + ccddMain.getCCDDVersionInformation()
+                                  + "\nDate: " + new Date().toString()
+                                  + "\nProject: " + dbControl.getProjectName()
+                                  + "\nHost: " + dbControl.getServer()
+                                  + "\nEndianess: " + (endianess == EndianType.BIG_ENDIAN
+                                                                                          ? "big"
+                                                                                          : "little"));
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands
-        buildNameSpaces(tableNames, includeVariablePaths, variableHandler, separators);
+        buildNamespaces(tableNames, includeVariablePaths, variableHandler, separators);
     }
 
     /**********************************************************************************************
@@ -371,391 +400,564 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *********************************************************************************************/
-    private void buildNameSpaces(String[] tableNames,
+    private void buildNamespaces(String[] tableNames,
                                  boolean includeVariablePaths,
                                  CcddVariableSizeAndConversionHandler variableHandler,
                                  String[] separators)
     {
+        List<StructureMemberList> memberLists = new ArrayList<StructureMemberList>();
+
+        // Build the data field information for all fields
+        fieldHandler.buildFieldInformation(null);
+
+        // Get the names of the tables representing the CCSDS telemetry and command headers
+        tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                    InputDataType.XML_TLM_HDR);
+        cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                    InputDataType.XML_CMD_HDR);
+
+        // Get the command header argument names for the application ID and the command function
+        // code. These are stored as project-level data fields
+        String ccsdsAppID = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                       InputDataType.XML_APP_ID);
+        String ccsdsFuncCode = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                          InputDataType.XML_FUNC_CODE);
+
         // Step through each table name
         for (String tableName : tableNames)
         {
-            NamespaceType nameSpace;
+            // Check if this is a child (instance) table
+            if (!TableInformation.isPrototype(tableName))
+            {
+                // Get the prototype of the instance table. Only prototypes of the tables are
+                // used to create the space systems
+                tableName = TableInformation.getPrototypeName(tableName);
+
+                // Get the name of the system to which this table belongs from the table's
+                // system path data field (if present)
+                String systemPath = fieldHandler.getFieldValue(tableName,
+                                                               InputDataType.SYSTEM_PATH);
+
+                // Check if the space system for the prototype of the table has already been
+                // created
+                if (searchNamespacesForName(systemPath, tableName) != null)
+                {
+                    // Skip this table since it's space system has already been created
+                    continue;
+                }
+            }
 
             // Get the information from the database for the specified table
             TableInformation tableInfo = dbTable.loadTableData(tableName,
-                                                               true,
                                                                true,
                                                                false,
                                                                true,
                                                                parent);
 
-            // Get the table type and from the type get the type definition. The type definition
-            // can be a global parameter since if the table represents a structure, then all of its
-            // children are also structures, and if the table represents commands or other table
-            // type then it is processed within this nest level
-            typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
-
-            // Get the table's basic type - structure, command, or the original table type if not
-            // structure or command table
-            String tableType = typeDefn.isStructure()
-                                                      ? TYPE_STRUCTURE
-                                                      : typeDefn.isCommand()
-                                                                             ? TYPE_COMMAND
-                                                                             : tableInfo.getType();
-
-            // Check if the table type is recognized and that the table's data successfully loaded
-            if (tableType != null && !tableInfo.isErrorFlag())
+            // Check if the table's data successfully loaded
+            if (!tableInfo.isErrorFlag())
             {
-                // Replace all macro names with their corresponding values
-                tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
+                // TODO GIVEN THAT INSTANCE INFORMATION DOESN'T APPEAR TO BE USED, IF A CHILD
+                // TABLE IS REFERNCED THEN AUTOMATICALLY LOAD ITS PROTOTYPE AND DON'T CREATE A
+                // SpaceSystem FOR THE INSTANCE. TREAT IT AS IF ONLY PROTOTYPES WERE SELECTED.
 
-                String systemName = "DefaultSystem";
+                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. FOR THAT
+                // MATTER, SEPARATE SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED.
 
-                // Step through the table's data fields
-                for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                // Get the table type and from the type get the type definition. The type
+                // definition can be a global parameter since if the table represents a structure,
+                // then all of its children are also structures, and if the table represents
+                // commands or other table type then it is processed within this nest level
+                typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+
+                // Check if the table type is valid
+                if (typeDefn != null)
                 {
-                    // Check if this field contains the system name and isn't blank
-                    if (fieldInfo.getInputType() == InputDataType.SYSTEM_NAME
-                        && !fieldInfo.getValue().isEmpty())
+                    // Get the table's basic type - structure, command, or the original table type
+                    // if not structure or command table
+                    String tableType = typeDefn.isStructure()
+                                                              ? TYPE_STRUCTURE
+                                                              : typeDefn.isCommand()
+                                                                                     ? TYPE_COMMAND
+                                                                                     : tableInfo.getType();
+
+                    // Replace all macro names with their corresponding values
+                    tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
+
+                    // Get the application ID data field value, if present
+                    String applicationID = fieldHandler.getFieldValue(tableName,
+                                                                      InputDataType.MESSAGE_ID);
+
+                    // Get the name of the system to which this table belongs from the table's
+                    // system path data field (if present)
+                    String systemPath = fieldHandler.getFieldValue(tableName,
+                                                                   InputDataType.SYSTEM_PATH);
+
+                    // Add the space system
+                    NamespaceType namespace = addNamespace(systemPath,
+                                                           tableName,
+                                                           tableInfo.getDescription());
+
+                    // Check if this is a node for a structure table
+                    if (tableType.equals(TYPE_STRUCTURE))
                     {
-                        // Store the system name and stop searching
-                        systemName = fieldInfo.getValue();
-                        break;
-                    }
-                }
+                        EntryListType memberList = factory.createEntryListType();
 
-                // Check if this is a structure table
-                if (tableType.equals(TYPE_STRUCTURE))
-                {
-                    // Get the default column indices
-                    int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                    int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                    int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-                    int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-                    List<Integer> enumColumn = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
-                    int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-                    int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
+                        // Get the default column indices
+                        int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                        int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                        int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+                        int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+                        int enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
+                        int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+                        int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
+                        int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
+                        int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
 
-                    // Get the structure table description
-                    String description = tableInfo.getDescription().isEmpty()
-                                                                              ? null
-                                                                              : tableInfo.getDescription();
+                        // Set the flag to indicate if this is the telemetry header table
+                        boolean isTlmHeaderTable = tableName.equals(tlmHeaderTable);
 
-                    // Add the structure to the telemetry data sheet
-                    nameSpace = addNameSpace(systemName,
-                                             tableName,
-                                             description,
-                                             tableInfo.getType());
+                        // Check if this is the telemetry header table
+                        if (isTlmHeaderTable)
+                        {
+                            // Store the telemetry header's path
+                            tlmHeaderPath = systemPath;
+                        }
 
-                    // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().length; row++)
-                    {
-                        // Add the variable to the data sheet
-                        addNameSpaceParameter(nameSpace,
+                        // TODO
+                        // Export the parameter container for this structure
+                        addParameterContainer(namespace,
                                               tableInfo,
                                               varColumn,
                                               typeColumn,
                                               sizeColumn,
-                                              bitColumn,
-                                              enumColumn,
-                                              unitsColumn,
-                                              descColumn,
-                                              tableInfo.getData()[row][typeColumn],
-                                              tableInfo.getData()[row][varColumn]);
-                    }
-                }
-                // Not a structure table
-                else
-                {
-                    // Get the structure table description
-                    String description = tableInfo.getDescription().isEmpty()
-                                                                              ? null
-                                                                              : tableInfo.getDescription();
+                                              isTlmHeaderTable,
+                                              applicationID,
+                                              ccsdsAppID);
 
+                        // Step through each row in the structure table
+                        for (String[] rowData : tableInfo.getData())
+                        {
+                            // Check if the variable isn't an array member (the array definition is
+                            // used to define the array)
+                            if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                            {
+                                // Add the variable to the data sheet
+                                addParameter(namespace,
+                                             rowData[varColumn],
+                                             rowData[typeColumn],
+                                             rowData[sizeColumn],
+                                             rowData[bitColumn],
+                                             (enumColumn != -1 && !rowData[enumColumn].isEmpty()
+                                                                                                 ? rowData[enumColumn]
+                                                                                                 : null),
+                                             (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
+                                                                                                   ? rowData[unitsColumn]
+                                                                                                   : null),
+                                             (minColumn != -1 && !rowData[minColumn].isEmpty()
+                                                                                               ? rowData[minColumn]
+                                                                                               : null),
+                                             (maxColumn != -1 && !rowData[maxColumn].isEmpty()
+                                                                                               ? rowData[maxColumn]
+                                                                                               : null),
+                                             (descColumn != -1 && !rowData[descColumn].isEmpty()
+                                                                                                 ? rowData[descColumn]
+                                                                                                 : null),
+                                             (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
+                                                                                                                              ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
+                                                                                                                              : 1));
+
+                                // TODO
+                                // Use the variable name to create an aggregate list member and add
+                                // it to the member list. The list is used if this structure is
+                                // referenced as a data type in another structure
+                                EntryType member = factory.createEntryType();
+                                member.setName(rowData[varColumn]);
+                                member.setType((systemPath == null || systemPath.isEmpty()
+                                                                                           ? ""
+                                                                                           : systemPath + "/")
+                                               + tableName + "/"
+                                               + (dataTypeHandler.isPrimitive(rowData[typeColumn])
+                                                                                                   ? rowData[varColumn]
+                                                                                                   : rowData[typeColumn])
+                                               + TYPE);// TODO
+                                memberList.getEntryOrFixedValueEntryOrPaddingEntry().add(member);
+                            }
+                        }
+
+                        // Check if any variables exists in the structure table
+                        if (!memberList.getEntryOrFixedValueEntryOrPaddingEntry().isEmpty())
+                        {
+                            // Create a structure member list using the table's aggregate member
+                            // list
+                            memberLists.add(new StructureMemberList(tableName, memberList));
+                        }
+                    }
                     // Check if this is a command table
-                    if (tableType.equals(TYPE_COMMAND))
+                    else if (tableType.equals(TYPE_COMMAND))
                     {
-                        // Create a name space if not already present
-                        nameSpace = addNameSpace(systemName,
-                                                 tableName,
-                                                 description,
-                                                 tableInfo.getType());
+                        // Check if this is the command header table
+                        if (tableName.equals(cmdHeaderTable))
+                        {
+                            // Store the command header's path
+                            cmdHeaderPath = systemPath;
+                        }
 
                         // Add the command(s) from this table to the data sheet
-                        addNameSpaceCommands(nameSpace, tableInfo);
+                        addNamespaceCommands(namespace, tableInfo);
                     }
-                    // Not a command (or structure) table; i.e., it's a user-defined table type
+                    // Not a structure or command table
                     else
                     {
-                        // Create a name space if not already present
-                        nameSpace = addNameSpace(systemName,
-                                                 tableName,
-                                                 description,
-                                                 tableInfo.getType());
+                        // TODO WHAT SHOULD BE DONE WITH NON-STRUCTURE & NON-COMMAND TABLES -
+                        // IGNORE, CREATE THE SPACE SYSTEM ONLY, OR CREATE A SYSTEM AND POPULATE
+                        // WITH ANCILLARY DATA?
+
+                        // IF STRUCTURE & COMMAND DATA THAT DOESN'T FIT XTCE IS STORED (ANCILLARY
+                        // OR CUSTOM TAGS) THEN THIS TYPE OF TABLE WOULD BE STORED IN THE SAME
+                        // FASHION. A CHECK BOX IN THE EXPORT DIALOG COULD BE USED TO TRIGGER
+                        // STORING THIS 'EXTRA' INFORMATION ('INCLUDE EXTRA DATA'). IMPORT OF THIS
+                        // TYPE OF EXPORT WOULD BE VIABLE.
                     }
                 }
             }
         }
+
+        // TODO
+        // // Step through each table name
+        // for (String tableName : tableNames)
+        // {
+        // // Get the prototype for the child
+        // tableName = TableInformation.getPrototypeName(tableName);
+        //
+        // // Get the name of the system to which this table belongs from the table's system path
+        // // data field (if present)
+        // String systemPath = fieldHandler.getFieldValue(tableName, InputDataType.SYSTEM_PATH);
+        //
+        // // Get the space system for this table
+        // NamespaceType system = searchNamespacesForName(systemPath, tableName);
+        //
+        // // Check if the system was found and it has telemetry data
+        // if (system != null && system.getDataTypeSet() != null)
+        // {
+        // // Step through each parameter type
+        // for (RootDataType type :
+        // system.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
+        // {
+        // // Check if the type is a container (i.e., a structure reference)
+        // if (type instanceof ContainerDataType)
+        // {
+        // // Step through each structure member list
+        // for (StructureMemberList structMemList : memberLists)
+        // {
+        // // Check if the container refers to this structure
+        // if (type.getName().equals(structMemList.structureName + TYPE))// TODO
+        // {
+        // // Set the container's member list to this structure member list
+        // // and stop searching
+        // ((ContainerDataType) type).setEntryList(structMemList.memberList);
+        // break;
+        // }
+        // }
+        // }
+        // }
+        // }
+        // }
     }
 
     /**********************************************************************************************
      * Create a new name space as a child within the specified name space. If the specified name
      * space is null then this is the root data sheet
      *
-     * @param systemName
-     *            system name; null or blank if no system (e.g., macro definitions)
+     * @param systemPath
+     *            system name; null or blank if no system
      *
-     * @param nameSpaceName
+     * @param namespaceName
      *            name for the new name space
      *
-     * @param shortDescription
+     * @param description
      *            data sheet description
-     *
-     * @param tableType
-     *            table's type name
      *
      * @return Reference to the new name space
      *********************************************************************************************/
-    private NamespaceType addNameSpace(String systemName,
-                                       String nameSpaceName,
-                                       String shortDescription,
-                                       String tableType)
+    private NamespaceType addNamespace(String systemPath,
+                                       String namespaceName,
+                                       String description)
     {
-        // Check if a system name is provided
-        if (systemName != null && !systemName.isEmpty())
+        // Create the new name space and set the name attribute
+        NamespaceType childSpace = factory.createNamespaceType();
+
+        // Set the name space name
+        childSpace.setName((systemPath != null
+                                               ? systemPath + "/"
+                                               : "")
+                           + namespaceName);
+
+        // Check if a description is provided
+        if (description != null && !description.isEmpty())
         {
-            // Prepend the system name to the name space name to get the full name
-            nameSpaceName = EDSTags.TABLE.getTag()
-                            + ": "
-                            + nameSpaceName
-                            + " : "
-                            + systemName;
+            // Set the description attribute
+            childSpace.setShortDescription(description);
         }
 
-        // Search the existing name spaces for one with this name
-        NamespaceType nameSpace = searchNameSpacesForName(nameSpaceName);
+        // Create an interface set for the name space
+        childSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
 
-        // Check if the name space doesn't already exist
-        if (nameSpace == null)
-        {
-            // Create the new name space and set the name attribute
-            nameSpace = factory.createNamespaceType();
+        // Add the new names space
+        dataSheet.getNamespace().add(childSpace);
 
-            // Set the name space name
-            nameSpace.setName(nameSpaceName);
-
-            // Check if a description is provided
-            if (shortDescription != null)
-            {
-                // Set the description attribute
-                nameSpace.setShortDescription(shortDescription);
-            }
-
-            // Check if a system name is provided (i.e., this is a table)
-            if (systemName != null && !systemName.isEmpty())
-            {
-                // Create an interface set for the name space
-                nameSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
-            }
-
-            // Add the new names space
-            dataSheet.getNamespace().add(nameSpace);
-        }
-
-        return nameSpace;
+        return childSpace;
     }
 
     /**********************************************************************************************
      * Search for the name space with the same name as the search name
      *
-     * @param nameSpaceName
+     * @param systemPath
+     *            system name; null or blank if no system
+     *
+     * @param namespaceName
      *            name of the name space to search for within the name space hierarchy
      *
      * @return Reference to the name space with the same name as the search name; null if no name
      *         space name matches the search name
      *********************************************************************************************/
-    private NamespaceType searchNameSpacesForName(String nameSpaceName)
+    private NamespaceType searchNamespacesForName(String systemPath, String namespaceName)
     {
-        NamespaceType foundNameSpace = null;
+        NamespaceType foundNamespace = null;
 
-        for (NamespaceType nameSpace : dataSheet.getNamespace())
+        // Prepend the system path, if present
+        namespaceName = (systemPath != null
+                                            ? systemPath + "/"
+                                            : "")
+                        + namespaceName;
+
+        // Step through each name space
+        for (NamespaceType namespace : dataSheet.getNamespace())
         {
             // Check if the current name space's name matches the search name
-            if (nameSpace.getName().equals(nameSpaceName))
+            if (namespace.getName().equals(namespaceName))
             {
                 // Store the reference to the matching name space
-                foundNameSpace = nameSpace;
+                foundNamespace = namespace;
                 break;
             }
         }
 
-        return foundNameSpace;
+        return foundNamespace;
     }
 
     /**********************************************************************************************
      * Create the parameter set for the specified name space
      *
-     * @param nameSpace
+     * @param namespace
      *            name space
      *
      * @return Reference to the parameter set
      *********************************************************************************************/
-    private InterfaceDeclarationType createParameterSet(NamespaceType nameSpace)
+    private InterfaceDeclarationType createParameterSet(NamespaceType namespace)
     {
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
+        intParmType.setName(TELEMETRY);
         intParmType.setParameterSet(factory.createParameterSetType());
-        nameSpace.getDeclaredInterfaceSet().getInterface().add(intParmType);
+        namespace.getDeclaredInterfaceSet().getInterface().add(intParmType);
         return intParmType;
     }
 
     /**********************************************************************************************
-     * Add a variable to the specified data sheet
+     * Add the parameter container
      *
-     * @param nameSpace
-     *            parent data sheet for this node
+     * @param system
+     *            name space
      *
      * @param tableInfo
-     *            TableInformation reference for the current node
+     *            table information reference
      *
      * @param varColumn
-     *            variable name column index
+     *            variable name column index (model coordinates)
      *
      * @param typeColumn
-     *            data type column index
+     *            data type column index (model coordinates)
      *
      * @param sizeColumn
-     *            array size column index
+     *            array size column index (model coordinates)
      *
-     * @param bitColumn
-     *            bit length column index
+     * @param isTlmHeader
+     *            true if this table represents the CCSDS telemetry header
      *
-     * @param enumColumns
-     *            list containing the current table's enumeration column indices; empty list if no
-     *            enumeration columns exist
+     * @param applicationID
+     *            application ID
      *
-     * @param unitsColumn
-     *            current table's units column index; -1 if none exists
-     *
-     * @param descColumn
-     *            current table's description column index; -1 if none exists
-     *
-     * @param dataType
-     *            parameter data type
-     *
-     * @param variableName
-     *            variable name
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
      *********************************************************************************************/
-    private void addNameSpaceParameter(NamespaceType nameSpace,
+    private void addParameterContainer(NamespaceType system,
                                        TableInformation tableInfo,
                                        int varColumn,
                                        int typeColumn,
                                        int sizeColumn,
-                                       int bitColumn,
-                                       List<Integer> enumColumns,
-                                       int unitsColumn,
-                                       int descColumn,
-                                       String dataType,
-                                       String variableName)
+                                       boolean isTlmHeader,
+                                       String applicationID,
+                                       String ccsdsAppID)
     {
-        // Set the system path to the table's path
-        String systemPath = tableInfo.getTablePath();
+        ContainerDataType containerType = null;
+        EntryListType entryList = factory.createEntryListType();
 
-        // Initialize the parameter attributes
-        String bitLength = null;
-        List<String> enumerations = null;
-        String units = null;
-        String description = null;
-
-        // Separate the variable name and bit length (if present) and store the variable name
-        String[] nameAndBit = variableName.split(":");
-        variableName = nameAndBit[0];
-
-        // Check if a bit length is present
-        if (nameAndBit.length == 2)
+        // Step through each row of data in the structure table
+        for (String[] rowData : tableInfo.getData())
         {
-            // Store the bit length
-            bitLength = nameAndBit[1];
-        }
-
-        // Get the index of the row in the table for this variable
-        int row = typeDefn.getRowIndexByColumnValue(tableInfo.getData(), variableName, varColumn);
-
-        // Check that a valid row index exists for this variable. Since the table tree is built
-        // from the existing tables, a valid variable row index is always returned
-        if (row != -1)
-        {
-            // Check if the data type is a string and if the array size column isn't empty
-            if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
-                && !tableInfo.getData()[row][sizeColumn].isEmpty())
+            // Check if the parameter is an array
+            if (!rowData[sizeColumn].isEmpty())
             {
-                int defnRow = row;
-
-                // Check if the variable name is an array member
-                while (tableInfo.getData()[defnRow][varColumn].endsWith("]"))
+                // Check if this is the array definition (array members are ignored)
+                if (!ArrayVariable.isArrayMember(rowData[varColumn]))
                 {
-                    // Step back through the rows until the array definition is located
-                    defnRow--;
+                    // Create an array type and set its attributes
+                    ArrayDataType arrayType = factory.createArrayDataType();
+                    arrayType.setName(rowData[varColumn] + ARRAY);
+                    ArrayDimensionsType dimList = factory.createArrayDimensionsType();
+
+                    // Step through each array dimension
+                    for (int dim : ArrayVariable.getArrayIndexFromSize(rowData[sizeColumn]))
+                    {
+                        // Create a dimension entry for the array type
+                        DimensionSizeType dimSize = factory.createDimensionSizeType();
+                        dimSize.setSize(BigInteger.valueOf(dim));
+                        dimList.getDimension().add(dimSize);
+                    }
+
+                    arrayType.setDimensionList(dimList);
+
+                    // Store the array parameter array reference in the list
+                    arrayType.setName(rowData[varColumn]);
+                    arrayType.setDataTypeRef(rowData[typeColumn] + TYPE);
+                    entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(arrayType);
                 }
             }
-
-            // Step through each column in the row
-            for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
+            // Check if this parameter has a primitive data type (i.e., it isn't an instance of a
+            // structure)
+            else if (dataTypeHandler.isPrimitive(rowData[typeColumn]))
             {
-                // Check that this is not the variable name column, or the bit length column and
-                // the variable has no bit length, and that a value exists in the column
-                if ((column != varColumn
-                     || (column == bitColumn && bitLength != null))
-                    && !tableInfo.getData()[row][column].isEmpty())
+                // Check if this isn't an array definition
+                if (rowData[sizeColumn].isEmpty() || ArrayVariable.isArrayMember(rowData[varColumn]))
                 {
-                    // Check if this is an enumeration column
-                    if (enumColumns.contains(column))
+                    // Get the index of the variable's bit length, if present
+                    int bitIndex = rowData[varColumn].indexOf(":");
+
+                    // Check if this variable has a bit length
+                    if (bitIndex != -1)
                     {
-                        // Check if the enumeration list doesn't exist
-                        if (enumerations == null)
+                        // Remove the bit length from the variable name
+                        rowData[varColumn] = rowData[varColumn].substring(0, bitIndex);
+                    }
+
+                    // Store the parameter reference in the list
+                    EntryType entryType = factory.createEntryType();
+                    entryType.setName(rowData[varColumn]);
+                    entryType.setType(rowData[varColumn] + TYPE);
+                    entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(entryType);
+                }
+            }
+            // This is a structure data type
+            else // TODO if (!rowData[typeColumn].equals(tlmHeaderTable))
+            {
+                // Store the structure reference in the list
+                EntryType entryType = factory.createEntryType();
+                entryType.setName(rowData[varColumn]);
+                entryType.setType(rowData[typeColumn] + TYPE);
+                entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(entryType);
+            }
+        }
+
+        // Check if any parameters exist
+        if (!entryList.getEntryOrFixedValueEntryOrPaddingEntry().isEmpty())
+        {
+            // Check if the parameter sequence container set hasn't been created
+            if (containerType == null)
+            {
+                // Create the parameter sequence container set
+                containerType = factory.createContainerDataType();
+            }
+
+            // Check if this is the telemetry header
+            if (isTlmHeader)
+            {
+                containerType.setName(tlmHeaderTable + TYPE);
+                containerType.setAbstract(true);
+            }
+            // Not the telemetry header
+            else if (tlmHeaderTable != null && !tlmHeaderTable.isEmpty())
+            {
+                containerType.setName(tableInfo.getPrototypeName() + TYPE);
+
+                // Check if this is a root structure (instance structures don't require a
+                // reference to the telemetry header)
+                if (tableInfo.isRootStructure())
+                {
+                    InterfaceDeclarationType intParmType = null;
+
+                    // Step through the interfaces in order to locate the name space's parameter
+                    // set
+                    for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
+                    {
+                        // Check if the interface contains a parameter set
+                        if (intfcDecType.getParameterSet() != null)
                         {
-                            // Create a list to contain the enumeration(s)
-                            enumerations = new ArrayList<String>();
+                            // Get the parameter set reference and stop searching
+                            intParmType = intfcDecType;
+                            break;
                         }
+                    }
 
-                        // Get the enumeration text
-                        enumerations.add(tableInfo.getData()[row][column]);
-                    }
-                    // Check if this is the units column
-                    else if (column == unitsColumn)
+                    // Check if a parameter set exists
+                    if (intParmType == null)
                     {
-                        // Get the units text
-                        units = tableInfo.getData()[row][unitsColumn];
+                        // Create the parameter set for this name space
+                        intParmType = createParameterSet(system);
                     }
-                    // Check if this is the description column
-                    else if (column == descColumn)
+
+                    // Check if this isn't the command header table
+                    if (!system.getName().equals(tlmHeaderTable))
                     {
-                        // Get the description text
-                        description = tableInfo.getData()[row][descColumn];
+                        // Set the parameter header as the base
+                        BaseTypeSetType baseType = factory.createBaseTypeSetType();
+                        InterfaceRefType intfcType = factory.createInterfaceRefType();
+                        intfcType.setType(tlmHeaderTable + "/" + TELEMETRY);
+                        baseType.getBaseType().add(intfcType);
+                        intParmType.setBaseTypeSet(baseType);
                     }
                 }
             }
+
+            // Store the parameters in the parameter sequence container
+            containerType.setEntryList(entryList);
         }
 
-        // Add the variable to the data sheet
-        addParameter(nameSpace,
-                     systemPath,
-                     variableName,
-                     dataType,
-                     enumerations,
-                     units,
-                     description);
+        // Check if any parameters exist
+        if (containerType != null)
+        {
+            // Get the data type set for this name space
+            DataTypeSetType dataTypeSet = system.getDataTypeSet();
+
+            // Check if the data type set doesn't exist, which is the case for the first
+            // enumerated parameter
+            if (dataTypeSet == null)
+            {
+                // Create the data type set
+                dataTypeSet = factory.createDataTypeSetType();
+            }
+
+            // Add the parameters to the system
+            dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(containerType);
+            system.setDataTypeSet(dataTypeSet);
+        }
     }
 
     /**********************************************************************************************
      * Add a telemetry parameter to the name space's parameter set. Create the parameter set for
      * the name space if it does not exist
      *
-     * @param nameSpace
+     * @param system
      *            name space
-     *
-     * @param systemPath
-     *            system path in the format <project name>.<system name>.<structure
-     *            path>.<primitive data Type>.<variable name>
      *
      * @param parameterName
      *            parameter name
@@ -763,300 +965,309 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param dataType
      *            parameter primitive data type
      *
-     * @param enumerations
-     *            list containing enumerations in the format <enum label>|<enum value>[|...][,...];
-     *            null to not specify
+     * @param arraySize
+     *            parameter array size; null or blank if the parameter isn't an array
+     *
+     * @param bitLength
+     *            parameter bit length; null or blank if not a bit-wise parameter
+     *
+     * @param enumeration
+     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
+     *            specify
      *
      * @param units
      *            parameter units
      *
-     * @param shortDescription
-     *            short description of the parameter
+     * @param minimum
+     *            minimum parameter value
+     *
+     * @param maximum
+     *            maximum parameter value
+     *
+     * @param description
+     *            parameter description
+     *
+     * @param stringSize
+     *            size, in characters, of a string parameter; ignored if not a string or character
      *********************************************************************************************/
-    private void addParameter(NamespaceType nameSpace,
-                              String systemPath,
+    private void addParameter(NamespaceType system,
                               String parameterName,
                               String dataType,
-                              List<String> enumerations,
+                              String arraySize,
+                              String bitLength,
+                              String enumeration,
                               String units,
-                              String shortDescription)
+                              String minimum,
+                              String maximum,
+                              String description,
+                              int stringSize)
     {
-        // Build the parameter attributes
-        InterfaceParameterType parameter = factory.createInterfaceParameterType();
-        parameter.setName(parameterName);
-        parameter.setShortDescription(shortDescription);
-
-        // Check if a data type is provided is a primitive type. If none is provided then no entry
-        // for this parameter appears under the ParameterTypeSet, but it will appear under the
-        // ParameterSet
+        // Check if a data type is provided. If none is provided then no entry for this parameter
+        // appears under the ParameterTypeSet, but it will appear under the ParameterSet
         if (dataType != null)
         {
-            // Set the parameter data type
-            parameter.setType(dataType);
+            // Get the parameter's data type information
+            setDataType(system,
+                        parameterName,
+                        dataType,
+                        arraySize,
+                        bitLength,
+                        enumeration,
+                        units,
+                        minimum,
+                        maximum,
+                        description,
+                        stringSize);
 
-            // Check if the data type provided is a primitive type
-            if (dataTypeHandler.isPrimitive(dataType))
+            // Check if this is not the telemetry header table
+            if (!dataType.equals(tlmHeaderTable))
             {
-                // Check if enumeration parameters are provided
-                if (enumerations != null)
+                // Build the parameter attributes
+                InterfaceParameterType parameter = factory.createInterfaceParameterType();
+                parameter.setName(parameterName);
+                parameter.setType((dataTypeHandler.isPrimitive(dataType)
+                                                                         ? parameterName
+                                                                         : dataType)
+                                  + (arraySize.isEmpty()
+                                                         ? TYPE
+                                                         : ARRAY));
+
+                // Check if a description is provided for this parameter
+                if (description != null && !description.isEmpty())
                 {
-                    // Step through each enumeration
-                    for (String enumeration : enumerations)
+                    // Set the parameter's description
+                    parameter.setShortDescription(description);
+                }
+
+                InterfaceDeclarationType intParmType = null;
+
+                // Step through the interfaces in order to locate the name space's parameter set
+                for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
+                {
+                    // Check if the interface contains a parameter set
+                    if (intfcDecType.getParameterSet() != null)
                     {
-                        // Get the data type set for this name space
-                        DataTypeSetType dataTypeSet = nameSpace.getDataTypeSet();
-
-                        // Check if the data type set doesn't exist, which is the case for the
-                        // first enumerated parameter
-                        if (dataTypeSet == null)
-                        {
-                            // Create the data type set
-                            dataTypeSet = factory.createDataTypeSetType();
-                        }
-
-                        // Create an enumeration type and enumeration list
-                        EnumeratedDataType enumType = factory.createEnumeratedDataType();
-                        EnumerationListType enumList = createEnumerationList(nameSpace,
-                                                                             enumeration);
-                        // Set the integer encoding (the only encoding available for an
-                        // enumeration) and the size in bits
-                        IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
-                        intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
-
-                        // Check if the data type is an unsigned integer
-                        if (dataTypeHandler.isUnsignedInt(dataType))
-                        {
-                            // Set the encoding type to indicate an unsigned integer
-                            intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
-                        }
-
-                        // Set the enumeration parameter name, encoding type, and enumeration list
-                        // attribute
-                        enumType.setName(parameterName);
-                        enumType.setIntegerDataEncoding(intEncodingType);
-                        enumType.setEnumerationList(enumList);
-
-                        // Add the enumeration information to this name space
-                        dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(enumType);
-                        nameSpace.setDataTypeSet(dataTypeSet);
+                        // Get the parameter set reference and stop searching
+                        intParmType = intfcDecType;
+                        break;
                     }
                 }
+
+                // Check if a parameter set exists
+                if (intParmType == null)
+                {
+                    // Create the parameter set for this name space
+                    intParmType = createParameterSet(system);
+                }
+
+                // Add the parameter to the parameter set
+                intParmType.getParameterSet().getParameter().add(parameter);
             }
         }
-
-        try
-        {
-            // This throws an illegal argument exception if the unit is not one of those in the
-            // Unit enum class
-            Unit unit = Unit.fromValue(units);
-            SemanticsType semType = factory.createSemanticsType();
-            semType.setUnit(unit);
-            parameter.setSemantics(semType);
-        }
-        catch (IllegalArgumentException iae)
-        {
-            // TODO User-supplied units don't match one of the hard-coded Unit types (from
-            // Units.java), which are the only ones that are accepted by the Unit fromValue()
-            // method. The hard-coded unit types list is limited
-        }
-
-        InterfaceDeclarationType intParmType = null;
-
-        // Step through the interfaces in order to locate the name space's parameter set
-        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
-        {
-            // Check if the interface contains a parameter set
-            if (intfcDecType.getParameterSet() != null)
-            {
-                // Get the parameter set reference and stop searching
-                intParmType = intfcDecType;
-                break;
-            }
-        }
-
-        // Check if a parameter set exists
-        if (intParmType == null)
-        {
-            // Create the parameter set for this name space
-            intParmType = createParameterSet(nameSpace);
-        }
-
-        // Add the parameter to the parameter set
-        intParmType.getParameterSet().getParameter().add(parameter);
     }
 
     /**********************************************************************************************
      * Create the command set for the specified name space
      *
-     * @param nameSpace
+     * @param system
      *            name space
      *
      * @return Reference to the command set
      *********************************************************************************************/
-    private InterfaceDeclarationType createCommandSet(NamespaceType nameSpace)
+    private InterfaceDeclarationType createCommandSet(NamespaceType system)
     {
         InterfaceDeclarationType intCmdType = factory.createInterfaceDeclarationType();
+        intCmdType.setName(COMMAND);
         intCmdType.setCommandSet(factory.createCommandSetType());
-        nameSpace.getDeclaredInterfaceSet().getInterface().add(intCmdType);
+        system.getDeclaredInterfaceSet().getInterface().add(intCmdType);
         return intCmdType;
     }
 
     /**********************************************************************************************
      * Add the command(s) from a table to the specified name space
      *
-     * @param nameSpace
+     * @param system
      *            name space for this node
      *
      * @param tableInfo
      *            TableInformation reference for the current node
      *********************************************************************************************/
-    private void addNameSpaceCommands(NamespaceType nameSpace, TableInformation tableInfo)
+    private void addNamespaceCommands(NamespaceType system, TableInformation tableInfo)
     {
-        // Get the list containing command argument name, data type, enumeration, minimum, maximum,
-        // and other associated column indices for each argument grouping
-        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
+        // Get the column indices for the command name, code, and description
+        int cmdNameCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
+        int cmdCodeCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE);
+        int cmdDescCol = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+
+        // Step through each command argument column grouping
+        for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+        {
+            // Check if the argument description column exists and it matches the index set for the
+            // command description
+            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescCol)
+            {
+                // There is no column for the command description, so reset its column index and
+                // stop searching
+                cmdDescCol = -1;
+                break;
+            }
+        }
 
         // Step through each row in the table
         for (String[] rowData : tableInfo.getData())
         {
-            // Initialize the command attributes and argument number list
+            // Initialize the command attributes and argument names list
             String commandName = null;
+            String commandCode = null;
             String commandDescription = null;
             List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
 
-            // Create an array of flags to indicate if the column is a command argument that has
-            // been processed
-            boolean[] isCmdArg = new boolean[rowData.length];
-
-            // Step through each column in the row, skipping the primary key and index columns
-            for (int colA = NUM_HIDDEN_COLUMNS; colA < rowData.length; colA++)
+            // Check if the command name exists
+            if (cmdNameCol != -1 && !rowData[cmdNameCol].isEmpty())
             {
-                // Check if the column value isn't blank
-                if (!rowData[colA].isEmpty())
+                // Store the command name
+                commandName = rowData[cmdNameCol];
+
+                // Check if the command code exists
+                if (cmdCodeCol != -1 && !rowData[cmdCodeCol].isEmpty())
                 {
-                    // Get the column name
-                    String colName = typeDefn.getColumnNamesUser()[colA];
+                    // Store the command code
+                    commandCode = rowData[cmdCodeCol];
+                }
 
-                    // Check if this command name column
-                    if (colName.equalsIgnoreCase(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME)))
+                // Check if the command description exists
+                if (cmdDescCol != -1 && !rowData[cmdDescCol].isEmpty())
+                {
+                    // Store the command description
+                    commandDescription = rowData[cmdDescCol];
+                }
+
+                // Step through each command argument column grouping
+                for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+                {
+                    // Initialize the command argument attributes
+                    String argumentName = null;
+                    String dataType = null;
+                    String arraySize = null;
+                    String bitLength = null;
+                    String enumeration = null;
+                    String minimum = null;
+                    String maximum = null;
+                    String units = null;
+                    String description = null;
+                    int stringSize = 1;
+
+                    // Check if this is the name column exists
+                    if (cmdArg.getName() != -1 && !rowData[cmdArg.getName()].isEmpty())
                     {
-                        // Store the command name
-                        commandName = rowData[colA];
+                        // Store the command argument name
+                        argumentName = rowData[cmdArg.getName()];
                     }
-                    // Not the command name column; check for other overall command and command
-                    // argument columns
-                    else
+
+                    // Check if the data type column exists
+                    if (cmdArg.getDataType() != -1 && !rowData[cmdArg.getDataType()].isEmpty())
                     {
-                        // Initialize the command argument attributes
-                        String argName = null;
-                        String dataType = null;
-                        String enumeration = null;
-                        String units = null;
-                        String description = null;
+                        // Store the command argument data type
+                        dataType = rowData[cmdArg.getDataType()];
+                    }
 
-                        // Step through each command argument column grouping
-                        for (AssociatedColumns cmdArg : commandArguments)
+                    // Check if the description column exists
+                    if (cmdArg.getDescription() != -1 && !rowData[cmdArg.getDescription()].isEmpty())
+                    {
+                        // Store the command argument description
+                        description = rowData[cmdArg.getDescription()];
+                    }
+
+                    // Check if the enumeration column exists
+                    if (cmdArg.getEnumeration() != -1 && !rowData[cmdArg.getEnumeration()].isEmpty())
+                    {
+                        // Store the command argument enumeration value
+                        enumeration = rowData[cmdArg.getEnumeration()];
+                    }
+
+                    // Check if the units column exists
+                    if (cmdArg.getUnits() != -1 && !rowData[cmdArg.getUnits()].isEmpty())
+                    {
+                        // Store the command argument units
+                        units = rowData[cmdArg.getUnits()];
+                    }
+
+                    // Check if the minimum column exists
+                    if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
+                    {
+                        // Store the command argument minimum value
+                        minimum = rowData[cmdArg.getMinimum()];
+                    }
+
+                    // Check if the maximum column exists
+                    if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
+                    {
+                        // Store the command argument maximum value
+                        maximum = rowData[cmdArg.getMaximum()];
+                    }
+
+                    // Step through the other associated command argument columns
+                    for (int otherCol : cmdArg.getOther())
+                    {
+                        // Check if this is the array size column
+                        if (typeDefn.getInputTypes()[otherCol] == InputDataType.ARRAY_INDEX)
                         {
-                            // Check if this is the command argument name column
-                            if (colA == cmdArg.getName())
+                            // Store the command argument array size
+                            arraySize = rowData[otherCol];
+
+                            // Check if the command argument has a string data type
+                            if (rowData[cmdArg.getDataType()].equals(DefaultPrimitiveTypeInfo.STRING.getUserName()))
                             {
-                                // Store the command argument name
-                                argName = rowData[colA];
 
-                                // Set the flag indicating the column is a command argument
-                                isCmdArg[colA] = true;
-
-                                // Step through the remaining columns in the row to look for the
-                                // other members of this argument grouping
-                                for (int colB = colA + 1; colB < rowData.length; colB++)
-                                {
-                                    // Set the flag to indicate if the column is associated with a
-                                    // command argument
-                                    isCmdArg[colB] = colB == cmdArg.getDataType()
-                                                     || colB == cmdArg.getEnumeration()
-                                                     || colB == cmdArg.getDescription()
-                                                     || colB == cmdArg.getUnits()
-                                                     || colB == cmdArg.getMinimum()
-                                                     || colB == cmdArg.getMaximum()
-                                                     || cmdArg.getOther().contains(colB);
-
-                                    // Check if this is a command argument column and that the
-                                    // value isn't blank
-                                    if (isCmdArg[colB] && !rowData[colB].isEmpty())
-                                    {
-                                        // Check if this is the command argument data type column
-                                        if (colB == cmdArg.getDataType())
-                                        {
-                                            // Store the command argument data type
-                                            dataType = rowData[colB];
-                                        }
-                                        // Check if this is the command argument enumeration column
-                                        else if (colB == cmdArg.getEnumeration())
-                                        {
-                                            // Store the command argument enumeration
-                                            enumeration = rowData[colB];
-                                        }
-                                        // Check if this is the command argument description column
-                                        else if (colB == cmdArg.getDescription())
-                                        {
-                                            // Store the command argument description
-                                            description = rowData[colB];
-                                        }
-                                        // Check if this is the command argument units column
-                                        else if (colB == cmdArg.getUnits())
-                                        {
-                                            // Store the command argument units
-                                            units = rowData[colB];
-                                        }
-                                    }
-                                }
-
-                                // Check if the command argument has the minimum parameters
-                                // required: a name and data type
-                                if (argName != null && !argName.isEmpty() && dataType != null)
-                                {
-                                    // Add the command argument to the list
-                                    arguments.add(addCommandArgument(nameSpace,
-                                                                     commandName,
-                                                                     argName,
-                                                                     dataType,
-                                                                     enumeration,
-                                                                     units,
-                                                                     description));
-                                }
-
-                                // Stop searching since a match was found
-                                break;
+                                // Separate the array dimension values and get the
+                                // string size
+                                int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                                stringSize = arrayDims[0];
                             }
                         }
+                        // Check if this is the bit length column
+                        else if (typeDefn.getInputTypes()[otherCol] == InputDataType.BIT_LENGTH)
+                        {
+                            // Store the command argument bit length
+                            bitLength = rowData[otherCol];
+                        }
                     }
-                }
-            }
 
-            // TODO NEEDS LOOKING AT
-            // Step through each column in the row again in order to assign the overall command
-            // information
-            for (int col = NUM_HIDDEN_COLUMNS; col < rowData.length; col++)
-            {
-                // Check that this is not one of the command argument columns and that the column
-                // value isn't blank. This prevents adding command arguments to the overall command
-                // information
-                if (!isCmdArg[col] && !rowData[col].isEmpty())
-                {
-                    // Check if this column is for the command description
-                    if (col == typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION))
+                    // Check if the command argument has the minimum parameters
+                    // required: a name and data type
+                    if (argumentName != null && !argumentName.isEmpty() && dataType != null)
                     {
-                        // Store the command description
-                        commandDescription = rowData[col];
+                        // Add a command argument to the command metadata
+                        CommandArgumentType argType = factory.createCommandArgumentType();
+                        argType.setName(argumentName);
+
+                        // Check if the command argument description exists
+                        if (description != null && !description.isEmpty())
+                        {
+                            // Set the description
+                            argType.setShortDescription(description);
+                        }
+
+                        // Get the argument's data type information
+                        setDataType(system,
+                                    argumentName,
+                                    dataType,
+                                    arraySize,
+                                    bitLength,
+                                    enumeration,
+                                    units,
+                                    minimum,
+                                    maximum,
+                                    description,
+                                    stringSize);
+
+                        // Add the command argument to the list
+                        arguments.add(argType);
                     }
                 }
-            }
 
-            // Check if the command name exists
-            if (commandName != null)
-            {
                 // Add the command information
-                addCommand(nameSpace, commandName, arguments, commandDescription);
+                addCommand(system, commandName, commandCode, arguments, commandDescription);
             }
         }
     }
@@ -1064,27 +1275,37 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add a command metadata set to the command metadata
      *
-     * @param nameSpace
+     * @param system
      *            name space
      *
      * @param commandName
      *            command name
      *
+     * @param commandCode
+     *            command code
+     *
      * @param arguments
      *            list of command arguments
      *
-     * @param shortDescription
+     * @param description
      *            short description of the command
      *********************************************************************************************/
-    private void addCommand(NamespaceType nameSpace,
+    private void addCommand(NamespaceType system,
                             String commandName,
+                            String commandCode, // TODO WHERE DOES THIS GET PUT?
                             List<CommandArgumentType> arguments,
-                            String shortDescription)
+                            String description)
     {
         // Build the command attributes
         InterfaceCommandType command = factory.createInterfaceCommandType();
         command.setName(commandName);
-        command.setShortDescription(shortDescription);
+
+        // Check if a command description is provided
+        if (description != null && !description.isEmpty())
+        {
+            // Set the command description
+            command.setShortDescription(description);
+        }
 
         // Check if any arguments are supplied for this command
         if (!arguments.isEmpty())
@@ -1100,7 +1321,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         InterfaceDeclarationType intCmdType = null;
 
         // Step through the interfaces in order to locate the name space's command set
-        for (InterfaceDeclarationType intfcDecType : nameSpace.getDeclaredInterfaceSet().getInterface())
+        for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
         {
             // Check if the interface contains a command set
             if (intfcDecType.getCommandSet() != null)
@@ -1115,7 +1336,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         if (intCmdType == null)
         {
             // Create the command set for this name space
-            intCmdType = createCommandSet(nameSpace);
+            intCmdType = createCommandSet(system);
+        }
+
+        // Check if this isn't the command header table
+        if (!system.getName().equals(cmdHeaderTable))
+        {
+            // Set the command header as the base
+            BaseTypeSetType baseType = factory.createBaseTypeSetType();
+            InterfaceRefType intfcType = factory.createInterfaceRefType();
+            intfcType.setType(cmdHeaderTable + "/" + COMMAND);
+            baseType.getBaseType().add(intfcType);
+            intCmdType.setBaseTypeSet(baseType);
         }
 
         // Add the command to the command set
@@ -1123,92 +1355,344 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Add a command argument to the command metadata
+     * Convert the primitive data type into the EDS equivalent
+     *
+     * @param dataType
+     *            data type
+     *
+     * @return EDS data type corresponding to the specified primitive data type; null if no match
+     *********************************************************************************************/
+    private EDSDataType getEDSDataType(String dataType)
+    {
+        EDSDataType edsDataType = null;
+
+        // Check if the type is an integer (signed or unsigned)
+        if (dataTypeHandler.isInteger(dataType))
+        {
+            edsDataType = EDSDataType.INTEGER;
+        }
+        // Check if the type is a floating point (float or double)
+        else if (dataTypeHandler.isFloat(dataType))
+        {
+            edsDataType = EDSDataType.FLOAT;
+        }
+        // Check if the type is a string (character or string)
+        else if (dataTypeHandler.isCharacter(dataType))
+        {
+            edsDataType = EDSDataType.STRING;
+        }
+
+        return edsDataType;
+    }
+
+    /**********************************************************************************************
+     * Create the parameter data type and set the specified attributes
      *
      * @param system
      *            space system
      *
-     * @param commandName
-     *            command name
-     *
-     * @param argumentName
-     *            command argument name
+     * @param parameterName
+     *            parameter name; null to not specify
      *
      * @param dataType
-     *            command argument primitive data type
+     *            data type; null to not specify
+     *
+     * @param arraySize
+     *            parameter array size; null or blank if the parameter isn't an array
+     *
+     * @param bitLength
+     *            parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration
-     *            command enumeration in the format <enum label>=<enum value>
-     *
-     * @param enumColumnName
-     *            name of the column containing the enumeration (if present)
-     *
-     * @param enumRow
-     *            index of the row containing the enumeration (if present)
+     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
+     *            specify
      *
      * @param units
-     *            command argument units
+     *            parameter units; null to not specify
      *
-     * @param shortDescription
-     *            short description of the command
+     * @param minimum
+     *            minimum parameter value; null to not specify
+     *
+     * @param maximum
+     *            maximum parameter value; null to not specify
+     *
+     * @param description
+     *            parameter description; null to not specify
+     *
+     * @param description
+     *            parameter description; null or blank to not specify
+     *
+     * @param stringSize
+     *            size, in characters, of a string parameter; ignored if not a string or character
      *********************************************************************************************/
-    private CommandArgumentType addCommandArgument(NamespaceType nameSpace,
-                                                   String commandName,
-                                                   String argumentName,
-                                                   String dataType,
-                                                   String enumeration,
-                                                   String units,
-                                                   String shortDescription)
+    private void setDataType(NamespaceType system,
+                             String parameterName,
+                             String dataType,
+                             String arraySize,
+                             String bitLength,
+                             String enumeration,
+                             String units,
+                             String minimum,
+                             String maximum,
+                             String description,
+                             int stringSize)
     {
-        CommandArgumentType argType = factory.createCommandArgumentType();
-        argType.setName(argumentName);
-        argType.setShortDescription(shortDescription);
+        // TODO SET BITS IN BOTH PLACES (IS ONE THE BIT LENGTH AND THE OTHER THE OTHER THE DATA
+        // TYPE SIZE?)
 
-        if (enumeration != null)
+        RootDataType parameterDescription = null;
+
+        // Get the data type set for this name space
+        DataTypeSetType dataTypeSet = system.getDataTypeSet();
+
+        // Check if the data type set doesn't exist, which is the case for the first
+        // enumerated parameter
+        if (dataTypeSet == null)
         {
-            // Get the data type set for this name space
-            DataTypeSetType dataTypeSet = nameSpace.getDataTypeSet();
-
-            // Check if the data type set doesn't exist, which is the case for the first enumerated
-            // parameter
-            if (dataTypeSet == null)
-            {
-                // Create the data type set
-                dataTypeSet = factory.createDataTypeSetType();
-            }
-
-            // Create an enumeration type and enumeration list
-            EnumeratedDataType enumType = factory.createEnumeratedDataType();
-            EnumerationListType enumList = createEnumerationList(nameSpace,
-                                                                 enumeration);
-
-            // Set the integer encoding (the only encoding available for an enumeration) and the
-            // size in bits
-            IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
-            intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
-
-            // Check if the data type is an unsigned integer
-            if (dataTypeHandler.isUnsignedInt(dataType))
-            {
-                // Set the encoding type to indicate an unsigned integer
-                intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
-            }
-
-            // Set the encoding type
-            enumType.setIntegerDataEncoding(intEncodingType);
-
-            // Set the command and command argument names
-            enumType.setName(argumentName);
-            enumType.setShortDescription(commandName);
-
-            // Set the enumeration list attribute
-            enumType.setEnumerationList(enumList);
-
-            // Add the enumeration information to this name space
-            dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(enumType);
-            nameSpace.setDataTypeSet(dataTypeSet);
+            // Create the data type set
+            dataTypeSet = factory.createDataTypeSetType();
         }
 
+        // Check if the parameter is an array
+        if (arraySize != null && !arraySize.isEmpty())
+        {
+            // Create an array type and set its attributes
+            ArrayDataType arrayType = factory.createArrayDataType();
+            arrayType.setName((dataTypeHandler.isPrimitive(dataType)
+                                                                     ? parameterName
+                                                                     : dataType)
+                              + ARRAY);
+            arrayType.setDataTypeRef((dataTypeHandler.isPrimitive(dataType)
+                                                                            ? parameterName
+                                                                            : dataType)
+                                     + TYPE);
+            ArrayDimensionsType dimList = factory.createArrayDimensionsType();
+
+            // Step through each array dimension
+            for (int dim : ArrayVariable.getArrayIndexFromSize(arraySize))
+            {
+                // Create a dimension entry for the array type
+                DimensionSizeType dimSize = factory.createDimensionSizeType();
+                dimSize.setSize(BigInteger.valueOf(dim));
+                dimList.getDimension().add(dimSize);
+            }
+
+            arrayType.setDimensionList(dimList);
+
+            // Add the data type information to this name space
+            dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(arrayType);
+            system.setDataTypeSet(dataTypeSet);
+            // parameterDescription = arrayType;
+        }
+
+        // Check if the parameter has a primitive data type
+        if (dataTypeHandler.isPrimitive(dataType))
+        {
+            // Get the EDS data type corresponding to the primitive data type
+            EDSDataType edsDataType = getEDSDataType(dataType);
+
+            // Check if the a corresponding XTCE data type exists
+            if (edsDataType != null)
+            {
+                // Check if enumeration parameters are provided
+                if (enumeration != null && !enumeration.isEmpty())
+                {
+                    // Create an enumeration type and enumeration list
+                    EnumeratedDataType enumType = factory.createEnumeratedDataType();
+                    EnumerationListType enumList = createEnumerationList(system, enumeration);
+
+                    // Set the integer encoding (the only encoding available for an enumeration)
+                    // and the size in bits
+                    IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
+
+                    // Check if the parameter has a bit length
+                    if (bitLength != null && !bitLength.isEmpty())
+                    {
+                        // Set the size in bits to the value supplied
+                        intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                    }
+                    // Not a bit-wise parameter
+                    else
+                    {
+                        // Set the size in bits to the full size of the data type
+                        intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
+                    }
+
+                    // Check if the data type is an unsigned integer
+                    if (dataTypeHandler.isUnsignedInt(dataType))
+                    {
+                        // Set the encoding type to indicate an unsigned integer
+                        intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
+                    }
+
+                    intEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                    ? ByteOrderType.BIG_ENDIAN
+                                                                                    : ByteOrderType.LITTLE_ENDIAN);
+                    enumType.setIntegerDataEncoding(intEncodingType);
+                    enumType.setEnumerationList(enumList);
+                    parameterDescription = enumType;
+                }
+                // Not an enumeration
+                else
+                {
+                    switch (edsDataType)
+                    {
+                        case INTEGER:
+                            // Create an integer type
+                            IntegerDataType integerType = factory.createIntegerDataType();
+                            IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
+
+                            // Check if the parameter has a bit length
+                            if (bitLength != null && !bitLength.isEmpty())
+                            {
+                                // Set the size in bits to the value supplied
+                                intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                            }
+                            // Not a bit-wise parameter
+                            else
+                            {
+                                // Set the size in bits to the full size of the data type
+                                intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
+                            }
+
+                            // Check if the data type is an unsigned integer
+                            if (dataTypeHandler.isUnsignedInt(dataType))
+                            {
+                                // Set the encoding type to indicate an unsigned integer
+                                intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
+                            }
+
+                            intEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                            ? ByteOrderType.BIG_ENDIAN
+                                                                                            : ByteOrderType.LITTLE_ENDIAN);
+                            integerType.setIntegerDataEncoding(intEncodingType);
+                            setUnits(units, integerType);
+
+                            // Check if a minimum or maximum value is specified
+                            if ((minimum != null && !minimum.isEmpty())
+                                || (maximum != null && !maximum.isEmpty()))
+                            {
+                                // Set the minimum and/or maximum
+                                IntegerDataTypeRangeType rangeType = factory.createIntegerDataTypeRangeType();
+                                MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
+                                minMaxRange.setMin(BigDecimal.valueOf(Integer.valueOf(minimum)));
+                                minMaxRange.setMax(BigDecimal.valueOf(Integer.valueOf(maximum)));
+                                rangeType.setMinMaxRange(minMaxRange);
+                                integerType.setRange(rangeType);
+                            }
+
+                            parameterDescription = integerType;
+                            break;
+
+                        case FLOAT:
+                            // Create a float type
+                            FloatDataType floatType = factory.createFloatDataType();
+                            FloatDataEncodingType floatEncodingType = factory.createFloatDataEncodingType();
+
+                            // Set the encoding type based on the size in bytes
+                            switch (dataTypeHandler.getSizeInBytes(dataType))
+                            {
+                                case 4:
+                                    floatEncodingType.setEncodingAndPrecision(FloatEncodingAndPrecisionType.IEEE_754_2008_SINGLE);
+                                    break;
+
+                                case 8:
+                                    floatEncodingType.setEncodingAndPrecision(FloatEncodingAndPrecisionType.IEEE_754_2008_DOUBLE);
+                                    break;
+
+                                case 16:
+                                    floatEncodingType.setEncodingAndPrecision(FloatEncodingAndPrecisionType.IEEE_754_2008_QUAD);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            floatEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                              ? ByteOrderType.BIG_ENDIAN
+                                                                                              : ByteOrderType.LITTLE_ENDIAN);
+                            floatType.setFloatDataEncoding(floatEncodingType);
+                            setUnits(units, floatType);
+
+                            // Check if a minimum or maximum value is specified
+                            if ((minimum != null && !minimum.isEmpty())
+                                || (maximum != null && !maximum.isEmpty()))
+                            {
+                                // Set the minimum and/or maximum
+                                FloatDataTypeRangeType rangeType = factory.createFloatDataTypeRangeType();
+                                MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
+                                minMaxRange.setMin(BigDecimal.valueOf(Integer.valueOf(minimum)));
+                                minMaxRange.setMax(BigDecimal.valueOf(Integer.valueOf(maximum)));
+                                rangeType.setMinMaxRange(minMaxRange);
+                                floatType.setRange(rangeType);
+                            }
+
+                            parameterDescription = floatType;
+                            break;
+
+                        case STRING:
+                            // Create a string type
+                            StringDataType stringType = factory.createStringDataType();
+                            StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
+                            stringEncodingType.setEncoding(StringEncodingType.UTF_8);
+                            stringEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                               ? ByteOrderType.BIG_ENDIAN
+                                                                                               : ByteOrderType.LITTLE_ENDIAN);
+                            stringType.setStringDataEncoding(stringEncodingType);
+                            parameterDescription = stringType;
+                            break;
+                    }
+                }
+            }
+        }
+        // Structure data type
+        else
+        {
+            // TODO NEEDS TO GET THE NAMESPACE "PATH" TO THE STRUCT DATA TYPE. THESE ONLY EXIST
+            // AFTER ALL NAMESPACES ARE CREATED.
+            // Get the name of the system to which this referenced structure belongs
+            String refSystemName = fieldHandler.getFieldValue(dataType,
+                                                              InputDataType.SYSTEM_PATH);
+
+            // Create a container type for the structure
+            ContainerDataType containerType = factory.createContainerDataType();
+            parameterName = dataType;
+            containerType.setBaseType((refSystemName == null || refSystemName.isEmpty()
+                                                                                        ? ""
+                                                                                        : refSystemName
+                                                                                          + "/")
+                                      + dataType
+                                      + "/"
+                                      + dataType
+                                      + TYPE);
+            parameterDescription = containerType;
+        }
+
+        // Set the type name
+        parameterDescription.setName(parameterName + TYPE);
+
+        // Check is a description exists
+        if (description != null && !description.isEmpty())
+        {
+            // Set the description attribute
+            parameterDescription.setShortDescription(description);
+        }
+
+        // Add the data type information to this name space
+        dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(parameterDescription);
+        system.setDataTypeSet(dataTypeSet);
+    }
+
+    /**********************************************************************************************
+     * Set the supplied type's units from the supplied units string
+     *
+     * @param units
+     *            parameter or command argument units; null to not specify
+     *
+     *            TODO
+     *********************************************************************************************/
+    private void setUnits(String units, NumericDataType type)
+    {
         try
         {
             // This throws an illegal argument exception if the unit is not one of those in the
@@ -1216,7 +1700,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             Unit unit = Unit.fromValue(units);
             SemanticsType semType = factory.createSemanticsType();
             semType.setUnit(unit);
-            argType.setSemantics(semType);
+            type.setSemantics(semType);
         }
         catch (IllegalArgumentException iae)
         {
@@ -1224,17 +1708,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Units.java), which are the only ones that are accepted by the Unit fromValue()
             // method. The hard-coded unit types list is limited
         }
-
-        // Set the command argument data type
-        argType.setType(dataType.toString().toLowerCase());
-
-        return argType;
     }
 
     /**********************************************************************************************
      * Build an enumeration list from the supplied enumeration string
      *
-     * @param nameSpace
+     * @param namespace
      *            name space
      *
      * @param enumeration
@@ -1243,7 +1722,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/
-    private EnumerationListType createEnumerationList(NamespaceType nameSpace, String enumeration)
+    private EnumerationListType createEnumerationList(NamespaceType namespace, String enumeration)
     {
         EnumerationListType enumList = factory.createEnumerationListType();
 
@@ -1291,7 +1770,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                       "<html><b>Enumeration '"
                                                               + enumeration
                                                               + "' format invalid in table '"
-                                                              + nameSpace.getName()
+                                                              + namespace.getName()
                                                               + "'; "
                                                               + ce.getMessage(),
                                                       "Enumeration Error",

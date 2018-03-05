@@ -538,7 +538,8 @@ public class CcddScriptDataAccessHandler
                 switch (encoding.toUpperCase())
                 {
                     case "BIG_ENDIAN":
-                        // Example byte order: 12345678 Step through each byte
+                        // Example byte order: 12345678
+                        // Step through each byte
                         for (int i = 1; i <= size; i++)
                         {
                             // Append the byte number to the encoding string
@@ -548,7 +549,8 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "BIG_ENDIAN_SWAP":
-                        // Example byte order: 21436587 Check if the data type is a single byte
+                        // Example byte order: 21436587
+                        // Check if the data type is a single byte
                         if (size == 1)
                         {
                             // Append a '1' to the encoding string
@@ -569,7 +571,8 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "LITTLE_ENDIAN":
-                        // Example byte order: 87654321 Step through each byte in reverse order
+                        // Example byte order: 87654321
+                        // Step through each byte in reverse order
                         for (int i = size; i > 0; i--)
                         {
                             // Append the byte number to the encoding string
@@ -579,7 +582,8 @@ public class CcddScriptDataAccessHandler
                         break;
 
                     case "LITTLE_ENDIAN_SWAP":
-                        // Example byte order: 78563412 Check if the data type is a single byte
+                        // Example byte order: 78563412
+                        // Check if the data type is a single byte
                         if (size == 1)
                         {
                             // Append a '1' to the encoding string

@@ -102,5 +102,5 @@ public interface CcddImportExportInterface
                                   boolean includeVariablePaths,
                                   CcddVariableSizeAndConversionHandler variableHandler,
                                   String[] separators,
-                                  String... extraInfo);
+                                  Object... extraInfo);
 }

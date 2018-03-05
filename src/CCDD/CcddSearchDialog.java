@@ -55,7 +55,6 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.AutoCompleteTextField;
 import CCDD.CcddClasses.MultilineLabel;
-import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -806,51 +805,13 @@ public class CcddSearchDialog extends CcddFrameHandler
                         // Get the list of selected tables
                         List<String> filterTables = tableTree.getSelectedTablesWithChildren();
 
+                        // Add the ancestors (instances and prototype) of the selected tables to
+                        // the list of filter tables
+                        tableTree.addTableAncestors(filterTables, true);
+
                         // Check if tables were selected to filter the search results
                         if (!filterTables.isEmpty())
                         {
-                            List<String> otherTables = new ArrayList<String>();
-
-                            // Step through each filter table
-                            for (String filterTable : filterTables)
-                            {
-                                int pathSeparator = -1;
-
-                                do
-                                {
-                                    // Check if this isn't the first pass
-                                    if (pathSeparator != -1)
-                                    {
-                                        // Remove the last child in the table path
-                                        filterTable = filterTable.substring(0, pathSeparator);
-
-                                        // Check if the ancestor table isn't in the list
-                                        if (!otherTables.contains(filterTable))
-                                        {
-                                            // Add the ancestor table to the list
-                                            otherTables.add(filterTable);
-                                        }
-                                    }
-
-                                    // Get the table's prototype table name
-                                    String protoTable = TableInformation.getPrototypeName(filterTable);
-
-                                    // Check if the prototype table isn't in the list
-                                    if (!otherTables.contains(protoTable))
-                                    {
-                                        // Add the table's prototype to the list
-                                        otherTables.add(protoTable);
-                                    }
-
-                                    // Find the beginning of the last child in the path
-                                    pathSeparator = filterTable.lastIndexOf(",");
-                                } while (pathSeparator != -1);
-                                // Process every child and root in the table path
-                            }
-
-                            // Add the ancestor and prototype tables to the filter table list
-                            filterTables.addAll(otherTables);
-
                             // Step through the search results
                             for (Object[] result : resultsDataList)
                             {

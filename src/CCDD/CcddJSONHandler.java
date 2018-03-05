@@ -809,7 +809,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
-                                String... extraInfo)
+                                Object... extraInfo)
     {
         boolean errorFlag = false;
         FileWriter fw = null;
@@ -1095,7 +1095,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         // Get the information from the database for the specified table
         tableInfo = dbTable.loadTableData(tableName,
-                                          true,
                                           !getDescription,
                                           false,
                                           false,
@@ -1299,17 +1298,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                              JSONTags.TABLE_FIELD.getTag(),
                                              tableInformation);
 
-            // Step through the table's data fields
-            for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+            // Get the system name
+            String systemName = fieldHandler.getFieldValue(tableName, InputDataType.SYSTEM_PATH);
+
+            // Check if the system name exists
+            if (systemName != null && !systemName.isEmpty())
             {
-                // Check if this field contains the system name and isn't blank
-                if (fieldInfo.getInputType() == InputDataType.SYSTEM_NAME
-                    && !fieldInfo.getValue().isEmpty())
-                {
-                    // Store the system name and stop searching
-                    tableInformation.put(JSONTags.TABLE_SYSTEM.getTag(), fieldInfo.getValue());
-                    break;
-                }
+                // Store the system name
+                tableInformation.put(JSONTags.TABLE_SYSTEM.getTag(), systemName);
             }
         }
 

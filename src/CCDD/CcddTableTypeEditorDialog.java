@@ -230,7 +230,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     {
                         // Load the data for the table
                         TableInformation tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(),
-                                                                           editor.getTableInformation().isRootStructure(),
                                                                            true,
                                                                            true,
                                                                            true,

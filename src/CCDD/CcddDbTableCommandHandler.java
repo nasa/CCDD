@@ -1826,9 +1826,6 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
-                    // Get the list of root structure tables
-                    List<String> rootStructure = getRootStructures(parent);
-
                     // Step through each table
                     for (int index = 0; index < tablePaths.length; index++)
                     {
@@ -1863,12 +1860,8 @@ public class CcddDbTableCommandHandler
                         // Check if the table is not already open in an editor
                         if (!isOpen)
                         {
-                            // Get the prototype + variable name
-                            String protoVarName = TableInformation.getProtoVariableName(tablePaths[index]);
-
                             // Get the information from the database for the specified table
                             TableInformation tableInfo = loadTableData(tablePaths[index],
-                                                                       rootStructure.contains(protoVarName),
                                                                        true,
                                                                        true,
                                                                        true,
@@ -1949,9 +1942,6 @@ public class CcddDbTableCommandHandler
      *            the root table, with each succeeding pair coming from the next level down in the
      *            structure's hierarchy
      *
-     * @param isRootStructure
-     *            true if the table is a root table of type 'structure'
-     *
      * @param loadDescription
      *            true to load the table's description
      *
@@ -1968,22 +1958,15 @@ public class CcddDbTableCommandHandler
      * @return TableInformation class containing the table data from the database. If the error
      *         flag is set the an error occurred and the data is invalid
      *********************************************************************************************/
-    /**
-     * @param tablePath
-     * @param isRootStructure
-     * @param loadDescription
-     * @param loadColumnOrder
-     * @param loadFieldInfo
-     * @param parent
-     * @return
-     */
     protected TableInformation loadTableData(String tablePath,
-                                             boolean isRootStructure,
                                              boolean loadDescription,
                                              boolean loadColumnOrder,
                                              boolean loadFieldInfo,
                                              Component parent)
     {
+        // Get the list of root structure tables
+        List<String> rootStructure = getRootStructures(parent);
+
         // Create an empty table information class
         TableInformation tableInfo = new TableInformation(tablePath);
 
@@ -2065,7 +2048,7 @@ public class CcddDbTableCommandHandler
                                                               ? queryTableDescription(tablePath,
                                                                                       parent)
                                                               : ""),
-                                             isRootStructure,
+                                             rootStructure.contains(tablePath),
                                              (loadFieldInfo
                                                             ? retrieveInformationTable(InternalTable.FIELDS,
                                                                                        parent).toArray(new String[0][0])
@@ -6958,12 +6941,7 @@ public class CcddDbTableCommandHandler
             ModifiedTable(String tablePath)
             {
                 // Load the table's information from the project database
-                tableInformation = loadTableData(tablePath,
-                                                 !tablePath.contains(","),
-                                                 false,
-                                                 true,
-                                                 false,
-                                                 dialog);
+                tableInformation = loadTableData(tablePath, false, true, false, dialog);
 
                 // Create a table editor handler using the updated data types and/or macros, but
                 // without displaying the editor itself

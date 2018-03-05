@@ -176,7 +176,7 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the data field information for a specified field
+     * Get the data field information for a specified owner and field
      *
      * @param ownerName
      *            name of the data field owner (table name, including the path if this table
@@ -198,6 +198,41 @@ public class CcddFieldHandler
             // Check if the owner and field names match the ones supplied (case insensitive)
             if (info.getOwnerName().equalsIgnoreCase(ownerName)
                 && info.getFieldName().equalsIgnoreCase(fieldName))
+            {
+                // Store the field information reference and stop searching
+                fieldInfo = info;
+                break;
+            }
+        }
+
+        return fieldInfo;
+    }
+
+    /**********************************************************************************************
+     * Get the data field information for a specified owner and input type. The first field
+     * matching the input type is returned
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
+     *
+     * @param inputType
+     *            input type of the field for which to get the field information
+     *
+     * @return Reference to the data field information for the first field that matches the owner
+     *         and input type; null if the no match is found
+     *********************************************************************************************/
+    protected FieldInformation getFieldInformationByInputType(String ownerName,
+                                                              InputDataType inputType)
+    {
+        FieldInformation fieldInfo = null;
+
+        // Step through each field
+        for (FieldInformation info : fieldInformation)
+        {
+            // Check if the owner and field types match the ones supplied (case insensitive)
+            if (info.getOwnerName().equalsIgnoreCase(ownerName)
+                && info.getInputType() == inputType)
             {
                 // Store the field information reference and stop searching
                 fieldInfo = info;
@@ -648,6 +683,35 @@ public class CcddFieldHandler
         }
 
         return count;
+    }
+
+    /**********************************************************************************************
+     * Get the value of the data field with the specified input type for the specified field owner
+     *
+     * @param fieldOwner
+     *            field owner name
+     *
+     * @param inputType
+     *            InputDataTYpe for which to search
+     *
+     * @return Value of the data field with the specified input type for the specified field owner;
+     *         null if the owner doesn't have a data field of that type
+     *********************************************************************************************/
+    protected String getFieldValue(String fieldOwner, InputDataType inputType)
+    {
+        String fieldValue = null;
+
+        // Get a reference to the first field of the specified type
+        FieldInformation fieldInfo = getFieldInformationByInputType(fieldOwner, inputType);
+
+        // Check if a non-empty field of the specified type exists
+        if (fieldInfo != null && !fieldInfo.getValue().isEmpty())
+        {
+            // Store the field value
+            fieldValue = fieldInfo.getValue();
+        }
+
+        return fieldValue;
     }
 
     /**********************************************************************************************

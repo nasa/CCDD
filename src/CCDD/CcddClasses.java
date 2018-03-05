@@ -613,6 +613,24 @@ public class CcddClasses
         }
 
         /******************************************************************************************
+         * Get the flag indicating if this is a prototype table
+         *
+         * @param path
+         *            table path in the format rootTable[,dataType1.variable1[,dataType2
+         *            .variable2[,...]]]. The table path for a non-structure table is simply the
+         *            root table name. For a structure table the root table is the top level
+         *            structure table from which this table descends. The first data type/variable
+         *            name pair is from the root table, with each succeeding pair coming from the
+         *            next level down in the structure's hierarchy
+         * 
+         * @return true if the table is a prototype
+         *****************************************************************************************/
+        protected static boolean isPrototype(String path)
+        {
+            return !path.contains(".");
+        }
+
+        /******************************************************************************************
          * Get the flag indicating if this is a root structure table
          *
          * @return true if this is a top-level (root) table of type 'structure'
@@ -5100,7 +5118,8 @@ public class CcddClasses
 
                     if (m.isVisible())
                     {
-                        // CCDD: Added separator handling Check if the component is a JSeparator
+                        // CCDD: Added separator handling
+                        // Check if the component is a JSeparator
                         if (m instanceof JSeparator)
                         {
                             m.setPreferredSize(new Dimension(maxWidth,
@@ -5110,6 +5129,7 @@ public class CcddClasses
                                                                                                                               * 2
                                                                                                                               / 3
                                                                                                                               - 1));
+                            m.setSize(m.getPreferredSize());
                         }
                         // CCDD: End modification
 

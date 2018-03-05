@@ -63,6 +63,7 @@ import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -287,7 +288,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                   .setValue(mod[2]);
 
                             // Check that this isn't a boolean input (check box) data field
-                            if (fieldInfo.getInputType() != InputDataType.BOOLEAN)
+                            if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
                             {
                                 // Display the updated value in the text field
                                 ((UndoableTextField) fieldInfo.getInputFld()).setText(mod[2]);
@@ -1439,38 +1440,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Get the list of selected tables
         List<String> filterTables = tableTree.getSelectedTablesWithChildren();
 
-        // Check if tables were selected to filter the search results
-        if (!filterTables.isEmpty())
-        {
-            List<String> ancestorTables = new ArrayList<String>();
-
-            // Step through each filter table
-            for (String filterTable : filterTables)
-            {
-                // Find the beginning of the last child in the path
-                int pathSeparator = filterTable.lastIndexOf(",");
-
-                // Process every child and root in the table path
-                while (pathSeparator != -1)
-                {
-                    // Remove the last child in the table path
-                    filterTable = filterTable.substring(0, pathSeparator);
-
-                    // Check if the table isn't in the list
-                    if (!ancestorTables.contains(filterTable))
-                    {
-                        // Add the table to the list
-                        ancestorTables.add(filterTable);
-                    }
-
-                    // Find the beginning of the last child in the path
-                    pathSeparator = filterTable.lastIndexOf(",");
-                }
-            }
-
-            // Add the ancestor tables to the filter table list
-            filterTables.addAll(ancestorTables);
-        }
+        // Add the ancestors of the selected tables to the list of filter tables
+        tableTree.addTableAncestors(filterTables, false);
 
         // Create a field handler and populate it with the field definitions for all of the tables
         // and groups in the database
@@ -1552,7 +1523,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                         // Check if the data field input type is boolean and hasn't already been
                         // added to the list
-                        if (fieldInfo.getInputType() == InputDataType.BOOLEAN
+                        if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN
                             && !checkBoxColumns.contains(fieldIndex))
                         {
                             // Store the column index in the check box column list
@@ -1577,9 +1548,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         {
                             // Store the data field value in the existing list item and stop
                             // searching
-                            ownerDataFld[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
-                                                                                                             ? Boolean.valueOf(fieldInfo.getValue())
-                                                                                                             : fieldInfo.getValue();
+                            ownerDataFld[dataFieldIndex] = fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN
+                                                                                                                                ? Boolean.valueOf(fieldInfo.getValue())
+                                                                                                                                : fieldInfo.getValue();
                             isFound = true;
                             break;
                         }
@@ -1607,9 +1578,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                         // Insert the owner name, path, and the data field value into the new row
                         newTable[FieldTableEditorColumnInfo.PATH.ordinal()] = CcddUtilities.highlightDataType(pathName);
-                        newTable[dataFieldIndex] = fieldInfo.getInputType() == InputDataType.BOOLEAN
-                                                                                                     ? Boolean.valueOf(fieldInfo.getValue())
-                                                                                                     : fieldInfo.getValue();
+                        newTable[dataFieldIndex] = fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN
+                                                                                                                        ? Boolean.valueOf(fieldInfo.getValue())
+                                                                                                                        : fieldInfo.getValue();
 
                         // Add the field row to the list
                         ownerDataFields.add(newTable);

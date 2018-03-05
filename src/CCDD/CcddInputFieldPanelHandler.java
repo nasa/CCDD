@@ -40,6 +40,7 @@ import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.WrapLayout;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -266,11 +267,13 @@ public abstract class CcddInputFieldPanelHandler
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Check if a text field or check box exists for this data field
-            if (fieldInfo.getInputFld() != null)
+            // Check if a text field or check box exists for this data field and isn't a page
+            // format field (line break or separator)
+            if (fieldInfo.getInputFld() != null
+                && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
             {
                 // Check if this is a boolean input (check box) data field
-                if (fieldInfo.getInputType() == InputDataType.BOOLEAN)
+                if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
                 {
                     // Update the data field with the check box selection state
                     fieldInfo.setValue(((JCheckBox) fieldInfo.getInputFld()).isSelected()
@@ -307,8 +310,8 @@ public abstract class CcddInputFieldPanelHandler
      * @param fieldHandler
      *            field handler reference
      *********************************************************************************************/
-    protected void createDescAndDataFieldPanel(Component fieldPnlHndlrOwner,
-                                               JScrollPane tableScrollPane,
+    protected void createDescAndDataFieldPanel(final Component fieldPnlHndlrOwner,
+                                               final JScrollPane tableScrollPane,
                                                String ownerName,
                                                String description,
                                                CcddFieldHandler fieldHandler)
@@ -446,6 +449,12 @@ public abstract class CcddInputFieldPanelHandler
         gbc.gridy++;
         inputPnl.add(descriptionPnl, gbc);
 
+        // Add the data field panel to the editor
+        gbc.gridy++;
+        gbc.insets.top = 0;
+        gbc.insets.bottom = 0;
+        createDataFieldPanel(false);
+
         // Check if this editor doesn't contain a table
         if (tableScrollPane == null)
         {
@@ -455,14 +464,7 @@ public abstract class CcddInputFieldPanelHandler
             gbc.weighty = 1.0;
             gbc.gridy++;
             inputPnl.add(invisibleLbl, gbc);
-            gbc.weighty = 0.0;
         }
-
-        // Add the data field panel to the editor
-        gbc.gridy++;
-        gbc.insets.top = 0;
-        gbc.insets.bottom = 0;
-        createDataFieldPanel(false);
 
         // Add a listener for changes in the editor panel's size
         inputPnl.addComponentListener(new ComponentAdapter()
@@ -504,8 +506,7 @@ public abstract class CcddInputFieldPanelHandler
     {
         maxFieldWidth = 0;
 
-        // Set the preferred size so that the layout manager uses its default
-        // sizing
+        // Set the preferred size so that the layout manager uses its default sizing
         fieldPnlHndlrOwner.setPreferredSize(null);
 
         // Check if the data fields are already displayed
@@ -532,24 +533,33 @@ public abstract class CcddInputFieldPanelHandler
             // Step through each data field
             for (final FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
             {
-                switch (fieldInfo.getInputType())
+                switch (fieldInfo.getInputType().getInputFormat())
                 {
-                    case BREAK:
-                        // Create a text field for the separator so it can be handled like other
-                        // fields
-                        fieldInfo.setInputFld(undoHandler.new UndoableTextField());
+                    case PAGE_FORMAT:
+                        switch (fieldInfo.getInputType())
+                        {
+                            case BREAK:
+                                // Create a text field for the separator so it can be handled like
+                                // other fields
+                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
-                        // Add a vertical separator to the field panel
-                        fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
-                        break;
+                                // Add a vertical separator to the field panel
+                                fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
+                                break;
 
-                    case SEPARATOR:
-                        // Create a text field for the separator so it can be handled like other
-                        // fields
-                        fieldInfo.setInputFld(undoHandler.new UndoableTextField());
+                            case SEPARATOR:
+                                // Create a text field for the separator so it can be handled like
+                                // other fields
+                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
-                        // Add a horizontal separator to the field panel
-                        fieldPnl.add(new JSeparator());
+                                // Add a horizontal separator to the field panel
+                                fieldPnl.add(new JSeparator());
+                                break;
+
+                            default:
+                                break;
+                        }
+
                         break;
 
                     case BOOLEAN:
@@ -798,7 +808,7 @@ public abstract class CcddInputFieldPanelHandler
         for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
         {
             // Check if this is a boolean input (check box) data field
-            if (fieldInfo.getInputType() == InputDataType.BOOLEAN)
+            if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
             {
                 // Set the field value to 'false'
                 fieldInfo.setValue("false");
@@ -852,7 +862,7 @@ public abstract class CcddInputFieldPanelHandler
                     for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
                     {
                         // Check if this isn't a boolean input (check box) data field
-                        if (fieldInfo.getInputType() != InputDataType.BOOLEAN)
+                        if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
                         {
                             // Set the text field background color. If the field is empty and is
                             // flagged as required then set the background to indicate a value

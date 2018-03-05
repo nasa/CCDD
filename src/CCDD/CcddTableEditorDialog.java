@@ -396,7 +396,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
                     // Load the table from the database
                     TableInformation updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation().getTablePath(),
-                                                                                                editor.getTableInformation().isRootStructure(),
                                                                                                 true,
                                                                                                 true,
                                                                                                 true,
@@ -412,8 +411,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 {
                     // Check if the modification contains a variable name and data type columns;
                     // this implies it could be a structure table reference
-                    if (mod.getVariableColumn() != -1
-                        && mod.getDataTypeColumn() != -1)
+                    if (mod.getVariableColumn() != -1 && mod.getDataTypeColumn() != -1)
                     {
                         // Update the table names in the open editors
                         updateTableNames(main,
@@ -429,8 +427,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         }
 
         // Check if the data field editor table dialog is open
-        if (main.getFieldTableEditor() != null
-            && main.getFieldTableEditor().isShowing())
+        if (main.getFieldTableEditor() != null && main.getFieldTableEditor().isShowing())
         {
             // Update the data field editor table
             main.getFieldTableEditor().reloadDataFieldTable();

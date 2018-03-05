@@ -1923,9 +1923,6 @@ public class CcddDbVerificationHandler
                                                                   TableTreeType.PROTOTYPE_TABLES,
                                                                   ccddMain.getMainFrame());
 
-        // Get the list of root structure tables
-        List<String> rootStructure = dbTable.getRootStructures(ccddMain.getMainFrame());
-
         // Initialize the storage for each table's information and committed data
         tableStorage = new ArrayList<TableStorage>();
 
@@ -1956,7 +1953,6 @@ public class CcddDbVerificationHandler
             {
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(tableTree.getFullVariablePath(path.getPath()),
-                                                                   rootStructure.contains(path.getLastPathComponent().toString()),
                                                                    false,
                                                                    false,
                                                                    false,

@@ -2177,7 +2177,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                                false,
                                                                false,
                                                                false,
-                                                               false,
                                                                ccddMain.getMainFrame());
 
             // Check if the table loaded successfully
@@ -2417,7 +2416,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(commandTable,
-                                                                   false,
                                                                    false,
                                                                    false,
                                                                    false,

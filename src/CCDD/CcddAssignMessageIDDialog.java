@@ -1027,7 +1027,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     {
                         // Load the table's information from the project database
                         TableInformation tableInformation = dbTable.loadTableData(tablePath,
-                                                                                  !tablePath.contains(","),
                                                                                   false,
                                                                                   false,
                                                                                   false,

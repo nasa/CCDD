@@ -1503,16 +1503,13 @@ public class CcddDialogHandler extends JDialog
                     String buttonText = ((JRadioButton) ae.getSource()).getText();
 
                     // Check if the selected item differs from the one currently selected
-                    if (radioButtonSelected == null
-                        || !radioButtonSelected.equals(buttonText))
+                    if (radioButtonSelected == null || !radioButtonSelected.equals(buttonText))
                     {
                         // Update the currently selected item
                         radioButtonSelected = buttonText;
 
                         // Issue an event to any listeners that the radio button selection changed
-                        firePropertyChange(RADIO_BUTTON_CHANGE_EVENT,
-                                           "",
-                                           radioButtonSelected);
+                        firePropertyChange(RADIO_BUTTON_CHANGE_EVENT, "", radioButtonSelected);
                     }
                 }
             };

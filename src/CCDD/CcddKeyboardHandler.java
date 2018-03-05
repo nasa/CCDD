@@ -197,7 +197,8 @@ public class CcddKeyboardHandler
                             arrowResponse = HANDLE_UP_AND_DOWN_ARROWS;
                         }
                         // Check if the focus is in a text field within a table
-                        else if (comp instanceof JTextField
+                        else if ((comp instanceof JTextField
+                                  || comp instanceof JTextArea)
                                  && comp.getParent() instanceof CcddJTableHandler)
                         {
                             // The up and down arrows are ignored. This prevents accidently exiting
@@ -810,6 +811,7 @@ public class CcddKeyboardHandler
         {
             // Get the current owner of the keyboard focus
             Component focusOwner = focusManager.getFocusOwner();
+
             // Check if the focus is in an edit panel's description or data field
             if (focusOwner != null
                 && (focusOwner instanceof UndoableTextField

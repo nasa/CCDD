@@ -256,6 +256,13 @@ public class CcddConstants
     protected static final int UPDATE_BUTTON = 0xfd;
     protected static final int IGNORE_BUTTON = 0xfc;
 
+    // Endian type
+    protected static enum EndianType
+    {
+        BIG_ENDIAN,
+        LITTLE_ENDIAN
+    }
+
     // GUI update type
     protected static enum GUIUpdateType
     {
@@ -2169,8 +2176,7 @@ public class CcddConstants
                                                        + "format '<ID name> (<ID number>)'"),
 
         MINIMUM("Minimum",
-                "(" + INTEGER.getInputMatch() + ")|("
-                           + FLOAT.getInputMatch() + ")",
+                "(" + INTEGER.getInputMatch() + ")|(" + FLOAT.getInputMatch() + ")",
                 InputTypeFormat.MINIMUM,
                 "Minimum value; a boolean, integer, floating point, or "
                                          + "hexadecimal value (depending on context; see Boolean, "
@@ -2179,8 +2185,7 @@ public class CcddConstants
                                          + "(see Maximum)"),
 
         MAXIMUM("Maximum",
-                "(" + INTEGER.getInputMatch() + ")|("
-                           + FLOAT.getInputMatch() + ")",
+                "(" + INTEGER.getInputMatch() + ")|(" + FLOAT.getInputMatch() + ")",
                 InputTypeFormat.MAXIMUM,
                 "Maximum value; a boolean, integer, floating point, or "
                                          + "hexadecimal value (depending on context; see Boolean, "
@@ -2207,12 +2212,10 @@ public class CcddConstants
                                    + "positive integer followed by a '/' and another positive "
                                    + "integer to denote rates faster than 1 Hz"),
 
-        // TODO
-        SYSTEM_NAME("System Name",
-                    "[a-zA-Z_][a-zA-Z0-9_]*",
+        SYSTEM_PATH("System Path",
+                    ".*",
                     InputTypeFormat.TEXT,
-                    "System name used when importing & exporting; same constraints as for an "
-                                          + "alphanumeric (see Alphanumeric)"),
+                    "System path in the format '<name1</name2<...>>>"),
 
         TEXT("Text",
              "(?s).*",
@@ -2242,7 +2245,7 @@ public class CcddConstants
               "Data units; same constraints as for text (see Text)"),
 
         VARIABLE("Variable name",
-                 "[a-zA-Z_][a-zA-Z0-9_]*",
+                 ALPHANUMERIC.getInputMatch(),
                  InputTypeFormat.TEXT,
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
@@ -2250,6 +2253,30 @@ public class CcddConstants
                       ".*",
                       InputTypeFormat.VARIABLE_PATH,
                       "Display a variable's full path"),
+
+        XML_APP_ID("XML: Application ID",
+                   ALPHANUMERIC.getInputMatch(),
+                   InputTypeFormat.TEXT,
+                   "Name of the CCSDS command header column containing the application ID; same "
+                                         + "constraints as for an alphanumeric (see Alphanumeric)"),
+
+        XML_CMD_HDR("XML: Command Header",
+                    ALPHANUMERIC.getInputMatch(),
+                    InputTypeFormat.TEXT,
+                    "Name of the command table that represents the CCSDS command header; same "
+                                          + "constraints as for an alphanumeric (see Alphanumeric)"),
+
+        XML_FUNC_CODE("XML: Function Code",
+                      ALPHANUMERIC.getInputMatch(),
+                      InputTypeFormat.TEXT,
+                      "Name of the CCSDS command header column containing the command function code; "
+                                            + "same constraints as for an alphanumeric (see Alphanumeric)"),
+
+        XML_TLM_HDR("XML: Telemetry Header",
+                    ALPHANUMERIC.getInputMatch(),
+                    InputTypeFormat.TEXT,
+                    "Name of the structure table that represents the CCSDS telemetry header; same "
+                                          + "constraints as for an alphanumeric (see Alphanumeric)"),
 
         BREAK("Break", "", InputTypeFormat.PAGE_FORMAT, "Line break"),
         SEPARATOR("Separator", "", InputTypeFormat.PAGE_FORMAT, "Line separator");
@@ -3208,8 +3235,7 @@ public class CcddConstants
                 {
                     // Check if the table type matches the current column's type or if it's a
                     // column common to all tables
-                    if (type.equals(defCol.tableType)
-                        || defCol.tableType.isEmpty())
+                    if (type.equals(defCol.tableType) || defCol.tableType.isEmpty())
                     {
                         String typeDescription = defCol.description;
 
@@ -3401,7 +3427,43 @@ public class CcddConstants
                                {FieldsColumn.FIELD_VALUE.columnName,
                                 FieldsColumn.FIELD_VALUE.dataType}},
                "WITH OIDS",
-               ""),
+
+               // Create default data fields for the telemetry and command table types
+               "INSERT INTO "
+                            + INTERNAL_TABLE_PREFIX
+                            + "fields ("
+                            + FieldsColumn.OWNER_NAME.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_NAME.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_DESC.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_SIZE.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_TYPE.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_REQUIRED.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_APPLICABILITY.columnName
+                            + ", "
+                            + FieldsColumn.FIELD_VALUE.columnName
+                            + ") VALUES ('Type:Structure', 'Telemetry message ID name', 'Telemetry message ID name', '15', '"
+                            + InputDataType.MESSAGE_ID_NAME.getInputName()
+                            + "', 'true', '"
+                            + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                            + "', ''), ('Type:Structure', 'Telemetry message ID', 'Telemetry message ID', '7', '"
+                            + InputDataType.MESSAGE_ID.getInputName()
+                            + "', 'true', '"
+                            + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                            + "', ''), ('Type:Command', 'Command ID name', 'Command ID name', '15', '"
+                            + InputDataType.MESSAGE_ID_NAME.getInputName()
+                            + "', 'true', '"
+                            + ApplicabilityType.ALL.getApplicabilityName()
+                            + "', ''), ('Type:Command', 'Command message ID', 'Command message ID', '7', '"
+                            + InputDataType.MESSAGE_ID.getInputName()
+                            + "', 'true', '"
+                            + ApplicabilityType.ALL.getApplicabilityName()
+                            + "', '')"),
 
         // Data table groupings
         GROUPS("groups",

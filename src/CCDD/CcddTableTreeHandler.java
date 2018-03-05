@@ -57,6 +57,7 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.GroupInformation;
+import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableMembers;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
@@ -1516,11 +1517,73 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
+     * Add the ancestor instance tables for each table path in the supplied list, Based on the
+     * input flag also add the prototype tables for every table and ancestor in the list. No
+     * duplicate table references are included in the list
+     *
+     * @param tablePaths
+     *            list containing the table paths in which to search
+     *
+     * @param includeAncestorPrototype
+     *            true to also include the prototype for all instance tables
+     *********************************************************************************************/
+    protected void addTableAncestors(List<String> tablePaths, boolean includeAncestorPrototype)
+    {
+        // Check if any tables are provided
+        if (!tablePaths.isEmpty())
+        {
+            List<String> ancestorTables = new ArrayList<String>();
+
+            // Step through each table
+            for (String tablePath : tablePaths)
+            {
+                // Find the beginning of the last child in the path
+                int pathSeparator = tablePath.lastIndexOf(",");
+
+                // Process every child and root in the table path
+                while (pathSeparator != -1)
+                {
+                    // Remove the last child in the table path
+                    tablePath = tablePath.substring(0, pathSeparator);
+
+                    // Check if the table isn't in the lists
+                    if (!ancestorTables.contains(tablePath) && !tablePaths.contains(tablePath))
+                    {
+                        // Add the table to the list
+                        ancestorTables.add(tablePath);
+                    }
+
+                    // Check if prototypes of ancestor tables should be included
+                    if (includeAncestorPrototype)
+                    {
+                        // Remove the last child in the table path
+                        String prototypeTable = TableInformation.getPrototypeName(tablePath);
+
+                        // Check if the table isn't in the lists
+                        if (!ancestorTables.contains(prototypeTable) && !tablePaths.contains(prototypeTable))
+                        {
+                            // Add the table to the list
+                            ancestorTables.add(prototypeTable);
+                        }
+                    }
+
+                    // Find the beginning of the last child in the path
+                    pathSeparator = tablePath.lastIndexOf(",");
+                }
+            }
+
+            // Add the ancestor tables to the table list
+            tablePaths.addAll(ancestorTables);
+        }
+    }
+
+    /**********************************************************************************************
      * Get a list of the tables (with their paths) represented by the selected nodes. If a header
      * node (i.e., a non-table node, such as a group or type node) is selected then all of its
      * child tables are added to the list
      *
-     * @return List containing the table path+names of the selected node(s)
+     * @return List containing the table path+names of the selected node(s) with no duplicate table
+     *         references
      *********************************************************************************************/
     protected List<String> getSelectedTablesWithChildren()
     {
@@ -1550,17 +1613,31 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // Step through each of the child table paths
                         for (Object[] childPath : childPaths)
                         {
-                            // Add the table's full path (with the root table) to the full path
-                            // list
-                            tables.add(getFullVariablePath(childPath));
+                            // Get the table's full path (with the root table)
+                            String fullPath = getFullVariablePath(childPath);
+
+                            // Check if the table isn't already in the list
+                            if (!tables.contains(fullPath))
+                            {
+                                // Add the table's full path (with the root table) to the full path
+                                // list
+                                tables.add(getFullVariablePath(childPath));
+                            }
                         }
                     }
                 }
                 // The path represents a table
                 else
                 {
-                    // Add the table's full path (with the root table) to the full path list
-                    tables.add(getFullVariablePath(node.getPath()));
+                    // Get the table's full path (with the root table)
+                    String fullPath = getFullVariablePath(node.getPath());
+
+                    // Check if the table isn't already in the list
+                    if (!tables.contains(fullPath))
+                    {
+                        // Add the table full path list
+                        tables.add(fullPath);
+                    }
                 }
             }
         }

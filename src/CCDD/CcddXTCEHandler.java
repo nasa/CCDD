@@ -7,7 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -27,25 +26,46 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.omg.space.xtce.AggregateDataType;
+import org.omg.space.xtce.AggregateDataType.MemberList;
+import org.omg.space.xtce.AggregateDataType.MemberList.Member;
+import org.omg.space.xtce.AlarmRangesType;
 import org.omg.space.xtce.ArgumentTypeSetType;
+import org.omg.space.xtce.ArgumentTypeSetType.FloatArgumentType;
+import org.omg.space.xtce.ArgumentTypeSetType.IntegerArgumentType;
+import org.omg.space.xtce.ArrayDataTypeType;
+import org.omg.space.xtce.ArrayParameterRefEntryType;
+import org.omg.space.xtce.ArrayParameterRefEntryType.DimensionList;
+import org.omg.space.xtce.ArrayParameterRefEntryType.DimensionList.Dimension;
 import org.omg.space.xtce.BaseDataType;
 import org.omg.space.xtce.BaseDataType.UnitSet;
+import org.omg.space.xtce.CommandContainerEntryListType;
+import org.omg.space.xtce.CommandContainerEntryListType.ArgumentRefEntry;
+import org.omg.space.xtce.CommandContainerType;
 import org.omg.space.xtce.CommandMetaDataType.MetaCommandSet;
+import org.omg.space.xtce.ComparisonType;
 import org.omg.space.xtce.ContainerRefEntryType;
 import org.omg.space.xtce.ContainerSetType;
 import org.omg.space.xtce.EntryListType;
 import org.omg.space.xtce.EnumeratedDataType;
 import org.omg.space.xtce.EnumeratedDataType.EnumerationList;
 import org.omg.space.xtce.FloatDataEncodingType;
+import org.omg.space.xtce.FloatRangeType;
 import org.omg.space.xtce.HeaderType;
+import org.omg.space.xtce.HeaderType.AuthorSet;
+import org.omg.space.xtce.HeaderType.NoteSet;
 import org.omg.space.xtce.IntegerDataEncodingType;
+import org.omg.space.xtce.IntegerRangeType;
 import org.omg.space.xtce.IntegerValueType;
+import org.omg.space.xtce.MatchCriteriaType.ComparisonList;
 import org.omg.space.xtce.MetaCommandType;
 import org.omg.space.xtce.MetaCommandType.ArgumentList;
 import org.omg.space.xtce.MetaCommandType.ArgumentList.Argument;
+import org.omg.space.xtce.MetaCommandType.BaseMetaCommand;
+import org.omg.space.xtce.MetaCommandType.BaseMetaCommand.ArgumentAssignmentList;
+import org.omg.space.xtce.MetaCommandType.BaseMetaCommand.ArgumentAssignmentList.ArgumentAssignment;
 import org.omg.space.xtce.NameDescriptionType;
+import org.omg.space.xtce.NumericAlarmType;
 import org.omg.space.xtce.ObjectFactory;
-import org.omg.space.xtce.ParameterPropertiesType;
 import org.omg.space.xtce.ParameterRefEntryType;
 import org.omg.space.xtce.ParameterSetType;
 import org.omg.space.xtce.ParameterSetType.Parameter;
@@ -54,6 +74,8 @@ import org.omg.space.xtce.ParameterTypeSetType.FloatParameterType;
 import org.omg.space.xtce.ParameterTypeSetType.IntegerParameterType;
 import org.omg.space.xtce.ParameterTypeSetType.StringParameterType;
 import org.omg.space.xtce.SequenceContainerType;
+import org.omg.space.xtce.SequenceContainerType.BaseContainer;
+import org.omg.space.xtce.SequenceContainerType.BaseContainer.RestrictionCriteria;
 import org.omg.space.xtce.SpaceSystemType;
 import org.omg.space.xtce.StringDataEncodingType;
 import org.omg.space.xtce.StringDataEncodingType.SizeInBits;
@@ -64,11 +86,11 @@ import org.omg.space.xtce.ValueEnumerationType;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -92,6 +114,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // GUI component instantiating this class
     private final Component parent;
 
+    // Export endian type
+    private EndianType endianess;
+
     // Lists containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
 
@@ -110,12 +135,48 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // Conversion setup error flag
     private boolean errorFlag;
 
+    // Names of the tables that represent the common header for all telemetry and command tables
+    private String tlmHeaderTable;
+    private String cmdHeaderTable;
+
+    // Names of the system paths for the common header for all telemetry and command tables
+    private String tlmHeaderPath;
+    private String cmdHeaderPath;
+
     // XTCE data types
     private enum XTCEDataType
     {
         INTEGER,
         FLOAT,
         STRING
+    }
+
+    // Text appended to the parameter and command type and array references
+    private static String TYPE = "_Type";
+    private static String ARRAY = "_Array";
+
+    /**********************************************************************************************
+     * Structure member list
+     *********************************************************************************************/
+    class StructureMemberList
+    {
+        private final String structureName;
+        private final MemberList memberList;
+
+        /******************************************************************************************
+         * Structure member list constructor
+         *
+         * @param structureName
+         *            structure table name
+         *
+         * @param memberList
+         *            member list
+         *****************************************************************************************/
+        StructureMemberList(String structureName, MemberList memberList)
+        {
+            this.structureName = structureName;
+            this.memberList = memberList;
+        }
     }
 
     /**********************************************************************************************
@@ -233,11 +294,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
-     *            [0] version attribute <br>
-     *            [1] validation status attribute <br>
-     *            [2] first level classification attribute <br>
-     *            [3] second level classification attribute <br>
-     *            [4] third level classification attribute
+     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
+     *            [1] version attribute <br>
+     *            [2] validation status attribute <br>
+     *            [3] first level classification attribute <br>
+     *            [4] second level classification attribute <br>
+     *            [5] third level classification attribute
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -249,7 +311,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
-                                String... extraInfo)
+                                Object... extraInfo)
     {
         boolean errorFlag = false;
 
@@ -259,30 +321,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             convertTablesToXTCE(tableNames,
                                 variableHandler,
                                 separators,
-                                extraInfo[0],
-                                extraInfo[1],
-                                extraInfo[2],
-                                extraInfo[3],
-                                extraInfo[4]);
-
-            try
-            {
-                // Output the file creation information
-                marshaller.setProperty("com.sun.xml.internal.bind.xmlHeaders",
-                                       "\n<!-- Created "
-                                                                               + new Date().toString()
-                                                                               + " : project = "
-                                                                               + dbControl.getDatabaseName()
-                                                                               + " : host = "
-                                                                               + dbControl.getServer()
-                                                                               + " : user = "
-                                                                               + dbControl.getUser()
-                                                                               + " -->");
-            }
-            catch (JAXBException je)
-            {
-                // Ignore the error if setting this property fails; the comment is not included
-            }
+                                (EndianType) extraInfo[0],
+                                (String) extraInfo[1],
+                                (String) extraInfo[2],
+                                (String) extraInfo[3],
+                                (String) extraInfo[4],
+                                (String) extraInfo[5]);
 
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
@@ -335,6 +379,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *
+     * @param endianess
+     *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
+     *
      * @param version
      *            version attribute
      *
@@ -353,12 +400,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private void convertTablesToXTCE(String[] tableNames,
                                      CcddVariableSizeAndConversionHandler variableHandler,
                                      String[] separators,
+                                     EndianType endianess,
                                      String version,
                                      String validationStatus,
                                      String classification1,
                                      String classification2,
                                      String classification3)
     {
+        this.endianess = endianess;
+
         // Store the attributes
         versionAttr = version;
         validationStatusAttr = validationStatus;
@@ -368,161 +418,28 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Create the root space system
         SpaceSystemType rootSystem = addSpaceSystem(null,
-                                                    dbControl.getDatabaseName(),
+                                                    dbControl.getProjectName(),
                                                     dbControl.getDatabaseDescription(dbControl.getDatabaseName()),
                                                     classification1Attr,
                                                     validationStatusAttr,
-                                                    versionAttr,
-                                                    null);
+                                                    versionAttr);
+
+        // Set the project's build information
+        AuthorSet author = factory.createHeaderTypeAuthorSet();
+        author.getAuthor().add(dbControl.getUser());
+        rootSystem.getHeader().setAuthorSet(author);
+        NoteSet note = factory.createHeaderTypeNoteSet();
+        note.getNote().add("Generated by CCDD " + ccddMain.getCCDDVersionInformation());
+        note.getNote().add("Date: " + new Date().toString());
+        note.getNote().add("Project: " + dbControl.getProjectName());
+        note.getNote().add("Host: " + dbControl.getServer());
+        note.getNote().add("Endianess: " + (endianess == EndianType.BIG_ENDIAN
+                                                                               ? "big"
+                                                                               : "little"));
+        rootSystem.getHeader().setNoteSet(note);
 
         // Add the project's space systems, parameters, and commands
-        buildSpaceSystems(tableNames, variableHandler, separators, rootSystem);
-    }
-
-    /**********************************************************************************************
-     * Get the value of the system name data field for the specified table
-     *
-     * @param tableName
-     *            table name, including path
-     *
-     * @return Value of the system name data field for the specified table; null if the table
-     *         doesn't have a system name data field
-     *********************************************************************************************/
-    private String getSystemName(String tableName)
-    {
-        String systemName = null;
-
-        // Build the data fields information for this table
-        fieldHandler.buildFieldInformation(tableName);
-
-        // Step through the table's data fields
-        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
-        {
-            // Check if this field contains the system name and isn't blank
-            if (fieldInfo.getInputType() == InputDataType.SYSTEM_NAME
-                && !fieldInfo.getValue().isEmpty())
-            {
-                // Store the system name and stop searching
-                systemName = fieldInfo.getValue();
-                break;
-            }
-        }
-
-        return systemName;
-    }
-
-    /**********************************************************************************************
-     * Export parameter container
-     *
-     * @param system
-     *            space system
-     *
-     * @param tableData
-     *            table data array
-     *
-     * @param varColumn
-     *            variable name column index (model coordinates)
-     *
-     * @param typeColumn
-     *            data type column index (model coordinates)
-     *
-     * @param sizeColumn
-     *            array size column index (model coordinates)
-     *********************************************************************************************/
-    // TODO
-    private void exportParameterContainer(SpaceSystemType system,
-                                          String[][] tableData,
-                                          int varColumn,
-                                          int typeColumn,
-                                          int sizeColumn)
-    {
-        ContainerSetType seqContainerSet = null;
-        SequenceContainerType seqContainer = null;
-        EntryListType entryList = new EntryListType();
-
-        // Step through each row of data in the structure table
-        for (String[] rowData : tableData)
-        {
-            // Check if this parameter has a primitive data type (i.e., it isn't an instance of a
-            // structure)
-            if (dataTypeHandler.isPrimitive(rowData[typeColumn]))
-            {
-                // Get the variable name, including its path
-                String varName = macroHandler.getMacroExpansion(rowData[varColumn]);
-
-                // Check if this isn't an array definition
-                if (rowData[sizeColumn].isEmpty() || ArrayVariable.isArrayMember(varName))
-                {
-                    // Get the index of the variable's bit length, if present
-                    int bitIndex = varName.indexOf(":");
-
-                    // Check if this variable has a bit length
-                    if (bitIndex != -1)
-                    {
-                        // Remove the bit length from the variable name
-                        varName = varName.substring(0, bitIndex);
-                    }
-
-                    // Store the parameter name in the list
-                    ParameterRefEntryType parameterRef = new ParameterRefEntryType();
-                    parameterRef.setParameterRef(varName);
-                    entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(parameterRef);
-                }
-            }
-            // Structure data type
-            else
-            {
-                // Get the name of the system to which this table belongs
-                String systemName = getSystemName(rowData[typeColumn]);
-
-                // Store the structure in the list
-                ContainerRefEntryType containerType = new ContainerRefEntryType();
-                containerType.setContainerRef("/" + project.getValue().getName()
-                                              + (systemName == null
-                                                                    ? ""
-                                                                    : "/" + systemName)
-                                              + "/" + rowData[typeColumn]
-                                              + "/" + rowData[typeColumn]);
-                entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(containerType);
-            }
-        }
-
-        // Check if any parameters exist
-        if (!entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().isEmpty())
-        {
-            // Check if the parameter sequence container hasn't been created
-            if (seqContainer == null)
-            {
-                // Check if the parameter sequence container set hasn't been created
-                if (seqContainerSet == null)
-                {
-                    // Create the parameter sequence container set
-                    seqContainerSet = new ContainerSetType();
-                }
-
-                // Create the parameter sequence container and set the name
-                seqContainer = new SequenceContainerType();
-                seqContainer.setName(system.getName());
-            }
-
-            // Store the parameters in the parameter sequence container
-            seqContainer.setEntryList(entryList);
-            seqContainerSet.getSequenceContainer().add(seqContainer);
-        }
-
-        // Check if any parameters exist
-        if (seqContainerSet != null)
-        {
-            // Check if the telemetry metadata doesn't exit for this system
-            if (system.getTelemetryMetaData() == null)
-            {
-                // Create the telemetry metadata
-                createTelemetryMetadata(system);
-            }
-
-            // Add the parameters to the system
-            system.getTelemetryMetaData().setContainerSet(seqContainerSet);
-        }
+        buildSpaceSystems(tableNames, variableHandler, separators);
     }
 
     /**********************************************************************************************
@@ -538,21 +455,50 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            string array containing the variable path separator character(s), show/hide data
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
-     *
-     * @param parentSystem
-     *            parent space system for this node
      *********************************************************************************************/
     private void buildSpaceSystems(String[] tableNames,
                                    CcddVariableSizeAndConversionHandler variableHandler,
-                                   String[] separators,
-                                   SpaceSystemType parentSystem)
+                                   String[] separators)
     {
+        List<StructureMemberList> memberLists = new ArrayList<StructureMemberList>();
+
+        // Build the data field information for all fields
+        fieldHandler.buildFieldInformation(null);
+
+        // Get the names of the tables representing the CCSDS telemetry and command headers
+        tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                    InputDataType.XML_TLM_HDR);
+        cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                    InputDataType.XML_CMD_HDR);
+
+        // Get the command header argument names for the application ID and the command function
+        // code. These are stored as project-level data fields
+        String ccsdsAppID = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                       InputDataType.XML_APP_ID);
+        String ccsdsFuncCode = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                          InputDataType.XML_FUNC_CODE);
+
         // Step through each table name
         for (String tableName : tableNames)
         {
+            // Check if this is a child (instance) table
+            if (!TableInformation.isPrototype(tableName))
+            {
+                // Get the prototype of the instance table. Only prototypes of the tables are
+                // used to create the space systems
+                tableName = TableInformation.getPrototypeName(tableName);
+
+                // Check if the space system for the prototype of the table has already been
+                // created
+                if (getSpaceSystemByName(tableName, project.getValue()) != null)
+                {
+                    // Skip this table since it's space system has already been created
+                    continue;
+                }
+            }
+
             // Get the information from the database for the specified table
             TableInformation tableInfo = dbTable.loadTableData(tableName,
-                                                               true,
                                                                true,
                                                                false,
                                                                true,
@@ -561,89 +507,87 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the table's data successfully loaded
             if (!tableInfo.isErrorFlag())
             {
+                // TODO GIVEN THAT INSTANCE INFORMATION DOESN'T APPEAR TO BE USED, IF A CHILD
+                // TABLE IS REFERNCED THEN AUTOMATICALLY LOAD ITS PROTOTYPE AND DON'T CREATE A
+                // SpaceSystem FOR THE INSTANCE. TREAT IT AS IF ONLY PROTOTYPES WERE SELECTED.
+
+                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. FOR THAT
+                // MATTER, SEPARATE SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED.
+
                 // Get the table type and from the type get the type definition. The type
                 // definition can be a global parameter since if the table represents a structure,
                 // then all of its children are also structures, and if the table represents
                 // commands or other table type then it is processed within this nest level
-                typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfo.getType());
-
-                // Get the table's basic type - structure, command, or the original table type if
-                // not structure or command table
-                String tableType = typeDefn.isStructure()
-                                                          ? TYPE_STRUCTURE
-                                                          : typeDefn.isCommand()
-                                                                                 ? TYPE_COMMAND
-                                                                                 : tableInfo.getType();
+                typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                 // Check if the table type is valid
-                if (tableType != null)
+                if (typeDefn != null)
                 {
+                    // Get the table's basic type - structure, command, or the original table type
+                    // if not structure or command table
+                    String tableType = typeDefn.isStructure()
+                                                              ? TYPE_STRUCTURE
+                                                              : typeDefn.isCommand()
+                                                                                     ? TYPE_COMMAND
+                                                                                     : tableInfo.getType();
+
                     // Replace all macro names with their corresponding values
                     tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
 
-                    // Build the data fields information for this table
-                    fieldHandler.buildFieldInformation(tableName);
+                    // Get the application ID data field value, if present
+                    String applicationID = fieldHandler.getFieldValue(tableName,
+                                                                      InputDataType.MESSAGE_ID);
 
-                    // Get the name of the system to which this table belongs
-                    String systemName = getSystemName(tableName);
+                    // Get the name of the system to which this table belongs from the table's
+                    // system path data field (if present)
+                    String systemPath = fieldHandler.getFieldValue(tableName,
+                                                                   InputDataType.SYSTEM_PATH);
 
-                    // Check if the table has no system name defined
-                    if (systemName == null)
+                    // Initialize the parent system to be the root (top-level) system
+                    SpaceSystemType parentSystem = project.getValue();
+
+                    // Check if a system path exists
+                    if (systemPath != null)
                     {
-                        // Set the system name to the root space system
-                        systemName = project.getValue().getName();
+                        // Step through each system name in the path
+                        for (String systemName : systemPath.split("\\s*/\\s*"))
+                        {
+                            // Check if the system name isn't blank (this ignores a beginning '/'
+                            // if present)
+                            if (!systemName.isEmpty())
+                            {
+                                // Search the existing space systems for one with this system's
+                                // name (if none exists then use the root system's name)
+                                SpaceSystemType existingSystem = getSpaceSystemByName(systemName,
+                                                                                      parentSystem);
+
+                                // Set the parent system to the existing system if found, else
+                                // create a new space system using the name from the table's system
+                                // path data field
+                                parentSystem = existingSystem == null
+                                                                      ? addSpaceSystem(parentSystem,
+                                                                                       systemName,
+                                                                                       null,
+                                                                                       classification2Attr,
+                                                                                       validationStatusAttr,
+                                                                                       versionAttr)
+                                                                      : existingSystem;
+                            }
+                        }
                     }
 
-                    // Search the existing space systems for one with this name
-                    SpaceSystemType existingSystem = getSpaceSystemByName(systemName);
-
-                    // Set the parent system to the existing system if found, else create a new
-                    // space system using the system name from the table's data field
-                    parentSystem = (existingSystem == null)
-                                                            ? addSpaceSystem(parentSystem,
-                                                                             systemName,
-                                                                             null,
-                                                                             classification2Attr,
-                                                                             validationStatusAttr,
-                                                                             versionAttr,
-                                                                             null)
-                                                            : existingSystem;
+                    // Add the space system
+                    parentSystem = addSpaceSystem(parentSystem,
+                                                  tableName,
+                                                  tableInfo.getDescription(),
+                                                  classification3Attr,
+                                                  validationStatusAttr,
+                                                  versionAttr);
 
                     // Check if this is a node for a structure table
                     if (tableType.equals(TYPE_STRUCTURE))
                     {
-                        String messageIDName = null;
-                        String messageID = null;
-
-                        // Step through each of the table's data fields
-                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
-                        {
-                            // Check if this is the first non-empty field containing a message ID
-                            // name
-                            if (messageIDName == null
-                                && fieldInfo.getInputType() == InputDataType.MESSAGE_ID_NAME
-                                && !fieldInfo.getValue().isEmpty())
-                            {
-                                // Store the message ID name
-                                messageIDName = fieldInfo.getValue();
-                            }
-                            // Check if this is the first non-empty field containing a message ID
-                            // value
-                            else if (messageID == null
-                                     && fieldInfo.getInputType() == InputDataType.MESSAGE_ID
-                                     && !fieldInfo.getValue().isEmpty())
-                            {
-                                // Store the message ID value
-                                messageID = fieldInfo.getValue();
-                            }
-
-                            // Check if both the message ID name and value have been found
-                            if (messageIDName != null && messageID != null)
-                            {
-                                // Stop searching
-                                break;
-                            }
-                        }
+                        MemberList memberList = factory.createAggregateDataTypeMemberList();
 
                         // Get the default column indices
                         int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
@@ -653,93 +597,152 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         int enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
                         int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
                         int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
+                        int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
+                        int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
 
-                        // Add the structure
-                        parentSystem = addSpaceSystem(parentSystem,
-                                                      tableName,
-                                                      tableInfo.getDescription(),
-                                                      classification3Attr,
-                                                      validationStatusAttr,
-                                                      versionAttr,
-                                                      tableInfo.getType());
+                        // Set the flag to indicate if this is the telemetry header table
+                        boolean isTlmHeaderTable = tableName.equals(tlmHeaderTable);
+
+                        // Check if this is the telemetry header table
+                        if (isTlmHeaderTable)
+                        {
+                            // Store the telemetry header's path
+                            tlmHeaderPath = systemPath;
+                        }
 
                         // Export the parameter container for this structure
-                        exportParameterContainer(parentSystem,
-                                                 tableInfo.getData(),
-                                                 varColumn,
-                                                 typeColumn,
-                                                 sizeColumn);
+                        addParameterContainer(parentSystem,
+                                              tableInfo,
+                                              varColumn,
+                                              typeColumn,
+                                              sizeColumn,
+                                              isTlmHeaderTable,
+                                              applicationID,
+                                              ccsdsAppID);
 
-                        // Step through each row in the table
-                        for (int row = 0; row < tableInfo.getData().length; row++)
+                        // Step through each row in the structure table
+                        for (String[] rowData : tableInfo.getData())
                         {
-                            // Get the array size column value
-                            String arraySize = tableInfo.getData()[row][sizeColumn];
-
-                            // Check if the variable isn't an array definition
-                            if (arraySize.isEmpty()
-                                || ArrayVariable.isArrayMember(tableInfo.getData()[row][varColumn]))
+                            // Check if the variable isn't an array member (the array definition is
+                            // used to define the array)
+                            if (!ArrayVariable.isArrayMember(rowData[varColumn]))
                             {
-                                boolean isTelemetered = false;
+                                // Add the variable to the space system
+                                addParameter(parentSystem,
+                                             rowData[varColumn],
+                                             rowData[typeColumn],
+                                             rowData[sizeColumn],
+                                             rowData[bitColumn],
+                                             (enumColumn != -1 && !rowData[enumColumn].isEmpty()
+                                                                                                 ? rowData[enumColumn]
+                                                                                                 : null),
+                                             (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
+                                                                                                   ? rowData[unitsColumn]
+                                                                                                   : null),
+                                             (minColumn != -1 && !rowData[minColumn].isEmpty()
+                                                                                               ? rowData[minColumn]
+                                                                                               : null),
+                                             (maxColumn != -1 && !rowData[maxColumn].isEmpty()
+                                                                                               ? rowData[maxColumn]
+                                                                                               : null),
+                                             (descColumn != -1 && !rowData[descColumn].isEmpty()
+                                                                                                 ? rowData[descColumn]
+                                                                                                 : null),
+                                             (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
+                                                                                                                              ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
+                                                                                                                              : 1));
 
-                                // Step through each rate column
-                                for (int rateColumn : typeDefn.getColumnIndicesByInputType(InputDataType.RATE))
-                                {
-                                    // Check if the variable has a rate value
-                                    if (!tableInfo.getData()[row][rateColumn].isEmpty())
-                                    {
-                                        // Set the flag to indicate the variable has a rate and
-                                        // stop searching
-                                        isTelemetered = true;
-                                        break;
-                                    }
-                                }
-
-                                // Add the variable to the data sheet
-                                addSpaceSystemParameter(parentSystem,
-                                                        tableInfo,
-                                                        row,
-                                                        varColumn,
-                                                        typeColumn,
-                                                        sizeColumn,
-                                                        bitColumn,
-                                                        enumColumn,
-                                                        unitsColumn,
-                                                        descColumn,
-                                                        isTelemetered);
+                                // Use the variable name to create an aggregate list member and add
+                                // it to the member list. The list is used if this structure is
+                                // referenced as a data type in another structure
+                                Member member = new Member();
+                                member.setName(rowData[varColumn]);
+                                member.setTypeRef("/" + project.getValue().getName()
+                                                  + (systemPath == null || systemPath.isEmpty()
+                                                                                                ? ""
+                                                                                                : "/" + systemPath)
+                                                  + "/" + tableName
+                                                  + "/"
+                                                  + (dataTypeHandler.isPrimitive(rowData[typeColumn])
+                                                                                                      ? rowData[varColumn]
+                                                                                                      : rowData[typeColumn])
+                                                  + TYPE);
+                                memberList.getMember().add(member);
                             }
                         }
+
+                        // Check if any variables exists in the structure table
+                        if (!memberList.getMember().isEmpty())
+                        {
+                            // Create a structure member list using the table's aggregate member
+                            // list
+                            memberLists.add(new StructureMemberList(tableName, memberList));
+                        }
                     }
-                    // Not a structure table node; i.e., it's a command or user-defined table type
+                    // Check if this is a command table
+                    else if (tableType.equals(TYPE_COMMAND))
+                    {
+                        // Check if this is the command header table
+                        if (tableName.equals(cmdHeaderTable))
+                        {
+                            // Store the command header's path
+                            cmdHeaderPath = systemPath;
+                        }
+
+                        // Add the command(s) from this table to the parent system
+                        addSpaceSystemCommands(parentSystem,
+                                               tableInfo,
+                                               tableName.equals(cmdHeaderTable),
+                                               applicationID,
+                                               ccsdsAppID,
+                                               ccsdsFuncCode);
+                    }
+                    // Not a structure or command table
                     else
                     {
-                        // Check if this is a command table
-                        if (tableType.equals(TYPE_COMMAND))
-                        {
-                            // Add the user-defined table to the space system
-                            parentSystem = addSpaceSystem(parentSystem,
-                                                          tableName,
-                                                          tableInfo.getDescription(),
-                                                          classification3Attr,
-                                                          validationStatusAttr,
-                                                          versionAttr,
-                                                          tableInfo.getType());
+                        // TODO WHAT SHOULD BE DONE WITH NON-STRUCTURE & NON-COMMAND TABLES -
+                        // IGNORE, CREATE THE SPACE SYSTEM ONLY, OR CREATE A SYSTEM AND POPULATE
+                        // WITH ANCILLARY DATA?
 
-                            // Add the command(s) from this table to the space system
-                            addSpaceSystemCommands(parentSystem, tableInfo);
-                        }
-                        // TODO SHOULD NON-STRUCTURE/COMMAND TABLES BE DISCARDED?
-                        // Not a command (or structure) table; i.e., it's a user-defined table type
-                        else
+                        // IF STRUCTURE & COMMAND DATA THAT DOESN'T FIT XTCE IS STORED (ANCILLARY
+                        // OR CUSTOM TAGS) THEN THIS TYPE OF TABLE WOULD BE STORED IN THE SAME
+                        // FASHION. A CHECK BOX IN THE EXPORT DIALOG COULD BE USED TO TRIGGER
+                        // STORING THIS 'EXTRA' INFORMATION ('INCLUDE EXTRA DATA'). IMPORT OF THIS
+                        // TYPE OF EXPORT WOULD BE VIABLE.
+                    }
+                }
+            }
+        }
+
+        // Step through each table name
+        for (String tableName : tableNames)
+        {
+            // Get the prototype for the child
+            tableName = TableInformation.getPrototypeName(tableName);
+
+            // Get the space system for this table
+            SpaceSystemType system = getSpaceSystemByName(tableName, project.getValue());
+
+            // Check if the system was found and it has telemetry data
+            if (system != null && system.getTelemetryMetaData() != null)
+            {
+                // Step through each parameter type
+                for (NameDescriptionType type : system.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType())
+                {
+                    // Check if the type is an aggregate (i.e., a structure reference)
+                    if (type instanceof AggregateDataType)
+                    {
+                        // Step through each structure member list
+                        for (StructureMemberList structMemList : memberLists)
                         {
-                            // Add the user-defined table to the space system
-                            parentSystem = addSpaceSystem(parentSystem,
-                                                          tableName,
-                                                          tableInfo.getDescription(),
-                                                          classification3Attr,
-                                                          validationStatusAttr,
-                                                          versionAttr,
-                                                          tableInfo.getType());
+                            // Check if the aggregate refers to this structure
+                            if (type.getName().equals(structMemList.structureName + TYPE))
+                            {
+                                // Set the aggregate's member list to this structure member list
+                                // and stop searching
+                                ((AggregateDataType) type).setMemberList(structMemList.memberList);
+                                break;
+                            }
                         }
                     }
                 }
@@ -751,13 +754,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Create a new space system as a child of the specified space system. If the specified system
      * is null then this is the root space system
      *
-     * @param system
+     * @param parentSystem
      *            parent space system for the new system; null for the root space system
      *
-     * @param subsystemName
+     * @param systemName
      *            name for the new space system
      *
-     * @param shortDescription
+     * @param description
      *            space system description
      *
      * @param classification
@@ -769,67 +772,68 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param version
      *            XML document version
      *
-     * @param tableType
-     *            table's type name
-     *
      * @return Reference to the new space system
      *********************************************************************************************/
-    private SpaceSystemType addSpaceSystem(SpaceSystemType system,
-                                           String subsystemName,
-                                           String shortDescription,
+    private SpaceSystemType addSpaceSystem(SpaceSystemType parentSystem,
+                                           String systemName,
+                                           String description,
                                            String classification,
                                            String validationStatus,
-                                           String version,
-                                           String tableType)
+                                           String version)
     {
         // Create the new space system and set the name attribute
-        SpaceSystemType subsystem = factory.createSpaceSystemType();
-        subsystem.setName(subsystemName);
+        SpaceSystemType childSystem = factory.createSpaceSystemType();
+        childSystem.setName(systemName);
 
         // Check if a description is provided
-        if (shortDescription != null && !shortDescription.isEmpty())
+        if (description != null && !description.isEmpty())
         {
             // Set the description attribute
-            subsystem.setShortDescription(shortDescription);
+            childSystem.setLongDescription(description);
         }
 
         // Set the new space system's header attributes
-        setHeader(subsystem,
+        setHeader(childSystem,
                   classification,
                   validationStatus,
                   version,
-                  (system == null ? new Date().toString() : null));
+                  (parentSystem == null
+                                        ? new Date().toString()
+                                        : null));
 
         // Check if this is the root space system
-        if (system == null)
+        if (parentSystem == null)
         {
             // Set this space system as the root system
-            project = factory.createSpaceSystem(subsystem);
+            project = factory.createSpaceSystem(childSystem);
         }
         // Not the root space system
         else
         {
             // Add the new space system as a child of the specified system
-            system.getSpaceSystem().add(subsystem);
+            parentSystem.getSpaceSystem().add(childSystem);
         }
 
-        return subsystem;
+        return childSystem;
     }
 
     /**********************************************************************************************
-     * Get the reference to the space system with the specified name, starting at the root space
-     * system
+     * Get the reference to the space system with the specified name, starting at the specified
+     * space system
      *
      * @param systemName
      *            name to search for within the space system hierarchy
      *
+     * @param system
+     *            space system in which to start the search
+     *
      * @return Reference to the space system with the same name as the search name; null if no
      *         space system name matches the search name
      *********************************************************************************************/
-    private SpaceSystemType getSpaceSystemByName(String systemName)
+    private SpaceSystemType getSpaceSystemByName(String systemName, SpaceSystemType startingSystem)
     {
-        // Search the space system hierarchy, beginning at the root system
-        return searchSpaceSystemsForName(systemName, project.getValue(), null);
+        // Search the space system hierarchy, beginning at the specified space system
+        return searchSpaceSystemsForName(systemName, startingSystem, null);
     }
 
     /**********************************************************************************************
@@ -929,125 +933,196 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Add a variable to the specified space system
+     * Add the parameter container
      *
-     * @param spaceSystem
-     *            parent space system for this node
+     * @param system
+     *            space system
      *
      * @param tableInfo
-     *            TableInformation reference for the current node
-     *
-     * @param row
-     *            row index in the data table for the current variable
+     *            table information reference
      *
      * @param varColumn
-     *            variable name column index
+     *            variable name column index (model coordinates)
      *
      * @param typeColumn
-     *            data type column index
+     *            data type column index (model coordinates)
      *
      * @param sizeColumn
-     *            array size column index
+     *            array size column index (model coordinates)
      *
-     * @param bitColumn
-     *            bit length column index
+     * @param isTlmHeader
+     *            true if this table represents the CCSDS telemetry header
      *
-     * @param enumColumn
-     *            first enumeration column index; -1 if none exists
+     * @param applicationID
+     *            application ID
      *
-     * @param unitsColumn
-     *            units column index; -1 if none exists
-     *
-     * @param descColumn
-     *            description column index; -1 if none exists
-     *
-     * @param isTelemetered
-     *            true if the parameter has a downlink rate
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
      *********************************************************************************************/
-    private void addSpaceSystemParameter(SpaceSystemType spaceSystem,
-                                         TableInformation tableInfo,
-                                         int row,
-                                         int varColumn,
-                                         int typeColumn,
-                                         int sizeColumn,
-                                         int bitColumn,
-                                         int enumColumn,
-                                         int unitsColumn,
-                                         int descColumn,
-                                         boolean isTelemetered)
+    private void addParameterContainer(SpaceSystemType system,
+                                       TableInformation tableInfo,
+                                       int varColumn,
+                                       int typeColumn,
+                                       int sizeColumn,
+                                       boolean isTlmHeader,
+                                       String applicationID,
+                                       String ccsdsAppID)
     {
-        // Initialize the parameter attributes
-        String variableName = tableInfo.getData()[row][varColumn];
-        String dataType = tableInfo.getData()[row][typeColumn];
-        String arraySize = tableInfo.getData()[row][sizeColumn];
-        String bitLength = tableInfo.getData()[row][bitColumn];
-        String enumeration = null;
-        String units = null;
-        String description = null;
-        int stringSize = 1;
+        ContainerSetType seqContainerSet = null;
+        SequenceContainerType seqContainer = null;
+        EntryListType entryList = factory.createEntryListType();
 
-        // Check if the data type is a string and if the array size column isn't empty
-        if (dataTypeHandler.isString(tableInfo.getData()[row][typeColumn])
-            && !tableInfo.getData()[row][sizeColumn].isEmpty())
+        // Step through each row of data in the structure table
+        for (String[] rowData : tableInfo.getData())
         {
-            int defnRow = row;
-
-            // Check if the variable name is an array member
-            while (tableInfo.getData()[defnRow][varColumn].endsWith("]"))
+            // Check if the parameter is an array
+            if (!rowData[sizeColumn].isEmpty())
             {
-                // Step back through the rows until the array definition is located
-                defnRow--;
-            }
+                // Check if this is the array definition (array members are ignored)
+                if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                {
+                    DimensionList dimList = factory.createArrayParameterRefEntryTypeDimensionList();
 
-            // Get the size of the string, which is the last array size value in the string array's
-            // definition row
-            stringSize = Integer.valueOf(tableInfo.getData()[defnRow][sizeColumn].replaceAll("^.*(\\d+)$", "$1"));
-        }
+                    // Set the array dimension start index (always 0)
+                    IntegerValueType startVal = factory.createIntegerValueType();
+                    startVal.setFixedValue(String.valueOf(0));
 
-        // Step through each column in the row
-        for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
-        {
-            // Check that this is not the variable name column, or the bit length column and the
-            // variable has no bit length, and that a value exists in the column
-            if ((column != varColumn
-                 || (column == bitColumn && bitLength != null))
-                && !tableInfo.getData()[row][column].isEmpty())
-            {
-                // Check if this is an enumeration column
-                if (column == enumColumn)
-                {
-                    // Get the enumeration text
-                    enumeration = tableInfo.getData()[row][column];
-                }
-                // Check if this is the units column
-                else if (column == unitsColumn)
-                {
-                    // Get the units text
-                    units = tableInfo.getData()[row][unitsColumn];
-                }
-                // Check if this is the description column
-                else if (column == descColumn)
-                {
-                    // Get the description text
-                    description = tableInfo.getData()[row][descColumn];
+                    // Step through each array dimension
+                    for (int arrayDim : ArrayVariable.getArrayIndexFromSize(rowData[sizeColumn]))
+                    {
+                        // Create the dimension and set the start and end indices (the end index is
+                        // the number of elements in this array dimension)
+                        Dimension dim = factory.createArrayParameterRefEntryTypeDimensionListDimension();
+                        IntegerValueType endVal = factory.createIntegerValueType();
+                        endVal.setFixedValue(String.valueOf(arrayDim));
+                        dim.setStartingIndex(startVal);
+                        dim.setEndingIndex(endVal);
+                        dimList.getDimension().add(dim);
+                    }
+
+                    // Store the array parameter array reference in the list
+                    ArrayParameterRefEntryType arrayRef = factory.createArrayParameterRefEntryType();
+                    arrayRef.setParameterRef(rowData[varColumn]);
+                    arrayRef.setDimensionList(dimList);
+                    entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(arrayRef);
                 }
             }
+            // Check if this parameter has a primitive data type (i.e., it isn't an instance of a
+            // structure)
+            else if (dataTypeHandler.isPrimitive(rowData[typeColumn]))
+            {
+                // Check if this isn't an array definition
+                if (rowData[sizeColumn].isEmpty() || ArrayVariable.isArrayMember(rowData[varColumn]))
+                {
+                    // Get the index of the variable's bit length, if present
+                    int bitIndex = rowData[varColumn].indexOf(":");
+
+                    // Check if this variable has a bit length
+                    if (bitIndex != -1)
+                    {
+                        // Remove the bit length from the variable name
+                        rowData[varColumn] = rowData[varColumn].substring(0, bitIndex);
+                    }
+
+                    // Store the parameter reference in the list
+                    ParameterRefEntryType parameterRef = factory.createParameterRefEntryType();
+                    parameterRef.setParameterRef(rowData[varColumn]);
+                    entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(parameterRef);
+                }
+            }
+            // This is a structure data type. Check if the reference isn't to the telemetry header
+            // table
+            // TODO CAN tlmHeaderTable HAVE A PATH ATTACHED? THIS MAY BE ADDED ELSEWHERE...
+            else if (!rowData[typeColumn].equals(tlmHeaderTable))
+            {
+                // Get the name of the system to which this referenced structure belongs
+                String refSystemName = fieldHandler.getFieldValue(rowData[typeColumn],
+                                                                  InputDataType.SYSTEM_PATH);
+
+                // Store the structure reference in the list
+                ContainerRefEntryType containerType = factory.createContainerRefEntryType();
+                containerType.setContainerRef("/" + project.getValue().getName()
+                                              + (refSystemName == null
+                                                 || refSystemName.isEmpty()
+                                                                            ? ""
+                                                                            : "/" + refSystemName)
+                                              + "/" + rowData[typeColumn]
+                                              + "/" + rowData[typeColumn]);
+                entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(containerType);
+            }
         }
 
-        // Add the variable to the space system
-        addParameter(spaceSystem,
-                     variableName,
-                     dataType,
-                     (typeColumn == -1
-                                       ? null
-                                       : typeDefn.getColumnNamesUser()[typeColumn]),
-                     arraySize,
-                     bitLength,
-                     enumeration,
-                     units,
-                     description,
-                     stringSize,
-                     isTelemetered);
+        // Check if any parameters exist
+        if (!entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().isEmpty())
+        {
+            // Check if the parameter sequence container hasn't been created
+            if (seqContainer == null)
+            {
+                // Check if the parameter sequence container set hasn't been created
+                if (seqContainerSet == null)
+                {
+                    // Create the parameter sequence container set
+                    seqContainerSet = factory.createContainerSetType();
+                }
+
+                // Create the parameter sequence container and set the name
+                seqContainer = factory.createSequenceContainerType();
+
+                // Check if this is the telemetry header
+                if (isTlmHeader)
+                {
+                    seqContainer.setName(tlmHeaderTable);
+                    seqContainer.setAbstract(true);
+                }
+                // Not the telemetry header
+                else if (tlmHeaderTable != null && !tlmHeaderTable.isEmpty())
+                {
+                    seqContainer.setName(system.getName());
+
+                    // Check if this is a root structure (instance structures don't require a
+                    // reference to the telemetry header)
+                    if (tableInfo.isRootStructure())
+                    {
+                        // Create a reference to the telemetry header
+                        BaseContainer baseContainer = factory.createSequenceContainerTypeBaseContainer();
+                        baseContainer.setContainerRef("/" + project.getValue().getName()
+                                                      + (tlmHeaderPath == null
+                                                         || tlmHeaderPath.isEmpty()
+                                                                                    ? ""
+                                                                                    : "/" + tlmHeaderPath)
+                                                      + "/" + tlmHeaderTable
+                                                      + "/" + tlmHeaderTable);
+                        RestrictionCriteria restrictCriteria = factory.createSequenceContainerTypeBaseContainerRestrictionCriteria();
+                        ComparisonList compList = factory.createMatchCriteriaTypeComparisonList();
+                        ComparisonType compType = factory.createComparisonType();
+                        compType.setParameterRef(ccsdsAppID);
+                        compType.setValue(applicationID);
+                        compList.getComparison().add(compType);
+                        restrictCriteria.setComparisonList(compList);
+                        baseContainer.setRestrictionCriteria(restrictCriteria);
+                        seqContainer.setBaseContainer(baseContainer);
+                    }
+                }
+            }
+
+            // Store the parameters in the parameter sequence container
+            seqContainer.setEntryList(entryList);
+            seqContainerSet.getSequenceContainer().add(seqContainer);
+        }
+
+        // Check if any parameters exist
+        if (seqContainerSet != null)
+        {
+            // Check if the telemetry metadata doesn't exit for this system
+            if (system.getTelemetryMetaData() == null)
+            {
+                // Create the telemetry metadata
+                createTelemetryMetadata(system);
+            }
+
+            // Add the parameters to the system
+            system.getTelemetryMetaData().setContainerSet(seqContainerSet);
+        }
     }
 
     /**********************************************************************************************
@@ -1062,11 +1137,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param dataType
      *            parameter primitive data type
      *
-     * @param dataTypeColumn
-     *            data type column index
-     *
      * @param arraySize
-     *            parameter array size; blank if not an array definition or member
+     *            parameter array size; null or blank if the parameter isn't an array
      *
      * @param bitLength
      *            parameter bit length; null or blank if not a bit-wise parameter
@@ -1078,26 +1150,29 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param units
      *            parameter units
      *
+     * @param minimum
+     *            minimum parameter value
+     *
+     * @param maximum
+     *            maximum parameter value
+     *
      * @param description
      *            parameter description
      *
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a string or character
-     *
-     * @param isTelemetered
-     *            true if the parameter has a downlink rate
      *********************************************************************************************/
     private void addParameter(SpaceSystemType system,
                               String parameterName,
                               String dataType,
-                              String dataTypeColumn,
                               String arraySize,
                               String bitLength,
                               String enumeration,
                               String units,
+                              String minimum,
+                              String maximum,
                               String description,
-                              int stringSize,
-                              boolean isTelemetered)
+                              int stringSize)
     {
         // Check if this system doesn't yet have its telemetry metadata created
         if (system.getTelemetryMetaData() == null)
@@ -1110,33 +1185,32 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         if (dataType != null)
         {
             // Get the parameter's data type information
-            NameDescriptionType type = setDataType(system,
-                                                   parameterName,
-                                                   dataType,
-                                                   bitLength,
-                                                   enumeration,
-                                                   units,
-                                                   description,
-                                                   stringSize);
-
-            // Check if the type information was successfully created
-            if (type != null)
-            {
-                // Set the parameter's data type information
-                system.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(type);
-            }
+            setDataType(system,
+                        parameterName,
+                        dataType,
+                        arraySize,
+                        bitLength,
+                        enumeration,
+                        units,
+                        minimum,
+                        maximum,
+                        description,
+                        stringSize);
         }
 
         // Create the parameter. This links the parameter name with the parameter reference type
         ParameterSetType parameterSet = system.getTelemetryMetaData().getParameterSet();
         Parameter parameter = factory.createParameterSetTypeParameter();
-        parameter.setName(parameterName);
-        parameter.setParameterTypeRef(parameterName + "Type");
-        ParameterPropertiesType properties = factory.createParameterPropertiesType();
-        properties.setDataSource(isTelemetered
-                                               ? "telemetered"
-                                               : "local");
-        parameter.setParameterProperties(properties);
+        parameter.setName((dataTypeHandler.isPrimitive(dataType)
+                                                                 ? parameterName
+                                                                 : dataType)); // TODO WAS
+                                                                               // parameterName);
+        parameter.setParameterTypeRef((dataTypeHandler.isPrimitive(dataType)
+                                                                             ? parameterName
+                                                                             : dataType)
+                                      + (arraySize.isEmpty()
+                                                             ? TYPE
+                                                             : ARRAY));
         parameterSet.getParameterOrParameterRef().add(parameter);
     }
 
@@ -1156,187 +1230,201 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Add the command(s) from a table to the specified space system
      *
-     * @param spaceSystem
+     * @param system
      *            parent space system for this node
      *
      * @param tableInfo
      *            TableInformation reference for the current node
+     *
+     * @param isCmdHeader
+     *            true if this table represents the CCSDS command header
+     *
+     * @param applicationID
+     *            application ID
+     *
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
+     *
+     * @param ccsdsFuncCode
+     *            name of the command header argument containing the command function code
      *********************************************************************************************/
-    private void addSpaceSystemCommands(SpaceSystemType spaceSystem, TableInformation tableInfo)
+    private void addSpaceSystemCommands(SpaceSystemType system,
+                                        TableInformation tableInfo,
+                                        boolean isCmdHeader,
+                                        String applicationID,
+                                        String ccsdsAppID,
+                                        String ccsdsFuncCode)
     {
-        // Get the list containing command argument name, data type, enumeration, minimum, maximum,
-        // and other associated column indices for each argument grouping
-        List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
+        // Get the column indices for the command name, code, and description
+        int cmdNameCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
+        int cmdCodeCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE);
+        int cmdDescCol = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+
+        // Step through each command argument column grouping
+        for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+        {
+            // Check if the argument description column exists and it matches the index set for the
+            // command description
+            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescCol)
+            {
+                // There is no column for the command description, so reset its column index and
+                // stop searching
+                cmdDescCol = -1;
+                break;
+            }
+        }
 
         // Step through each row in the table
         for (String[] rowData : tableInfo.getData())
         {
-            // Initialize the command attributes and argument number list
+            // Initialize the command attributes and argument names list
             String commandName = null;
             String commandCode = null;
             String commandDescription = null;
             List<String> argumentNames = new ArrayList<String>();
 
-            // Create an array of flags to indicate if the column is a command argument that has
-            // been processed
-            boolean[] isCmdArg = new boolean[rowData.length];
-
-            // Step through each column in the row
-            for (int colA = NUM_HIDDEN_COLUMNS; colA < rowData.length; colA++)
+            // Check if the command name exists
+            if (cmdNameCol != -1 && !rowData[cmdNameCol].isEmpty())
             {
-                // Check that this isn't the column containing the table's primary key or row
-                // index, and that the column value isn't blank
-                if (!rowData[colA].isEmpty())
+                // Store the command name
+                commandName = rowData[cmdNameCol];
+
+                // Check if the command code exists
+                if (cmdCodeCol != -1 && !rowData[cmdCodeCol].isEmpty())
                 {
-                    // Check if this is the command name column
-                    if (typeDefn.getColumnNamesUser()[colA].equalsIgnoreCase(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME)))
+                    // Store the command code
+                    commandCode = rowData[cmdCodeCol];
+                }
+
+                // Check if the command description exists
+                if (cmdDescCol != -1 && !rowData[cmdDescCol].isEmpty())
+                {
+                    // Store the command description
+                    commandDescription = rowData[cmdDescCol];
+                }
+
+                // Step through each command argument column grouping
+                for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+                {
+                    // Initialize the command argument attributes
+                    String argName = null;
+                    String dataType = null;
+                    String arraySize = null;
+                    String bitLength = null;
+                    String enumeration = null;
+                    String minimum = null;
+                    String maximum = null;
+                    String units = null;
+                    String description = null;
+                    int stringSize = 1;
+
+                    // Check if this is the name column exists
+                    if (cmdArg.getName() != -1 && !rowData[cmdArg.getName()].isEmpty())
                     {
-                        // Store the command name
-                        commandName = rowData[colA];
+                        // Store the command argument name
+                        argName = rowData[cmdArg.getName()];
                     }
-                    // Not the command name column; check for other overall command and command
-                    // argument columns
-                    else
+
+                    // Check if the data type column exists
+                    if (cmdArg.getDataType() != -1 && !rowData[cmdArg.getDataType()].isEmpty())
                     {
-                        // Initialize the command argument attributes
-                        String argName = null;
-                        String dataType = null;
-                        String enumeration = null;
-                        String units = null;
-                        String description = null;
-                        int stringSize = 1;
+                        // Store the command argument data type
+                        dataType = rowData[cmdArg.getDataType()];
+                    }
 
-                        // Step through each command argument column grouping
-                        for (AssociatedColumns cmdArg : commandArguments)
+                    // Check if the description column exists
+                    if (cmdArg.getDescription() != -1 && !rowData[cmdArg.getDescription()].isEmpty())
+                    {
+                        // Store the command argument description
+                        description = rowData[cmdArg.getDescription()];
+                    }
+
+                    // Check if the enumeration column exists
+                    if (cmdArg.getEnumeration() != -1 && !rowData[cmdArg.getEnumeration()].isEmpty())
+                    {
+                        // Store the command argument enumeration value
+                        enumeration = rowData[cmdArg.getEnumeration()];
+                    }
+
+                    // Check if the units column exists
+                    if (cmdArg.getUnits() != -1 && !rowData[cmdArg.getUnits()].isEmpty())
+                    {
+                        // Store the command argument units
+                        units = rowData[cmdArg.getUnits()];
+                    }
+
+                    // Check if the minimum column exists
+                    if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
+                    {
+                        // Store the command argument minimum value
+                        minimum = rowData[cmdArg.getMinimum()];
+                    }
+
+                    // Check if the maximum column exists
+                    if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
+                    {
+                        // Store the command argument maximum value
+                        maximum = rowData[cmdArg.getMaximum()];
+                    }
+
+                    // Step through the other associated command argument columns
+                    for (int otherCol : cmdArg.getOther())
+                    {
+                        // Check if this is the array size column
+                        if (typeDefn.getInputTypes()[otherCol] == InputDataType.ARRAY_INDEX)
                         {
-                            // Check if this is the command argument name column
-                            if (colA == cmdArg.getName())
+                            // Store the command argument array size
+                            arraySize = rowData[otherCol];
+
+                            // Check if the command argument has a string data type
+                            if (rowData[cmdArg.getDataType()].equals(DefaultPrimitiveTypeInfo.STRING.getUserName()))
                             {
-                                // Store the command argument name
-                                argName = rowData[colA];
 
-                                // Set the flag indicating the column is a command argument
-                                isCmdArg[colA] = true;
-
-                                // Step through the remaining columns in the row to look for the
-                                // other members of this argument grouping
-                                for (int colB = colA + 1; colB < rowData.length; colB++)
-                                {
-                                    // Set the flag to indicate if the column is associated with a
-                                    // command argument
-                                    isCmdArg[colB] = colB == cmdArg.getDataType()
-                                                     || colB == cmdArg.getEnumeration()
-                                                     || colB == cmdArg.getDescription()
-                                                     || colB == cmdArg.getUnits()
-                                                     || colB == cmdArg.getMinimum()
-                                                     || colB == cmdArg.getMaximum()
-                                                     || cmdArg.getOther().contains(colB);
-
-                                    // Check if this is a command argument column and that the
-                                    // value isn't blank
-                                    if (isCmdArg[colB] && !rowData[colB].isEmpty())
-                                    {
-                                        // Check if this is the command argument data type column
-                                        if (colB == cmdArg.getDataType())
-                                        {
-                                            // Store the command argument data type
-                                            dataType = rowData[colB];
-                                        }
-                                        // Check if this is the command argument enumeration column
-                                        else if (colB == cmdArg.getEnumeration())
-                                        {
-                                            // Store the command argument enumeration
-                                            enumeration = rowData[colB];
-                                        }
-                                        // Check if this is the command argument description column
-                                        else if (colB == cmdArg.getDescription())
-                                        {
-                                            // Store the command argument description
-                                            description = rowData[colB];
-                                        }
-                                        // Check if this is the command argument units column
-                                        else if (colB == cmdArg.getUnits())
-                                        {
-                                            // Store the command argument units
-                                            units = rowData[colB];
-                                        }
-                                        // Check if this is the array size column for a command
-                                        // argument with a string data type
-                                        else if (typeDefn.getInputTypes()[colB] == InputDataType.ARRAY_INDEX
-                                                 && rowData[cmdArg.getDataType()].equals(DefaultPrimitiveTypeInfo.STRING.getUserName()))
-                                        {
-                                            // Separate the array dimension values and get the
-                                            // string size
-                                            int[] arrayDims = ArrayVariable.getArrayIndexFromSize(rowData[colB]);
-                                            stringSize = arrayDims[0];
-                                        }
-                                    }
-                                }
-
-                                // Check if the command argument has the minimum parameters
-                                // required: a name and data type
-                                if (argName != null && !argName.isEmpty() && dataType != null)
-                                {
-                                    // Add the name to the argument name list
-                                    argumentNames.add(argName);
-
-                                    // Add the command to the command space system
-                                    addCommandArgument(spaceSystem,
-                                                       commandName,
-                                                       argName,
-                                                       dataType,
-                                                       enumeration,
-                                                       units,
-                                                       description,
-                                                       stringSize);
-                                }
-
-                                // Stop searching since a match was found
-                                break;
+                                // Separate the array dimension values and get the
+                                // string size
+                                int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                                stringSize = arrayDims[0];
                             }
                         }
+                        // Check if this is the bit length column
+                        else if (typeDefn.getInputTypes()[otherCol] == InputDataType.BIT_LENGTH)
+                        {
+                            // Store the command argument bit length
+                            bitLength = rowData[otherCol];
+                        }
+                    }
+
+                    // Check if the command argument has the minimum parameters
+                    // required: a name and data type
+                    if (argName != null && !argName.isEmpty() && dataType != null)
+                    {
+                        // Add the name to the argument name list
+                        argumentNames.add(argName);
+
+                        // Add the command to the command space system
+                        addCommandArgument(system,
+                                           commandName,
+                                           argName,
+                                           dataType,
+                                           arraySize,
+                                           bitLength,
+                                           enumeration,
+                                           units,
+                                           minimum,
+                                           maximum,
+                                           description,
+                                           stringSize);
                     }
                 }
-            }
 
-            // Step through each column in the row again in order to assign the overall command
-            // information
-            for (int col = NUM_HIDDEN_COLUMNS; col < rowData.length; col++)
-            {
-                // Check that this is not one of the command argument columns, the column
-                // value isn't blank, and this column is for the command description
-                if (!isCmdArg[col] && !rowData[col].isEmpty())
-                    // Check if this is the first non-empty field containing a the command code
-                    if (commandCode == null
-                        && col == typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE))
-                    {
-                        // Store the command code
-                        commandCode = rowData[col];
-                    }
-                    // Check if this is the first non-empty field containing a the command
-                    // description
-                    else if (commandDescription == null
-                             && col == typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION))
-                    {
-                        // Store the command description
-                        commandDescription = rowData[col];
-                    }
-
-                // Check if both the command code and description have been found
-                if (commandCode != null && commandDescription != null)
-                {
-                    // Stop searching
-                    break;
-                }
-            }
-
-            // Check if the command name exists
-            if (commandName != null)
-            {
                 // Add the command metadata set information
-                addCommand(spaceSystem,
+                addCommand(system,
                            commandName,
                            commandCode,
+                           isCmdHeader,
+                           applicationID,
+                           ccsdsAppID,
+                           ccsdsFuncCode,
                            argumentNames,
                            commandDescription);
             }
@@ -1352,23 +1440,37 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param commandName
      *            command name
      *
-     * @param argumentNames
-     *            list of command argument names
-     *
      * @param commandCode
      *            command code
      *
-     * @param shortDescription
+     * @param isCmdHeader
+     *            true if this table represents the CCSDS command header
+     *
+     * @param applicationID
+     *            application ID
+     *
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
+     *
+     * @param ccsdsFuncCode
+     *            name of the command header argument containing the command function code
+     *
+     * @param argumentNames
+     *            list of command argument names
+     *
+     * @param description
      *            short description of the command
      *********************************************************************************************/
     private void addCommand(SpaceSystemType system,
                             String commandName,
                             String commandCode,
+                            boolean isCmdHeader,
+                            String applicationID,
+                            String ccsdsAppID,
+                            String ccsdsFuncCode,
                             List<String> argumentNames,
-                            String shortDescription)
+                            String description)
     {
-        // TODO FIND PLACE TO STORE THE COMMAND CODE
-
         // Check if this system doesn't yet have its command metadata created
         if (system.getCommandMetaData() == null)
         {
@@ -1383,27 +1485,82 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         command.setName(commandName);
 
         // Check is a command description exists
-        if (shortDescription != null)
+        if (description != null && !description.isEmpty())
         {
             // Set the command description attribute
-            command.setShortDescription(shortDescription);
+            command.setShortDescription(description);
         }
 
         // Check if the command has any arguments
         if (!argumentNames.isEmpty())
         {
             ArgumentList argList = factory.createMetaCommandTypeArgumentList();
+            CommandContainerType cmdContainer = factory.createCommandContainerType();
+            CommandContainerEntryListType entryList = factory.createCommandContainerEntryListType();
 
             // Step through each argument
-            for (String argName : argumentNames)
+            for (String argumentName : argumentNames)
             {
                 // Add the argument to the the command's argument list
                 Argument arg = new Argument();
-                arg.setName(argName);
+                arg.setName(argumentName);
+                arg.setArgumentTypeRef(argumentName + TYPE);
                 argList.getArgument().add(arg);
+
+                // Store the argument reference in the list
+                ArgumentRefEntry argumentRef = factory.createCommandContainerEntryListTypeArgumentRefEntry();
+                argumentRef.setArgumentRef(argumentName);
+                JAXBElement<ArgumentRefEntry> argumentRefElement = factory.createCommandContainerEntryListTypeArgumentRefEntry(argumentRef);
+                entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(argumentRefElement);
+            }
+
+            // Check if this table represents the CCSDS command header
+            if (isCmdHeader)
+            {
+                command.setAbstract(true);
+            }
+            // Not he command header. Check if the command ID is provided
+            else if (!isCmdHeader
+                     && applicationID != null
+                     && !applicationID.isEmpty()
+                     && cmdHeaderTable != null
+                     && !cmdHeaderTable.isEmpty())
+            {
+                // Create the reference to the base meta-command and set it to the empty base, in
+                // case no command header is defined
+                BaseMetaCommand baseCmd = factory.createMetaCommandTypeBaseMetaCommand();
+                baseCmd.setMetaCommandRef("/" + project.getValue().getName()
+                                          + (cmdHeaderPath == null
+                                             || cmdHeaderPath.isEmpty()
+                                                                        ? ""
+                                                                        : "/" + cmdHeaderPath)
+                                          + "/" + cmdHeaderTable
+                                          + "/" + cmdHeaderTable);
+
+                // Create the argument assignment list and store the application ID
+                ArgumentAssignmentList argAssnList = factory.createMetaCommandTypeBaseMetaCommandArgumentAssignmentList();
+                ArgumentAssignment argAssn = factory.createMetaCommandTypeBaseMetaCommandArgumentAssignmentListArgumentAssignment();
+                argAssn.setArgumentName(ccsdsAppID);
+                argAssn.setArgumentValue(applicationID);
+                argAssnList.getArgumentAssignment().add(argAssn);
+
+                // Check if a command code is provided
+                if (commandCode != null && !commandCode.isEmpty())
+                {
+                    // Store the command code
+                    argAssn = factory.createMetaCommandTypeBaseMetaCommandArgumentAssignmentListArgumentAssignment();
+                    argAssn.setArgumentName(ccsdsFuncCode);
+                    argAssn.setArgumentValue(commandCode);
+                    argAssnList.getArgumentAssignment().add(argAssn);
+                }
+
+                baseCmd.setArgumentAssignmentList(argAssnList);
+                command.setBaseMetaCommand(baseCmd);
             }
 
             command.setArgumentList(argList);
+            cmdContainer.setEntryList(entryList);
+            command.setCommandContainer(cmdContainer);
         }
 
         commandSet.getMetaCommandOrMetaCommandRefOrBlockMetaCommand().add(command);
@@ -1424,14 +1581,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param dataType
      *            command argument primitive data type
      *
+     * @param arraySize
+     *            command argument array size
+     *
+     * @param bitLength
+     *            command argument bit length
+     *
      * @param enumeration
      *            command enumeration in the format <enum label>=<enum value>
      *
      * @param units
      *            command argument units
      *
-     * @param shortDescription
-     *            short description of the command
+     * @param description
+     *            command description
      *
      * @param stringSize
      *            string size in bytes; ignored if the command argument does not have a string data
@@ -1441,9 +1604,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     String commandName,
                                     String argumentName,
                                     String dataType,
+                                    String arraySize,
+                                    String bitLength,
                                     String enumeration,
                                     String units,
-                                    String shortDescription,
+                                    String minimum,
+                                    String maximum,
+                                    String description,
                                     int stringSize)
     {
         // Check if this system doesn't yet have its command metadata created
@@ -1453,13 +1620,18 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             createCommandMetadata(system);
         }
 
+        // Set the command argument data type information
         NameDescriptionType type = setArgumentType(system,
                                                    commandName,
                                                    argumentName,
                                                    dataType,
+                                                   arraySize,
+                                                   bitLength,
                                                    enumeration,
                                                    units,
-                                                   shortDescription,
+                                                   minimum,
+                                                   maximum,
+                                                   description,
                                                    stringSize);
         ArgumentTypeSetType argument = system.getCommandMetaData().getArgumentTypeSet();
         argument.getStringArgumentTypeOrEnumeratedArgumentTypeOrIntegerArgumentType().add(type);
@@ -1508,6 +1680,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param dataType
      *            data type; null to not specify
      *
+     * @param arraySize
+     *            parameter array size; null or blank if the parameter isn't an array
+     *
      * @param bitLength
      *            parameter bit length; null or empty if not a bit-wise parameter
      *
@@ -1518,31 +1693,54 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param units
      *            parameter units; null to not specify
      *
+     * @param minimum
+     *            minimum parameter value; null to not specify
+     *
+     * @param maximum
+     *            maximum parameter value; null to not specify
+     *
+     * @param description
+     *            parameter description; null to not specify
+     *
      * @param description
      *            parameter description; null or blank to not specify
      *
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a string or character
-     *
-     * @return Parameter description of the type corresponding to the primitive data type with the
-     *         specified attributes set
      *********************************************************************************************/
-    private NameDescriptionType setDataType(SpaceSystemType system,
-                                            String parameterName,
-                                            String dataType,
-                                            String bitLength,
-                                            String enumeration,
-                                            String units,
-                                            String description,
-                                            int stringSize)
+    private void setDataType(SpaceSystemType system,
+                             String parameterName,
+                             String dataType,
+                             String arraySize,
+                             String bitLength,
+                             String enumeration,
+                             String units,
+                             String minimum,
+                             String maximum,
+                             String description,
+                             int stringSize)
     {
         NameDescriptionType parameterDescription = null;
+
+        // TODO SET BITS IN BOTH PLACES (IS ONE THE BIT LENGTH AND THE OTHER THE OTHER THE DATA
+        // TYPE SIZE?)
+
+        // Check if the parameter is an array
+        if (arraySize != null && !arraySize.isEmpty())
+        {
+            // Create an array type and set its attributes
+            ArrayDataTypeType arrayType = factory.createArrayDataTypeType();
+            arrayType.setName(parameterName + ARRAY);
+            arrayType.setNumberOfDimensions(BigInteger.valueOf(ArrayVariable.getArrayIndexFromSize(arraySize).length));
+            arrayType.setArrayTypeRef(parameterName + TYPE);
+
+            // Set the parameter's array information
+            system.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(arrayType);
+        }
 
         // Check if the parameter has a primitive data type
         if (dataTypeHandler.isPrimitive(dataType))
         {
-            BaseDataType baseType = null;
-
             // Get the XTCE data type corresponding to the primitive data type
             XTCEDataType xtceDataType = getXTCEDataType(dataType);
 
@@ -1553,11 +1751,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 UnitSet unitSet = createUnitSet(units);
 
                 // Check if enumeration parameters are provided
-                if (enumeration != null)
+                if (enumeration != null && !enumeration.isEmpty())
                 {
                     // Create an enumeration type and enumeration list, and add any extra
                     // enumeration parameters as column data
-                    baseType = factory.createParameterTypeSetTypeEnumeratedParameterType();
+                    EnumeratedParameterType enumType = factory.createParameterTypeSetTypeEnumeratedParameterType();
                     EnumerationList enumList = createEnumerationList(system, enumeration);
 
                     // Set the integer encoding (the only encoding available for an enumeration)
@@ -1584,11 +1782,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         intEncodingType.setEncoding("unsigned");
                     }
 
-                    ((EnumeratedParameterType) baseType).setIntegerDataEncoding(intEncodingType);
+                    // TODO ISSUE: THE CCSDS HEADER IS ALWAYS BIG ENDIAN - HOW AN THIS BE
+                    // DETECTED? OR JUST ASSUME IT'S IGNORED BY THE USER FOR THAT CASE?
+                    // Set the bit order
+                    intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                   ? "mostSignificantBitFirst"
+                                                                                   : "leastSignificantBitFirst");
+
+                    enumType.setIntegerDataEncoding(intEncodingType);
 
                     // Set the enumeration list and units attributes
-                    ((EnumeratedParameterType) baseType).setEnumerationList(enumList);
-                    ((EnumeratedParameterType) baseType).setUnitSet(unitSet);
+                    enumType.setEnumerationList(enumList);
+                    enumType.setUnitSet(unitSet);
+
+                    parameterDescription = enumType;
                 }
                 // Not an enumeration
                 else
@@ -1597,20 +1804,22 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     {
                         case INTEGER:
                             // Create an integer parameter and set its attributes
-                            baseType = factory.createParameterTypeSetTypeIntegerParameterType();
-                            ((IntegerParameterType) baseType).setUnitSet(unitSet);
+                            IntegerParameterType integerType = factory.createParameterTypeSetTypeIntegerParameterType();
+                            integerType.setUnitSet(unitSet);
                             IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
                             // Check if the parameter has a bit length
                             if (bitLength != null && !bitLength.isEmpty())
                             {
                                 // Set the size in bits to the value supplied
+                                integerType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
                                 intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
                             }
                             // Not a bit-wise parameter
                             else
                             {
                                 // Set the encoding type to indicate an unsigned integer
+                                integerType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                                 intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                             }
 
@@ -1618,27 +1827,94 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             if (dataTypeHandler.isUnsignedInt(dataType))
                             {
                                 // Set the encoding type to indicate an unsigned integer
+                                integerType.setSigned(false);
                                 intEncodingType.setEncoding("unsigned");
-                                ((IntegerParameterType) baseType).setSigned(false);
                             }
 
-                            ((IntegerParameterType) baseType).setIntegerDataEncoding(intEncodingType);
+                            // Set the bit order
+                            intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                           ? "mostSignificantBitFirst"
+                                                                                           : "leastSignificantBitFirst");
+
+                            integerType.setIntegerDataEncoding(intEncodingType);
+
+                            // TODO NOTE THAT ONLY ONE ALARM TYPE IS COVERED.
+                            // TODO HAVE TO DO THIS AS A FLOAT; INTEGER DOESN'T APPEAR TO BE
+                            // DOABLE.
+                            // Check if a minimum or maximum value is specified
+                            if ((minimum != null && !minimum.isEmpty())
+                                || (maximum != null && !maximum.isEmpty()))
+                            {
+                                NumericAlarmType alarm = factory.createNumericAlarmType();
+                                AlarmRangesType alarmType = factory.createAlarmRangesType();
+                                FloatRangeType floatRange = new FloatRangeType();
+
+                                // Check if a minimum value is specified
+                                if (minimum != null && !minimum.isEmpty())
+                                {
+                                    // Set the minimum value
+                                    floatRange.setMinExclusive(Double.valueOf(minimum));
+                                }
+
+                                // Check if a maximum value is specified
+                                if (maximum != null && !maximum.isEmpty())
+                                {
+                                    // Set the maximum value
+                                    floatRange.setMaxExclusive(Double.valueOf(maximum));
+                                }
+
+                                alarmType.setWarningRange(floatRange);
+                                alarm.setStaticAlarmRanges(alarmType);
+                                integerType.setDefaultAlarm(alarm);
+                            }
+
+                            parameterDescription = integerType;
                             break;
 
                         case FLOAT:
                             // Create a float parameter and set its attributes
-                            baseType = factory.createParameterTypeSetTypeFloatParameterType();
-                            ((FloatParameterType) baseType).setUnitSet(unitSet);
+                            FloatParameterType floatType = factory.createParameterTypeSetTypeFloatParameterType();
+                            floatType.setUnitSet(unitSet);
                             FloatDataEncodingType floatEncodingType = factory.createFloatDataEncodingType();
                             floatEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                             floatEncodingType.setEncoding("IEEE754_1985");
-                            ((FloatParameterType) baseType).setFloatDataEncoding(floatEncodingType);
+                            floatType.setFloatDataEncoding(floatEncodingType);
+
+                            // TODO NOTE THAT ONLY ONE ALARM TYPE IS COVERED
+                            // Check if a minimum or maximum value is specified
+                            if ((minimum != null && !minimum.isEmpty())
+                                || (maximum != null && !maximum.isEmpty()))
+                            {
+                                NumericAlarmType alarm = factory.createNumericAlarmType();
+                                AlarmRangesType alarmType = factory.createAlarmRangesType();
+                                FloatRangeType floatRange = new FloatRangeType();
+
+                                // Check if a minimum value is specified
+                                if (minimum != null && !minimum.isEmpty())
+                                {
+                                    // Set the minimum value
+                                    floatRange.setMinExclusive(Double.valueOf(minimum));
+                                }
+
+                                // Check if a maximum value is specified
+                                if (maximum != null && !maximum.isEmpty())
+                                {
+                                    // Set the maximum value
+                                    floatRange.setMaxExclusive(Double.valueOf(maximum));
+                                }
+
+                                alarmType.setWarningRange(floatRange);
+                                alarm.setStaticAlarmRanges(alarmType);
+                                floatType.setDefaultAlarm(alarm);
+                            }
+
+                            parameterDescription = floatType;
                             break;
 
                         case STRING:
                             // Create a string parameter and set its attributes
-                            baseType = factory.createParameterTypeSetTypeStringParameterType();
-                            ((StringParameterType) baseType).setUnitSet(unitSet);
+                            StringParameterType stringType = factory.createParameterTypeSetTypeStringParameterType();
+                            stringType.setUnitSet(unitSet);
                             StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
 
                             // Set the string's size in bits based on the number of characters in
@@ -1648,45 +1924,37 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             SizeInBits sizeInBits = new SizeInBits();
                             sizeInBits.setFixed(intValType);
                             stringEncodingType.setSizeInBits(sizeInBits);
-                            // stringEncodingType.setEncoding("character array"); //TODO
+                            stringEncodingType.setEncoding("UTF-8");
 
-                            ((StringParameterType) baseType).setStringDataEncoding(stringEncodingType);
-                            ((StringParameterType) baseType).setCharacterWidth(BigInteger.valueOf(stringSize));
+                            stringType.setStringDataEncoding(stringEncodingType);
+                            stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
+                            parameterDescription = stringType;
                             break;
                     }
                 }
-
-                // Set the parameter name attribute
-                baseType.setName(parameterName + "Type");
-
-                // Check is a description exists
-                if (description != null && !description.isEmpty())
-                {
-                    // Set the description attribute
-                    baseType.setShortDescription(description);
-                }
-
-                parameterDescription = baseType;
             }
         }
         // Structure data type
         else
         {
-            // Create an aggregate type for the structure and set its attributes
-            AggregateDataType aggregateType = new AggregateDataType();
-            aggregateType.setName(parameterName + "Type");
-
-            // Check is a description exists
-            if (description != null && !description.isEmpty())
-            {
-                // Set the description attribute
-                aggregateType.setShortDescription(description);
-            }
-
+            // Create an aggregate type for the structure
+            AggregateDataType aggregateType = factory.createAggregateDataType();
+            parameterName = dataType;
             parameterDescription = aggregateType;
         }
 
-        return parameterDescription;
+        // Set the parameter type name
+        parameterDescription.setName(parameterName + TYPE);
+
+        // Check is a description exists
+        if (description != null && !description.isEmpty())
+        {
+            // Set the description attribute
+            parameterDescription.setShortDescription(description);
+        }
+
+        // Set the parameter's data type information
+        system.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(parameterDescription);
     }
 
     /**********************************************************************************************
@@ -1701,18 +1969,30 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param argumentName
      *            command argument name; null to not specify
      *
-     * @param argumentType
-     *            command data type; null to not specify
+     * @param dataType
+     *            command argument data type; null to not specify
+     *
+     * @param arraySize
+     *            command argument array size; null or blank if the parameter isn't an array
+     *
+     * @param bitLength
+     *            command argument bit length
      *
      * @param enumeration
-     *            command enumeration in the format <enum label>|<enum value>[|...][,...]; null to
-     *            not specify
+     *            command argument enumeration in the format <enum label>|<enum value>[|...][,...];
+     *            null to not specify
      *
      * @param units
      *            command argument units; null to not specify
      *
-     * @param shortDescription
-     *            short description of the parameter; null to not specify
+     * @param minimum
+     *            minimum parameter value; null to not specify
+     *
+     * @param maximum
+     *            maximum parameter value; null to not specify
+     *
+     * @param description
+     *            command argument description ; null to not specify
      *
      * @param stringSize
      *            string size in bytes; ignored if the command argument does not have a string data
@@ -1724,16 +2004,35 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private NameDescriptionType setArgumentType(SpaceSystemType system,
                                                 String commandName,
                                                 String argumentName,
-                                                String argumentType,
+                                                String dataType,
+                                                String arraySize,
+                                                String bitLength,
                                                 String enumeration,
                                                 String units,
-                                                String shortDescription,
+                                                String minimum,
+                                                String maximum,
+                                                String description,
                                                 int stringSize)
     {
+        // TODO SIMILAR TO setDataType() - CAN THESE BE COMBINED? THE MIN/MAX PART DIFFERS
+
         BaseDataType commandDescription = null;
 
+        // Check if the parameter is an array
+        if (arraySize != null && !arraySize.isEmpty())
+        {
+            // Create an array type and set its attributes
+            ArrayDataTypeType arrayType = factory.createArrayDataTypeType();
+            arrayType.setName(argumentName + ARRAY);
+            arrayType.setNumberOfDimensions(BigInteger.valueOf(ArrayVariable.getArrayIndexFromSize(arraySize).length));
+            arrayType.setArrayTypeRef(argumentName + TYPE);
+
+            // Set the parameter's array information
+            system.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(arrayType);
+        }
+
         // Get the XTCE data type corresponding to the primitive data type
-        XTCEDataType xtceDataType = getXTCEDataType(argumentType);
+        XTCEDataType xtceDataType = getXTCEDataType(dataType);
 
         // Check if the a corresponding XTCE data type exists
         if (xtceDataType != null)
@@ -1752,28 +2051,44 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Create an enumeration type and enumeration list, and add any extra enumeration
                 // parameters as column data
-                commandDescription = factory.createEnumeratedDataType();
+                EnumeratedDataType enumType = factory.createEnumeratedDataType();
                 EnumerationList enumList = createEnumerationList(system, enumeration);
 
                 // Set the integer encoding (the only encoding available for an enumeration) and
                 // the size in bits
-                IntegerDataEncodingType intDataEnc = factory.createIntegerDataEncodingType();
-                intDataEnc.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(argumentType)));
-                ((EnumeratedDataType) commandDescription).setIntegerDataEncoding(intDataEnc);
-
-                // Set the enumeration list and units attributes
-                ((EnumeratedDataType) commandDescription).setEnumerationList(enumList);
-                ((EnumeratedDataType) commandDescription).setUnitSet(unitSet);
                 IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
+                // Check if the parameter has a bit length
+                if (bitLength != null && !bitLength.isEmpty())
+                {
+                    // Set the size in bits to the value supplied
+                    intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                }
+                // Not a bit-wise parameter
+                else
+                {
+                    // Set the size in bits to the full size of the data type
+                    intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
+                }
+
+                // Set the enumeration list and units attributes
+                enumType.setEnumerationList(enumList);
+                enumType.setUnitSet(unitSet);
+
                 // Check if the data type is an unsigned integer
-                if (dataTypeHandler.isUnsignedInt(argumentType))
+                if (dataTypeHandler.isUnsignedInt(dataType))
                 {
                     // Set the encoding type to indicate an unsigned integer
                     intEncodingType.setEncoding("unsigned");
                 }
 
-                commandDescription.setIntegerDataEncoding(intEncodingType);
+                // Set the bit order
+                intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
+                                                                               ? "mostSignificantBitFirst"
+                                                                               : "leastSignificantBitFirst");
+
+                enumType.setIntegerDataEncoding(intEncodingType);
+                commandDescription = enumType;
             }
             // This is not an enumerated command argument
             else
@@ -1782,34 +2097,107 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     case INTEGER:
                         // Create an integer command argument and set its attributes
-                        commandDescription = factory.createArgumentTypeSetTypeIntegerArgumentType();
+                        IntegerArgumentType integerType = factory.createArgumentTypeSetTypeIntegerArgumentType();
                         IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
-                        intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(argumentType)));
 
-                        // Check if the data type is an unsigned integer
-                        if (dataTypeHandler.isUnsignedInt(argumentType))
+                        // Check if the parameter has a bit length
+                        if (bitLength != null && !bitLength.isEmpty())
                         {
-                            // Set the encoding type to indicate an unsigned integer
-                            intEncodingType.setEncoding("unsigned");
-                            ((IntegerParameterType) commandDescription).setSigned(false);
+                            // Set the size in bits to the value supplied
+                            integerType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                            intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                        }
+                        // Not a bit-wise parameter
+                        else
+                        {
+                            // Set the size in bits to the full size of the data type
+                            integerType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
+                            intEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                         }
 
-                        commandDescription.setIntegerDataEncoding(intEncodingType);
+                        // Check if the data type is an unsigned integer
+                        if (dataTypeHandler.isUnsignedInt(dataType))
+                        {
+                            // Set the encoding type to indicate an unsigned integer
+                            integerType.setSigned(false);
+                            intEncodingType.setEncoding("unsigned");
+                        }
+
+                        // Set the bit order
+                        intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
+                                                                                       ? "mostSignificantBitFirst"
+                                                                                       : "leastSignificantBitFirst");
+
+                        integerType.setIntegerDataEncoding(intEncodingType);
+
+                        // Check if a minimum or maximum value is specified
+                        if ((minimum != null && !minimum.isEmpty())
+                            || (maximum != null && !maximum.isEmpty()))
+                        {
+                            IntegerArgumentType.ValidRangeSet validRange = factory.createArgumentTypeSetTypeIntegerArgumentTypeValidRangeSet();
+                            IntegerRangeType integerRange = new IntegerRangeType();
+
+                            // Check if a minimum value is specified
+                            if (minimum != null && !minimum.isEmpty())
+                            {
+                                // Set the minimum value
+                                integerRange.setMinInclusive(minimum);
+                            }
+
+                            // Check if a maximum value is specified
+                            if (maximum != null && !maximum.isEmpty())
+                            {
+                                // Set the maximum value
+                                integerRange.setMaxInclusive(maximum);
+                            }
+
+                            validRange.getValidRange().add(integerRange);
+                            integerType.setValidRangeSet(validRange);
+                        }
+
+                        commandDescription = integerType;
                         break;
 
                     case FLOAT:
                         // Create a float command argument and set its attributes
-                        commandDescription = factory.createArgumentTypeSetTypeFloatArgumentType();
+                        FloatArgumentType floatType = factory.createArgumentTypeSetTypeFloatArgumentType();
                         FloatDataEncodingType floatEncodingType = factory.createFloatDataEncodingType();
-                        floatEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(argumentType)));
+                        floatEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                         floatEncodingType.setEncoding("IEEE754_1985");
-                        commandDescription.setFloatDataEncoding(floatEncodingType);
+                        floatType.setFloatDataEncoding(floatEncodingType);
+
+                        // Check if a minimum or maximum value is specified
+                        if ((minimum != null && !minimum.isEmpty())
+                            || (maximum != null && !maximum.isEmpty()))
+                        {
+                            FloatArgumentType.ValidRangeSet validRange = factory.createArgumentTypeSetTypeFloatArgumentTypeValidRangeSet();
+                            FloatRangeType floatRange = new FloatRangeType();
+
+                            // Check if a minimum value is specified
+                            if (minimum != null && !minimum.isEmpty())
+                            {
+                                // Set the minimum value
+                                floatRange.setMinExclusive(Double.valueOf(minimum));
+                            }
+
+                            // Check if a maximum value is specified
+                            if (maximum != null && !maximum.isEmpty())
+                            {
+                                // Set the maximum value
+                                floatRange.setMaxExclusive(Double.valueOf(maximum));
+                            }
+
+                            validRange.getValidRange().add(floatRange);
+                            floatType.setValidRangeSet(validRange);
+                        }
+
+                        commandDescription = floatType;
                         break;
 
                     case STRING:
                         // Create a string command argument and set its attributes
-                        commandDescription = factory.createStringDataType();
-                        ((StringDataType) commandDescription).setCharacterWidth(BigInteger.valueOf(stringSize));
+                        StringDataType stringType = factory.createStringDataType();
+                        stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
                         StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
 
                         // Set the string's size in bits based on the number of characters in the
@@ -1819,22 +2207,22 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         SizeInBits sizeInBits = new SizeInBits();
                         sizeInBits.setFixed(intValType);
                         stringEncodingType.setSizeInBits(sizeInBits);
-                        // stringEncodingType.setEncoding("character array"); //TODO
+                        stringEncodingType.setEncoding("UTF-8");
 
-                        commandDescription.setStringDataEncoding(stringEncodingType);
+                        stringType.setStringDataEncoding(stringEncodingType);
+                        commandDescription = stringType;
                         break;
                 }
             }
 
             // Set the command name and argument name attributes
-            commandDescription.setBaseType(commandName);
-            commandDescription.setName(argumentName);
+            commandDescription.setName(argumentName + TYPE);
 
             // Check is a description exists
-            if (shortDescription != null && !shortDescription.isEmpty())
+            if (description != null && !description.isEmpty())
             {
                 // Set the command description attribute
-                commandDescription.setShortDescription(shortDescription);
+                commandDescription.setShortDescription(description);
             }
         }
 

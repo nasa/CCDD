@@ -840,7 +840,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     // Set the flag to prevent table tree updates
                     isNodeSelectionChanging = true;
 
-                    // Deselect any nodes that don't represent a table
+                    // Deselect any nodes that don't represent a table or the level immediately
+                    // above the table level
                     clearNonTableNodes(1);
 
                     // Reset the flag to allow table tree updates

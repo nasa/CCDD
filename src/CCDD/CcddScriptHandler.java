@@ -1243,8 +1243,9 @@ public class CcddScriptHandler
                                     // table type is converted to the generic type ("Structure" or
                                     // "Command") if the specified type is a representative of the
                                     // generic type. The original type name is preserved in each
-                                    // row of the table's data in an appended column Check if this
-                                    // table represents a structure
+                                    // row of the table's data in an appended column
+
+                                    // Check if this table represents a structure
                                     if (typeDefn.isStructure())
                                     {
                                         // Set the table type to indicate a structure
@@ -1737,7 +1738,7 @@ public class CcddScriptHandler
             loadedTablePaths.add(tablePath);
 
             // Read the table's data from the database
-            tableInfo = dbTable.loadTableData(tablePath, false, false, false, false, parent);
+            tableInfo = dbTable.loadTableData(tablePath, false, false, false, parent);
 
             // Check that the data was successfully loaded from the database and that the table
             // isn't empty

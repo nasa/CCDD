@@ -109,7 +109,6 @@ public class CcddPaddingVariableHandler
                                               false,
                                               false,
                                               false,
-                                              false,
                                               ccddMain.getMainFrame());
 
             // Check that the table loaded successfully

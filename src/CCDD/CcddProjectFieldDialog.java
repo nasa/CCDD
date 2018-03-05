@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -30,12 +31,14 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.FieldInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
@@ -63,9 +66,6 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
     // Flag that indicates if the project data field manager dialog is undergoing initialization
     private boolean isInitializing;
 
-    // Initial (minimum) dialog width in pixels
-    private int minDialogWidth;
-
     // Dialog title
     private static final String DIALOG_TITLE = "Manage Project Fields";
 
@@ -92,8 +92,6 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize()
     {
-        minDialogWidth = 0;
-
         // Build the project data field manager dialog in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
@@ -235,7 +233,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                   fieldPnlHndlr,
                                                   CcddFieldHandler.getFieldProjectName(),
                                                   false,
-                                                  minDialogWidth);
+                                                  0);
 
                         // Set the undo manager in the keyboard handler back to the project data
                         // field manager
@@ -409,27 +407,38 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 fieldPnlHndlr.storeCurrentFieldInformation();
                 undoManager.endEditSequence();
 
-                // Reset the flag now that initialization is complete
-                isInitializing = false;
-
-                // Add a listener to capture when the dialog first appears
-                addComponentListener(new ComponentAdapter()
+                // Add a listener for changes in the panel's size
+                CcddProjectFieldDialog.this.addComponentListener(new ComponentAdapter()
                 {
                     /******************************************************************************
-                     * Handle the group manager dialog becoming visible
+                     * Handle resizing of the panel
                      *****************************************************************************/
                     @Override
-                    public void componentShown(ComponentEvent ce)
+                    public void componentResized(ComponentEvent ce)
                     {
-                        // Check if the minimum dialog width hasn't been stored
-                        if (minDialogWidth == 0)
+                        // Create a runnable object to be executed
+                        SwingUtilities.invokeLater(new Runnable()
                         {
-                            // Store the dialog's width as the minimum and remove this listener
-                            minDialogWidth = ce.getComponent().getPreferredSize().width;
-                            removeComponentListener(this);
-                        }
+                            /**********************************************************************
+                             * Since the size returned by get___Size() can lag the actual size, use
+                             * invokeLater to let the sizes "catch up"
+                             *********************************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Update the minimum size of the owner so that all of the fields
+                                // remain visible
+                                CcddProjectFieldDialog.this.setPreferredSize(null);
+                                CcddProjectFieldDialog.this.setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
+                                                                                                  fieldPnlHndlr.getMaxFieldWidth()),
+                                                                                         CcddProjectFieldDialog.this.getPreferredSize().height));
+                            }
+                        });
                     }
                 });
+
+                // Reset the flag now that initialization is complete
+                isInitializing = false;
             }
 
             /**************************************************************************************
@@ -446,7 +455,6 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                   DIALOG_TITLE,
                                   true);
             }
-
         });
     }
 
