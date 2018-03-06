@@ -1057,10 +1057,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
 
             // Create a check box for indicating existing files can be replaced
-            overwriteFileCb = new JCheckBox("Overwrite existing file(s)");
+            overwriteFileCb = new JCheckBox("Overwrite existing file"
+                                            + (dialogType == ManagerDialogType.EXPORT_CSV
+                                               || dialogType == ManagerDialogType.EXPORT_JSON
+                                                                                              ? "(s)"
+                                                                                              : ""));
             overwriteFileCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             overwriteFileCb.setBorder(emptyBorder);
-            overwriteFileCb.setToolTipText(CcddUtilities.wrapText("Select to overwrite any file(s) with the same name",
+            overwriteFileCb.setToolTipText(CcddUtilities.wrapText("Select to overwrite any file with the same name",
                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
             gbc.gridy++;

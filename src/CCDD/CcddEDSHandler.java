@@ -44,6 +44,7 @@ import org.ccsds.schema.sois.seds.FloatDataEncodingType;
 import org.ccsds.schema.sois.seds.FloatDataType;
 import org.ccsds.schema.sois.seds.FloatDataTypeRangeType;
 import org.ccsds.schema.sois.seds.FloatEncodingAndPrecisionType;
+import org.ccsds.schema.sois.seds.FloatPrecisionRangeType;
 import org.ccsds.schema.sois.seds.IntegerDataEncodingType;
 import org.ccsds.schema.sois.seds.IntegerDataType;
 import org.ccsds.schema.sois.seds.IntegerDataTypeRangeType;
@@ -56,6 +57,7 @@ import org.ccsds.schema.sois.seds.MinMaxRangeType;
 import org.ccsds.schema.sois.seds.NamespaceType;
 import org.ccsds.schema.sois.seds.NumericDataType;
 import org.ccsds.schema.sois.seds.ObjectFactory;
+import org.ccsds.schema.sois.seds.RangeType;
 import org.ccsds.schema.sois.seds.RootDataType;
 import org.ccsds.schema.sois.seds.SemanticsType;
 import org.ccsds.schema.sois.seds.StringDataEncodingType;
@@ -130,33 +132,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private static String TYPE = "_Type";
     private static String ARRAY = "_Array";
 
-    // TODO TLM & CMD INTERFACE NAMES
+    // Telemetry and command interface names
     private static String TELEMETRY = "Telemetry";
     private static String COMMAND = "Command";
-
-    /**********************************************************************************************
-     * Structure member list
-     *********************************************************************************************/
-    class StructureMemberList
-    {
-        private final String structureName;
-        private final EntryListType memberList;
-
-        /******************************************************************************************
-         * Structure member list constructor
-         *
-         * @param structureName
-         *            structure table name
-         *
-         * @param memberList
-         *            member list
-         *****************************************************************************************/
-        StructureMemberList(String structureName, EntryListType memberList)
-        {
-            this.structureName = structureName;
-            this.memberList = memberList;
-        }
-    }
 
     /**********************************************************************************************
      * EDS handler class constructor
@@ -405,8 +383,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                  CcddVariableSizeAndConversionHandler variableHandler,
                                  String[] separators)
     {
-        List<StructureMemberList> memberLists = new ArrayList<StructureMemberList>();
-
         // Build the data field information for all fields
         fieldHandler.buildFieldInformation(null);
 
@@ -435,8 +411,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Get the name of the system to which this table belongs from the table's
                 // system path data field (if present)
-                String systemPath = fieldHandler.getFieldValue(tableName,
-                                                               InputDataType.SYSTEM_PATH);
+                String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
+                                                                               InputDataType.SYSTEM_PATH));
 
                 // Check if the space system for the prototype of the table has already been
                 // created
@@ -457,13 +433,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the table's data successfully loaded
             if (!tableInfo.isErrorFlag())
             {
-                // TODO GIVEN THAT INSTANCE INFORMATION DOESN'T APPEAR TO BE USED, IF A CHILD
-                // TABLE IS REFERNCED THEN AUTOMATICALLY LOAD ITS PROTOTYPE AND DON'T CREATE A
-                // SpaceSystem FOR THE INSTANCE. TREAT IT AS IF ONLY PROTOTYPES WERE SELECTED.
-
-                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. FOR THAT
-                // MATTER, SEPARATE SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED.
-
                 // Get the table type and from the type get the type definition. The type
                 // definition can be a global parameter since if the table represents a structure,
                 // then all of its children are also structures, and if the table represents
@@ -490,10 +459,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Get the name of the system to which this table belongs from the table's
                     // system path data field (if present)
-                    String systemPath = fieldHandler.getFieldValue(tableName,
-                                                                   InputDataType.SYSTEM_PATH);
+                    String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
+                                                                                   InputDataType.SYSTEM_PATH));
 
-                    // Add the space system
+                    // Add the name space
                     NamespaceType namespace = addNamespace(systemPath,
                                                            tableName,
                                                            tableInfo.getDescription());
@@ -501,8 +470,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     // Check if this is a node for a structure table
                     if (tableType.equals(TYPE_STRUCTURE))
                     {
-                        EntryListType memberList = factory.createEntryListType();
-
                         // Get the default column indices
                         int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
                         int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
@@ -524,7 +491,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             tlmHeaderPath = systemPath;
                         }
 
-                        // TODO
                         // Export the parameter container for this structure
                         addParameterContainer(namespace,
                                               tableInfo,
@@ -566,31 +532,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                              (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
                                                                                                                               ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
                                                                                                                               : 1));
-
-                                // TODO
-                                // Use the variable name to create an aggregate list member and add
-                                // it to the member list. The list is used if this structure is
-                                // referenced as a data type in another structure
-                                EntryType member = factory.createEntryType();
-                                member.setName(rowData[varColumn]);
-                                member.setType((systemPath == null || systemPath.isEmpty()
-                                                                                           ? ""
-                                                                                           : systemPath + "/")
-                                               + tableName + "/"
-                                               + (dataTypeHandler.isPrimitive(rowData[typeColumn])
-                                                                                                   ? rowData[varColumn]
-                                                                                                   : rowData[typeColumn])
-                                               + TYPE);// TODO
-                                memberList.getEntryOrFixedValueEntryOrPaddingEntry().add(member);
                             }
-                        }
-
-                        // Check if any variables exists in the structure table
-                        if (!memberList.getEntryOrFixedValueEntryOrPaddingEntry().isEmpty())
-                        {
-                            // Create a structure member list using the table's aggregate member
-                            // list
-                            memberLists.add(new StructureMemberList(tableName, memberList));
                         }
                     }
                     // Check if this is a command table
@@ -604,7 +546,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         }
 
                         // Add the command(s) from this table to the data sheet
-                        addNamespaceCommands(namespace, tableInfo);
+                        addNamespaceCommands(namespace,
+                                             tableInfo,
+                                             tableName.equals(cmdHeaderTable),
+                                             applicationID,
+                                             ccsdsAppID,
+                                             ccsdsFuncCode);
                     }
                     // Not a structure or command table
                     else
@@ -622,47 +569,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
         }
-
-        // TODO
-        // // Step through each table name
-        // for (String tableName : tableNames)
-        // {
-        // // Get the prototype for the child
-        // tableName = TableInformation.getPrototypeName(tableName);
-        //
-        // // Get the name of the system to which this table belongs from the table's system path
-        // // data field (if present)
-        // String systemPath = fieldHandler.getFieldValue(tableName, InputDataType.SYSTEM_PATH);
-        //
-        // // Get the space system for this table
-        // NamespaceType system = searchNamespacesForName(systemPath, tableName);
-        //
-        // // Check if the system was found and it has telemetry data
-        // if (system != null && system.getDataTypeSet() != null)
-        // {
-        // // Step through each parameter type
-        // for (RootDataType type :
-        // system.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
-        // {
-        // // Check if the type is a container (i.e., a structure reference)
-        // if (type instanceof ContainerDataType)
-        // {
-        // // Step through each structure member list
-        // for (StructureMemberList structMemList : memberLists)
-        // {
-        // // Check if the container refers to this structure
-        // if (type.getName().equals(structMemList.structureName + TYPE))// TODO
-        // {
-        // // Set the container's member list to this structure member list
-        // // and stop searching
-        // ((ContainerDataType) type).setEntryList(structMemList.memberList);
-        // break;
-        // }
-        // }
-        // }
-        // }
-        // }
-        // }
     }
 
     /**********************************************************************************************
@@ -680,9 +586,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @return Reference to the new name space
      *********************************************************************************************/
-    private NamespaceType addNamespace(String systemPath,
-                                       String namespaceName,
-                                       String description)
+    private NamespaceType addNamespace(String systemPath, String namespaceName, String description)
     {
         // Create the new name space and set the name attribute
         NamespaceType childSpace = factory.createNamespaceType();
@@ -758,6 +662,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     {
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
         intParmType.setName(TELEMETRY);
+
+        // Check if this is the interface for the telemetry header
+        if (namespace.getName().equals((tlmHeaderPath != null
+                                        && !tlmHeaderPath.isEmpty()
+                                                                    ? tlmHeaderPath + "/"
+                                                                    : "")
+                                       + tlmHeaderTable))
+        {
+            intParmType.setAbstract(true);
+        }
+
         intParmType.setParameterSet(factory.createParameterSetType());
         namespace.getDeclaredInterfaceSet().getInterface().add(intParmType);
         return intParmType;
@@ -766,7 +681,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add the parameter container
      *
-     * @param system
+     * @param namespace
      *            name space
      *
      * @param tableInfo
@@ -790,7 +705,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param ccsdsAppID
      *            name of the command header argument containing the application ID
      *********************************************************************************************/
-    private void addParameterContainer(NamespaceType system,
+    private void addParameterContainer(NamespaceType namespace,
                                        TableInformation tableInfo,
                                        int varColumn,
                                        int typeColumn,
@@ -805,65 +720,25 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Step through each row of data in the structure table
         for (String[] rowData : tableInfo.getData())
         {
-            // Check if the parameter is an array
-            if (!rowData[sizeColumn].isEmpty())
+            // Check if this is not an array member (non-array parameters and array definitions are
+            // used to create the list)
+            if (!ArrayVariable.isArrayMember(rowData[varColumn]))
             {
-                // Check if this is the array definition (array members are ignored)
-                if (!ArrayVariable.isArrayMember(rowData[varColumn]))
-                {
-                    // Create an array type and set its attributes
-                    ArrayDataType arrayType = factory.createArrayDataType();
-                    arrayType.setName(rowData[varColumn] + ARRAY);
-                    ArrayDimensionsType dimList = factory.createArrayDimensionsType();
+                // TODO A REFERENCE TO A CONTAINER THAT CONTAINS AN ARRAY THROWS A NULL POINTER
+                // EXCEPTION IN THE EDS VIEWER (UNDER THE DATA TYPES TAB WHEN THE CONTAINER IS
+                // OPENED)
 
-                    // Step through each array dimension
-                    for (int dim : ArrayVariable.getArrayIndexFromSize(rowData[sizeColumn]))
-                    {
-                        // Create a dimension entry for the array type
-                        DimensionSizeType dimSize = factory.createDimensionSizeType();
-                        dimSize.setSize(BigInteger.valueOf(dim));
-                        dimList.getDimension().add(dimSize);
-                    }
-
-                    arrayType.setDimensionList(dimList);
-
-                    // Store the array parameter array reference in the list
-                    arrayType.setName(rowData[varColumn]);
-                    arrayType.setDataTypeRef(rowData[typeColumn] + TYPE);
-                    entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(arrayType);
-                }
-            }
-            // Check if this parameter has a primitive data type (i.e., it isn't an instance of a
-            // structure)
-            else if (dataTypeHandler.isPrimitive(rowData[typeColumn]))
-            {
-                // Check if this isn't an array definition
-                if (rowData[sizeColumn].isEmpty() || ArrayVariable.isArrayMember(rowData[varColumn]))
-                {
-                    // Get the index of the variable's bit length, if present
-                    int bitIndex = rowData[varColumn].indexOf(":");
-
-                    // Check if this variable has a bit length
-                    if (bitIndex != -1)
-                    {
-                        // Remove the bit length from the variable name
-                        rowData[varColumn] = rowData[varColumn].substring(0, bitIndex);
-                    }
-
-                    // Store the parameter reference in the list
-                    EntryType entryType = factory.createEntryType();
-                    entryType.setName(rowData[varColumn]);
-                    entryType.setType(rowData[varColumn] + TYPE);
-                    entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(entryType);
-                }
-            }
-            // This is a structure data type
-            else // TODO if (!rowData[typeColumn].equals(tlmHeaderTable))
-            {
-                // Store the structure reference in the list
+                // Store the parameter reference in the list
                 EntryType entryType = factory.createEntryType();
                 entryType.setName(rowData[varColumn]);
-                entryType.setType(rowData[typeColumn] + TYPE);
+                entryType.setType((dataTypeHandler.isPrimitive(rowData[typeColumn])
+                                                                                    ? rowData[varColumn]
+                                                                                    : rowData[typeColumn]
+                                                                                      + "/"
+                                                                                      + rowData[typeColumn])
+                                  + (rowData[sizeColumn].isEmpty()
+                                                                   ? TYPE
+                                                                   : ARRAY));
                 entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(entryType);
             }
         }
@@ -884,20 +759,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 containerType.setName(tlmHeaderTable + TYPE);
                 containerType.setAbstract(true);
             }
-            // Not the telemetry header
+            // Not the telemetry header. Check if a telemetry header exists
             else if (tlmHeaderTable != null && !tlmHeaderTable.isEmpty())
             {
                 containerType.setName(tableInfo.getPrototypeName() + TYPE);
 
                 // Check if this is a root structure (instance structures don't require a
-                // reference to the telemetry header)
-                if (tableInfo.isRootStructure())
+                // reference to the telemetry header) and this isn't the command header table
+                if (tableInfo.isRootStructure() && !namespace.getName().equals(tlmHeaderTable))
                 {
                     InterfaceDeclarationType intParmType = null;
 
                     // Step through the interfaces in order to locate the name space's parameter
                     // set
-                    for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
+                    for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
                     {
                         // Check if the interface contains a parameter set
                         if (intfcDecType.getParameterSet() != null)
@@ -908,23 +783,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         }
                     }
 
-                    // Check if a parameter set exists
+                    // Check if a parameter set doesn't exist
                     if (intParmType == null)
                     {
                         // Create the parameter set for this name space
-                        intParmType = createParameterSet(system);
+                        intParmType = createParameterSet(namespace);
                     }
 
-                    // Check if this isn't the command header table
-                    if (!system.getName().equals(tlmHeaderTable))
-                    {
-                        // Set the parameter header as the base
-                        BaseTypeSetType baseType = factory.createBaseTypeSetType();
-                        InterfaceRefType intfcType = factory.createInterfaceRefType();
-                        intfcType.setType(tlmHeaderTable + "/" + TELEMETRY);
-                        baseType.getBaseType().add(intfcType);
-                        intParmType.setBaseTypeSet(baseType);
-                    }
+                    // Set the parameter header as the base
+                    BaseTypeSetType baseType = factory.createBaseTypeSetType();
+                    InterfaceRefType intfcType = factory.createInterfaceRefType();
+                    intfcType.setType(tlmHeaderTable + "/" + TELEMETRY);
+                    baseType.getBaseType().add(intfcType);
+                    intParmType.setBaseTypeSet(baseType);
                 }
             }
 
@@ -936,7 +807,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         if (containerType != null)
         {
             // Get the data type set for this name space
-            DataTypeSetType dataTypeSet = system.getDataTypeSet();
+            DataTypeSetType dataTypeSet = namespace.getDataTypeSet();
 
             // Check if the data type set doesn't exist, which is the case for the first
             // enumerated parameter
@@ -948,7 +819,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             // Add the parameters to the system
             dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(containerType);
-            system.setDataTypeSet(dataTypeSet);
+            namespace.setDataTypeSet(dataTypeSet);
         }
     }
 
@@ -956,7 +827,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Add a telemetry parameter to the name space's parameter set. Create the parameter set for
      * the name space if it does not exist
      *
-     * @param system
+     * @param namespace
      *            name space
      *
      * @param parameterName
@@ -990,7 +861,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a string or character
      *********************************************************************************************/
-    private void addParameter(NamespaceType system,
+    private void addParameter(NamespaceType namespace,
                               String parameterName,
                               String dataType,
                               String arraySize,
@@ -1007,7 +878,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         if (dataType != null)
         {
             // Get the parameter's data type information
-            setDataType(system,
+            setDataType(namespace,
                         parameterName,
                         dataType,
                         arraySize,
@@ -1017,7 +888,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         minimum,
                         maximum,
                         description,
-                        stringSize);
+                        stringSize,
+                        "");
 
             // Check if this is not the telemetry header table
             if (!dataType.equals(tlmHeaderTable))
@@ -1042,7 +914,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 InterfaceDeclarationType intParmType = null;
 
                 // Step through the interfaces in order to locate the name space's parameter set
-                for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
+                for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
                 {
                     // Check if the interface contains a parameter set
                     if (intfcDecType.getParameterSet() != null)
@@ -1057,7 +929,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 if (intParmType == null)
                 {
                     // Create the parameter set for this name space
-                    intParmType = createParameterSet(system);
+                    intParmType = createParameterSet(namespace);
                 }
 
                 // Add the parameter to the parameter set
@@ -1069,31 +941,61 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create the command set for the specified name space
      *
-     * @param system
+     * @param namespace
      *            name space
      *
      * @return Reference to the command set
      *********************************************************************************************/
-    private InterfaceDeclarationType createCommandSet(NamespaceType system)
+    private InterfaceDeclarationType createCommandSet(NamespaceType namespace)
     {
         InterfaceDeclarationType intCmdType = factory.createInterfaceDeclarationType();
         intCmdType.setName(COMMAND);
+
+        // Check if this is the interface for the command header
+        if (namespace.getName().equals((cmdHeaderPath != null
+                                        && !cmdHeaderPath.isEmpty()
+                                                                    ? cmdHeaderPath + "/"
+                                                                    : "")
+                                       + cmdHeaderTable))
+        {
+            intCmdType.setAbstract(true);
+        }
+
         intCmdType.setCommandSet(factory.createCommandSetType());
-        system.getDeclaredInterfaceSet().getInterface().add(intCmdType);
+        namespace.getDeclaredInterfaceSet().getInterface().add(intCmdType);
         return intCmdType;
     }
 
     /**********************************************************************************************
      * Add the command(s) from a table to the specified name space
      *
-     * @param system
+     * @param namespace
      *            name space for this node
      *
      * @param tableInfo
      *            TableInformation reference for the current node
+     *
+     * @param isCmdHeader
+     *            true if this table represents the CCSDS command header
+     *
+     * @param applicationID
+     *            application ID
+     *
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
+     *
+     * @param ccsdsFuncCode
+     *            name of the command header argument containing the command function code
      *********************************************************************************************/
-    private void addNamespaceCommands(NamespaceType system, TableInformation tableInfo)
+    private void addNamespaceCommands(NamespaceType namespace,
+                                      TableInformation tableInfo,
+                                      boolean isCmdHeader,
+                                      String applicationID,
+                                      String ccsdsAppID,
+                                      String ccsdsFuncCode)
     {
+        List<String> argumentNames = new ArrayList<String>();
+
         // Get the column indices for the command name, code, and description
         int cmdNameCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
         int cmdCodeCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE);
@@ -1116,17 +1018,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Step through each row in the table
         for (String[] rowData : tableInfo.getData())
         {
-            // Initialize the command attributes and argument names list
-            String commandName = null;
-            String commandCode = null;
-            String commandDescription = null;
-            List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
-
             // Check if the command name exists
             if (cmdNameCol != -1 && !rowData[cmdNameCol].isEmpty())
             {
+                // Initialize the command attributes and argument names list
+                String commandCode = null;
+                String commandDescription = null;
+                List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
+
                 // Store the command name
-                commandName = rowData[cmdNameCol];
+                String commandName = rowData[cmdNameCol];
 
                 // Check if the command code exists
                 if (cmdCodeCol != -1 && !rowData[cmdCodeCol].isEmpty())
@@ -1157,99 +1058,103 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     String description = null;
                     int stringSize = 1;
 
-                    // Check if this is the name column exists
-                    if (cmdArg.getName() != -1 && !rowData[cmdArg.getName()].isEmpty())
+                    // Check if the command argument name and data type exist
+                    if (cmdArg.getName() != -1
+                        && !rowData[cmdArg.getName()].isEmpty()
+                        && cmdArg.getDataType() != -1 &&
+                        !rowData[cmdArg.getDataType()].isEmpty())
                     {
-                        // Store the command argument name
+                        String uniqueID = "";
+                        int dupCount = 0;
+
+                        // Store the command argument name and data type
                         argumentName = rowData[cmdArg.getName()];
-                    }
-
-                    // Check if the data type column exists
-                    if (cmdArg.getDataType() != -1 && !rowData[cmdArg.getDataType()].isEmpty())
-                    {
-                        // Store the command argument data type
                         dataType = rowData[cmdArg.getDataType()];
-                    }
 
-                    // Check if the description column exists
-                    if (cmdArg.getDescription() != -1 && !rowData[cmdArg.getDescription()].isEmpty())
-                    {
-                        // Store the command argument description
-                        description = rowData[cmdArg.getDescription()];
-                    }
-
-                    // Check if the enumeration column exists
-                    if (cmdArg.getEnumeration() != -1 && !rowData[cmdArg.getEnumeration()].isEmpty())
-                    {
-                        // Store the command argument enumeration value
-                        enumeration = rowData[cmdArg.getEnumeration()];
-                    }
-
-                    // Check if the units column exists
-                    if (cmdArg.getUnits() != -1 && !rowData[cmdArg.getUnits()].isEmpty())
-                    {
-                        // Store the command argument units
-                        units = rowData[cmdArg.getUnits()];
-                    }
-
-                    // Check if the minimum column exists
-                    if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
-                    {
-                        // Store the command argument minimum value
-                        minimum = rowData[cmdArg.getMinimum()];
-                    }
-
-                    // Check if the maximum column exists
-                    if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
-                    {
-                        // Store the command argument maximum value
-                        maximum = rowData[cmdArg.getMaximum()];
-                    }
-
-                    // Step through the other associated command argument columns
-                    for (int otherCol : cmdArg.getOther())
-                    {
-                        // Check if this is the array size column
-                        if (typeDefn.getInputTypes()[otherCol] == InputDataType.ARRAY_INDEX)
+                        // Check if the description column exists
+                        if (cmdArg.getDescription() != -1 && !rowData[cmdArg.getDescription()].isEmpty())
                         {
-                            // Store the command argument array size
-                            arraySize = rowData[otherCol];
+                            // Store the command argument description
+                            description = rowData[cmdArg.getDescription()];
+                        }
 
-                            // Check if the command argument has a string data type
-                            if (rowData[cmdArg.getDataType()].equals(DefaultPrimitiveTypeInfo.STRING.getUserName()))
+                        // Check if the enumeration column exists
+                        if (cmdArg.getEnumeration() != -1 && !rowData[cmdArg.getEnumeration()].isEmpty())
+                        {
+                            // Store the command argument enumeration value
+                            enumeration = rowData[cmdArg.getEnumeration()];
+                        }
+
+                        // Check if the units column exists
+                        if (cmdArg.getUnits() != -1 && !rowData[cmdArg.getUnits()].isEmpty())
+                        {
+                            // Store the command argument units
+                            units = rowData[cmdArg.getUnits()];
+                        }
+
+                        // Check if the minimum column exists
+                        if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
+                        {
+                            // Store the command argument minimum value
+                            minimum = rowData[cmdArg.getMinimum()];
+                        }
+
+                        // Check if the maximum column exists
+                        if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
+                        {
+                            // Store the command argument maximum value
+                            maximum = rowData[cmdArg.getMaximum()];
+                        }
+
+                        // Step through the other associated command argument columns
+                        for (int otherCol : cmdArg.getOther())
+                        {
+                            // Check if this is the array size column
+                            if (typeDefn.getInputTypes()[otherCol] == InputDataType.ARRAY_INDEX)
                             {
+                                // Store the command argument array size
+                                arraySize = rowData[otherCol];
 
-                                // Separate the array dimension values and get the
-                                // string size
-                                int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
-                                stringSize = arrayDims[0];
+                                // Check if the command argument has a string data type
+                                if (rowData[cmdArg.getDataType()].equals(DefaultPrimitiveTypeInfo.STRING.getUserName()))
+                                {
+
+                                    // Separate the array dimension values and get the string size
+                                    int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
+                                    stringSize = arrayDims[0];
+                                }
+                            }
+                            // Check if this is the bit length column
+                            else if (typeDefn.getInputTypes()[otherCol] == InputDataType.BIT_LENGTH)
+                            {
+                                // Store the command argument bit length
+                                bitLength = rowData[otherCol];
                             }
                         }
-                        // Check if this is the bit length column
-                        else if (typeDefn.getInputTypes()[otherCol] == InputDataType.BIT_LENGTH)
-                        {
-                            // Store the command argument bit length
-                            bitLength = rowData[otherCol];
-                        }
-                    }
 
-                    // Check if the command argument has the minimum parameters
-                    // required: a name and data type
-                    if (argumentName != null && !argumentName.isEmpty() && dataType != null)
-                    {
-                        // Add a command argument to the command metadata
-                        CommandArgumentType argType = factory.createCommandArgumentType();
-                        argType.setName(argumentName);
-
-                        // Check if the command argument description exists
-                        if (description != null && !description.isEmpty())
+                        // Step through the list of argument names used so far
+                        for (String argName : argumentNames)
                         {
-                            // Set the description
-                            argType.setShortDescription(description);
+                            // Check if the current argument name matches an existing one
+                            if (argumentName.equals(argName))
+                            {
+                                // Increment the duplicate name count
+                                dupCount++;
+                            }
                         }
+
+                        // Check if a duplicate argument name exists
+                        if (dupCount != 0)
+                        {
+                            // Set the unique ID to the counter value
+                            uniqueID = String.valueOf(dupCount + 1);
+                        }
+
+                        // Add the name to the list
+                        argumentNames.add(argumentName);
 
                         // Get the argument's data type information
-                        setDataType(system,
+                        setDataType(namespace,
                                     argumentName,
                                     dataType,
                                     arraySize,
@@ -1259,7 +1164,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     minimum,
                                     maximum,
                                     description,
-                                    stringSize);
+                                    stringSize,
+                                    uniqueID);
+
+                        // Add a command argument to the command metadata
+                        CommandArgumentType argType = factory.createCommandArgumentType();
+                        argType.setName(argumentName);
+                        argType.setType(argumentName + TYPE + uniqueID);
+
+                        // Check if the command argument description exists
+                        if (description != null && !description.isEmpty())
+                        {
+                            // Set the description
+                            argType.setShortDescription(description);
+                        }
 
                         // Add the command argument to the list
                         arguments.add(argType);
@@ -1267,7 +1185,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 }
 
                 // Add the command information
-                addCommand(system, commandName, commandCode, arguments, commandDescription);
+                addCommand(namespace,
+                           commandName,
+                           commandCode,
+                           isCmdHeader,
+                           applicationID,
+                           ccsdsAppID,
+                           ccsdsFuncCode,
+                           arguments,
+                           commandDescription);
             }
         }
     }
@@ -1275,7 +1201,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Add a command metadata set to the command metadata
      *
-     * @param system
+     * @param namespace
      *            name space
      *
      * @param commandName
@@ -1284,15 +1210,31 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param commandCode
      *            command code
      *
-     * @param arguments
-     *            list of command arguments
+     * @param isCmdHeader
+     *            true if this table represents the CCSDS command header
+     *
+     * @param applicationID
+     *            application ID
+     *
+     * @param ccsdsAppID
+     *            name of the command header argument containing the application ID
+     *
+     * @param ccsdsFuncCode
+     *            name of the command header argument containing the command function code
+     *
+     * @param argumentNames
+     *            list of command argument names
      *
      * @param description
-     *            short description of the command
+     *            description of the command
      *********************************************************************************************/
-    private void addCommand(NamespaceType system,
+    private void addCommand(NamespaceType namespace,
                             String commandName,
                             String commandCode, // TODO WHERE DOES THIS GET PUT?
+                            boolean isCmdHeader,
+                            String applicationID, // TODO WHERE DOES THIS GET PUT?
+                            String ccsdsAppID, // TODO WHERE DOES THIS GET PUT?
+                            String ccsdsFuncCode, // TODO WHERE DOES THIS GET PUT?
                             List<CommandArgumentType> arguments,
                             String description)
     {
@@ -1321,7 +1263,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         InterfaceDeclarationType intCmdType = null;
 
         // Step through the interfaces in order to locate the name space's command set
-        for (InterfaceDeclarationType intfcDecType : system.getDeclaredInterfaceSet().getInterface())
+        for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
         {
             // Check if the interface contains a command set
             if (intfcDecType.getCommandSet() != null)
@@ -1336,11 +1278,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         if (intCmdType == null)
         {
             // Create the command set for this name space
-            intCmdType = createCommandSet(system);
+            intCmdType = createCommandSet(namespace);
         }
 
         // Check if this isn't the command header table
-        if (!system.getName().equals(cmdHeaderTable))
+        if (!namespace.getName().equals(cmdHeaderTable))
         {
             // Set the command header as the base
             BaseTypeSetType baseType = factory.createBaseTypeSetType();
@@ -1388,7 +1330,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     /**********************************************************************************************
      * Create the parameter data type and set the specified attributes
      *
-     * @param system
+     * @param namespace
      *            space system
      *
      * @param parameterName
@@ -1424,8 +1366,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a string or character
+     *
+     * @param uniqueID
+     *            text used to uniquely identify data types with the same name; blank if the data
+     *            type has no name conflict
      *********************************************************************************************/
-    private void setDataType(NamespaceType system,
+    private void setDataType(NamespaceType namespace,
                              String parameterName,
                              String dataType,
                              String arraySize,
@@ -1435,15 +1381,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              String minimum,
                              String maximum,
                              String description,
-                             int stringSize)
+                             int stringSize,
+                             String uniqueID)
     {
-        // TODO SET BITS IN BOTH PLACES (IS ONE THE BIT LENGTH AND THE OTHER THE OTHER THE DATA
-        // TYPE SIZE?)
-
         RootDataType parameterDescription = null;
 
         // Get the data type set for this name space
-        DataTypeSetType dataTypeSet = system.getDataTypeSet();
+        DataTypeSetType dataTypeSet = namespace.getDataTypeSet();
 
         // Check if the data type set doesn't exist, which is the case for the first
         // enumerated parameter
@@ -1481,8 +1425,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             // Add the data type information to this name space
             dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(arrayType);
-            system.setDataTypeSet(dataTypeSet);
-            // parameterDescription = arrayType;
+            namespace.setDataTypeSet(dataTypeSet);
         }
 
         // Check if the parameter has a primitive data type
@@ -1499,7 +1442,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 {
                     // Create an enumeration type and enumeration list
                     EnumeratedDataType enumType = factory.createEnumeratedDataType();
-                    EnumerationListType enumList = createEnumerationList(system, enumeration);
+                    EnumerationListType enumList = createEnumerationList(namespace, enumeration);
 
                     // Set the integer encoding (the only encoding available for an enumeration)
                     // and the size in bits
@@ -1541,6 +1484,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             // Create an integer type
                             IntegerDataType integerType = factory.createIntegerDataType();
                             IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
+                            IntegerDataTypeRangeType integerRange = factory.createIntegerDataTypeRangeType();
 
                             // Check if the parameter has a bit length
                             if (bitLength != null && !bitLength.isEmpty())
@@ -1562,25 +1506,32 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
                             }
 
+                            // Set the minimum and/or maximum
+                            MinMaxRangeType minMaxInteger = factory.createMinMaxRangeType();
+                            minMaxInteger.setRangeType(RangeType.INCLUSIVE_MIN_INCLUSIVE_MAX);
+
+                            // Check if a minimum value is specified
+                            if (minimum != null && !minimum.isEmpty())
+                            {
+                                // Set the minimum value
+                                minMaxInteger.setMin(BigDecimal.valueOf(Integer.valueOf(minimum)));
+                            }
+
+                            // Check if a maximum value is specified
+                            if (maximum != null && !maximum.isEmpty())
+                            {
+                                // Set the maximum value
+                                minMaxInteger.setMax(BigDecimal.valueOf(Integer.valueOf(maximum)));
+                            }
+
+                            // Set the range, byte order, and units
+                            integerRange.setMinMaxRange(minMaxInteger);
+                            integerType.setRange(integerRange);
                             intEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
                                                                                             ? ByteOrderType.BIG_ENDIAN
                                                                                             : ByteOrderType.LITTLE_ENDIAN);
                             integerType.setIntegerDataEncoding(intEncodingType);
                             setUnits(units, integerType);
-
-                            // Check if a minimum or maximum value is specified
-                            if ((minimum != null && !minimum.isEmpty())
-                                || (maximum != null && !maximum.isEmpty()))
-                            {
-                                // Set the minimum and/or maximum
-                                IntegerDataTypeRangeType rangeType = factory.createIntegerDataTypeRangeType();
-                                MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
-                                minMaxRange.setMin(BigDecimal.valueOf(Integer.valueOf(minimum)));
-                                minMaxRange.setMax(BigDecimal.valueOf(Integer.valueOf(maximum)));
-                                rangeType.setMinMaxRange(minMaxRange);
-                                integerType.setRange(rangeType);
-                            }
-
                             parameterDescription = integerType;
                             break;
 
@@ -1588,16 +1539,19 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             // Create a float type
                             FloatDataType floatType = factory.createFloatDataType();
                             FloatDataEncodingType floatEncodingType = factory.createFloatDataEncodingType();
+                            FloatDataTypeRangeType floatRange = factory.createFloatDataTypeRangeType();
 
                             // Set the encoding type based on the size in bytes
                             switch (dataTypeHandler.getSizeInBytes(dataType))
                             {
                                 case 4:
                                     floatEncodingType.setEncodingAndPrecision(FloatEncodingAndPrecisionType.IEEE_754_2008_SINGLE);
+                                    floatRange.setPrecisionRange(FloatPrecisionRangeType.SINGLE);
                                     break;
 
                                 case 8:
                                     floatEncodingType.setEncodingAndPrecision(FloatEncodingAndPrecisionType.IEEE_754_2008_DOUBLE);
+                                    floatRange.setPrecisionRange(FloatPrecisionRangeType.DOUBLE);
                                     break;
 
                                 case 16:
@@ -1608,25 +1562,34 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     break;
                             }
 
+                            // Set the minimum and/or maximum
+                            MinMaxRangeType minMaxFloat = factory.createMinMaxRangeType();
+                            minMaxFloat.setRangeType(RangeType.INCLUSIVE_MIN_INCLUSIVE_MAX);
+
+                            // Check if a minimum value is specified
+                            if (minimum != null && !minimum.isEmpty())
+                            {
+                                // Set the minimum value
+                                minMaxFloat.setMin(BigDecimal.valueOf(Float.valueOf(minimum)));
+                            }
+
+                            // Check if a maximum value is specified
+                            if (maximum != null && !maximum.isEmpty())
+                            {
+                                // Set the maximum value
+                                minMaxFloat.setMax(BigDecimal.valueOf(Float.valueOf(maximum)));
+                            }
+
+                            // Set the range, byte order, and units
+                            // TODO SETTING MinMaxRange FOR A FLOAT IS FLAGGED AS AN ERROR IN THE
+                            // EDS VIEWER
+                            floatRange.setMinMaxRange(minMaxFloat);
+                            floatType.setRange(floatRange);
                             floatEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
                                                                                               ? ByteOrderType.BIG_ENDIAN
                                                                                               : ByteOrderType.LITTLE_ENDIAN);
                             floatType.setFloatDataEncoding(floatEncodingType);
                             setUnits(units, floatType);
-
-                            // Check if a minimum or maximum value is specified
-                            if ((minimum != null && !minimum.isEmpty())
-                                || (maximum != null && !maximum.isEmpty()))
-                            {
-                                // Set the minimum and/or maximum
-                                FloatDataTypeRangeType rangeType = factory.createFloatDataTypeRangeType();
-                                MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
-                                minMaxRange.setMin(BigDecimal.valueOf(Integer.valueOf(minimum)));
-                                minMaxRange.setMax(BigDecimal.valueOf(Integer.valueOf(maximum)));
-                                rangeType.setMinMaxRange(minMaxRange);
-                                floatType.setRange(rangeType);
-                            }
-
                             parameterDescription = floatType;
                             break;
 
@@ -1648,11 +1611,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Structure data type
         else
         {
-            // TODO NEEDS TO GET THE NAMESPACE "PATH" TO THE STRUCT DATA TYPE. THESE ONLY EXIST
-            // AFTER ALL NAMESPACES ARE CREATED.
             // Get the name of the system to which this referenced structure belongs
-            String refSystemName = fieldHandler.getFieldValue(dataType,
-                                                              InputDataType.SYSTEM_PATH);
+            String refSystemName = cleanSystemPath(fieldHandler.getFieldValue(dataType,
+                                                                              InputDataType.SYSTEM_PATH));
 
             // Create a container type for the structure
             ContainerDataType containerType = factory.createContainerDataType();
@@ -1669,7 +1630,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         // Set the type name
-        parameterDescription.setName(parameterName + TYPE);
+        parameterDescription.setName(parameterName + TYPE + uniqueID);
 
         // Check is a description exists
         if (description != null && !description.isEmpty())
@@ -1680,7 +1641,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         // Add the data type information to this name space
         dataTypeSet.getArrayDataTypeOrBinaryDataTypeOrBooleanDataType().add(parameterDescription);
-        system.setDataTypeSet(dataTypeSet);
+        namespace.setDataTypeSet(dataTypeSet);
     }
 
     /**********************************************************************************************
@@ -1689,7 +1650,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param units
      *            parameter or command argument units; null to not specify
      *
-     *            TODO
+     * @param type
+     *            reference to the numeric data type in which to place the units information
      *********************************************************************************************/
     private void setUnits(String units, NumericDataType type)
     {
@@ -1704,9 +1666,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
         catch (IllegalArgumentException iae)
         {
-            // TODO User-supplied units don't match one of the hard-coded Unit types (from
-            // Units.java), which are the only ones that are accepted by the Unit fromValue()
-            // method. The hard-coded unit types list is limited
+            // User-supplied units don't match one of the hard-coded Unit types (from Units.java),
+            // which are the only ones that are accepted by the Unit fromValue() method. The
+            // hard-coded unit types list is limited
         }
     }
 
@@ -1779,5 +1741,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         return enumList;
+    }
+
+    /**********************************************************************************************
+     * Replace each space with an underscore and move any leading underscores to the end of each
+     * path segment
+     *
+     * @param path
+     *            system path in the form <</>path1</path2<...>>
+     *
+     * @return Path with each space replaced with an underscore and any leading underscores moved
+     *         to the end of each path segment
+     *********************************************************************************************/
+    private String cleanSystemPath(String path)
+    {
+        // Check if the path exists
+        if (path != null)
+        {
+            // Replace each space with an underscore and move any leading underscores to the end of
+            // each path segment
+            path = path.replaceAll(" ", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
+        }
+
+        return path;
     }
 }
