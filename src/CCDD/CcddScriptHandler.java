@@ -29,6 +29,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -36,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.script.Bindings;
@@ -53,7 +57,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableRowSorter;
@@ -63,6 +69,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.ArrayListMultiple;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.GroupInformation;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
@@ -72,6 +79,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
@@ -95,8 +103,9 @@ public class CcddScriptHandler
     private CcddJTableHandler assnsTable;
     private CcddFrameHandler scriptDialog = null;
 
-    // Component referenced by multiple methods
+    // Components referenced by multiple methods
     private JCheckBox hideScriptFilePath;
+    private JTextField envVarOverrideFld;
 
     // List of script engine factories that are available on this platform
     private final List<ScriptEngineFactory> scriptFactories;
@@ -110,6 +119,16 @@ public class CcddScriptHandler
 
     // Array to indicate if a script association has a problem that prevents its execution
     private boolean[] isBad;
+
+    // Environment variable map
+    private Map<String, String> envVarMap;
+
+    private static enum Availability
+    {
+        AVAILABLE,
+        TABLE_MISSING,
+        SCRIPT_MISSING
+    }
 
     /**********************************************************************************************
      * Script handler class constructor
@@ -219,21 +238,12 @@ public class CcddScriptHandler
         // Step through each script association
         for (String[] assn : committedAssociations)
         {
-            boolean isAvailable = true;
+            Availability availableStatus = Availability.AVAILABLE;
             int numVerifications = 0;
             StringBuilder verifications = new StringBuilder("");
 
-            // Get the reference to the association's script file
-            File file = new File(assn[AssociationsColumn.SCRIPT_FILE.ordinal()]);
-
             try
             {
-                // Check if the script file doesn't exist
-                if (!file.exists())
-                {
-                    throw new CCDDException();
-                }
-
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                                                    groupHandler,
@@ -330,7 +340,7 @@ public class CcddScriptHandler
             {
                 // The script file or associated table doesn't exist; set the flag to indicate the
                 // association isn't available
-                isAvailable = false;
+                availableStatus = Availability.TABLE_MISSING;
             }
 
             // Add the association to the script associations list
@@ -338,7 +348,7 @@ public class CcddScriptHandler
                                                assn[AssociationsColumn.DESCRIPTION.ordinal()],
                                                assn[AssociationsColumn.SCRIPT_FILE.ordinal()],
                                                CcddUtilities.highlightDataType(assn[AssociationsColumn.MEMBERS.ordinal()]),
-                                               isAvailable});
+                                               availableStatus});
         }
 
         return associationsData.toArray(new Object[0][0]);
@@ -554,7 +564,8 @@ public class CcddScriptHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                int totalWidth = setUpdatableCharacteristics(getScriptAssociationData(allowSelectDisabled, parent),
+                int totalWidth = setUpdatableCharacteristics(getScriptAssociationData(allowSelectDisabled,
+                                                                                      parent),
                                                              AssociationsTableColumnInfo.getColumnNames(),
                                                              null,
                                                              AssociationsTableColumnInfo.getToolTips(),
@@ -740,13 +751,59 @@ public class CcddScriptHandler
             public void actionPerformed(ActionEvent ae)
             {
                 assnsTable.repaint();
-                ccddMain.getProgPrefs().putBoolean(HIDE_SCRIPT_PATH, hideScriptFilePath.isSelected());
+                ccddMain.getProgPrefs().putBoolean(HIDE_SCRIPT_PATH,
+                                                   hideScriptFilePath.isSelected());
             }
         });
 
         gbc.weighty = 0.0;
         gbc.gridy++;
         assnsPnl.add(hideScriptFilePath, gbc);
+
+        // Create a panel to contain the environment variable override label and field
+        JPanel envVarOverridePnl = new JPanel(new GridBagLayout());
+        JLabel envVarOverrideLbl = new JLabel("Environment variable override");
+        envVarOverrideLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.weightx = 0.0;
+        gbc.gridy++;
+        envVarOverridePnl.add(envVarOverrideLbl, gbc);
+        envVarOverrideFld = new JTextField(ModifiableOtherSettingInfo.ENV_VAR_OVERRIDE.getValue());
+        envVarOverrideFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        envVarOverrideFld.setEditable(true);
+        envVarOverrideFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        envVarOverrideFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        envVarOverrideFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                                       Color.LIGHT_GRAY,
+                                                                                                       Color.GRAY),
+                                                                       BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                       ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                       ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                                       ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+        // Add a listener for focus changes on the environment variable override field
+        envVarOverrideFld.addFocusListener(new FocusAdapter()
+        {
+            /**************************************************************************************
+             * Handle a loss of focus
+             *************************************************************************************/
+            @Override
+            public void focusLost(FocusEvent fe)
+            {
+                // Update the environment variable map and association availability
+                getEnvironmentVariableMap(parent);
+            }
+        });
+
+        gbc.insets.right = 0;
+        gbc.weightx = 1.0;
+        gbc.gridx++;
+        envVarOverridePnl.add(envVarOverrideFld, gbc);
+        gbc.gridx = 0;
+        assnsPnl.add(envVarOverridePnl, gbc);
+
+        // Initialize the environment variable map
+        getEnvironmentVariableMap(parent);
+
         return assnsPnl;
     }
 
@@ -761,9 +818,8 @@ public class CcddScriptHandler
      *********************************************************************************************/
     private boolean isAssociationAvailable(int row)
     {
-        return Boolean.parseBoolean(assnsTable.getModel().getValueAt(row,
-                                                                     AssociationsTableColumnInfo.AVAILABLE.ordinal())
-                                              .toString());
+        return assnsTable.getModel().getValueAt(row,
+                                                AssociationsTableColumnInfo.AVAILABLE.ordinal()) == Availability.AVAILABLE;
     }
 
     /**********************************************************************************************
@@ -952,6 +1008,99 @@ public class CcddScriptHandler
     }
 
     /**********************************************************************************************
+     * Update the environment variable map with any variables specified by the user. Update the
+     * association availability based on if the script exists, using the current environment
+     * variables to expand its path
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
+     * @return true if the each key has a corresponding value; false if a value is missing
+     *********************************************************************************************/
+    private boolean getEnvironmentVariableMap(Component parent)
+    {
+        boolean isValid = true;
+
+        // Get the current system environment variable map
+        envVarMap = new HashMap<String, String>(System.getenv());
+
+        // Step through the overrides, if any
+        for (String envVarDefn : envVarOverrideFld.getText().split("\\s*,\\s*"))
+        {
+            // Check that the definition isn't blank
+            if (!envVarDefn.isEmpty())
+            {
+                // Split the override into a key and value
+                String[] keyAndValue = CcddUtilities.splitAndRemoveQuotes(envVarDefn.trim(),
+                                                                          "\\s*=\\s*",
+                                                                          2,
+                                                                          true);
+
+                // Check if the key and value are present
+                if (keyAndValue.length == 2)
+                {
+                    // Add the key and value to the map if the key doesn't already exist; otherwise
+                    // replace the value for the key
+                    envVarMap.put(keyAndValue[0].trim().replaceAll("^\\$\\s*", ""),
+                                  keyAndValue[1].trim());
+                }
+                // Insufficient parameters
+                else
+                {
+                    // Inform the user that script association execution can't continue due to an
+                    // invalid input
+                    new CcddDialogHandler().showMessageDialog(parent,
+                                                              "<html><b>Environment variable override key '"
+                                                                      + keyAndValue[0]
+                                                                      + "' has no corresponding value",
+                                                              "Invalid Input",
+                                                              JOptionPane.WARNING_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                    isValid = false;
+                    break;
+                }
+            }
+        }
+
+        // Check if every key has a value
+        if (isValid)
+        {
+            // Update the environment variable override preferences
+            ModifiableOtherSettingInfo.ENV_VAR_OVERRIDE.setValue(envVarOverrideFld.getText().trim(),
+                                                                 ccddMain.getProgPrefs());
+
+            // Step through each script association
+            for (int row = 0; row < assnsTable.getRowCount(); row++)
+            {
+                // Check if the association isn't unavailable due to a missing table
+                if (assnsTable.getValueAt(row,
+                                          AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()) != Availability.TABLE_MISSING)
+                {
+                    // Get the reference to the association's script file
+                    FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,
+                                                                                                    AssociationsTableColumnInfo.SCRIPT_FILE.ordinal())
+                                                                                        .toString(),
+                                                                              envVarMap));
+
+                    // Set the availability status based on if the script file exists
+                    assnsTable.getModel().setValueAt((file.exists()
+                                                                    ? Availability.AVAILABLE
+                                                                    : Availability.SCRIPT_MISSING),
+                                                     row,
+                                                     AssociationsTableColumnInfo.AVAILABLE.ordinal());
+                }
+            }
+
+            // Force the table to redraw so that a change in an association's availability status
+            // is reflected
+            ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
+            ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
+        }
+
+        return isValid;
+    }
+
+    /**********************************************************************************************
      * Execute one or more scripts based on the script associations in the script associations list
      *
      * @param tableTree
@@ -1115,7 +1264,8 @@ public class CcddScriptHandler
      *            list of script associations to execute
      *
      * @param parent
-     *            GUI component calling this method; null if none
+     *            GUI component calling this method; null if none (e.g., if called via the command
+     *            line)
      *
      * @return Array containing flags that indicate, for each association, if the association did
      *         not complete successfully
@@ -1125,11 +1275,17 @@ public class CcddScriptHandler
                                                 Component parent)
     {
         int assnIndex = 0;
-
         CcddTableTreeHandler tableTree = tree;
 
         // Create an array to indicate if an association has a problem that prevents its execution
         boolean[] isBad = new boolean[associations.size()];
+
+        // Check if the script execution was initiated via command line command
+        if (parent == null)
+        {
+            // Get the system environment variables map
+            envVarMap = new HashMap<String, String>(System.getenv());
+        }
 
         // Check if no table tree was provided
         if (tableTree == null)
@@ -1151,8 +1307,8 @@ public class CcddScriptHandler
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
-        // Get the list of the table paths in the order of appearance in the table tree. This is
-        // used to sort the association table paths
+        // Get the list of the table paths in the order of appearance in the table tree. This
+        // is used to sort the association table paths
         final List<String> allTablePaths = tableTree.getTableTreePathList(null);
 
         // To reduce database access and speed script execution when executing multiple
@@ -1275,7 +1431,8 @@ public class CcddScriptHandler
             catch (CCDDException ce)
             {
                 // Inform the user that script execution failed
-                logScriptError(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                logScriptError(FileEnvVar.expandEnvVars(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                                                        envVarMap),
                                assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                ce.getMessage(),
                                parent);
@@ -1405,10 +1562,14 @@ public class CcddScriptHandler
                                                                 new Object[0][0]);
                 }
 
+                // Get the script file name with any environment variables expanded
+                String scriptFileName = FileEnvVar.expandEnvVars(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                                                                 envVarMap);
+
                 try
                 {
                     // Execute the script using the indicated table data
-                    executeScript(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                    executeScript(scriptFileName,
                                   combinedTableInfo,
                                   groupNames,
                                   linkHandler,
@@ -1419,7 +1580,7 @@ public class CcddScriptHandler
                 catch (CCDDException ce)
                 {
                     // Inform the user that script execution failed
-                    logScriptError(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
+                    logScriptError(scriptFileName,
                                    assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                    ce.getMessage(),
                                    parent);

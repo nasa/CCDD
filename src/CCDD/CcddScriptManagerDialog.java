@@ -29,7 +29,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +55,7 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.CustomSplitPane;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.ToolTipTreeNode;
 import CCDD.CcddClasses.ValidateCellActionListener;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
@@ -750,28 +750,28 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             public void actionPerformed(ActionEvent ae)
             {
                 // Allow the user to select the script file path + name
-                File[] scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                           CcddScriptManagerDialog.this,
-                                                                           null,
-                                                                           "script",
-                                                                           scriptHandler.getExtensions(),
-                                                                           false,
-                                                                           "Select Script",
-                                                                           ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
-                                                                                                       null),
-                                                                           DialogOption.OK_CANCEL_OPTION);
+                FileEnvVar[] scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                                 CcddScriptManagerDialog.this,
+                                                                                 null,
+                                                                                 "script",
+                                                                                 scriptHandler.getExtensions(),
+                                                                                 false,
+                                                                                 "Select Script",
+                                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
+                                                                                                             null),
+                                                                                 DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a script file is selected
                 if (scriptFile != null && scriptFile[0] != null)
                 {
                     // Store the script file path in the program preferences backing store
                     CcddFileIOHandler.storePath(ccddMain,
-                                                scriptFile[0].getAbsolutePath(),
+                                                scriptFile[0].getAbsolutePathWithEnvVars(),
                                                 true,
                                                 ModifiablePathInfo.SCRIPT_PATH);
 
                     // Display the file name in the script name field
-                    scriptFld.setText(scriptFile[0].getAbsolutePath());
+                    scriptFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
                 }
             }
         });
@@ -950,10 +950,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
             // Get a file descriptor for the script file name
-            File scriptFile = new File(scriptFld.getText());
+            FileEnvVar scriptFile = new FileEnvVar(scriptFld.getText());
 
             // Check that the script association already exists in the list
-            if (isAssociationExists(scriptFile.getAbsolutePath(),
+            if (isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
                                     members.toArray(new String[0])))
             {
                 throw new CCDDException("An association with this script and table(s) "
@@ -979,7 +979,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                  insertPoint,
                                  new Object[] {nameFld.getText(),
                                                descriptionFld.getText(),
-                                               scriptFile.getAbsolutePath(),
+                                               scriptFile.getAbsolutePathWithEnvVars(),
                                                CcddUtilities.highlightDataType(assn),
                                                scriptFile.exists()});
 

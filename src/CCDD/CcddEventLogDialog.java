@@ -58,6 +58,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventColumns;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -85,7 +86,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
     // Components that need to accessed by multiple methods
     private JPanel logPanel;
     private JCheckBox[] filterCheckBox;
-    private File logFile;
+    private FileEnvVar logFile;
     private PrintWriter logWriter;
 
     // Set to true if this event log is for the current session
@@ -138,7 +139,10 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param isSessionLog
      *            true if this is the event log for the current session
      *********************************************************************************************/
-    CcddEventLogDialog(final CcddMain ccddMain, File logFile, Long targetRow, boolean isSessionLog)
+    CcddEventLogDialog(final CcddMain ccddMain,
+                       FileEnvVar logFile,
+                       Long targetRow,
+                       boolean isSessionLog)
     {
         this.ccddMain = ccddMain;
         this.isSessionLog = isSessionLog;
@@ -164,7 +168,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @return Reference to the event log file
      *********************************************************************************************/
-    protected File getEventLogFile()
+    protected FileEnvVar getEventLogFile()
     {
         return logFile;
     }
@@ -181,7 +185,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *            table without message length constraints; null if not displaying a single log
      *            entry
      *********************************************************************************************/
-    private void initialize(File targetLogFile, final Long targetRow)
+    private void initialize(FileEnvVar targetLogFile, final Long targetRow)
     {
         // Create storage for stored log events. The list is initially empty for the session log
         eventLogList = new ArrayList<Object[]>();
@@ -760,13 +764,13 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
                 // Create the session log file using the date and time stamp as part of the name,
                 // and the log file path if set by command line command
-                logFile = new File((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty()
-                                                                                                  ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
-                                                                                                    + File.separator
-                                                                                                  : "")
-                                   + "CCDD-"
-                                   + getDateTimeStamp("yyyyMMdd_HHmmss")
-                                   + ".log");
+                logFile = new FileEnvVar((!ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath().isEmpty()
+                                                                                                        ? ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPath()
+                                                                                                          + File.separator
+                                                                                                        : "")
+                                         + "CCDD-"
+                                         + getDateTimeStamp("yyyyMMdd_HHmmss")
+                                         + ".log");
 
                 // Attempt to create the log file and check if it can be written to
                 if (logFile.createNewFile() && logFile.canWrite())
@@ -805,16 +809,16 @@ public class CcddEventLogDialog extends CcddFrameHandler
         else
         {
             // Allow the user to select the event log file path + name to read from
-            File[] file = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                 ccddMain.getMainFrame(),
-                                                                 null,
-                                                                 null,
-                                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG.getDescription(),
-                                                                                                                            FileExtension.LOG.getExtensionName())},
-                                                                 false,
-                                                                 "Open Event Log",
-                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.OPEN_OPTION);
+            FileEnvVar[] file = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                       ccddMain.getMainFrame(),
+                                                                       null,
+                                                                       null,
+                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.LOG.getDescription(),
+                                                                                                                                  FileExtension.LOG.getExtensionName())},
+                                                                       false,
+                                                                       "Open Event Log",
+                                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.READ_LOG_FILE_PATH.getPreferenceKey(), null),
+                                                                       DialogOption.OPEN_OPTION);
 
             // Check if a file was chosen
             if (file != null && file[0] != null)
@@ -843,7 +847,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
                     // Store the log path path in the program preferences backing store
                     CcddFileIOHandler.storePath(ccddMain,
-                                                logFile.getAbsolutePath(),
+                                                logFile.getAbsolutePathWithEnvVars(),
                                                 true,
                                                 ModifiablePathInfo.READ_LOG_FILE_PATH);
                 }
@@ -1251,7 +1255,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
         if (logMessage.length() > ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize())
         {
             // Calculate the number of characters to be truncated
-            int numTruncated = logMessage.length() - ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize();
+            int numTruncated = logMessage.length()
+                               - ModifiableSizeInfo.MAX_LOG_MESSAGE_LENGTH.getSize();
 
             // Truncate the log message to the maximum length and append an ellipsis as a
             // truncation indicator

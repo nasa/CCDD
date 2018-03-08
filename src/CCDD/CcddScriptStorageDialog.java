@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -55,7 +56,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
     // Array of file references containing the selected script file(s) (store) or the selected
     // script file path (retrieve)
-    private File[] scriptFile;
+    private FileEnvVar[] scriptFile;
 
     // Path selection field
     private JTextField pathFld;
@@ -69,8 +70,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
      * @param dialogType
      *            ScriptIOType.STORE or ScriptIOType.RETRIEVE
      *********************************************************************************************/
-    CcddScriptStorageDialog(CcddMain ccddMain,
-                            ScriptIOType dialogType)
+    CcddScriptStorageDialog(CcddMain ccddMain, ScriptIOType dialogType)
     {
         this.ccddMain = ccddMain;
         this.dialogType = dialogType;
@@ -112,18 +112,15 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                     // Check that a file is selected
                     if (scriptFile[0] != null && scriptFile[0].isFile())
                     {
-                        // Get the script file path + name
-                        String pathName = scriptFile[0].getAbsolutePath();
-
                         // Remove the script file name and store the script file path in the
                         // program preferences backing store
                         CcddFileIOHandler.storePath(ccddMain,
-                                                    pathName,
+                                                    scriptFile[0].getAbsolutePathWithEnvVars(),
                                                     true,
                                                     ModifiablePathInfo.SCRIPT_PATH);
 
                         // Step through each selected script
-                        for (File file : scriptFile)
+                        for (FileEnvVar file : scriptFile)
                         {
                             // Store the script in the database
                             fileIOHandler.storeScriptInDatabase(file);
@@ -180,18 +177,13 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
                 // Create a panel containing a grid of check boxes representing the scripts from
                 // which to choose
-                if (addCheckBoxes(null,
-                                  checkBoxData,
-                                  null,
-                                  "Select script(s)",
-                                  dialogPnl))
+                if (addCheckBoxes(null, checkBoxData, null, "Select script(s)", dialogPnl))
                 {
                     // Check if more than one data field name check box exists
                     if (getCheckBoxes().length > 2)
                     {
                         // Create a Select All check box
-                        final JCheckBox selectAllCb = new JCheckBox("Select all scripts",
-                                                                    false);
+                        final JCheckBox selectAllCb = new JCheckBox("Select all scripts", false);
                         selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                         selectAllCb.setBorder(BorderFactory.createEmptyBorder());
 
@@ -241,7 +233,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             if (scriptFile == null)
                             {
                                 // Get a file reference using the last accessed file path
-                                scriptFile = new File[] {new File(ModifiablePathInfo.SCRIPT_PATH.getPath())};
+                                scriptFile = new FileEnvVar[] {new FileEnvVar(ModifiablePathInfo.SCRIPT_PATH.getPath())};
                             }
                             // A script file path is selected
                             else
@@ -249,7 +241,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 // Store the script file path in the program preferences backing
                                 // store
                                 CcddFileIOHandler.storePath(ccddMain,
-                                                            scriptFile[0].getAbsolutePath(),
+                                                            scriptFile[0].getAbsolutePathWithEnvVars(),
                                                             false,
                                                             ModifiablePathInfo.SCRIPT_PATH);
                             }
@@ -394,7 +386,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                 if (scriptFile != null && scriptFile[0] != null)
                 {
                     // Display the path name in the script path field
-                    pathFld.setText(scriptFile[0].getAbsolutePath());
+                    pathFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
                 }
             }
         });

@@ -31,11 +31,16 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -622,7 +627,7 @@ public class CcddClasses
          *            structure table from which this table descends. The first data type/variable
          *            name pair is from the root table, with each succeeding pair coming from the
          *            next level down in the structure's hierarchy
-         * 
+         *
          * @return true if the table is a prototype
          *****************************************************************************************/
         protected static boolean isPrototype(String path)
@@ -4606,6 +4611,137 @@ public class CcddClasses
             // Set the split pane characteristics
             setBorder(null);
             setResizeWeight(0.5);
+        }
+    }
+
+    /**********************************************************************************************
+     * File class with support for environment variables within the file path
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class FileEnvVar extends File
+    {
+        private final String pathWithEnvVars;
+
+        /******************************************************************************************
+         * File class with support for environment variables within the file path constructor
+         *****************************************************************************************/
+        FileEnvVar(String pathName)
+        {
+            super(expandEnvVars(pathName, System.getenv()));
+
+            // Store the path name with any environment variables intact
+            pathWithEnvVars = pathName;
+        }
+
+        /******************************************************************************************
+         * Get the absolute file path with any environment variables intact
+         *
+         * @return Absolute file path with any environment variables intact
+         *****************************************************************************************/
+        protected String getAbsolutePathWithEnvVars()
+        {
+            return pathWithEnvVars;
+        }
+
+        /******************************************************************************************
+         * Replace any environment variables with the corresponding value in the supplied file path
+         *
+         * @param pathName
+         *            file path
+         *
+         * @param envVarMap
+         *            environment variable map
+         *
+         * @return File path with any environment variables replaced with the variable's value
+         *****************************************************************************************/
+        protected static String expandEnvVars(String pathName, Map<String, String> envVarMap)
+        {
+            String actualPath = "";
+
+            // Step through each folder in the path
+            for (String folder : pathName.split(Pattern.quote(File.separator)))
+            {
+                // Check if the folder is an environment variable
+                if (folder.startsWith("$"))
+                {
+                    // Get the value of the variable
+                    folder = envVarMap.get(folder.substring(1));
+                }
+
+                // Build the path using the variable value. A blank is used if the variable doesn't
+                // exist
+                actualPath += (folder == null || folder.isEmpty()
+                                                                  ? ""
+                                                                  : folder)
+                              + File.separator;
+            }
+
+            return CcddUtilities.removeTrailer(actualPath, File.separator);
+        }
+
+        /******************************************************************************************
+         * Replace any portions of the specified file path that match an environment variable value
+         * in the supplied map with the corresponding variable name
+         *
+         * @param pathName
+         *            file path
+         *
+         * @param envVarMap
+         *            map containing environment variables and their corresponding values
+         *
+         * @return File path with any portions that match an environment variable value in the
+         *         supplied map replaced with the corresponding variable name
+         *****************************************************************************************/
+        protected static String restoreEnvVars(String pathName, Map<String, String> envVarMap)
+        {
+            // Step through each environment variable
+            for (Entry<String, String> envVar : envVarMap.entrySet())
+            {
+                // Check if the variable has a non-blank value
+                if (envVar.getValue() != null && !envVar.getValue().isEmpty())
+                {
+                    // Replace the variable value with its name
+                    pathName = pathName.replaceFirst(Pattern.quote(envVar.getValue()),
+                                                     "\\$" + envVar.getKey());
+                }
+            }
+
+            return pathName;
+        }
+
+        /******************************************************************************************
+         * Get a map of the environment variables and their corresponding value in the supplied
+         * file path
+         *
+         * @param pathName
+         *            file path
+         *
+         * @return Map containing the environment variables and corresponding values in the
+         *         supplied file path
+         *****************************************************************************************/
+        protected static Map<String, String> getEnvVars(String pathName)
+        {
+            Map<String, String> envVars = new HashMap<String, String>();
+
+            // Check if the file path isn't blank
+            if (pathName != null && !pathName.isEmpty())
+            {
+                // Step through each folder in the path
+                for (String folder : pathName.split(Pattern.quote(File.separator)))
+                {
+                    // Check if the folder is an environment variable
+                    if (folder.startsWith("$"))
+                    {
+                        // Remove the environment variable identifier
+                        folder = folder.substring(1);
+
+                        // Store the variable and its value in the map
+                        envVars.put(folder, System.getenv(folder));
+                    }
+                }
+            }
+
+            return envVars;
         }
     }
 

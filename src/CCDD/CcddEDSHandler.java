@@ -7,11 +7,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.TYPE_COMMAND;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
-
 import java.awt.Component;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -69,6 +65,7 @@ import org.ccsds.schema.sois.seds.ValueEnumerationType;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
@@ -215,9 +212,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Importing data in EDS format is not supported
      *********************************************************************************************/
     @Override
-    public void importFromFile(File importFile, ImportType importType) throws CCDDException,
-                                                                       IOException,
-                                                                       Exception
+    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
+                                                                             IOException,
+                                                                             Exception
     {
     }
 
@@ -254,7 +251,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(File exportFile,
+    public boolean exportToFile(FileEnvVar exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
@@ -439,17 +436,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // commands or other table type then it is processed within this nest level
                 typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                // Check if the table type is valid
-                if (typeDefn != null)
+                // Check if the table type represents a structure or command
+                if (typeDefn != null && (typeDefn.isStructure() || typeDefn.isCommand()))
                 {
-                    // Get the table's basic type - structure, command, or the original table type
-                    // if not structure or command table
-                    String tableType = typeDefn.isStructure()
-                                                              ? TYPE_STRUCTURE
-                                                              : typeDefn.isCommand()
-                                                                                     ? TYPE_COMMAND
-                                                                                     : tableInfo.getType();
-
                     // Replace all macro names with their corresponding values
                     tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
 
@@ -467,8 +456,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                            tableName,
                                                            tableInfo.getDescription());
 
-                    // Check if this is a node for a structure table
-                    if (tableType.equals(TYPE_STRUCTURE))
+                    // Check if this is a structure table
+                    if (typeDefn.isStructure())
                     {
                         // Get the default column indices
                         int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
@@ -535,8 +524,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
                     }
-                    // Check if this is a command table
-                    else if (tableType.equals(TYPE_COMMAND))
+                    // This is a command table
+                    else
                     {
                         // Check if this is the command header table
                         if (tableName.equals(cmdHeaderTable))
@@ -552,19 +541,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                              applicationID,
                                              ccsdsAppID,
                                              ccsdsFuncCode);
-                    }
-                    // Not a structure or command table
-                    else
-                    {
-                        // TODO WHAT SHOULD BE DONE WITH NON-STRUCTURE & NON-COMMAND TABLES -
-                        // IGNORE, CREATE THE SPACE SYSTEM ONLY, OR CREATE A SYSTEM AND POPULATE
-                        // WITH ANCILLARY DATA?
-
-                        // IF STRUCTURE & COMMAND DATA THAT DOESN'T FIT XTCE IS STORED (ANCILLARY
-                        // OR CUSTOM TAGS) THEN THIS TYPE OF TABLE WOULD BE STORED IN THE SAME
-                        // FASHION. A CHECK BOX IN THE EXPORT DIALOG COULD BE USED TO TRIGGER
-                        // STORING THIS 'EXTRA' INFORMATION ('INCLUDE EXTRA DATA'). IMPORT OF THIS
-                        // TYPE OF EXPORT WOULD BE VIABLE.
                     }
                 }
             }
@@ -724,21 +700,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // used to create the list)
             if (!ArrayVariable.isArrayMember(rowData[varColumn]))
             {
-                // TODO A REFERENCE TO A CONTAINER THAT CONTAINS AN ARRAY THROWS A NULL POINTER
-                // EXCEPTION IN THE EDS VIEWER (UNDER THE DATA TYPES TAB WHEN THE CONTAINER IS
-                // OPENED)
+                // TODO A REFERENCE IN A CONTAINER TO A STRUCTURE THAT CONTAINS AN ARRAY THROWS A
+                // NULL POINTER EXCEPTION IN THE EDS VIEWER (UNDER THE DATA TYPES TAB WHEN THE
+                // CONTAINER IS EXPANDED)
 
                 // Store the parameter reference in the list
                 EntryType entryType = factory.createEntryType();
                 entryType.setName(rowData[varColumn]);
-                entryType.setType((dataTypeHandler.isPrimitive(rowData[typeColumn])
-                                                                                    ? rowData[varColumn]
-                                                                                    : rowData[typeColumn]
-                                                                                      + "/"
-                                                                                      + rowData[typeColumn])
-                                  + (rowData[sizeColumn].isEmpty()
-                                                                   ? TYPE
-                                                                   : ARRAY));
+                entryType.setType(getReferenceByDataType(rowData[varColumn],
+                                                         rowData[typeColumn],
+                                                         !dataTypeHandler.isPrimitive(rowData[typeColumn]))
+                                  + getObjectIdentifier(rowData[sizeColumn]));
                 entryList.getEntryOrFixedValueEntryOrPaddingEntry().add(entryType);
             }
         }
@@ -897,12 +869,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Build the parameter attributes
                 InterfaceParameterType parameter = factory.createInterfaceParameterType();
                 parameter.setName(parameterName);
-                parameter.setType((dataTypeHandler.isPrimitive(dataType)
-                                                                         ? parameterName
-                                                                         : dataType)
-                                  + (arraySize.isEmpty()
-                                                         ? TYPE
-                                                         : ARRAY));
+                parameter.setType(getReferenceByDataType(parameterName, dataType, false)
+                                  + getObjectIdentifier(arraySize));
 
                 // Check if a description is provided for this parameter
                 if (description != null && !description.isEmpty())
@@ -1402,14 +1370,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Create an array type and set its attributes
             ArrayDataType arrayType = factory.createArrayDataType();
-            arrayType.setName((dataTypeHandler.isPrimitive(dataType)
-                                                                     ? parameterName
-                                                                     : dataType)
-                              + ARRAY);
-            arrayType.setDataTypeRef((dataTypeHandler.isPrimitive(dataType)
-                                                                            ? parameterName
-                                                                            : dataType)
-                                     + TYPE);
+            String name = getReferenceByDataType(parameterName, dataType, false);
+            arrayType.setName(name + ARRAY);
+            arrayType.setDataTypeRef(name + TYPE);
             ArrayDimensionsType dimList = factory.createArrayDimensionsType();
 
             // Step through each array dimension
@@ -1611,21 +1574,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Structure data type
         else
         {
-            // Get the name of the system to which this referenced structure belongs
-            String refSystemName = cleanSystemPath(fieldHandler.getFieldValue(dataType,
-                                                                              InputDataType.SYSTEM_PATH));
-
             // Create a container type for the structure
             ContainerDataType containerType = factory.createContainerDataType();
+            containerType.setBaseType(getReferenceByDataType(parameterName, dataType, true)
+                                      + getObjectIdentifier(arraySize));
             parameterName = dataType;
-            containerType.setBaseType((refSystemName == null || refSystemName.isEmpty()
-                                                                                        ? ""
-                                                                                        : refSystemName
-                                                                                          + "/")
-                                      + dataType
-                                      + "/"
-                                      + dataType
-                                      + TYPE);
             parameterDescription = containerType;
         }
 
@@ -1764,5 +1717,74 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         return path;
+    }
+
+    /**********************************************************************************************
+     * Get the full name space path to a structure object or the local name space reference to a
+     * primitive or structure object
+     *
+     * @param parameterName
+     *            parameter name; unused if returning the full path
+     *
+     * @param dataType
+     *            data type
+     *
+     * @param getStructurePath
+     *            true to return the full name space path to the structure object; false to get the
+     *            local name space reference to a primitive or structure object
+     *
+     * @return For the local name space reference the parameter name is returned if the data type
+     *         is primitive, or the data type name if the data type is a structure. The full name
+     *         space path for a structure object is in the format : <br>
+     *         <system path/><data type>/<data type>
+     *********************************************************************************************/
+    private String getReferenceByDataType(String parameterName,
+                                          String dataType,
+                                          boolean getStructurePath)
+    {
+        String path = null;
+
+        // Check if the full path to the structure is required
+        if (getStructurePath)
+        {
+            // Get the name of the system to which this referenced structure belongs
+            String refSystemName = cleanSystemPath(fieldHandler.getFieldValue(dataType,
+                                                                              InputDataType.SYSTEM_PATH));
+
+            // Build the path from the system path, structure name, and array size
+            path = (refSystemName == null || refSystemName.isEmpty()
+                                                                     ? ""
+                                                                     : refSystemName
+                                                                       + "/")
+                   + dataType
+                   + "/"
+                   + dataType;
+        }
+        // The full path isn't required
+        else
+        {
+            // Get the path name based on if the data type is a primitive or a structure
+            path = dataTypeHandler.isPrimitive(dataType)
+                                                         ? parameterName
+                                                         : dataType;
+        }
+
+        return path;
+    }
+
+    /**********************************************************************************************
+     * Get the object identifier bas on the presence or absence of the array size
+     *
+     * @param arraySize
+     *            array size; null or blank if not an array data type
+     *
+     * @return The object identifier: _Array if the supplied array size isn't null or blank, or
+     *         _Type otherwise
+     *********************************************************************************************/
+    private String getObjectIdentifier(String arraySize)
+    {
+        return arraySize == null || arraySize.isEmpty()
+                                                        ? TYPE
+                                                        : ARRAY;
     }
 }

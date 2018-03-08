@@ -12,7 +12,6 @@ import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
@@ -168,9 +168,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *             For any unanticipated errors
      *********************************************************************************************/
     @Override
-    public void importFromFile(File importFile, ImportType importType) throws CCDDException,
-                                                                       IOException,
-                                                                       Exception
+    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
+                                                                             IOException,
+                                                                             Exception
     {
         BufferedReader br = null;
 
@@ -945,7 +945,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(File exportFile,
+    public boolean exportToFile(FileEnvVar exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,

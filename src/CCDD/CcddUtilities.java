@@ -299,7 +299,8 @@ public class CcddUtilities
                                                    int limit,
                                                    boolean removeQuotes)
     {
-        // Extract the table type information
+        // Split the supplied string into the specified number of parts using the specified
+        // separator
         String[] array = text.split(separator + SPLIT_IGNORE_QUOTES, limit);
 
         // Check if the excess double quotes are to be removed

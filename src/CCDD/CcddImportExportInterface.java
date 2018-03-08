@@ -7,11 +7,11 @@
  */
 package CCDD;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 
 /**************************************************************************************************
@@ -59,9 +59,10 @@ public interface CcddImportExportInterface
      *
      * @throws Exception
      *********************************************************************************************/
-    abstract void importFromFile(File importFile, ImportType importType) throws CCDDException,
-                                                                         IOException,
-                                                                         Exception;
+    abstract void importFromFile(FileEnvVar importFile,
+                                 ImportType importType) throws CCDDException,
+                                                        IOException,
+                                                        Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file
@@ -95,7 +96,7 @@ public interface CcddImportExportInterface
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
-    abstract boolean exportToFile(File exportFile,
+    abstract boolean exportToFile(FileEnvVar exportFile,
                                   String[] tableNames,
                                   boolean replaceMacros,
                                   boolean includeReservedMsgIDs,

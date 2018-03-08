@@ -50,6 +50,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DatabaseComment;
@@ -247,18 +248,18 @@ public class CcddFileIOHandler
         stampPnl.add(stampChkBx, gbc);
 
         // Allow the user to select the backup file path + name
-        File[] dataFile = dlg.choosePathFile(ccddMain,
-                                             ccddMain.getMainFrame(),
-                                             databaseName + FileExtension.DBU.getExtension(),
-                                             null,
-                                             new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                        FileExtension.DBU.getExtensionName())},
-                                             false,
-                                             false,
-                                             "Backup Project " + projectName,
-                                             ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                             DialogOption.BACKUP_OPTION,
-                                             stampPnl);
+        FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
+                                                   ccddMain.getMainFrame(),
+                                                   databaseName + FileExtension.DBU.getExtension(),
+                                                   null,
+                                                   new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                              FileExtension.DBU.getExtensionName())},
+                                                   false,
+                                                   false,
+                                                   "Backup Project " + projectName,
+                                                   ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                   DialogOption.BACKUP_OPTION,
+                                                   stampPnl);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -325,16 +326,16 @@ public class CcddFileIOHandler
         File tempFile = null;
 
         // Allow the user to select the backup file path + name to load from
-        File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                 ccddMain.getMainFrame(),
-                                                                 null,
-                                                                 null,
-                                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                                            FileExtension.DBU.getExtensionName())},
-                                                                 false,
-                                                                 "Restore Project",
-                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.RESTORE_OPTION);
+        FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                       ccddMain.getMainFrame(),
+                                                                       null,
+                                                                       null,
+                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                                                  FileExtension.DBU.getExtensionName())},
+                                                                       false,
+                                                                       "Restore Project",
+                                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                                       DialogOption.RESTORE_OPTION);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -424,7 +425,7 @@ public class CcddFileIOHandler
 
                     // Store the data file path in the program preferences backing store
                     storePath(ccddMain,
-                              dataFile[0].getAbsolutePath(),
+                              dataFile[0].getAbsolutePathWithEnvVars(),
                               true,
                               ModifiablePathInfo.DATABASE_BACKUP_PATH);
                 }
@@ -534,7 +535,7 @@ public class CcddFileIOHandler
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
-    protected void importFile(final File[] dataFile,
+    protected void importFile(final FileEnvVar[] dataFile,
                               final boolean backupFirst,
                               final boolean replaceExisting,
                               final boolean appendExistingFields,
@@ -579,7 +580,7 @@ public class CcddFileIOHandler
                 }
 
                 // Step through each selected file
-                for (File file : dataFile)
+                for (FileEnvVar file : dataFile)
                 {
                     try
                     {
@@ -782,7 +783,7 @@ public class CcddFileIOHandler
                 {
                     // Store the data file path in the program preferences backing store
                     storePath(ccddMain,
-                              dataFile[0].getAbsolutePath(),
+                              dataFile[0].getAbsolutePathWithEnvVars(),
                               true,
                               ModifiablePathInfo.TABLE_EXPORT_PATH);
 
@@ -1309,24 +1310,24 @@ public class CcddFileIOHandler
         checkBoxPnl.add(useExistingFieldsCb, gbc);
 
         // Allow the user to select the data file path + name to import from
-        File[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                 tableHandler.getOwner(),
-                                                                 null,
-                                                                 "export",
-                                                                 new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
-                                                                                                                            FileExtension.CSV.getExtensionName()),
-                                                                                                new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
-                                                                                                                            FileExtension.EDS.getExtensionName()),
-                                                                                                new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                                            FileExtension.JSON.getExtensionName()),
-                                                                                                new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
-                                                                                                                            FileExtension.XTCE.getExtensionName())},
-                                                                 false,
-                                                                 false,
-                                                                 "Import Table Data",
-                                                                 ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
-                                                                 DialogOption.IMPORT_OPTION,
-                                                                 checkBoxPnl);
+        FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                       tableHandler.getOwner(),
+                                                                       null,
+                                                                       "export",
+                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
+                                                                                                                                  FileExtension.CSV.getExtensionName()),
+                                                                                                      new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
+                                                                                                                                  FileExtension.EDS.getExtensionName()),
+                                                                                                      new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
+                                                                                                                                  FileExtension.JSON.getExtensionName()),
+                                                                                                      new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
+                                                                                                                                  FileExtension.XTCE.getExtensionName())},
+                                                                       false,
+                                                                       false,
+                                                                       "Import Table Data",
+                                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
+                                                                       DialogOption.IMPORT_OPTION,
+                                                                       checkBoxPnl);
 
         // Check if a file was chosen
         if (dataFile != null && dataFile[0] != null)
@@ -1451,7 +1452,7 @@ public class CcddFileIOHandler
 
                         // Store the data file path in the program preferences backing store
                         storePath(ccddMain,
-                                  dataFile[0].getAbsolutePath(),
+                                  dataFile[0].getAbsolutePathWithEnvVars(),
                                   true,
                                   ModifiablePathInfo.TABLE_EXPORT_PATH);
                     }
@@ -1646,7 +1647,7 @@ public class CcddFileIOHandler
             @Override
             protected void execute()
             {
-                File file = null;
+                FileEnvVar file = null;
                 CcddImportExportInterface ioHandler = null;
                 List<String> skippedTables = new ArrayList<String>();
 
@@ -1665,7 +1666,7 @@ public class CcddFileIOHandler
                     }
 
                     // Create the file using the supplied name
-                    file = new File(path);
+                    file = new FileEnvVar(path);
                 }
                 // The table(s) are to be stored in individual files, so the path doesn't include a
                 // file name. Check if the path doesn't terminate with a name separator character
@@ -1741,9 +1742,9 @@ public class CcddFileIOHandler
                         for (String tablePath : tablePaths)
                         {
                             // Create the file using a name derived from the table name
-                            file = new File(path
-                                            + tablePath.replaceAll("[,\\.\\[\\]]", "_")
-                                            + fileExtn.getExtension());
+                            file = new FileEnvVar(path
+                                                  + tablePath.replaceAll("[,\\.\\[\\]]", "_")
+                                                  + fileExtn.getExtension());
 
                             // Check if the file doesn't exist, or if it does and the user elects
                             // to overwrite it
@@ -1843,7 +1844,7 @@ public class CcddFileIOHandler
      *         it; false if the file exists and the user elects not to overwrite it, or if an error
      *         occurs deleting the existing file or creating a new one
      *********************************************************************************************/
-    private boolean isOverwriteExportFileIfExists(File exportFile,
+    private boolean isOverwriteExportFileIfExists(FileEnvVar exportFile,
                                                   boolean overwriteFile,
                                                   Component parent)
     {
@@ -1905,7 +1906,7 @@ public class CcddFileIOHandler
      * @param file
      *            reference to the file to store
      *********************************************************************************************/
-    protected void storeScriptInDatabase(File file)
+    protected void storeScriptInDatabase(FileEnvVar file)
     {
         BufferedReader br = null;
 
@@ -2150,7 +2151,7 @@ public class CcddFileIOHandler
         try
         {
             // Create the file object
-            File outputFile = new File(outputFileName);
+            FileEnvVar outputFile = new FileEnvVar(outputFileName);
 
             // Check if the file already exists, and if so that it is successfully deleted
             if (outputFile.exists() && !outputFile.delete())

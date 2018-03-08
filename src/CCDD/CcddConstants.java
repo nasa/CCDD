@@ -1532,7 +1532,7 @@ public class CcddConstants
         READ_LOG_FILE_PATH("Read event log", "File path for reading previous event logs", "ReadLogFilePath"),
         DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
         TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
-        SCRIPT_PATH("Script", "File path for scripts", "ScriptPath"),
+        SCRIPT_PATH("Script location", "File path for scripts", "ScriptPath"),
         SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
 
         private final String name;
@@ -1640,7 +1640,8 @@ public class CcddConstants
     protected static enum ModifiableOtherSettingInfo
     {
         EDS_SCHEMA_LOCATION_URL("EDS schema location", "URL for the EDS schema location", "EDSSchemaLocationURL", "http://www.ccsds.org/schema/sois seds.xsd"),
-        XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20061101 06-11-06.xsd");
+        XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20061101 06-11-06.xsd"),
+        ENV_VAR_OVERRIDE("Environment variable override", "Override values for environment variables when executing script associations", "EnvironmentVariableOverride", "");
 
         private final String name;
         private final String description;

@@ -47,6 +47,7 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.RateInformation;
 import CCDD.CcddConstants.ConnectionType;
 import CCDD.CcddConstants.DatabaseComment;
@@ -1756,7 +1757,7 @@ public class CcddDbControlHandler
                     }
 
                     // Backup the database
-                    backupDatabaseInBackground(databaseName, new File(backupFileName));
+                    backupDatabaseInBackground(databaseName, new FileEnvVar(backupFileName));
 
                     // Reset the backup file name to prevent another automatic backup
                     backupFileName = "";
@@ -2508,7 +2509,7 @@ public class CcddDbControlHandler
      *            file to which to backup the database
      *********************************************************************************************/
     protected void backupDatabaseInBackground(final String databaseName,
-                                              final File backupFile)
+                                              final FileEnvVar backupFile)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -2534,7 +2535,7 @@ public class CcddDbControlHandler
      * @param backupFile
      *            file to which to backup the database
      *********************************************************************************************/
-    protected void backupDatabase(String projectName, File backupFile)
+    protected void backupDatabase(String projectName, FileEnvVar backupFile)
     {
         String errorType = "";
 
@@ -2562,7 +2563,7 @@ public class CcddDbControlHandler
         {
             // Store the backup file path in the program preferences backing store
             CcddFileIOHandler.storePath(ccddMain,
-                                        backupFile.getAbsolutePath(),
+                                        backupFile.getAbsolutePathWithEnvVars(),
                                         true,
                                         ModifiablePathInfo.DATABASE_BACKUP_PATH);
 
@@ -2620,7 +2621,8 @@ public class CcddDbControlHandler
             {
                 // Create the names for the restored project and database
                 String restoreProjectName = projectName + "_restored";
-                String restoreDatabaseName = convertProjectNameToDatabase(projectName) + "_restored";
+                String restoreDatabaseName = convertProjectNameToDatabase(projectName)
+                                             + "_restored";
 
                 // Get the list of available databases
                 String[] databases = queryDatabaseList(ccddMain.getMainFrame());

@@ -12,7 +12,6 @@ import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddClasses.TableTypeDefinition;
@@ -283,9 +283,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *             For any unanticipated errors
      *********************************************************************************************/
     @Override
-    public void importFromFile(File importFile, ImportType importType) throws CCDDException,
-                                                                       IOException,
-                                                                       Exception
+    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
+                                                                             IOException,
+                                                                             Exception
     {
         BufferedReader br = null;
 
@@ -802,7 +802,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
     @Override
-    public boolean exportToFile(File exportFile,
+    public boolean exportToFile(FileEnvVar exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,

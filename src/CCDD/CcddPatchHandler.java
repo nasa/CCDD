@@ -23,6 +23,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
@@ -169,12 +170,12 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                  + File.separator
-                                                  + dbControl.getDatabaseName()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + FileExtension.DBU.getExtension()));
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
 
                 // Store the updated associations table
                 dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
@@ -257,12 +258,12 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                  + File.separator
-                                                  + dbControl.getDatabaseName()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + FileExtension.DBU.getExtension()));
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
 
                 // Update the data fields table
                 dbCommand.executeDbCommand("UPDATE "
@@ -399,12 +400,12 @@ public class CcddPatchHandler
 
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                  + File.separator
-                                                  + dbControl.getDatabaseName()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + FileExtension.DBU.getExtension()));
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
 
                 // Store the updated associations table
                 dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
@@ -469,12 +470,12 @@ public class CcddPatchHandler
             {
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                  + File.separator
-                                                  + dbControl.getDatabaseName()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + FileExtension.DBU.getExtension()));
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
 
                 // Update the project database comment to the new format
                 dbCommand.executeDbCommand("COMMENT ON DATABASE "
@@ -554,12 +555,12 @@ public class CcddPatchHandler
             {
                 // Back up the project database before applying the patch
                 dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                         new File(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                  + File.separator
-                                                  + dbControl.getDatabaseName()
-                                                  + "_"
-                                                  + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                  + FileExtension.DBU.getExtension()));
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
 
                 // Create lists to contain the old and new table types table items
                 List<String[]> oldTableData = new ArrayList<String[]>();

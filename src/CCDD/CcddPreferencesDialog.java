@@ -24,7 +24,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.InputVerifier;
@@ -47,6 +46,7 @@ import javax.swing.event.ChangeListener;
 
 import CCDD.CcddClasses.CCDDException;
 import CCDD.CcddClasses.ColorCheckBox;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.JFontChooser;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.GUIUpdateType;
@@ -439,7 +439,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -451,18 +451,18 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerFontPnl = new JPanel(new GridBagLayout());
         innerFontPnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the font selection buttons
-        JScrollPane fontScrollPane = new JScrollPane(innerFontPnl);
-        fontScrollPane.setBorder(emptyBorder);
-        fontScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel fontPnl = new JPanel(new BorderLayout());
         fontPnl.setBorder(emptyBorder);
-        fontPnl.add(fontScrollPane, BorderLayout.CENTER);
+        fontPnl.add(innerFontPnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the font selection buttons
+        JScrollPane fontScrollPane = new JScrollPane(fontPnl);
+        fontScrollPane.setBorder(emptyBorder);
+        fontScrollPane.setViewportBorder(emptyBorder);
 
         // Add the font selection tab to the tabbed pane
-        tabbedPane.addTab(FONT, null, fontPnl, "Change program fonts");
+        tabbedPane.addTab(FONT, null, fontScrollPane, "Change program fonts");
 
         // Create a listener for the font button presses
         ActionListener fontBtnListener = new ActionListener()
@@ -650,7 +650,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -665,18 +665,18 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerColorPnl = new JPanel(new GridBagLayout());
         innerColorPnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the color selection check boxes
-        JScrollPane colorScrollPane = new JScrollPane(innerColorPnl);
-        colorScrollPane.setBorder(emptyBorder);
-        colorScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel colorPnl = new JPanel(new BorderLayout());
         colorPnl.setBorder(emptyBorder);
-        colorPnl.add(colorScrollPane, BorderLayout.CENTER);
+        colorPnl.add(innerColorPnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the color selection check boxes
+        JScrollPane colorScrollPane = new JScrollPane(colorPnl);
+        colorScrollPane.setBorder(emptyBorder);
+        colorScrollPane.setViewportBorder(emptyBorder);
 
         // Add the color selection tab to the tabbed pane
-        tabbedPane.addTab(COLOR, null, colorPnl, "Change program colors");
+        tabbedPane.addTab(COLOR, null, colorScrollPane, "Change program colors");
 
         // Create a listener for the color check box selections
         ActionListener colorCboxListener = new ActionListener()
@@ -867,7 +867,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -893,18 +893,18 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerSizePnl = new JPanel(new GridBagLayout());
         innerSizePnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the size labels and fields
-        JScrollPane sizeScrollPane = new JScrollPane(innerSizePnl);
-        sizeScrollPane.setBorder(emptyBorder);
-        sizeScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel sizePnl = new JPanel(new BorderLayout());
         sizePnl.setBorder(emptyBorder);
-        sizePnl.add(sizeScrollPane, BorderLayout.CENTER);
+        sizePnl.add(innerSizePnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the size labels and fields
+        JScrollPane sizeScrollPane = new JScrollPane(sizePnl);
+        sizeScrollPane.setBorder(emptyBorder);
+        sizeScrollPane.setViewportBorder(emptyBorder);
 
         // Add the size update tab to the tabbed pane
-        tabbedPane.addTab(SIZE, null, sizePnl, "Change program maximum width and length values");
+        tabbedPane.addTab(SIZE, null, sizeScrollPane, "Change program maximum width and length values");
 
         // Create a listener for the default size buttons
         ActionListener defaultListener = new ActionListener()
@@ -1069,7 +1069,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -1095,15 +1095,15 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerSpacingPnl = new JPanel(new GridBagLayout());
         innerSpacingPnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the spacing labels and fields
-        JScrollPane spacingScrollPane = new JScrollPane(innerSpacingPnl);
-        spacingScrollPane.setBorder(emptyBorder);
-        spacingScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel spacingPnl = new JPanel(new BorderLayout());
         spacingPnl.setBorder(emptyBorder);
-        spacingPnl.add(spacingScrollPane, BorderLayout.CENTER);
+        spacingPnl.add(innerSpacingPnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the spacing labels and fields
+        JScrollPane spacingScrollPane = new JScrollPane(spacingPnl);
+        spacingScrollPane.setBorder(emptyBorder);
+        spacingScrollPane.setViewportBorder(emptyBorder);
 
         // Add the note to the panel
         JLabel noteLbl = new JLabel("<html><i>Note: Open windows must be closed and "
@@ -1114,10 +1114,15 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                           ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()));
-        spacingPnl.add(noteLbl, BorderLayout.PAGE_END);
+
+        // Create a panel to contain the scroll pane and a note with fixed position at the bottom
+        // of the panel
+        JPanel scrollAndNotePnl = new JPanel(new BorderLayout());
+        scrollAndNotePnl.add(spacingScrollPane, BorderLayout.CENTER);
+        scrollAndNotePnl.add(noteLbl, BorderLayout.PAGE_END);
 
         // Add the spacing update tab to the tabbed pane
-        tabbedPane.addTab(SPACING, null, spacingPnl, "Change program spacing values");
+        tabbedPane.addTab(SPACING, null, scrollAndNotePnl, "Change program spacing values");
 
         // Create a listener for the default spacing buttons
         ActionListener defaultListener = new ActionListener()
@@ -1282,7 +1287,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -1308,18 +1313,18 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerPathPnl = new JPanel(new GridBagLayout());
         innerPathPnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the path labels and fields
-        JScrollPane pathScrollPane = new JScrollPane(innerPathPnl);
-        pathScrollPane.setBorder(emptyBorder);
-        pathScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel pathPnl = new JPanel(new BorderLayout());
         pathPnl.setBorder(emptyBorder);
-        pathPnl.add(pathScrollPane, BorderLayout.PAGE_START);
+        pathPnl.add(innerPathPnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the path labels and fields
+        JScrollPane pathScrollPane = new JScrollPane(pathPnl);
+        pathScrollPane.setBorder(emptyBorder);
+        pathScrollPane.setViewportBorder(emptyBorder);
 
         // Add the path update tab to the tabbed pane
-        tabbedPane.addTab(PATH, null, pathPnl, "Change program paths");
+        tabbedPane.addTab(PATH, null, pathScrollPane, "Change program paths");
 
         // Create a listener for the path selection buttons
         ActionListener defaultListener = new ActionListener()
@@ -1334,17 +1339,17 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 int index = Integer.valueOf(((JButton) ae.getSource()).getName());
 
                 // Allow the user to select the script file path + name
-                File[] pathFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                         CcddPreferencesDialog.this,
-                                                                         "Select Path",
-                                                                         pathFld[index].getText(),
-                                                                         DialogOption.OK_CANCEL_OPTION);
+                FileEnvVar[] pathFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                               CcddPreferencesDialog.this,
+                                                                               "Select Path",
+                                                                               pathFld[index].getText(),
+                                                                               DialogOption.OK_CANCEL_OPTION);
 
                 // Check if a path is selected
                 if (pathFile != null && pathFile[0] != null)
                 {
                     // Display the file name in the path name field
-                    pathFld[index].setText(pathFile[0].getAbsolutePath());
+                    pathFld[index].setText(pathFile[0].getAbsolutePathWithEnvVars());
                 }
             }
         };
@@ -1414,7 +1419,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0.0,
                                                         0.0,
                                                         GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.HORIZONTAL,
+                                                        GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
                                                                    ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
@@ -1441,18 +1446,18 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         JPanel innerOtherPnl = new JPanel(new GridBagLayout());
         innerOtherPnl.setBorder(emptyBorder);
 
-        // Create a scroll pane in which to display the other setting labels and fields
-        JScrollPane otherScrollPane = new JScrollPane(innerOtherPnl);
-        otherScrollPane.setBorder(emptyBorder);
-        otherScrollPane.setViewportBorder(emptyBorder);
-
         // Use an outer panel so that the components can be forced to the top of the tab area
         JPanel otherPnl = new JPanel(new BorderLayout());
         otherPnl.setBorder(emptyBorder);
-        otherPnl.add(otherScrollPane, BorderLayout.PAGE_START);
+        otherPnl.add(innerOtherPnl, BorderLayout.PAGE_START);
+
+        // Create a scroll pane in which to display the other setting labels and fields
+        JScrollPane otherScrollPane = new JScrollPane(otherPnl);
+        otherScrollPane.setBorder(emptyBorder);
+        otherScrollPane.setViewportBorder(emptyBorder);
 
         // Add the other setting update tab to the tabbed pane
-        tabbedPane.addTab(OTHER, null, otherPnl, "Change other program settings");
+        tabbedPane.addTab(OTHER, null, otherScrollPane, "Change other program settings");
 
         // Create a listener for the default other setting buttons
         ActionListener defaultListener = new ActionListener()

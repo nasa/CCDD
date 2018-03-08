@@ -49,6 +49,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -78,6 +79,7 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -864,15 +866,15 @@ public class CcddDialogHandler extends JDialog
      * @return Array containing the selected file handle(s). null if the Cancel button is selected.
      *         The first file reference is null if Okay is selected and the file name list is empty
      *********************************************************************************************/
-    protected File[] choosePathFile(CcddMain main,
-                                    Component parent,
-                                    String fileName,
-                                    String fileType,
-                                    FileNameExtensionFilter[] fileExtensions,
-                                    boolean multipleFiles,
-                                    String dialogTitle,
-                                    String folder,
-                                    DialogOption optionType)
+    protected FileEnvVar[] choosePathFile(CcddMain main,
+                                          Component parent,
+                                          String fileName,
+                                          String fileType,
+                                          FileNameExtensionFilter[] fileExtensions,
+                                          boolean multipleFiles,
+                                          String dialogTitle,
+                                          String folder,
+                                          DialogOption optionType)
     {
         return choosePathFile(main,
                               parent,
@@ -909,11 +911,11 @@ public class CcddDialogHandler extends JDialog
      * @return Array containing the selected file handle(s). null if the Cancel button is selected.
      *         The first file reference is null if Okay is selected and the file name list is empty
      *********************************************************************************************/
-    protected File[] choosePathFile(CcddMain main,
-                                    Component parent,
-                                    String dialogTitle,
-                                    String folder,
-                                    DialogOption optionType)
+    protected FileEnvVar[] choosePathFile(CcddMain main,
+                                          Component parent,
+                                          String dialogTitle,
+                                          String folder,
+                                          DialogOption optionType)
     {
         return choosePathFile(main,
                               parent,
@@ -974,24 +976,27 @@ public class CcddDialogHandler extends JDialog
      * @return Array containing the selected file handle(s). null if the Cancel button is selected.
      *         The first file reference is null if Okay is selected and the file name list is empty
      *********************************************************************************************/
-    protected File[] choosePathFile(CcddMain main,
-                                    Component parent,
-                                    String fileName,
-                                    String fileType,
-                                    FileNameExtensionFilter[] fileExtensions,
-                                    boolean folderOnly,
-                                    boolean multipleFiles,
-                                    String dialogTitle,
-                                    String folder,
-                                    DialogOption optionType,
-                                    JPanel lowerPanel)
+    protected FileEnvVar[] choosePathFile(CcddMain main,
+                                          Component parent,
+                                          String fileName,
+                                          String fileType,
+                                          FileNameExtensionFilter[] fileExtensions,
+                                          boolean folderOnly,
+                                          boolean multipleFiles,
+                                          String dialogTitle,
+                                          String folder,
+                                          DialogOption optionType,
+                                          JPanel lowerPanel)
     {
-        File[] file = new File[1];
+        FileEnvVar[] file = new FileEnvVar[1];
+
+        // Get the environment variables within the folder path
+        Map<String, String> envVars = FileEnvVar.getEnvVars(folder);
 
         // Create the file chooser. Set the path to the one from the back store per the provided
         // key; if no entry exists for the key then use the default path (the default location is
         // operating system dependent)
-        final JFileChooser chooser = new JFileChooser(folder
+        final JFileChooser chooser = new JFileChooser(FileEnvVar.expandEnvVars(folder, envVars)
                                                       + File.separator
                                                       + ".");
 
@@ -1012,7 +1017,8 @@ public class CcddDialogHandler extends JDialog
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
             // Get the path to initially display
-            fileName = chooser.getCurrentDirectory().getAbsolutePath();
+            fileName = FileEnvVar.restoreEnvVars(chooser.getCurrentDirectory().getAbsolutePath(),
+                                                 envVars);
         }
         // Not folder-only
         else
@@ -1107,9 +1113,7 @@ public class CcddDialogHandler extends JDialog
                         {
                             // Append the file name without the path, surrounded by quotes, to the
                             // name list
-                            nameList += "\""
-                                        + chooser.getSelectedFiles()[index].getName()
-                                        + "\" ";
+                            nameList += "\"" + chooser.getSelectedFiles()[index].getName() + "\" ";
                         }
 
                         // Insert the file name list into the file chooser's file name text field
@@ -1186,23 +1190,20 @@ public class CcddDialogHandler extends JDialog
                 {
                     // Replace the character with a comma. Occurrences of double commas can result
                     // from this operation; these are accounted for later
-                    names = names.substring(0, index)
-                            + ","
-                            + names.substring(index + 1);
+                    names = names.substring(0, index) + "," + names.substring(index + 1);
                 }
             }
 
             // Replace every instance of back-to-back commas that may have resulted in the
             // replacement steps above with a single comma, remove every remaining quote, then
             // split the string at the commas, which now delineate the separate file names
-            String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+",
-                                                                         "")
-                                      .split(",");
+            String[] fileNames = names.replaceAll(",,+", ",").replaceAll("\"+", "").split(",");
+
             // Check if the file name text field isn't empty
             if (!fileNames[0].isEmpty())
             {
                 // Create a file array
-                file = new File[fileNames.length];
+                file = new FileEnvVar[fileNames.length];
 
                 // Step through the file names/paths
                 for (int i = 0; i < fileNames.length; i++)
@@ -1219,11 +1220,12 @@ public class CcddDialogHandler extends JDialog
 
                     // Create a file handle for each file name or the path name. If this is not a
                     // folder, prepend the file path to the name
-                    file[i] = new File((folderOnly
-                                                   ? ""
-                                                   : chooser.getCurrentDirectory()
-                                                     + File.separator)
-                                       + fileNames[i]);
+                    file[i] = new FileEnvVar(FileEnvVar.restoreEnvVars((folderOnly
+                                                                                   ? ""
+                                                                                   : chooser.getCurrentDirectory().getAbsolutePath()
+                                                                                     + File.separator)
+                                                                       + fileNames[i],
+                                                                       envVars));
                 }
             }
         }

@@ -7,11 +7,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.TYPE_COMMAND;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
-
 import java.awt.Component;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -86,6 +82,7 @@ import org.omg.space.xtce.ValueEnumerationType;
 import CCDD.CcddClasses.ArrayVariable;
 import CCDD.CcddClasses.AssociatedColumns;
 import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClasses.FileEnvVar;
 import CCDD.CcddClasses.TableDefinition;
 import CCDD.CcddClasses.TableInformation;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
@@ -259,9 +256,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * Importing data in XTCE format is not supported
      *********************************************************************************************/
     @Override
-    public void importFromFile(File importFile, ImportType importType) throws CCDDException,
-                                                                       IOException,
-                                                                       Exception
+    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
+                                                                             IOException,
+                                                                             Exception
     {
         // XTCE import is not supported
     }
@@ -304,7 +301,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(File exportFile,
+    public boolean exportToFile(FileEnvVar exportFile,
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
@@ -516,17 +513,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // commands or other table type then it is processed within this nest level
                 typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
-                // Check if the table type is valid
-                if (typeDefn != null)
+                // Check if the table type represents a structure or command
+                if (typeDefn != null && (typeDefn.isStructure() || typeDefn.isCommand()))
                 {
-                    // Get the table's basic type - structure, command, or the original table type
-                    // if not structure or command table
-                    String tableType = typeDefn.isStructure()
-                                                              ? TYPE_STRUCTURE
-                                                              : typeDefn.isCommand()
-                                                                                     ? TYPE_COMMAND
-                                                                                     : tableInfo.getType();
-
                     // Replace all macro names with their corresponding values
                     tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
 
@@ -580,8 +569,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                   validationStatusAttr,
                                                   versionAttr);
 
-                    // Check if this is a node for a structure table
-                    if (tableType.equals(TYPE_STRUCTURE))
+                    // Check if this is a structure table
+                    if (typeDefn.isStructure())
                     {
                         MemberList memberList = factory.createAggregateDataTypeMemberList();
 
@@ -674,8 +663,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             memberLists.add(new StructureMemberList(tableName, memberList));
                         }
                     }
-                    // Check if this is a command table
-                    else if (tableType.equals(TYPE_COMMAND))
+                    // This is a command table
+                    else
                     {
                         // Check if this is the command header table
                         if (tableName.equals(cmdHeaderTable))
@@ -691,19 +680,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                applicationID,
                                                ccsdsAppID,
                                                ccsdsFuncCode);
-                    }
-                    // Not a structure or command table
-                    else
-                    {
-                        // TODO WHAT SHOULD BE DONE WITH NON-STRUCTURE & NON-COMMAND TABLES -
-                        // IGNORE, CREATE THE SPACE SYSTEM ONLY, OR CREATE A SYSTEM AND POPULATE
-                        // WITH ANCILLARY DATA?
-
-                        // IF STRUCTURE & COMMAND DATA THAT DOESN'T FIT XTCE IS STORED (ANCILLARY
-                        // OR CUSTOM TAGS) THEN THIS TYPE OF TABLE WOULD BE STORED IN THE SAME
-                        // FASHION. A CHECK BOX IN THE EXPORT DIALOG COULD BE USED TO TRIGGER
-                        // STORING THIS 'EXTRA' INFORMATION ('INCLUDE EXTRA DATA'). IMPORT OF THIS
-                        // TYPE OF EXPORT WOULD BE VIABLE.
                     }
                 }
             }
