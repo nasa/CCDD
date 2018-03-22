@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;

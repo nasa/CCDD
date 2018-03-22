@@ -41,15 +41,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableModification;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -115,7 +115,34 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JButton btnRedo;
     private JButton btnStore;
     private JButton btnCloseActive;
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
+
+    /**********************************************************************************************
+     * Table editor dialog class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param tableInformation
+     *            list containing information for each table
+     *
+     * @param editor
+     *            reference to an existing table editor
+     *********************************************************************************************/
+    protected CcddTableEditorDialog(CcddMain ccddMain,
+                                    List<TableInformation> tableInformation,
+                                    CcddTableEditorHandler editor)
+    {
+        this.ccddMain = ccddMain;
+
+        // Create references to shorten subsequent calls
+        dbTable = ccddMain.getDbTableCommandHandler();
+        fileIOHandler = ccddMain.getFileIOHandler();
+        tableEditors = new ArrayList<CcddTableEditorHandler>();
+
+        // Create the data table editor dialog
+        initialize(tableInformation, editor);
+    }
 
     /**********************************************************************************************
      * Table editor dialog class constructor
@@ -128,15 +155,22 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     protected CcddTableEditorDialog(CcddMain ccddMain, List<TableInformation> tableInformation)
     {
-        this.ccddMain = ccddMain;
+        this(ccddMain, tableInformation, null);
+    }
 
-        // Create references to shorten subsequent calls
-        dbTable = ccddMain.getDbTableCommandHandler();
-        fileIOHandler = ccddMain.getFileIOHandler();
-        tableEditors = new ArrayList<CcddTableEditorHandler>();
-
-        // Create the data table editor dialog
-        initialize(tableInformation);
+    /**********************************************************************************************
+     * Table editor dialog class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param editor
+     *            reference to an existing table editor
+     *********************************************************************************************/
+    protected CcddTableEditorDialog(CcddMain ccddMain, CcddTableEditorHandler editor)
+    {
+        this(ccddMain, null, editor);
+        editor.setEditorDialog(this);
     }
 
     /**********************************************************************************************
@@ -164,7 +198,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *
      * @return Tabbed pane
      *********************************************************************************************/
-    protected JTabbedPane getTabbedPane()
+    protected DnDTabbedPane getTabbedPane()
     {
         return tabbedPane;
     }
@@ -377,6 +411,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Update the tables with message names & IDs columns
         dbTblCmdHndlr.updateMessageIDNamesColumns(main.getMainFrame());
 
+        // Get the list of root structure tables
+        List<String> rootTables = dbTblCmdHndlr.getRootStructures(main.getMainFrame());
+
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
         {
@@ -404,6 +441,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Store the updates as the committed changes in the table (so that other
                     // changes are recognized)
                     editor.doTableUpdatesComplete(updateInfo, applyToChild);
+                }
+
+                // Check if the table's root structure status changed
+                if (editor.getTableInformation().isRootStructure() != rootTables.contains(editor.getTableInformation().getTablePath()))
+                {
+                    // Update the table's root structure status
+                    editor.getTableInformation().setRootStructure(!editor.getTableInformation().isRootStructure());
+
+                    // Rebuild the table's data fields based on the updated field information
+                    editor.createDataFieldPanel(false);
                 }
 
                 // Step through each row modification
@@ -527,9 +574,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * Create the data table editor dialog
      *
      * @param tableInformation
-     *            list containing the information for each table
+     *            list containing information for each table
+     *
+     * @param editor
+     *            reference to an existing table editor
      *********************************************************************************************/
-    private void initialize(List<TableInformation> tableInformation)
+    private void initialize(List<TableInformation> tableInformation,
+                            CcddTableEditorHandler editor)
     {
         // Menu ///////////////////////////////////////////////////////////////////////////////////
         // Create the data table menu bar
@@ -1089,7 +1140,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 new CcddFieldEditorDialog(ccddMain,
                                           activeEditor,
                                           activeEditor.getTableInformation().getTablePath(),
-                                          false,
+                                          (activeEditor.getTableTypeDefinition().isStructure()
+                                           && !activeEditor.getTableInformation().getTablePath().contains(",")),
                                           MIN_WINDOW_WIDTH);
 
                 // Enable/disable the Clear values command depending on if any data fields remain
@@ -1550,7 +1602,75 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
         // Table Editors //////////////////////////////////////////////////////////////////////////
         // Create a tabbed pane for the editors to appear in
-        tabbedPane = new JTabbedPane(SwingConstants.TOP);
+        tabbedPane = new DnDTabbedPane(JTabbedPane.TOP, CcddTableEditorDialog.class, true)
+        {
+            /**************************************************************************************
+             * Update the table editor list order following a tab move
+             *************************************************************************************/
+            @Override
+            protected Object tabMoveCleanup(int oldTabIndex, int newTabIndex, Object tabContents)
+            {
+                CcddTableEditorHandler editor = (CcddTableEditorHandler) tabContents;
+
+                // Check if the tab originated in the editor dialog
+                if (oldTabIndex != -1)
+                {
+                    // Get the reference to the moved tab's original location in the list
+                    editor = tableEditors.get(oldTabIndex);
+
+                    // Remove the table editor reference associated with the tab
+                    tableEditors.remove(oldTabIndex);
+                }
+                // The tab originated in another editor dialog
+                else
+                {
+                    // Bring the editor dialog to the foreground
+                    CcddTableEditorDialog.this.toFront();
+                }
+
+                // Check if the tab is to be placed within this editor
+                if (newTabIndex != -1)
+                {
+                    // Update the editor's reference to the dialog that owns it to this editor
+                    // dialog
+                    editor.setEditorDialog(CcddTableEditorDialog.this);
+
+                    // Add the table editor reference at the specified location
+                    tableEditors.add(newTabIndex
+                                     - (oldTabIndex != -1 && newTabIndex > oldTabIndex ? 1
+                                                                                       : 0),
+                                     editor);
+                }
+
+                // Check if the last editor was removed from the dialog
+                if (tableEditors.isEmpty())
+                {
+                    // Close the editor dialog
+                    CcddTableEditorDialog.this.closeFrame();
+                }
+                // An editor remains in the dialog
+                else
+                {
+                    // Update the active tab pointer
+                    activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
+                }
+
+                return editor;
+            }
+
+            /**************************************************************************************
+             * Move the specified tab's table to a new table editor dialog
+             *************************************************************************************/
+            @Override
+            protected void spawnContainer(int tabIndex, Object tabContents)
+            {
+                // Create a new table editor dialog and place the editor from the other dialog into
+                // it
+                ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
+                                                                               (CcddTableEditorHandler) tabContents));
+            }
+        };
+
         tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Listen for tab selection changes
@@ -1562,25 +1682,30 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             public void stateChanged(ChangeEvent ce)
             {
-                activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
-
-                // Change the dialog's title to the active table's name
-                (CcddTableEditorDialog.this).setTitle(activeEditor.getOwnerName());
-
-                // Update the expand/collapse arrays check box
-                updateExpandArrayCheckBox();
-
-                // Check if the Show macros command is not in effect
-                if (!mntmShowMacros.isSelected())
+                // Check if the tab index is within bounds
+                if (tabbedPane.getSelectedIndex() >= 0 && tabbedPane.getSelectedIndex() < tableEditors.size())
                 {
-                    // Update the editor controls state
-                    setControlsEnabled(true);
+                    // Set the active editor to the selected tab
+                    activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
+
+                    // Change the dialog's title to the active table's name
+                    (CcddTableEditorDialog.this).setTitle(activeEditor.getOwnerName());
+
+                    // Update the expand/collapse arrays check box
+                    updateExpandArrayCheckBox();
+
+                    // Check if the Show macros command is not in effect
+                    if (!mntmShowMacros.isSelected())
+                    {
+                        // Update the editor controls state
+                        setControlsEnabled(true);
+                    }
                 }
             }
         });
 
         // Add each table as a tab in the editor dialog tabbed pane
-        addTablePanes(tableInformation);
+        addTablePanes(tableInformation, editor);
 
         // Set the first tab as the active editor
         activeEditor = tableEditors.get(0);
@@ -1728,29 +1853,70 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Add one or more table tabs to the editor dialog tabbed pane
+     * Add one or more table tabs to the editor dialog tabbed pane using the supplied table
+     * information list
      *
      * @param tableInformation
      *            list containing information for each table
      *********************************************************************************************/
     protected void addTablePanes(List<TableInformation> tableInformation)
     {
-        // Step through the tables
-        for (TableInformation tableInfo : tableInformation)
+        addTablePanes(tableInformation, null);
+    }
+
+    /**********************************************************************************************
+     * Add one or more table tabs to the editor dialog tabbed pane using the supplied table
+     * information list and/or existing table editor tab contents
+     *
+     * @param tableInformation
+     *            list containing information for each table
+     *
+     * @param editor
+     *            reference to an existing table editor
+     *********************************************************************************************/
+    protected void addTablePanes(List<TableInformation> tableInformation,
+                                 CcddTableEditorHandler editor)
+    {
+        // Get the number of table editors already in the editor dialog
+        int numExisting = tableEditors.size();
+
+        // Check if a table editor is supplied
+        if (editor != null)
         {
-            // Create an editor for this table and add it to the list of editors
-            CcddTableEditorHandler editor = new CcddTableEditorHandler(ccddMain, tableInfo, this);
+            // Add the editor to the list
             tableEditors.add(editor);
 
-            // Create a tab for each table
+            // Create a tab for the editor
             tabbedPane.addTab(editor.getOwnerName(),
                               null,
                               editor.getFieldPanel(),
                               editor.getTableToolTip());
+
+            // Refresh the editor's change indicator, in case it's added while having unstored
+            // changes
+            updateChangeIndicator(editor);
+        }
+
+        // Check if table information is provided
+        if (tableInformation != null)
+        {
+            // Step through the tables
+            for (TableInformation tableInfo : tableInformation)
+            {
+                // Create an editor for this table and add it to the list of editors
+                editor = new CcddTableEditorHandler(ccddMain, tableInfo, this);
+                tableEditors.add(editor);
+
+                // Create a tab for each table
+                tabbedPane.addTab(editor.getOwnerName(),
+                                  null,
+                                  editor.getFieldPanel(),
+                                  editor.getTableToolTip());
+            }
         }
 
         // Check if only a single table was added
-        if (tableInformation.size() == 1)
+        if (tableEditors.size() - numExisting == 1)
         {
             // Select the tab for the newly opened table
             tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);

@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;

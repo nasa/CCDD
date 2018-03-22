@@ -45,10 +45,10 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.PaddedComboBox;
-import CCDD.CcddClasses.TableModification;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;

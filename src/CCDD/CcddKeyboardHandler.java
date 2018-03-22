@@ -433,19 +433,15 @@ public class CcddKeyboardHandler
                         // contain a combo box
                         if (editorDialog != null && !(comp instanceof JComboBox))
                         {
-                            // Get references to shorten subsequent calls
-                            CcddTableEditorHandler editor = editorDialog.getTableEditor();
-                            CcddJTableHandler table = editor.getTable();
-
                             // Check if a cell in the table is being edited
-                            if (table.isEditing())
+                            if (editorDialog.getTableEditor().getTable().isEditing())
                             {
                                 // Insert the structure name chosen by the user into the text field
                                 // at the current text insertion point
                                 dataTypeHandler.insertDataTypeName((JFrame) editorDialog,
                                                                    (JTextArea) comp,
                                                                    true,
-                                                                   editorDialog.getTableEditor().getDataTypes().toArray(new String[0]));
+                                                                   editorDialog.getTableEditor().getValidDataTypes().toArray(new String[0]));
                             }
                         }
                         // Check if the data type editor editing is active
@@ -540,14 +536,14 @@ public class CcddKeyboardHandler
                                     int column = table.convertColumnIndexToModel(table.getEditingColumn());
 
                                     // Get the input type for the column being edited
-                                    InputDataType inputType = ccddMain.getTableTypeHandler().getTypeDefinition(editor.getTableInformation().getType()).getInputTypes()[column];
+                                    InputDataType inputType = editor.getTableTypeDefinition().getInputTypes()[column];
 
                                     // Insert the macro name chosen by the user into the text
                                     // component at the current text insertion point
                                     macroHandler.insertMacroName(editorDialog,
                                                                  (JTextComponent) comp,
                                                                  inputType,
-                                                                 editor.getDataTypes());
+                                                                 editor.getValidDataTypes());
                                 }
                             }
                             // Check if this is the macro editor, editing is active, and the values
@@ -591,12 +587,8 @@ public class CcddKeyboardHandler
                     // Check if a table editor dialog has the focus
                     if (editorDialog != null)
                     {
-                        // Get references to shorten subsequent calls
-                        CcddTableEditorHandler editor = editorDialog.getTableEditor();
-                        CcddJTableHandler table = editor.getTable();
-
                         // Check if a cell in the table is being edited
-                        if (table.isEditing())
+                        if (editorDialog.getTableEditor().getTable().isEditing())
                         {
                             JTextComponent textComp = (JTextComponent) comp;
 

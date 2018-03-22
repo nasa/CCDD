@@ -654,7 +654,7 @@ public class CcddMain
         // Read the data types definitions from the database
         dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
 
-        // Read the rate parameters from the project database
+        // Read the rate parameters from the project database and sort the list by data stream name
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
 
         // Read the application parameters from the project database
@@ -665,7 +665,8 @@ public class CcddMain
 
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
-        CcddClasses.setHandlers(CcddMain.this);
+        CcddClassesDataTable.setHandlers(CcddMain.this);
+        CcddClassesComponent.setHandlers(CcddMain.this);
         fileIOHandler.setHandlers();
         keyboardHandler.setHandlers();
 

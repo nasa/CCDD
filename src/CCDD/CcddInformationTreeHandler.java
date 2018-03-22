@@ -18,7 +18,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.TableCommentIndex;
 

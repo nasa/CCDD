@@ -43,9 +43,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.TableModification;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;

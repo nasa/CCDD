@@ -44,11 +44,11 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.CustomSplitPane;
-import CCDD.CcddClasses.LinkInformation;
-import CCDD.CcddClasses.PaddedComboBox;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.LinkInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;

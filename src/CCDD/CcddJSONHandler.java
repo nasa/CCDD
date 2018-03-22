@@ -33,12 +33,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.TableDefinition;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableTypeDefinition;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;

@@ -10,9 +10,9 @@ package CCDD;
 import java.io.IOException;
 import java.util.List;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.TableDefinition;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesComponent.FileEnvVar;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary import/export interface

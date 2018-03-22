@@ -47,13 +47,13 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClasses.ApplicationData;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.CustomSplitPane;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.TelemetryData;
-import CCDD.CcddClasses.Variable;
-import CCDD.CcddClasses.VariableGenerator;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesDataTable.ApplicationData;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.TelemetryData;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesDataTable.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -646,7 +646,8 @@ public class CcddSchedulerEditorHandler
 
             // Create a tabbed pane to contain the variable tree for the message and any
             // sub-messages
-            tabbedPane = new JTabbedPane();
+            tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+
             tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
             // Listen for tab selection changes
@@ -677,8 +678,7 @@ public class CcddSchedulerEditorHandler
                                 // Select the row and column in the scheduler table corresponding
                                 // to the selected message tab
                                 schedulerTable.changeSelection(schedulerTable.getSelectedRow(),
-                                                               SchedulerColumn.ID.ordinal()
-                                                                                                + tabIndex,
+                                                               SchedulerColumn.ID.ordinal() + tabIndex,
                                                                false,
                                                                false);
                             }

@@ -15,7 +15,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputDataType;
@@ -50,8 +50,10 @@ public class CcddFieldHandler
         this.ccddMain = ccddMain;
         parent = ccddMain.getMainFrame();
 
-        // Create storage for the field information
+        // Create storage for the field definitions and information
+        fieldDefinitions = new ArrayList<String[]>();
         fieldInformation = new ArrayList<FieldInformation>();
+
     }
 
     /**********************************************************************************************
@@ -253,7 +255,7 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected void buildFieldInformation(String ownerName)
     {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, null);
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, null, true);
     }
 
     /**********************************************************************************************
@@ -270,7 +272,7 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected void buildFieldInformation(Object[][] fieldDefinitions, String ownerName)
     {
-        buildFieldInformation(fieldDefinitions, ownerName, null);
+        buildFieldInformation(fieldDefinitions, ownerName, null, true);
     }
 
     /**********************************************************************************************
@@ -283,10 +285,18 @@ public class CcddFieldHandler
      *
      * @param isRootStruct
      *            true if the owner is a root structure, false if not, or null if unknown
+     *
+     * @param ignoreApplicability
+     *            false to account for the field applicability when building the field information
      *********************************************************************************************/
-    protected void buildFieldInformation(String ownerName, Boolean isRootStruct)
+    protected void buildFieldInformation(String ownerName,
+                                         Boolean isRootStruct,
+                                         boolean ignoreApplicability)
     {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, isRootStruct);
+        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
+                              ownerName,
+                              isRootStruct,
+                              ignoreApplicability);
     }
 
     /**********************************************************************************************
@@ -303,10 +313,14 @@ public class CcddFieldHandler
      *
      * @param isRootStruct
      *            true if the owner is a root structure, false if not, or null if unknown
+     *
+     * @param ignoreApplicability
+     *            false to account for the field applicability when building the field information
      *********************************************************************************************/
     protected void buildFieldInformation(Object[][] fieldDefinitions,
                                          String ownerName,
-                                         Boolean isRootStruct)
+                                         Boolean isRootStruct,
+                                         boolean ignoreApplicability)
     {
         // Clear the fields from the list
         fieldInformation.clear();
@@ -323,9 +337,10 @@ public class CcddFieldHandler
                 if (ownerName == null
                     || ownerName.isEmpty()
                     || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString())
-                        && isFieldApplicable(ownerName,
-                                             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
-                                             isRootStruct)))
+                        && (ignoreApplicability
+                            || isFieldApplicable(ownerName,
+                                                 fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
+                                                 isRootStruct))))
                 {
                     // Store the field information
                     addField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
@@ -365,26 +380,26 @@ public class CcddFieldHandler
                                         String applicability,
                                         Boolean isRootStruct)
     {
-        // Set the flag to indicate the owner is a table type or group if the owner name contains a
-        // colon
-        boolean isTypeOrGroup = ownerName.contains(":");
+        // Set the flag to indicate if the owner is a table type, group, or project
+        boolean isTypeGroupProject = ownerName.startsWith(TYPE_DATA_FIELD_IDENT)
+                                     || ownerName.startsWith(GROUP_DATA_FIELD_IDENT)
+                                     || ownerName.startsWith(PROJECT_DATA_FIELD_IDENT);
 
-        // Check if the owner is a table type, group, or child structure (the owner name includes a
-        // data type & variable name)
-        if (isTypeOrGroup || ownerName.contains("."))
+        // Check if the owner is a table type, group, project, or child structure (the owner name
+        // includes a data type & variable name)
+        if (isTypeGroupProject || ownerName.contains("."))
         {
             // Set the flag to indicate the owner isn't a root structure
             isRootStruct = false;
         }
-        // Check if the root structure status is unknown, the owner name is provided, and the owner
-        // isn't a prototype table
+        // The owner is a prototype or root table. Check if the root structure status is unknown
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
             isRootStruct = ccddMain.getDbTableCommandHandler().getRootStructures(parent).contains(ownerName);
         }
 
-        return isTypeOrGroup
+        return isTypeGroupProject
                || applicability.isEmpty()
                || applicability.equals(ApplicabilityType.ALL.getApplicabilityName())
                || (isRootStruct
@@ -444,7 +459,7 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Build the data field definitions from the data field editor provided
+     * Build the data field definitions from the supplied data field editor data
      *
      * @param fieldData
      *            array of data field editor data
@@ -452,37 +467,35 @@ public class CcddFieldHandler
      * @param ownerName
      *            name of the data field owner (table name, including the path if this table
      *            references a structure, group name, or table type name)
-     *
-     * @return Data field definitions array
      *********************************************************************************************/
-    protected Object[][] buildFieldDefinition(Object[][] fieldData, String ownerName)
+    protected void buildFieldDefinitions(Object[][] fieldData, String ownerName)
     {
-        Object[][] fieldDefinition = new Object[0][0];
+        fieldDefinitions.clear();
 
         // Check if any data fields are defined
         if (fieldData.length != 0)
         {
-            // Create the field definition array with an extra column for the table name
-            fieldDefinition = new Object[fieldData.length][fieldData[0].length + 1];
-
             // Step through each row in the editor data array
-            for (int row = 0; row < fieldData.length; row++)
+            for (Object[] data : fieldData)
             {
+                // Create the field definition array with an extra column for the owner name
+                String[] defn = new String[fieldData[0].length + 1];
+
                 // Add the table name (with path, if applicable) to the field definition
-                fieldDefinition[row][FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
+                defn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
 
                 // Copy the editor data to the field definition
-                fieldDefinition[row][FieldsColumn.FIELD_NAME.ordinal()] = fieldData[row][FieldEditorColumnInfo.NAME.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_DESC.ordinal()] = fieldData[row][FieldEditorColumnInfo.DESCRIPTION.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_SIZE.ordinal()] = fieldData[row][FieldEditorColumnInfo.SIZE.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_TYPE.ordinal()] = fieldData[row][FieldEditorColumnInfo.INPUT_TYPE.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_REQUIRED.ordinal()] = fieldData[row][FieldEditorColumnInfo.REQUIRED.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldData[row][FieldEditorColumnInfo.APPLICABILITY.ordinal()];
-                fieldDefinition[row][FieldsColumn.FIELD_VALUE.ordinal()] = fieldData[row][FieldEditorColumnInfo.VALUE.ordinal()];
+                defn[FieldsColumn.FIELD_NAME.ordinal()] = data[FieldEditorColumnInfo.NAME.ordinal()].toString();
+                defn[FieldsColumn.FIELD_DESC.ordinal()] = data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString();
+                defn[FieldsColumn.FIELD_SIZE.ordinal()] = data[FieldEditorColumnInfo.SIZE.ordinal()].toString();
+                defn[FieldsColumn.FIELD_TYPE.ordinal()] = data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
+                defn[FieldsColumn.FIELD_REQUIRED.ordinal()] = data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString();
+                defn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString();
+                defn[FieldsColumn.FIELD_VALUE.ordinal()] = data[FieldEditorColumnInfo.VALUE.ordinal()].toString();
+
+                fieldDefinitions.add(defn);
             }
         }
-
-        return fieldDefinition;
     }
 
     /**********************************************************************************************
@@ -517,11 +530,11 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the data field definitions
+     * Get the data field definitions from the field information
      *
      * @return String list containing the data field definitions
      *********************************************************************************************/
-    protected List<String[]> getFieldDefinitionList()
+    protected List<String[]> getFieldDefinitionsFromInformation()
     {
         // Create storage for the field definitions
         List<String[]> definitions = new ArrayList<String[]>();
@@ -530,20 +543,20 @@ public class CcddFieldHandler
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Create storage for a single field definition
-            String[] row = new String[FieldsColumn.values().length];
+            String[] defn = new String[FieldsColumn.values().length];
 
             // Store the field definition in the proper order
-            row[FieldsColumn.OWNER_NAME.ordinal()] = fieldInfo.getOwnerName();
-            row[FieldsColumn.FIELD_NAME.ordinal()] = fieldInfo.getFieldName();
-            row[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
-            row[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-            row[FieldsColumn.FIELD_SIZE.ordinal()] = String.valueOf(fieldInfo.getSize());
-            row[FieldsColumn.FIELD_REQUIRED.ordinal()] = String.valueOf(fieldInfo.isRequired());
-            row[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-            row[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
+            defn[FieldsColumn.OWNER_NAME.ordinal()] = fieldInfo.getOwnerName();
+            defn[FieldsColumn.FIELD_NAME.ordinal()] = fieldInfo.getFieldName();
+            defn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
+            defn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
+            defn[FieldsColumn.FIELD_SIZE.ordinal()] = String.valueOf(fieldInfo.getSize());
+            defn[FieldsColumn.FIELD_REQUIRED.ordinal()] = String.valueOf(fieldInfo.isRequired());
+            defn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
+            defn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
 
             // Add the field definition to the list
-            definitions.add(row);
+            definitions.add(defn);
         }
 
         return definitions;
@@ -656,7 +669,7 @@ public class CcddFieldHandler
             fieldInformation.get(index).setOwnerName(newName);
         }
 
-        return getFieldDefinitionList();
+        return getFieldDefinitionsFromInformation();
     }
 
     /**********************************************************************************************

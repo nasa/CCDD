@@ -34,12 +34,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.AssociatedColumns;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
@@ -1876,40 +1876,116 @@ public class CcddScriptDataAccessHandler
             // Get the list of command arguments associated with this command table type
             List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-            // Check if the argument number is valid and that other argument columns exist
+            // Check if the argument number is valid and that the argument array size exists
             if (argumentNumber < commandArguments.size()
-                && commandArguments.get(argumentNumber).getOther().size() != 0)
+                && commandArguments.get(argumentNumber).getArraySize() != -1)
             {
-                // Get a list of column indices that reference array size
-                List<Integer> arraySizes = typeDefn.getColumnIndicesByInputType(InputDataType.ARRAY_INDEX);
+                // Get the reference to the table information
+                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
-                // Step through each array size column index
-                for (int arrayIndex : commandArguments.get(argumentNumber).getOther())
+                // Get the argument array size
+                argArraySize = tableInfo.getData()[row][commandArguments.get(argumentNumber).getArraySize()];
+
+                // Check if any macros should be expanded
+                if (expandMacros)
                 {
-                    // Check if the index matches one in the list of columns associated with this
-                    // command argument
-                    if (arraySizes.contains(arrayIndex))
-                    {
-                        // Get the reference to the table information
-                        TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
-
-                        // Get the argument array size
-                        argArraySize = tableInfo.getData()[row][arrayIndex];
-
-                        // Check if any macros should be expanded
-                        if (expandMacros)
-                        {
-                            // Expand any macros
-                            argArraySize = macroHandler.getMacroExpansion(argArraySize);
-                        }
-
-                        break;
-                    }
+                    // Expand any macros
+                    argArraySize = macroHandler.getMacroExpansion(argArraySize);
                 }
             }
         }
 
         return argArraySize;
+    }
+
+    /**********************************************************************************************
+     * Get the argument bit length for the command argument specified at the specified row in the
+     * command data, with any macro name replaced by its corresponding value
+     *
+     * @param argumentNumber
+     *            command argument index. The first argument is 0
+     *
+     * @param row
+     *            table data row index
+     *
+     * @return Get the argument bit length for the command argument specified at the specified row
+     *         in the command data, with any macro replaced by its corresponding value; null if the
+     *         argument number or row index is invalid
+     *********************************************************************************************/
+    public String getCommandArgBitLength(int argumentNumber, int row)
+    {
+        return getCommandArgBitLength(argumentNumber, row, true);
+    }
+
+    /**********************************************************************************************
+     * Get the argument bit length for the command argument specified at the specified row in the
+     * command data, with any embedded macro(s) left in place
+     *
+     * @param argumentNumber
+     *            command argument index. The first argument is 0
+     *
+     * @param row
+     *            table data row index
+     *
+     * @return Get the argument bit length for the command argument specified at the specified row
+     *         in the command data, with any embedded macro(s) left in place; null if the argument
+     *         number or row index is invalid
+     *********************************************************************************************/
+    public String getCommandArgBitLengthWithMacros(int argumentNumber, int row)
+    {
+        return getCommandArgBitLength(argumentNumber, row, false);
+    }
+
+    /**********************************************************************************************
+     * Get the argument bit length for the command argument specified at the specified row in the
+     * command data. Macro expansion is controlled by the input flag
+     *
+     * @param argumentNumber
+     *            command argument index. The first argument is 0
+     *
+     * @param row
+     *            table data row index
+     *
+     * @param expandMacros
+     *            true to replace any macros with their corresponding value; false to return the
+     *            data with any macro names in place
+     *
+     * @return Argument bit length for the command argument specified at the specified row in the
+     *         command data; null if the argument number or row index is invalid
+     *********************************************************************************************/
+    private String getCommandArgBitLength(int argumentNumber, int row, boolean expandMacros)
+    {
+        String argBitLength = null;
+
+        // Get the table type definition for the command table referenced in the specified row
+        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getCommandTypeNameByRow(row));
+
+        // Check if the table type exists and represents a command
+        if (typeDefn != null && typeDefn.isCommand())
+        {
+            // Get the list of command arguments associated with this command table type
+            List<AssociatedColumns> commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
+
+            // Check if the argument number is valid and that the argument bit length exists
+            if (argumentNumber < commandArguments.size()
+                && commandArguments.get(argumentNumber).getBitLength() != -1)
+            {
+                // Get the reference to the table information
+                TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
+
+                // Get the argument bit length
+                argBitLength = tableInfo.getData()[row][commandArguments.get(argumentNumber).getBitLength()];
+
+                // Check if any macros should be expanded
+                if (expandMacros)
+                {
+                    // Expand any macros
+                    argBitLength = macroHandler.getMacroExpansion(argBitLength);
+                }
+            }
+        }
+
+        return argBitLength;
     }
 
     /**********************************************************************************************
@@ -2280,6 +2356,8 @@ public class CcddScriptDataAccessHandler
                 // Check if the column belongs to the specified command argument
                 if (tgtColumn == cmdColumns.getName()
                     || tgtColumn == cmdColumns.getDataType()
+                    || tgtColumn == cmdColumns.getArraySize()
+                    || tgtColumn == cmdColumns.getBitLength()
                     || tgtColumn == cmdColumns.getDescription()
                     || tgtColumn == cmdColumns.getUnits()
                     || tgtColumn == cmdColumns.getEnumeration()
@@ -2345,6 +2423,20 @@ public class CcddScriptDataAccessHandler
                 {
                     // Add the argument data type column name
                     argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getDataType()]);
+                }
+
+                // Check if the argument array size column is present
+                if (cmdColumns.getArraySize() != -1)
+                {
+                    // Add the argument array size column name
+                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getArraySize()]);
+                }
+
+                // Check if the argument bit length column is present
+                if (cmdColumns.getBitLength() != -1)
+                {
+                    // Add the argument bit length column name
+                    argColumns.add(typeDefn.getColumnNamesUser()[cmdColumns.getBitLength()]);
                 }
 
                 // Check if the argument description column is present

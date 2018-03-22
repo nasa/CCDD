@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
+import static CCDD.CcddConstants.COL_ARGUMENT;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
@@ -36,17 +37,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.TableInsertionPoint;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table type editor dialog class
@@ -76,6 +78,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmCopy;
     private JMenuItem mntmPaste;
     private JMenuItem mntmInsert;
+    private JMenuItem mntmInsertCmdArgs;
     private JMenuItem mntmInsertRow;
     private JMenuItem mntmDeleteRow;
     private JMenuItem mntmMoveUp;
@@ -85,7 +88,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmClearValues;
     private JCheckBoxMenuItem mntmOverwrite;
     private JButton btnClose;
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
 
     // List containing the table type names for the types that are being updated. If a table type
     // change is stored, any tables of that type with unsaved changes will have the changes
@@ -306,6 +309,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmRedo = ccddMain.createMenuItem(mnEdit, "Redo (Ctrl-Y)", KeyEvent.VK_Y, 1, "Redo the last undone edit operation");
                 mnEdit.addSeparator();
                 mntmClear = ccddMain.createMenuItem(mnEdit, "Clear data", KeyEvent.VK_L, 1, "Clear the current table type contents");
+                mntmInsertCmdArgs = ccddMain.createMenuItem(mnEdit, "Add command arguments", KeyEvent.VK_A, 1, "Add the default columns for a command argument");
 
                 // Create the Row menu and menu items
                 JMenu mnRow = ccddMain.createMenu(menuBar, "Row", KeyEvent.VK_R, 1, null);
@@ -542,17 +546,70 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // Check if there are any rows to clear
                         if (activeEditor.getTable().getModel().getRowCount() != 0)
                         {
-                            // Confirm clearing the table values
-                            if (new CcddDialogHandler().showMessageDialog(CcddTableTypeEditorDialog.this,
-                                                                          "<html><b>Clear the table contents?",
-                                                                          "Clear Table",
-                                                                          JOptionPane.QUESTION_MESSAGE,
-                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                            // Select all rows and remove them
+                            activeEditor.getTable().selectAll();
+                            activeEditor.getTable().removeRows(activeEditor.getTable().getSelectedRows());
+                        }
+                    }
+
+                    /******************************************************************************
+                     * Get the table for which the action is performed
+                     *
+                     * @return Table for which the action is performed
+                     *****************************************************************************/
+                    @Override
+                    protected CcddJTableHandler getTable()
+                    {
+                        return getActiveTable();
+                    }
+                });
+
+                // Add a listener for the Insert command arguments command
+                mntmInsertCmdArgs.addActionListener(new ValidateCellActionListener()
+                {
+                    /******************************************************************************
+                     * Insert the default columns for a command argument
+                     *****************************************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        boolean isIndexUsed;
+                        int argumentIndex = 1;
+
+                        do
+                        {
+                            // Set the flag to indicate that the argument index isn't used
+                            isIndexUsed = false;
+
+                            // Step through each column name in the table type
+                            for (String columnName : activeEditor.getTypeDefinition().getColumnNamesUser())
                             {
-                                // Select all rows and remove them
-                                activeEditor.getTable().selectAll();
-                                activeEditor.getTable().removeRows(activeEditor.getTable().getSelectedRows());
+                                // Check if the column name begins with the default command
+                                // argument name for this argument index
+                                if (columnName.startsWith(COL_ARGUMENT + " " + argumentIndex + " "))
+                                {
+                                    // Set the flag to indicate that the argument index is used,
+                                    // increment the argument index, and stop searching
+                                    isIndexUsed = true;
+                                    argumentIndex++;
+                                    break;
+                                }
                             }
+                        } while (isIndexUsed);
+                        // Continue to search the column names while a match is found
+
+                        int newArgStartIndex = activeEditor.getTypeDefinition().getColumnCountVisible();
+
+                        // Create the command argument columns for the next unused argument index
+                        activeEditor.getTypeDefinition().addCommandArgumentColumns(argumentIndex);
+
+                        // Step through each new command argument column
+                        for (; newArgStartIndex < activeEditor.getTypeDefinition().getColumnCountVisible(); newArgStartIndex++)
+                        {
+                            // Insert the column into the table type editor
+                            activeEditor.getTable().insertRow(false,
+                                                              TableInsertionPoint.END,
+                                                              activeEditor.getTypeDefinition().getData()[newArgStartIndex]);
                         }
                     }
 
@@ -984,7 +1041,35 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                 // Table Editors //////////////////////////////////////////////////////////////////
                 // Create a tabbed pane for the editors to appear in
-                tabbedPane = new JTabbedPane(SwingConstants.TOP);
+                tabbedPane = new DnDTabbedPane(JTabbedPane.TOP)
+                {
+                    /******************************************************************************
+                     * Update the table type editor list order following a tab move
+                     *****************************************************************************/
+                    @Override
+                    protected Object tabMoveCleanup(int oldTabIndex,
+                                                    int newTabIndex,
+                                                    Object tabContents)
+                    {
+                        // Get the reference to the moved tab's original location in the list
+                        CcddTableTypeEditorHandler editor = typeEditors.get(oldTabIndex);
+
+                        // Remove the tab
+                        typeEditors.remove(oldTabIndex);
+
+                        // Add the tab at its new location
+                        typeEditors.add(newTabIndex
+                                        - (newTabIndex > oldTabIndex ? 1
+                                                                     : 0),
+                                        editor);
+
+                        // Update the active tab pointer to the moved tab
+                        activeEditor = typeEditors.get(tabbedPane.getSelectedIndex());
+
+                        return editor;
+                    }
+                };
+
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes
@@ -1230,8 +1315,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      * @param fieldDefinitions
      *            list of data field definitions
      *********************************************************************************************/
-    protected void addTypePanes(String[] typeNames,
-                                List<String[]> fieldDefinitions)
+    protected void addTypePanes(String[] typeNames, List<String[]> fieldDefinitions)
     {
         // Step through the table types
         for (String name : typeNames)
@@ -1247,7 +1331,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             tabbedPane.addTab(editor.getTypeName(),
                               null,
                               editor.getFieldPanel(),
-                              null);
+                              (editor.getDescription().isEmpty()
+                                                                 ? null
+                                                                 : editor.getDescription()));
         }
 
         // Check if only a single type was added

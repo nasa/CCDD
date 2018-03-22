@@ -28,8 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;

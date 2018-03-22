@@ -82,10 +82,10 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClasses.CellSelectionHandler;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.ModifiableColor;
-import CCDD.CcddClasses.SelectedCell;
+import CCDD.CcddClassesComponent.CellSelectionHandler;
+import CCDD.CcddClassesComponent.ModifiableColor;
+import CCDD.CcddClassesComponent.SelectedCell;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -736,6 +736,7 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Set the flag indicating a change exists
                         hasChanges = true;
+
                     }
                 }
             }
@@ -2672,13 +2673,8 @@ public abstract class CcddJTableHandler extends JTable
      * @param data
      *            data with which to populate the inserted row; null to insert an empty row
      *********************************************************************************************/
-    protected void insertRow(boolean endEdit,
-                             TableInsertionPoint insertionPoint,
-                             Object[] data)
+    protected void insertRow(boolean endEdit, TableInsertionPoint insertionPoint, Object[] data)
     {
-        // Storage for the indices of the row below which to insert the new row, in view and model
-        // coordinates
-        int viewRow;
         int modelRow;
 
         // Check if the end of the edit sequence should be flagged
@@ -2689,7 +2685,7 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         // Set the row index to the last row selected by the user (if any)
-        viewRow = getSelectedRow() + getSelectedRowCount() - 1;
+        int viewRow = getSelectedRow() + getSelectedRowCount() - 1;
 
         // Check if the new row is to be inserted at the start of the table
         if (insertionPoint == TableInsertionPoint.START)
@@ -3045,6 +3041,15 @@ public abstract class CcddJTableHandler extends JTable
                 // indicating the end of the row
                 String data = (String) clipboard.getData(DataFlavor.stringFlavor);
 
+                // Check if the pasted text ends with a new line character
+                if (data.endsWith("\n"))
+                {
+                    // Remove the trailing new line. This prevents pasting rows from, for example,
+                    // a spreadsheet from adding an extra row since each pasted row, including the
+                    // final one, is automatically terminated by a new line
+                    data = data.substring(0, data.length() - 1);
+                }
+
                 // Replace all pairs of consecutive double quotes with a place holder string
                 String embeddedQuote = "@~quote~@";
                 data = data.replaceAll("\"\"", embeddedQuote);
@@ -3052,8 +3057,7 @@ public abstract class CcddJTableHandler extends JTable
                 // Embedded new lines are indicated by being in a cell bounded by double quotes.
                 // Replace all embedded new line characters with a place holder string
                 String embeddedNewline = "@~newline~@";
-                data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)",
-                                       embeddedNewline);
+                data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)", embeddedNewline);
 
                 // Replace the tabs with a tab+space so that empty cells at the end of a line
                 // aren't discarded by the split commands. The extra space is removed later

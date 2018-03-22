@@ -39,9 +39,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -407,7 +407,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 // Create a tabbed pane to contain the message name/ID parameters and add it to the
                 // dialog
                 tabbedPane = new JTabbedPane(SwingConstants.LEFT);
-
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 dialogPnl.add(tabbedPane, gbc);
                 dialogPnl.setBorder(etchBorder);
@@ -542,11 +541,14 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Check if a structure, command, or other table type telemetry message ID
                         // column or data field value, or a group message ID data field value
                         // changed
-                        if (structMsgChanged || cmdMsgChanged || otherMsgChanged || groupMsgChanged)
+                        if (structMsgChanged
+                            || cmdMsgChanged
+                            || otherMsgChanged
+                            || groupMsgChanged)
                         {
                             // Store the updated data fields table
                             dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
-                                                                      fieldHandler.getFieldDefinitionList(),
+                                                                      fieldHandler.getFieldDefinitionsFromInformation(),
                                                                       null,
                                                                       CcddAssignMessageIDDialog.this);
                         }
@@ -687,7 +689,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Restore the previous value in the field
                         tabInfo.getPatternFld().setText(lastValid);
 
+                        // Set the flag indicating the input is invalid
                         isValid = false;
+
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
+                        CcddAssignMessageIDDialog.this.setControlsEnabled(false);
+                        CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                     }
                     // The value is valid
                     else
@@ -763,7 +771,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Restore the previous value in the field
                         tabInfo.getStartFld().setText(lastValid);
 
+                        // Set the flag indicating the input is invalid
                         isValid = false;
+
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
+                        CcddAssignMessageIDDialog.this.setControlsEnabled(false);
+                        CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                     }
                     // The value is valid
                     else
@@ -859,7 +873,13 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Restore the previous value in the field
                     tabInfo.getIntervalFld().setText(lastValid);
 
+                    // Set the flag indicating the input is invalid
                     isValid = false;
+
+                    // Toggle the controls enable status so that the buttons are redrawn
+                    // correctly
+                    CcddAssignMessageIDDialog.this.setControlsEnabled(false);
+                    CcddAssignMessageIDDialog.this.setControlsEnabled(true);
                 }
                 // The value is valid
                 else

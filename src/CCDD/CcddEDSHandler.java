@@ -62,12 +62,12 @@ import org.ccsds.schema.sois.seds.StringEncodingType;
 import org.ccsds.schema.sois.seds.Unit;
 import org.ccsds.schema.sois.seds.ValueEnumerationType;
 
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.AssociatedColumns;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.TableDefinition;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
@@ -731,14 +731,17 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 containerType.setName(tlmHeaderTable + TYPE);
                 containerType.setAbstract(true);
             }
-            // Not the telemetry header. Check if a telemetry header exists
-            else if (tlmHeaderTable != null && !tlmHeaderTable.isEmpty())
+            // Not the telemetry header
+            else
             {
                 containerType.setName(tableInfo.getPrototypeName() + TYPE);
 
                 // Check if this is a root structure (instance structures don't require a
-                // reference to the telemetry header) and this isn't the command header table
-                if (tableInfo.isRootStructure() && !namespace.getName().equals(tlmHeaderTable))
+                // reference to the telemetry header) and the telemetry header table name is
+                // defined
+                if (tableInfo.isRootStructure()
+                    && tlmHeaderTable != null
+                    && !tlmHeaderTable.isEmpty())
                 {
                     InterfaceDeclarationType intParmType = null;
 

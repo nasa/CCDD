@@ -25,9 +25,9 @@ import javax.swing.JTable;
 import javax.swing.JWindow;
 import javax.swing.ScrollPaneConstants;
 
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.ModifiableColor;
-import CCDD.CcddClasses.ModifiableFont;
+import CCDD.CcddClassesComponent.ModifiableColor;
+import CCDD.CcddClassesComponent.ModifiableFont;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 
@@ -105,6 +105,8 @@ public class CcddConstants
     // Column names/prefixes
     protected static final String COL_ARGUMENT = "Arg";
     protected static final String COL_DATA_TYPE = "Data Type";
+    protected static final String COL_ARRAY_SIZE = "Array Size";
+    protected static final String COL_BIT_LENGTH = "Bit Length";
     protected static final String COL_DESCRIPTION = "Description";
     protected static final String COL_UNITS = "Units";
     protected static final String COL_ENUMERATION = "Enumeration";
@@ -517,6 +519,14 @@ public class CcddConstants
         HEXADECIMAL
     }
 
+    // Script file availability types
+    protected static enum AvailabilityType
+    {
+        AVAILABLE,
+        TABLE_MISSING,
+        SCRIPT_MISSING
+    }
+
     // Modifiable font information
     protected static enum ModifiableFontInfo
     {
@@ -839,7 +849,8 @@ public class CcddConstants
         SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
         DATA_TYPE("Data type (tree)", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
-        TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180);
+        TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180),
+        TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tab move location indicator", "TabMoveLoccationIndicatorColor", 0, 100, 255);
 
         private final String name;
         private final String description;
@@ -1151,7 +1162,8 @@ public class CcddConstants
         INIT_VIEWABLE_LIST_ROWS("Initial list rows", "Number of rows of radio buttons or check boxes to display initially", "InitalViewableListRows", 12, 1, 50),
         MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
         MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20),
-        MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100);
+        MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100),
+        TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tab move location indicator width in pixels", "TabMoveLocationIndcatorWidth", 3, 1, 15);
 
         private final String name;
         private final String description;
@@ -2704,7 +2716,7 @@ public class CcddConstants
                   true,
                   true),
         ARRAY_SIZE(TYPE_STRUCTURE,
-                   "Array Size",
+                   COL_ARRAY_SIZE,
                    "Parameter array size",
                    InputDataType.ARRAY_INDEX,
                    true,
@@ -2816,14 +2828,24 @@ public class CcddConstants
                    true,
                    false),
         ARG_ARRAY_SIZE_1(TYPE_COMMAND,
-                         COL_ARGUMENT + " 1 " + "Array Size",
+                         COL_ARGUMENT + " 1 " + COL_ARRAY_SIZE,
                          "Command argument 1 array size",
                          InputDataType.ARRAY_INDEX,
                          false,
                          false,
                          false,
                          false,
+                         true,
+                         false),
+        ARG_BIT_LENGTH_1(TYPE_COMMAND,
+                         COL_ARGUMENT + " 1 " + COL_BIT_LENGTH,
+                         "Command argument 1 bit length",
+                         InputDataType.BIT_LENGTH,
                          false,
+                         false,
+                         false,
+                         false,
+                         true,
                          false),
         ARG_ENUMS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
@@ -2833,7 +2855,7 @@ public class CcddConstants
                     false,
                     false,
                     false,
-                    false,
+                    true,
                     false),
         ARG_MIN_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MINIMUM,
@@ -2843,7 +2865,7 @@ public class CcddConstants
                   false,
                   false,
                   false,
-                  false,
+                  true,
                   false),
         ARG_MAX_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MAXIMUM,
@@ -2853,7 +2875,7 @@ public class CcddConstants
                   false,
                   false,
                   false,
-                  false,
+                  true,
                   false);
 
         private final String tableType;
@@ -3122,7 +3144,7 @@ public class CcddConstants
          * Get the number of columns that are required to define the specified table type
          *
          * @param type
-         *            table type
+         *            default table type
          *
          * @return Number of the columns that are required to define the specified table type
          *****************************************************************************************/

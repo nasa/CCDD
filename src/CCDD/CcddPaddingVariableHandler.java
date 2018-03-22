@@ -27,9 +27,9 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.BitPackRowIndex;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.BitPackRowIndex;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -156,7 +156,7 @@ public class CcddPaddingVariableHandler
                 }
 
                 // Get the a reference to the table's type definition
-                TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableEditor.getTableInformation().getType());
+                TypeDefinition typeDefn = tableEditor.getTableTypeDefinition();
 
                 // Get the column indices for the variable name, data type, array size, and bit
                 // length

@@ -53,12 +53,13 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.CustomSplitPane;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
+import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -981,7 +982,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                descriptionFld.getText(),
                                                scriptFile.getAbsolutePathWithEnvVars(),
                                                CcddUtilities.highlightDataType(assn),
-                                               scriptFile.exists()});
+                                               (scriptFile.exists()
+                                                                    ? AvailabilityType.AVAILABLE
+                                                                    : AvailabilityType.SCRIPT_MISSING)});
 
             isAdded = true;
         }

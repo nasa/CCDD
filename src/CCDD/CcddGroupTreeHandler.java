@@ -36,9 +36,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -82,7 +82,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private ToolTipTreeNode[] appNodes;
 
     // Data field information
-    private Object[][] fieldDefinitions;
+    private String[][] fieldDefinitions;
 
     // Currently selected group's schedule rate
     private String scheduleRate;
@@ -442,7 +442,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     {
         // Get the data field information from the database
         fieldDefinitions = dbTable.retrieveInformationTable(InternalTable.FIELDS, parent)
-                                  .toArray(new Object[0][0]);
+                                  .toArray(new String[0][0]);
 
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())

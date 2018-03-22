@@ -39,8 +39,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import CCDD.CcddClasses.CellSelectionHandler;
-import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesComponent.CellSelectionHandler;
 import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 
 /**************************************************************************************************

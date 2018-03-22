@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
-import CCDD.CcddClasses.ArrayVariable;
+import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;

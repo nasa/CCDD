@@ -9,12 +9,15 @@ package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
+import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
+import static CCDD.CcddConstants.PROJECT_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.REDO_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.TABLE_ICON;
+import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.UNDO_ICON;
 
 import java.awt.Color;
@@ -54,11 +57,11 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.CellSelectionHandler;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.CellSelectionHandler;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
@@ -254,8 +257,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                             // Rebuild the table's data field information
                             tableInfo.getFieldHandler().setFieldDefinitions(dataFields);
-                            tableInfo.getFieldHandler().buildFieldInformation(del[0],
-                                                                              tableInfo.isRootStructure());
+                            tableInfo.getFieldHandler().buildFieldInformation(del[0]);
 
                             // Store the data field information in the committed information so
                             // that this value change is ignored when updating or closing the table
@@ -1436,6 +1438,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     {
         isPath = false;
         List<Object[]> ownerDataFields = new ArrayList<Object[]>();
+        List<String[]> ownersInTable = new ArrayList<String[]>();
 
         // Get the list of selected tables
         List<String> filterTables = tableTree.getSelectedTablesWithChildren();
@@ -1538,27 +1541,33 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 if (dataFieldIndex != -1)
                 {
                     boolean isFound = false;
+                    int row = 0;
 
                     // Step through the owners added to this point
-                    for (Object[] ownerDataFld : ownerDataFields)
+                    for (String[] inTable : ownersInTable)
                     {
                         // Check if the owner name and path for the data field matches
-                        if (ownerDataFld[FieldTableEditorColumnInfo.OWNER.ordinal()].equals(ownerName)
-                            && ownerDataFld[FieldTableEditorColumnInfo.PATH.ordinal()].equals(pathName))
+                        if (ownerName.equals(inTable[0]) && pathName.equals(inTable[1]))
                         {
                             // Store the data field value in the existing list item and stop
                             // searching
-                            ownerDataFld[dataFieldIndex] = fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN
-                                                                                                                                ? Boolean.valueOf(fieldInfo.getValue())
-                                                                                                                                : fieldInfo.getValue();
+                            ownerDataFields.get(row)[dataFieldIndex] = fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN
+                                                                                                                                            ? Boolean.valueOf(fieldInfo.getValue())
+                                                                                                                                            : fieldInfo.getValue();
                             isFound = true;
                             break;
                         }
+
+                        row++;
                     }
 
                     // Check if the owner isn't already in the list
                     if (!isFound)
                     {
+                        // Add the non-highlighted owner and path names to the list of owners
+                        // already added to the table
+                        ownersInTable.add(new String[] {ownerName, pathName});
+
                         // Create a new row for the owner
                         Object[] newTable = new Object[columnNames.length];
                         Arrays.fill(newTable, "");
@@ -1806,22 +1815,22 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
 
         // Check if this field belongs to the project
-        if (ownerName.startsWith(CcddFieldHandler.getFieldProjectName()))
+        if (ownerName.startsWith(PROJECT_DATA_FIELD_IDENT))
         {
             // Get the project field indicator
-            prepend = CcddFieldHandler.getFieldProjectName();
+            prepend = PROJECT_DATA_FIELD_IDENT;
         }
         // Check if this field belongs to a group
-        else if (ownerName.startsWith(CcddFieldHandler.getFieldGroupName("")))
+        else if (ownerName.startsWith(GROUP_DATA_FIELD_IDENT))
         {
             // Get the group field indicator
-            prepend = CcddFieldHandler.getFieldGroupName("");
+            prepend = GROUP_DATA_FIELD_IDENT;
         }
         // Check if this field belongs to a table type
-        else if (ownerName.startsWith(CcddFieldHandler.getFieldTypeName("")))
+        else if (ownerName.startsWith(TYPE_DATA_FIELD_IDENT))
         {
             // Get the table type field indicator
-            prepend = CcddFieldHandler.getFieldTypeName("");
+            prepend = TYPE_DATA_FIELD_IDENT;
         }
 
         // Check if the field belongs to the project, a group, or a table type

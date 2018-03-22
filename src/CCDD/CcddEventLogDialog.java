@@ -58,7 +58,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import CCDD.CcddClasses.FileEnvVar;
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventColumns;
 import CCDD.CcddConstants.EventLogMessageType;

@@ -55,11 +55,11 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableMembers;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableMembers;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -138,6 +138,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     // column name and rate value
     private ArrayListMultiple rateValues;
 
+    // Flag to indicate if any errors when building the tree are annunciated via a warning dialog
+    private final boolean isSilent;
+
     /**********************************************************************************************
      * Table tree handler class constructor
      *
@@ -188,6 +191,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            list of node paths to be excluded from the table; null or empty list if no
      *            exclusions
      *
+     * @param isSilent
+     *            true if any errors when building the tree are not annunciated via a warning
+     *            dialog
+     *
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
@@ -202,6 +209,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                          String rateName,
                          String rateFilter,
                          List<String> excludedVariables,
+                         boolean isSilent,
                          Component parent)
     {
         super(ccddMain);
@@ -217,6 +225,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         this.rateName = rateName;
         this.rateFilter = rateFilter;
         this.excludedVariables = excludedVariables;
+        this.isSilent = isSilent;
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -277,6 +286,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
              null,
              null,
              null,
+             false,
              parent);
     }
 
@@ -335,6 +345,56 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
              rateName,
              rateFilter,
              excludedVariables,
+             false,
+             parent);
+    }
+
+    /**********************************************************************************************
+     * Table tree handler class constructor. Get just the tree information of the specified type.
+     * Structure variable tables and primitives retain their order of appearance in the table's
+     * definition
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param treeType
+     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
+     *            INSTANCE_TABLES to show only the table instances (parent tables with child
+     *            tables), TABLES to show the prototypes and instances for all tables,
+     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
+     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
+     *            structure table instances only including primitive variables,
+     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
+     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
+     *            show prototypes and instances for all tables including primitive variables,
+     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
+     *            primitive variables
+     *
+     * @param isSilent
+     *            true if any errors when building the tree are not annunciated via a warning
+     *            dialog
+     *
+     * @param parent
+     *            GUI component calling this method
+     *********************************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         TableTreeType treeType,
+                         boolean isSilent,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             null,
+             treeType,
+             false,
+             false,
+             false,
+             false,
+             false,
+             null,
+             null,
+             null,
+             isSilent,
              parent);
     }
 
@@ -376,6 +436,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
              null,
              null,
              null,
+             false,
              parent);
     }
 
@@ -937,8 +998,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                new ToolTipTreeNode(member.getTableName(),
                                                    getTableDescription(member.getTableName(),
                                                                        "")));
-                    // Check if a recursive reference was detected
-                    if (recursionTable != null)
+                    // Check if a recursive reference was detected and that warning dialogs aren't
+                    // suppressed
+                    if (recursionTable != null && !isSilent)
                     {
                         // Inform the user that the table has a recursive reference
                         new CcddDialogHandler().showMessageDialog(parent,

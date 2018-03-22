@@ -31,8 +31,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.PaddedComboBox;
+import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
@@ -124,6 +124,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
         // Create the field information for this table type
         fieldHandler = new CcddFieldHandler(ccddMain);
+        // TODO DO THE FIELD DEFNS NEED TO BE STORED AS WELL?
         fieldHandler.buildFieldInformation(fieldDefinitions,
                                            CcddFieldHandler.getFieldTypeName(tableTypeName));
 

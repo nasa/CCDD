@@ -16,6 +16,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -37,8 +37,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.RateInformation;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -63,12 +63,75 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     private JTextField[] streamNameFld;
     private JTextArea[] availRatesFld;
     private JCheckBox unevenCb;
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
     private Border border;
     private Border emptyBorder;
 
-    // Reference to the rate parameter input verifier
-    private InputVerifier verifyInputs;
+    /**********************************************************************************************
+     * Input field verification result class
+     *********************************************************************************************/
+    private class InputVerificationResult
+    {
+        String lastValid;
+        boolean isValid;
+
+        /******************************************************************************************
+         * Input field verification result class constructor
+         *
+         * @param lastValid
+         *            last valid field value
+         *
+         * @param isValid
+         *            true if the input value is valid
+         *****************************************************************************************/
+        InputVerificationResult(String lastValid, boolean isValid)
+        {
+            this.lastValid = lastValid;
+            this.isValid = isValid;
+        }
+
+        /******************************************************************************************
+         * Get the last valid input value
+         *
+         * @return Last valid field value
+         *****************************************************************************************/
+        protected String getLastValid()
+        {
+            return lastValid;
+        }
+
+        /******************************************************************************************
+         * Set the last valid input value
+         *
+         * @param lastValid
+         *            last valid field value
+         *****************************************************************************************/
+        protected void setLastValid(String lastValid)
+        {
+            this.lastValid = lastValid;
+        }
+
+        /******************************************************************************************
+         * Get the value validity status
+         *
+         * @return true if the input value is valid
+         *****************************************************************************************/
+        protected boolean isValid()
+        {
+            return isValid;
+        }
+
+        /******************************************************************************************
+         * Set the value validity status
+         *
+         * @param isValid
+         *            true if the input value is valid
+         *****************************************************************************************/
+        protected void setValid(boolean isValid)
+        {
+            this.isValid = isValid;
+        }
+    }
 
     /**********************************************************************************************
      * Rate parameter assignment dialog class constructor
@@ -86,33 +149,64 @@ public class CcddRateParameterDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Verify the contents of a rate input field
+     *
+     * @param field
+     *            reference to the input field
+     *
+     * @param lastValid
+     *            last valid field value
+     *
+     * @return input verification results containing the last valid value and the valid status
+     *********************************************************************************************/
+    private InputVerificationResult verifyInputField(JTextField field, String lastValid)
+    {
+        InputVerificationResult verifyResult = new InputVerificationResult(lastValid, true);
+
+        // Remove any leading and trailing white space characters
+        field.setText(field.getText().trim());
+
+        // Check if the any rate parameter is not a positive integer value
+        if (!field.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+        {
+            // Inform the user that a rate is invalid
+            new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
+                                                      "<html><b>Rate parameter values must be positive integer values",
+                                                      "Missing/Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+
+            // Restore the previous value in the field
+            field.setText(verifyResult.getLastValid());
+
+            // Set the flag to indicate the dialog input is invalid
+            verifyResult.setValid(false);
+
+            // Toggle the controls enable status so that the buttons are redrawn correctly
+            CcddRateParameterDialog.this.setControlsEnabled(false);
+            CcddRateParameterDialog.this.setControlsEnabled(true);
+        }
+        // The input is valid
+        else
+        {
+            // Format the rate parameter field
+            field.setText(Integer.valueOf(field.getText()).toString());
+
+            // Display the available rates for the currently selected rate column
+            updateAvailableRates();
+
+            // Store the new value as the last valid value
+            verifyResult.setLastValid(field.getText());
+        }
+
+        return verifyResult;
+    }
+
+    /**********************************************************************************************
      * Create the rate parameter assignment dialog
      *********************************************************************************************/
     private void initialize()
     {
-        // Create an input verifier so that the rate parameters can be verified and the available
-        // rates calculated
-        verifyInputs = new InputVerifier()
-        {
-            /**************************************************************************************
-             * Verify the contents of a rate parameter and update the available rates
-             *************************************************************************************/
-            @Override
-            public boolean verify(JComponent input)
-            {
-                boolean isValid = verifySelection();
-
-                // Check if the rate parameters are valid
-                if (isValid)
-                {
-                    // Display the available rates for the currently selected rate column
-                    updateAvailableRates();
-                }
-
-                return isValid;
-            }
-        };
-
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -155,7 +249,31 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         maxSecPerMsgFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         maxSecPerMsgFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxSecPerMsgFld.setBorder(border);
-        maxSecPerMsgFld.setInputVerifier(verifyInputs);
+
+        // Set the field's input verifier
+        maxSecPerMsgFld.setInputVerifier(new InputVerifier()
+        {
+            // Storage for the last valid value entered; used to restore the input field value if
+            // an invalid value is entered. Initialize to the value at the time the field is
+            // created
+            String lastValid = maxSecPerMsgFld.getText();
+
+            /**************************************************************************************
+             * Verify the contents of the input field
+             *************************************************************************************/
+            @Override
+            public boolean verify(JComponent input)
+            {
+                // Verify the field contents
+                InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
+
+                // Update the last valid value
+                lastValid = doneIt.getLastValid();
+
+                return doneIt.isValid();
+            }
+        });
+
         gbc.gridx++;
         dialogPnl.add(maxSecPerMsgFld, gbc);
 
@@ -173,7 +291,31 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         maxMsgsPerSecFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
         maxMsgsPerSecFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         maxMsgsPerSecFld.setBorder(border);
-        maxMsgsPerSecFld.setInputVerifier(verifyInputs);
+
+        // Set the field's input verifier
+        maxMsgsPerSecFld.setInputVerifier(new InputVerifier()
+        {
+            // Storage for the last valid value entered; used to restore the input field value if
+            // an invalid value is entered. Initialize to the value at the time the field is
+            // created
+            String lastValid = maxMsgsPerSecFld.getText();
+
+            /**************************************************************************************
+             * Verify the contents of the input field
+             *************************************************************************************/
+            @Override
+            public boolean verify(JComponent input)
+            {
+                // Verify the field contents
+                InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
+
+                // Update the last valid value
+                lastValid = doneIt.getLastValid();
+
+                return doneIt.isValid();
+            }
+        });
+
         gbc.gridx++;
         dialogPnl.add(maxMsgsPerSecFld, gbc);
 
@@ -187,7 +329,46 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         availRatesFld = new JTextArea[rateInformation.size()];
 
         // Create a tabbed pane to contain the rate parameters that are stream-specific
-        tabbedPane = new JTabbedPane(SwingConstants.TOP);
+        tabbedPane = new DnDTabbedPane(SwingConstants.TOP)
+        {
+            /**************************************************************************************
+             * Update the rate arrays order following a tab move
+             *************************************************************************************/
+            @Override
+            protected Object tabMoveCleanup(int oldTabIndex, int newTabIndex, Object tabContents)
+            {
+                // Adjust the new tab index if moving the tab to a higher index
+                newTabIndex -= newTabIndex > oldTabIndex
+                                                         ? 1
+                                                         : 0;
+
+                // Re-order the rate information based on the new tab order
+                RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
+                rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray,
+                                                                                  oldTabIndex,
+                                                                                  newTabIndex);
+                List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
+                rateInfoList.addAll(Arrays.asList(rateInfoArray));
+                rateHandler.setRateInformation(rateInfoList);
+
+                // Re-order the fields based on the new tab order
+                maxMsgsPerCycleFld = (JTextField[]) CcddUtilities.moveArrayMember(maxMsgsPerCycleFld,
+                                                                                  oldTabIndex,
+                                                                                  newTabIndex);
+                maxBytesPerSecFld = (JTextField[]) CcddUtilities.moveArrayMember(maxBytesPerSecFld,
+                                                                                 oldTabIndex,
+                                                                                 newTabIndex);
+                streamNameFld = (JTextField[]) CcddUtilities.moveArrayMember(streamNameFld,
+                                                                             oldTabIndex,
+                                                                             newTabIndex);
+                availRatesFld = (JTextArea[]) CcddUtilities.moveArrayMember(availRatesFld,
+                                                                            oldTabIndex,
+                                                                            newTabIndex);
+
+                return null;
+            }
+        };
+
         tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Create a tab for each stream
@@ -380,6 +561,64 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             streamNameFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             streamNameFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             streamNameFld[index].setBorder(border);
+
+            // Get the initial field value
+            final String initStreamName = streamNameFld[index].getText();
+
+            // Set the field's input verifier
+            streamNameFld[index].setInputVerifier(new InputVerifier()
+            {
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
+                // created
+                String lastValid = initStreamName;
+
+                /**********************************************************************************
+                 * Verify the contents of the input field
+                 *********************************************************************************/
+                @Override
+                public boolean verify(JComponent input)
+                {
+                    JTextField field = (JTextField) input;
+
+                    // Remove any leading and trailing white space characters
+                    field.setText(field.getText().trim());
+
+                    // Assume the dialog input is valid
+                    boolean isValid = true;
+
+                    // Check if a matching stream name is found for a rate other than this one
+                    if (rateHandler.getRateInformationIndexByStreamName(field.getText()) != tabbedPane.getSelectedIndex())
+                    {
+                        // Inform the user that a stream name is duplicated
+                        new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
+                                                                  "<html><b>Duplicate stream name",
+                                                                  "Missing/Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+
+                        // Restore the previous value in the field
+                        field.setText(lastValid);
+
+                        // Set the flag to indicate the dialog input is invalid
+                        isValid = false;
+
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
+                        CcddRateParameterDialog.this.setControlsEnabled(false);
+                        CcddRateParameterDialog.this.setControlsEnabled(true);
+                    }
+                    // The stream name is unique to this rate
+                    else
+                    {
+                        // Update the last valid input
+                        lastValid = field.getText();
+                    }
+
+                    return isValid;
+                }
+            });
+
             gbc.gridx++;
             streamPnl.add(streamNameFld[index], gbc);
 
@@ -397,7 +636,34 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             maxMsgsPerCycleFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             maxMsgsPerCycleFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             maxMsgsPerCycleFld[index].setBorder(border);
-            maxMsgsPerCycleFld[index].setInputVerifier(verifyInputs);
+
+            // Get the initial field value
+            final String initMaxMsgsPerCycle = maxMsgsPerCycleFld[index].getText();
+
+            // Set the field's input verifier
+            maxMsgsPerCycleFld[index].setInputVerifier(new InputVerifier()
+            {
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
+                // created
+                String lastValid = initMaxMsgsPerCycle;
+
+                /**********************************************************************************
+                 * Verify the contents of the input field
+                 *********************************************************************************/
+                @Override
+                public boolean verify(JComponent input)
+                {
+                    // Verify the field contents
+                    InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
+
+                    // Update the last valid value
+                    lastValid = doneIt.getLastValid();
+
+                    return doneIt.isValid();
+                }
+            });
+
             gbc.gridx++;
             streamPnl.add(maxMsgsPerCycleFld[index], gbc);
 
@@ -415,7 +681,34 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             maxBytesPerSecFld[index].setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
             maxBytesPerSecFld[index].setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
             maxBytesPerSecFld[index].setBorder(border);
-            maxBytesPerSecFld[index].setInputVerifier(verifyInputs);
+
+            // Get the initial field value
+            final String initMaxBytesPerSec = maxBytesPerSecFld[index].getText();
+
+            // Set the field's input verifier
+            maxBytesPerSecFld[index].setInputVerifier(new InputVerifier()
+            {
+                // Storage for the last valid value entered; used to restore the input field value
+                // if an invalid value is entered. Initialize to the value at the time the field is
+                // created
+                String lastValid = initMaxBytesPerSec;
+
+                /**********************************************************************************
+                 * Verify the contents of the input field
+                 *********************************************************************************/
+                @Override
+                public boolean verify(JComponent input)
+                {
+                    // Verify the field contents
+                    InputVerificationResult doneIt = verifyInputField((JTextField) input, lastValid);
+
+                    // Update the last valid value
+                    lastValid = doneIt.getLastValid();
+
+                    return doneIt.isValid();
+                }
+            });
+
             gbc.gridx++;
             streamPnl.add(maxBytesPerSecFld[index], gbc);
 
@@ -426,10 +719,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
             streamPnl.add(availRatesPnl, gbc);
 
             // Create a tab for each stream
-            tabbedPane.addTab(rateInfo.get(index).getRateName(),
-                              null,
-                              streamPnl,
-                              null);
+            tabbedPane.addTab(rateInfo.get(index).getRateName(), null, streamPnl, null);
         }
     }
 
@@ -499,114 +789,5 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         }
 
         return isChanges;
-    }
-
-    /**********************************************************************************************
-     * Verify that the dialog content is valid
-     *
-     * @return true if the input values are valid
-     *********************************************************************************************/
-    @Override
-    protected boolean verifySelection()
-    {
-        // Assume the dialog input is valid
-        boolean isValid = true;
-
-        try
-        {
-            // Remove any excess white space
-            maxSecPerMsgFld.setText(maxSecPerMsgFld.getText().trim());
-            maxMsgsPerSecFld.setText(maxMsgsPerSecFld.getText().trim());
-
-            // Step through each stream
-            for (int index = 0; index < tabbedPane.getTabCount(); index++)
-            {
-                // Remove any excess white space
-                streamNameFld[index].setText(streamNameFld[index].getText().trim());
-                maxMsgsPerCycleFld[index].setText(maxMsgsPerCycleFld[index].getText().trim());
-                maxBytesPerSecFld[index].setText(maxBytesPerSecFld[index].getText().trim());
-            }
-
-            // Check if any rate parameter is blank
-            if (maxSecPerMsgFld.getText().isEmpty()
-                || maxMsgsPerSecFld.getText().isEmpty())
-            {
-                // Inform the user that a rate parameter is missing
-                throw new CCDDException("All rate parameters must be entered");
-            }
-
-            // Check if the any rate parameter is not a positive integer value
-            if (!maxSecPerMsgFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                || !maxMsgsPerSecFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
-            {
-                // Inform the user that a rate is invalid
-                throw new CCDDException("Rate parameter values must be positive integer values");
-            }
-
-            // Step through each stream
-            for (int index = 0; index < tabbedPane.getTabCount(); index++)
-            {
-                // Get the rate information index using this stream name
-                int streamIndex = rateHandler.getRateInformationIndexByStreamName(streamNameFld[index].getText());
-
-                // Check if this stream name exists and if it duplicates another rate's stream name
-                if (streamIndex != -1 && index != streamIndex)
-                {
-                    // Select the tab with the error
-                    tabbedPane.setSelectedIndex(index);
-
-                    // Inform the user that a stream name is duplicated
-                    throw new CCDDException("Duplicate stream name");
-                }
-
-                // Check if any rate parameter is blank
-                if (maxMsgsPerCycleFld[index].getText().isEmpty()
-                    || maxBytesPerSecFld[index].getText().isEmpty())
-                {
-                    // Select the tab with the error
-                    tabbedPane.setSelectedIndex(index);
-
-                    // Inform the user that a rate parameter is missing
-                    throw new CCDDException("All rate parameters must be entered");
-                }
-
-                // Check if the any rate parameter is not a positive integer value
-                if (!maxMsgsPerCycleFld[index].getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                    || !maxBytesPerSecFld[index].getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
-                {
-                    // Select the tab with the error
-                    tabbedPane.setSelectedIndex(index);
-
-                    // Inform the user that a rate is invalid
-                    throw new CCDDException("Rate parameters must be positive integer values");
-                }
-            }
-
-            // Format the rate parameter fields
-            maxSecPerMsgFld.setText(Integer.valueOf(maxSecPerMsgFld.getText()).toString());
-            maxMsgsPerSecFld.setText(Integer.valueOf(maxMsgsPerSecFld.getText()).toString());
-
-            // Step through each stream
-            for (int index = 0; index < tabbedPane.getTabCount(); index++)
-            {
-                // Format the rate parameter fields
-                maxMsgsPerCycleFld[index].setText(Integer.valueOf(maxMsgsPerCycleFld[index].getText()).toString());
-                maxBytesPerSecFld[index].setText(Integer.valueOf(maxBytesPerSecFld[index].getText()).toString());
-            }
-        }
-        catch (CCDDException ce)
-        {
-            // Inform the user that an input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
-                                                      "<html><b>" + ce.getMessage(),
-                                                      "Missing/Invalid Input",
-                                                      JOptionPane.WARNING_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-
-            // Set the flag to indicate the dialog input is invalid
-            isValid = false;
-        }
-
-        return isValid;
     }
 }

@@ -11,8 +11,8 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.RateInformation;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 

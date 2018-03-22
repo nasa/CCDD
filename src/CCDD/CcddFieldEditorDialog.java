@@ -43,9 +43,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.PaddedComboBox;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
@@ -64,7 +64,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 {
     // Class reference
     private final CcddKeyboardHandler keyboardHandler;
-    private final CcddInputFieldPanelHandler fieldPnlHandler;
+    private final CcddInputFieldPanelHandler fieldPnlHndlr;
     private CcddJTableHandler fieldTable;
 
     // Components referenced by multiple methods
@@ -124,7 +124,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                           int minimumWidth)
     {
         keyboardHandler = ccddMain.getKeyboardHandler();
-        this.fieldPnlHandler = fieldPnlHandler;
+        this.fieldPnlHndlr = fieldPnlHandler;
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
 
@@ -144,7 +144,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private void initialize(final int minimumWidth)
     {
         // Store the field information
-        currentData = fieldPnlHandler.getFieldHandler().getFieldEditorDefinition();
+        currentData = fieldPnlHndlr.getFieldHandler().getFieldEditorDefinition();
 
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()
@@ -758,7 +758,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         keyboardHandler.setModalDialogReference(fieldTable.getUndoManager(), fieldTable);
 
         // Display the table data field editor dialog
-        showOptionsDialog(fieldPnlHandler.getOwner(),
+        showOptionsDialog(fieldPnlHndlr.getOwner(),
                           outerPanel,
                           buttonPnl,
                           btnClose,
@@ -774,41 +774,44 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Recreate the data fields for display below the table
      *
-     * @param minimumWidth
+     * @param minDialogWidth
      *            minimum pixel width of the caller
      *********************************************************************************************/
-    private void recreateDataFieldPanel(int minimumWidth)
+    private void recreateDataFieldPanel(int minDialogWidth)
     {
         // Get the data field information as it is currently displayed in the table editor and
         // update the current data array to reflect the updates so that subsequent changes are
         // correctly identified
-        currentData = getUpdatedData();
+        currentData = fieldTable.getTableData(true);
 
         // Build the field definitions from the editor table data, then use the definitions to
         // build the field information
-        fieldPnlHandler.getFieldHandler().buildFieldInformation(fieldPnlHandler.getFieldHandler().buildFieldDefinition(currentData,
-                                                                                                                       ownerName),
-                                                                ownerName);
+        fieldPnlHndlr.getFieldHandler().buildFieldDefinitions(currentData, ownerName);
+        fieldPnlHndlr.getFieldHandler().buildFieldInformation(ownerName);
 
         // Rebuild the data field panel in the table editor using the current text field contents
-        fieldPnlHandler.createDataFieldPanel(true);
+        fieldPnlHndlr.createDataFieldPanel(true);
 
         // Update the size of the data field owner to accommodate a field wider than the owner's
-        // minimum width
-        fieldPnlHandler.getOwner().setMinimumSize(new Dimension(Math.max(minimumWidth,
-                                                                         fieldPnlHandler.getMaxFieldWidth()),
-                                                                fieldPnlHandler.getOwner().getPreferredSize().height));
-        fieldPnlHandler.getOwner().setPreferredSize(fieldPnlHandler.getOwner().getPreferredSize());
+        // minimum width. Adding a field can require an increase in the owner's height. This
+        // increase doesn't occur automatically, so a manual adjustment (of -1 pixel) is made in
+        // order to force the owner to resize
+        fieldPnlHndlr.getOwner().setMinimumSize(new Dimension(fieldPnlHndlr.getOwner().getWidth(),
+                                                              fieldPnlHndlr.getOwner().getHeight() - 1));
+        fieldPnlHndlr.getOwner().setSize(fieldPnlHndlr.getOwner().getMinimumSize());
+        fieldPnlHndlr.getOwner().setMinimumSize(new Dimension(Math.max(minDialogWidth,
+                                                                       fieldPnlHndlr.getMaxFieldWidth()),
+                                                              fieldPnlHndlr.getOwner().getHeight() + 1));
 
         // Update the dialog title to remove the change indicator
         setTitle(DIALOG_TITLE + ": " + ownerName);
 
         // Update the change indicator for the owner of this edit panel
-        fieldPnlHandler.updateOwnerChangeIndicator();
+        fieldPnlHndlr.updateOwnerChangeIndicator();
 
         // Update the undo manager so that all data field editor edits up to the press of the
         // Update button can be undone/redone
-        fieldPnlHandler.storeCurrentFieldInformation();
+        fieldPnlHndlr.storeCurrentFieldInformation();
         fieldTable.getUndoManager().endEditSequence();
     }
 
@@ -832,16 +835,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             // Close the editor dialog
             closeDialog();
         }
-    }
-
-    /**********************************************************************************************
-     * Get the updated field data
-     *
-     * @return Array containing the updated field data
-     *********************************************************************************************/
-    private Object[][] getUpdatedData()
-    {
-        return fieldTable.getTableData(true);
     }
 
     /**********************************************************************************************

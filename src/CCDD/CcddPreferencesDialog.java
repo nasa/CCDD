@@ -34,7 +34,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -44,10 +43,11 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.ColorCheckBox;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.JFontChooser;
+import CCDD.CcddClassesComponent.ColorCheckBox;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesComponent.JFontChooser;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InputDataType;
@@ -68,7 +68,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private final CcddMain ccddMain;
 
     // Components referenced by multiple methods
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
     private Border emptyBorder;
     private JButton btnClose;
     private JTextField[] sizeFld;
@@ -113,7 +113,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
         emptyBorder = BorderFactory.createEmptyBorder();
 
         // Create a tabbed pane
-        tabbedPane = new JTabbedPane(SwingConstants.TOP);
+        tabbedPane = new DnDTabbedPane(SwingConstants.TOP);
         tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
         // Add the tabs to the tabbed pane
@@ -1019,6 +1019,11 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                         // Set the flag to indicate the size value is invalid
                         isValid = false;
+
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
+                        CcddPreferencesDialog.this.setControlsEnabled(false);
+                        CcddPreferencesDialog.this.setControlsEnabled(true);
                     }
 
                     return isValid;
@@ -1237,6 +1242,11 @@ public class CcddPreferencesDialog extends CcddDialogHandler
 
                         // Set the flag to indicate the spacing value is invalid
                         isValid = false;
+
+                        // Toggle the controls enable status so that the buttons are redrawn
+                        // correctly
+                        CcddPreferencesDialog.this.setControlsEnabled(false);
+                        CcddPreferencesDialog.this.setControlsEnabled(true);
                     }
 
                     return isValid;

@@ -23,12 +23,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.TableDefinition;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableTypeDefinition;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;

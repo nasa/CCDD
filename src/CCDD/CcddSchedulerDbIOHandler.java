@@ -12,12 +12,12 @@ import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import java.util.ArrayList;
 import java.util.List;
 
-import CCDD.CcddClasses.ApplicationData;
-import CCDD.CcddClasses.DataStream;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.Variable;
-import CCDD.CcddClasses.VariableGenerator;
+import CCDD.CcddClassesDataTable.ApplicationData;
+import CCDD.CcddClassesDataTable.DataStream;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesDataTable.VariableGenerator;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;

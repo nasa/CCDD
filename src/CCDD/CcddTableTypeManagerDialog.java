@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
@@ -142,8 +142,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     }
 
                     // Close the table editor for each table of the deleted type
-                    dbTable.closeDeletedTableEditors(invalidatedEditors,
-                                                     editorDialog);
+                    dbTable.closeDeletedTableEditors(invalidatedEditors, editorDialog);
 
                     // Remove the tab from the type editor dialog
                     editorDialog.removeActiveTab();

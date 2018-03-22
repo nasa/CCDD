@@ -35,7 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.FieldInformation;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -172,7 +172,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
 
                 // Create a field handler containing all data fields
                 fieldHandler = new CcddFieldHandler(ccddMain,
-                                                    null,
+                                                    CcddFieldHandler.getFieldProjectName(),
                                                     CcddProjectFieldDialog.this);
 
                 // Set the data field handler reference in the undo handler so that data field
@@ -180,7 +180,6 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 undoHandler.setFieldHandler(fieldHandler);
 
                 // Build the field information for the project data fields
-                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldProjectName());
                 committedFieldInformation = fieldHandler.getFieldInformationCopy();
 
                 // Create the input field panel
@@ -233,7 +232,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                   fieldPnlHndlr,
                                                   CcddFieldHandler.getFieldProjectName(),
                                                   false,
-                                                  0);
+                                                  ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize());
 
                         // Set the undo manager in the keyboard handler back to the project data
                         // field manager
@@ -354,6 +353,9 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                             // subsequent store operation
                             committedDescription = fieldPnlHndlr.getDescription();
                             committedFieldInformation = fieldHandler.getFieldInformationCopy();
+
+                            // Update the project field dialog's change indicator
+                            updateChangeIndicator();
                         }
                     }
                 });

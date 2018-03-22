@@ -52,16 +52,16 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.AssociatedColumns;
-import CCDD.CcddClasses.BitPackRowIndex;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.MinMaxPair;
-import CCDD.CcddClasses.PaddedComboBox;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableModification;
+import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.BitPackRowIndex;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.MinMaxPair;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
@@ -84,7 +84,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddTableEditorDialog editorDialog;
+    private CcddTableEditorDialog editorDialog;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
@@ -164,7 +164,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     // List containing the primitive data types and structures that can be referenced by this table
     // (if it is a structure)
-    private List<String> dataTypeList;
+    private List<String> validDataTypes;
+
+    // List containing the structures that can't be referenced by this table (if it is a
+    // structure). This includes the structure itself and all of its ancestor structures
+    private List<String> invalidDataTypes;
 
     /**********************************************************************************************
      * Table editor handler class constructor
@@ -279,13 +283,34 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Get the table being edited by this dialog
+     * Get the table being edited by this editor
      *
-     * @return Table edited by the dialog
+     * @return Table edited by the editor
      *********************************************************************************************/
     protected CcddJTableHandler getTable()
     {
         return table;
+    }
+
+    /**********************************************************************************************
+     * Get the reference to the table's type definition
+     *
+     * @return Reference to the table's type definition
+     *********************************************************************************************/
+    protected TypeDefinition getTableTypeDefinition()
+    {
+        return typeDefn;
+    }
+
+    /**********************************************************************************************
+     * Set the reference to the editor dialog to which this editor belongs
+     *
+     * @param Reference
+     *            to the editor dialog to which this editor belongs
+     *********************************************************************************************/
+    protected void setEditorDialog(CcddTableEditorDialog editorDialog)
+    {
+        this.editorDialog = editorDialog;
     }
 
     /**********************************************************************************************
@@ -509,7 +534,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                              info.getDescription(),
                                              info.isRootStructure(),
                                              (editorDialog != null
-                                                                   ? info.getFieldHandler().getFieldInformationCopy()
+                                                                   ? info.getFieldHandler().getFieldDefinitions().toArray(new String[0][0])
                                                                    : null));
 
         // Check if the table has been created
@@ -1569,7 +1594,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Create a string version of the new value, replacing any macro in the text
                     // with its corresponding value
                     String newValueS = newMacroHandler.getMacroExpansion(newValue.toString(),
-                                                                         dataTypeList);
+                                                                         validDataTypes);
 
                     // Check if a sizeof() call in the text makes a recursive reference. Example:
                     // If this is a structure table then this can occur if a sizeof() call refers
@@ -1752,6 +1777,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Check if the variable name or data type has been changed
                         if (column == variableNameIndex || column == dataTypeIndex)
                         {
+                            // Check if the data type is a reference to this structure table or one
+                            // of its ancestors, which causes a circular reference. This can occur
+                            // if a data type is pasted into the cell
+                            if (invalidDataTypes != null && invalidDataTypes.contains(dataType))
+                            {
+                                throw new CCDDException("Data type '</b>"
+                                                        + dataType
+                                                        + "<b>' invalid; structure cannot reference itself or an ancestor");
+                            }
+
                             // Check if the variable is an array
                             if (arraySize != null)
                             {
@@ -3767,7 +3802,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void setDataTypeColumns(String[] allStructTbls, CcddTableTreeHandler tblTree)
     {
-        dataTypeList = null;
+        validDataTypes = null;
+        invalidDataTypes = null;
 
         // Get the lists of columns that display primitive data types and primitive & structure
         // data types
@@ -3800,6 +3836,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if any columns displaying both primitive & structure data types exist
         if (!primAndStructColumns.isEmpty())
         {
+            validDataTypes = new ArrayList<String>();
+            invalidDataTypes = new ArrayList<String>();
+
             // Create a combo box for displaying data types
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
@@ -3831,15 +3870,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
             }
 
-            dataTypeList = new ArrayList<String>();
-
-            // Step through each data type in the combo box
-            for (int index = 0; index < comboBox.getItemCount(); index++)
-            {
-                // Add the data type (primitive or structure) to the array
-                dataTypeList.add(comboBox.getItemAt(index));
-            }
-
             // Create the enumerated data type cell editor
             createEnumDataTypeCellEditor();
         }
@@ -3851,9 +3881,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @return List of primitive data types and structures; null if no data type column exists
      *********************************************************************************************/
-    protected List<String> getDataTypes()
+    protected List<String> getValidDataTypes()
     {
-        return dataTypeList;
+        return validDataTypes;
     }
 
     /**********************************************************************************************
@@ -3873,7 +3903,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Add the structure data types to the supplied combo box's item list
+     * Add the structure data types to the supplied combo box's item list and build the list of
+     * invalid data types
      *
      * @param comboBox
      *            reference to the combo box to which the structure data types are added
@@ -3898,6 +3929,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Since the structure isn't in this table's tree path add the structure table
                     // name to the combo box list
                     comboBox.addItem(structure);
+
+                    // Add the structure to the list of valid data types
+                    validDataTypes.add(structure);
+                }
+                // This structure is referenced in the table's tree
+                else
+                {
+                    // Add the structure to the list of invalid data types
+                    invalidDataTypes.add(structure);
                 }
             }
         }

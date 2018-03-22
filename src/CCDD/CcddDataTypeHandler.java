@@ -40,7 +40,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClasses.PaddedComboBox;
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DatabaseListCommand;

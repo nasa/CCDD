@@ -39,8 +39,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddClasses.LinkInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.LinkInformation;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;

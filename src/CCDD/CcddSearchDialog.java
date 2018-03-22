@@ -52,9 +52,9 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.AutoCompleteTextField;
-import CCDD.CcddClasses.MultilineLabel;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.AutoCompleteTextField;
+import CCDD.CcddClassesComponent.MultilineLabel;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;

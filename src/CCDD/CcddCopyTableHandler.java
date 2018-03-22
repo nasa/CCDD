@@ -10,10 +10,10 @@ package CCDD;
 import java.util.ArrayList;
 import java.util.List;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.SchedulerType;
 

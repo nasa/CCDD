@@ -29,14 +29,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.AssociatedColumns;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
@@ -2519,6 +2519,22 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     {
                                         // Store the data type in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getDataType()],
+                                                              cellValue);
+                                    }
+
+                                    // Check if the command argument array size column has a value
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getArraySize()]).isEmpty())
+                                    {
+                                        // Store the array size in the JSON output
+                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getArraySize()],
+                                                              cellValue);
+                                    }
+
+                                    // Check if the command argument bit length column has a value
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getBitLength()]).isEmpty())
+                                    {
+                                        // Store the bit length in the JSON output
+                                        commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getBitLength()],
                                                               cellValue);
                                     }
 

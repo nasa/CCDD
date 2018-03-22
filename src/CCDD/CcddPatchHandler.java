@@ -22,8 +22,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
@@ -665,10 +665,9 @@ public class CcddPatchHandler
                     {
                         // Create the type and add it to the list. THis creates the primary key and
                         // row index columns
-                        tableTypeHandler.createTypeDefinition(newColumnDefn[TableTypesColumn.TYPE_NAME.ordinal()],
-                                                              new String[0][0],
-                                                              newColumnDefn[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()]);
-                        typeDefn = tableTypeHandler.getTypeDefinition(newColumnDefn[TableTypesColumn.TYPE_NAME.ordinal()]);
+                        typeDefn = tableTypeHandler.createTypeDefinition(newColumnDefn[TableTypesColumn.TYPE_NAME.ordinal()],
+                                                                         new String[0][0],
+                                                                         newColumnDefn[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()]);
                     }
 
                     // Check if this column definition isn't for the primary key or row index since

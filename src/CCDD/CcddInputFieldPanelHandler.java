@@ -36,8 +36,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.WrapLayout;
+import CCDD.CcddClassesComponent.WrapLayout;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InputTypeFormat;
@@ -80,6 +80,9 @@ public abstract class CcddInputFieldPanelHandler
 
     // Width of the widest data field, including its label
     private int maxFieldWidth;
+
+    // Flag that indicates if this input field panel handler instance is a data table
+    private boolean isDataTable;
 
     /**********************************************************************************************
      * Get a reference to the description and data field panel handler
@@ -320,6 +323,9 @@ public abstract class CcddInputFieldPanelHandler
         this.ownerName = ownerName;
         this.dataFieldHandler = fieldHandler;
 
+        // Set the flag to indicate if this input field panel handler is a data table
+        isDataTable = this instanceof CcddTableEditorHandler;
+
         // Create the handler for undoing/redoing data field changes
         undoFieldPnl = undoHandler.new UndoableDataFieldPanel();
 
@@ -464,6 +470,8 @@ public abstract class CcddInputFieldPanelHandler
             gbc.weighty = 1.0;
             gbc.gridy++;
             inputPnl.add(invisibleLbl, gbc);
+            gbc.weighty = 0.0;
+            gbc.gridy--;
         }
 
         // Add a listener for changes in the editor panel's size
@@ -514,6 +522,15 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Remove the existing data fields
             inputPnl.remove(fieldPnl);
+        }
+
+        // Check if this is a data table
+        if (isDataTable)
+        {
+            // Build the data field information so that only applicable fields are displayed
+            dataFieldHandler.buildFieldInformation(((CcddTableEditorHandler) this).getTableInformation().getTablePath(),
+                                                   ((CcddTableEditorHandler) this).getTableInformation().isRootStructure(),
+                                                   false);
         }
 
         // Check if any data fields exist
@@ -780,6 +797,15 @@ public abstract class CcddInputFieldPanelHandler
                 // Add the data field panel to the dialog
                 inputPnl.add(fieldPnl, gbc);
             }
+        }
+
+        // Check if this is a data table
+        if (isDataTable)
+        {
+            // Build the data field information so that all fields are included
+            dataFieldHandler.buildFieldInformation(((CcddTableEditorHandler) this).getTableInformation().getTablePath(),
+                                                   ((CcddTableEditorHandler) this).getTableInformation().isRootStructure(),
+                                                   true);
         }
 
         // Check if the data field panel change should be put in the undo/redo stack

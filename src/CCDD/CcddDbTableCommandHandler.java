@@ -37,16 +37,16 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.BitPackNodeIndex;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableMembers;
-import CCDD.CcddClasses.TableModification;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.BitPackNodeIndex;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableMembers;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
@@ -2692,9 +2692,10 @@ public class CcddDbTableCommandHandler
             {
                 deletedArrayDefns = new ArrayList<String>();
 
-                // Create the table tree
+                // Create the table tree. Suppress any warning messages when creating this tree
                 tableTree = new CcddTableTreeHandler(ccddMain,
                                                      TableTreeType.STRUCTURES_WITH_PRIMITIVES,
+                                                     true,
                                                      parent);
 
                 // Check if there are any additions or modifications
@@ -5438,11 +5439,11 @@ public class CcddDbTableCommandHandler
                                + "), ");
             }
 
-            // Replace the trailing comma with a semicolon
             command = CcddUtilities.removeTrailer(command, ", ").append("; ");
         }
 
         return command.toString();
+
     }
 
     /**********************************************************************************************
@@ -5703,7 +5704,7 @@ public class CcddDbTableCommandHandler
                     {
                         // Convert the array of tables names into a single string and shorten it if
                         // too long
-                        names = " and table(s) '</b>" + getShortenedTableNames(tableNames) + "<b>'";
+                        names = getShortenedTableNames(tableNames);
 
                         // Check if the user confirms deleting the affected table(s)
                         if (new CcddDialogHandler().showMessageDialog(parent,
@@ -5742,6 +5743,9 @@ public class CcddDbTableCommandHandler
                             command += modifyFieldsCommand(name, null);
                         }
 
+                        // Modify the (shortened) names string for logging messages
+                        names = " and table(s) '</b>" + names + "<b>'";
+
                         // Delete the table(s)
                         dbCommand.executeDbUpdate(command, parent);
 
@@ -5749,7 +5753,7 @@ public class CcddDbTableCommandHandler
                         // any variables
                         dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
 
-                        // Log that the table deletion succeeded
+                        // Log that table deletion succeeded
                         eventLog.logEvent(SUCCESS_MSG,
                                           "Table type '"
                                                        + typeName
@@ -6354,11 +6358,10 @@ public class CcddDbTableCommandHandler
                 for (String tableName : tableNamesList)
                 {
                     // Set the flag to indicate if the table is a root structure
-                    boolean isRootStruct = isStructure
-                                           && rootStructures.contains(tableName);
+                    boolean isRootStruct = isStructure && rootStructures.contains(tableName);
 
                     // Get the existing data fields for this table
-                    fieldHandler.buildFieldInformation(tableName, isRootStruct);
+                    fieldHandler.buildFieldInformation(tableName);
 
                     // Get the number of separator and line break fields
                     int numSep = fieldHandler.getFieldTypeCount(InputDataType.SEPARATOR);
@@ -6687,10 +6690,10 @@ public class CcddDbTableCommandHandler
                     editorDialog.closeTableEditor(name);
                 }
             }
-
-            // Update the tables with data type columns
-            updateDataTypeColumns(parent);
         }
+
+        // Update the tables with data type columns
+        updateDataTypeColumns(parent);
     }
 
     /**********************************************************************************************
@@ -7138,7 +7141,7 @@ public class CcddDbTableCommandHandler
 
                         // Use the table's type to get the index for the table column containing
                         // the data type (macro) reference
-                        typeDefn = tableTypeHandler.getTypeDefinition(modifiedTable.getEditor().getTableInformation().getType());
+                        typeDefn = modifiedTable.getEditor().getTableTypeDefinition();
                         int changeColumnIndex = isPrototype
                                                             ? typeDefn.getColumnIndexByDbName(changeColumn)
                                                             : typeDefn.getColumnIndexByUserName(changeColumn);

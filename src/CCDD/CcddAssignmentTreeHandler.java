@@ -32,9 +32,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;

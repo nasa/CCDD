@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
-import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;

@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import CCDD.CcddClasses.GroupInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.GroupsColumn;
 import CCDD.CcddUndoHandler.UndoableArrayList;

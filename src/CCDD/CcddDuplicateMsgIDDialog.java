@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
-import CCDD.CcddClasses.ArrayListMultiple;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DuplicateMsgIDColumnInfo;

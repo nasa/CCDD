@@ -55,16 +55,17 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.CustomSplitPane;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
@@ -122,9 +123,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     // Flag that indicates if the group manager dialog is undergoing initialization
     private boolean isInitializing;
-
-    // Initial (minimum) dialog width in pixels
-    private int minDialogWidth;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Manage Groups";
@@ -232,8 +230,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize()
     {
-        minDialogWidth = 0;
-
         // Build the group manager dialog in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
@@ -676,7 +672,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                   fieldPnlHndlr,
                                                   CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
                                                   false,
-                                                  minDialogWidth);
+                                                  ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize());
 
                         // Set the undo manager in the keyboard handler back to the group manager
                         ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
@@ -941,13 +937,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Rebuild the data field panel using the current data fields (if any)
         fieldPnlHndlr.createDataFieldPanel(undoable);
 
-        // Update the dialog's minimum size to accommodate the change in the size or number of data
-        // fields, then revalidate the dialog so that the components are sized correctly
-        setMinimumSize(new Dimension(Math.max(minDialogWidth, fieldPnlHndlr.getMaxFieldWidth()),
+        // Validate the dialog to redraw the description and field area correctly Update the
+        // dialog's minimum size to accommodate the change in the size or number of data fields,
+        // then revalidate the dialog so that the components are sized correctly
+        setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
+                                              fieldPnlHndlr.getMaxFieldWidth()),
                                      getPreferredSize().height));
         setPreferredSize(getPreferredSize());
-
-        // Validate the dialog to redraw the description and field area correctly
         validate();
 
         // Needed so that any dialogs spawned from this one are positioned relative to the group

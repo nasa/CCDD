@@ -301,6 +301,11 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getCommandArgArraySize(argumentNumber, row);
     }
 
+    public static String getCommandbitLengthSize(int argumentNumber, int row)
+    {
+        return accessHandler.getCommandArgBitLength(argumentNumber, row);
+    }
+
     public static String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
     {
         return accessHandler.getCommandArgArraySizeWithMacros(argumentNumber, row);

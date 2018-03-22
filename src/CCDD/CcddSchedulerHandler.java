@@ -46,12 +46,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.AssociatedVariable;
-import CCDD.CcddClasses.CustomSplitPane;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.PaddedComboBox;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.AssociatedVariable;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;

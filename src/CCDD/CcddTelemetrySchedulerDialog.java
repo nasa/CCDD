@@ -18,22 +18,23 @@ import static CCDD.CcddConstants.UNDO_ICON;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.DataStream;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddClasses.ValidateCellActionListener;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.DataStream;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SchedulerType;
@@ -62,7 +63,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     private JButton btnDeleteSubMessage;
     private JButton btnStore;
     private JButton btnClose;
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
 
     // List containing the path for all nodes in the variable tree
     private List<String> allVariableTreePaths;
@@ -382,7 +383,43 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                 setButtonRows(2);
 
                 // Create a tabbed pane in which to place the scheduler handlers
-                tabbedPane = new JTabbedPane(SwingConstants.TOP);
+                tabbedPane = new DnDTabbedPane(SwingConstants.TOP)
+                {
+                    /******************************************************************************
+                     * Update the scheduler list order following a tab move
+                     *****************************************************************************/
+                    @Override
+                    protected Object tabMoveCleanup(int oldTabIndex,
+                                                    int newTabIndex,
+                                                    Object tabContents)
+                    {
+                        // Adjust the new tab index if moving the tab to a higher index
+                        newTabIndex -= newTabIndex > oldTabIndex ? 1 : 0;
+
+                        // Re-order the rate information based on the new tab order
+                        // Re-order the rate information based on the new tab order
+                        RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
+                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex, newTabIndex);
+                        List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
+                        rateInfoList.addAll(Arrays.asList(rateInfoArray));
+                        rateHandler.setRateInformation(rateInfoList);
+
+                        // Get the reference to the moved tab's original location in the list
+                        CcddSchedulerHandler editor = schHandlers.get(oldTabIndex);
+
+                        // Remove the tab
+                        schHandlers.remove(oldTabIndex);
+
+                        // Add the tab at its new location
+                        schHandlers.add(newTabIndex, editor);
+
+                        // Update the active tab pointer to the moved tab
+                        activeSchHandler = schHandlers.get(tabbedPane.getSelectedIndex());
+
+                        return editor;
+                    }
+                };
+
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes

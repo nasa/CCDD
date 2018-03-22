@@ -23,9 +23,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.DataStream;
-import CCDD.CcddClasses.ValidateCellActionListener;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.DataStream;
+import CCDD.CcddClassesDataTable.Variable;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.SchedulerType;
 

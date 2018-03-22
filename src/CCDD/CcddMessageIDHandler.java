@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;

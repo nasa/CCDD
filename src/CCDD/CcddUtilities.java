@@ -492,6 +492,82 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
+     * Move the specified array member to the specified position in the array
+     *
+     * @param array
+     *            array
+     *
+     * @param indexToMove
+     *            index of the array member to move
+     *
+     * @param targetIndex
+     *            new index for the moved array member
+     *
+     * @return Array with the specified member moved to the new position and the other members
+     *         adjusted to accommodate the move
+     *********************************************************************************************/
+    protected static Object[] moveArrayMember(Object[] array, int indexToMove, int targetIndex)
+    {
+        // Copy the array. This ensures that the object array is of the same class as the input
+        // array
+        Object[] tempArray = Arrays.copyOf(array, array.length);
+
+        // Check if the move is from a lower to a higher (or same) index
+        if (indexToMove <= targetIndex)
+        {
+            // Step through each member of the array, from lowest to highest index
+            for (int oldIndex = 0, newIndex = 0; oldIndex < array.length; oldIndex++, newIndex++)
+            {
+                // Copy the array member from its original position to its adjusted position
+                tempArray[newIndex] = array[oldIndex];
+
+                // Check if this is the array member to move
+                if (oldIndex == indexToMove)
+                {
+                    // Decrement the index to copy to
+                    newIndex--;
+                }
+
+                // Check if this is the new position for the array member
+                if (oldIndex == targetIndex)
+                {
+                    // Increment the index to copy to
+                    newIndex++;
+                }
+            }
+        }
+        // The move is from a higher to a lower index
+        else
+        {
+            // Step through each member of the array, from highest to lowest index
+            for (int oldIndex = array.length - 1, newIndex = array.length - 1; oldIndex >= 0; oldIndex--, newIndex--)
+            {
+                // Copy the array member from its original position to its adjusted position
+                tempArray[newIndex] = array[oldIndex];
+
+                // Check if this is the array member to move
+                if (oldIndex == indexToMove)
+                {
+                    // Increment the index to copy to
+                    newIndex++;
+                }
+
+                // Check if this is the new position for the array member
+                if (oldIndex == targetIndex)
+                {
+                    // Decrement the index to copy to
+                    newIndex--;
+                }
+            }
+        }
+
+        // Copy the array member to its new location in the array copy
+        tempArray[targetIndex] = array[indexToMove];
+
+        return tempArray;
+    }
+
+    /**********************************************************************************************
      * Concatenate the contents of two one-dimensional arrays to produce a third array
      *
      * @param array1

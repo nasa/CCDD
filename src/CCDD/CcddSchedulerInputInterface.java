@@ -11,7 +11,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.Variable;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary scheduler input interface

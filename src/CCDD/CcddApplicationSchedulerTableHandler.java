@@ -12,11 +12,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import CCDD.CcddClasses.ApplicationData;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.ApplicationData;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.Variable;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.SchedulerType;
 

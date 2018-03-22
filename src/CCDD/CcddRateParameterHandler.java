@@ -17,8 +17,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.RateInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -41,7 +41,7 @@ public class CcddRateParameterHandler
     private boolean includeUneven;
 
     // List containing the rate information for a stream
-    private final List<RateInformation> rateInformation;
+    private List<RateInformation> rateInformation;
 
     /**********************************************************************************************
      * Rate parameter handler class constructor
@@ -60,6 +60,20 @@ public class CcddRateParameterHandler
 
         // Get the rate parameters from the project database
         getRateParameters();
+
+        // Sort the rate information by data stream name
+        Collections.sort(rateInformation, new Comparator<RateInformation>()
+        {
+            /**************************************************************************************
+             * Compare the stream names of two rates. Force lower case to eliminate case
+             * differences in the comparison
+             *************************************************************************************/
+            @Override
+            public int compare(RateInformation rate1, RateInformation rate2)
+            {
+                return rate1.getStreamName().toLowerCase().compareTo(rate2.getStreamName().toLowerCase());
+            }
+        });
     }
 
     /**********************************************************************************************
@@ -95,27 +109,24 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Get the list of rate information, sorted by data stream name
+     * Get the list of rate information
      *
      * @return List of rate information
      *********************************************************************************************/
     protected List<RateInformation> getRateInformation()
     {
-        // Sort the rate information by data stream name
-        Collections.sort(rateInformation, new Comparator<RateInformation>()
-        {
-            /**************************************************************************************
-             * Compare the stream names of two rates. Force lower case to eliminate case
-             * differences in the comparison
-             *************************************************************************************/
-            @Override
-            public int compare(RateInformation rate1, RateInformation rate2)
-            {
-                return rate1.getStreamName().toLowerCase().compareTo(rate2.getStreamName().toLowerCase());
-            }
-        });
-
         return rateInformation;
+    }
+
+    /**********************************************************************************************
+     * Set the list of rate information
+     *
+     * @param rateInformation
+     *            list of rate information
+     *********************************************************************************************/
+    protected void setRateInformation(List<RateInformation> rateInformation)
+    {
+        this.rateInformation = rateInformation;
     }
 
     /**********************************************************************************************
@@ -156,8 +167,7 @@ public class CcddRateParameterHandler
      * @param newRateName
      *            new rate column name
      *********************************************************************************************/
-    protected void renameRateInformation(String oldRateName,
-                                         String newRateName)
+    protected void renameRateInformation(String oldRateName, String newRateName)
     {
         // Get the rate information for the original rate column name
         RateInformation rateInfo = getRateInformationByRateName(oldRateName);

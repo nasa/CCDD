@@ -40,7 +40,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;

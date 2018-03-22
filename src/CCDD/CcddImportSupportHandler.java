@@ -12,9 +12,9 @@ import static CCDD.CcddConstants.IGNORE_BUTTON;
 
 import java.awt.Component;
 
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.TableDefinition;
-import CCDD.CcddClasses.TableTypeDefinition;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;

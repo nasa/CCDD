@@ -22,12 +22,12 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClasses.ApplicationData;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.Message;
-import CCDD.CcddClasses.ToolTipTreeNode;
-import CCDD.CcddClasses.Variable;
+import CCDD.CcddClassesDataTable.ApplicationData;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.Message;
+import CCDD.CcddClassesDataTable.Variable;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;

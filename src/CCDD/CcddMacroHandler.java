@@ -41,7 +41,7 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClasses.PaddedComboBox;
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -335,6 +335,9 @@ public class CcddMacroHandler
      *
      * @param inputType
      *            input data type of the text component
+     *
+     * @param validDataTypes
+     *            list of valid data types from which to choose
      *********************************************************************************************/
     protected void insertMacroName(Window owner,
                                    final JTextComponent textComp,

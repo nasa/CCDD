@@ -47,8 +47,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.FileExtension;
@@ -570,15 +570,14 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 invalidatedEditors = new ArrayList<String[]>();
 
                                 // Step through each selected table in the tree
-                                for (TreePath path : tableTree.getSelectionPaths())
+                                for (String path : tableTree.getSelectedTablesWithChildren())
                                 {
                                     // Add the table name to the list
-                                    tableNames.add(path.getLastPathComponent().toString());
+                                    tableNames.add(path);
 
                                     // Add the pattern for the data type path of tables matching
                                     // the deleted prototype table
-                                    invalidatedEditors.add(new String[] {path.getLastPathComponent().toString(),
-                                                                         null});
+                                    invalidatedEditors.add(new String[] {path, null});
                                 }
 
                                 // Check if a table is selected
@@ -602,8 +601,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    "export",
                                                                    new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.CSV.getDescription(),
                                                                                                                               FileExtension.CSV.getExtensionName()),
+                                                                                                  new FileNameExtensionFilter(FileExtension.EDS.getDescription(),
+                                                                                                                              FileExtension.EDS.getExtensionName()),
                                                                                                   new FileNameExtensionFilter(FileExtension.JSON.getDescription(),
-                                                                                                                              FileExtension.JSON.getExtensionName())},
+                                                                                                                              FileExtension.JSON.getExtensionName()),
+                                                                                                  new FileNameExtensionFilter(FileExtension.XTCE.getDescription(),
+                                                                                                                              FileExtension.XTCE.getExtensionName())},
                                                                    false,
                                                                    true,
                                                                    "Import Table(s)",

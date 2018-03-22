@@ -37,7 +37,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -52,10 +51,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.LinkInformation;
-import CCDD.CcddClasses.RateInformation;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesComponent.DnDTabbedPane;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.LinkInformation;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
@@ -80,7 +80,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     // Components referenced by multiple methods
     private Border border;
     private JTextField linkNameFld;
-    private JTabbedPane tabbedPane;
+    private DnDTabbedPane tabbedPane;
     private JButton btnRenameLink;
     private JButton btnCopyLink;
     private List<CcddLinkManagerHandler> linkMgrs;
@@ -190,7 +190,42 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                 0);
 
                 // Create a tabbed pane to contain the rate parameters that are stream-specific
-                tabbedPane = new JTabbedPane(SwingConstants.TOP);
+                tabbedPane = new DnDTabbedPane(SwingConstants.TOP)
+                {
+                    /******************************************************************************
+                     * Update the link manager list order following a tab move
+                     *****************************************************************************/
+                    @Override
+                    protected Object tabMoveCleanup(int oldTabIndex,
+                                                    int newTabIndex,
+                                                    Object tabContents)
+                    {
+                        // Adjust the new tab index if moving the tab to a higher index
+                        newTabIndex -= newTabIndex > oldTabIndex ? 1 : 0;
+
+                        // Re-order the rate information based on the new tab order
+                        RateInformation[] rateInfoArray = rateHandler.getRateInformation().toArray(new RateInformation[0]);
+                        rateInfoArray = (RateInformation[]) CcddUtilities.moveArrayMember(rateInfoArray, oldTabIndex, newTabIndex);
+                        List<RateInformation> rateInfoList = new ArrayList<RateInformation>(rateInfoArray.length);
+                        rateInfoList.addAll(Arrays.asList(rateInfoArray));
+                        rateHandler.setRateInformation(rateInfoList);
+
+                        // Get the reference to the moved tab's original location in the list
+                        CcddLinkManagerHandler editor = linkMgrs.get(oldTabIndex);
+
+                        // Remove the tab
+                        linkMgrs.remove(oldTabIndex);
+
+                        // Add the tab at its new location
+                        linkMgrs.add(newTabIndex, editor);
+
+                        // Update the active tab pointer to the moved tab
+                        activeHandler = linkMgrs.get(tabbedPane.getSelectedIndex());
+
+                        return editor;
+                    }
+                };
+
                 tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
                 // Listen for tab selection changes

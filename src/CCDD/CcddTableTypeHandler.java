@@ -7,6 +7,15 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.COL_ARGUMENT;
+import static CCDD.CcddConstants.COL_ARRAY_SIZE;
+import static CCDD.CcddConstants.COL_BIT_LENGTH;
+import static CCDD.CcddConstants.COL_DATA_TYPE;
+import static CCDD.CcddConstants.COL_DESCRIPTION;
+import static CCDD.CcddConstants.COL_ENUMERATION;
+import static CCDD.CcddConstants.COL_MAXIMUM;
+import static CCDD.CcddConstants.COL_MINIMUM;
+import static CCDD.CcddConstants.COL_UNITS;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -16,10 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.AssociatedColumns;
-import CCDD.CcddClasses.FieldInformation;
-import CCDD.CcddClasses.TableTypeDefinition;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.InputDataType;
@@ -204,6 +213,19 @@ public class CcddTableTypeHandler
                                                                                     columnInputType.get(row),
                                                                                     isStructure));
             }
+        }
+
+        /******************************************************************************************
+         * Convert the visible column name to its database equivalent. The database column name is
+         * the visible name with any characters that are invalid in a database column name replaced
+         * with an underscore; however, if the table type represents a structure then certain
+         * column names use fixed values
+         *****************************************************************************************/
+        protected String getColumnNameDatabase(String columnNameVisible, InputDataType inputType)
+        {
+            return DefaultColumn.convertVisibleToDatabase(columnNameVisible,
+                                                          inputType,
+                                                          isStructure());
         }
 
         /******************************************************************************************
@@ -705,10 +727,12 @@ public class CcddTableTypeHandler
 
             int argIndex = -1;
 
-            // Initialize the starting command argument name, data type, enumeration, minimum,
-            // maximum, and other columns
+            // Initialize the starting command argument name, data type, array size, bit length,
+            // enumeration, minimum, maximum, and other columns
             int nameColumn = -1;
             int dataTypeColumn = -1;
+            int arrayColumn = -1;
+            int bitColumn = -1;
             int enumColumn = -1;
             int minColumn = -1;
             int maxColumn = -1;
@@ -731,11 +755,13 @@ public class CcddTableTypeHandler
                     // subsequent argument so the prior argument's columns can be stored)
                     if (argIndex != 0)
                     {
-                        // Add the name, data type, enumeration, minimum, maximum, and associated
-                        // columns column index group to the list
+                        // Add the name, data type, array size, bit length, enumeration, minimum,
+                        // maximum, and associated columns column index group to the list
                         associatedColumns.add(new AssociatedColumns(useViewIndex,
                                                                     nameColumn,
                                                                     dataTypeColumn,
+                                                                    arrayColumn,
+                                                                    bitColumn,
                                                                     enumColumn,
                                                                     minColumn,
                                                                     maxColumn,
@@ -747,6 +773,8 @@ public class CcddTableTypeHandler
                     // Save the name column index and initialize the associated column indices
                     nameColumn = index;
                     dataTypeColumn = -1;
+                    arrayColumn = -1;
+                    bitColumn = -1;
                     enumColumn = -1;
                     minColumn = -1;
                     maxColumn = -1;
@@ -766,6 +794,18 @@ public class CcddTableTypeHandler
                     {
                         // Save the data type column index
                         dataTypeColumn = index;
+                    }
+                    // Check that this is an array size column
+                    else if (inputTypes[index] == InputDataType.ARRAY_INDEX)
+                    {
+                        // Save the array size column index
+                        arrayColumn = index;
+                    }
+                    // Check that this is a bit length column
+                    else if (inputTypes[index] == InputDataType.BIT_LENGTH)
+                    {
+                        // Save the bit length column index
+                        bitColumn = index;
                     }
                     // Check that this is an enumeration column
                     else if (inputTypes[index] == InputDataType.ENUMERATION)
@@ -810,11 +850,13 @@ public class CcddTableTypeHandler
             // Check if a command argument exists. This stores the final one detected
             if (argIndex != 0)
             {
-                // Add the name, data type, enumeration, minimum, maximum, and associated columns
-                // column index group to the list
+                // Add the name, data type, array size, bit length, enumeration, minimum, maximum,
+                // and associated columns column index group to the list
                 associatedColumns.add(new AssociatedColumns(useViewIndex,
                                                             nameColumn,
                                                             dataTypeColumn,
+                                                            arrayColumn,
+                                                            bitColumn,
                                                             enumColumn,
                                                             minColumn,
                                                             maxColumn,
@@ -824,6 +866,65 @@ public class CcddTableTypeHandler
             }
 
             return associatedColumns;
+        }
+
+        /**********************************************************************************************
+         * Add a set of default command argument columns to the table type definition using the
+         * specified argument index to determine the column names
+         *
+         * @param argumentIndex
+         *            argument index for the argument column names
+         *********************************************************************************************/
+        protected void addCommandArgumentColumns(int argumentIndex)
+        {
+            // Get the current number of columns defined for the table type. The new columns are
+            // appended to the existing ones
+            int columnIndex = getColumnCountDatabase();
+
+            // Step through each command argument column to add
+            for (Object[] cmdArgCol : new Object[][] {{COL_ARGUMENT + " " + argumentIndex + " Name",
+                                                       "Command argument " + argumentIndex + " name",
+                                                       InputDataType.ARGUMENT_NAME},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_DESCRIPTION,
+                                                       "Command argument " + argumentIndex + " description",
+                                                       InputDataType.DESCRIPTION},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_UNITS,
+                                                       "Command argument " + argumentIndex + " units",
+                                                       InputDataType.UNITS},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_DATA_TYPE,
+                                                       "Command argument " + argumentIndex + " data type",
+                                                       InputDataType.PRIMITIVE},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_ARRAY_SIZE,
+                                                       "Command argument " + argumentIndex + " array size",
+                                                       InputDataType.ARRAY_INDEX},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_BIT_LENGTH,
+                                                       "Command argument " + argumentIndex + " bit length",
+                                                       InputDataType.BIT_LENGTH},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_ENUMERATION,
+                                                       "Command argument " + argumentIndex + " enumeration",
+                                                       InputDataType.ENUMERATION},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_MINIMUM,
+                                                       "Command argument " + argumentIndex + " minimum value",
+                                                       InputDataType.MINIMUM},
+                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_MAXIMUM,
+                                                       "Command argument " + argumentIndex + " maximum value",
+                                                       InputDataType.MAXIMUM}})
+            {
+                // Add the command argument column
+                addColumn(columnIndex,
+                          DefaultColumn.convertVisibleToDatabase(cmdArgCol[0].toString(),
+                                                                 (InputDataType) cmdArgCol[2],
+                                                                 false),
+                          cmdArgCol[0].toString(),
+                          cmdArgCol[1].toString(),
+                          (InputDataType) cmdArgCol[2],
+                          false,
+                          false,
+                          false,
+                          true);
+
+                columnIndex++;
+            }
         }
     }
 
@@ -941,10 +1042,10 @@ public class CcddTableTypeHandler
      *
      * @param description
      *            table type description
+     *
+     * @return Reference to the type definition created
      *********************************************************************************************/
-    protected void createTypeDefinition(String typeName,
-                                        Object[][] typeData,
-                                        String description)
+    protected TypeDefinition createTypeDefinition(String typeName, Object[][] typeData, String description)
     {
         // Get the reference to the type definition
         TypeDefinition typeDefn = getTypeDefinition(typeName);
@@ -999,6 +1100,8 @@ public class CcddTableTypeHandler
 
         // Convert the visible column names to their database equivalents
         typeDefn.setColumnNamesDatabase();
+
+        return typeDefn;
     }
 
     /**********************************************************************************************
@@ -1119,8 +1222,7 @@ public class CcddTableTypeHandler
      *         definition that matches the specified input data type; null if the input type
      *         doesn't exist in the table type definition
      *********************************************************************************************/
-    protected String getColumnNameByInputType(String typeName,
-                                              InputDataType inputType)
+    protected String getColumnNameByInputType(String typeName, InputDataType inputType)
     {
         String columnName = null;
 
@@ -1336,11 +1438,9 @@ public class CcddTableTypeHandler
         else
         {
             // Add the table type with a different name and get a reference to it
-            createTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
-                                 tableTypeDefn.getColumns().toArray(new Object[0][0]),
-                                 tableTypeDefn.getDescription());
-            TypeDefinition altTypeDefn = getTypeDefinition(tableTypeDefn.getTypeName()
-                                                           + "_TEMP");
+            TypeDefinition altTypeDefn = createTypeDefinition(tableTypeDefn.getTypeName() + "_TEMP",
+                                                              tableTypeDefn.getColumns().toArray(new Object[0][0]),
+                                                              tableTypeDefn.getDescription());
 
             // Check if the contents of the type doesn't match the existing one with the same name.
             // Ignore the column description (tool tip text) when comparing

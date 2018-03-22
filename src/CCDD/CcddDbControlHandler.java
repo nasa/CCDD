@@ -46,9 +46,9 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.RateInformation;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.ConnectionType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DatabaseListCommand;

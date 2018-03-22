@@ -50,10 +50,10 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.TableInformation;
-import CCDD.CcddClasses.TableModification;
-import CCDD.CcddClasses.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableModification;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;

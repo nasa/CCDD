@@ -66,13 +66,14 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
-import CCDD.CcddClasses.ArrayListMultiple;
-import CCDD.CcddClasses.ArrayVariable;
-import CCDD.CcddClasses.CCDDException;
-import CCDD.CcddClasses.FileEnvVar;
-import CCDD.CcddClasses.GroupInformation;
-import CCDD.CcddClasses.TableInformation;
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
+import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -122,13 +123,6 @@ public class CcddScriptHandler
 
     // Environment variable map
     private Map<String, String> envVarMap;
-
-    private static enum Availability
-    {
-        AVAILABLE,
-        TABLE_MISSING,
-        SCRIPT_MISSING
-    }
 
     /**********************************************************************************************
      * Script handler class constructor
@@ -238,7 +232,7 @@ public class CcddScriptHandler
         // Step through each script association
         for (String[] assn : committedAssociations)
         {
-            Availability availableStatus = Availability.AVAILABLE;
+            AvailabilityType availableStatus = AvailabilityType.AVAILABLE;
             int numVerifications = 0;
             StringBuilder verifications = new StringBuilder("");
 
@@ -340,7 +334,7 @@ public class CcddScriptHandler
             {
                 // The script file or associated table doesn't exist; set the flag to indicate the
                 // association isn't available
-                availableStatus = Availability.TABLE_MISSING;
+                availableStatus = AvailabilityType.TABLE_MISSING;
             }
 
             // Add the association to the script associations list
@@ -819,7 +813,7 @@ public class CcddScriptHandler
     private boolean isAssociationAvailable(int row)
     {
         return assnsTable.getModel().getValueAt(row,
-                                                AssociationsTableColumnInfo.AVAILABLE.ordinal()) == Availability.AVAILABLE;
+                                                AssociationsTableColumnInfo.AVAILABLE.ordinal()) == AvailabilityType.AVAILABLE;
     }
 
     /**********************************************************************************************
@@ -1074,7 +1068,7 @@ public class CcddScriptHandler
             {
                 // Check if the association isn't unavailable due to a missing table
                 if (assnsTable.getValueAt(row,
-                                          AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()) != Availability.TABLE_MISSING)
+                                          AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()) != AvailabilityType.TABLE_MISSING)
                 {
                     // Get the reference to the association's script file
                     FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,
@@ -1084,8 +1078,8 @@ public class CcddScriptHandler
 
                     // Set the availability status based on if the script file exists
                     assnsTable.getModel().setValueAt((file.exists()
-                                                                    ? Availability.AVAILABLE
-                                                                    : Availability.SCRIPT_MISSING),
+                                                                    ? AvailabilityType.AVAILABLE
+                                                                    : AvailabilityType.SCRIPT_MISSING),
                                                      row,
                                                      AssociationsTableColumnInfo.AVAILABLE.ordinal());
                 }
@@ -1544,7 +1538,7 @@ public class CcddScriptHandler
                                                                             null,
                                                                             null,
                                                                             false,
-                                                                            new Object[0][0]);
+                                                                            new String[0][0]);
                     }
                 }
                 // No table is assigned to this script association
@@ -1559,7 +1553,7 @@ public class CcddScriptHandler
                                                                 null,
                                                                 null,
                                                                 false,
-                                                                new Object[0][0]);
+                                                                new String[0][0]);
                 }
 
                 // Get the script file name with any environment variables expanded
