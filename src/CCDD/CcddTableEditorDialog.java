@@ -411,9 +411,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Update the tables with message names & IDs columns
         dbTblCmdHndlr.updateMessageIDNamesColumns(main.getMainFrame());
 
-        // Get the list of root structure tables
-        List<String> rootTables = dbTblCmdHndlr.getRootStructures(main.getMainFrame());
-
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
         {
@@ -444,7 +441,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 }
 
                 // Check if the table's root structure status changed
-                if (editor.getTableInformation().isRootStructure() != rootTables.contains(editor.getTableInformation().getTablePath()))
+                if (editor.getTableInformation().isRootStructure() != dbTblCmdHndlr.getRootStructures().contains(editor.getTableInformation().getTablePath()))
                 {
                     // Update the table's root structure status
                     editor.getTableInformation().setRootStructure(!editor.getTableInformation().isRootStructure());

@@ -31,7 +31,6 @@ import javax.xml.bind.Unmarshaller;
 import org.omg.space.xtce.AggregateDataType;
 import org.omg.space.xtce.AggregateDataType.MemberList;
 import org.omg.space.xtce.AggregateDataType.MemberList.Member;
-import org.omg.space.xtce.AlarmRangesType;
 import org.omg.space.xtce.ArgumentTypeSetType;
 import org.omg.space.xtce.ArgumentTypeSetType.FloatArgumentType;
 import org.omg.space.xtce.ArgumentTypeSetType.IntegerArgumentType;
@@ -70,7 +69,6 @@ import org.omg.space.xtce.MetaCommandType.BaseMetaCommand;
 import org.omg.space.xtce.MetaCommandType.BaseMetaCommand.ArgumentAssignmentList;
 import org.omg.space.xtce.MetaCommandType.BaseMetaCommand.ArgumentAssignmentList.ArgumentAssignment;
 import org.omg.space.xtce.NameDescriptionType;
-import org.omg.space.xtce.NumericAlarmType;
 import org.omg.space.xtce.ObjectFactory;
 import org.omg.space.xtce.ParameterRefEntryType;
 import org.omg.space.xtce.ParameterSetType;
@@ -209,36 +207,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Argument column name types
-     *********************************************************************************************/
-    private static enum ArgumentColumnName
-    {
-        APP_ID("ApplicationID", "Application ID"),
-        FUNC_CODE("CommandFunctionCode", "Command Function Code");
-
-        String ancillaryName;
-        String defaultArgColName;
-
-        /******************************************************************************************
-         * Argument column name types constructor
-         *
-         * @param ancillaryName
-         *            name used as the identifying tag in the ancillary data
-         *
-         * @param defaultArgColName
-         *            default argument column name
-         *****************************************************************************************/
-        ArgumentColumnName(String ancillaryName, String defaultArgColName)
-        {
-            this.ancillaryName = ancillaryName;
-            this.defaultArgColName = defaultArgColName;
-        }
-    }
-
-    /**********************************************************************************************
      * Structure member list
      *********************************************************************************************/
-    class StructureMemberList
+    private class StructureMemberList
     {
         private final String structureName;
         private final MemberList memberList;
@@ -343,7 +314,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Importing data in XTCE format is not supported
+     * Import the the table definitions from an XTCE XML formatted file
+     *
+     * @param importFile
+     *            reference to the user-specified XML input file
+     *
+     * @param importType
+     *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
+     *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
+     *            only the data for the first table defined
+     *
+     * @throws CCDDException
+     *             If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws IOException
+     *             If an import file I/O error occurs
+     *
+     * @throws Exception
+     *             For any unanticipated errors
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
@@ -379,7 +367,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     // Check if the item name matches that for the application ID argument column
                     // name indicator
-                    if (data.getName().equals(ArgumentColumnName.APP_ID.ancillaryName))
+                    if (data.getName().equals(ArgumentColumnName.APP_ID.getAncillaryName()))
                     {
                         // Store the item value as the application ID argument column name. Note
                         // that this overrides the value extracted from the project data field
@@ -387,7 +375,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     }
                     // Check if the item name matches that for the command function code argument
                     // column name indicator
-                    else if (data.getName().equals(ArgumentColumnName.FUNC_CODE.ancillaryName))
+                    else if (data.getName().equals(ArgumentColumnName.FUNC_CODE.getAncillaryName()))
                     {
                         // Store the item value as the command function code argument column name.
                         // Note that this overrides the value extracted from the project data field
@@ -401,7 +389,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             if (ccsdsAppID == null)
             {
                 // Use the default application ID argument column name
-                ccsdsAppID = ArgumentColumnName.APP_ID.defaultArgColName;
+                ccsdsAppID = ArgumentColumnName.APP_ID.getDefaultArgColName();
             }
 
             // Check if the command function code argument column name isn't set in the project or
@@ -409,7 +397,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             if (ccsdsFuncCode == null)
             {
                 // Use the default command function code argument column name
-                ccsdsFuncCode = ArgumentColumnName.FUNC_CODE.defaultArgColName;
+                ccsdsFuncCode = ArgumentColumnName.FUNC_CODE.getDefaultArgColName();
             }
 
             // Create the table type definitions for any new structure and command tables
@@ -719,7 +707,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                       TelemetryMetaDataType tlmMetaData,
                                       String tableName) throws CCDDException
     {
-        // Create a table definition for this structure table
+        // Create a table definition for this structure table. If the name space also includes a
+        // command metadata (which creates a command table) then ensure the two tables have
+        // different names
         TableDefinition tableDefn = new TableDefinition(tableName
                                                         + (system.getCommandMetaData() == null
                                                                                                ? ""
@@ -899,37 +889,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                                 sizeInBytes /= 8;
 
-                                // Get the parameter alarm
-                                NumericAlarmType alarmType = itlm.getDefaultAlarm();
+                                // Get the parameter range
+                                IntegerRangeType range = itlm.getValidRange();
 
-                                // Check if the parameter has an alarm
-                                if (alarmType != null)
+                                // Check if the parameter has a range
+                                if (range != null)
                                 {
-                                    // Get the alarm range
-                                    AlarmRangesType alarmRange = alarmType.getStaticAlarmRanges();
-
-                                    // Check if the alarm range exists
-                                    if (alarmRange != null)
+                                    // Check if the minimum value exists
+                                    if (range.getMinInclusive() != null)
                                     {
-                                        // Get the minimum alarm value
-                                        Double min = alarmRange.getWarningRange().getMinExclusive();
+                                        // Store the minimum
+                                        minimum = range.getMinInclusive();
+                                    }
 
-                                        // Check if the minimum alarm value exists
-                                        if (min != null)
-                                        {
-                                            // Store the minimum as an integer
-                                            minimum = String.valueOf(Math.round(min));
-                                        }
-
-                                        // Get the maximum alarm value
-                                        Double max = alarmRange.getWarningRange().getMaxExclusive();
-
-                                        // Check if the maximum alarm value exists
-                                        if (max != null)
-                                        {
-                                            // Store the maximum as an integer
-                                            maximum = String.valueOf(Math.round(max));
-                                        }
+                                    // Check if the maximum value exists
+                                    if (range.getMaxInclusive() != null)
+                                    {
+                                        // Store the maximum
+                                        maximum = range.getMaxInclusive();
                                     }
                                 }
 
@@ -943,37 +920,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 sizeInBytes = ftlm.getSizeInBits().longValue() / 8;
                                 unitSet = ftlm.getUnitSet();
 
-                                // Get the parameter alarm
-                                NumericAlarmType alarmType = ftlm.getDefaultAlarm();
+                                // Get the parameter range
+                                FloatRangeType range = ftlm.getValidRange();
 
-                                // Check if the parameter has an alarm
-                                if (alarmType != null)
+                                // Check if the parameter has a range
+                                if (range != null)
                                 {
-                                    // Get the alarm range
-                                    AlarmRangesType alarmRange = alarmType.getStaticAlarmRanges();
-
-                                    // Check if the alarm range exists
-                                    if (alarmRange != null)
+                                    // Check if the minimum value exists
+                                    if (range.getMinInclusive() != null)
                                     {
-                                        // Get the minimum alarm value
-                                        Double min = alarmRange.getWarningRange().getMinExclusive();
+                                        // Store the minimum
+                                        minimum = String.valueOf(range.getMinInclusive());
+                                    }
 
-                                        // Check if the minimum alarm value exists
-                                        if (min != null)
-                                        {
-                                            // Store the minimum
-                                            minimum = String.valueOf(min);
-                                        }
-
-                                        // Get the maximum alarm value
-                                        Double max = alarmRange.getWarningRange().getMaxExclusive();
-
-                                        // Check if the maximum alarm value exists
-                                        if (max != null)
-                                        {
-                                            // Store the maximum
-                                            maximum = String.valueOf(max);
-                                        }
+                                    // Check if the maximum exists
+                                    if (range.getMaxInclusive() != null)
+                                    {
+                                        // Store the maximum
+                                        maximum = String.valueOf(range.getMaxInclusive());
                                     }
                                 }
 
@@ -1066,7 +1030,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     // beginning '/' is stripped off
                                     if (dataType.startsWith("/"))
                                     {
-                                        // Remove the initial /'
+                                        // Remove the initial '/'
                                         dataType = dataType.substring(1);
                                     }
 
@@ -1093,7 +1057,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             {
                                 // Get the name of the data type from the data type table that
                                 // matches the base type and size of the parameter
-                                dataType = getDataType(sizeInBytes,
+                                dataType = getDataType(dataTypeHandler,
+                                                       sizeInBytes,
                                                        isInteger,
                                                        isUnsigned,
                                                        isFloat,
@@ -1130,7 +1095,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                         bitLength.toString());
                             }
 
-                            // Check if a description exists data
+                            // Check if a description exists
                             if (parmType.getLongDescription() != null)
                             {
                                 // Store the description
@@ -1243,7 +1208,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Add the structure table definition to the list
         tableDefinitions.add(tableDefn);
-
     }
 
     /**********************************************************************************************
@@ -1265,7 +1229,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                     CommandMetaDataType cmdMetaData,
                                     String tableName) throws CCDDException
     {
-        // Create a table definition for this command table
+        // Create a table definition for this command table. If the name space also includes a
+        // telemetry metadata (which creates a structure table) then ensure the two tables have
+        // different names
         TableDefinition tableDefn = new TableDefinition(tableName
                                                         + (system.getTelemetryMetaData() == null
                                                                                                  ? ""
@@ -1643,7 +1609,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                                         // Get the name of the data type from the data type table
                                         // that matches the base type and size of the parameter
-                                        dataType = getDataType(sizeInBytes,
+                                        dataType = getDataType(dataTypeHandler,
+                                                               sizeInBytes,
                                                                isInteger,
                                                                isUnsigned,
                                                                isFloat,
@@ -1950,26 +1917,26 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         if (ccsdsAppID == null)
         {
             // Use the default application ID argument column name
-            ccsdsAppID = ArgumentColumnName.APP_ID.defaultArgColName;
+            ccsdsAppID = ArgumentColumnName.APP_ID.getDefaultArgColName();
         }
 
         // Check if the command function code argument column name isn't set in the project
         if (ccsdsFuncCode == null)
         {
             // Use the default command function code argument column name
-            ccsdsFuncCode = ArgumentColumnName.FUNC_CODE.defaultArgColName;
+            ccsdsFuncCode = ArgumentColumnName.FUNC_CODE.getDefaultArgColName();
         }
 
         // The application ID or command function code argument column names are stored as
         // ancillary data which is used if the export file is imported into CCDD
         AncillaryDataSet ancillarySet = factory.createDescriptionTypeAncillaryDataSet();
         AncillaryData appID = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        appID.setName(ArgumentColumnName.APP_ID.ancillaryName);
+        appID.setName(ArgumentColumnName.APP_ID.getAncillaryName());
         appID.setValue(ccsdsAppID);
         ancillarySet.getAncillaryData().add(appID);
         project.getValue().setAncillaryDataSet(ancillarySet);
         AncillaryData funcCode = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        funcCode.setName(ArgumentColumnName.FUNC_CODE.ancillaryName);
+        funcCode.setName(ArgumentColumnName.FUNC_CODE.getAncillaryName());
         funcCode.setValue(ccsdsFuncCode);
         ancillarySet.getAncillaryData().add(funcCode);
         project.getValue().setAncillaryDataSet(ancillarySet);
@@ -2004,6 +1971,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if this is a child (instance) table
             if (!TableInformation.isPrototype(tableName))
             {
+                // TODO THIS NEEDS TO CHANGE SO THAT INSTANCE VALUES CAN BE USED
                 // Get the prototype of the instance table. Only prototypes of the tables are
                 // used to create the space systems
                 tableName = TableInformation.getPrototypeName(tableName);
@@ -2027,8 +1995,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the table's data successfully loaded
             if (!tableInfo.isErrorFlag())
             {
-                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. FOR THAT
-                // MATTER, SEPARATE SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED.
+                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. SEPARATE
+                // SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED. THE SAME ISSUE APPLIES TO
+                // OTHER INSTANCE VALUES (E.G., MIN & MAX) - CAN'T REFERENCE THE PROTOTYPE TO GET
+                // THIS INFORMATION; INSTEAD NEED A SPACE SYSTEM FOR THE INSTANCE
 
                 // Get the table type and from the type get the type definition. The type
                 // definition can be a global parameter since if the table represents a structure,
@@ -2692,11 +2662,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Create the parameter. This links the parameter name with the parameter reference type
         ParameterSetType parameterSet = spaceSystem.getTelemetryMetaData().getParameterSet();
         Parameter parameter = factory.createParameterSetTypeParameter();
-        String name = getNameByDataType(parameterName, dataType);
-        parameter.setName(name);
-        parameter.setParameterTypeRef(name + (arraySize.isEmpty()
-                                                                  ? TYPE
-                                                                  : ARRAY));
+        parameter.setName(parameterName);
+        parameter.setParameterTypeRef(getNameByDataType(parameterName, dataType)
+                                      + (arraySize.isEmpty()
+                                                             ? TYPE
+                                                             : ARRAY));
         parameterSet.getParameterOrParameterRef().add(parameter);
     }
 
@@ -3044,7 +3014,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             {
                 command.setAbstract(true);
             }
-            // Not he command header. Check if the command ID is provided
+            // Not the command header. Check if the command ID is provided
             else if (!isCmdHeader
                      && applicationID != null
                      && !applicationID.isEmpty()
@@ -3294,34 +3264,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             integerType.setIntegerDataEncoding(intEncodingType);
 
-                            // TODO NOTE THAT ONLY ONE ALARM TYPE IS COVERED.
-                            // TODO HAVE TO DO THIS AS A FLOAT; INTEGER DOESN'T APPEAR TO BE
-                            // DOABLE.
                             // Check if a minimum or maximum value is specified
                             if ((minimum != null && !minimum.isEmpty())
                                 || (maximum != null && !maximum.isEmpty()))
                             {
-                                NumericAlarmType alarm = factory.createNumericAlarmType();
-                                AlarmRangesType alarmRange = factory.createAlarmRangesType();
-                                FloatRangeType floatRange = new FloatRangeType();
+                                IntegerRangeType range = factory.createIntegerRangeType();
 
                                 // Check if a minimum value is specified
                                 if (minimum != null && !minimum.isEmpty())
                                 {
                                     // Set the minimum value
-                                    floatRange.setMinExclusive(Double.valueOf(minimum));
+                                    range.setMinInclusive(minimum);
                                 }
 
                                 // Check if a maximum value is specified
                                 if (maximum != null && !maximum.isEmpty())
                                 {
                                     // Set the maximum value
-                                    floatRange.setMaxExclusive(Double.valueOf(maximum));
+                                    range.setMaxInclusive(maximum);
                                 }
 
-                                alarmRange.setWarningRange(floatRange);
-                                alarm.setStaticAlarmRanges(alarmRange);
-                                integerType.setDefaultAlarm(alarm);
+                                integerType.setValidRange(range);
                             }
 
                             parameterDescription = integerType;
@@ -3336,32 +3299,27 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             floatEncodingType.setEncoding("IEEE754_1985");
                             floatType.setFloatDataEncoding(floatEncodingType);
 
-                            // TODO NOTE THAT ONLY ONE ALARM TYPE IS COVERED
                             // Check if a minimum or maximum value is specified
                             if ((minimum != null && !minimum.isEmpty())
                                 || (maximum != null && !maximum.isEmpty()))
                             {
-                                NumericAlarmType alarm = factory.createNumericAlarmType();
-                                AlarmRangesType alarmRange = factory.createAlarmRangesType();
-                                FloatRangeType floatRange = new FloatRangeType();
+                                FloatRangeType range = factory.createFloatRangeType();
 
                                 // Check if a minimum value is specified
                                 if (minimum != null && !minimum.isEmpty())
                                 {
                                     // Set the minimum value
-                                    floatRange.setMinExclusive(Double.valueOf(minimum));
+                                    range.setMinInclusive(Double.valueOf(minimum));
                                 }
 
                                 // Check if a maximum value is specified
                                 if (maximum != null && !maximum.isEmpty())
                                 {
                                     // Set the maximum value
-                                    floatRange.setMaxExclusive(Double.valueOf(maximum));
+                                    range.setMaxInclusive(Double.valueOf(maximum));
                                 }
 
-                                alarmRange.setWarningRange(floatRange);
-                                alarm.setStaticAlarmRanges(alarmRange);
-                                floatType.setDefaultAlarm(alarm);
+                                floatType.setValidRange(range);
                             }
 
                             parameterDescription = floatType;
@@ -3594,23 +3552,23 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             || (maximum != null && !maximum.isEmpty()))
                         {
                             IntegerArgumentType.ValidRangeSet validRange = factory.createArgumentTypeSetTypeIntegerArgumentTypeValidRangeSet();
-                            IntegerRangeType integerRange = new IntegerRangeType();
+                            IntegerRangeType range = new IntegerRangeType();
 
                             // Check if a minimum value is specified
                             if (minimum != null && !minimum.isEmpty())
                             {
                                 // Set the minimum value
-                                integerRange.setMinInclusive(minimum);
+                                range.setMinInclusive(minimum);
                             }
 
                             // Check if a maximum value is specified
                             if (maximum != null && !maximum.isEmpty())
                             {
                                 // Set the maximum value
-                                integerRange.setMaxInclusive(maximum);
+                                range.setMaxInclusive(maximum);
                             }
 
-                            validRange.getValidRange().add(integerRange);
+                            validRange.getValidRange().add(range);
                             integerType.setValidRangeSet(validRange);
                         }
 
@@ -3630,23 +3588,23 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             || (maximum != null && !maximum.isEmpty()))
                         {
                             FloatArgumentType.ValidRangeSet validRange = factory.createArgumentTypeSetTypeFloatArgumentTypeValidRangeSet();
-                            FloatRangeType floatRange = new FloatRangeType();
+                            FloatRangeType range = new FloatRangeType();
 
                             // Check if a minimum value is specified
                             if (minimum != null && !minimum.isEmpty())
                             {
                                 // Set the minimum value
-                                floatRange.setMinExclusive(Double.valueOf(minimum));
+                                range.setMinExclusive(Double.valueOf(minimum));
                             }
 
                             // Check if a maximum value is specified
                             if (maximum != null && !maximum.isEmpty())
                             {
                                 // Set the maximum value
-                                floatRange.setMaxExclusive(Double.valueOf(maximum));
+                                range.setMaxExclusive(Double.valueOf(maximum));
                             }
 
-                            validRange.getValidRange().add(floatRange);
+                            validRange.getValidRange().add(range);
                             floatType.setValidRangeSet(validRange);
                         }
 
@@ -3804,96 +3762,5 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         return dataTypeHandler.isPrimitive(dataType)
                                                      ? parameterName
                                                      : dataType;
-    }
-
-    /**********************************************************************************************
-     * Get the data type name determined by the specified data type size and match criteria
-     *
-     * @param sizeInBytes
-     *            data type size in bytes
-     *
-     * @param isInteger
-     *            true if the data type to match is an integer
-     *
-     * @param isUnsigned
-     *            true if the data type to match is an unsigned integer
-     *
-     * @param isFloat
-     *            true if the data type to match is a floating point
-     *
-     * @param isString
-     *            true if the data type to match is a character or string
-     *
-     * @return The name of the data type from the existing data type definitions that matches the
-     *         input criteria; null if there is no match
-     *********************************************************************************************/
-    private String getDataType(long sizeInBytes,
-                               boolean isInteger,
-                               boolean isUnsigned,
-                               boolean isFloat,
-                               boolean isString)
-    {
-        String dataType = null;
-
-        // Step through each defined data type
-        for (String[] dataTypeDefn : dataTypeHandler.getDataTypeData())
-        {
-            String dataTypeName = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
-
-            // Check if the type to match is a string (vs a character)
-            if (isString && sizeInBytes > 1 && dataTypeHandler.isString(dataTypeName))
-            {
-                // Store the matching string data type and stop searching
-                dataType = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
-                break;
-            }
-
-            // Check if the size in bytes matches the one for this data type
-            if (sizeInBytes == dataTypeHandler.getDataTypeSize(dataTypeName))
-            {
-                // Check if the type indicated by the input flags matches the data type
-                if ((isInteger && !isUnsigned && dataTypeHandler.isInteger(dataTypeName))
-
-                    || (isInteger && isUnsigned && dataTypeHandler.isUnsignedInt(dataTypeName))
-
-                    || (isFloat && dataTypeHandler.isFloat(dataTypeName))
-
-                    || (isString && dataTypeHandler.isCharacter(dataTypeName)))
-                {
-                    // Store the matching data type and stop searching
-                    dataType = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
-                    break;
-                }
-            }
-
-        }
-
-        return dataType;
-    }
-
-    /**********************************************************************************************
-     * Convert a space system path name in the format </path1</path2<...>>>name into a valid
-     * structure name by replacing all invalid characters (e.g., '/'s, spaces, etc.) with an
-     * underscore
-     *
-     * @param path
-     *            space system path
-     *
-     * @return Space system path converted to a valid structure name
-     *********************************************************************************************/
-    private String convertPathToTableName(String path)
-    {
-        // Replace all invalid characters with an underscore
-        path = path.replaceAll("[^a-zA-Z0-9_]", "_");
-
-        // Check if the initial character is invalid (i.e., a numeral after the above replacement
-        // is performed)
-        if (path.matches("[^a-zA-Z_].*"))
-        {
-            // Preface the path with an underscore to make it valid
-            path = "_" + path;
-        }
-
-        return path;
     }
 }

@@ -105,6 +105,10 @@ public class CcddDbTableCommandHandler
     // List of arrays scheduled for removal from the links and telemetry scheduler tables
     private List<String> deletedArrayDefns;
 
+    // List of root structure tables. In order to reduce traffic with the database, a running list,
+    // updated as needed, is used in place of querying for the list as needed
+    private List<String> rootStructures;
+
     /**********************************************************************************************
      * Database table command handler class constructor
      *
@@ -136,6 +140,9 @@ public class CcddDbTableCommandHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
+
+        // Get the list of root structure tables
+        rootStructures = getRootStructures(ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -202,7 +209,7 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Get the list of root (top level) structure tables
+     * Get the list of root (top level) structure tables from the project database
      *
      * @param parent
      *            GUI component calling this method
@@ -212,6 +219,16 @@ public class CcddDbTableCommandHandler
     protected List<String> getRootStructures(Component parent)
     {
         return getRootTables(true, parent);
+    }
+
+    /**********************************************************************************************
+     * Get the current list of root (top level) structure tables
+     *
+     * @return List of root structure tables; empty list if there are no root tables
+     *********************************************************************************************/
+    protected List<String> getRootStructures()
+    {
+        return rootStructures;
     }
 
     /**********************************************************************************************
@@ -1091,6 +1108,9 @@ public class CcddDbTableCommandHandler
             // Execute the database update
             dbCommand.executeDbUpdate(command, parent);
 
+            // Update the list of root structure tables
+            rootStructures = getRootStructures(parent);
+
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG, "Table(s) '" + allNames + "' created");
         }
@@ -1283,6 +1303,9 @@ public class CcddDbTableCommandHandler
                     // comment
                     dbCommand.executeDbCommand(command, tableDialog);
 
+                    // Update the list of root structure tables
+                    rootStructures = getRootStructures(tableDialog);
+
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table '" + tableName + "' renamed to '" + newName + "'");
@@ -1468,6 +1491,9 @@ public class CcddDbTableCommandHandler
                     // (before conversion to all lower case) that's stored as a comment
                     dbCommand.executeDbCommand(command, tableDialog);
 
+                    // Update the list of root structure tables
+                    rootStructures = getRootStructures(tableDialog);
+
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       "Table '" + tableName + "' copied to '" + newName + "'");
@@ -1607,6 +1633,9 @@ public class CcddDbTableCommandHandler
                 // variables
                 dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
             }
+
+            // Update the list of root structure tables
+            rootStructures = getRootStructures(parent);
 
             // Log that the table deletion succeeded
             eventLog.logEvent(SUCCESS_MSG, "Table(s) '" + names + "' deleted");
@@ -1964,9 +1993,6 @@ public class CcddDbTableCommandHandler
                                              boolean loadFieldInfo,
                                              Component parent)
     {
-        // Get the list of root structure tables
-        List<String> rootStructure = getRootStructures(parent);
-
         // Create an empty table information class
         TableInformation tableInfo = new TableInformation(tablePath);
 
@@ -2048,7 +2074,7 @@ public class CcddDbTableCommandHandler
                                                               ? queryTableDescription(tablePath,
                                                                                       parent)
                                                               : ""),
-                                             rootStructure.contains(tablePath),
+                                             rootStructures.contains(tablePath),
                                              (loadFieldInfo
                                                             ? retrieveInformationTable(InternalTable.FIELDS,
                                                                                        parent).toArray(new String[0][0])
@@ -2672,7 +2698,6 @@ public class CcddDbTableCommandHandler
         try
         {
             CcddTableTreeHandler tableTree = null;
-            List<String> rootTables = null;
             ToolTipTreeNode orgTableNode = null;
             updateLinks = false;
             addLinkHandler = null;
@@ -2698,13 +2723,6 @@ public class CcddDbTableCommandHandler
                                                      true,
                                                      parent);
 
-                // Check if there are any additions or modifications
-                if (!additions.isEmpty() || !modifications.isEmpty())
-                {
-                    // Get the list of root structure tables
-                    rootTables = getRootStructures(parent);
-                }
-
                 // Check if the table is a prototype
                 if (tableInfo.isPrototype())
                 {
@@ -2720,14 +2738,12 @@ public class CcddDbTableCommandHandler
                                                   additions,
                                                   dbTableName,
                                                   typeDefinition,
-                                                  rootTables,
                                                   skipInternalTables)
                              + buildModificationCommand(tableInfo,
                                                         modifications,
                                                         typeDefinition,
                                                         newDataTypeHandler,
                                                         tableTree,
-                                                        rootTables,
                                                         skipInternalTables)
                              + buildDeletionCommand(tableInfo,
                                                     deletions,
@@ -2804,6 +2820,13 @@ public class CcddDbTableCommandHandler
                     dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
                 }
 
+                // Check if the table type is a structure
+                if (typeDefinition.isStructure())
+                {
+                    // Update the list of root structure tables
+                    rootStructures = getRootStructures(parent);
+                }
+
                 // Log that inserting data into the table succeeded
                 eventLog.logEvent(SUCCESS_MSG,
                                   "Table '" + tableInfo.getProtoVariableName() + "' data modified");
@@ -2867,9 +2890,6 @@ public class CcddDbTableCommandHandler
      * @param typeDefn
      *            table type definition
      *
-     * @param rootTables
-     *            list containing the names of the root tables
-     *
      * @param skipInternalTables
      *            true to not build and execute the commands to update the internal tables. This is
      *            used during a data type update where only the data type name has changed in order
@@ -2881,7 +2901,6 @@ public class CcddDbTableCommandHandler
                                         List<TableModification> additions,
                                         String dbTableName,
                                         TypeDefinition typeDefn,
-                                        List<String> rootTables,
                                         boolean skipInternalTables)
     {
         StringBuilder addCmd = new StringBuilder("");
@@ -2948,7 +2967,7 @@ public class CcddDbTableCommandHandler
                     // Check if the data type isn't a primitive (i.e., it must be a structure
                     // table) and this structure is a root table
                     if (!dataTypeHandler.isPrimitive(dataType)
-                        && rootTables.contains(dataType))
+                        && rootStructures.contains(dataType))
                     {
                         // If the structure chosen as the variable's data type is a root structure,
                         // then any custom values for this the root structure (which becomes a
@@ -3137,9 +3156,6 @@ public class CcddDbTableCommandHandler
      * @param tableTree
      *            CcddTableTreeHandler reference describing the table tree
      *
-     * @param rootTables
-     *            list containing the names of the root tables
-     *
      * @param skipInternalTables
      *            true to not build and execute the commands to update the internal tables. This is
      *            used during a data type update where only the data type name has changed in order
@@ -3152,7 +3168,6 @@ public class CcddDbTableCommandHandler
                                             TypeDefinition typeDefn,
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddTableTreeHandler tableTree,
-                                            List<String> rootTables,
                                             boolean skipInternalTables)
     {
         StringBuilder modCmd = new StringBuilder("");
@@ -3273,7 +3288,7 @@ public class CcddDbTableCommandHandler
                             // structure, and this structure is a root table
                             if (dataTypeChanged
                                 && !newDataTypeHandler.isPrimitive(newDataType)
-                                && rootTables.contains(newDataType))
+                                && rootStructures.contains(newDataType))
                             {
                                 // Get the variable path
                                 String newVariablePath = tableInfo.getTablePath()
@@ -5690,8 +5705,14 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
+                    // Get the reference to the type definition
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
+
+                    // Set the flag to indicate if the type represents a structure
+                    boolean isStructure = typeDefn.isStructure();
+
                     // Delete the table type definition from the table type handler
-                    tableTypeHandler.getTypeDefinitions().remove(tableTypeHandler.getTypeDefinition(typeName));
+                    tableTypeHandler.getTypeDefinitions().remove(typeDefn);
 
                     // Create the command to update the table definitions table
                     String command = storeTableTypesInfoTableCommand();
@@ -5752,6 +5773,13 @@ public class CcddDbTableCommandHandler
                         // Execute the command to reset the rate for links that no longer contain
                         // any variables
                         dbCommand.executeDbQuery("SELECT reset_link_rate();", parent);
+
+                        // Check if the the deleted type represented a structure
+                        if (isStructure)
+                        {
+                            // Update the list of root structure tables
+                            rootStructures = getRootStructures(parent);
+                        }
 
                         // Log that table deletion succeeded
                         eventLog.logEvent(SUCCESS_MSG,
@@ -6342,15 +6370,6 @@ public class CcddDbTableCommandHandler
                     }
                 }
 
-                List<String> rootStructures = null;
-
-                // Check if the modified type represents a structure
-                if (isStructure)
-                {
-                    // Get the list of root structure tables
-                    rootStructures = getRootStructures(editorDialog);
-                }
-
                 // Create a field handler to store the data field information
                 CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, editorDialog);
 
@@ -6467,6 +6486,13 @@ public class CcddDbTableCommandHandler
             {
                 // Execute the command to change the table type and any table's of this type
                 dbCommand.executeDbCommand(command.toString(), editorDialog);
+
+                // Check if the type changed from being a structure to not being a structure
+                if (!isStructure && wasStructure)
+                {
+                    // Update the list of root structure tables
+                    rootStructures = getRootStructures(editorDialog);
+                }
 
                 // Log that updating the table type succeeded
                 eventLog.logEvent(SUCCESS_MSG,

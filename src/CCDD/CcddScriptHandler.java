@@ -1077,11 +1077,12 @@ public class CcddScriptHandler
                                                                               envVarMap));
 
                     // Set the availability status based on if the script file exists
-                    assnsTable.getModel().setValueAt((file.exists()
-                                                                    ? AvailabilityType.AVAILABLE
-                                                                    : AvailabilityType.SCRIPT_MISSING),
-                                                     row,
-                                                     AssociationsTableColumnInfo.AVAILABLE.ordinal());
+                    ((UndoableTableModel) assnsTable.getModel()).setValueAt((file.exists()
+                                                                                           ? AvailabilityType.AVAILABLE
+                                                                                           : AvailabilityType.SCRIPT_MISSING),
+                                                                            row,
+                                                                            AssociationsTableColumnInfo.AVAILABLE.ordinal(),
+                                                                            false);
                 }
             }
 

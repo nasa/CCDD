@@ -1864,23 +1864,34 @@ public class CcddFileIOHandler
 
         try
         {
-            // Check if the data file exists and the user has elected to overwriting existing files
-            if (exportFile.exists() && overwriteFile)
+            // Check if the data file exists
+            if (exportFile.exists())
             {
-                // Check if the file can't be deleted
-                if (!exportFile.delete())
+                // Check if the user elects to overwrite existing files
+                if (overwriteFile
+                    || new CcddDialogHandler().showMessageDialog(parent,
+                                                                 "<html><b>Overwrite existing file<br>'</b>\n"
+                                                                         + exportFile.getAbsolutePath()
+                                                                         + "<b>'?",
+                                                                 "Overwrite File",
+                                                                 JOptionPane.QUESTION_MESSAGE,
+                                                                 DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
-                    throw new CCDDException("Cannot replace");
-                }
+                    // Check if the file can't be deleted
+                    if (!exportFile.delete())
+                    {
+                        throw new CCDDException("Cannot replace");
+                    }
 
-                // Check if the data file cannot be created
-                if (!exportFile.createNewFile())
-                {
-                    throw new CCDDException("Cannot create");
-                }
+                    // Check if the data file cannot be created
+                    if (!exportFile.createNewFile())
+                    {
+                        throw new CCDDException("Cannot create");
+                    }
 
-                // Enable exporting the table
-                continueExport = true;
+                    // Enable exporting the table
+                    continueExport = true;
+                }
             }
         }
         catch (CCDDException ce)

@@ -26,6 +26,53 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 public class CcddImportSupportHandler
 {
     /**********************************************************************************************
+     * Argument column name types
+     *********************************************************************************************/
+    protected static enum ArgumentColumnName
+    {
+        APP_ID("ApplicationID", "Application ID"),
+        FUNC_CODE("CommandFunctionCode", "Command Function Code");
+
+        private final String ancillaryName;
+        private final String defaultArgColName;
+
+        /******************************************************************************************
+         * Argument column name types constructor
+         *
+         * @param ancillaryName
+         *            name used as the identifying tag in the ancillary data
+         *
+         * @param defaultArgColName
+         *            default argument column name
+         *****************************************************************************************/
+        ArgumentColumnName(String ancillaryName, String defaultArgColName)
+        {
+            this.ancillaryName = ancillaryName;
+            this.defaultArgColName = defaultArgColName;
+        }
+
+        /******************************************************************************************
+         * Get the name used as the identifying tag in the ancillary data
+         *
+         * @return Name used as the identifying tag in the ancillary data
+         *****************************************************************************************/
+        protected String getAncillaryName()
+        {
+            return ancillaryName;
+        }
+
+        /******************************************************************************************
+         * Get the default argument column name
+         *
+         * @return Default argument column name
+         *****************************************************************************************/
+        protected String getDefaultArgColName()
+        {
+            return defaultArgColName;
+        }
+    }
+
+    /**********************************************************************************************
      * Add a table type column definition after verifying the input parameters
      *
      * @param continueOnError
@@ -295,5 +342,100 @@ public class CcddImportSupportHandler
         }
 
         return continueOnError;
+    }
+
+    /**********************************************************************************************
+     * Get the data type name determined by the specified data type size and match criteria
+     *
+     * @param dataTypeHandler
+     *            reference to the data type handler
+     *
+     * @param sizeInBytes
+     *            data type size in bytes
+     *
+     * @param isInteger
+     *            true if the data type to match is an integer
+     *
+     * @param isUnsigned
+     *            true if the data type to match is an unsigned integer
+     *
+     * @param isFloat
+     *            true if the data type to match is a floating point
+     *
+     * @param isString
+     *            true if the data type to match is a character or string
+     *
+     * @return The name of the data type from the existing data type definitions that matches the
+     *         input criteria; null if there is no match
+     *********************************************************************************************/
+    protected String getDataType(CcddDataTypeHandler dataTypeHandler,
+                                 long sizeInBytes,
+                                 boolean isInteger,
+                                 boolean isUnsigned,
+                                 boolean isFloat,
+                                 boolean isString)
+    {
+        String dataType = null;
+
+        // Step through each defined data type
+        for (String[] dataTypeDefn : dataTypeHandler.getDataTypeData())
+        {
+            String dataTypeName = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
+
+            // Check if the type to match is a string (vs a character)
+            if (isString && sizeInBytes > 1 && dataTypeHandler.isString(dataTypeName))
+            {
+                // Store the matching string data type and stop searching
+                dataType = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
+                break;
+            }
+
+            // Check if the size in bytes matches the one for this data type
+            if (sizeInBytes == dataTypeHandler.getDataTypeSize(dataTypeName))
+            {
+                // Check if the type indicated by the input flags matches the data type
+                if ((isInteger && !isUnsigned && dataTypeHandler.isInteger(dataTypeName))
+
+                    || (isInteger && isUnsigned && dataTypeHandler.isUnsignedInt(dataTypeName))
+
+                    || (isFloat && dataTypeHandler.isFloat(dataTypeName))
+
+                    || (isString && dataTypeHandler.isCharacter(dataTypeName)))
+                {
+                    // Store the matching data type and stop searching
+                    dataType = CcddDataTypeHandler.getDataTypeName(dataTypeDefn);
+                    break;
+                }
+            }
+
+        }
+
+        return dataType;
+    }
+
+    /**********************************************************************************************
+     * Convert a name space path name in the format </path1</path2<...>>>name into a valid
+     * structure name by replacing all invalid characters (e.g., '/'s, spaces, etc.) with an
+     * underscore
+     *
+     * @param path
+     *            space system path
+     *
+     * @return Space system path converted to a valid structure name
+     *********************************************************************************************/
+    protected String convertPathToTableName(String path)
+    {
+        // Replace all invalid characters with an underscore
+        path = path.replaceAll("[^a-zA-Z0-9_]", "_");
+
+        // Check if the initial character is invalid (i.e., a numeral after the above replacement
+        // is performed)
+        if (path.matches("[^a-zA-Z_].*"))
+        {
+            // Preface the path with an underscore to make it valid
+            path = "_" + path;
+        }
+
+        return path;
     }
 }

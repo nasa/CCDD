@@ -3852,14 +3852,12 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Use the prepareRenderer() to calculate the height required to display the cell's
                 // contents
-                Component comp = super.prepareRenderer(getCellRenderer(row,
-                                                                       column),
+                Component comp = super.prepareRenderer(getCellRenderer(row, column),
                                                        row,
                                                        column);
 
                 // Store the largest minimum height found
-                minRowHeight = Math.max(minRowHeight,
-                                        comp.getPreferredSize().height);
+                minRowHeight = Math.max(minRowHeight, comp.getPreferredSize().height);
             }
 
             // Check if the new row height differs from the current height

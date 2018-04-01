@@ -30,9 +30,6 @@ public class CcddFieldHandler
     // Main class reference
     private final CcddMain ccddMain;
 
-    // reference to class instantiating this class (main if none specified)
-    private Component parent;
-
     // List of field definitions
     private List<String[]> fieldDefinitions;
 
@@ -48,12 +45,10 @@ public class CcddFieldHandler
     CcddFieldHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
-        parent = ccddMain.getMainFrame();
 
         // Create storage for the field definitions and information
         fieldDefinitions = new ArrayList<String[]>();
         fieldInformation = new ArrayList<FieldInformation>();
-
     }
 
     /**********************************************************************************************
@@ -71,8 +66,6 @@ public class CcddFieldHandler
     CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
     {
         this(ccddMain);
-
-        this.parent = parent;
 
         // Load the data field definitions from the database
         fieldDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.FIELDS,
@@ -396,7 +389,7 @@ public class CcddFieldHandler
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
-            isRootStruct = ccddMain.getDbTableCommandHandler().getRootStructures(parent).contains(ownerName);
+            isRootStruct = ccddMain.getDbTableCommandHandler().getRootStructures().contains(ownerName);
         }
 
         return isTypeGroupProject

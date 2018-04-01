@@ -791,31 +791,38 @@ public class CcddClassesComponent
          * @param envVarMap
          *            environment variable map
          *
-         * @return File path with any environment variables replaced with the variable's value
+         * @return File path with any environment variables replaced with the variable's value;
+         *         blank if the file path is null or blank
          *****************************************************************************************/
         protected static String expandEnvVars(String pathName, Map<String, String> envVarMap)
         {
             String actualPath = "";
 
-            // Step through each folder in the path
-            for (String folder : pathName.split(Pattern.quote(File.separator)))
+            // Check if the file path isn't blank
+            if (pathName != null && !pathName.isEmpty())
             {
-                // Check if the folder is an environment variable
-                if (folder.startsWith("$"))
+                // Step through each folder in the path
+                for (String folder : pathName.split(Pattern.quote(File.separator)))
                 {
-                    // Get the value of the variable
-                    folder = envVarMap.get(folder.substring(1));
+                    // Check if the folder is an environment variable
+                    if (folder.startsWith("$"))
+                    {
+                        // Get the value of the variable
+                        folder = envVarMap.get(folder.substring(1));
+                    }
+
+                    // Build the path using the variable value. A blank is used if the variable
+                    // doesn't exist
+                    actualPath += (folder == null || folder.isEmpty()
+                                                                      ? ""
+                                                                      : folder)
+                                  + File.separator;
                 }
 
-                // Build the path using the variable value. A blank is used if the variable doesn't
-                // exist
-                actualPath += (folder == null || folder.isEmpty()
-                                                                  ? ""
-                                                                  : folder)
-                              + File.separator;
+                actualPath = CcddUtilities.removeTrailer(actualPath, File.separator);
             }
 
-            return CcddUtilities.removeTrailer(actualPath, File.separator);
+            return actualPath;
         }
 
         /******************************************************************************************
@@ -829,20 +836,30 @@ public class CcddClassesComponent
          *            map containing environment variables and their corresponding values
          *
          * @return File path with any portions that match an environment variable value in the
-         *         supplied map replaced with the corresponding variable name
+         *         supplied map replaced with the corresponding variable name; blank if the
+         *         supplied file path is null of blank
          *****************************************************************************************/
         protected static String restoreEnvVars(String pathName, Map<String, String> envVarMap)
         {
-            // Step through each environment variable
-            for (Entry<String, String> envVar : envVarMap.entrySet())
+            // Check if the file path isn't blank
+            if (pathName != null && !pathName.isEmpty())
             {
-                // Check if the variable has a non-blank value
-                if (envVar.getValue() != null && !envVar.getValue().isEmpty())
+                // Step through each environment variable
+                for (Entry<String, String> envVar : envVarMap.entrySet())
                 {
-                    // Replace the variable value with its name
-                    pathName = pathName.replaceFirst(Pattern.quote(envVar.getValue()),
-                                                     "\\$" + envVar.getKey());
+                    // Check if the variable has a non-blank value
+                    if (envVar.getValue() != null && !envVar.getValue().isEmpty())
+                    {
+                        // Replace the variable value with its name
+                        pathName = pathName.replaceFirst(Pattern.quote(envVar.getValue()),
+                                                         "\\$" + envVar.getKey());
+                    }
                 }
+            }
+            // The file path is null or blank
+            else
+            {
+                pathName = "";
             }
 
             return pathName;
