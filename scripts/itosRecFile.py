@@ -253,9 +253,13 @@ def outputStructureDefinition(structureName, isPacket, outFile):
                     # Check that this isn't a member of a string (other than
                     # the first one)
                     if not skipStringMembers:
-                        # In case this is an array member replace the square
-                        # brackets
-                        variableName = ccdd.getFullVariableName(variableName, "_")
+                        # In case this is an array member replace the square brackets. This also
+                        # prevents returning a duplicate name due to the conversion (e.g.,
+                        # abc_0 and abc[0] would otherwise be converted to the same name, abc_0,
+                        # if the brackets are simply replaced)
+                        variablePath = ccdd.getFullVariableName(rowIndex, ",")
+                        varIndex = variablePath.rfind(",") + 1
+                        variableName = variablePath[varIndex:]
 
                         # Check if this is not the first pass
                         if termLine:
