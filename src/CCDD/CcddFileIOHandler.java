@@ -1608,6 +1608,13 @@ public class CcddFileIOHandler
      * @param fileExtn
      *            file extension type
      *
+     * @param endianess
+     *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
+     *
+     * @param isHeaderBigEndian
+     *            true if the telemetry and command headers are always big endian (e.g., as with
+     *            CCSDS)
+     *
      * @param version
      *            version attribute (XTCE only)
      *
@@ -1637,6 +1644,7 @@ public class CcddFileIOHandler
                                         final String[] separators,
                                         final FileExtension fileExtn,
                                         final EndianType endianess,
+                                        final boolean isHeaderBigEndian,
                                         final String version,
                                         final String validationStatus,
                                         final String classification1,
@@ -1731,6 +1739,7 @@ public class CcddFileIOHandler
                                                        variableHandler,
                                                        separators,
                                                        endianess,
+                                                       isHeaderBigEndian,
                                                        version,
                                                        validationStatus,
                                                        classification1,

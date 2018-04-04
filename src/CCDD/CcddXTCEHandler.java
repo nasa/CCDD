@@ -147,12 +147,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // Conversion setup error flag
     private boolean errorFlag;
 
+    // Flag to indicate if the telemetry and command headers are big endian (as with CCSDS)
+    private boolean isHeaderBigEndian;
+
     // Names of the tables that represent the common header for all telemetry and command tables
     private String tlmHeaderTable;
     private String cmdHeaderTable;
 
-    // Names of the system paths for the common header for all telemetry and command tables
-    private String tlmHeaderPath;
+    // Names of the system paths for the common header for all command tables
     private String cmdHeaderPath;
 
     // Telemetry and command header argument column names for the application ID, and command
@@ -1757,11 +1759,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param extraInfo
      *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
-     *            [1] version attribute <br>
-     *            [2] validation status attribute <br>
-     *            [3] first level classification attribute <br>
-     *            [4] second level classification attribute <br>
-     *            [5] third level classification attribute
+     *            [1] are the telemetry and command headers big endian (true or false) <br>
+     *            [2] version attribute <br>
+     *            [3] validation status attribute <br>
+     *            [4] first level classification attribute <br>
+     *            [5] second level classification attribute <br>
+     *            [6] third level classification attribute
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -1784,11 +1787,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 variableHandler,
                                 separators,
                                 (EndianType) extraInfo[0],
-                                (String) extraInfo[1],
+                                (boolean) extraInfo[1],
                                 (String) extraInfo[2],
                                 (String) extraInfo[3],
                                 (String) extraInfo[4],
-                                (String) extraInfo[5]);
+                                (String) extraInfo[5],
+                                (String) extraInfo[6]);
 
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
@@ -1844,6 +1848,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param endianess
      *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
      *
+     * @param isHeaderBigEndian
+     *            true if the telemetry and command headers are always big endian (e.g., as with
+     *            CCSDS)
+     *
      * @param version
      *            version attribute
      *
@@ -1863,6 +1871,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                      CcddVariableSizeAndConversionHandler variableHandler,
                                      String[] separators,
                                      EndianType endianess,
+                                     boolean isHeaderBigEndian,
                                      String version,
                                      String validationStatus,
                                      String classification1,
@@ -1870,6 +1879,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                      String classification3)
     {
         this.endianess = endianess;
+        this.isHeaderBigEndian = isHeaderBigEndian;
 
         // Store the attributes
         versionAttr = version;
@@ -1968,23 +1978,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Step through each table name
         for (String tableName : tableNames)
         {
-            // Check if this is a child (instance) table
-            if (!TableInformation.isPrototype(tableName))
-            {
-                // TODO THIS NEEDS TO CHANGE SO THAT INSTANCE VALUES CAN BE USED
-                // Get the prototype of the instance table. Only prototypes of the tables are
-                // used to create the space systems
-                tableName = TableInformation.getPrototypeName(tableName);
-
-                // Check if the space system for the prototype of the table has already been
-                // created
-                if (getSpaceSystemByName(tableName, project.getValue()) != null)
-                {
-                    // Skip this table since it's space system has already been created
-                    continue;
-                }
-            }
-
             // Get the information from the database for the specified table
             TableInformation tableInfo = dbTable.loadTableData(tableName,
                                                                true,
@@ -1995,11 +1988,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the table's data successfully loaded
             if (!tableInfo.isErrorFlag())
             {
-                // TODO IF RATE INFORMATION GETS USED THEN THE PROTOTYPE DATA IS REQUIRED. SEPARATE
-                // SPACE SYSTEMS FOR EACH INSTANCE MAY THEN BE NEEDED. THE SAME ISSUE APPLIES TO
-                // OTHER INSTANCE VALUES (E.G., MIN & MAX) - CAN'T REFERENCE THE PROTOTYPE TO GET
-                // THIS INFORMATION; INSTEAD NEED A SPACE SYSTEM FOR THE INSTANCE
-
                 // Get the table type and from the type get the type definition. The type
                 // definition can be a global parameter since if the table represents a structure,
                 // then all of its children are also structures, and if the table represents
@@ -2078,81 +2066,189 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
                         int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
 
-                        // Set the flag to indicate if this is the telemetry header table
-                        boolean isTlmHeaderTable = tableName.equals(tlmHeaderTable);
-
-                        // Check if this is the telemetry header table
-                        if (isTlmHeaderTable)
+                        // Check if this is the command header structure. In order for it to be
+                        // referenced as the header for the command tables it must be converted
+                        // into the same format as a command table, then rendered into XTCE XML
+                        if (tableName.equals(cmdHeaderTable))
                         {
-                            // Store the telemetry header's path
-                            tlmHeaderPath = systemPath;
-                        }
+                            // Store the command header's path
+                            cmdHeaderPath = systemPath;
 
-                        // Export the parameter container for this structure
-                        addParameterContainer(parentSystem,
-                                              tableInfo,
-                                              varColumn,
-                                              typeColumn,
-                                              sizeColumn,
-                                              isTlmHeaderTable,
-                                              applicationID);
+                            // Set the number of argument columns per command argument
+                            int columnsPerArg = 9;
 
-                        // Step through each row in the structure table
-                        for (String[] rowData : tableInfo.getData())
-                        {
-                            // Check if the variable isn't an array member (the array definition is
-                            // used to define the array)
-                            if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                            // Initialize the offset in the command row so that space if created
+                            // for the command name and description, then created an array to
+                            // contain the converted command table data
+                            int argOffset = 2;
+                            String[][] tableData = new String[1][tableInfo.getData().length * columnsPerArg + 2];
+
+                            // Initialize the storage for the command argument column indices
+                            commandArguments = new ArrayList<AssociatedColumns>();
+
+                            // Store the command header table name and description as the command
+                            // name and description
+                            tableData[0][0] = tableName;
+                            tableData[0][1] = tableInfo.getDescription();
+
+                            // Step through each row in the command header table
+                            for (String[] rowData : tableInfo.getData())
                             {
-                                // Add the variable to the space system
-                                addParameter(parentSystem,
-                                             rowData[varColumn],
-                                             rowData[typeColumn],
-                                             rowData[sizeColumn],
-                                             rowData[bitColumn],
-                                             (enumColumn != -1 && !rowData[enumColumn].isEmpty()
-                                                                                                 ? rowData[enumColumn]
-                                                                                                 : null),
-                                             (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
-                                                                                                   ? rowData[unitsColumn]
-                                                                                                   : null),
-                                             (minColumn != -1 && !rowData[minColumn].isEmpty()
-                                                                                               ? rowData[minColumn]
-                                                                                               : null),
-                                             (maxColumn != -1 && !rowData[maxColumn].isEmpty()
-                                                                                               ? rowData[maxColumn]
-                                                                                               : null),
-                                             (descColumn != -1 && !rowData[descColumn].isEmpty()
-                                                                                                 ? rowData[descColumn]
-                                                                                                 : null),
-                                             (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
-                                                                                                                              ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
-                                                                                                                              : 1));
+                                // Store the components of each variable within the command header
+                                // in the form of a command argument
+                                tableData[0][argOffset] = varColumn != -1
+                                                                          ? rowData[varColumn]
+                                                                          : null;
+                                tableData[0][argOffset + 1] = typeColumn != -1
+                                                                               ? rowData[typeColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 2] = sizeColumn != -1
+                                                                               ? rowData[sizeColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 3] = bitColumn != -1
+                                                                              ? rowData[bitColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 4] = enumColumn != -1
+                                                                               ? rowData[enumColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 5] = minColumn != -1
+                                                                              ? rowData[minColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 6] = maxColumn != -1
+                                                                              ? rowData[maxColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 7] = descColumn != -1
+                                                                               ? rowData[descColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 8] = unitsColumn != -1
+                                                                                ? rowData[unitsColumn]
+                                                                                : null;
 
-                                // Use the variable name to create an aggregate list member and add
-                                // it to the member list. The list is used if this structure is
-                                // referenced as a data type in another structure
-                                Member member = new Member();
-                                member.setName(rowData[varColumn]);
-                                member.setTypeRef("/" + project.getValue().getName()
-                                                  + (systemPath == null || systemPath.isEmpty()
-                                                                                                ? ""
-                                                                                                : "/" + systemPath)
-                                                  + "/" + tableName
-                                                  + "/"
-                                                  + getNameByDataType(rowData[varColumn],
-                                                                      rowData[typeColumn])
-                                                  + TYPE);
-                                memberList.getMember().add(member);
+                                // Store the column indices for each of the command header
+                                // arguments
+                                commandArguments.add(new AssociatedColumns(false,
+                                                                           (varColumn != -1
+                                                                                            ? argOffset
+                                                                                            : -1),
+                                                                           (typeColumn != -1
+                                                                                             ? argOffset + 1
+                                                                                             : -1),
+                                                                           (sizeColumn != -1
+                                                                                             ? argOffset + 2
+                                                                                             : -1),
+                                                                           (bitColumn != -1
+                                                                                            ? argOffset + 3
+                                                                                            : -1),
+                                                                           (enumColumn != -1
+                                                                                             ? argOffset + 4
+                                                                                             : -1),
+                                                                           (minColumn != -1
+                                                                                            ? argOffset + 5
+                                                                                            : -1),
+                                                                           (maxColumn != -1
+                                                                                            ? argOffset + 6
+                                                                                            : -1),
+                                                                           (descColumn != -1
+                                                                                             ? argOffset + 7
+                                                                                             : -1),
+                                                                           (unitsColumn != -1
+                                                                                              ? argOffset + 8
+                                                                                              : -1),
+                                                                           null));
+
+                                // Increment the offset for the next row
+                                argOffset += columnsPerArg;
                             }
-                        }
 
-                        // Check if any variables exists in the structure table
-                        if (!memberList.getMember().isEmpty())
+                            // Add the command header to the space system
+                            addSpaceSystemCommands(parentSystem,
+                                                   tableData,
+                                                   0,
+                                                   -1,
+                                                   1,
+                                                   true,
+                                                   applicationID);
+                        }
+                        // This is not the command header structure
+                        else
                         {
-                            // Create a structure member list using the table's aggregate member
-                            // list
-                            memberLists.add(new StructureMemberList(tableName, memberList));
+                            // Export the parameter container for this structure
+                            addParameterContainer(parentSystem,
+                                                  tableInfo,
+                                                  varColumn,
+                                                  typeColumn,
+                                                  sizeColumn,
+                                                  tableName.equals(tlmHeaderTable),
+                                                  applicationID);
+
+                            // Step through each row in the structure table
+                            for (String[] rowData : tableInfo.getData())
+                            {
+                                // Check if the variable isn't an array member (the array
+                                // definition is used to define the array)
+                                if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                                {
+                                    // Add the variable to the space system
+                                    addParameter(parentSystem,
+                                                 rowData[varColumn],
+                                                 rowData[typeColumn],
+                                                 rowData[sizeColumn],
+                                                 rowData[bitColumn],
+                                                 (enumColumn != -1
+                                                  && !rowData[enumColumn].isEmpty()
+                                                                                    ? rowData[enumColumn]
+                                                                                    : null),
+                                                 (unitsColumn != -1
+                                                  && !rowData[unitsColumn].isEmpty()
+                                                                                     ? rowData[unitsColumn]
+                                                                                     : null),
+                                                 (minColumn != -1
+                                                  && !rowData[minColumn].isEmpty()
+                                                                                   ? rowData[minColumn]
+                                                                                   : null),
+                                                 (maxColumn != -1
+                                                  && !rowData[maxColumn].isEmpty()
+                                                                                   ? rowData[maxColumn]
+                                                                                   : null),
+                                                 (descColumn != -1
+                                                  && !rowData[descColumn].isEmpty()
+                                                                                    ? rowData[descColumn]
+                                                                                    : null),
+                                                 (dataTypeHandler.isString(rowData[typeColumn])
+                                                  && !rowData[sizeColumn].isEmpty()
+                                                                                    ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
+                                                                                    : 1));
+
+                                    // Use the variable name to create an aggregate list member and
+                                    // add it to the member list. The list is used if this
+                                    // structure is referenced as a data type in another structure
+                                    Member member = new Member();
+                                    member.setName(rowData[varColumn]);
+                                    member.setTypeRef("/" + project.getValue().getName()
+                                                      + (systemPath == null || systemPath.isEmpty()
+                                                                                                    ? ""
+                                                                                                    : "/" + systemPath)
+                                                      + "/" + tableName
+                                                      + "/"
+                                                      + (dataTypeHandler.isPrimitive(rowData[typeColumn])
+                                                                                                          ? rowData[varColumn]
+                                                                                                          : tableName
+                                                                                                            + ","
+                                                                                                            + rowData[typeColumn]
+                                                                                                            + "."
+                                                                                                            + rowData[varColumn])
+                                                      + TYPE);
+                                    memberList.getMember().add(member);
+                                }
+                            }
+
+                            // Check if any variables exists in the structure table
+                            if (!memberList.getMember().isEmpty())
+                            {
+                                // Create a structure member list using the table's aggregate
+                                // member list
+                                memberLists.add(new StructureMemberList(tableName, memberList));
+                            }
                         }
                     }
                     // This is a command table
@@ -2162,20 +2258,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // grouping
                         commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
-                        // Set the flag to indicate if this is the command header table
-                        boolean isCmdHeaderTable = tableName.equals(cmdHeaderTable);
-
-                        // Check if this is the command header table
-                        if (isCmdHeaderTable)
-                        {
-                            // Store the command header's path
-                            cmdHeaderPath = systemPath;
-                        }
-
                         // Add the command(s) from this table to the parent system
                         addSpaceSystemCommands(parentSystem,
-                                               tableInfo,
-                                               tableName.equals(cmdHeaderTable),
+                                               tableInfo.getData(),
+                                               typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME),
+                                               typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE),
+                                               typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION),
+                                               false,
                                                applicationID);
                     }
                 }
@@ -2185,9 +2274,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Step through each table name
         for (String tableName : tableNames)
         {
-            // Get the prototype for the child
-            tableName = TableInformation.getPrototypeName(tableName);
-
             // Get the space system for this table
             SpaceSystemType spaceSystem = getSpaceSystemByName(tableName, project.getValue());
 
@@ -2436,9 +2522,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                        boolean isTlmHeader,
                                        String applicationID)
     {
+        String tlmHeaderTableInstance = null;
         ContainerSetType seqContainerSet = null;
         SequenceContainerType seqContainer = null;
         EntryListType entryList = factory.createEntryListType();
+
+        // Get the name of the system to which this referenced structure belongs
+        String refSystemName = fieldHandler.getFieldValue(tableInfo.getTablePath(),
+                                                          InputDataType.SYSTEM_PATH);
 
         // Step through each row of data in the structure table
         for (String[] rowData : tableInfo.getData())
@@ -2493,10 +2584,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // table
             else if (!rowData[typeColumn].equals(tlmHeaderTable))
             {
-                // Get the name of the system to which this referenced structure belongs
-                String refSystemName = fieldHandler.getFieldValue(rowData[typeColumn],
-                                                                  InputDataType.SYSTEM_PATH);
-
                 // Store the structure reference in the list
                 ContainerRefEntryType containerType = factory.createContainerRefEntryType();
                 containerType.setContainerRef("/" + project.getValue().getName()
@@ -2504,9 +2591,25 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                  || refSystemName.isEmpty()
                                                                             ? ""
                                                                             : "/" + refSystemName)
-                                              + "/" + rowData[typeColumn]
-                                              + "/" + rowData[typeColumn]);
+                                              + "/" + spaceSystem.getName() + ","
+                                              + rowData[typeColumn] + "." + rowData[varColumn]
+                                              + "/" + spaceSystem.getName() + ","
+                                              + rowData[typeColumn] + "." + rowData[varColumn]);
                 entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(containerType);
+            }
+            // This is a reference to the telemetry header table
+            else
+            {
+                // Build the reference to this instance of the telemetry header table
+                tlmHeaderTableInstance = "/" + project.getValue().getName()
+                                         + (refSystemName == null
+                                            || refSystemName.isEmpty()
+                                                                       ? ""
+                                                                       : "/" + refSystemName)
+                                         + "/" + spaceSystem.getName() + ","
+                                         + rowData[typeColumn] + "." + rowData[varColumn]
+                                         + "/" + spaceSystem.getName() + ","
+                                         + rowData[typeColumn] + "." + rowData[varColumn];
             }
         }
 
@@ -2541,18 +2644,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // reference to the telemetry header) and the telemetry header table name is
                     // defined
                     if (tableInfo.isRootStructure()
-                        && tlmHeaderTable != null
-                        && !tlmHeaderTable.isEmpty())
+                        && tlmHeaderTableInstance != null
+                        && !tlmHeaderTableInstance.isEmpty())
                     {
-                        // Create a reference to the telemetry header
+                        // Create a reference to the telemetry header table instance
                         BaseContainer baseContainer = factory.createSequenceContainerTypeBaseContainer();
-                        baseContainer.setContainerRef("/" + project.getValue().getName()
-                                                      + (tlmHeaderPath == null
-                                                         || tlmHeaderPath.isEmpty()
-                                                                                    ? ""
-                                                                                    : "/" + tlmHeaderPath)
-                                                      + "/" + tlmHeaderTable
-                                                      + "/" + tlmHeaderTable);
+                        baseContainer.setContainerRef(tlmHeaderTableInstance);
                         RestrictionCriteria restrictCriteria = factory.createSequenceContainerTypeBaseContainerRestrictionCriteria();
                         ComparisonList compList = factory.createMatchCriteriaTypeComparisonList();
                         ComparisonType compType = factory.createComparisonType();
@@ -2663,7 +2760,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         ParameterSetType parameterSet = spaceSystem.getTelemetryMetaData().getParameterSet();
         Parameter parameter = factory.createParameterSetTypeParameter();
         parameter.setName(parameterName);
-        parameter.setParameterTypeRef(getNameByDataType(parameterName, dataType)
+        parameter.setParameterTypeRef((dataTypeHandler.isPrimitive(dataType)
+                                                                             ? parameterName
+                                                                             : spaceSystem.getName()
+                                                                               + ","
+                                                                               + dataType
+                                                                               + "."
+                                                                               + parameterName)
                                       + (arraySize.isEmpty()
                                                              ? TYPE
                                                              : ARRAY));
@@ -2689,46 +2792,54 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param spaceSystem
      *            parent space system for this node
      *
-     * @param tableInfo
-     *            TableInformation reference for the current node
+     * @param tableData
+     *            table data array
+     *
+     * @param cmdNameColumn
+     *            command name column index
+     *
+     * @param cmdCodeColumn
+     *            command code column index
+     *
+     * @param cmdDescColumn
+     *            command description column index
      *
      * @param isCmdHeader
-     *            true if this table represents the CCSDS command header
+     *            true if this table represents the command header
      *
      * @param applicationID
      *            application ID
      *********************************************************************************************/
     private void addSpaceSystemCommands(SpaceSystemType spaceSystem,
-                                        TableInformation tableInfo,
+                                        String[][] tableData,
+                                        int cmdNameColumn,
+                                        int cmdCodeColumn,
+                                        int cmdDescColumn,
                                         boolean isCmdHeader,
                                         String applicationID)
     {
-        // Get the column indices for the command name, code, and description
-        int cmdNameCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
-        int cmdCodeCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE);
-        int cmdDescCol = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-
         // Step through each command argument column grouping
-        for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+        for (AssociatedColumns cmdArg : commandArguments)
         {
             // Check if the argument description column exists and it matches the index set for the
             // command description
-            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescCol)
+            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescColumn)
             {
                 // There is no column for the command description, so reset its column index and
                 // stop searching
-                cmdDescCol = -1;
+                cmdDescColumn = -1;
                 break;
             }
         }
 
         // Step through each row in the table
-        for (String[] rowData : tableInfo.getData())
+        for (String[] rowData : tableData)
         {
             // Check if the command name exists
-            if (cmdNameCol != -1 && !rowData[cmdNameCol].isEmpty())
+            if (cmdNameColumn != -1 && !rowData[cmdNameColumn].isEmpty())
             {
                 // Initialize the command attributes and argument names list
+                String commandName = null;
                 String commandCode = null;
                 String commandDescription = null;
                 List<String> argumentNames = new ArrayList<String>();
@@ -2742,24 +2853,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 }
 
                 // Store the command name
-                String commandName = rowData[cmdNameCol];
+                commandName = rowData[cmdNameColumn];
 
                 // Check if the command code exists
-                if (cmdCodeCol != -1 && !rowData[cmdCodeCol].isEmpty())
+                if (cmdCodeColumn != -1 && !rowData[cmdCodeColumn].isEmpty())
                 {
                     // Store the command code
-                    commandCode = rowData[cmdCodeCol];
+                    commandCode = rowData[cmdCodeColumn];
                 }
 
                 // Check if the command description exists
-                if (cmdDescCol != -1 && !rowData[cmdDescCol].isEmpty())
+                if (cmdDescColumn != -1 && !rowData[cmdDescColumn].isEmpty())
                 {
                     // Store the command description
-                    commandDescription = rowData[cmdDescCol];
+                    commandDescription = rowData[cmdDescColumn];
                 }
 
                 // Step through each command argument column grouping
-                for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+                for (AssociatedColumns cmdArg : commandArguments)
                 {
                     // Initialize the command argument attributes
                     String argumentName = null;
@@ -2867,7 +2978,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Set the command argument data type information
                         NameDescriptionType type = setArgumentDataType(spaceSystem,
-                                                                       commandName,
                                                                        argumentName,
                                                                        dataType,
                                                                        arraySize,
@@ -2912,7 +3022,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            command code
      *
      * @param isCmdHeader
-     *            true if this table represents the CCSDS command header
+     *            true if this table represents the command header
      *
      * @param argumentNames
      *            list of command argument names
@@ -2936,8 +3046,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         MetaCommandSet commandSet = spaceSystem.getCommandMetaData().getMetaCommandSet();
         MetaCommandType command = factory.createMetaCommandType();
 
-        // Set the command name attribute
-        command.setName(commandName);
+        // Check is a command name exists
+        if (commandName != null && !commandName.isEmpty())
+        {
+            // Set the command name attribute
+            command.setName(commandName);
+        }
 
         // Check is a command description exists
         if (description != null && !description.isEmpty())
@@ -3009,7 +3123,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 index++;
             }
 
-            // Check if this table represents the CCSDS command header
+            // Check if this table represents the command header
             if (isCmdHeader)
             {
                 command.setAbstract(true);
@@ -3144,7 +3258,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                       String description,
                                       int stringSize)
     {
-        NameDescriptionType parameterDescription = null;
+        NameDescriptionType parameterType = null;
 
         // TODO SET SIZE IN BITS IN BOTH THE TYPE AND THE ENCODING. WOULD USE ONE FOR BIT LENGTH
         // AND OTHER FOR DATA TYPE SIZE EXCEPT ONLY INTEGER TYPE HAS BOTH; ENUM ONLY HAS THE
@@ -3208,12 +3322,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         intEncodingType.setEncoding("unsigned");
                     }
 
-                    // TODO ISSUE: THE CCSDS HEADER IS ALWAYS BIG ENDIAN - HOW AN THIS BE
-                    // DETECTED? OR JUST ASSUME IT'S IGNORED BY THE USER FOR THAT CASE?
                     // Set the bit order
                     intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
-                                                                                   ? "mostSignificantBitFirst"
-                                                                                   : "leastSignificantBitFirst");
+                                                || (isHeaderBigEndian
+                                                    && tlmHeaderTable.equals(TableInformation.getPrototypeName(spaceSystem.getName())))
+                                                                                                                                        ? "mostSignificantBitFirst"
+                                                                                                                                        : "leastSignificantBitFirst");
 
                     enumType.setIntegerDataEncoding(intEncodingType);
 
@@ -3221,7 +3335,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     enumType.setEnumerationList(enumList);
                     enumType.setUnitSet(unitSet);
 
-                    parameterDescription = enumType;
+                    parameterType = enumType;
                 }
                 // Not an enumeration
                 else
@@ -3259,8 +3373,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             // Set the bit order
                             intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
-                                                                                           ? "mostSignificantBitFirst"
-                                                                                           : "leastSignificantBitFirst");
+                                                        || (isHeaderBigEndian
+                                                            && tlmHeaderTable.equals(TableInformation.getPrototypeName(spaceSystem.getName())))
+                                                                                                                                                ? "mostSignificantBitFirst"
+                                                                                                                                                : "leastSignificantBitFirst");
 
                             integerType.setIntegerDataEncoding(intEncodingType);
 
@@ -3287,7 +3403,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 integerType.setValidRange(range);
                             }
 
-                            parameterDescription = integerType;
+                            parameterType = integerType;
                             break;
 
                         case FLOAT:
@@ -3322,7 +3438,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 floatType.setValidRange(range);
                             }
 
-                            parameterDescription = floatType;
+                            parameterType = floatType;
                             break;
 
                         case STRING:
@@ -3342,7 +3458,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             stringType.setStringDataEncoding(stringEncodingType);
                             stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
-                            parameterDescription = stringType;
+                            parameterType = stringType;
                             break;
                     }
                 }
@@ -3353,22 +3469,22 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Create an aggregate type for the structure
             AggregateDataType aggregateType = factory.createAggregateDataType();
-            parameterName = dataType;
-            parameterDescription = aggregateType;
+            parameterName = spaceSystem.getName() + "," + dataType + "." + parameterName;
+            parameterType = aggregateType;
         }
 
         // Set the parameter type name
-        parameterDescription.setName(parameterName + TYPE);
+        parameterType.setName(parameterName + TYPE);
 
         // Check is a description exists
         if (description != null && !description.isEmpty())
         {
             // Set the description attribute
-            parameterDescription.setLongDescription(description);
+            parameterType.setLongDescription(description);
         }
 
         // Set the parameter's data type information
-        spaceSystem.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(parameterDescription);
+        spaceSystem.getTelemetryMetaData().getParameterTypeSet().getStringParameterTypeOrEnumeratedParameterTypeOrIntegerParameterType().add(parameterType);
     }
 
     /**********************************************************************************************
@@ -3376,9 +3492,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param spaceSystem
      *            space system
-     *
-     * @param commandName
-     *            command name
      *
      * @param argumentName
      *            command argument name; null to not specify
@@ -3420,7 +3533,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            type has no name conflict
      *********************************************************************************************/
     private NameDescriptionType setArgumentDataType(SpaceSystemType spaceSystem,
-                                                    String commandName,
                                                     String argumentName,
                                                     String dataType,
                                                     String arraySize,
@@ -3501,8 +3613,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Set the bit order
                 intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
-                                                                               ? "mostSignificantBitFirst"
-                                                                               : "leastSignificantBitFirst");
+                                            || (isHeaderBigEndian
+                                                && cmdHeaderTable.equals(spaceSystem.getName()))
+                                                                                                 ? "mostSignificantBitFirst"
+                                                                                                 : "leastSignificantBitFirst");
 
                 enumType.setIntegerDataEncoding(intEncodingType);
                 commandDescription = enumType;
@@ -3542,8 +3656,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Set the bit order
                         intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
-                                                                                       ? "mostSignificantBitFirst"
-                                                                                       : "leastSignificantBitFirst");
+                                                    || (isHeaderBigEndian
+                                                        && cmdHeaderTable.equals(spaceSystem.getName()))
+                                                                                                         ? "mostSignificantBitFirst"
+                                                                                                         : "leastSignificantBitFirst");
 
                         integerType.setIntegerDataEncoding(intEncodingType);
 

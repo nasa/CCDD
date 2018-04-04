@@ -1636,9 +1636,9 @@ public class CcddClassesDataTable
                  fieldName,
                  description,
                  charSize,
-                 InputDataType.TEXT, // Default
+                 InputDataType.TEXT, // Default input type
                  isRequired,
-                 ApplicabilityType.ALL, // Default
+                 ApplicabilityType.ALL, // Default applicability type
                  value);
 
             // Step through each field input type

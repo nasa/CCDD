@@ -81,9 +81,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private ToolTipTreeNode[] typeNodes;
     private ToolTipTreeNode[] appNodes;
 
-    // Data field information
-    private String[][] fieldDefinitions;
-
     // Currently selected group's schedule rate
     private String scheduleRate;
 
@@ -441,15 +438,14 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private void buildFieldInformation(Component parent)
     {
         // Get the data field information from the database
-        fieldDefinitions = dbTable.retrieveInformationTable(InternalTable.FIELDS, parent)
-                                  .toArray(new String[0][0]);
+        fieldHandler.setFieldDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS,
+                                                                          parent));
 
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
             // Build the field information list for this group
-            fieldHandler.buildFieldInformation(fieldDefinitions,
-                                               CcddFieldHandler.getFieldGroupName(groupInfo.getName()));
+            fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldGroupName(groupInfo.getName()));
 
             // Set the field information in the group handler
             groupInfo.setFieldInformation(fieldHandler.getFieldInformationCopy());

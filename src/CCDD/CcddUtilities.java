@@ -222,13 +222,19 @@ public class CcddUtilities
      * Repeat any embedded double quotes, then bound the supplied text with double quotes
      *
      * @param text
-     *            text string for which to add double quotes
+     *            text string for which to add double quotes; a null string is replaced by a blank
      *
      * @return The supplied text string with any embedded double quotes repeated, and bounded with
      *         double quotes
      *********************************************************************************************/
     protected static String addEmbeddedQuotes(String text)
     {
+        // Replace a null text string with a blank
+        if (text == null)
+        {
+            text = "";
+        }
+
         return "\"" + text.replaceAll("\"", "\"\"") + "\"";
     }
 

@@ -114,7 +114,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected CcddTableTypeEditorHandler(CcddMain ccddMain,
                                          String tableTypeName,
-                                         Object[][] fieldDefinitions,
+                                         List<String[]> fieldDefinitions,
                                          CcddTableTypeEditorDialog editorDialog)
     {
         this.ccddMain = ccddMain;
@@ -123,10 +123,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         this.tableTypeHandler = ccddMain.getTableTypeHandler();
 
         // Create the field information for this table type
-        fieldHandler = new CcddFieldHandler(ccddMain);
-        // TODO DO THE FIELD DEFNS NEED TO BE STORED AS WELL?
-        fieldHandler.buildFieldInformation(fieldDefinitions,
-                                           CcddFieldHandler.getFieldTypeName(tableTypeName));
+        fieldHandler = new CcddFieldHandler(ccddMain, fieldDefinitions);
+        fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableTypeName));
 
         // Get the type definition for the specified type name
         typeDefinition = tableTypeHandler.getTypeDefinition(tableTypeName);

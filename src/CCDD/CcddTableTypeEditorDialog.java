@@ -1323,7 +1323,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Create an editor for this table type and add it to the list of editors
             final CcddTableTypeEditorHandler editor = new CcddTableTypeEditorHandler(ccddMain,
                                                                                      name,
-                                                                                     fieldDefinitions.toArray(new Object[0][0]),
+                                                                                     fieldDefinitions,
                                                                                      this);
             typeEditors.add(editor);
 

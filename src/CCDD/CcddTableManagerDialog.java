@@ -99,6 +99,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox hideDataTypeCb;
     private JLabel exportLbl;
     private JRadioButton bigRBtn;
+    private JCheckBox headerBigCBox;
     private JTextField versionFld;
     private JTextField validStatFld;
     private JTextField class1Fld;
@@ -686,14 +687,30 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                           typeNameSepFld.getText()}
                                                                                           : null),
                                                                    fileExtn,
-                                                                   (bigRBtn.isSelected()
-                                                                                         ? EndianType.BIG_ENDIAN
-                                                                                         : EndianType.LITTLE_ENDIAN),
-                                                                   versionFld.getText(),
-                                                                   validStatFld.getText(),
-                                                                   class1Fld.getText(),
-                                                                   class2Fld.getText(),
-                                                                   class3Fld.getText(),
+                                                                   (bigRBtn != null
+                                                                                    ? (bigRBtn.isSelected()
+                                                                                                            ? EndianType.BIG_ENDIAN
+                                                                                                            : EndianType.LITTLE_ENDIAN)
+                                                                                    : null),
+                                                                   (bigRBtn != null
+                                                                    && headerBigCBox != null
+                                                                                             ? (bigRBtn.isSelected() || headerBigCBox.isSelected())
+                                                                                             : false),
+                                                                   (versionFld != null
+                                                                                       ? versionFld.getText()
+                                                                                       : null),
+                                                                   (validStatFld != null
+                                                                                         ? validStatFld.getText()
+                                                                                         : null),
+                                                                   (class1Fld != null
+                                                                                      ? class1Fld.getText()
+                                                                                      : null),
+                                                                   (class2Fld != null
+                                                                                      ? class2Fld.getText()
+                                                                                      : null),
+                                                                   (class3Fld != null
+                                                                                      ? class3Fld.getText()
+                                                                                      : null),
                                                                    CcddTableManagerDialog.this);
                             }
 
@@ -1026,6 +1043,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx = 0;
                 gbc.gridy++;
                 dialogPnl.add(storeInPnl, gbc);
+                gbc.weightx = 1.0;
+                gbc.fill = GridBagConstraints.BOTH;
 
                 // Add a listener for the single file radio button selection changes
                 singleFileRBtn.addActionListener(new ActionListener()
@@ -1078,6 +1097,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if (dialogType == ManagerDialogType.EXPORT_CSV
                 || dialogType == ManagerDialogType.EXPORT_JSON)
             {
+
                 // Create a panel to contain the separator character labels and inputs
                 JPanel separatorPnl = new JPanel(new GridBagLayout());
                 separatorPnl.setBorder(emptyBorder);
@@ -1092,6 +1112,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                       + "retained and the macro information is stored "
                                                                       + "with the exported table(s)",
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.weightx = 0.0;
                 gbc.gridy++;
                 separatorPnl.add(replaceMacrosCb, gbc);
 
@@ -1133,6 +1154,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 varPathSepFld.setBorder(border);
                 varPathSepFld.setEnabled(false);
+                gbc.weightx = 1.0;
                 gbc.gridx++;
                 separatorPnl.add(varPathSepFld, gbc);
 
@@ -1141,6 +1163,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 final JLabel typeNameSepLbl = new JLabel("Enter data type/variable name separator character(s)");
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 typeNameSepLbl.setEnabled(false);
+                gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(typeNameSepLbl, gbc);
@@ -1151,6 +1174,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
                 typeNameSepFld.setEnabled(false);
+                gbc.weightx = 1.0;
                 gbc.gridx++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
@@ -1159,6 +1183,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
                 hideDataTypeCb.setEnabled(false);
+                gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 separatorPnl.add(hideDataTypeCb, gbc);
@@ -1183,7 +1208,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 includeVariablePaths.addActionListener(new ActionListener()
                 {
                     /**********************************************************************************
-                     * Respond to changes in selection of a the include variable paths check box
+                     * Respond to changes in selection of the include variable paths check box
                      *********************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
@@ -1202,8 +1227,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 gbc.insets.top = 0;
                 gbc.insets.left = 0;
-                gbc.fill = GridBagConstraints.VERTICAL;
-                gbc.weightx = 0.0;
                 gbc.gridy++;
                 dialogPnl.add(separatorPnl, gbc);
             }
@@ -1237,22 +1260,53 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 endianessPnl.add(littleRBtn, gbc);
 
+                // Add a listener for big endian radio button selection
+                bigRBtn.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Respond to a change in selection of the big endian radio button
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Disable the big endian header check box (since all of the output is big
+                        // endian)
+                        headerBigCBox.setEnabled(false);
+                    }
+                });
+
+                // Add a listener for little endian radio button selection
+                littleRBtn.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Respond to a change in selection of the little endian radio button
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Enable the big endian header check box
+                        headerBigCBox.setEnabled(true);
+                    }
+                });
+
+                // Create the header endianess check box
+                headerBigCBox = new JCheckBox("Headers are big endian");
+                headerBigCBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                headerBigCBox.setBorder(emptyBorder);
+                headerBigCBox.setSelected(true);
+                headerBigCBox.setEnabled(false);
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 4;
+                gbc.gridx++;
+                endianessPnl.add(headerBigCBox, gbc);
+
                 // Add the endianess selection components to the dialog
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.fill = GridBagConstraints.NONE;
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
                 dialogPnl.add(endianessPnl, gbc);
             }
-
-            // Create the XTCE and EDS input fields with their default values. XTCE uses all of
-            // these fields; CSV and EDS use only the system input
-            versionFld = new JTextField("1.0");
-            validStatFld = new JTextField("Working");
-            class1Fld = new JTextField("DOMAIN");
-            class2Fld = new JTextField("SYSTEM");
-            class3Fld = new JTextField("INTERFACE");
 
             // Check if exporting in XTCE XML format
             if (dialogType == ManagerDialogType.EXPORT_XTCE)
@@ -1265,8 +1319,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 JLabel descriptionLbl = new JLabel("XTCE Attributes");
                 descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
-                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
                 gbc.fill = GridBagConstraints.BOTH;
                 gbc.weightx = 1.0;
@@ -1282,6 +1336,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 infoPnl.add(versionLbl, gbc);
 
                 // Create the version input field
+                versionFld = new JTextField("1.0");
                 versionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 versionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                 versionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -1302,6 +1357,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 infoPnl.add(validStatLbl, gbc);
 
                 // Create the validation status input field
+                validStatFld = new JTextField("Working");
                 validStatFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 validStatFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                 validStatFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -1329,6 +1385,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 classPnl.add(class1Lbl, gbc);
 
                 // Create the first classification input fields
+                class1Fld = new JTextField("DOMAIN");
                 class1Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class1Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                 class1Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -1347,6 +1404,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 classPnl.add(class2Lbl, gbc);
 
                 // Create the second level classification input fields
+                class2Fld = new JTextField("SYSTEM");
                 class2Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class2Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                 class2Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
@@ -1366,6 +1424,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 classPnl.add(class3Lbl, gbc);
 
                 // Create the third level classification input fields
+                class3Fld = new JTextField("INTERFACE");
                 class3Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 class3Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                 class3Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());

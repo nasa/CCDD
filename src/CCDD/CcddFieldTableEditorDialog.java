@@ -1448,8 +1448,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
         // Create a field handler and populate it with the field definitions for all of the tables
         // and groups in the database
-        fieldHandler = new CcddFieldHandler(ccddMain);
-        fieldHandler.buildFieldInformation(dataFields.toArray(new String[0][0]), null);
+        fieldHandler = new CcddFieldHandler(ccddMain, dataFields);
+        fieldHandler.buildFieldInformation(null);
         List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
 
         // Sort the field information by owner name so that sequence order of the data field values

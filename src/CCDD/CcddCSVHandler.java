@@ -23,12 +23,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
-import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -1020,22 +1020,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         tableInfo.setData(macroHandler.replaceAllMacros(tableInfo.getData()));
                     }
 
-                    String systemName = fieldHandler.getFieldValue(tblName,
-                                                                   InputDataType.SYSTEM_PATH);
-
-                    // Check if the system name exists
-                    if (systemName != null && !systemName.isEmpty())
-                    {
-                        // Store the system name
-                        systemName = ",\"" + systemName + "\"";
-                    }
-
-                    // Output the table path (if applicable) and name, table type, and system name
+                    // Output the table path (if applicable) and name, table type, and system path
                     // (if provided)
                     pw.printf(CSVTags.NAME_TYPE.getTag() + "\n%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(),
                                                                        tableInfo.getType(),
-                                                                       systemName));
+                                                                       fieldHandler.getFieldValue(tblName,
+                                                                                                  InputDataType.SYSTEM_PATH)));
 
                     // Check if the table has a description
                     if (!tableInfo.getDescription().isEmpty())

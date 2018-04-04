@@ -3393,13 +3393,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         tableInfo.getDescription(),
                                         tableInfo.getFieldHandler());
 
+            // Store the current data field information in the event an undo/redo operation occurs
+            storeCurrentFieldInformation();
+
             // Set the dialog name so that this dialog can be recognized as being open by the table
             // selection dialog, and the JTable name so that table change events can be identified
             // with this table
             setTableName();
-
-            // Store the current data field information in the event an undo/redo operation occurs
-            storeCurrentFieldInformation();
         }
     }
 

@@ -125,8 +125,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private String tlmHeaderTable;
     private String cmdHeaderTable;
 
-    // Names of the system paths for the common header for all telemetry and command tables
-    private String tlmHeaderPath;
+    // Names of the system paths for the common header for all command tables
     private String cmdHeaderPath;
 
     // Telemetry and command header argument column names for the application ID, and command
@@ -366,7 +365,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if at least one structure or command table needs to be built
             if (structureTypeDefn != null || commandTypeDefn != null)
             {
-                // Step through each space system
+                // Step through each name space
                 for (NamespaceType namespace : dataSheet.getNamespace())
                 {
                     // Recursively step through the EDS-formatted data and extract the telemetry
@@ -411,7 +410,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         isCommand = false;
         maxNumArguments = 1;
 
-        // Step through each space system
+        // Step through each name space
         for (NamespaceType namespace : dataSheet.getNamespace())
         {
             // Recursively step through the EDS-formatted data and extract the telemetry and
@@ -566,7 +565,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Extract the telemetry and/or command information from the space system. This is a recursive
+     * Extract the telemetry and/or command information from the name space. This is a recursive
      * method
      *
      * @param namespace
@@ -581,8 +580,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private void unbuildSpaceSystems(NamespaceType namespace,
                                      ImportType importType) throws CCDDException
     {
-        // Get the table name based on the space system name and the path to this system. Convert
-        // the name to be a valid table name
+        // Get the table name based on the name space name and the path to this system. Convert the
+        // name to be a valid table name
         String tableName = convertPathToTableName(namespace.getName());
 
         boolean hasParameter = false;
@@ -1642,7 +1641,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
-     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN)
+     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
+     *            [1] are the telemetry and command headers big endian (true or false)
      *
      * @return true if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
@@ -1667,7 +1667,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                includeVariablePaths,
                                variableHandler,
                                separators,
-                               (EndianType) extraInfo[0]);
+                               (EndianType) extraInfo[0],
+                               (boolean) extraInfo[1]);
 
             // Output the XML to the specified file
             marshaller.marshal(project, exportFile);
@@ -1720,8 +1721,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            types flag ('true' or 'false'), and data type/variable name separator
      *            character(s); null if includeVariablePaths is false
      *
-     * @param extraInfo
-     *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN)
+     * @param endianess
+     *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
+     *
+     * @param isHeaderBigEndian
+     *            true if the telemetry and command headers are always big endian (e.g., as with
+     *            CCSDS)
      *********************************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
                                     boolean replaceMacros,
@@ -1729,7 +1734,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     boolean includeVariablePaths,
                                     CcddVariableSizeAndConversionHandler variableHandler,
                                     String[] separators,
-                                    EndianType endianess)
+                                    EndianType endianess,
+                                    boolean isHeaderBigEndian)
     {
         this.endianess = endianess;
 
@@ -1795,27 +1801,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Step through each table name
         for (String tableName : tableNames)
         {
-            // Check if this is a child (instance) table
-            if (!TableInformation.isPrototype(tableName))
-            {
-                // Get the prototype of the instance table. Only prototypes of the tables are
-                // used to create the space systems
-                tableName = TableInformation.getPrototypeName(tableName);
-
-                // Get the name of the system to which this table belongs from the table's
-                // system path data field (if present)
-                String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
-                                                                               InputDataType.SYSTEM_PATH));
-
-                // Check if the space system for the prototype of the table has already been
-                // created
-                if (searchNamespacesForName(systemPath, tableName) != null)
-                {
-                    // Skip this table since it's space system has already been created
-                    continue;
-                }
-            }
-
             // Get the information from the database for the specified table
             TableInformation tableInfo = dbTable.loadTableData(tableName,
                                                                true,
@@ -1849,7 +1834,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Add the name space
                     NamespaceType namespace = addNamespace(systemPath,
-                                                           tableName,
+                                                           cleanSystemPath(tableName),
                                                            tableInfo.getDescription());
 
                     // Check if this is a structure table
@@ -1866,70 +1851,169 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
                         int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
 
-                        // Set the flag to indicate if this is the telemetry header table
-                        boolean isTlmHeaderTable = tableName.equals(tlmHeaderTable);
-
-                        // Check if this is the telemetry header table
-                        if (isTlmHeaderTable)
+                        // Check if this is the command header structure. In order for it to be
+                        // referenced as the header for the command tables it must be converted
+                        // into the same format as a command table, then rendered into XTCE XML
+                        if (tableName.equals(cmdHeaderTable))
                         {
-                            // Store the telemetry header's path
-                            tlmHeaderPath = systemPath;
-                        }
+                            // Store the command header's path
+                            cmdHeaderPath = systemPath;
 
-                        // Export the parameter container for this structure
-                        addParameterContainer(namespace,
-                                              tableInfo,
-                                              varColumn,
-                                              typeColumn,
-                                              sizeColumn,
-                                              minColumn,
-                                              maxColumn,
-                                              isTlmHeaderTable,
-                                              applicationID,
-                                              ccsdsAppID);
+                            // Set the number of argument columns per command argument
+                            int columnsPerArg = 9;
 
-                        // Step through each row in the structure table
-                        for (String[] rowData : tableInfo.getData())
-                        {
-                            // Check if the variable isn't an array member (the array definition is
-                            // used to define the array)
-                            if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                            // Initialize the offset in the command row so that space if created
+                            // for the command name and description, then created an array to
+                            // contain the converted command table data
+                            int argOffset = 2;
+                            String[][] tableData = new String[1][tableInfo.getData().length * columnsPerArg + 2];
+
+                            // Initialize the storage for the command argument column indices
+                            commandArguments = new ArrayList<AssociatedColumns>();
+
+                            // Store the command header table name and description as the command
+                            // name and description
+                            tableData[0][0] = tableName;
+                            tableData[0][1] = tableInfo.getDescription();
+
+                            // Step through each row in the command header table
+                            for (String[] rowData : tableInfo.getData())
                             {
-                                // Add the variable to the data sheet
-                                addParameter(namespace,
-                                             rowData[varColumn],
-                                             rowData[typeColumn],
-                                             rowData[sizeColumn],
-                                             rowData[bitColumn],
-                                             (enumColumn != -1 && !rowData[enumColumn].isEmpty()
-                                                                                                 ? rowData[enumColumn]
-                                                                                                 : null),
-                                             (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
-                                                                                                   ? rowData[unitsColumn]
-                                                                                                   : null),
-                                             (descColumn != -1 && !rowData[descColumn].isEmpty()
-                                                                                                 ? rowData[descColumn]
-                                                                                                 : null),
-                                             (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
-                                                                                                                              ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
-                                                                                                                              : 1));
+                                // Store the components of each variable within the command header
+                                // in the form of a command argument
+                                tableData[0][argOffset] = varColumn != -1
+                                                                          ? rowData[varColumn]
+                                                                          : null;
+                                tableData[0][argOffset + 1] = typeColumn != -1
+                                                                               ? rowData[typeColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 2] = sizeColumn != -1
+                                                                               ? rowData[sizeColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 3] = bitColumn != -1
+                                                                              ? rowData[bitColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 4] = enumColumn != -1
+                                                                               ? rowData[enumColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 5] = minColumn != -1
+                                                                              ? rowData[minColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 6] = maxColumn != -1
+                                                                              ? rowData[maxColumn]
+                                                                              : null;
+                                tableData[0][argOffset + 7] = descColumn != -1
+                                                                               ? rowData[descColumn]
+                                                                               : null;
+                                tableData[0][argOffset + 8] = unitsColumn != -1
+                                                                                ? rowData[unitsColumn]
+                                                                                : null;
+
+                                // Store the column indices for each of the command header
+                                // arguments
+                                commandArguments.add(new AssociatedColumns(false,
+                                                                           (varColumn != -1
+                                                                                            ? argOffset
+                                                                                            : -1),
+                                                                           (typeColumn != -1
+                                                                                             ? argOffset + 1
+                                                                                             : -1),
+                                                                           (sizeColumn != -1
+                                                                                             ? argOffset + 2
+                                                                                             : -1),
+                                                                           (bitColumn != -1
+                                                                                            ? argOffset + 3
+                                                                                            : -1),
+                                                                           (enumColumn != -1
+                                                                                             ? argOffset + 4
+                                                                                             : -1),
+                                                                           (minColumn != -1
+                                                                                            ? argOffset + 5
+                                                                                            : -1),
+                                                                           (maxColumn != -1
+                                                                                            ? argOffset + 6
+                                                                                            : -1),
+                                                                           (descColumn != -1
+                                                                                             ? argOffset + 7
+                                                                                             : -1),
+                                                                           (unitsColumn != -1
+                                                                                              ? argOffset + 8
+                                                                                              : -1),
+                                                                           null));
+
+                                // Increment the offset for the next row
+                                argOffset += columnsPerArg;
+                            }
+
+                            // Add the command header to the name space
+                            addNamespaceCommands(namespace,
+                                                 tableData,
+                                                 0,
+                                                 -1,
+                                                 1,
+                                                 true,
+                                                 applicationID,
+                                                 ccsdsAppID,
+                                                 ccsdsFuncCode);
+                        }
+                        // This is not the command header structure
+                        else
+                        {
+                            // Export the parameter container for this structure
+                            addParameterContainer(namespace,
+                                                  tableInfo,
+                                                  varColumn,
+                                                  typeColumn,
+                                                  sizeColumn,
+                                                  minColumn,
+                                                  maxColumn,
+                                                  tableName.equals(tlmHeaderTable),
+                                                  applicationID,
+                                                  ccsdsAppID);
+
+                            // Step through each row in the structure table
+                            for (String[] rowData : tableInfo.getData())
+                            {
+                                // Check if the variable isn't an array member (the array
+                                // definition is used to define the array)
+                                if (!ArrayVariable.isArrayMember(rowData[varColumn]))
+                                {
+                                    // Add the variable to the data sheet
+                                    addParameter(namespace,
+                                                 rowData[varColumn],
+                                                 rowData[typeColumn],
+                                                 rowData[sizeColumn],
+                                                 rowData[bitColumn],
+                                                 (enumColumn != -1 && !rowData[enumColumn].isEmpty()
+                                                                                                     ? rowData[enumColumn]
+                                                                                                     : null),
+                                                 (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
+                                                                                                       ? rowData[unitsColumn]
+                                                                                                       : null),
+                                                 (descColumn != -1 && !rowData[descColumn].isEmpty()
+                                                                                                     ? rowData[descColumn]
+                                                                                                     : null),
+                                                 (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
+                                                                                                                                  ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
+                                                                                                                                  : 1));
+                                }
                             }
                         }
                     }
                     // This is a command table
                     else
                     {
-                        // Check if this is the command header table
-                        if (tableName.equals(cmdHeaderTable))
-                        {
-                            // Store the command header's path
-                            cmdHeaderPath = systemPath;
-                        }
+                        // Get the list containing the associated column indices for each argument
+                        // grouping
+                        commandArguments = typeDefn.getAssociatedCommandArgumentColumns(false);
 
                         // Add the command(s) from this table to the data sheet
                         addNamespaceCommands(namespace,
-                                             tableInfo,
-                                             tableName.equals(cmdHeaderTable),
+                                             tableInfo.getData(),
+                                             typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME),
+                                             typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE),
+                                             typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION),
+                                             false,
                                              applicationID,
                                              ccsdsAppID,
                                              ccsdsFuncCode);
@@ -1938,21 +2022,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
         }
 
-        // TODO IN ORDER TO GET INSTANCE INFORMATION (SUCH AS MIN/MAX) IT WOULD BE NECESSARY TO
-        // LOAD THE INSTANCE OF THE TABLE REFERENCED BY THE PARENT
         // Step through each table name
         for (String tableName : tableNames)
         {
-            // Get the prototype for the child
-            tableName = TableInformation.getPrototypeName(tableName);
-
             // Get the name of the system to which this table belongs from the table's
             // system path data field (if present)
             String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
                                                                            InputDataType.SYSTEM_PATH));
 
             // Get the name space for this table
-            NamespaceType namespace = searchNamespacesForName(systemPath, tableName);
+            NamespaceType namespace = searchNamespacesForName(systemPath, cleanSystemPath(tableName));
 
             // Check if the table's name space exists
             if (namespace != null)
@@ -2104,17 +2183,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     {
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
         intParmType.setName(TELEMETRY);
-
-        // Check if this is the interface for the telemetry header
-        if (namespace.getName().equals((tlmHeaderPath != null
-                                        && !tlmHeaderPath.isEmpty()
-                                                                    ? tlmHeaderPath + "/"
-                                                                    : "")
-                                       + tlmHeaderTable))
-        {
-            intParmType.setAbstract(true);
-        }
-
         intParmType.setParameterSet(factory.createParameterSetType());
         namespace.getDeclaredInterfaceSet().getInterface().add(intParmType);
         return intParmType;
@@ -2238,17 +2306,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 containerType = factory.createContainerDataType();
             }
 
-            // Check if this is the telemetry header
-            if (isTlmHeader)
-            {
-                containerType.setName(tlmHeaderTable + TYPE);
-                containerType.setAbstract(true);
-            }
-            // Not the telemetry header
-            else
-            {
-                containerType.setName(tableInfo.getPrototypeName() + TYPE);
-            }
+            containerType.setName(cleanSystemPath(tableInfo.getTablePath()) + TYPE);// TODO was
+                                                                                    // prototype
 
             // Store the parameters in the parameter sequence container
             containerType.setEntryList(entryList);
@@ -2405,11 +2464,20 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param namespace
      *            name space for this node
      *
-     * @param tableInfo
-     *            TableInformation reference for the current node
+     * @param tableData
+     *            table data array
+     *
+     * @param cmdNameColumn
+     *            command name column index
+     *
+     * @param cmdCodeColumn
+     *            command code column index
+     *
+     * @param cmdDescColumn
+     *            command description column index
      *
      * @param isCmdHeader
-     *            true if this table represents the CCSDS command header
+     *            true if this table represents the command header
      *
      * @param applicationID
      *            application ID
@@ -2421,38 +2489,36 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            name of the command header argument containing the command function code
      *********************************************************************************************/
     private void addNamespaceCommands(NamespaceType namespace,
-                                      TableInformation tableInfo,
-                                      boolean isCmdHeader,
+                                      String[][] tableData,
+                                      int cmdNameColumn,
+                                      int cmdCodeColumn,
+                                      int cmdDescColumn,
+                                      boolean isCmdHeader, // TODO IS THIS USED
                                       String applicationID,
                                       String ccsdsAppID,
                                       String ccsdsFuncCode)
     {
         List<String> argumentNames = new ArrayList<String>();
 
-        // Get the column indices for the command name, code, and description
-        int cmdNameCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
-        int cmdCodeCol = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE);
-        int cmdDescCol = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-
         // Step through each command argument column grouping
-        for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+        for (AssociatedColumns cmdArg : commandArguments)
         {
             // Check if the argument description column exists and it matches the index set for the
             // command description
-            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescCol)
+            if (cmdArg.getDescription() != -1 && cmdArg.getDescription() == cmdDescColumn)
             {
                 // There is no column for the command description, so reset its column index and
                 // stop searching
-                cmdDescCol = -1;
+                cmdDescColumn = -1;
                 break;
             }
         }
 
         // Step through each row in the table
-        for (String[] rowData : tableInfo.getData())
+        for (String[] rowData : tableData)
         {
             // Check if the command name exists
-            if (cmdNameCol != -1 && !rowData[cmdNameCol].isEmpty())
+            if (cmdNameColumn != -1 && !rowData[cmdNameColumn].isEmpty())
             {
                 // Initialize the command attributes and argument names list
                 String commandCode = null;
@@ -2460,24 +2526,24 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 List<CommandArgumentType> arguments = new ArrayList<CommandArgumentType>();
 
                 // Store the command name
-                String commandName = rowData[cmdNameCol];
+                String commandName = rowData[cmdNameColumn];
 
                 // Check if the command code exists
-                if (cmdCodeCol != -1 && !rowData[cmdCodeCol].isEmpty())
+                if (cmdCodeColumn != -1 && !rowData[cmdCodeColumn].isEmpty())
                 {
                     // Store the command code
-                    commandCode = rowData[cmdCodeCol];
+                    commandCode = rowData[cmdCodeColumn];
                 }
 
                 // Check if the command description exists
-                if (cmdDescCol != -1 && !rowData[cmdDescCol].isEmpty())
+                if (cmdDescColumn != -1 && !rowData[cmdDescColumn].isEmpty())
                 {
                     // Store the command description
-                    commandDescription = rowData[cmdDescCol];
+                    commandDescription = rowData[cmdDescColumn];
                 }
 
                 // Step through each command argument column grouping
-                for (AssociatedColumns cmdArg : typeDefn.getAssociatedCommandArgumentColumns(false))
+                for (AssociatedColumns cmdArg : commandArguments)
                 {
                     // Initialize the command argument attributes
                     String argumentName = null;
@@ -2620,7 +2686,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 addCommand(namespace,
                            commandName,
                            commandCode,
-                           isCmdHeader,
+                           isCmdHeader, // TODO IS THIS USED
                            applicationID,
                            ccsdsAppID,
                            ccsdsFuncCode,
@@ -2643,7 +2709,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            command code
      *
      * @param isCmdHeader
-     *            true if this table represents the CCSDS command header
+     *            true if this table represents the command header
      *
      * @param applicationID
      *            application ID
@@ -2663,7 +2729,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private void addCommand(NamespaceType namespace,
                             String commandName,
                             String commandCode, // TODO WHERE DOES THIS GET PUT?
-                            boolean isCmdHeader,
+                            boolean isCmdHeader, // TODO IS THIS USED
                             String applicationID, // TODO WHERE DOES THIS GET PUT?
                             String ccsdsAppID, // TODO WHERE DOES THIS GET PUT?
                             String ccsdsFuncCode, // TODO WHERE DOES THIS GET PUT?
@@ -2763,7 +2829,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * Create the parameter data type and set the specified attributes
      *
      * @param namespace
-     *            space system
+     *            name space
      *
      * @param parameterName
      *            parameter name; null to not specify
@@ -3111,14 +3177,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Replace each space with an underscore and move any leading underscores to the end of each
-     * path segment
+     * Replace each space, comma, and period with an underscore and move any leading underscores to
+     * the end of each path segment
      *
      * @param path
      *            system path in the form <</>path1</path2<...>>
      *
-     * @return Path with each space replaced with an underscore and any leading underscores moved
-     *         to the end of each path segment
+     * @return Path with each space, comma, and period replaced with an underscore and any leading
+     *         underscores moved to the end of each path segment
      *********************************************************************************************/
     private String cleanSystemPath(String path)
     {
@@ -3127,7 +3193,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Replace each space with an underscore and move any leading underscores to the end of
             // each path segment
-            path = path.replaceAll(" ", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
+            path = path.replaceAll("[ \\,\\.]", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
         }
 
         return path;

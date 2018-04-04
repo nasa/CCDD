@@ -1326,8 +1326,7 @@ public class CcddTableTypeHandler
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions)
         {
             // Determine if the table type is new or matches an existing one with the same name
-            TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn,
-                                                          fieldHandler);
+            TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn, fieldHandler);
 
             // Check if the type name matches an existing one but the type definition differs
             if (typeUpdate == TableTypeUpdate.MISMATCH)

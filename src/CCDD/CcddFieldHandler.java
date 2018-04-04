@@ -55,6 +55,21 @@ public class CcddFieldHandler
      * Field handler class constructor
      *
      * @param ccddMain
+     *            main class reference
+     *
+     * @param fieldDefinitions
+     *            field definitions
+     *********************************************************************************************/
+    CcddFieldHandler(CcddMain ccddMain, List<String[]> fieldDefinitions)
+    {
+        this(ccddMain);
+        this.fieldDefinitions = fieldDefinitions;
+    }
+
+    /**********************************************************************************************
+     * Field handler class constructor
+     *
+     * @param ccddMain
      *            main class
      *
      * @param ownerName
@@ -72,7 +87,7 @@ public class CcddFieldHandler
                                                                                         parent);
 
         // Use the field definitions to create the data field information
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName);
+        buildFieldInformation(ownerName);
     }
 
     /**********************************************************************************************
@@ -88,7 +103,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Set the data field definitions
      *
-     * @param data
+     * @param fieldDefinitions
      *            field definitions
      *********************************************************************************************/
     protected void setFieldDefinitions(List<String[]> fieldDefinitions)
@@ -248,92 +263,22 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected void buildFieldInformation(String ownerName)
     {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]), ownerName, null, true);
-    }
-
-    /**********************************************************************************************
-     * Build the data field information from the field definitions provided
-     *
-     * @param fieldDefinitions
-     *            array of field definitions; null if no definitions exist (this produces an empty
-     *            field information list)
-     *
-     * @param ownerName
-     *            name of the data field owner (table name, including the path if this table
-     *            references a structure, group name, or table type name); null to get all data
-     *            fields
-     *********************************************************************************************/
-    protected void buildFieldInformation(Object[][] fieldDefinitions, String ownerName)
-    {
-        buildFieldInformation(fieldDefinitions, ownerName, null, true);
-    }
-
-    /**********************************************************************************************
-     * Build the data field information from the field definitions
-     *
-     * @param ownerName
-     *            name of the data field owner (table name, including the path if this table
-     *            references a structure, group name, or table type name); null to get all data
-     *            fields
-     *
-     * @param isRootStruct
-     *            true if the owner is a root structure, false if not, or null if unknown
-     *
-     * @param ignoreApplicability
-     *            false to account for the field applicability when building the field information
-     *********************************************************************************************/
-    protected void buildFieldInformation(String ownerName,
-                                         Boolean isRootStruct,
-                                         boolean ignoreApplicability)
-    {
-        buildFieldInformation(fieldDefinitions.toArray(new String[0][0]),
-                              ownerName,
-                              isRootStruct,
-                              ignoreApplicability);
-    }
-
-    /**********************************************************************************************
-     * Build the data field information from the field definitions provided
-     *
-     * @param fieldDefinitions
-     *            array of field definitions; null if no definitions exist (this produces an empty
-     *            field information list)
-     *
-     * @param ownerName
-     *            name of the data field owner (table name, including the path if this table
-     *            references a structure, group name, or table type name); null to get all data
-     *            fields
-     *
-     * @param isRootStruct
-     *            true if the owner is a root structure, false if not, or null if unknown
-     *
-     * @param ignoreApplicability
-     *            false to account for the field applicability when building the field information
-     *********************************************************************************************/
-    protected void buildFieldInformation(Object[][] fieldDefinitions,
-                                         String ownerName,
-                                         Boolean isRootStruct,
-                                         boolean ignoreApplicability)
-    {
-        // Clear the fields from the list
+        // Clear the fields from the list. Note that this eliminates the input fields (text and
+        // check box) that are stored in the field information; these must be rebuilt (if needed)
+        // after calling this method
         fieldInformation.clear();
 
         // Check if the field definitions exist
         if (fieldDefinitions != null)
         {
             // Step through each field definition
-            for (Object[] fieldDefn : fieldDefinitions)
+            for (String[] fieldDefn : fieldDefinitions.toArray(new String[0][0]))
             {
-                // Check if the table (prototype.variable)/group name matches the owner name; if no
-                // owner name is provided then get the fields for all tables and groups, else add
-                // the field if it is applicable to this owner
+                // Check if no owner name is provided (get the fields for all tables and groups for
+                // this case), or if the supplied owner name matches the field owner name
                 if (ownerName == null
                     || ownerName.isEmpty()
-                    || (ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString())
-                        && (ignoreApplicability
-                            || isFieldApplicable(ownerName,
-                                                 fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
-                                                 isRootStruct))))
+                    || ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
                 {
                     // Store the field information
                     addField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),

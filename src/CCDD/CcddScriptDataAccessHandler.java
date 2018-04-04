@@ -34,12 +34,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
@@ -3261,6 +3261,52 @@ public class CcddScriptDataAccessHandler
         }
 
         return structurePath;
+    }
+
+    // TODO ISSUE: THE 'PARENT' ROW IS THE ROW OF THE FIRST VARIABLE IN THE PARENT; THE SUBSEQUENT
+    // ROWS OF THE PARENT ARE NOT NECESSARILY CONTIGUOUS (IF THE VARIABLE HAS A STRUCTURE DATA
+    // TYPE)
+    public int getStructureParentRowByChildRow(int row)
+    {
+        int parentRow = -1;
+
+        // Get the path for the specified row
+        String path = getPathByRow(TYPE_STRUCTURE, row);
+
+        // Get the index of the last child in the path
+        int index = path.lastIndexOf(",");
+
+        // Check if the path has a child table
+        if (index != -1)
+        {
+            // Remove the last child from the path, leaving the parent
+            path = path.substring(0, index);
+        }
+
+        // Get the reference to the table information class for the requested table type
+        TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
+
+        // Check that the table type exists and that there is data for the specified table type
+        if (tableInfo != null && tableInfo.getData().length != 0)
+        {
+            // Step through each row in the table data
+            for (int tableRow = 0; tableRow < tableInfo.getData().length; tableRow++)
+            {
+                // Calculate the column index for the structure path
+                int pathColumn = tableInfo.getData()[tableRow].length - PATH_COLUMN_DELTA;
+
+                // Check if the path of the child structure table at the supplied row matches the
+                // path in the structure data
+                if (path.equals(tableInfo.getData()[tableRow][pathColumn]))
+                {
+                    // Store the row index for the parent structure and stop searching
+                    parentRow = tableRow;
+                    break;
+                }
+            }
+        }
+
+        return parentRow;
     }
 
     /**********************************************************************************************
