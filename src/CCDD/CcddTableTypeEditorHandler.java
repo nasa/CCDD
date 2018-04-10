@@ -686,7 +686,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 {
                     // Set the initial and preferred editor size
                     editorDialog.setTableWidth(width);
-                    editorDialog.setPreferredSize(new Dimension(width, editorDialog.getPreferredSize().height));
+                    editorDialog.setPreferredSize(new Dimension(width,
+                                                                editorDialog.getPreferredSize().height));
                 }
             }
 
@@ -694,13 +695,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell doesn't have the focus or is selected. The focus and selection
                 // highlight colors override the invalid highlight color
@@ -1184,9 +1181,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         Object[][] typeData = table.getTableData(true);
 
         // Create/replace the type definition
-        tableTypeHandler.createTypeDefinition(tableTypeName,
-                                              typeData,
-                                              getDescription());
+        tableTypeHandler.createTypeDefinition(tableTypeName, typeData, getDescription());
 
         // Remove existing changes, if any
         typeAdditions.clear();

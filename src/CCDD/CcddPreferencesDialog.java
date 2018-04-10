@@ -542,9 +542,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 // Display the font selection dialog
                 dialog.showOptionsDialog(CcddPreferencesDialog.this,
                                          chooser.createChooserPanel(),
-                                         getButtonPanel(okayAction,
-                                                        defaultAction,
-                                                        dialog),
+                                         getButtonPanel(okayAction, defaultAction, dialog),
                                          btnClose,
                                          "Select Font: " + modFont.getName(),
                                          false);

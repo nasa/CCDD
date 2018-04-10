@@ -275,11 +275,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                      CcddDataTypeHandler newDataTypeHandler,
                                      CcddMacroHandler newMacroHandler)
     {
-        this(ccddMain,
-             tableInfo,
-             newDataTypeHandler,
-             newMacroHandler,
-             null);
+        this(ccddMain, tableInfo, newDataTypeHandler, newMacroHandler, null);
     }
 
     /**********************************************************************************************
@@ -3361,7 +3357,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         table.getUndoHandler().setAllowUndo(false);
 
         // Set common table parameters and characteristics
-        table.setFixedCharacteristics(scrollPane, tableInfo.isPrototype(), ListSelectionModel.MULTIPLE_INTERVAL_SELECTION, TableSelectionMode.SELECT_BY_CELL, true, ModifiableColorInfo.TABLE_BACK.getColor(), true, true, ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+        table.setFixedCharacteristics(scrollPane, tableInfo.isPrototype(),
+                                      ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
+                                      TableSelectionMode.SELECT_BY_CELL,
+                                      true,
+                                      ModifiableColorInfo.TABLE_BACK.getColor(),
+                                      true,
+                                      true,
+                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                      true);
 
         // Get a reference to the table model to shorten later calls
         tableModel = (UndoableTableModel) table.getModel();

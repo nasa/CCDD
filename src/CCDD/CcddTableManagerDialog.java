@@ -1709,9 +1709,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if (tableName.equalsIgnoreCase(keyWord))
             {
                 // Inform the user that the table name is a reserved word
-                throw new CCDDException("Table name '"
-                                        + tableName
-                                        + "' matches a reserved word");
+                throw new CCDDException("Table name '" + tableName + "' matches a reserved word");
             }
         }
 

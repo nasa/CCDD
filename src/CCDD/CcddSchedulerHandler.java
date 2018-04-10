@@ -46,12 +46,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.CustomSplitPane;
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.AssociatedVariable;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.Variable;
-import CCDD.CcddClassesComponent.CustomSplitPane;
-import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -1027,8 +1027,7 @@ public class CcddSchedulerHandler
                     for (int index = 0; index < indices.length; index++)
                     {
                         // Set message to the desired message
-                        Message message = schedulerEditor.getMessage(indices[index],
-                                                                     parentIndex);
+                        Message message = schedulerEditor.getMessage(indices[index], parentIndex);
 
                         // Check if the message's bytes are less then the current smallest. This is
                         // done to find the least amount of bytes remaining out of the message
@@ -1393,8 +1392,7 @@ public class CcddSchedulerHandler
         for (int index = 0; index < indices.length; index++)
         {
             // Set size to the given (sub-)message's size
-            int size = schedulerEditor.getMessage(indices[index].intValue(),
-                                                  parentIndex)
+            int size = schedulerEditor.getMessage(indices[index].intValue(), parentIndex)
                                       .getBytesRemaining();
 
             // Check if the (sub-)message's size is less then the smallest

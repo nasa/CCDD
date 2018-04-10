@@ -44,7 +44,6 @@ public class CcddPaddingVariableHandler
     // Class references
     private CcddMain ccddMain;
     private CcddDbTableCommandHandler dbTable;
-    private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddEventLogDialog eventLog;
 
@@ -643,7 +642,6 @@ public class CcddPaddingVariableHandler
                     int progress = 0;
 
                     dbTable = ccddMain.getDbTableCommandHandler();
-                    tableTypeHandler = ccddMain.getTableTypeHandler();
                     dataTypeHandler = ccddMain.getDataTypeHandler();
 
                     // Get an array of the prototype structure names

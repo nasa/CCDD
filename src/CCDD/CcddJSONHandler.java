@@ -33,12 +33,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
-import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
@@ -273,6 +273,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
      *
+     * @param targetTypeDefn
+     *            table type definition of the table in which to import the data; ignored if
+     *            importing all tables
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -283,9 +287,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *             For any unanticipated errors
      *********************************************************************************************/
     @Override
-    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
-                                                                             IOException,
-                                                                             Exception
+    public void importFromFile(FileEnvVar importFile,
+                               ImportType importType,
+                               TypeDefinition targetTypeDefn) throws CCDDException,
+                                                              IOException,
+                                                              Exception
     {
         BufferedReader br = null;
 

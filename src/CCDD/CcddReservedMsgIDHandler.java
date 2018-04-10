@@ -189,8 +189,7 @@ public class CcddReservedMsgIDHandler
         for (String[] reservedMsgID : reservedMsgIDData)
         {
             // Check if the message IDs or ID ranges overlap
-            if (isWithinRange(lowHigh,
-                              reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]))
+            if (isWithinRange(lowHigh, reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()]))
             {
                 // Set the flag that indicates the supplied ID matches or falls within the range of
                 // an existing reserved message ID, and stop searching

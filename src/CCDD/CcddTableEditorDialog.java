@@ -269,12 +269,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     protected void setControlsEnabled(boolean enable)
     {
         // Set the flag for controls that are enabled only for a prototype or parent table
-        boolean enableParent = enable
-                               && activeEditor.getTableInformation().isPrototype();
+        boolean enableParent = enable && activeEditor.getTableInformation().isPrototype();
 
         // Set the flag for controls that are enabled only for a non-prototype and non-parent table
-        boolean enableChild = enable
-                              && !activeEditor.getTableInformation().isPrototype();
+        boolean enableChild = enable && !activeEditor.getTableInformation().isPrototype();
 
         // Set the menu item enable status
         mntmOpen.setEnabled(enable);
@@ -576,8 +574,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param editor
      *            reference to an existing table editor
      *********************************************************************************************/
-    private void initialize(List<TableInformation> tableInformation,
-                            CcddTableEditorHandler editor)
+    private void initialize(List<TableInformation> tableInformation, CcddTableEditorHandler editor)
     {
         // Menu ///////////////////////////////////////////////////////////////////////////////////
         // Create the data table menu bar
@@ -845,8 +842,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                ccddMain.showSearchDialog(SearchDialogType.TABLES,
-                                          CcddTableEditorDialog.this);
+                ccddMain.showSearchDialog(SearchDialogType.TABLES, CcddTableEditorDialog.this);
             }
         });
 
@@ -1634,7 +1630,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
 
                     // Add the table editor reference at the specified location
                     tableEditors.add(newTabIndex
-                                     - (oldTabIndex != -1 && newTabIndex > oldTabIndex ? 1
+                                     - (oldTabIndex != -1 && newTabIndex > oldTabIndex
+                                                                                       ? 1
                                                                                        : 0),
                                      editor);
                 }

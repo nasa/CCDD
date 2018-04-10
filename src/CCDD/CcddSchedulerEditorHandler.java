@@ -417,13 +417,9 @@ public class CcddSchedulerEditorHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell doesn't have the focus or is selected, and is protected from
                 // changes. The focus and selection highlight colors override the invalid highlight
@@ -551,7 +547,16 @@ public class CcddSchedulerEditorHandler
         schedulerScrollPane.setBorder(border);
 
         // Set common table parameters and characteristics
-        schedulerTable.setFixedCharacteristics(schedulerScrollPane, false, ListSelectionModel.SINGLE_SELECTION, TableSelectionMode.SELECT_BY_CELL, false, ModifiableColorInfo.TABLE_BACK.getColor(), true, true, ModifiableFontInfo.DATA_TABLE_CELL.getFont(), true);
+        schedulerTable.setFixedCharacteristics(schedulerScrollPane,
+                                               false,
+                                               ListSelectionModel.SINGLE_SELECTION,
+                                               TableSelectionMode.SELECT_BY_CELL,
+                                               false,
+                                               ModifiableColorInfo.TABLE_BACK.getColor(),
+                                               true,
+                                               true,
+                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
+                                               true);
 
         // Get the table model and undo manager to shorten later calls
         schTableModel = (UndoableTableModel) schedulerTable.getModel();
@@ -647,7 +652,6 @@ public class CcddSchedulerEditorHandler
             // Create a tabbed pane to contain the variable tree for the message and any
             // sub-messages
             tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-
             tabbedPane.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
 
             // Listen for tab selection changes
@@ -962,9 +966,7 @@ public class CcddSchedulerEditorHandler
     {
         // Initialize the total remaining bytes. This is zero unless the total bytes is not evenly
         // divisible by the number of messages
-        int remainingBytes = totalBytes
-                             - totalBytes / messages.size()
-                               * messages.size();
+        int remainingBytes = totalBytes - totalBytes / messages.size() * messages.size();
 
         // Step through each row
         for (int row = 0; row < schTableModel.getRowCount(); row++)
@@ -990,8 +992,7 @@ public class CcddSchedulerEditorHandler
         for (Message message : messages)
         {
             // Determine the maximum number of sub-messages
-            maxSubMessages = Math.max(maxSubMessages,
-                                      message.getNumberOfSubMessages());
+            maxSubMessages = Math.max(maxSubMessages, message.getNumberOfSubMessages());
         }
 
         // Check if only the default sub-messages exist
@@ -1034,9 +1035,7 @@ public class CcddSchedulerEditorHandler
             for (int index = 1; index <= getMaxNumberOfSubMessages(); index++)
             {
                 // Add an ID column for the sub-message
-                columns.add("<html><center>"
-                            + getSubHeaderOrTabName(index)
-                            + "<br>ID");
+                columns.add("<html><center>" + getSubHeaderOrTabName(index) + "<br>ID");
             }
         }
 
@@ -1142,8 +1141,7 @@ public class CcddSchedulerEditorHandler
         // Get the maximum number of sub-messages in the existing messages
         int maxSubMsgs = getMaxNumberOfSubMessages();
 
-        currentData = new Object[totalMessages][SchedulerColumn.values().length
-                                                + maxSubMsgs];
+        currentData = new Object[totalMessages][SchedulerColumn.values().length + maxSubMsgs];
 
         // Adjust the message byte count, if applicable
         calculateTotalBytesRemaining();
@@ -1473,8 +1471,7 @@ public class CcddSchedulerEditorHandler
             if (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER)
             {
                 // Update the assignment definition list for when the assignment tree is rebuilt
-                assignmentTree.updateAssignmentDefinitions(messages,
-                                                           schedulerHndlr.getRateName());
+                assignmentTree.updateAssignmentDefinitions(messages, schedulerHndlr.getRateName());
             }
 
             // Calculate the bytes remaining in the messages
@@ -1638,10 +1635,9 @@ public class CcddSchedulerEditorHandler
             {
                 // Build the text identifying the sub-message(s)
                 String subMsgText = " sub-msg"
-                                    + (message.getNumberOfSubMessages()
-                                       / numOptions == 1
-                                                         ? ""
-                                                         : "s")
+                                    + (message.getNumberOfSubMessages() / numOptions == 1
+                                                                                          ? ""
+                                                                                          : "s")
                                     + " ";
 
                 // Step through the number of options

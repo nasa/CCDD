@@ -161,6 +161,9 @@ public class CcddConstants
     // characters between double quotes are ignored so that an erroneous separation doesn't occur
     protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
+    // Regular expression for matching a valid table path
+    protected static final String TABLE_PATH = "[a-zA-Z_][a-zA-Z0-9_]*(?:,[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*(?:\\[[0-9]+\\])?)*";
+
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
@@ -2769,7 +2772,7 @@ public class CcddConstants
                      true),
         COMMAND_CODE(TYPE_COMMAND,
                      "Command Code",
-                     "Command code",
+                     "Command function code",
                      InputDataType.COMMAND_CODE,
                      true,
                      true,
@@ -4473,79 +4476,79 @@ public class CcddConstants
     {
         SCHEDULE_RATE("Schedule Rate",
                       "Application execution rate, cycles/second",
-                      7,
                       InputDataType.INT_POSITIVE,
+                      7,
                       true,
                       ApplicabilityType.ALL,
                       "1"),
         EXECUTION_TIME("Execution Time",
                        "Estimated time for this application to execute",
-                       7,
                        InputDataType.INT_POSITIVE,
+                       7,
                        true,
                        ApplicabilityType.ALL,
                        "1"),
         PRIORITY("Execution Priority",
                  "Application execution priority",
-                 3,
                  InputDataType.INT_POSITIVE,
+                 3,
                  true,
                  ApplicabilityType.ALL,
                  "1"),
         MESSAGE_RATE("Message rate",
                      "Application message rate, samples/second",
-                     7,
                      InputDataType.INT_POSITIVE,
+                     7,
                      true,
                      ApplicabilityType.ALL,
                      "1"),
         WAKE_UP_NAME("Wake-Up Name",
                      "Application wake-up name",
-                     10,
                      InputDataType.MESSAGE_ID_NAME,
+                     10,
                      true,
                      ApplicabilityType.ALL,
                      ""),
         WAKE_UP_ID("Wake-Up ID",
                    "Application wake-up ID",
-                   7,
                    InputDataType.MESSAGE_ID,
+                   7,
                    true,
                    ApplicabilityType.ALL,
                    "0x1"),
         HK_SEND_RATE("HK_Send Rate",
                      "Application housekeeping send rate",
-                     7,
                      InputDataType.INT_POSITIVE,
+                     7,
                      true,
                      ApplicabilityType.ALL,
                      "1"),
         HK_WAKE_UP_NAME("HK Wake-Up Name",
                         "Application housekeeping wake-up name",
-                        10,
                         InputDataType.MESSAGE_ID_NAME,
+                        10,
                         true,
                         ApplicabilityType.ALL,
                         ""),
         HK_WAKE_UP_ID("HK Wake-Up ID",
                       "Application housekeeping wake-up ID",
-                      7,
                       InputDataType.MESSAGE_ID,
+                      7,
                       true,
                       ApplicabilityType.ALL,
                       "0x1"),
         SCH_GROUP("SCH Group",
                   "Application Schedule group",
-                  10,
                   InputDataType.ALPHANUMERIC,
+                  10,
                   true,
                   ApplicabilityType.ALL,
                   "");
 
         private final String fieldName;
         private final String description;
+        private final InputDataType inputType;
         private final int size;
-        private final InputDataType dataType;
         private final boolean isRequired;
         private final ApplicabilityType applicability;
         private final String initialValue;
@@ -4559,11 +4562,11 @@ public class CcddConstants
          * @param description
          *            data field description
          *
+         * @param inputType
+         *            data field input data type
+         *
          * @param size
          *            data field size in characters
-         *
-         * @param dataType
-         *            data field input data type
          *
          * @param isRequired
          *            true if a value is required in the data field
@@ -4576,16 +4579,16 @@ public class CcddConstants
          *****************************************************************************************/
         DefaultApplicationField(String fieldName,
                                 String description,
+                                InputDataType inputType,
                                 int size,
-                                InputDataType dataType,
                                 boolean isRequired,
                                 ApplicabilityType applicability,
                                 String initialValue)
         {
             this.fieldName = fieldName;
             this.description = description;
+            this.inputType = inputType;
             this.size = size;
-            this.dataType = dataType;
             this.isRequired = isRequired;
             this.applicability = applicability;
             this.initialValue = initialValue;
@@ -4624,11 +4627,12 @@ public class CcddConstants
             return new FieldInformation(ownerName,
                                         fieldName,
                                         description,
+                                        inputType,
                                         size,
-                                        dataType,
                                         isRequired,
                                         applicability,
-                                        initialValue);
+                                        initialValue,
+                                        null);
         }
     }
 

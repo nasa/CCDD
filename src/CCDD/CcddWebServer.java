@@ -184,9 +184,7 @@ public class CcddWebServer
             // Inform the user that creating the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
-                                  "Cannot create web server; cause '"
-                                                      + e.getMessage()
-                                                      + "'",
+                                  "Cannot create web server; cause '" + e.getMessage() + "'",
                                   "<html><b>Cannot create web server");
         }
     }
@@ -211,9 +209,7 @@ public class CcddWebServer
             // Inform the user that starting the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
-                                  "Web server failed to start; cause '"
-                                                      + e.getMessage()
-                                                      + "'",
+                                  "Web server failed to start; cause '" + e.getMessage() + "'",
                                   "<html><b>Web server failed to start");
         }
     }
@@ -229,17 +225,14 @@ public class CcddWebServer
             server.stop();
 
             // Inform the user that the web server stopped
-            eventLog.logEvent(EventLogMessageType.SERVER_MSG,
-                              "Web server stopped");
+            eventLog.logEvent(EventLogMessageType.SERVER_MSG, "Web server stopped");
         }
         catch (Exception e)
         {
             // Inform the user that stopping the web server failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Web Server Error",
-                                  "Web server failed to stop; cause '"
-                                                      + e.getMessage()
-                                                      + "'",
+                                  "Web server failed to stop; cause '" + e.getMessage() + "'",
                                   "<html><b>Web server failed to stop");
         }
     }
@@ -298,8 +291,7 @@ public class CcddWebServer
             if (!message.isEmpty())
             {
                 // Output the server message to the event log
-                eventLog.logEvent(EventLogMessageType.SERVER_MSG,
-                                  type + ": " + message);
+                eventLog.logEvent(EventLogMessageType.SERVER_MSG, type + ": " + message);
             }
         }
 

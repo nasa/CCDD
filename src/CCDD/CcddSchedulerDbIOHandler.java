@@ -544,9 +544,7 @@ public class CcddSchedulerDbIOHandler
                 if (msg == null)
                 {
                     // Create a new message
-                    msg = new Message(row[AppSchedulerColumn.TIME_SLOT.ordinal()],
-                                      "",
-                                      time);
+                    msg = new Message(row[AppSchedulerColumn.TIME_SLOT.ordinal()], "", time);
 
                     // Add the message to the existing message list
                     messages.add(msg);

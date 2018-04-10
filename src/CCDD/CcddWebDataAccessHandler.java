@@ -29,14 +29,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddClassesComponent.ArrayListMultiple;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
@@ -97,12 +97,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         tableTypeHandler = ccddMain.getTableTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
-        fieldHandler = new CcddFieldHandler(ccddMain,
-                                            null,
-                                            ccddMain.getMainFrame());
-        jsonHandler = new CcddJSONHandler(ccddMain,
-                                          fieldHandler,
-                                          ccddMain.getMainFrame());
+        fieldHandler = new CcddFieldHandler(ccddMain, null, ccddMain.getMainFrame());
+        jsonHandler = new CcddJSONHandler(ccddMain, fieldHandler, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -135,8 +131,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         // Process the request and get the information encoded as a JSON string. The leading '/' is
         // removed from the request path
-        String jsonResponse = getQueryResults(target.replaceFirst("^/", "").trim(),
-                                              query);
+        String jsonResponse = getQueryResults(target.replaceFirst("^/", "").trim(), query);
 
         // Check if the specified content was loaded successfully
         if (jsonResponse != null)
@@ -368,8 +363,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     case "":
                         // Get the name, type, description, data, and data fields for the specified
                         // table (or all tables if no table name is specified)
-                        response = getTableInformation(attributeAndName[1],
-                                                       separators);
+                        response = getTableInformation(attributeAndName[1], separators);
                         break;
 
                     case "data":
@@ -414,15 +408,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 }
             }
             // Check if this is a group or application related request
-            else if (component.equals("group")
-                     || component.equals("application"))
+            else if (component.equals("group") || component.equals("application"))
             {
                 // Set the flag to true if this request only applies to groups that represent an
                 // application
                 boolean applicationOnly = component.equals("application");
 
                 // Set the name based on if a group or application is requested
-                String name = applicationOnly ? "application" : "group";
+                String name = applicationOnly
+                                              ? "application"
+                                              : "group";
 
                 // Use the attribute to determine the request
                 switch (attributeAndName[0])
@@ -513,8 +508,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             else if (component.equals("variable"))
             {
                 // Get the variable names
-                response = getVariableNames(attributeAndName[0],
-                                            attributeAndName[1]);
+                response = getVariableNames(attributeAndName[0], attributeAndName[1]);
             }
             // Check if this is a telemetry parameter request
             else if (component.equals("telemetry"))
@@ -556,8 +550,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             else if (component.equals("authenticate"))
             {
                 // Authenticate the user credentials
-                response = authenticateUser(attributeAndName[0],
-                                            attributeAndName[1]);
+                response = authenticateUser(attributeAndName[0], attributeAndName[1]);
             }
             // Check if this is the project information request
             else if (component.equals("project_info"))
@@ -609,9 +602,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         {
             // Remove the extraneous escape (\) characters that the JSON encoder inserts into the
             // string
-            response = response.replaceAll("\\\\\\\\",
-                                           "\\\\")
-                               .replaceAll("\\\\/", "/");
+            response = response.replaceAll("\\\\\\\\", "\\\\").replaceAll("\\\\/", "/");
         }
 
         return response;
@@ -977,8 +968,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Store the table name and description, and add it to the array
                     tableNameAndDesc = new JSONObject();
                     tableNameAndDesc.put(JSONTags.TABLE_NAME.getTag(), name);
-                    tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(),
-                                         description);
+                    tableNameAndDesc.put(JSONTags.TABLE_DESCRIPTION.getTag(), description);
                     responseJA.add(tableNameAndDesc);
                 }
 
@@ -1162,9 +1152,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Set the response based of if a single or multiple types are included in the
                 // response. If single then the JSON object is used to prevent the extraneous
                 // brackets from enclosing the response
-                response = (isSingle)
-                                      ? responseJO.toString()
-                                      : responseJA.toString();
+                response = isSingle
+                                    ? responseJO.toString()
+                                    : responseJA.toString();
             }
         }
 
@@ -1218,8 +1208,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     if (linkHandler == null)
                     {
                         // Create a link handler
-                        linkHandler = new CcddLinkHandler(ccddMain,
-                                                          ccddMain.getMainFrame());
+                        linkHandler = new CcddLinkHandler(ccddMain, ccddMain.getMainFrame());
                     }
 
                     // Store the table name and its size in bytes
@@ -1250,9 +1239,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Set the response based of if a single or multiple types are included in the
             // response. If single then the JSON object is used to prevent the extraneous brackets
             // from enclosing the response
-            response = (isSingle)
-                                  ? responseJO.toString()
-                                  : responseJA.toString();
+            response = isSingle
+                                ? responseJO.toString()
+                                : responseJA.toString();
         }
 
         return response;
@@ -1541,9 +1530,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
             // Check if the group exists and that either all groups are requested or else an
             // application is requested and this group represents an application
-            if (groupInfo != null
-                && (!applicationOnly
-                    || groupInfo.isApplication()))
+            if (groupInfo != null && (!applicationOnly || groupInfo.isApplication()))
             {
                 JSONObject groupNameAndDesc = new JSONObject();
 
@@ -1653,9 +1640,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
             // Check if the group exists and that either all groups are requested or else an
             // application is requested and this group represents an application
-            if (groupInfo != null
-                && (!applicationOnly
-                    || groupInfo.isApplication()))
+            if (groupInfo != null && (!applicationOnly || groupInfo.isApplication()))
             {
                 JSONArray groupFieldsJA = new JSONArray();
 
@@ -1713,8 +1698,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      *         groups/applications exist in the project database
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getGroupNames(boolean applicationOnly,
-                                 CcddGroupHandler groupHandler)
+    private String getGroupNames(boolean applicationOnly, CcddGroupHandler groupHandler)
     {
         String response = null;
 
@@ -1824,9 +1808,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing "
-                                                + groupType
-                                                + " information");
+                        throw new CCDDException("error parsing " + groupType + " information");
                     }
                 }
 
@@ -1873,9 +1855,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 catch (ParseException pe)
                 {
                     pe.printStackTrace();
-                    throw new CCDDException("error parsing "
-                                            + groupType
-                                            + " information");
+                    throw new CCDDException("error parsing " + groupType + " information");
                 }
             }
         }
@@ -1954,8 +1934,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     {
                         // Add the copy table value to the array. An array is used to preserve the
                         // order of the items
-                        rowJO.put(CopyTableEntry.values()[column].getColumnName(),
-                                  row[column]);
+                        rowJO.put(CopyTableEntry.values()[column].getColumnName(), row[column]);
                     }
 
                     // Add the row's copy table values to the table array
@@ -1966,10 +1945,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Store the copy table information
             JSONObject copyJO = new JSONObject();
             copyJO.put(JSONTags.COPY_TABLE_STREAM.getTag(), streamName);
-            copyJO.put(JSONTags.COPY_TABLE_HDR_SIZE.getTag(),
-                       String.valueOf(headerSize));
-            copyJO.put(JSONTags.COPY_TABLE_OPTIMIZE.getTag(),
-                       String.valueOf(optimize));
+            copyJO.put(JSONTags.COPY_TABLE_HDR_SIZE.getTag(), String.valueOf(headerSize));
+            copyJO.put(JSONTags.COPY_TABLE_OPTIMIZE.getTag(), String.valueOf(optimize));
             copyJO.put(JSONTags.COPY_TABLE_DATA.getTag(), tableJA);
             response = copyJO.toString();
         }

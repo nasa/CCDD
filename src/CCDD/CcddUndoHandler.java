@@ -39,8 +39,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesComponent.CellSelectionHandler;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 
 /**************************************************************************************************
@@ -2150,9 +2150,9 @@ public class CcddUndoHandler
                 TableEditType type)
         {
             this.tableModel = tableModel;
-            this.values = (values == null)
-                                           ? null
-                                           : Arrays.copyOf(values, values.length);
+            this.values = values == null
+                                         ? null
+                                         : Arrays.copyOf(values, values.length);
             this.row = row;
             this.start = start;
             this.end = end;

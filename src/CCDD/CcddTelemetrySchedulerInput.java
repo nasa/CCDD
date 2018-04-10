@@ -26,13 +26,13 @@ import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.AssociatedVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TelemetryData;
 import CCDD.CcddClassesDataTable.Variable;
 import CCDD.CcddClassesDataTable.VariableGenerator;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -167,10 +167,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                                                                  : "0");
 
         // Build a link tree
-        linkTree = new CcddLinkTreeHandler(ccddMain,
-                                           null,
-                                           rateName,
-                                           ccddMain.getMainFrame())
+        linkTree = new CcddLinkTreeHandler(ccddMain, null, rateName, ccddMain.getMainFrame())
         {
             /**************************************************************************************
              * Respond to changes in selection of a node in the link tree
@@ -269,9 +266,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                                                                                        + selectedRate);
 
                 // Insert the valid links tree into the variable tree
-                ((DefaultTreeModel) getModel()).insertNodeInto(validLinks,
-                                                               getRootNode(),
-                                                               0);
+                ((DefaultTreeModel) getModel()).insertNodeInto(validLinks, getRootNode(), 0);
 
                 // Set the linked variables
                 setLinkedVariables(linkTree.getLinkVariables(null));

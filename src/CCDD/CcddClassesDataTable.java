@@ -322,6 +322,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         protected static String getPrototypeName(String path)
         {
+            // Remove any path prior to the last data type and variable name
             String prototype = getProtoVariableName(path);
 
             // Check for the location of the variable name
@@ -406,7 +407,7 @@ public class CcddClassesDataTable
             if (index != -1)
             {
                 // Get the name of the table immediately above this table in the path hierarchy
-                parent = getPrototypeName(path.substring(0, index - 1));
+                parent = getPrototypeName(path.substring(0, index));
             }
 
             return parent;
@@ -1095,7 +1096,6 @@ public class CcddClassesDataTable
 
                 isChild = true;
             }
-
         }
     }
 
@@ -1485,9 +1485,9 @@ public class CcddClassesDataTable
         private final String fieldName;
         private final String description;
         private final int charSize;
-        private InputDataType fieldType;
+        private final InputDataType inputType;
         private final boolean isRequired;
-        private ApplicabilityType applicability;
+        private final ApplicabilityType applicability;
         private String value;
         private Component inputFld;
 
@@ -1507,7 +1507,7 @@ public class CcddClassesDataTable
          * @param charSize
          *            field display size in characters
          *
-         * @param fieldType
+         * @param inputType
          *            field InputDataType
          *
          * @param isRequired
@@ -1521,13 +1521,14 @@ public class CcddClassesDataTable
          *            field value
          *
          * @param inputFld
-         *            reference to the field's UndoableTextField or UndoableCheckBox
+         *            reference to the field's UndoableTextField or UndoableCheckBox; null if
+         *            creating the data field without specifying the input field
          *****************************************************************************************/
         FieldInformation(String ownerName,
                          String fieldName,
                          String description,
+                         InputDataType inputType,
                          int charSize,
-                         InputDataType fieldType,
                          boolean isRequired,
                          ApplicabilityType applicability,
                          String value,
@@ -1536,134 +1537,12 @@ public class CcddClassesDataTable
             this.ownerName = ownerName;
             this.fieldName = fieldName;
             this.description = description;
+            this.inputType = inputType;
             this.charSize = charSize;
-            this.fieldType = fieldType;
             this.isRequired = isRequired;
             this.applicability = applicability;
             this.value = value;
             this.inputFld = inputFld;
-        }
-
-        /******************************************************************************************
-         * Data field information class constructor. Sets the input field component to null
-         *
-         * @param ownerName
-         *            name of the table, including the path if this table represents a structure,
-         *            or group for which the field is a member
-         *
-         * @param fieldName
-         *            field name
-         *
-         * @param description
-         *            data field description; used as the tool tip for this field
-         *
-         * @param charSize
-         *            field display size in characters
-         *
-         * @param fieldType
-         *            field InputDataType
-         *
-         * @param isRequired
-         *            true if a value is required for this field
-         *
-         * @param applicability
-         *            field applicability type; all tables, parent tables only, or child tables
-         *            only
-         *
-         * @param value
-         *            field value
-         *****************************************************************************************/
-        FieldInformation(String ownerName,
-                         String fieldName,
-                         String description,
-                         int charSize,
-                         InputDataType fieldType,
-                         boolean isRequired,
-                         ApplicabilityType applicability,
-                         String value)
-        {
-            this(ownerName,
-                 fieldName,
-                 description,
-                 charSize,
-                 fieldType,
-                 isRequired,
-                 applicability,
-                 value,
-                 null);
-        }
-
-        /******************************************************************************************
-         * Data field information class constructor. Sets the input field component to null and
-         * uses default input and applicability types if the names supplied are unrecognized
-         *
-         * @param ownerName
-         *            name of the table, including the path if this table represents a structure,
-         *            or group for which the field is a member
-         *
-         * @param fieldName
-         *            field name
-         *
-         * @param description
-         *            data field description; used as the tool tip for this field
-         *
-         * @param charSize
-         *            field display size in characters
-         *
-         * @param inputType
-         *            field input type name
-         *
-         * @param isRequired
-         *            true if a value is required for this field
-         *
-         * @param applicability
-         *            field applicability name; all tables, parent tables only, or child tables
-         *            only
-         *
-         * @param value
-         *            field value
-         *****************************************************************************************/
-        FieldInformation(String ownerName,
-                         String fieldName,
-                         String description,
-                         int charSize,
-                         String inputType,
-                         boolean isRequired,
-                         String applicabilityType,
-                         String value)
-        {
-            this(ownerName,
-                 fieldName,
-                 description,
-                 charSize,
-                 InputDataType.TEXT, // Default input type
-                 isRequired,
-                 ApplicabilityType.ALL, // Default applicability type
-                 value);
-
-            // Step through each field input type
-            for (InputDataType type : InputDataType.values())
-            {
-                // Check if the type matches this field's input type
-                if (inputType.equals(type.getInputName()))
-                {
-                    // Store the field input type and stop searching
-                    fieldType = type;
-                    break;
-                }
-            }
-
-            // Step through each field applicability type
-            for (ApplicabilityType type : ApplicabilityType.values())
-            {
-                // Check if the type matches this field's applicability type
-                if (applicabilityType.equals(type.getApplicabilityName()))
-                {
-                    // Store the field applicability type and stop searching
-                    applicability = type;
-                    break;
-                }
-            }
         }
 
         /******************************************************************************************
@@ -1786,7 +1665,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         protected InputDataType getInputType()
         {
-            return fieldType;
+            return inputType;
         }
     }
 

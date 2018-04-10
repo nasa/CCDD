@@ -1116,9 +1116,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         else
                         {
                             // Add the variable with the node text grayed out
-                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR
-                                                              + variable,
-                                                              ""));
+                            childNode.add(new ToolTipTreeNode(DISABLED_TEXT_COLOR + variable, ""));
                         }
                     }
                 }
@@ -1840,8 +1838,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @return List containing the path array(s) for the selected variable(s)
      *********************************************************************************************/
-    protected List<Object[]> getSelectedVariables(int priorLevels,
-                                                  boolean isVariable)
+    protected List<Object[]> getSelectedVariables(int priorLevels, boolean isVariable)
     {
         selectedVariablePaths = new ArrayList<Object[]>();
 
@@ -2279,10 +2276,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     String expState = getExpansionState();
 
                     // Rebuild the tree based on the filter selection
-                    buildTableTree(expandChkBx.isSelected(),
-                                   rateName,
-                                   rateFilter,
-                                   parent);
+                    buildTableTree(expandChkBx.isSelected(), rateName, rateFilter, parent);
 
                     // Adjust the expansion state to account for the change in filtering, then
                     // restore the expansion state

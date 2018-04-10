@@ -5654,8 +5654,7 @@ public class CcddDbTableCommandHandler
             {
                 // Check if no error occurred when copying the table type and if the type
                 // represents a structure
-                if (!errorFlag
-                    && tableTypeHandler.getTypeDefinition(typeName).isStructure())
+                if (!errorFlag && tableTypeHandler.getTypeDefinition(typeName).isStructure())
                 {
                     // Update the rate information, if applicable
                     rateHandler.setRateInformation();
@@ -6429,14 +6428,15 @@ public class CcddDbTableCommandHandler
                         {
                             // Add the data field to the table and set the flag indicating a change
                             // has been made
-                            fieldHandler.addField(tableName,
-                                                  fieldInfo.getFieldName(),
-                                                  fieldInfo.getDescription(),
-                                                  fieldInfo.getSize(),
-                                                  fieldInfo.getInputType().getInputName(),
-                                                  fieldInfo.isRequired(),
-                                                  fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                  fieldInfo.getValue());
+                            fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
+                                                                                        fieldInfo.getFieldName(),
+                                                                                        fieldInfo.getDescription(),
+                                                                                        fieldInfo.getInputType(),
+                                                                                        fieldInfo.getSize(),
+                                                                                        fieldInfo.isRequired(),
+                                                                                        fieldInfo.getApplicabilityType(),
+                                                                                        fieldInfo.getValue(),
+                                                                                        null));
                             isChanges = true;
                         }
                         // The field exists; check if the existing field value(s) should be
@@ -6445,11 +6445,12 @@ public class CcddDbTableCommandHandler
                                  && fieldHandler.updateField(new FieldInformation(tableName,
                                                                                   fieldInfo.getFieldName(),
                                                                                   fieldInfo.getDescription(),
+                                                                                  fieldInfo.getInputType(),
                                                                                   fieldInfo.getSize(),
-                                                                                  fieldInfo.getInputType().getInputName(),
                                                                                   fieldInfo.isRequired(),
-                                                                                  fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                                  fieldInfo.getValue())))
+                                                                                  fieldInfo.getApplicabilityType(),
+                                                                                  fieldInfo.getValue(),
+                                                                                  null)))
                         {
                             // Set the flag indicating a change has been made
                             isChanges = true;

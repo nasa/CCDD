@@ -10,9 +10,10 @@ package CCDD;
 import java.io.IOException;
 import java.util.List;
 
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
-import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary import/export interface
@@ -53,6 +54,10 @@ public interface CcddImportExportInterface
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
      *
+     * @param targetTypeDefn
+     *            table type definition of the table in which to import the data; ignored if
+     *            importing all tables
+     *
      * @throws CCDDException
      *
      * @throws IOException
@@ -60,9 +65,10 @@ public interface CcddImportExportInterface
      * @throws Exception
      *********************************************************************************************/
     abstract void importFromFile(FileEnvVar importFile,
-                                 ImportType importType) throws CCDDException,
-                                                        IOException,
-                                                        Exception;
+                                 ImportType importType,
+                                 TypeDefinition targetTypeDefinition) throws CCDDException,
+                                                                      IOException,
+                                                                      Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file

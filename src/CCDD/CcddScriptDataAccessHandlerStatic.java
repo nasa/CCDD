@@ -346,7 +346,9 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getCommandArgByColumnName(argumentNumber, row, columnName);
     }
 
-    public static String getCommandArgByColumnNameWithMacros(int argumentNumber, int row, String columnName)
+    public static String getCommandArgByColumnNameWithMacros(int argumentNumber,
+                                                             int row,
+                                                             String columnName)
     {
         return accessHandler.getCommandArgByColumnNameWithMacros(argumentNumber, row, columnName);
     }
@@ -427,7 +429,9 @@ public class CcddScriptDataAccessHandlerStatic
                                                  typeNameSeparator);
     }
 
-    public static String getFullVariableName(String variablePath, String variableName, String varPathSeparator)
+    public static String getFullVariableName(String variablePath,
+                                             String variableName,
+                                             String varPathSeparator)
     {
         return accessHandler.getFullVariableName(variablePath, variableName, varPathSeparator);
     }
@@ -606,7 +610,9 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getTableDataWithMacros(tableType, columnName, row);
     }
 
-    public static String getStructureDataByVariableName(String tablePath, String variableName, String columnName)
+    public static String getStructureDataByVariableName(String tablePath,
+                                                        String variableName,
+                                                        String columnName)
     {
         return accessHandler.getStructureDataByVariableName(tablePath, variableName, columnName);
     }
@@ -706,7 +712,9 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getArrayFromString(text, columnSeparator);
     }
 
-    public static String[][] getArrayFromString(String text, String columnSeparator, String rowSeparator)
+    public static String[][] getArrayFromString(String text,
+                                                String columnSeparator,
+                                                String rowSeparator)
     {
         return accessHandler.getArrayFromString(text, columnSeparator, rowSeparator);
     }

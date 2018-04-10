@@ -1045,7 +1045,9 @@ public class CcddTableTypeHandler
      *
      * @return Reference to the type definition created
      *********************************************************************************************/
-    protected TypeDefinition createTypeDefinition(String typeName, Object[][] typeData, String description)
+    protected TypeDefinition createTypeDefinition(String typeName,
+                                                  Object[][] typeData,
+                                                  String description)
     {
         // Get the reference to the type definition
         TypeDefinition typeDefn = getTypeDefinition(typeName);
@@ -1425,8 +1427,7 @@ public class CcddTableTypeHandler
                 isNewField = true;
             }
             // Check if the table type editor is open
-            if (ccddMain.getTableTypeEditor() != null
-                && ccddMain.getTableTypeEditor().isShowing())
+            if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
             {
                 // Add the new table type tab to the editor
                 ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()},

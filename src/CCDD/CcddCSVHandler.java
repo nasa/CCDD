@@ -158,6 +158,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
      *
+     * @param targetTypeDefn
+     *            table type definition of the table in which to import the data; ignored if
+     *            importing all tables
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -168,9 +172,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *             For any unanticipated errors
      *********************************************************************************************/
     @Override
-    public void importFromFile(FileEnvVar importFile, ImportType importType) throws CCDDException,
-                                                                             IOException,
-                                                                             Exception
+    public void importFromFile(FileEnvVar importFile,
+                               ImportType importType,
+                               TypeDefinition targetTypeDefn) throws CCDDException,
+                                                              IOException,
+                                                              Exception
     {
         BufferedReader br = null;
 

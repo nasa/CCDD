@@ -150,8 +150,8 @@ public class CcddFieldHandler
                 fldInfo.add(new FieldInformation(info.getOwnerName(),
                                                  info.getFieldName(),
                                                  info.getDescription(),
-                                                 info.getSize(),
                                                  info.getInputType(),
+                                                 info.getSize(),
                                                  info.isRequired(),
                                                  info.getApplicabilityType(),
                                                  info.getValue(),
@@ -280,15 +280,50 @@ public class CcddFieldHandler
                     || ownerName.isEmpty()
                     || ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
                 {
-                    // Store the field information
-                    addField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
-                             fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
-                             fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
-                             Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
-                             fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString(),
-                             Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
-                             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString(),
-                             fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString());
+                    // Get the input type from its name. The text input type is the default if the
+                    // input type name is invalid
+                    InputDataType inputType = InputDataType.TEXT;
+                    String inputTypeName = fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString();
+
+                    // Step through each field input type
+                    for (InputDataType type : InputDataType.values())
+                    {
+                        // Check if the type matches this field's input type
+                        if (inputTypeName.equals(type.getInputName()))
+                        {
+                            // Store the field input type and stop searching
+                            inputType = type;
+                            break;
+                        }
+                    }
+
+                    // Get the applicability type from its name. The all tables applicability type
+                    // is the default if the applicability type name is invalid
+                    ApplicabilityType applicability = ApplicabilityType.ALL;
+                    String applicabilityName = fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString();
+
+                    // Step through each field applicability type
+                    for (ApplicabilityType type : ApplicabilityType.values())
+                    {
+                        // Check if the type matches this field's applicability type
+                        if (applicabilityName.equals(type.getApplicabilityName()))
+                        {
+                            // Store the field applicability type and stop searching
+                            applicability = type;
+                            break;
+                        }
+                    }
+
+                    // Add the field information
+                    fieldInformation.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
+                                                              fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
+                                                              fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
+                                                              inputType,
+                                                              Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
+                                                              Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
+                                                              applicability,
+                                                              fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
+                                                              null));
                 }
             }
         }
@@ -416,22 +451,15 @@ public class CcddFieldHandler
             // Step through each row in the editor data array
             for (Object[] data : fieldData)
             {
-                // Create the field definition array with an extra column for the owner name
-                String[] defn = new String[fieldData[0].length + 1];
-
-                // Add the table name (with path, if applicable) to the field definition
-                defn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
-
-                // Copy the editor data to the field definition
-                defn[FieldsColumn.FIELD_NAME.ordinal()] = data[FieldEditorColumnInfo.NAME.ordinal()].toString();
-                defn[FieldsColumn.FIELD_DESC.ordinal()] = data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString();
-                defn[FieldsColumn.FIELD_SIZE.ordinal()] = data[FieldEditorColumnInfo.SIZE.ordinal()].toString();
-                defn[FieldsColumn.FIELD_TYPE.ordinal()] = data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString();
-                defn[FieldsColumn.FIELD_REQUIRED.ordinal()] = data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString();
-                defn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString();
-                defn[FieldsColumn.FIELD_VALUE.ordinal()] = data[FieldEditorColumnInfo.VALUE.ordinal()].toString();
-
-                fieldDefinitions.add(defn);
+                // Add the field definition to the list
+                fieldDefinitions.add(getFieldDefinitionArray(ownerName,
+                                                             data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                             data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                             (InputDataType) data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()],
+                                                             (int) data[FieldEditorColumnInfo.SIZE.ordinal()],
+                                                             (boolean) data[FieldEditorColumnInfo.REQUIRED.ordinal()],
+                                                             (ApplicabilityType) data[FieldEditorColumnInfo.APPLICABILITY.ordinal()],
+                                                             data[FieldEditorColumnInfo.VALUE.ordinal()].toString()));
             }
         }
     }
@@ -480,72 +508,70 @@ public class CcddFieldHandler
         // Step through each row
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Create storage for a single field definition
-            String[] defn = new String[FieldsColumn.values().length];
-
-            // Store the field definition in the proper order
-            defn[FieldsColumn.OWNER_NAME.ordinal()] = fieldInfo.getOwnerName();
-            defn[FieldsColumn.FIELD_NAME.ordinal()] = fieldInfo.getFieldName();
-            defn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
-            defn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-            defn[FieldsColumn.FIELD_SIZE.ordinal()] = String.valueOf(fieldInfo.getSize());
-            defn[FieldsColumn.FIELD_REQUIRED.ordinal()] = String.valueOf(fieldInfo.isRequired());
-            defn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-            defn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
-
             // Add the field definition to the list
-            definitions.add(defn);
+            definitions.add(getFieldDefinitionArray(fieldInfo.getOwnerName(),
+                                                    fieldInfo.getFieldName(),
+                                                    fieldInfo.getDescription(),
+                                                    fieldInfo.getInputType(),
+                                                    fieldInfo.getSize(),
+                                                    fieldInfo.isRequired(),
+                                                    fieldInfo.getApplicabilityType(),
+                                                    fieldInfo.getValue()));
         }
 
         return definitions;
     }
 
     /**********************************************************************************************
-     * Add a field. This method is not applicable if the fields for all tables, table types, and
-     * groups are loaded
+     * Create a field definition array from the supplied inputs
      *
      * @param ownerName
      *            name of the table/table type/group to which the field is a member
      *
-     * @param name
+     * @param fieldName
      *            name of the new field
      *
      * @param description
      *            field description
      *
+     * @param inputType
+     *            input data type
+     *
      * @param size
      *            field display size in characters
-     *
-     * @param type
-     *            input data type
      *
      * @param isRequired
      *            true if a value if required in this field
      *
      * @param applicability
-     *            all, parent, or child to indicate all tables, parent tables only, or child tables
-     *            only, respectively
+     *            ApplicabilityType.ALL to indicate all tables, ApplicabilityType.ROOTS_ONLY for
+     *            root tables only, or ApplicabilityType.CHILD_ONLY for child tables only
      *
      * @param value
      *            data field value
      *********************************************************************************************/
-    protected void addField(String ownerName,
-                            String name,
-                            String description,
-                            int size,
-                            String type,
-                            boolean isRequired,
-                            String applicability,
-                            String value)
+    protected static String[] getFieldDefinitionArray(String ownerName,
+                                                      String fieldName,
+                                                      String description,
+                                                      InputDataType inputType,
+                                                      int size,
+                                                      boolean isRequired,
+                                                      ApplicabilityType applicability,
+                                                      String value)
     {
-        fieldInformation.add(new FieldInformation(ownerName,
-                                                  name,
-                                                  description,
-                                                  size,
-                                                  type,
-                                                  isRequired,
-                                                  applicability,
-                                                  value));
+        String[] fieldDefn = new String[FieldsColumn.values().length];
+
+        // Store the field definition in the proper order
+        fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
+        fieldDefn[FieldsColumn.FIELD_NAME.ordinal()] = fieldName;
+        fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = description;
+        fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = inputType.getInputName();
+        fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = String.valueOf(size);
+        fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = String.valueOf(isRequired);
+        fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = applicability.getApplicabilityName();
+        fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = value;
+
+        return fieldDefn;
     }
 
     /**********************************************************************************************

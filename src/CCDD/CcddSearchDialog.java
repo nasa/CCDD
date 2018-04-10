@@ -828,7 +828,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                     removeResults.add(result);
                                 }
 
-                                // TODO Since prototype tables are automatically added (needed
+                                // Note: Since prototype tables are automatically added (needed
                                 // since a child only returns matches in the values table), a false
                                 // match can occur if the filter table is a child, the hit is in
                                 // the child's prototype, and the child has overridden the

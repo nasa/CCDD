@@ -91,8 +91,7 @@ public class CcddUtilities
             if (isReservedChar())
             {
                 // Replace all occurrences of the character with its HTML equivalent
-                inputText = inputText.replaceAll(Pattern.quote(tagChar),
-                                                 htmlTag);
+                inputText = inputText.replaceAll(Pattern.quote(tagChar), htmlTag);
             }
 
             return inputText;
@@ -371,8 +370,7 @@ public class CcddUtilities
                                 + "\\s*.+$"))
         {
             // Separate the enumeration at the value+enumerated value separator characters
-            String[] parts = enumeration.split("\\s*\\d+\\s*"
-                                               + Pattern.quote(enumValueSeparator));
+            String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
 
             // Determine the length of the second array member. This consists of the first
             // enumerated value followed by the enumerated pair separator character. Extract the
@@ -397,8 +395,7 @@ public class CcddUtilities
      * @return Array containing the data from the input array plus the specified number of extra,
      *         empty columns appended
      *********************************************************************************************/
-    protected static String[] appendArrayColumns(String[] array,
-                                                 int numColumns)
+    protected static String[] appendArrayColumns(String[] array, int numColumns)
     {
         // Create the new array with the number of specified extra columns
         String[] newArray = new String[array.length + numColumns];
@@ -428,12 +425,10 @@ public class CcddUtilities
      * @return Array containing the data from the input array plus the specified number of extra,
      *         empty columns appended
      *********************************************************************************************/
-    protected static String[][] appendArrayColumns(String[][] array,
-                                                   int numColumns)
+    protected static String[][] appendArrayColumns(String[][] array, int numColumns)
     {
         // Create the new array with the number of specified extra columns
-        String[][] newArray = new String[array.length][array[0].length
-                                                       + numColumns];
+        String[][] newArray = new String[array.length][array[0].length + numColumns];
 
         // Step through each row in the input array
         for (int row = 0; row < array.length; row++)
@@ -464,8 +459,7 @@ public class CcddUtilities
      * @return List of string arrays containing the data from the input list minus the specified
      *         column
      *********************************************************************************************/
-    protected static List<String[]> removeArrayListColumn(List<String[]> list,
-                                                          int delColumn)
+    protected static List<String[]> removeArrayListColumn(List<String[]> list, int delColumn)
     {
         // Create the new list
         List<String[]> newList = new ArrayList<String[]>();
@@ -585,8 +579,7 @@ public class CcddUtilities
      * @return One-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
-    protected static String[] concatenateArrays(String[] array1,
-                                                String[] array2)
+    protected static String[] concatenateArrays(String[] array1, String[] array2)
     {
         String[] concatArray;
 
@@ -626,8 +619,7 @@ public class CcddUtilities
      * @return Two-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
-    protected static String[][] concatenateArrays(String[][] array1,
-                                                  String[][] array2)
+    protected static String[][] concatenateArrays(String[][] array1, String[][] array2)
     {
         String[][] concatArray;
 
@@ -755,8 +747,7 @@ public class CcddUtilities
      *
      * @return Input string minus the trailing characters (if present)
      *********************************************************************************************/
-    protected static StringBuilder removeTrailer(StringBuilder text,
-                                                 String trailingText)
+    protected static StringBuilder removeTrailer(StringBuilder text, String trailingText)
     {
         // Get the length of the string and the index where the trailing text should start
         int textLength = text.length();
@@ -969,8 +960,7 @@ public class CcddUtilities
                             }
 
                             // Get the tag's text
-                            String tagText = inputText.substring(tagIndex,
-                                                                 endIndex + 1);
+                            String tagText = inputText.substring(tagIndex, endIndex + 1);
 
                             // Set the last found tag's index to the beginning of the tag
                             lastIndex -= tagText.length();
@@ -985,8 +975,7 @@ public class CcddUtilities
 
                                 // Remove the tag from the input string
                                 inputText = inputText.substring(0, tagIndex)
-                                            + inputText.substring(tagIndex
-                                                                  + tagText.length());
+                                            + inputText.substring(tagIndex + tagText.length());
                             }
 
                             break;
@@ -1012,8 +1001,7 @@ public class CcddUtilities
                                     // Remove the tag from the input string, substituting a
                                     // character in place of the tag so that the line wrap accounts
                                     // for the character
-                                    inputText = inputText.substring(0,
-                                                                    tagIndex)
+                                    inputText = inputText.substring(0, tagIndex)
                                                 + tagInfo.getSpecialCharPlaceholder()
                                                 + inputText.substring(tagIndex
                                                                       + tagInfo.getHTMLTag().length());
@@ -1034,8 +1022,7 @@ public class CcddUtilities
                                 // character
                                 inputText = inputText.substring(0, tagIndex)
                                             + "_"
-                                            + inputText.substring(tagIndex
-                                                                  + 1);
+                                            + inputText.substring(tagIndex + 1);
                             }
 
                             break;
@@ -1094,9 +1081,7 @@ public class CcddUtilities
                     // Adjust the breakpoint index to account for the portions of the input string
                     // that are removed so that the index is applicable to the original string
                     // (with HTML tags removed)
-                    breakIndex += inputText.substring(0,
-                                                      index
-                                                         + padLength)
+                    breakIndex += inputText.substring(0, index + padLength)
                                            .indexOf(HTMLTag.BREAK.getHTMLTag())
                                   + HTMLTag.BREAK.getHTMLTag().length();
 
@@ -1189,7 +1174,9 @@ public class CcddUtilities
                     // Set the special character adjustment to account for the space left in the
                     // input string that the line break replaces. If the break doesn't replace a
                     // space (since none was in the vicinity) then the adjustment is zero
-                    scAdjust = outputText.charAt(tagIndex) == ' ' ? 0 : 0;
+                    scAdjust = outputText.charAt(tagIndex) == ' '
+                                                                  ? 0
+                                                                  : 0;
                 }
 
                 // Add the length of this tag to the running total

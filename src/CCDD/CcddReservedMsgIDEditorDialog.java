@@ -515,8 +515,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                     // Check if the message ID isn't blank and if if matches or
                                     // falls within the range of this row's ID(s)
                                     if (!otherValue.isEmpty()
-                                        && rsvMsgIDHandler.isWithinRange(lowHigh,
-                                                                         otherValue))
+                                        && rsvMsgIDHandler.isWithinRange(lowHigh, otherValue))
                                     {
                                         // Inform the user that the new ID matches or falls within
                                         // the range of an existing reserved message ID
@@ -593,13 +592,9 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
              * Override prepareRenderer to allow adjusting the background colors of table cells
              *************************************************************************************/
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer,
-                                             int row,
-                                             int column)
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
-                JComponent comp = (JComponent) super.prepareRenderer(renderer,
-                                                                     row,
-                                                                     column);
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)

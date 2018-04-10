@@ -252,12 +252,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         buttonPnl.add(btnClose);
 
         // Display the dialog
-        showOptionsDialog(parent,
-                          dialogPnl,
-                          buttonPnl,
-                          null,
-                          "Show All Message IDs",
-                          true);
+        showOptionsDialog(parent, dialogPnl, buttonPnl, null, "Show All Message IDs", true);
     }
 
     /**********************************************************************************************
@@ -300,8 +295,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         if (!tablePaths.isEmpty())
         {
             // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
-                                              null);
+            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
         }
     }
 

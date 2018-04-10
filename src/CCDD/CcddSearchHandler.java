@@ -229,9 +229,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             if (index != -1 && !columnValue[index].isEmpty())
                             {
                                 // Set the row location to the variable name
-                                row = "variable '"
-                                      + columnValue[index]
-                                      + "'";
+                                row = "variable '" + columnValue[index] + "'";
                             }
                         }
                         // Check if this is a command table
@@ -244,9 +242,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             if (index != -1 && !columnValue[index].isEmpty())
                             {
                                 // Set the row location to the command name
-                                row = "command '"
-                                      + columnValue[index]
-                                      + "'";
+                                row = "command '" + columnValue[index] + "'";
                             }
                         }
 
@@ -282,9 +278,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                             else
                             {
                                 // Set the location
-                                location = "Column '"
-                                           + columnName
-                                           + "'";
+                                location = "Column '" + columnName + "'";
 
                                 // Initialize the variable name and get the index where the last
                                 // variable name begins
@@ -633,9 +627,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                 if (target != null)
                 {
                     // Add the search result to the list
-                    resultsDataList.add(new Object[] {target,
-                                                      location,
-                                                      context});
+                    resultsDataList.add(new Object[] {target, location, context});
                 }
             }
         }
@@ -674,8 +666,7 @@ public class CcddSearchHandler extends CcddDialogHandler
         if (ignoreCase)
         {
             // Create the match pattern with case ignored
-            pattern = Pattern.compile(Pattern.quote(searchText),
-                                      Pattern.CASE_INSENSITIVE);
+            pattern = Pattern.compile(Pattern.quote(searchText), Pattern.CASE_INSENSITIVE);
         }
         // Only match if the same case
         else
@@ -698,9 +689,7 @@ public class CcddSearchHandler extends CcddDialogHandler
             FileChannel fc = fis.getChannel();
 
             // Get the file's size and then map it into memory
-            MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY,
-                                                 0,
-                                                 fc.size());
+            MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
             // Decode the file into a char buffer
             CharBuffer charBuffer = decoder.decode(byteBuffer);
@@ -861,7 +850,8 @@ public class CcddSearchHandler extends CcddDialogHandler
      * @param tbleTypeHndlr
      *            reference to the table type handler
      *********************************************************************************************/
-    protected static void removeArrayMemberReferences(List<String> matches, CcddTableTypeHandler tbleTypeHndlr)
+    protected static void removeArrayMemberReferences(List<String> matches,
+                                                      CcddTableTypeHandler tbleTypeHndlr)
     {
         // Step through each match (in reverse since an entry in the list may need to be removed)
         for (int index = matches.size() - 1; index >= 0; index--)

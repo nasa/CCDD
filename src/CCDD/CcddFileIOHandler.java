@@ -628,7 +628,7 @@ public class CcddFileIOHandler
                         if (!ioHandler.getErrorStatus())
                         {
                             // Import the table definition(s) from the file
-                            ioHandler.importFromFile(file, ImportType.IMPORT_ALL);
+                            ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null);
 
                             // Check if the user elected to append any new data fields to any
                             // existing ones for a table
@@ -1396,7 +1396,9 @@ public class CcddFileIOHandler
                     List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
 
                     // Import the data file into a table definition
-                    ioHandler.importFromFile(dataFile[0], ImportType.FIRST_DATA_ONLY);
+                    ioHandler.importFromFile(dataFile[0],
+                                             ImportType.FIRST_DATA_ONLY,
+                                             tableHandler.getTableTypeDefinition());
                     tableDefinitions = ioHandler.getTableDefinitions();
 
                     // Check if a table definition was successfully created

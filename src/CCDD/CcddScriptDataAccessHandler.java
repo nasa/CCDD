@@ -2625,7 +2625,8 @@ public class CcddScriptDataAccessHandler
         String[] columnNames = null;
 
         // Get the type definition based on the table type name
-        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType, row));
+        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(getTypeNameByRow(tableType,
+                                                                                      row));
 
         // Check if the table type exists
         if (typeDefn != null)
@@ -2858,7 +2859,8 @@ public class CcddScriptDataAccessHandler
             fullName = getFullVariableName(getPathByRow(TYPE_STRUCTURE, row),
                                            getStructureTableData(dataTypeColumnName, row)
                                                                               + "."
-                                                                              + getStructureTableData(variableNameColumnName, row),
+                                                                              + getStructureTableData(variableNameColumnName,
+                                                                                                      row),
                                            varPathSeparator,
                                            excludeDataTypes,
                                            typeNameSeparator);
@@ -3008,10 +3010,11 @@ public class CcddScriptDataAccessHandler
      *
      * @return The structure path to the current row's parameter with any embedded macro replaced
      *         by its corresponding value; returns a blank if an instance of the table type doesn't
-     *         exist. The path starts with the root table name and is followed by a comma and then
-     *         the parent structure and variable name(s) that define(s) the table's path. Each
-     *         parent and its associated variable name are separated by a period. Each
-     *         parent/variable pair in the path is separated by a comma. The format is:
+     *         exist or the row number is invalid. The path starts with the root table name and is
+     *         followed by a comma and then the parent structure and variable name(s) that
+     *         define(s) the table's path. Each parent and its associated variable name are
+     *         separated by a period. Each parent/variable pair in the path is separated by a
+     *         comma. The format is:
      *
      *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
@@ -3028,11 +3031,11 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The structure path to the current row's parameter with any embedded macro(s) left in
-     *         place; returns a blank if an instance of the table type doesn't exist. The path
-     *         starts with the root table name and is followed by a comma and then the parent
-     *         structure and variable name(s) that define(s) the table's path. Each parent and its
-     *         associated variable name are separated by a period. Each parent/variable pair in the
-     *         path is separated by a comma. The format is:
+     *         place; returns a blank if an instance of the table type doesn't exist or the row
+     *         number is invalid. The path starts with the root table name and is followed by a
+     *         comma and then the parent structure and variable name(s) that define(s) the table's
+     *         path. Each parent and its associated variable name are separated by a period. Each
+     *         parent/variable pair in the path is separated by a comma. The format is:
      *
      *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
@@ -3054,12 +3057,12 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
-     *         corresponding value; returns a blank if an instance of the table type doesn't exist.
-     *         The path starts with the root table name. For structure tables the root name is
-     *         followed by a comma and then the parent structure and variable name(s) that
-     *         define(s) the table's path. Each parent and its associated variable name are
-     *         separated by a period. Each parent/variable pair in the path is separated by a
-     *         comma. The format is:
+     *         corresponding value; returns a blank if an instance of the table type doesn't exist
+     *         or the row number is invalid. The path starts with the root table name. For
+     *         structure tables the root name is followed by a comma and then the parent structure
+     *         and variable name(s) that define(s) the table's path. Each parent and its associated
+     *         variable name are separated by a period. Each parent/variable pair in the path is
+     *         separated by a comma. The format is:
      *
      *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
@@ -3081,11 +3084,12 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place;
-     *         returns a blank if an instance of the table type doesn't exist. The path starts with
-     *         the root table name. For structure tables the root name is followed by a comma and
-     *         then the parent structure and variable name(s) that define(s) the table's path. Each
-     *         parent and its associated variable name are separated by a period. Each
-     *         parent/variable pair in the path is separated by a comma. The format is:
+     *         returns a blank if an instance of the table type doesn't exist or the row number is
+     *         invalid. The path starts with the root table name. For structure tables the root
+     *         name is followed by a comma and then the parent structure and variable name(s) that
+     *         define(s) the table's path. Each parent and its associated variable name are
+     *         separated by a period. Each parent/variable pair in the path is separated by a
+     *         comma. The format is:
      *
      *         rootTable[,structureDataType1.variable1[,structureDataType2.variable2[...]]]
      *********************************************************************************************/
@@ -3102,10 +3106,10 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The path to the current row's parameter with any embedded macro replaced by its
-     *         corresponding value; returns a blank if an instance of the table type doesn't exist.
-     *         The path starts with the root table name. The root name is followed by a comma and
-     *         then the variable name(s) that define(s) the table's path. Each variable in the path
-     *         is separated by a comma. The format is:
+     *         corresponding value; returns a blank if an instance of the table type doesn't exist
+     *         or the row number is invalid. The path starts with the root table name. The root
+     *         name is followed by a comma and then the variable name(s) that define(s) the table's
+     *         path. Each variable in the path is separated by a comma. The format is:
      *
      *         rootTable[,variable1[,variable2[...]]]
      *********************************************************************************************/
@@ -3122,10 +3126,10 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The path to the current row's parameter with any embedded macro(s) left in place;
-     *         returns a blank if an instance of the table type doesn't exist. The path starts with
-     *         the root table name. The root name is followed by a comma and then the variable
-     *         name(s) that define(s) the table's path. Each variable in the path is separated by a
-     *         comma. The format is:
+     *         returns a blank if an instance of the table type doesn't exist or the row number is
+     *         invalid. The path starts with the root table name. The root name is followed by a
+     *         comma and then the variable name(s) that define(s) the table's path. Each variable
+     *         in the path is separated by a comma. The format is:
      *
      *         rootTable[,variable1[,variable2[...]]]
      *********************************************************************************************/
@@ -3143,10 +3147,10 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record
      *         statement and with any embedded macro replaced by its corresponding value; returns a
-     *         blank if an instance of the table type doesn't exist. The path starts with the root
-     *         table name. The root name is followed by a period and then the variable name(s) that
-     *         define(s) the table's path. Each variable in the path is separated by a period. The
-     *         format is:
+     *         blank if an instance of the table type doesn't exist or the row number is invalid.
+     *         The path starts with the root table name. The root name is followed by a period and
+     *         then the variable name(s) that define(s) the table's path. Each variable in the path
+     *         is separated by a period. The format is:
      *
      *         rootTable[.variable1[.variable2[...]]]
      *********************************************************************************************/
@@ -3164,10 +3168,10 @@ public class CcddScriptDataAccessHandler
      *
      * @return The path to the current row's parameter formatted for use in an ITOS record
      *         statement and with any embedded macro(s) left in place; returns a blank if an
-     *         instance of the table type doesn't exist. The path starts with the root table name.
-     *         The root name is followed by a period and then the variable name(s) that define(s)
-     *         the table's path. Each variable in the path is separated by an period. The format
-     *         is:
+     *         instance of the table type doesn't exist or the row number is invalid. The path
+     *         starts with the root table name. The root name is followed by a period and then the
+     *         variable name(s) that define(s) the table's path. Each variable in the path is
+     *         separated by an period. The format is:
      *
      *         rootTable[.variable1[.variable2[...]]]
      *********************************************************************************************/
@@ -3201,9 +3205,9 @@ public class CcddScriptDataAccessHandler
      *            data with any macro names in place
      *
      * @return The table path (or prototype name), for the structure table, to the current row's
-     *         parameter; returns a blank if an instance of the structure table type doesn't exist.
-     *         Depending on the input flag, any macro is replaced by its corresponding value or
-     *         left in place
+     *         parameter; returns a blank if an instance of the structure table type doesn't exist
+     *         or the row number is invalid. Depending on the input flag, any macro is replaced by
+     *         its corresponding value or left in place
      *********************************************************************************************/
     private String getTablePathByRow(String tableType,
                                      int row,
@@ -3217,7 +3221,7 @@ public class CcddScriptDataAccessHandler
 
         // Check if table information exists for the specified type and if the row is within the
         // table data array size
-        if (tableInfo != null && row < tableInfo.getData().length)
+        if (tableInfo != null && row >= 0 && row < tableInfo.getData().length)
         {
             // Calculate the column index for the structure path
             int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
@@ -3263,6 +3267,17 @@ public class CcddScriptDataAccessHandler
         return structurePath;
     }
 
+    /**********************************************************************************************
+     * Get the row index in the structure data for the first entry associated with the parent
+     * structure of the entry on the specified row of the structure data
+     *
+     * @param row
+     *            structure table data row index
+     *
+     * @return The row index in the structure data for the first entry associated with the parent
+     *         structure of the entry on the specified row of the structure data; -1 if there is no
+     *         parent associated with the specified row or no structure data exists
+     *********************************************************************************************/
     // TODO ISSUE: THE 'PARENT' ROW IS THE ROW OF THE FIRST VARIABLE IN THE PARENT; THE SUBSEQUENT
     // ROWS OF THE PARENT ARE NOT NECESSARILY CONTIGUOUS (IF THE VARIABLE HAS A STRUCTURE DATA
     // TYPE)
@@ -4181,7 +4196,8 @@ public class CcddScriptDataAccessHandler
     public String getTableDescriptionByRow(String tableType, int row)
     {
         // Get the description for the table
-        return dbTable.queryTableDescription(getPathByRow(tableType, row), ccddMain.getMainFrame());
+        return dbTable.queryTableDescription(getPathByRow(tableType, row),
+                                             ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -4455,7 +4471,9 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getDatabaseQuery(String sqlCommand)
     {
-        return dbTable.queryDatabase(sqlCommand, ccddMain.getMainFrame()).toArray(new String[0][0]);
+        return dbTable.queryDatabase(sqlCommand,
+                                     ccddMain.getMainFrame())
+                      .toArray(new String[0][0]);
     }
 
     /**********************************************************************************************
@@ -4698,8 +4716,7 @@ public class CcddScriptDataAccessHandler
         if (rateInfo != null)
         {
             // Get the link description based on the rate column and link names
-            description = linkHandler.getLinkDescription(rateInfo.getRateName(),
-                                                         linkName);
+            description = linkHandler.getLinkDescription(rateInfo.getRateName(), linkName);
         }
 
         return description;
@@ -4731,8 +4748,7 @@ public class CcddScriptDataAccessHandler
         if (rateInfo != null)
         {
             // Get the link sample rate based on the rate column and link names
-            sampleRate = linkHandler.getLinkRate(rateInfo.getRateName(),
-                                                 linkName);
+            sampleRate = linkHandler.getLinkRate(rateInfo.getRateName(), linkName);
         }
 
         return sampleRate;
@@ -5279,9 +5295,7 @@ public class CcddScriptDataAccessHandler
             for (TableInformation tableInfo : tableInformation)
             {
                 // Display the table's type
-                System.out.println("Table data for type '"
-                                   + tableInfo.getType()
-                                   + "'");
+                System.out.println("Table data for type '" + tableInfo.getType() + "'");
 
                 // Get the table's data
                 String[][] data = tableInfo.getData();

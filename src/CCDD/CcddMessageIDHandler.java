@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -315,9 +315,7 @@ public class CcddMessageIDHandler
 
                 // Update the IDs in use in the telemetry messages, and update the duplicates list
                 // (if the flag is set)
-                updateUsageAndDuplicates("Message",
-                                         tlmMsgNameAndID,
-                                         isGetDuplicates);
+                updateUsageAndDuplicates("Message", tlmMsgNameAndID, isGetDuplicates);
             }
         }
         // Get the telemetry message IDs from the telemetry scheduler if it's open. This is used in

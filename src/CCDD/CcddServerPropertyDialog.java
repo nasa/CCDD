@@ -33,8 +33,8 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
-import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -101,8 +101,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      * @param dialogType
      *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
      *********************************************************************************************/
-    CcddServerPropertyDialog(CcddMain ccddMain,
-                             ServerPropertyDialogType dialogType)
+    CcddServerPropertyDialog(CcddMain ccddMain, ServerPropertyDialogType dialogType)
     {
         this(ccddMain, true, dialogType);
     }
@@ -311,8 +310,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 selectPnl.add(hostLbl, gbc);
 
                 List<String> servers = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
-                servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS,
-                                                                         "")
+                servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS, "")
                                                      .split(AUTO_COMPLETE_TEXT_SEPARATOR)));
                 hostFld = new AutoCompleteTextField(servers,
                                                     ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());

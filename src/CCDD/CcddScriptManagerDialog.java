@@ -869,9 +869,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
             gbc.weighty = 1.0;
             gbc.gridy++;
-            tablePnl.add(tableTree.createTreePanel(null,
-                                                   tableSelect,
-                                                   ccddMain.getMainFrame()),
+            tablePnl.add(tableTree.createTreePanel(null, tableSelect, ccddMain.getMainFrame()),
                          gbc);
         }
         // No tables are stored in the database
@@ -939,7 +937,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 {
                     // Check if this row isn't the one being edited, and if the association name
                     // matches the one being added (case insensitive)
-                    if (nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row, AssociationsTableColumnInfo.NAME.ordinal()).toString()))
+                    if (nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row,
+                                                                                 AssociationsTableColumnInfo.NAME.ordinal())
+                                                                     .toString()))
                     {
                         throw new CCDDException("Association name already in use");
                     }
