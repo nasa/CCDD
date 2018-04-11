@@ -1995,6 +1995,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
+     * @param includeProjectFields
+     *            true to include the project-level data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -2023,6 +2026,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeProjectFields,
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
@@ -2192,17 +2196,25 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // imported into CCDD
         AncillaryDataSet ancillarySet = factory.createDescriptionTypeAncillaryDataSet();
 
-        // Store the telemetry header table name
-        AncillaryData tlmHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        tlmHdrTblValue.setName(InputDataType.XML_TLM_HDR.getInputName());
-        tlmHdrTblValue.setValue(tlmHeaderTable);
-        ancillarySet.getAncillaryData().add(tlmHdrTblValue);
+        // Check if the telemetry header table name is defined
+        if (tlmHeaderTable != null && !tlmHeaderTable.isEmpty())
+        {
+            // Store the telemetry header table name
+            AncillaryData tlmHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
+            tlmHdrTblValue.setName(InputDataType.XML_TLM_HDR.getInputName());
+            tlmHdrTblValue.setValue(tlmHeaderTable);
+            ancillarySet.getAncillaryData().add(tlmHdrTblValue);
+        }
 
-        // Store the command header table name
-        AncillaryData cmdHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        cmdHdrTblValue.setName(InputDataType.XML_CMD_HDR.getInputName());
-        cmdHdrTblValue.setValue(cmdHeaderTable);
-        ancillarySet.getAncillaryData().add(cmdHdrTblValue);
+        // Check if the command header table name is defined
+        if (cmdHeaderTable != null && !cmdHeaderTable.isEmpty())
+        {
+            // Store the command header table name
+            AncillaryData cmdHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
+            cmdHdrTblValue.setName(InputDataType.XML_CMD_HDR.getInputName());
+            cmdHdrTblValue.setValue(cmdHeaderTable);
+            ancillarySet.getAncillaryData().add(cmdHdrTblValue);
+        }
 
         // Store the application ID variable name
         AncillaryData appIDNameValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();

@@ -1435,8 +1435,17 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
+        // TODO WAS: (only # of rows checked, via the data vector size)
         // Check if the number of table rows changed
-        if (tableData.length != tableModel.getDataVector().size())
+        // if (tableData.length != tableModel.getDataVector().size())
+        // TODO ADDED: (added # of columns using the data vector)
+        // if (tableData.length != tableModel.getDataVector().size()
+        // || (tableData.length != 0 && tableModel.getDataVector().size() != 0 &&
+        // tableData[0].length != ((Vector<?>) tableModel.getDataVector().elementAt(0)).size()))
+        // TODO CHANGED TO: (# of row & columns, using the row & column count)
+        // Check if the number of table rows or columns changed
+        if (tableData.length != tableModel.getRowCount()
+            || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
         {
             // Initialize the row sorter to null in order to prevent an error when the table is
             // empty and to remove the effects of any row filtering

@@ -1595,6 +1595,9 @@ public class CcddFileIOHandler
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
+     * @param includeProjectFields
+     *            true to include the project-level data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -1641,6 +1644,7 @@ public class CcddFileIOHandler
                                         final boolean singleFile,
                                         final boolean replaceMacros,
                                         final boolean includeReservedMsgIDs,
+                                        final boolean includeProjectFields,
                                         final boolean includeVariablePaths,
                                         final CcddVariableSizeAndConversionHandler variableHandler,
                                         final String[] separators,
@@ -1737,6 +1741,7 @@ public class CcddFileIOHandler
                                                        tablePaths,
                                                        replaceMacros,
                                                        includeReservedMsgIDs,
+                                                       includeProjectFields,
                                                        includeVariablePaths,
                                                        variableHandler,
                                                        separators,
@@ -1778,6 +1783,7 @@ public class CcddFileIOHandler
                                                            new String[] {tablePath},
                                                            replaceMacros,
                                                            includeReservedMsgIDs,
+                                                           includeProjectFields,
                                                            includeVariablePaths,
                                                            variableHandler,
                                                            separators,

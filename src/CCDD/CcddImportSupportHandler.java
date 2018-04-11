@@ -38,8 +38,8 @@ public class CcddImportSupportHandler
      *********************************************************************************************/
     protected static enum DefaultHeaderVariableName
     {
-        APP_ID("Application ID"),
-        FUNC_CODE("Command Function Code");
+        APP_ID("applicationID"),
+        FUNC_CODE("functionCode");
 
         private final String defaultVariableName;
 

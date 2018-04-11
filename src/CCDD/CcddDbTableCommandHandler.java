@@ -5368,9 +5368,15 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Update the project description and data fields
      *
+     * @param description
+     *            project database description
+     *
      * @param fieldInformation
      *            project data field information; null to delete the fields for the specified
      *            project
+     * 
+     * @param parent
+     *            GUI component calling this method
      *********************************************************************************************/
     protected void modifyProjectFields(String description,
                                        List<FieldInformation> fieldInformation,
@@ -5380,7 +5386,7 @@ public class CcddDbTableCommandHandler
         {
             // Update the project's description
             dbCommand.executeDbUpdate(dbControl.buildDatabaseCommentCommand(dbControl.getProjectName(),
-                                                                            false,
+                                                                            true,
                                                                             description),
                                       parent);
 

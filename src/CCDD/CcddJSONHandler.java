@@ -305,6 +305,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             boolean continueOnDataTypeError = false;
             boolean continueOnMacroError = false;
             boolean continueOnReservedMsgIDError = false;
+            boolean continueOnProjectFieldError = false;
             boolean continueOnColumnError = false;
             boolean continueOnDataFieldError = false;
             boolean continueOnTableTypeFieldError = false;
@@ -576,6 +577,43 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
+                // TODO
+                // Get the data fields for this project
+                defn = jsonObject.get(JSONTags.PROJECT_FIELD.getTag());
+
+                // Check if any data fields exist for this project
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    // Step through each project-level data field definition
+                    for (JSONObject typeJO : parseJSONArray(defn))
+                    {
+                        // Add the data field definition, checking for (and if possible,
+                        // correcting) errors
+                        continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
+                                                                                     null, // TODO
+                                                                                           // NEEDS
+                                                                                           // A
+                                                                                           // HOME!
+                                                                                     new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.NAME.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.REQUIRED.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.APPLICABILITY.getColumnName()),
+                                                                                                   getString(typeJO,
+                                                                                                             FieldEditorColumnInfo.VALUE.getColumnName())},
+                                                                                     importFile.getAbsolutePath(),
+                                                                                     parent);
+                    }
+                }
+
                 // Add the data type if it's new or match it to an existing one with the same name
                 // if the type definitions are the same
                 badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
@@ -789,6 +827,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
+     * @param includeProjectFields
+     *            true to include the project-level data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -812,6 +853,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeProjectFields,
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
@@ -966,6 +1008,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Add the reserved message ID definition(s), if any, to the output
                 outputJO = getReservedMsgIDDefinitions(outputJO);
+            }
+
+            // Check if the user elected to store the project-level data fields
+            if (includeProjectFields)
+            {
+                // Add the project-level data field(s), if any, to the output
+                outputJO = getDataFields(CcddFieldHandler.getFieldProjectName(),
+                                         JSONTags.PROJECT_FIELD.getTag(),
+                                         outputJO);
             }
 
             // Check if variable paths are to be output

@@ -93,6 +93,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox backupFirstCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
+    private JCheckBox includeProjectFieldsCb;
     private JCheckBox includeVariablePaths;
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
@@ -674,6 +675,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                    (includeReservedMsgIDsCb != null
                                                                                                     ? includeReservedMsgIDsCb.isSelected()
                                                                                                     : false),
+                                                                   (includeProjectFieldsCb != null
+                                                                                                   ? includeProjectFieldsCb.isSelected()
+                                                                                                   : false),
                                                                    (includeVariablePaths != null
                                                                                                  ? includeVariablePaths.isSelected()
                                                                                                  : false),
@@ -984,18 +988,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                              gbc,
                                              TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                              TableTreeType.TABLES);
-            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
-        }
-        // The export command originated from a table editor dialog menu
-        else
-        {
-            // Create an empty panel for the dialog components
-            dialogPnl = new JPanel(new GridBagLayout());
-        }
 
-        // Check that the panel was created; i.e., that there are tables available for exporting
-        if (dialogPnl != null)
-        {
             // Add a separator
             JSeparator separator = new JSeparator();
             separator.setForeground(dialogPnl.getBackground().darker());
@@ -1004,8 +997,22 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.weighty = 0.0;
             gbc.gridy++;
             dialogPnl.add(separator, gbc);
+        }
+        // The export command originated from a table editor dialog menu
+        else
+        {
+            // Create an empty panel for the dialog components
+            dialogPnl = new JPanel(new GridBagLayout());
+            gbc.insets.bottom = 0;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        }
 
+        // Check that the panel was created; i.e., that there are tables available for exporting
+        if (dialogPnl != null)
+        {
             singleFileRBtn = new JRadioButton("Single file", true);
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
             // Check if exporting in CSV or JSON format
             if (dialogType == ManagerDialogType.EXPORT_CSV
@@ -1037,7 +1044,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 storeInPnl.add(singleFileRBtn, gbc);
 
                 // Add the store in file(s) selection components to the dialog
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.fill = GridBagConstraints.NONE;
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
@@ -1076,6 +1083,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
 
             // Add the export storage path components to the dialog
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
             dialogPnl.add(createPathSelectionPanel(fileExtn), gbc);
 
@@ -1089,7 +1097,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             overwriteFileCb.setBorder(emptyBorder);
             overwriteFileCb.setToolTipText(CcddUtilities.wrapText("Select to overwrite any file with the same name",
                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-
             gbc.gridy++;
             dialogPnl.add(overwriteFileCb, gbc);
 
@@ -1127,6 +1134,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.gridy++;
                 separatorPnl.add(includeReservedMsgIDsCb, gbc);
+
+                // Create the project-level data field inclusion check box
+                includeProjectFieldsCb = new JCheckBox("Include project data fields");
+                includeProjectFieldsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeProjectFieldsCb.setBorder(emptyBorder);
+                includeProjectFieldsCb.setToolTipText(CcddUtilities.wrapText("If checked, the project-level data field "
+                                                                             + "definitions are included in each export file",
+                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeProjectFieldsCb, gbc);
 
                 // Create the check box for inclusion of variable paths
                 includeVariablePaths = new JCheckBox("Include variable paths");

@@ -725,8 +725,6 @@ public class CcddTableTypeHandler
         {
             List<AssociatedColumns> associatedColumns = new ArrayList<AssociatedColumns>();
 
-            int argIndex = -1;
-
             // Initialize the starting command argument name, data type, array size, bit length,
             // enumeration, minimum, maximum, and other columns
             int nameColumn = -1;
@@ -749,27 +747,6 @@ public class CcddTableTypeHandler
                 // Check if the column expects a command argument name
                 if (inputTypes[index] == InputDataType.ARGUMENT_NAME)
                 {
-                    argIndex++;
-
-                    // Check if this isn't the first argument name column (i.e., this name begins
-                    // subsequent argument so the prior argument's columns can be stored)
-                    if (argIndex != 0)
-                    {
-                        // Add the name, data type, array size, bit length, enumeration, minimum,
-                        // maximum, and associated columns column index group to the list
-                        associatedColumns.add(new AssociatedColumns(useViewIndex,
-                                                                    nameColumn,
-                                                                    dataTypeColumn,
-                                                                    arrayColumn,
-                                                                    bitColumn,
-                                                                    enumColumn,
-                                                                    minColumn,
-                                                                    maxColumn,
-                                                                    descColumn,
-                                                                    unitsColumn,
-                                                                    otherColumn));
-                    }
-
                     // Save the name column index and initialize the associated column indices
                     nameColumn = index;
                     dataTypeColumn = -1;
@@ -781,88 +758,98 @@ public class CcddTableTypeHandler
                     descColumn = -1;
                     unitsColumn = -1;
                     otherColumn = new ArrayList<Integer>();
-                }
-                // Check if a command argument name has been found and that the column doesn't
-                // represent the command name or code
-                else if (argIndex != -1
-                         && inputTypes[index] != InputDataType.COMMAND_NAME
-                         && inputTypes[index] != InputDataType.COMMAND_CODE)
-                {
-                    // Check that this is a data type column
-                    if (inputTypes[index] == InputDataType.PRIMITIVE
-                        || inputTypes[index] == InputDataType.PRIM_AND_STRUCT)
-                    {
-                        // Save the data type column index
-                        dataTypeColumn = index;
-                    }
-                    // Check that this is an array size column
-                    else if (inputTypes[index] == InputDataType.ARRAY_INDEX)
-                    {
-                        // Save the array size column index
-                        arrayColumn = index;
-                    }
-                    // Check that this is a bit length column
-                    else if (inputTypes[index] == InputDataType.BIT_LENGTH)
-                    {
-                        // Save the bit length column index
-                        bitColumn = index;
-                    }
-                    // Check that this is an enumeration column
-                    else if (inputTypes[index] == InputDataType.ENUMERATION)
-                    {
-                        // Save the enumeration column index
-                        enumColumn = index;
-                    }
-                    // Check that this is a minimum column
-                    else if (inputTypes[index] == InputDataType.MINIMUM)
-                    {
-                        // Save the minimum column index
-                        minColumn = index;
-                    }
-                    // Check that this is a maximum column
-                    else if (inputTypes[index] == InputDataType.MAXIMUM)
-                    {
-                        // Save the maximum column index
-                        maxColumn = index;
-                    }
-                    // Check that this is a description column
-                    else if (inputTypes[index] == InputDataType.DESCRIPTION)
-                    {
-                        // Save the description column index
-                        descColumn = index;
-                    }
-                    // Check that this is a units column
-                    else if (inputTypes[index] == InputDataType.UNITS)
-                    {
-                        // Save the units column index
-                        unitsColumn = index;
-                    }
-                    // Not one of the recognized column input types, so treat as an 'other' column
-                    else
-                    {
-                        // Add the column to the list of other columns associated with this command
-                        // argument
-                        otherColumn.add(index);
-                    }
-                }
-            }
 
-            // Check if a command argument exists. This stores the final one detected
-            if (argIndex != 0)
-            {
-                // Add the name, data type, array size, bit length, enumeration, minimum, maximum,
-                // and associated columns column index group to the list
-                associatedColumns.add(new AssociatedColumns(useViewIndex,
-                                                            nameColumn,
-                                                            dataTypeColumn,
-                                                            arrayColumn,
-                                                            bitColumn,
-                                                            enumColumn,
-                                                            minColumn,
-                                                            maxColumn,
-                                                            descColumn,
-                                                            unitsColumn,
-                                                            otherColumn));
+                    // Step through the remaining columns defined for this table's type
+                    for (index++; index < getColumnCountDatabase(); index++)
+                    {
+                        // Check if the column expects a command argument name
+                        if (inputTypes[index] == InputDataType.ARGUMENT_NAME)
+                        {
+                            // Adjust the loop index and stop searching since this is the beginning
+                            // of the next argument's columns
+                            index--;
+                            break;
+                        }
+
+                        // Check that this isn't the command name or command code column (these are
+                        // never part of an argument grouping)
+                        if (inputTypes[index] != InputDataType.COMMAND_NAME
+                            && inputTypes[index] != InputDataType.COMMAND_CODE)
+                        {
+                            // Check that this is a data type column
+                            if (inputTypes[index] == InputDataType.PRIMITIVE
+                                || inputTypes[index] == InputDataType.PRIM_AND_STRUCT)
+                            {
+                                // Save the data type column index
+                                dataTypeColumn = index;
+                            }
+                            // Check that this is an array size column
+                            else if (inputTypes[index] == InputDataType.ARRAY_INDEX)
+                            {
+                                // Save the array size column index
+                                arrayColumn = index;
+                            }
+                            // Check that this is a bit length column
+                            else if (inputTypes[index] == InputDataType.BIT_LENGTH)
+                            {
+                                // Save the bit length column index
+                                bitColumn = index;
+                            }
+                            // Check that this is an enumeration column
+                            else if (inputTypes[index] == InputDataType.ENUMERATION)
+                            {
+                                // Save the enumeration column index
+                                enumColumn = index;
+                            }
+                            // Check that this is a minimum column
+                            else if (inputTypes[index] == InputDataType.MINIMUM)
+                            {
+                                // Save the minimum column index
+                                minColumn = index;
+                            }
+                            // Check that this is a maximum column
+                            else if (inputTypes[index] == InputDataType.MAXIMUM)
+                            {
+                                // Save the maximum column index
+                                maxColumn = index;
+                            }
+                            // Check that this is a description column
+                            else if (inputTypes[index] == InputDataType.DESCRIPTION)
+                            {
+                                // Save the description column index
+                                descColumn = index;
+                            }
+                            // Check that this is a units column
+                            else if (inputTypes[index] == InputDataType.UNITS)
+                            {
+                                // Save the units column index
+                                unitsColumn = index;
+                            }
+                            // Not one of the recognized column input types, so treat as an 'other'
+                            // column
+                            else
+                            {
+                                // Add the column to the list of other columns associated with this
+                                // command argument
+                                otherColumn.add(index);
+                            }
+                        }
+                    }
+
+                    // Add the name, data type, array size, bit length, enumeration, minimum,
+                    // maximum, and associated columns column index group to the list
+                    associatedColumns.add(new AssociatedColumns(useViewIndex,
+                                                                nameColumn,
+                                                                dataTypeColumn,
+                                                                arrayColumn,
+                                                                bitColumn,
+                                                                enumColumn,
+                                                                minColumn,
+                                                                maxColumn,
+                                                                descColumn,
+                                                                unitsColumn,
+                                                                otherColumn));
+                }
             }
 
             return associatedColumns;

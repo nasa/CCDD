@@ -73,6 +73,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         TABLE_TYPE_DATA_FIELD("_table_type_data_fields_"),
         DATA_TYPE("_data_type_"),
         RESERVED_MSG_IDS("_reserved_msg_ids_"),
+        PROJECT_DATA_FIELDS("_project_data_fields_"),
         VARIABLE_PATHS("_variable_paths_");
 
         private final String tag;
@@ -204,6 +205,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 boolean continueOnColumnError = false;
                 boolean continueOnDataFieldError = false;
                 boolean continueOnReservedMsgIDError = false;
+                boolean continueOnProjectFieldError = false;
                 boolean continueOnTableTypeFieldError = false;
 
                 // Initialize the input tag
@@ -337,6 +339,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             {
                                 // Set the input type to look for the reserved IDs
                                 importTag = CSVTags.RESERVED_MSG_IDS;
+                            }
+                            // Check if this is the project-level data fields tag
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.PROJECT_DATA_FIELDS.getTag()))
+                            {
+                                // Set the input type to look for the project-level data fields
+                                importTag = CSVTags.PROJECT_DATA_FIELDS;
                             }
                             // Not a tag (or no table name and type are defined); read in the
                             // information based on the last tag read
@@ -599,6 +607,57 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                             break;
 
+                                        case PROJECT_DATA_FIELDS:
+                                            // Check if all definitions are to be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number of inputs is
+                                                // present
+                                                if (columnValues.length == FieldsColumn.values().length - 1
+                                                    || columnValues.length == FieldsColumn.values().length - 2)
+                                                {
+                                                    // Append empty columns as needed to fill out
+                                                    // the expected number of inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    FieldsColumn.values().length
+                                                                                                                  - 1
+                                                                                                                  - columnValues.length);
+
+                                                    // Add the data field definition, checking for
+                                                    // (and if possible, correcting) errors
+                                                    continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
+                                                                                                                 tableTypeDefn,
+                                                                                                                 new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                                                                                               columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                                                               columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                 importFile.getAbsolutePath(),
+                                                                                                                 parent);
+                                                }
+                                                // The number of inputs is incorrect
+                                                else
+                                                {
+                                                    // Check if the error should be ignored or the
+                                                    // import canceled
+                                                    continueOnProjectFieldError = getErrorResponse(continueOnProjectFieldError,
+                                                                                                   "<html><b>Project-level data field has missing "
+                                                                                                                                + "or extra input(s) in import file '</b>"
+                                                                                                                                + importFile.getAbsolutePath()
+                                                                                                                                + "<b>'; continue?",
+                                                                                                   "Data Field Error",
+                                                                                                   "Ignore this invalid data field",
+                                                                                                   "Ignore this and any remaining invalid data fields",
+                                                                                                   "Stop importing",
+                                                                                                   parent);
+                                                }
+                                            }
+
+                                            break;
+
                                         case CELL_DATA:
                                         case COLUMN_NAMES:
                                         case DATA_FIELD:
@@ -809,6 +868,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         case TABLE_TYPE:
                                         case TABLE_TYPE_DATA_FIELD:
                                         case RESERVED_MSG_IDS:
+                                        case PROJECT_DATA_FIELDS:
                                             break;
 
                                         default:
@@ -933,6 +993,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
+     * @param includeProjectFields
+     *            true to include the project-level data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -955,6 +1018,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 String[] tableNames,
                                 boolean replaceMacros,
                                 boolean includeReservedMsgIDs,
+                                boolean includeProjectFields,
                                 boolean includeVariablePaths,
                                 CcddVariableSizeAndConversionHandler variableHandler,
                                 String[] separators,
@@ -1247,6 +1311,36 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     pw.printf("%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(reservedMsgID[ReservedMsgIDsColumn.MSG_ID.ordinal()],
                                                                        reservedMsgID[ReservedMsgIDsColumn.DESCRIPTION.ordinal()]));
+                }
+            }
+
+            // Check if the user elected to store the project-level data fields and if there are
+            // any project-level data fields defined
+            if (includeProjectFields)
+            {
+                // Build the data field information for the project
+                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldProjectName());
+                List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+
+                // Check if the project contains any data fields
+                if (!fieldInformation.isEmpty())
+                {
+                    // Output the project data field marker
+                    pw.printf("\n" + CSVTags.PROJECT_DATA_FIELDS.getTag() + "\n");
+
+                    // Step through each data field
+                    for (FieldInformation fieldInfo : fieldInformation)
+                    {
+                        // Output the field information
+                        pw.printf("%s\n",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                           fieldInfo.getDescription(),
+                                                                           Integer.toString(fieldInfo.getSize()),
+                                                                           fieldInfo.getInputType().getInputName(),
+                                                                           Boolean.toString(fieldInfo.isRequired()),
+                                                                           fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                           fieldInfo.getValue()));
+                    }
                 }
             }
 

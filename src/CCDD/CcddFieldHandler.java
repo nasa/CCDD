@@ -455,10 +455,10 @@ public class CcddFieldHandler
                 fieldDefinitions.add(getFieldDefinitionArray(ownerName,
                                                              data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                              data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                             (InputDataType) data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()],
-                                                             (int) data[FieldEditorColumnInfo.SIZE.ordinal()],
-                                                             (boolean) data[FieldEditorColumnInfo.REQUIRED.ordinal()],
-                                                             (ApplicabilityType) data[FieldEditorColumnInfo.APPLICABILITY.ordinal()],
+                                                             InputDataType.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                             Integer.valueOf(data[FieldEditorColumnInfo.SIZE.ordinal()].toString()),
+                                                             Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                             ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
                                                              data[FieldEditorColumnInfo.VALUE.ordinal()].toString()));
             }
         }

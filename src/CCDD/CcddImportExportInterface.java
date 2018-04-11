@@ -85,6 +85,9 @@ public interface CcddImportExportInterface
      * @param includeReservedMsgIDs
      *            true to include the contents of the reserved message ID table in the export file
      *
+     * @param includeProjectFields
+     *            true to include the project-level data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -106,6 +109,7 @@ public interface CcddImportExportInterface
                                   String[] tableNames,
                                   boolean replaceMacros,
                                   boolean includeReservedMsgIDs,
+                                  boolean includeProjectFields,
                                   boolean includeVariablePaths,
                                   CcddVariableSizeAndConversionHandler variableHandler,
                                   String[] separators,
