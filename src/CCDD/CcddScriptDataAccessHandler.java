@@ -2479,7 +2479,6 @@ public class CcddScriptDataAccessHandler
                 {
                     // Add the argument column name
                     argColumns.add(typeDefn.getColumnNamesUser()[otherColumn]);
-
                 }
             }
         }

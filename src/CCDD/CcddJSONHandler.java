@@ -36,6 +36,7 @@ import org.json.simple.parser.ParseException;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
@@ -297,6 +298,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         try
         {
+            ProjectDefinition projectDefn = new ProjectDefinition();
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             tableDefinitions = new ArrayList<TableDefinition>();
 
@@ -577,7 +579,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                // TODO
                 // Get the data fields for this project
                 defn = jsonObject.get(JSONTags.PROJECT_FIELD.getTag());
 
@@ -590,10 +591,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // Add the data field definition, checking for (and if possible,
                         // correcting) errors
                         continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
-                                                                                     null, // TODO
-                                                                                           // NEEDS
-                                                                                           // A
-                                                                                           // HOME!
+                                                                                     projectDefn,
                                                                                      new String[] {CcddFieldHandler.getFieldProjectName(),
                                                                                                    getString(typeJO,
                                                                                                              FieldEditorColumnInfo.NAME.getColumnName()),
@@ -616,31 +614,17 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add the data type if it's new or match it to an existing one with the same name
                 // if the type definitions are the same
-                badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
-
-                // Check if a data type isn't new and doesn't match an existing one with the same
-                // name
-                if (badDefn != null)
-                {
-                    throw new CCDDException("Imported data type '"
-                                            + badDefn
-                                            + "' doesn't match the existing definition");
-                }
+                dataTypeHandler.updateDataTypes(dataTypeDefns);
 
                 // Add the macro if it's new or match it to an existing one with the same name if
                 // the values are the same
-                badDefn = macroHandler.updateMacros(macroDefns);
+                macroHandler.updateMacros(macroDefns);
 
                 // Add the reserved message ID definition if it's new
                 rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
-                // Check if a macro isn't new and doesn't match an existing one with the same name
-                if (badDefn != null)
-                {
-                    throw new CCDDException("Imported macro '"
-                                            + badDefn
-                                            + "' doesn't match the existing definition");
-                }
+                // Build the imported project-level data fields, if any
+                buildProjectdataFields(ccddMain, fieldHandler, projectDefn.getDataFields());
             }
 
             // Get the table definitions JSON object

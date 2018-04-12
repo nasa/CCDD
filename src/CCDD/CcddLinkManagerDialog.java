@@ -141,7 +141,6 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 // Remove the change indicator from the tab title
                 tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
             }
-
         }
     }
 

@@ -150,17 +150,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     // Flag to indicate if the telemetry and command headers are big endian (as with CCSDS)
     private boolean isHeaderBigEndian;
 
-    // Names of the tables that represent the common header for all telemetry and command tables
-    private String tlmHeaderTable;
-    private String cmdHeaderTable;
-
     // Names of the system paths for the common header for all command tables
     private String cmdHeaderPath;
-
-    // Telemetry and command header variable names for the application ID, and command header
-    // argument column name for the command function code
-    private String applicationIDName;
-    private String cmdFuncCodeName;
 
     // Table type definitions
     private TypeDefinition structureTypeDefn;
@@ -391,51 +382,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
 
-            // Check if the telemetry table name isn't set in the project import file
-            if (tlmHeaderTable == null)
-            {
-                // Get the name of the table representing the telemetry header from the project
-                tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                            InputDataType.XML_TLM_HDR);
-            }
-
-            // Check if the command table name isn't set in the project import file
-            if (cmdHeaderTable == null)
-            {
-                // Get the name of the table representing the command header from the project
-                cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                            InputDataType.XML_CMD_HDR);
-            }
-
-            // Check if the application ID variable name isn't set in the project import file
-            if (applicationIDName == null)
-            {
-                // Get the application ID variable name from the project field
-                applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                               InputDataType.XML_APP_ID);
-
-                // Check if the application ID variable name isn't set in the project
-                if (applicationIDName == null)
-                {
-                    // Use the default application ID variable name
-                    applicationIDName = DefaultHeaderVariableName.APP_ID.getDefaultVariableName();
-                }
-            }
-
-            // Check if the command function code variable name isn't set in the import file
-            if (cmdFuncCodeName == null)
-            {
-                // Get the command function code variable name from the project field
-                cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                             InputDataType.XML_FUNC_CODE);
-
-                // Check if the command function code variable name isn't set in the project
-                if (cmdFuncCodeName == null)
-                {
-                    // Use the default command function code variable name
-                    cmdFuncCodeName = DefaultHeaderVariableName.FUNC_CODE.getDefaultVariableName();
-                }
-            }
+            // Set the header table names and variables from the project database data fields or
+            // default values, if not present in the import file. If importing all tables then add
+            // these as project-level data fields to the database
+            setProjectHeaderTablesAndVariables(ccddMain,
+                                               fieldHandler,
+                                               importType == ImportType.IMPORT_ALL,
+                                               tlmHeaderTable,
+                                               cmdHeaderTable,
+                                               applicationIDName,
+                                               cmdFuncCodeName);
 
             // Create the table type definitions for any new structure and command tables
             createTableTypeDefinitions(rootSystem, importType, targetTypeDefn);
@@ -727,11 +683,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             isCommand = true;
                         }
 
-                        // The number of entries in the meta-command type is the number of command
-                        // arguments required by this command. Store the largest number of command
-                        // arguments required by all commands in the import file
-                        maxNumArguments = Math.max(maxNumArguments,
-                                                   ((MetaCommandType) metaCommand).getArgumentList().getArgument().size());
+                        // Check if the command has any arguments
+                        if (((MetaCommandType) metaCommand).getArgumentList() != null)
+                        {
+                            // The number of entries in the meta-command type is the number of
+                            // command arguments required by this command. Store the largest number
+                            // of command arguments required by all commands in the import file
+                            maxNumArguments = Math.max(maxNumArguments,
+                                                       ((MetaCommandType) metaCommand).getArgumentList().getArgument().size());
+                        }
                     }
                 }
             }

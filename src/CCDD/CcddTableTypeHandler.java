@@ -56,6 +56,35 @@ public class CcddTableTypeHandler
     // Flag indicating that a data field was created for a table type
     private boolean isNewField;
 
+    // Command argument column definitions
+    private final static Object[][] commandArgumentColumns = new Object[][] {{COL_ARGUMENT + " ### Name",
+                                                                              "Command argument ### name",
+                                                                              InputDataType.ARGUMENT_NAME},
+                                                                             {COL_ARGUMENT + " ### " + COL_DESCRIPTION,
+                                                                              "Command argument ### description",
+                                                                              InputDataType.DESCRIPTION},
+                                                                             {COL_ARGUMENT + " ### " + COL_UNITS,
+                                                                              "Command argument ### units",
+                                                                              InputDataType.UNITS},
+                                                                             {COL_ARGUMENT + " ### " + COL_DATA_TYPE,
+                                                                              "Command argument ### data type",
+                                                                              InputDataType.PRIMITIVE},
+                                                                             {COL_ARGUMENT + " ### " + COL_ARRAY_SIZE,
+                                                                              "Command argument ### array size",
+                                                                              InputDataType.ARRAY_INDEX},
+                                                                             {COL_ARGUMENT + " ### " + COL_BIT_LENGTH,
+                                                                              "Command argument ### bit length",
+                                                                              InputDataType.BIT_LENGTH},
+                                                                             {COL_ARGUMENT + " ### " + COL_ENUMERATION,
+                                                                              "Command argument ### enumeration",
+                                                                              InputDataType.ENUMERATION},
+                                                                             {COL_ARGUMENT + " ### " + COL_MINIMUM,
+                                                                              "Command argument ### minimum value",
+                                                                              InputDataType.MINIMUM},
+                                                                             {COL_ARGUMENT + " ### " + COL_MAXIMUM,
+                                                                              "Command argument ### maximum value",
+                                                                              InputDataType.MAXIMUM}};
+
     /**********************************************************************************************
      * Table type definition class
      *********************************************************************************************/
@@ -869,46 +898,25 @@ public class CcddTableTypeHandler
             int columnIndex = getColumnCountDatabase();
 
             // Step through each command argument column to add
-            for (Object[] cmdArgCol : new Object[][] {{COL_ARGUMENT + " " + argumentIndex + " Name",
-                                                       "Command argument " + argumentIndex + " name",
-                                                       InputDataType.ARGUMENT_NAME},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_DESCRIPTION,
-                                                       "Command argument " + argumentIndex + " description",
-                                                       InputDataType.DESCRIPTION},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_UNITS,
-                                                       "Command argument " + argumentIndex + " units",
-                                                       InputDataType.UNITS},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_DATA_TYPE,
-                                                       "Command argument " + argumentIndex + " data type",
-                                                       InputDataType.PRIMITIVE},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_ARRAY_SIZE,
-                                                       "Command argument " + argumentIndex + " array size",
-                                                       InputDataType.ARRAY_INDEX},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_BIT_LENGTH,
-                                                       "Command argument " + argumentIndex + " bit length",
-                                                       InputDataType.BIT_LENGTH},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_ENUMERATION,
-                                                       "Command argument " + argumentIndex + " enumeration",
-                                                       InputDataType.ENUMERATION},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_MINIMUM,
-                                                       "Command argument " + argumentIndex + " minimum value",
-                                                       InputDataType.MINIMUM},
-                                                      {COL_ARGUMENT + " " + argumentIndex + " " + COL_MAXIMUM,
-                                                       "Command argument " + argumentIndex + " maximum value",
-                                                       InputDataType.MAXIMUM}})
+            for (Object[] cmdArgCol : commandArgumentColumns)
             {
-                // Add the command argument column
+                // Update the argument name with the argument index
+                cmdArgCol[0] = cmdArgCol[0].toString().replaceFirst("###", String.valueOf(argumentIndex));
+
+                // Add the command argument column. The argument description is updated with the
+                // argument index
                 addColumn(columnIndex,
                           DefaultColumn.convertVisibleToDatabase(cmdArgCol[0].toString(),
                                                                  (InputDataType) cmdArgCol[2],
                                                                  false),
                           cmdArgCol[0].toString(),
-                          cmdArgCol[1].toString(),
+                          cmdArgCol[1].toString().replaceFirst("###",
+                                                               String.valueOf(argumentIndex)),
                           (InputDataType) cmdArgCol[2],
                           false,
                           false,
                           false,
-                          true);
+                          false);
 
                 columnIndex++;
             }
@@ -1413,6 +1421,7 @@ public class CcddTableTypeHandler
                 fieldHandler.buildFieldInformation(null);
                 isNewField = true;
             }
+
             // Check if the table type editor is open
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
             {
@@ -1480,5 +1489,15 @@ public class CcddTableTypeHandler
         }
 
         return typeUpdate;
+    }
+
+    /**********************************************************************************************
+     * Get the array of command argument column definitions
+     *
+     * @return Array of command argument column definitions
+     *********************************************************************************************/
+    protected static Object[][] getCommandArgumentColumns()
+    {
+        return commandArgumentColumns;
     }
 }

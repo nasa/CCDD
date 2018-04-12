@@ -1104,7 +1104,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if (dialogType == ManagerDialogType.EXPORT_CSV
                 || dialogType == ManagerDialogType.EXPORT_JSON)
             {
-
                 // Create a panel to contain the separator character labels and inputs
                 JPanel separatorPnl = new JPanel(new GridBagLayout());
                 separatorPnl.setBorder(emptyBorder);

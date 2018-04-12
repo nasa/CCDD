@@ -1224,7 +1224,6 @@ public class CcddUtilities
      * @return Structure/variable path with the data type(s) highlighted
      *********************************************************************************************/
     protected static String highlightDataType(String path)
-
     {
         // Check if the path contains a child structure reference and isn't disabled
         if (path.contains(".") && !path.startsWith(DISABLED_TEXT_COLOR))

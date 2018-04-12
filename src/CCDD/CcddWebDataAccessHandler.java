@@ -262,7 +262,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 || !separators[1].matches(TRUE_OR_FALSE)
                 || (separators[1].matches("(?i:false)")
                     && separators[2].matches(".*[\\[\\]].*")))
-
             {
                 throw new CCDDException("Invalid character(s) in separator field(s)");
             }

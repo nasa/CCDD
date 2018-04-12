@@ -42,6 +42,7 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
@@ -871,7 +872,6 @@ public class CcddMacroHandler
                 {
                     // Set the value to expression result
                     expandedText = String.valueOf((int) ((double) exprResult));
-
                 }
             }
             // The string contains one or more commas. Each substring is evaluated as an expression
@@ -891,7 +891,6 @@ public class CcddMacroHandler
                     {
                         // Set the value to expression result
                         expandedText = String.valueOf((int) ((double) exprResult));
-
                     }
                     // The substring isn't an expression
                     else
@@ -1182,12 +1181,13 @@ public class CcddMacroHandler
      * @param macroDefinitions
      *            list of macro definitions
      *
-     * @return The name of the macro if its name matches an existing one but the macro value
-     *         differs; return null if the macro is new or matches an existing one
+     * @throws CCDDException
+     *             If the data field with the same same already exists and the imported field
+     *             doesn't match
      *********************************************************************************************/
-    protected String updateMacros(List<String[]> macroDefinitions)
+    protected void updateMacros(List<String[]> macroDefinitions) throws CCDDException
     {
-        String badMacroName = null;
+        boolean isNewMacro = false;
 
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions)
@@ -1200,17 +1200,23 @@ public class CcddMacroHandler
             {
                 // Add the new macro to the existing ones
                 macros.add(macroDefn);
+                isNewMacro = true;
             }
             // The macro exists; check if the expanded macro value provided doesn't match the
             // existing macro's expanded value
             else if (!macroValue.equals(getMacroExpansion(macroDefn[MacrosColumn.VALUE.ordinal()])))
             {
-                // Store the name of the mismatched macro and stop searching
-                badMacroName = macroDefn[MacrosColumn.MACRO_NAME.ordinal()];
-                break;
+                throw new CCDDException("Imported macro '"
+                                        + macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
+                                        + "' doesn't match the existing definition");
             }
         }
 
-        return badMacroName;
+        // Check if a new macro was added
+        if (isNewMacro)
+        {
+            // Reset the macro expansion array so that the any new macro is expanded
+            clearStoredValues();
+        }
     }
 }

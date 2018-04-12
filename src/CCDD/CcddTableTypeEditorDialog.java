@@ -45,10 +45,12 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
+import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table type editor dialog class
@@ -163,10 +165,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     @Override
     protected void setControlsEnabled(boolean enable)
     {
-        // Set the flag based on the input flag and if a table exists
+        // Set the flag based on the input flag and if a table type exists
         boolean enableIfType = enable && !typeEditors.isEmpty();
 
-        // Enable/disable the buttons based on the input flag and if a table exists
+        // Enable/disable the buttons based on the input flag and if a table type exists
         super.setControlsEnabled(enableIfType);
 
         // Step through the menu bar items
@@ -192,6 +194,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         mntmClearValues.setEnabled(enable
                                    && activeEditor != null
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+
+        // Set the menu item based on the input flag and if the editor represnts a command table
+        // type
+        mntmInsertCmdArgs.setEnabled(enableIfType
+                                     && activeEditor != null
+                                     && activeEditor.getTypeDefinition().isCommand());
     }
 
     /**********************************************************************************************
@@ -581,9 +589,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             // Set the flag to indicate that the argument index isn't used
                             isIndexUsed = false;
 
-                            // Step through each column name in the table type
-                            for (String columnName : activeEditor.getTypeDefinition().getColumnNamesUser())
+                            // Step through each column definition column name in the table type
+                            for (int row = 0; row < activeEditor.getTable().getModel().getRowCount(); row++)
                             {
+                                // Get the column definition column name
+                                String columnName = activeEditor.getTable().getModel().getValueAt(row,
+                                                                                                  TableTypeEditorColumnInfo.NAME.ordinal())
+                                                                .toString();
+
                                 // Check if the column name begins with the default command
                                 // argument name for this argument index
                                 if (columnName.startsWith(COL_ARGUMENT + " " + argumentIndex + " "))
@@ -598,19 +611,27 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         } while (isIndexUsed);
                         // Continue to search the column names while a match is found
 
-                        int newArgStartIndex = activeEditor.getTypeDefinition().getColumnCountVisible();
-
-                        // Create the command argument columns for the next unused argument index
-                        activeEditor.getTypeDefinition().addCommandArgumentColumns(argumentIndex);
-
                         // Step through each new command argument column
-                        for (; newArgStartIndex < activeEditor.getTypeDefinition().getColumnCountVisible(); newArgStartIndex++)
+                        for (Object[] cmdArgCol : CcddTableTypeHandler.getCommandArgumentColumns())
                         {
-                            // Insert the column into the table type editor
+                            // Insert the column definition into the table type editor
                             activeEditor.getTable().insertRow(false,
                                                               TableInsertionPoint.END,
-                                                              activeEditor.getTypeDefinition().getData()[newArgStartIndex]);
+                                                              new Object[] {"",
+                                                                            cmdArgCol[0].toString().replaceFirst("###",
+                                                                                                                 String.valueOf(argumentIndex)),
+                                                                            cmdArgCol[1].toString().replaceFirst("###",
+                                                                                                                 String.valueOf(argumentIndex)),
+                                                                            ((InputDataType) cmdArgCol[2]).getInputName(),
+                                                                            false,
+                                                                            false,
+                                                                            false,
+                                                                            false});
                         }
+
+                        // End the edit sequence so that the additions can be undone/redone
+                        // together
+                        activeEditor.getTable().getUndoManager().endEditSequence();
                     }
 
                     /******************************************************************************

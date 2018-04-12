@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
@@ -47,6 +48,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
@@ -119,6 +121,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         this.parent = parent;
 
         // Create references to shorten subsequent calls
+        dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
@@ -183,6 +186,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
+            ProjectDefinition projectDefn = new ProjectDefinition();
             List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
             List<String[]> dataTypeDefns = new ArrayList<String[]>();
             List<String[]> macroDefns = new ArrayList<String[]>();
@@ -538,7 +542,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // present
                                                 if (columnValues.length == 2
                                                     || columnValues.length == 1)
-
                                                 {
                                                     // Add the macro definition (add a blank to
                                                     // represent the OID)
@@ -626,7 +629,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                     // Add the data field definition, checking for
                                                     // (and if possible, correcting) errors
                                                     continueOnProjectFieldError = addImportedDataFieldDefinition(continueOnProjectFieldError,
-                                                                                                                 tableTypeDefn,
+                                                                                                                 projectDefn,
                                                                                                                  new String[] {CcddFieldHandler.getFieldProjectName(),
                                                                                                                                columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
                                                                                                                                columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
@@ -906,7 +909,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 {
                     // Add the table type if it's new or match it to an existing one with the same
                     // name if the type definitions are the same
-                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
+                                                                       fieldHandler);
 
                     // Check if a table type isn't new and doesn't match an existing one with the
                     // same name
@@ -922,38 +926,24 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     {
                         // Add the data type if it's new or match it to an existing one with the
                         // same name if the type definitions are the same
-                        badDefn = dataTypeHandler.updateDataTypes(dataTypeDefns);
-
-                        // Check if a data type isn't new and doesn't match an existing one with
-                        // the same name
-                        if (badDefn != null)
-                        {
-                            throw new CCDDException("Imported data type '"
-                                                    + badDefn
-                                                    + "' doesn't match the existing definition");
-                        }
+                        dataTypeHandler.updateDataTypes(dataTypeDefns);
 
                         // Add the macro if it's new or match it to an existing one with the same
                         // name if the values are the same
-                        badDefn = macroHandler.updateMacros(macroDefns);
-
-                        // Check if a macro isn't new and doesn't match an existing one with the
-                        // same name
-                        if (badDefn != null)
-                        {
-                            throw new CCDDException("Imported macro '"
-                                                    + badDefn
-                                                    + "' doesn't match the existing definition");
-                        }
+                        macroHandler.updateMacros(macroDefns);
 
                         // Add the reserved message ID if it's new
                         rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
+
+                        // Build the imported project-level data fields, if any
+                        buildProjectdataFields(ccddMain,
+                                               fieldHandler,
+                                               projectDefn.getDataFields());
                     }
                 }
             }
         }
         finally
-
         {
             try
             {
@@ -1047,11 +1037,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             for (String tblName : tableNames)
             {
                 // Get the information from the database for the specified table
-                TableInformation tableInfo = ccddMain.getDbTableCommandHandler().loadTableData(tblName,
-                                                                                               true,
-                                                                                               false,
-                                                                                               true,
-                                                                                               parent);
+                TableInformation tableInfo = dbTable.loadTableData(tblName,
+                                                                   true,
+                                                                   false,
+                                                                   true,
+                                                                   parent);
 
                 // Check if the table's data successfully loaded
                 if (!tableInfo.isErrorFlag())

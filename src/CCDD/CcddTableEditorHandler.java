@@ -2646,7 +2646,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                           MoveCellSelection selected,
                                           int rowDelta)
             {
-
                 // Move the row(s)
                 super.performRowMove(startRow, endRow, toRow, selected, rowDelta);
 
@@ -4032,7 +4031,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Set the table column editor to the combo box
                 msgNameIDColumn.setCellEditor(new DefaultCellEditor(comboBox));
             }
-
         }
     }
 

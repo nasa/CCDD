@@ -29,10 +29,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.GroupInformation;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
 /**************************************************************************************************
@@ -86,7 +86,6 @@ public class CcddCommonTreeHandler extends JTree
                                                       int row,
                                                       boolean hasFocus)
         {
-
             // Get the node's name
             String name = ((ToolTipTreeNode) value).getUserObject().toString();
 

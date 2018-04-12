@@ -41,6 +41,7 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesComponent.PaddedComboBox;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DatabaseListCommand;
@@ -127,7 +128,6 @@ public class CcddDataTypeHandler
      *********************************************************************************************/
     protected Object[][] getDataTypeDataArray()
     {
-
         // Create storage for the data type definitions
         Object[][] dataTypesArray = new Object[dataTypes.size()][DataTypeEditorColumnInfo.values().length];
 
@@ -588,13 +588,12 @@ public class CcddDataTypeHandler
      * @param dataTypeDefinitions
      *            list of data type definitions
      *
-     * @return The name of the data type if its name matches an existing one but the type
-     *         definition differs; return null if the data type is new or matches an existing one
+     * @throws CCDDException
+     *             If the data field with the same same already exists and the imported field
+     *             doesn't match
      *********************************************************************************************/
-    protected String updateDataTypes(List<String[]> dataTypeDefinitions)
+    protected void updateDataTypes(List<String[]> dataTypeDefinitions) throws CCDDException
     {
-        String badType = null;
-
         // Step through each imported data type definition
         for (String[] typeDefn : dataTypeDefinitions)
         {
@@ -614,13 +613,11 @@ public class CcddDataTypeHandler
                        && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
                        && dataType[DataTypesColumn.BASE_TYPE.ordinal()].equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()])))
             {
-                // Store the name of the mismatched data type and stop searching
-                badType = CcddDataTypeHandler.getDataTypeName(typeDefn);
-                break;
+                throw new CCDDException("Imported data type '"
+                                        + CcddDataTypeHandler.getDataTypeName(typeDefn)
+                                        + "' doesn't match the existing definition");
             }
         }
-
-        return badType;
     }
 
     /**********************************************************************************************

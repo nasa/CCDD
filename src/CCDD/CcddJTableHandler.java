@@ -736,7 +736,6 @@ public abstract class CcddJTableHandler extends JTable
                     {
                         // Set the flag indicating a change exists
                         hasChanges = true;
-
                     }
                 }
             }
@@ -1435,7 +1434,8 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
-        // TODO WAS: (only # of rows checked, via the data vector size)
+        // TODO WAS: (only # of rows checked, via the data vector size; causes exception if # of
+        // column increased)
         // Check if the number of table rows changed
         // if (tableData.length != tableModel.getDataVector().size())
         // TODO ADDED: (added # of columns using the data vector)
@@ -3301,7 +3301,6 @@ public abstract class CcddJTableHandler extends JTable
                                                                                                   ? false
                                                                                                   : null))
                                                            : false;
-
                     }
                     // The cell displays text
                     else
@@ -3319,7 +3318,6 @@ public abstract class CcddJTableHandler extends JTable
                                                                                                   ? ""
                                                                                                   : null))
                                                            : "";
-
                     }
 
                     // Check if the paste value isn't null (a null value indicates that the current

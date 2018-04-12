@@ -900,7 +900,7 @@ public class CcddClassesDataTable
 
     /**********************************************************************************************
      * Table definition class. Contains the information necessary to construct a data table from
-     * information derived from a CSV or XTCE/EDS XML file
+     * information derived from a CSV, EDS, JSON, or XTCE import file
      *********************************************************************************************/
     protected static class TableDefinition
     {
@@ -1101,7 +1101,7 @@ public class CcddClassesDataTable
 
     /**********************************************************************************************
      * Table type definition class. Contains the information necessary to construct a table type
-     * from information derived from a CSV or XTCE/EDS XML file
+     * from information derived from a CSV, EDS, JSON, or XTCE import file
      *********************************************************************************************/
     protected static class TableTypeDefinition
     {
@@ -1189,6 +1189,45 @@ public class CcddClassesDataTable
         protected void addDataField(String[] dataField)
         {
             dataFields.add(dataField);
+        }
+    }
+
+    /**********************************************************************************************
+     * Project definition class. Contains the information necessary to construct the project-level
+     * data fields derived from a CSV, EDS, JSON, or XTCE import file
+     *********************************************************************************************/
+    protected static class ProjectDefinition
+    {
+        private final List<String[]> dataFields;
+
+        /******************************************************************************************
+         * Project definition class constructor
+         *****************************************************************************************/
+        ProjectDefinition()
+        {
+            // Initialize storage for the data field information
+            dataFields = new ArrayList<String[]>();
+        }
+
+        /******************************************************************************************
+         * Get the list containing the project-level data field information
+         *
+         * @return List containing the project-level data field information
+         *****************************************************************************************/
+        protected List<String[]> getDataFields()
+        {
+            return dataFields;
+        }
+
+        /******************************************************************************************
+         * Add a data field information to the list of project-level data fields
+         *
+         * @param fieldInfo
+         *            data field information
+         *****************************************************************************************/
+        protected void addDataField(String[] fieldInfo)
+        {
+            dataFields.add(fieldInfo);
         }
     }
 
@@ -3803,5 +3842,4 @@ public class CcddClassesDataTable
             return rateName;
         }
     }
-
 }

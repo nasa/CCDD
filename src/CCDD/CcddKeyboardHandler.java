@@ -623,7 +623,6 @@ public class CcddKeyboardHandler
                         // the key release events that are close together time-wise
                         releaseTimer = new Timer(75, new ActionListener()
                         {
-
                             /**********************************************************************
                              * Handle the key release action
                              *********************************************************************/

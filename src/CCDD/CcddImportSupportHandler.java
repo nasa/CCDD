@@ -11,12 +11,16 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 
 import java.awt.Component;
+import java.util.List;
 
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
@@ -25,6 +29,16 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
  *************************************************************************************************/
 public class CcddImportSupportHandler
 {
+    // Names of the structure tables that represent the common header for all telemetry and command
+    // tables
+    protected String tlmHeaderTable;
+    protected String cmdHeaderTable;
+
+    // Telemetry and command header variable names for the application ID, and command header
+    // variable name for the command function code
+    protected String applicationIDName;
+    protected String cmdFuncCodeName;
+
     // Basic primitive data types
     protected static enum BasePrimitiveDataType
     {
@@ -156,8 +170,9 @@ public class CcddImportSupportHandler
      *            current state of the flag that indicates if all data field errors should be
      *            ignored
      *
-     * @param defn
-     *            TableTypeDefinition or TableDefinition object to which this data field applies
+     * @param defnContainer
+     *            TableDefinition, TableTypeDefinition, or projectDefinition object to which this
+     *            data field applies
      *
      * @param fieldDefn
      *            array containing the data field definition
@@ -175,7 +190,7 @@ public class CcddImportSupportHandler
      *             operation due to an invalid input data type
      *********************************************************************************************/
     protected boolean addImportedDataFieldDefinition(boolean continueOnError,
-                                                     Object defn,
+                                                     Object defnContainer,
                                                      String[] fieldDefn,
                                                      String fileName,
                                                      Component parent) throws CCDDException
@@ -253,20 +268,259 @@ public class CcddImportSupportHandler
             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = ApplicabilityType.ALL.getApplicabilityName();
         }
 
+        // Check if the field belongs to the project
+        if (defnContainer instanceof ProjectDefinition)
+        {
+            // Add the data field to the project
+            ((ProjectDefinition) defnContainer).addDataField(fieldDefn);
+        }
         // Check if the field belongs to a table
-        if (defn instanceof TableDefinition)
+        else if (defnContainer instanceof TableDefinition)
         {
             // Add the data field to the table
-            ((TableDefinition) defn).addDataField(fieldDefn);
+            ((TableDefinition) defnContainer).addDataField(fieldDefn);
         }
         // Check if the field belongs to a table type
-        else if (defn instanceof TableTypeDefinition)
+        else if (defnContainer instanceof TableTypeDefinition)
         {
             // Add the data field to the table type
-            ((TableTypeDefinition) defn).addDataField(fieldDefn);
+            ((TableTypeDefinition) defnContainer).addDataField(fieldDefn);
         }
 
         return continueOnError;
+    }
+
+    /**********************************************************************************************
+     * Build the project-level data fields
+     *
+     * @param ccddMain
+     *            main class reference
+     *
+     * @param fieldHandler
+     *            data field handler reference
+     *
+     * @param dataFields
+     *            list containing the data field definitions from the import file
+     *
+     * @throws CCDDException
+     *             If the data field with the same input type already exists and the imported field
+     *             doesn't match
+     *********************************************************************************************/
+    protected void buildProjectdataFields(CcddMain ccddMain,
+                                          CcddFieldHandler fieldHandler,
+                                          List<String[]> dataFields) throws CCDDException
+    {
+        // Check if any project-level data fields exist in the import file
+        if (!dataFields.isEmpty())
+        {
+            boolean isNewField = false;
+
+            // Step through each project data field
+            for (String[] dataField : dataFields)
+            {
+                // Get the reference to the data field from the existing field information
+                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldProjectName(),
+                                                                                    dataField[FieldsColumn.FIELD_NAME.ordinal()]);
+
+                // Check if this is a new field
+                if (fieldInfo == null)
+                {
+                    // Add the field
+                    fieldHandler.getFieldDefinitions().add(dataField);
+                    isNewField = true;
+                }
+                // Check if the existing field's input type, required state, applicability, or
+                // value don't match (the description and size are allowed to differ)
+                else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                         || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                         || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
+                {
+                    throw new CCDDException("Imported project data field '"
+                                            + dataField[FieldsColumn.FIELD_NAME.ordinal()]
+                                            + "' doesn't match the existing definition");
+                }
+            }
+
+            // Check if a new data field was added
+            if (isNewField)
+            {
+                // Store the data field table with the additional fields
+                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.FIELDS,
+                                                                          fieldHandler.getFieldDefinitions(),
+                                                                          null,
+                                                                          ccddMain.getMainFrame());
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Set the telemetry header table name, command header table name, application ID variable
+     * name, and command function code variable name from the project database fields or default
+     * values, if not present in the import file. Based on the input flag build the project-level
+     * data fields for these names
+     *
+     * @param ccddMain
+     *            main class reference
+     *
+     * @param fieldHandler
+     *            data field handler reference
+     *
+     * @param isCreateField
+     *            true is the project-level data fields are to be created
+     *
+     * @param tlmHdrTable
+     *            name of the structure table that represents the common header for all telemetry
+     *            tables; null if not present in the import file
+     *
+     * @param cmdHdrTable
+     *            name of the structure table that represents the common header for all command
+     *            tables; null if not present in the import file
+     *
+     * @param appIDName
+     *            telemetry and command header variable names for the application ID; null if not
+     *            present in the import file
+     *
+     * @param funcCodeName
+     *            command header variable name for the command function code; null if not present
+     *            in the import file
+     *
+     * @throws CCDDException
+     *             If the data field with the same input type already exists and the imported field
+     *             doesn't match
+     *********************************************************************************************/
+    protected void setProjectHeaderTablesAndVariables(CcddMain ccddMain,
+                                                      CcddFieldHandler fieldHandler,
+                                                      boolean isCreateField,
+                                                      String tlmHdrTable,
+                                                      String cmdHdrTable,
+                                                      String appIDName,
+                                                      String funcCodeName) throws CCDDException
+    {
+        ProjectDefinition projectDefn = new ProjectDefinition();
+        tlmHeaderTable = tlmHdrTable;
+        cmdHeaderTable = cmdHdrTable;
+        applicationIDName = appIDName;
+        cmdFuncCodeName = funcCodeName;
+
+        // Check if the telemetry table name isn't set in the project import file
+        if (tlmHeaderTable == null)
+        {
+            // Get the name of the table representing the telemetry header from the project
+            tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                        InputDataType.XML_TLM_HDR);
+        }
+        // The telemetry header table name is set in the import file. Check if the project-level
+        // data fields are to be created
+        else if (isCreateField)
+        {
+            // Add the telemetry header table name data field definition
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Telemetry header table name",
+                                                   "Name of the structure table representing the telemetry header",
+                                                   String.valueOf(Math.min(Math.max(tlmHeaderTable.length(),
+                                                                                    5),
+                                                                           40)),
+                                                   InputDataType.XML_TLM_HDR.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   tlmHeaderTable});
+        }
+
+        // Check if the command table name isn't set in the project import file
+        if (cmdHeaderTable == null)
+        {
+            // Get the name of the table representing the command header from the project
+            cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                        InputDataType.XML_CMD_HDR);
+        }
+        // The command header table name is set in the import file. Check if the project-level data
+        // fields are to be created
+        else if (isCreateField)
+        {
+            // Add the command header table name data field definition
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Command header table name",
+                                                   "Name of the structure table representing the command header",
+                                                   String.valueOf(Math.min(Math.max(cmdHeaderTable.length(),
+                                                                                    5),
+                                                                           40)),
+                                                   InputDataType.XML_CMD_HDR.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   cmdHeaderTable});
+        }
+
+        // Check if the application ID variable name isn't set in the project import file
+        if (applicationIDName == null)
+        {
+            // Get the application ID variable name from the project field
+            applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                           InputDataType.XML_APP_ID);
+
+            // Check if the application ID variable name isn't set in the project
+            if (applicationIDName == null)
+            {
+                // Use the default application ID variable name
+                applicationIDName = DefaultHeaderVariableName.APP_ID.getDefaultVariableName();
+            }
+        }
+        // The application ID variable name is set in the import file. Check if the project-level
+        // data fields are to be created
+        else if (isCreateField)
+        {
+            // Add the application ID variable name data field definition
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Application ID",
+                                                   "Name of the variable containing the application ID in the structure "
+                                                                     + "tables representing the telemetry and command headers",
+                                                   String.valueOf(Math.min(Math.max(applicationIDName.length(),
+                                                                                    5),
+                                                                           40)),
+                                                   InputDataType.XML_APP_ID.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   applicationIDName});
+        }
+
+        // Check if the command function code variable name isn't set in the import file
+        if (cmdFuncCodeName == null)
+        {
+            // Get the command function code variable name from the project field
+            cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
+                                                         InputDataType.XML_FUNC_CODE);
+
+            // Check if the command function code variable name isn't set in the project
+            if (cmdFuncCodeName == null)
+            {
+                // Use the default command function code variable name
+                cmdFuncCodeName = DefaultHeaderVariableName.FUNC_CODE.getDefaultVariableName();
+            }
+        }
+        // The command function code variable name is set in the import file. Check if the
+        // project-level data fields are to be created
+        else if (isCreateField)
+        {
+            // Add the application ID variable name data field definition
+            projectDefn.addDataField(new String[] {CcddFieldHandler.getFieldProjectName(),
+                                                   "Command function code",
+                                                   "Name of the variable containing the command function code in the "
+                                                                            + "structure table representing the command header",
+                                                   String.valueOf(Math.min(Math.max(cmdFuncCodeName.length(),
+                                                                                    5),
+                                                                           40)),
+                                                   InputDataType.XML_FUNC_CODE.getInputName(),
+                                                   "false",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
+                                                   cmdFuncCodeName});
+        }
+
+        // Check if the project-level data fields are to be created
+        if (isCreateField)
+        {
+            // Build the imported project-level data fields, if any
+            buildProjectdataFields(ccddMain, fieldHandler, projectDefn.getDataFields());
+        }
     }
 
     /**********************************************************************************************

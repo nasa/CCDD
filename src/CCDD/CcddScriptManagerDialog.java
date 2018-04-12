@@ -360,7 +360,6 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         // The name refers to a table
                                         else
                                         {
-
                                             // Get the node in the table tree for this table name
                                             node = tableTree.getNodeByNodePath(tableName);
                                         }
