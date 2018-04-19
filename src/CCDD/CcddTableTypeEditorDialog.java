@@ -64,6 +64,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private final CcddTableTypeHandler tableTypeHandler;
     private final List<CcddTableTypeEditorHandler> typeEditors;
     private CcddTableTypeEditorHandler activeEditor;
+    private CcddSearchTableDialog searchDlg;
 
     // Define globally so that it can be accessed by the action listeners, etc.
     private JMenu mnFile;
@@ -74,6 +75,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmStore;
     private JMenuItem mntmStoreAll;
     private JMenuItem mntmPrint;
+    private JMenuItem mntmSearch;
     private JMenuItem mntmClose;
     private JMenuItem mntmUndo;
     private JMenuItem mntmRedo;
@@ -187,6 +189,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         mntmStore.setEnabled(enableIfType);
         mntmStoreAll.setEnabled(enableIfType);
         mntmPrint.setEnabled(enableIfType);
+        mntmSearch.setEnabled(enableIfType);
         btnClose.setEnabled(enable);
 
         // Set the menu item based on the input flag and if there are any data fields assigned to
@@ -304,6 +307,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1, "Store changes to all table types in the database");
                 mnFile.addSeparator();
                 mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current table type information");
+                mntmSearch = ccddMain.createMenuItem(mnFile, "Search", KeyEvent.VK_S, 1, "Search the active table type table");
                 mnFile.addSeparator();
                 mntmClose = ccddMain.createMenuItem(mnFile, "Close", KeyEvent.VK_C, 1, "Close the table type editor");
 
@@ -462,6 +466,28 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     protected CcddJTableHandler getTable()
                     {
                         return getActiveTable();
+                    }
+                });
+
+                // Add a listener for the Search menu item
+                mntmSearch.addActionListener(new ValidateCellActionListener()
+                {
+                    /**************************************************************************************
+                     * Display the search dialog
+                     *************************************************************************************/
+                    @Override
+                    protected void performAction(ActionEvent ae)
+                    {
+                        searchTable();
+                    }
+
+                    /**************************************************************************************
+                     * Get the reference to the currently displayed table
+                     *************************************************************************************/
+                    @Override
+                    protected CcddJTableHandler getTable()
+                    {
+                        return activeEditor.getTable();
                     }
                 });
 
@@ -1105,6 +1131,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // Check if a table type exists
                         if (!typeEditors.isEmpty())
                         {
+                            // Check if the search dialog is active
+                            if (searchDlg != null && searchDlg.isShowing())
+                            {
+                                // Undo the search in the previous editor and enable it in the new
+                                // one
+                                searchDlg.setActiveEditor(typeEditors.get(tabbedPane.getSelectedIndex()).getTable());
+                            }
+
                             // Set the active editor to the one indicated by the currently selected
                             // tab
                             activeEditor = typeEditors.get(tabbedPane.getSelectedIndex());
@@ -1363,6 +1397,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Select the tab for the newly added type
             tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
         }
+    }
+
+    /**********************************************************************************************
+     * Create and display the search dialog
+     *********************************************************************************************/
+    protected void searchTable()
+    {
+        searchDlg = new CcddSearchTableDialog(ccddMain,
+                                              CcddTableTypeEditorDialog.this,
+                                              activeEditor.getTable());
     }
 
     /**********************************************************************************************

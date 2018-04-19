@@ -27,6 +27,7 @@ import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,6 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
-import CCDD.CcddConstants.SearchDialogType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary data table editor dialog class
@@ -68,10 +68,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private final CcddFileIOHandler fileIOHandler;
     private CcddTableEditorHandler activeEditor;
     private final List<CcddTableEditorHandler> tableEditors;
+    private CcddSearchTableDialog searchDlg;
 
     // Components that need to be accessed by multiple methods
-    private JMenuItem mntmOpen;
-    private JMenuItem mntmOpenPrototype;
+    private JMenu mnFile;
+    private JMenuItem mntmEdit;
+    private JMenuItem mntmEditPrototype;
     private JMenuItem mntmStore;
     private JMenuItem mntmStoreAll;
     private JMenuItem mntmImport;
@@ -80,9 +82,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmExportJSON;
     private JMenuItem mntmExportXTCE;
     private JMenuItem mntmPrint;
-    private JMenuItem mntmSearchTable;
+    private JMenuItem mntmSearch;
     private JMenuItem mntmCloseActive;
     private JMenuItem mntmCloseAll;
+    private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmUndo;
     private JMenuItem mntmRedo;
     private JMenuItem mntmCopy;
@@ -117,6 +120,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JButton btnCloseActive;
     private DnDTabbedPane tabbedPane;
 
+    // Listener for table editor dialog focus events; used in conjunction with the search dialog
+    WindowFocusListener editorListener = null;
+
     /**********************************************************************************************
      * Table editor dialog class constructor
      *
@@ -127,7 +133,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            list containing information for each table
      *
      * @param editor
-     *            reference to an existing table editor
+     *            reference to an existing table editor; null if adding new tables to the editor
+     *            dialog
      *********************************************************************************************/
     protected CcddTableEditorDialog(CcddMain ccddMain,
                                     List<TableInformation> tableInformation,
@@ -224,39 +231,34 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Remove the tab for the specified table
+     * Get the reference to the Files menu
      *
-     * @param tableName
-     *            name of the table to remove
+     * @return Reference to the Files menu
      *********************************************************************************************/
-    protected void closeTableEditor(String tableName)
+    protected JMenu getFilesMenu()
     {
-        // Check if there is only a single table editor is open
-        if (tabbedPane.getTabCount() == 1)
-        {
-            // Close the table editor dialog
-            closeFrame();
-        }
-        // More than one table editor is open
-        else
-        {
-            int index = 0;
+        return mnFile;
+    }
 
-            // Step through each table editor
-            for (CcddTableEditorHandler editor : tableEditors)
-            {
-                // Check if the table name matches the specified name
-                if (tableName.equals(editor.getOwnerName()))
-                {
-                    // Remove the table's editor and tab, and stop searching
-                    tableEditors.remove(editor);
-                    tabbedPane.removeTabAt(index);
-                    break;
-                }
+    /**********************************************************************************************
+     * Get the reference to the array of recently opened table menu items
+     *
+     * @return Reference to the array of recently opened table menu items
+     *********************************************************************************************/
+    protected JMenuItem[] getRecentTableMenuItems()
+    {
+        return mntmRecentTables;
+    }
 
-                index++;
-            }
-        }
+    /**********************************************************************************************
+     * Set the array of recently opened table menu items
+     *
+     * @param menuItems
+     *            array of recently opened table menu items
+     *********************************************************************************************/
+    protected void setRecentTableMenuItems(JMenuItem[] menuItems)
+    {
+        mntmRecentTables = menuItems;
     }
 
     /**********************************************************************************************
@@ -275,8 +277,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         boolean enableChild = enable && !activeEditor.getTableInformation().isPrototype();
 
         // Set the menu item enable status
-        mntmOpen.setEnabled(enable);
-        mntmOpenPrototype.setEnabled(enableChild);
+        mntmEdit.setEnabled(enable);
+        mntmEditPrototype.setEnabled(enableChild);
         mntmStore.setEnabled(enable);
         mntmStoreAll.setEnabled(enable);
         mntmImport.setEnabled(enable);
@@ -285,7 +287,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportJSON.setEnabled(enable);
         mntmExportXTCE.setEnabled(enable);
         mntmPrint.setEnabled(enable);
-        mntmSearchTable.setEnabled(enable);
+        mntmSearch.setEnabled(enable);
         mntmCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
         mntmCloseAll.setEnabled(enable || mntmShowMacros.isSelected());
         mntmUndo.setEnabled(enable);
@@ -582,9 +584,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         setJMenuBar(menuBar);
 
         // Create the File menu and menu items
-        JMenu mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
-        mntmOpen = ccddMain.createMenuItem(mnFile, "Edit table(s)", KeyEvent.VK_E, 1, "Open one or more data tables for editing");
-        mntmOpenPrototype = ccddMain.createMenuItem(mnFile, "Edit prototype", KeyEvent.VK_T, 2, "Open the prototype for the current table");
+        mnFile = ccddMain.createMenu(menuBar, "File", KeyEvent.VK_F, 1, null);
+        mntmEdit = ccddMain.createMenuItem(mnFile, "Edit table(s)", KeyEvent.VK_E, 1, "Open one or more data tables for editing");
+        mntmEditPrototype = ccddMain.createMenuItem(mnFile, "Edit prototype", KeyEvent.VK_T, 2, "Open the prototype for the current table");
         mnFile.addSeparator();
         mntmStore = ccddMain.createMenuItem(mnFile, "Store current", KeyEvent.VK_U, 1, "Store changes to the current editor table");
         mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1, "Store the changes to all tables in this editor");
@@ -597,10 +599,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
         mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current editor table information");
-        mntmSearchTable = ccddMain.createMenuItem(mnFile, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
+        mntmSearch = ccddMain.createMenuItem(mnFile, "Search", KeyEvent.VK_S, 1, "Search the active data table");
         mnFile.addSeparator();
         mntmCloseActive = ccddMain.createMenuItem(mnFile, "Close current", KeyEvent.VK_C, 2, "Close the current editor table");
         mntmCloseAll = ccddMain.createMenuItem(mnFile, "Close all", KeyEvent.VK_A, 1, "Close all tables in this editor");
+        mnFile.addSeparator();
 
         // Create the Edit menu and menu items
         JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", KeyEvent.VK_E, 1, null);
@@ -647,8 +650,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1, "Open the data field manager");
         mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1, "Clear the data field values");
 
-        // Add a listener for the Open Table command
-        mntmOpen.addActionListener(new ValidateCellActionListener()
+        // Add a listener for the Edit table(s) command
+        mntmEdit.addActionListener(new ValidateCellActionListener()
         {
             /**************************************************************************************
              * Open a table in this editor dialog
@@ -664,8 +667,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
-        // Add a listener for the Open Prototype Table command
-        mntmOpenPrototype.addActionListener(new ValidateCellActionListener()
+        // Add a listener for the Edit prototype command
+        mntmEditPrototype.addActionListener(new ValidateCellActionListener()
         {
             /**************************************************************************************
              * Open the currently displayed table's prototype table in this editor dialog
@@ -833,16 +836,25 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
-        // Add a listener for the Search tables menu item
-        mntmSearchTable.addActionListener(new ActionListener()
+        // Add a listener for the Search menu item
+        mntmSearch.addActionListener(new ValidateCellActionListener()
         {
             /**************************************************************************************
-             * Display the search tables dialog
+             * Display the search dialog
              *************************************************************************************/
             @Override
-            public void actionPerformed(ActionEvent ae)
+            protected void performAction(ActionEvent ae)
             {
-                ccddMain.showSearchDialog(SearchDialogType.TABLES, CcddTableEditorDialog.this);
+                searchTable();
+            }
+
+            /**************************************************************************************
+             * Get the reference to the currently displayed table
+             *************************************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
             }
         });
 
@@ -1619,6 +1631,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 {
                     // Bring the editor dialog to the foreground
                     CcddTableEditorDialog.this.toFront();
+
+                    // Remove any search highlighting in case a search dialog is active
+                    editor.getTable().highlightSearchText(null);
                 }
 
                 // Check if the tab is to be placed within this editor
@@ -1677,8 +1692,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             public void stateChanged(ChangeEvent ce)
             {
                 // Check if the tab index is within bounds
-                if (tabbedPane.getSelectedIndex() >= 0 && tabbedPane.getSelectedIndex() < tableEditors.size())
+                if (tabbedPane.getSelectedIndex() >= 0
+                    && tabbedPane.getSelectedIndex() < tableEditors.size())
                 {
+                    // Check if the search dialog is active
+                    if (searchDlg != null && searchDlg.isShowing())
+                    {
+                        // Undo the search in the previous editor and enable it in the new one
+                        searchDlg.setActiveEditor(tableEditors.get(tabbedPane.getSelectedIndex()).getTable());
+                    }
+
                     // Set the active editor to the selected tab
                     activeEditor = tableEditors.get(tabbedPane.getSelectedIndex());
 
@@ -1918,6 +1941,31 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
+     * Create and display the search dialog
+     *********************************************************************************************/
+    protected void searchTable()
+    {
+        searchDlg = new CcddSearchTableDialog(ccddMain,
+                                              CcddTableEditorDialog.this,
+                                              activeEditor.getTable())
+        {
+            /**************************************************************************************
+             * Display array member rows
+             *************************************************************************************/
+            @Override
+            protected void showAllRows()
+            {
+                // Check if the array member rows are hidden
+                if (!activeEditor.isExpanded())
+                {
+                    // Show the array member rows
+                    activeEditor.showHideArrayMembers();
+                }
+            }
+        };
+    }
+
+    /**********************************************************************************************
      * Update the change indicator for the specified table editor
      *
      * @param tableEditor
@@ -1966,6 +2014,42 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
+     * Remove the tab for the specified table
+     *
+     * @param tableName
+     *            name of the table to remove
+     *********************************************************************************************/
+    protected void closeTableEditor(String tableName)
+    {
+        // Check if there is only a single table editor is open
+        if (tabbedPane.getTabCount() == 1)
+        {
+            // Close the table editor dialog
+            closeFrame();
+        }
+        // More than one table editor is open
+        else
+        {
+            int index = 0;
+
+            // Step through each table editor
+            for (CcddTableEditorHandler editor : tableEditors)
+            {
+                // Check if the table name matches the specified name
+                if (tableName.equals(editor.getOwnerName()))
+                {
+                    // Remove the table's editor and tab, and stop searching
+                    tableEditors.remove(editor);
+                    tabbedPane.removeTabAt(index);
+                    break;
+                }
+
+                index++;
+            }
+        }
+    }
+
+    /**********************************************************************************************
      * Remove the table editor from the table editor list
      *********************************************************************************************/
     @Override
@@ -1994,5 +2078,21 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Close the editor dialog
             closeFrame();
         }
+    }
+
+    /**********************************************************************************************
+     * Close the table editor dialog
+     *********************************************************************************************/
+    @Override
+    protected void closeFrame()
+    {
+        // Check if the search dialog is active
+        if (searchDlg != null && searchDlg.isShowing())
+        {
+            // Close the search dialog
+            searchDlg.closeDialog();
+        }
+
+        super.closeFrame();
     }
 }

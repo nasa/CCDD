@@ -911,7 +911,7 @@ public class CcddMacroHandler
                 }
             }
 
-            // Reset the valid data types so this list is doesn't inadvertently affect macro checks
+            // Reset the valid data types so this list doesn't inadvertently affect macro checks
             // where there is no data type constraint
             this.validDataTypes = null;
         }

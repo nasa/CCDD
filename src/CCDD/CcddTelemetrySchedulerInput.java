@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
@@ -167,30 +168,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                                                                  : "0");
 
         // Build a link tree
-        linkTree = new CcddLinkTreeHandler(ccddMain, null, rateName, ccddMain.getMainFrame())
-        {
-            /**************************************************************************************
-             * Respond to changes in selection of a node in the link tree
-             *************************************************************************************/
-            @Override
-            protected void updateTableSelection()
-            {
-                // Check that a node selection change is not in progress
-                if (!isNodeSelectionChanging)
-                {
-                    // Set the flag to prevent link tree updates
-                    isNodeSelectionChanging = true;
-
-                    // Deselect any nodes that don't represent a link
-                    variableTree.clearNonTableNodes(variableTree.isFilteredByGroup()
-                                                                                     ? 2
-                                                                                     : 1);
-
-                    // Reset the flag to allow link tree updates
-                    isNodeSelectionChanging = false;
-                }
-            }
-        };
+        linkTree = new CcddLinkTreeHandler(ccddMain, null, rateName, ccddMain.getMainFrame());
 
         // Set the linked selected rate
         linkTree.setSelectedRate(selectedRate);
@@ -206,6 +184,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                                 rateName,
                                                 selectedRate,
                                                 excludedVars,
+                                                DEFAULT_PROTOTYPE_NODE_NAME,
+                                                UNLINKED_VARIABLES_NODE_NAME,
                                                 ccddMain.getMainFrame())
         {
             /**************************************************************************************
@@ -229,11 +209,6 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                     // Deselect any nodes that are disabled
                     clearDisabledNodes();
 
-                    // Deselect any nodes that don't represent a table
-                    clearNonTableNodes(variableTree.isFilteredByGroup()
-                                                                        ? 2
-                                                                        : 1);
-
                     // Update the telemetry scheduler table text highlighting
                     schedulerDlg.getSchedulerHandler().updateSchedulerTableHighlight();
 
@@ -253,11 +228,6 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
             {
                 // Call to the super to build the tree
                 super.buildTableTree(isExpanded, rateName, rateFilter, parent);
-
-                // Rename the instances node. Indicate that the node changed so that the tree
-                // redraws the name
-                getInstancesNode().setUserObject(UNLINKED_VARIABLES_NODE_NAME);
-                ((DefaultTreeModel) getModel()).nodeChanged(getInstancesNode());
 
                 // Create a tree showing the links that contain variables with a sample rate
                 // matching the currently selected rate
@@ -592,10 +562,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         List<Variable> varList = new ArrayList<Variable>();
 
         // Get the node path(s) of the selected variable(s)
-        List<Object[]> paths = variableTree.getSelectedVariables(variableTree.isFilteredByGroup()
-                                                                                                  ? 1
-                                                                                                  : 0,
-                                                                 true);
+        List<Object[]> paths = variableTree.getSelectedVariables(true);
 
         // Step through all the selected paths
         for (Object[] path : paths)

@@ -612,8 +612,8 @@ public class CcddSchedulerEditorHandler
                         + (schedulerHndlr.getSchedulerOption() == TELEMETRY_SCHEDULER
                                                                                       ? colWidths[2]
                                                                                       : 0);
-        schedulerScrollPane.setPreferredSize(new Dimension(prefWidth, schedulerScrollPane.getPreferredSize().height));
-        schedulerPnl.setMinimumSize(schedulerScrollPane.getPreferredSize());
+        schedulerScrollPane.setPreferredSize(new Dimension(prefWidth,
+                                                           schedulerScrollPane.getPreferredSize().height));
 
         // Create the scheduler table label
         JLabel schedulerLbl = new JLabel("Scheduler");
@@ -645,8 +645,7 @@ public class CcddSchedulerEditorHandler
         {
             // Adjust the tab area's insets so that the scheduler and tabs are aligned. Note that
             // the Nimbus L&F has hard-coded insets, so can't be changed;
-            UIManager.getDefaults().put("TabbedPane.tabAreaInsets",
-                                        new Insets(0, 0, 0, 0));
+            UIManager.getDefaults().put("TabbedPane.tabAreaInsets", new Insets(0, 0, 0, 0));
             UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
 
             // Create a tabbed pane to contain the variable tree for the message and any
@@ -722,7 +721,10 @@ public class CcddSchedulerEditorHandler
         }
 
         // Add the scheduler table and assignment tree/list to the split pane
-        tableSpltPn = new CustomSplitPane(schedulerPnl, assignmentPnl, null, JSplitPane.HORIZONTAL_SPLIT);
+        tableSpltPn = new CustomSplitPane(schedulerPnl,
+                                          assignmentPnl,
+                                          null,
+                                          JSplitPane.HORIZONTAL_SPLIT);
     }
 
     /**********************************************************************************************
@@ -794,6 +796,33 @@ public class CcddSchedulerEditorHandler
             {
                 // Set the first tab's title to indicate no selection
                 tabbedPane.setTitleAt(0, "<html><i>No message selected");
+            }
+
+            // Calculate the position of the split pane divider in order to accommodate the minimum
+            // width of the tabbed pane
+            int divLoc = tableSpltPn.getWidth() - tabbedPane.getPreferredSize().width;
+
+            // Check if the Nimbus look & feel is in use. This L&F doesn't return the correct width
+            // for the tabbed pane (issue is worse in Java 7)
+            if (ccddMain.getLookAndFeel().equals("Nimbus"))
+            {
+                // Get the margins for the tabbed pane
+                Insets mrgn = (Insets) UIManager.getDefaults().get("TabbedPane:TabbedPaneTab.contentMargins");
+                Insets areaMrgn = (Insets) UIManager.getDefaults().get("TabbedPane:TabbedPaneTabArea.contentMargins");
+
+                // Check if the margins successfully loaded
+                if (mrgn != null && areaMrgn != null)
+                {
+                    // Adjust the divider location to make more room for the tabbed pane
+                    divLoc -= mrgn.left + mrgn.right + areaMrgn.left + areaMrgn.right;
+                }
+            }
+
+            // Check if the current split pane divider location exceeds the calculated location
+            if (tableSpltPn.getDividerLocation() > divLoc)
+            {
+                // Update the divider location to make room for the tabbed pane
+                tableSpltPn.setDividerLocation(divLoc);
             }
         }
     }

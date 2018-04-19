@@ -68,6 +68,8 @@ public class CcddConstants
     protected static final String WEB_SERVER_PORT = "WebServerPort";
     protected static final String SEARCH_STRINGS = "SearchStrings";
     protected static final String SERVER_STRINGS = "ServerStrings";
+    protected static final String PROJECT_STRINGS = "ProjectStrings";
+    protected static final String TABLE_STRINGS = "TableStrings";
     protected static final String VARIABLE_PATH_SEPARATOR = "VariablePathSeparator";
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
@@ -129,7 +131,7 @@ public class CcddConstants
 
     // Characters used to separate individual remembered strings that are stored as a single string
     // in the program preferences
-    protected static final String AUTO_COMPLETE_TEXT_SEPARATOR = "%~%";
+    protected static final String STRING_LIST_TEXT_SEPARATOR = "%~%";
 
     // Characters used to separate the data field owner and name that is assigned as the text field
     // name for the undo handler
@@ -841,7 +843,8 @@ public class CcddConstants
         SELECTED_BACK("Selected table cell background", "Background color for a table's selected cell(s)", "SelectedBackgroundColor", 110, 150, 200),
         FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
         TABLE_GRID("Table grid lines", "Color for table grid lines. The log table grid lines use the table background color", "TableGridColor", 230, 240, 240),
-        TEXT_HIGHLIGHT("Highlighted macro and matching search text", "Highlight color for macros and matching search text", "TextHighlightColor", 200, 235, 245),
+        TEXT_HIGHLIGHT("Highlighted macro and sizeof() text", "Highlight color for macros and sizeof() text", "TextHighlightColor", 200, 235, 245),
+        SEARCH_HIGHLIGHT("Highlighted search text", "Highlight color search text", "SearchHighlightColor", 250, 250, 0),
         REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
         PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
         PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
@@ -1153,6 +1156,8 @@ public class CcddConstants
         MAX_LOG_MESSAGE_LENGTH("Maximum log message length", "Maximum number of characters to display in the session event log", "MaximumLogMessageLength", 250, 10, 1000),
         NUM_REMEMBERED_SEARCHES("Maximum remembered search strings", "Maximum number of remembered search strings", "NumberOfRememberedSearches", 30, 1, 100),
         NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
+        NUM_REMEMBERED_PROJECTS("Maximum remembered project names", "Maximum number of remembered project names", "NumberOfRememberedProjects", 4, 1, 10),
+        NUM_REMEMBERED_TABLES("Maximum remembered table names", "Maximum number of remembered table names", "NumberOfRememberedTables", 4, 1, 10),
         MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
         MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
         MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),

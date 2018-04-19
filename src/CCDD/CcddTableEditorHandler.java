@@ -170,6 +170,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // structure). This includes the structure itself and all of its ancestor structures
     private List<String> invalidDataTypes;
 
+    // Pattern for matching the replace indicator
+    private final Pattern replacePattern;
+
     /**********************************************************************************************
      * Table editor handler class constructor
      *
@@ -225,6 +228,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Set the flag to indicate that editing of the table is allowed
         isEditEnabled = true;
+
+        // Create the replace match pattern
+        replacePattern = Pattern.compile("^" + Pattern.quote(REPLACE_INDICATOR));
 
         // Create the table editor
         initialize();
@@ -1170,11 +1176,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                                                             ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                                                             : Color.MAGENTA);
 
-                // Create the match pattern
-                Pattern pattern = Pattern.compile("^" + Pattern.quote(REPLACE_INDICATOR));
-
                 // Create the pattern matcher from the pattern
-                Matcher matcher = pattern.matcher(text);
+                Matcher matcher = replacePattern.matcher(text);
 
                 // Check if there is a match in the cell value
                 if (matcher.find())
@@ -1193,6 +1196,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Ignore highlighting failure
                     }
                 }
+
+                // Highlight any matching search text strings in the table cells
+                super.doSpecialRendering(component, text, isSelected, row, column);
             }
 
             /**************************************************************************************
@@ -1376,10 +1382,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                          && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
                          && !typeDefn.isPointerAllowed()[column])
 
-                    // This is the enumeration or rate cell in a row displaying an array definition
+                    // This is an array definition, and the column is flagged as having a unique
+                    // value, the input type is 'message ID', or is the variable path
                      || ((isArrayDefinition
-                          && enumerationIndex.contains(column)
-                          && rateIndex.contains(column)))
+                          && ((column != variableNameIndex && typeDefn.isRowValueUnique()[column])
+                              || typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
+                              || column == variablePathIndex)))
 
                     // This is the bit length cell and either the array size is present or the data
                     // type is not an integer (signed or unsigned)
@@ -1410,12 +1418,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                          && dataTypeHandler.isString(rowCopy[dataTypeIndex].toString())
                          && ArrayVariable.isArrayMember(rowCopy[variableNameIndex])
                          && !rowCopy[variableNameIndex].toString().endsWith("[0]"))
-
-                    // This is an array definition, and the column input type is 'message ID' or is
-                    // the variable path
-                     || (isArrayDefinition
-                         && (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
-                             || column == variablePathIndex))
 
                     // This is the variable path column and the path is empty. This is the case for
                     // variables in a non-root prototype structure
@@ -3900,8 +3902,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Step through each primitive data type
         for (String[] dataType : dataTypeHandler.getDataTypeData())
         {
+            // get the data type's name
+            String dataTypeName = CcddDataTypeHandler.getDataTypeName(dataType);
+
             // Add the data type to the combo box list
-            comboBox.addItem(CcddDataTypeHandler.getDataTypeName(dataType));
+            comboBox.addItem(dataTypeName);
+
+            // Add the primitive data type to the list of valid data types
+            validDataTypes.add(dataTypeName);
         }
     }
 

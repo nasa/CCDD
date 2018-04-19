@@ -7,7 +7,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_WEB_SERVER_PORT;
@@ -311,7 +311,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
                 List<String> servers = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 servers.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SERVER_STRINGS, "")
-                                                     .split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                                                     .split(STRING_LIST_TEXT_SEPARATOR)));
                 hostFld = new AutoCompleteTextField(servers,
                                                     ModifiableSizeInfo.NUM_REMEMBERED_SERVERS.getSize());
                 hostFld.setText(dbControl.getHost());

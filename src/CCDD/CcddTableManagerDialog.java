@@ -69,7 +69,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddTableEditorDialog callingEditorDialog;
+    private final CcddTableEditorDialog callingEditorDlg;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -142,7 +142,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *
      * @param callingEditorDialog
      *            reference to the table editor dialog that instantiated this table manager. Only
-     *            used when called to open a table in an existing editor; null otherwise
+     *            used when called to open a table in, import into, or export from an existing
+     *            editor; null otherwise
      *********************************************************************************************/
     CcddTableManagerDialog(CcddMain ccddMain,
                            ManagerDialogType dialogType,
@@ -150,7 +151,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     {
         this.ccddMain = ccddMain;
         this.dialogType = dialogType;
-        this.callingEditorDialog = callingEditorDialog;
+        this.callingEditorDlg = callingEditorDialog;
 
         // Get a reference to the calling component
         caller = (callingEditorDialog == null)
@@ -358,7 +359,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                 // Load the selected table's data into a table
                                                 // editor and close this dialog
                                                 dbTable.loadTableDataInBackground(tableTree.getFullVariablePath(path.getPath()),
-                                                                                  callingEditorDialog);
+                                                                                  callingEditorDlg);
                                                 closeDialog();
                                             }
                                         }
@@ -519,7 +520,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                                 // Load the selected table's data into a table editor
                                 dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]),
-                                                                  callingEditorDialog);
+                                                                  callingEditorDlg);
                             }
 
                             break;
@@ -611,7 +612,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                                               FileExtension.XTCE.getExtensionName())},
                                                                    false,
                                                                    true,
-                                                                   "Import Table(s)",
+                                                                   "Import Table"
+                                                                         + (callingEditorDlg != null
+                                                                                                     ? ""
+                                                                                                     : "(s)"),
                                                                    ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
                                                                    DialogOption.IMPORT_OPTION,
                                                                    createImportPanel(gbc));
@@ -638,7 +642,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             // Check if the export panel exists; if so display the dialog
                             if (showOptionsDialog(caller,
                                                   dialogPnl,
-                                                  "Export Table(s) in "
+                                                  "Export Table"
+                                                             + (callingEditorDlg != null
+                                                                                         ? ""
+                                                                                         : "(s)")
+                                                             + " in "
                                                              + fileExtn.getExtensionName().toUpperCase()
                                                              + " Format",
                                                   DialogOption.EXPORT_OPTION,
@@ -648,7 +656,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 List<String> tablePaths = new ArrayList<String>();
 
                                 // Check if the export command originated from the main menu
-                                if (callingEditorDialog == null)
+                                if (callingEditorDlg == null)
                                 {
                                     // Get the list of selected tables, including children
                                     tablePaths = tableTree.getSelectedTablesWithChildren();
@@ -660,7 +668,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 else
                                 {
                                     // Add the table editor's table variable path to the list
-                                    tablePaths.add(callingEditorDialog.getTableEditor().getTableInformation().getTablePath());
+                                    tablePaths.add(callingEditorDlg.getTableEditor().getTableInformation().getTablePath());
                                 }
 
                                 // Export the contents of the selected table(s) in the specified
@@ -773,10 +781,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 {
                     // Set the flag to prevent table tree updates
                     isNodeSelectionChanging = true;
-
-                    // Deselect any nodes that don't represent a table or the level immediately
-                    // above the table level
-                    clearNonTableNodes(1);
 
                     // Check if this is a rename or copy dialog
                     if (dialogType == ManagerDialogType.RENAME
@@ -908,6 +912,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
         });
 
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         dialogPnl.add(replaceExistingTablesCb, gbc);
 
         // Create a check box for indicating existing data fields are retained
@@ -958,7 +963,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         backupFirstCb.setToolTipText(CcddUtilities.wrapText("Back up the project database prior to importing the table files",
                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.bottom = 0;
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(backupFirstCb, gbc);
 
@@ -981,7 +986,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         JPanel dialogPnl = null;
 
         // Check if the export command originated from the main menu
-        if (callingEditorDialog == null)
+        if (callingEditorDlg == null)
         {
             // Create a panel containing a table tree for the dialog components
             dialogPnl = createSelectionPanel("Select table(s) to export",
@@ -997,21 +1002,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.weighty = 0.0;
             gbc.gridy++;
             dialogPnl.add(separator, gbc);
-        }
-        // The export command originated from a table editor dialog menu
-        else
-        {
-            // Create an empty panel for the dialog components
-            dialogPnl = new JPanel(new GridBagLayout());
-            gbc.insets.bottom = 0;
-            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        }
-
-        // Check that the panel was created; i.e., that there are tables available for exporting
-        if (dialogPnl != null)
-        {
-            singleFileRBtn = new JRadioButton("Single file", true);
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
             // Check if exporting in CSV or JSON format
@@ -1028,7 +1018,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.insets.left = 0;
                 storeInPnl.add(storeInLbl, gbc);
 
-                // Set up storage for the store in file(s)radio buttons
+                // Set up storage for the store in file(s) radio buttons
                 ButtonGroup storeInRBtnGroup = new ButtonGroup();
                 JRadioButton multipleFileRBtn = new JRadioButton("Multiple files", true);
                 multipleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1036,6 +1026,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 storeInRBtnGroup.add(multipleFileRBtn);
                 gbc.gridx++;
                 storeInPnl.add(multipleFileRBtn, gbc);
+                singleFileRBtn = new JRadioButton("Single file", true);
                 singleFileRBtn.setSelected(false);
                 singleFileRBtn.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 singleFileRBtn.setBorder(emptyBorder);
@@ -1081,7 +1072,20 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     }
                 });
             }
+        }
+        // The export command originated from a table editor dialog menu
+        else
+        {
+            // Create an empty panel for the dialog components
+            dialogPnl = new JPanel(new GridBagLayout());
+            gbc.insets.bottom = 0;
+            gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+            gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        }
 
+        // Check that the panel was created; i.e., that there are tables available for exporting
+        if (dialogPnl != null)
+        {
             // Add the export storage path components to the dialog
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
             gbc.gridy++;
@@ -1160,7 +1164,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 varPathSepLbl.setEnabled(false);
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.gridy++;
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField("_", 5);
@@ -1882,7 +1886,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                     // Check if the export command originated from the main menu and no table has
                     // been selected
-                    if (callingEditorDialog == null
+                    if (callingEditorDlg == null
                         && tableTree.getSelectedTablesWithChildren().size() == 0)
                     {
                         // Inform the user that no table has been selected

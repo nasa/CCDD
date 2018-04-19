@@ -731,8 +731,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 
                 // Check if the node represents a node that's not a a header or filter, and that
                 // the selected node has not yet been added to the list
-                if (path.getPathCount() > getGroupNodeLevel()
-                    && !selectedPaths.contains(path))
+                if (path.getPathCount() > getGroupNodeLevel() && !selectedPaths.contains(path))
                 {
                     // Store the node path
                     selectedPaths.add(path);
@@ -763,7 +762,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             for (TreePath path : paths)
             {
                 // Check if the path represents a top-level node or its children
-                if (path.getPathCount() > getGroupNodeLevel())
+                if (path.getPathCount() > getGroupNodeLevel()) // TODO
                 {
                     // Get the top-level path for this node path
                     TreePath topPath = getPathFromNode((ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel()));

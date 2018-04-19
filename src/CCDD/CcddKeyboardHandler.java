@@ -408,19 +408,42 @@ public class CcddKeyboardHandler
                             handled = true;
                         }
                     }
-                    // Check if the Ctrl-F key is pressed while the main application window has the
-                    // focus
-                    else if (ke.getKeyCode() == KeyEvent.VK_F
-                             && ccddMain.getMainFrame().isFocused())
+                    // Check if the Ctrl-F key is pressed
+                    else if (ke.getKeyCode() == KeyEvent.VK_F)
                     {
-                        // Open the event log search dialog
-                        ccddMain.showSearchDialog(SearchDialogType.LOG,
-                                                  null,
-                                                  ccddMain.getSessionEventLog(),
-                                                  ccddMain.getMainFrame());
+                        // Check if the main application window has the focus
+                        if (ccddMain.getMainFrame().isFocused())
+                        {
+                            // Open the event log search dialog
+                            ccddMain.showSearchDialog(SearchDialogType.LOG,
+                                                      null,
+                                                      ccddMain.getSessionEventLog(),
+                                                      ccddMain.getMainFrame());
 
-                        // Set the flag to indicate this key press was handled
-                        handled = true;
+                            // Set the flag to indicate this key press was handled
+                            handled = true;
+                        }
+                        // Check if the table type editor is open and has the focus
+                        else if (ccddMain.getTableTypeEditor() != null
+                                 && ccddMain.getTableTypeEditor().isFocused())
+                        {
+                            // Open the table search dialog for the table type editor dialog
+                            ccddMain.getTableTypeEditor().searchTable();
+                        }
+                        // The main application window and the table type editor don't have the
+                        // focus
+                        else
+                        {
+                            // Get the table editor dialog with the focus
+                            CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
+
+                            // Check if a table editor dialog has the focus
+                            if (editorDialog != null)
+                            {
+                                // Open the table search dialog for the table editor dialog
+                                editorDialog.searchTable();
+                            }
+                        }
                     }
                     // Check if the Ctrl-S key is pressed. The following handles structure name
                     // insertion

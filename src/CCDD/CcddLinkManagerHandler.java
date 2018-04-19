@@ -40,15 +40,14 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import CCDD.CcddClassesDataTable.LinkInformation;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.CustomSplitPane;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
+import CCDD.CcddClassesDataTable.LinkInformation;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -391,6 +390,8 @@ public class CcddLinkManagerHandler
                                                 rateName,
                                                 selectedRate,
                                                 linkTree.getLinkVariables(null),
+                                                null, // Unused in link manager
+                                                null,
                                                 ccddMain.getMainFrame())
         {
             /**************************************************************************************
@@ -413,10 +414,6 @@ public class CcddLinkManagerHandler
                     // Deselect any nodes that are disabled
                     clearDisabledNodes();
 
-                    // Deselect any nodes that don't represent a table or the level immediately
-                    // above the table level
-                    clearNonTableNodes(1);
-
                     // Reset the flag to allow variable tree updates
                     isNodeSelectionChanging = false;
                 }
@@ -432,12 +429,10 @@ public class CcddLinkManagerHandler
                                           String rateFilter,
                                           Component parent)
             {
-                super.buildTableTree(isExpanded, rateName, rateFilter, parent);
-
-                // Rename the instances node. Indicate that the node changed so that the tree
-                // redraws the name
-                getInstancesNode().setUserObject("Structures & Variables");
-                ((DefaultTreeModel) getModel()).nodeChanged(getInstancesNode());
+                super.buildTableTree(isExpanded,
+                                     rateName,
+                                     rateFilter,
+                                     parent);
 
                 // Clean up the links following rebuilding the tree
                 variableTree = this;
@@ -452,7 +447,7 @@ public class CcddLinkManagerHandler
         gbc.insets.top = 0;
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.weighty = 1.0;
-        treePnl.add(variableTree.createTreePanel("Variables",
+        treePnl.add(variableTree.createTreePanel("Structures & Variables",
                                                  TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                  ccddMain.getMainFrame()),
                     gbc);
@@ -625,14 +620,17 @@ public class CcddLinkManagerHandler
                     selectedRate = newRate;
 
                     // Rebuild the variable tree using the selected rate as a filter
-                    variableTree.buildTableTree(null, rateName, selectedRate, linkDialog);
+                    variableTree.buildTableTree(null,
+                                                rateName,
+                                                selectedRate,
+                                                linkDialog);
                 }
 
                 // Get the list of all variable tree paths in the variable tree and set these in
                 // the links tree. This is used to maintain the correct variable order in the links
                 // tree
                 linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
-                                                                            variableTree.getNodeByNodeName("Structures & Variables"),
+                                                                            (ToolTipTreeNode) variableTree.getRootNode(),
                                                                             -1));
 
                 // Check if this is the first time the rate selection occurs
@@ -889,9 +887,10 @@ public class CcddLinkManagerHandler
      *********************************************************************************************/
     private void addVariableToLink(String linkName)
     {
-        // Add the selected variable(s) to the link tree
+        // Add the selected variable(s) to the link tree. The start node is decremented to account
+        // for there not being an instance node in the tree
         linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true),
-                                            variableTree.getHeaderNodeLevel(),
+                                            variableTree.getHeaderNodeLevel() - 1,
                                             true);
 
         // Set the link's sample rate to the currently selected rate. This only makes a change if

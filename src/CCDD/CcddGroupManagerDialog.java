@@ -403,24 +403,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     @Override
                     protected void updateTableSelection()
                     {
-                        // Check that a node selection change is not in progress
-                        if (!isNodeSelectionChanging)
-                        {
-                            // Select the associated group in the group tree if a table is selected
-                            // in the table tree. Note that below any linked variables are
-                            // deselected, so this call must occur first
-                            selectGroupByTable();
-
-                            // Set the flag to prevent variable tree updates
-                            isNodeSelectionChanging = true;
-
-                            // Deselect any nodes that don't represent a table or the level
-                            // immediately above the table level
-                            clearNonTableNodes(1);
-
-                            // Reset the flag to allow variable tree updates
-                            isNodeSelectionChanging = false;
-                        }
+                        // Select the associated group in the group tree if a table is selected in
+                        // the table tree. Note that below any linked variables are deselected, so
+                        // this call must occur first
+                        selectGroupByTable();
                     }
                 };
 

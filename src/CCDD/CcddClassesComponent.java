@@ -7,7 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 
@@ -1877,22 +1876,7 @@ public class CcddClassesComponent
          *****************************************************************************************/
         protected void updateList(String text)
         {
-            // Check if this is a repeat of a previous text string
-            if (autoCompList.contains(text))
-            {
-                // Remove the text string from its current position in the remembered strings list
-                // so that it can be put at the head of the list
-                autoCompList.remove(text);
-            }
-            // Check if the maximum number of remembered strings has been reached
-            else if (autoCompList.size() == maxItems)
-            {
-                // Remove the oldest text string from the list
-                autoCompList.remove(autoCompList.size() - 1);
-            }
-
-            // Insert the latest text string at the beginning of the remembered strings list
-            autoCompList.add(0, text);
+            CcddUtilities.updateRememberedItemList(text, autoCompList, maxItems);
         }
 
         /******************************************************************************************
@@ -1903,18 +1887,7 @@ public class CcddClassesComponent
          *****************************************************************************************/
         protected String getListAsString()
         {
-            String listString = "";
-
-            // Step through the remembered strings
-            for (String listItem : autoCompList)
-            {
-                // Append the item string and separator characters to the single string
-                listString += listItem + AUTO_COMPLETE_TEXT_SEPARATOR;
-            }
-
-            // Remove the trailing separator characters
-            return CcddUtilities.removeTrailer(listString,
-                                               AUTO_COMPLETE_TEXT_SEPARATOR);
+            return CcddUtilities.getRememberedItemListAsString(autoCompList);
         }
 
         /******************************************************************************************

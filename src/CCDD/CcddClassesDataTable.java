@@ -422,7 +422,27 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         protected String getRootTable()
         {
-            return tablePath.replaceFirst(",.*$", "");
+            return getRootTable(tablePath);
+        }
+
+        /******************************************************************************************
+         * Get the table's root table name. For a structure table the root table is the top level
+         * table from which the table represented by this class instance descends. For a
+         * non-structure table the root table is the table name
+         *
+         * @param path
+         *            table path in the format rootTable[,dataType1.variable1[,dataType2
+         *            .variable2[,...]]]. The table path for a non-structure table is simply the
+         *            root table name. For a structure table the root table is the top level
+         *            structure table from which this table descends. The first data type/variable
+         *            name pair is from the root table, with each succeeding pair coming from the
+         *            next level down in the structure's hierarchy
+         *
+         * @return Table's root table name
+         *****************************************************************************************/
+        protected static String getRootTable(String path)
+        {
+            return path.replaceFirst(",.*$", "");
         }
 
         /******************************************************************************************

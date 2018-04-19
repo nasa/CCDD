@@ -17,6 +17,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_IDENT;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
+import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
@@ -1825,14 +1826,14 @@ public class CcddDbTableCommandHandler
      *            first data type/variable name pair is from the root table, with each succeeding
      *            pair coming from the next level down in the structure's hierarchy
      *
-     * @param currentEditorDlg
-     *            table editor dialog to open the table in; null to open the table in a new editor
-     *            dialog
+     * @param callingEditorDlg
+     *            table editor dialog in which to open the table; null to open the table in a new
+     *            editor dialog
      *
      * @return SwingWorker reference for this thread
      *********************************************************************************************/
     protected SwingWorker<?, ?> loadTableDataInBackground(final String[] tablePaths,
-                                                          final CcddTableEditorDialog currentEditorDlg)
+                                                          final CcddTableEditorDialog callingEditorDlg)
     {
         // Execute the command in the background
         return CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -1843,9 +1844,9 @@ public class CcddDbTableCommandHandler
             CcddTableEditorHandler tableEditor = null;
 
             // Get the component over which any dialogs need to be centered
-            Component parent = (currentEditorDlg == null)
+            Component parent = (callingEditorDlg == null)
                                                           ? ccddMain.getMainFrame()
-                                                          : currentEditorDlg;
+                                                          : callingEditorDlg;
 
             /**************************************************************************************
              * Load database table command
@@ -1922,7 +1923,7 @@ public class CcddDbTableCommandHandler
                 if (!tableInformation.isEmpty())
                 {
                     // Check if no existing editor dialog was supplied
-                    if (currentEditorDlg == null)
+                    if (callingEditorDlg == null)
                     {
                         // Display the table contents in a new table editor dialog
                         ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
@@ -1932,7 +1933,7 @@ public class CcddDbTableCommandHandler
                     else
                     {
                         // Display the table contents in an existing table editor dialog
-                        currentEditorDlg.addTablePanes(tableInformation);
+                        callingEditorDlg.addTablePanes(tableInformation);
                     }
                 }
                 // Check if no table data was loaded due to the table(s) already being open in an
@@ -1955,6 +1956,21 @@ public class CcddDbTableCommandHandler
                         }
                     }
                 }
+
+                // Step through each table opened
+                for (String tableName : tablePaths)
+                {
+                    // Update the recently opened tables list and store it in the program
+                    // preferences
+                    CcddUtilities.updateRememberedItemList(tableName,
+                                                           ccddMain.getRecentTableNames(),
+                                                           ModifiableSizeInfo.NUM_REMEMBERED_TABLES.getSize());
+                    ccddMain.getProgPrefs().put(TABLE_STRINGS,
+                                                CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentTableNames()));
+                }
+
+                // Update the command menu items in the main window and table editor dialogs
+                ccddMain.updateRecentTablesMenu();
             }
         });
     }

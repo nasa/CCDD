@@ -93,9 +93,6 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     private JButton btnExecute;
     private Border border;
 
-    // Node selection change in progress flag
-    private boolean isNodeSelectionChanging;
-
     // Array to contain the script association table data
     private Object[][] committedAssnsData;
 
@@ -176,8 +173,6 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 @Override
                 protected void execute()
                 {
-                    isNodeSelectionChanging = false;
-
                     // Create borders for the input fields
                     border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                                 Color.LIGHT_GRAY,
@@ -818,37 +813,15 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Create a panel to hold the table selection components of the dialog
         JPanel tablePnl = null;
 
-        // Build the table tree showing only table parents with their child tables
+        // Build the table tree showing all tables
         tableTree = new CcddTableTreeHandler(ccddMain,
                                              new CcddGroupHandler(ccddMain,
                                                                   null,
                                                                   ccddMain.getMainFrame()),
-                                             TableTreeType.INSTANCE_TABLES,
+                                             TableTreeType.TABLES,
                                              true,
                                              false,
-                                             ccddMain.getMainFrame())
-        {
-            /**************************************************************************************
-             * Respond to changes in selection of a table in the table tree
-             *************************************************************************************/
-            @Override
-            protected void updateTableSelection()
-            {
-                // Check that a node selection change is not in progress
-                if (!isNodeSelectionChanging)
-                {
-                    // Set the flag to prevent table tree updates
-                    isNodeSelectionChanging = true;
-
-                    // Deselect any nodes that don't represent a table or the level immediately
-                    // above the table level
-                    clearNonTableNodes(1);
-
-                    // Reset the flag to allow table tree updates
-                    isNodeSelectionChanging = false;
-                }
-            }
-        };
+                                             ccddMain.getMainFrame());
 
         // Check if the database contains any tables
         if (tableTree.getRowCount() != (tableTree.isRootVisible()
@@ -1105,6 +1078,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *********************************************************************************************/
     protected void reloadAssociationsTable()
     {
+        tableTree.setGroupHandler(new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame()));
         tableTree.buildTableTreeFromDatabase(CcddScriptManagerDialog.this);
         scriptHandler.getAssociationsTable().loadAndFormatData();
         assnsTable.getUndoManager().discardAllEdits();

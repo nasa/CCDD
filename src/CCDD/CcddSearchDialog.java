@@ -1,18 +1,18 @@
 /**
- * CFS Command & Data Dictionary search database tables and scripts dialog. Copyright 2017 United
- * States Government as represented by the Administrator of the National Aeronautics and Space
- * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
- * Other Rights Reserved.
+ * CFS Command & Data Dictionary search database tables, scripts, and event log dialog. Copyright
+ * 2017 United States Government as represented by the Administrator of the National Aeronautics
+ * and Space Administration. No copyright is claimed in the United States under Title 17, U.S.
+ * Code. All Other Rights Reserved.
  */
 package CCDD;
 
-import static CCDD.CcddConstants.AUTO_COMPLETE_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
 import static CCDD.CcddConstants.SEARCH_STRINGS;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_ICON;
 
 import java.awt.Color;
@@ -108,7 +108,7 @@ public class CcddSearchDialog extends CcddFrameHandler
      * @param ccddMain
      *            main class
      *
-     * @param searchType
+     * @param searchDlgType
      *            search dialog type: TABLES, SCRIPTS, or LOG
      *
      * @param targetRow
@@ -122,13 +122,13 @@ public class CcddSearchDialog extends CcddFrameHandler
      *            GUI component over which to center the dialog
      *********************************************************************************************/
     CcddSearchDialog(CcddMain ccddMain,
-                     SearchDialogType searchType,
+                     SearchDialogType searchDlgType,
                      Long targetRow,
                      CcddEventLogDialog eventLog,
                      Component parent)
     {
         this.ccddMain = ccddMain;
-        this.searchDlgType = searchType;
+        this.searchDlgType = searchDlgType;
         this.eventLog = eventLog;
 
         // Create references to shorten subsequent calls
@@ -275,7 +275,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
                     searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
                                                                               "")
-                                                          .split(AUTO_COMPLETE_TEXT_SEPARATOR)));
+                                                          .split(STRING_LIST_TEXT_SEPARATOR)));
                     searchFld.setList(searches);
                 }
             }
@@ -666,7 +666,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                     // Create a highlighter painter
                     DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
                                                                                                                 ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                                                                                                : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
+                                                                                                                : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
 
                     // Check if case is to be ignored
                     if (ignoreCaseCb.isSelected())
@@ -847,7 +847,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 }
 
                 // Update the number of results found label
-                numResultsLbl.setText("  (" + resultsData.length + " found)");
+                numResultsLbl.setText("  (" + resultsData.length + " matches)");
             }
         });
 
@@ -990,8 +990,9 @@ public class CcddSearchDialog extends CcddFrameHandler
             for (int column = 0; column < resultsTable.getColumnCount(); column++)
             {
                 // Get the owner for this row
-                String tableName = resultsTable.getModel().getValueAt(row,
-                                                                      SearchResultsColumnInfo.OWNER.ordinal())
+                String tableName = resultsTable.getModel()
+                                               .getValueAt(row,
+                                                           SearchResultsColumnInfo.OWNER.ordinal())
                                                .toString();
 
                 // Check if the the cell is selected and the owner is a data table
@@ -1020,6 +1021,8 @@ public class CcddSearchDialog extends CcddFrameHandler
         {
             // Load the selected table's data into a table editor
             dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
+
+            // TODO THE SEARCH TEXT SHOULD BE HIGHLIGHTED IN THE TABLE WHEN OPENED
         }
     }
 }

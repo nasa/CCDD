@@ -10,6 +10,7 @@ package CCDD;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.POSTGRESQL_RESERVED_CHARS;
 import static CCDD.CcddConstants.SPLIT_IGNORE_QUOTES;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -1297,5 +1298,66 @@ public class CcddUtilities
                                                   "CCDD Error",
                                                   JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);
+    }
+
+    /**********************************************************************************************
+     * Update the list of remembered items with the specified string. This is used by the search
+     * and server auto-completion lists, and by the lists of previously opened projects and tables
+     *
+     * @param text
+     *            item to add to the list. The item is placed at the head of the list. The list
+     *            size is constrained to the maximum number specified when the field was created
+     *
+     * @param itemList
+     *            list containing the items
+     *
+     * @param maxItems
+     *            maximum number of items allowed in the list
+     *********************************************************************************************/
+    protected static void updateRememberedItemList(String text,
+                                                   List<String> itemList,
+                                                   int maxItems)
+    {
+        // Check if this is a repeat of a previous text string
+        if (itemList.contains(text))
+        {
+            // Remove the text string from its current position in the remembered strings list
+            // so that it can be put at the head of the list
+            itemList.remove(text);
+        }
+        // Check if the maximum number of remembered strings has been reached
+        else if (itemList.size() >= maxItems)
+        {
+            // Remove the oldest text string from the list
+            itemList.remove(itemList.size() - 1);
+        }
+
+        // Insert the latest text string at the beginning of the remembered strings list
+        itemList.add(0, text);
+    }
+
+    /**********************************************************************************************
+     * Get the list of remembered items as a single, delimited string. This is used by the search
+     * and server auto-completion lists, and by the lists of previously opened projects and tables
+     *
+     * @param itemList
+     *            list containing the items to combine into a single string
+     *
+     * @return String containing the items from which the text is extracted, separated by delimiter
+     *         characters
+     *********************************************************************************************/
+    protected static String getRememberedItemListAsString(List<String> itemList)
+    {
+        String listString = "";
+
+        // Step through the remembered strings
+        for (String listItem : itemList)
+        {
+            // Append the item string and separator characters to the single string
+            listString += listItem + STRING_LIST_TEXT_SEPARATOR;
+        }
+
+        // Remove the trailing separator characters
+        return removeTrailer(listString, STRING_LIST_TEXT_SEPARATOR);
     }
 }

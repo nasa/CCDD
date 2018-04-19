@@ -25,6 +25,9 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_SSL;
+import static CCDD.CcddConstants.PROJECT_STRINGS;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
+import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 import static CCDD.CcddConstants.setLaFAdjustments;
@@ -46,6 +49,7 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
@@ -74,6 +78,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
 
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -136,6 +141,7 @@ public class CcddMain
     private JMenuItem mntmSearchLog;
     private JCheckBoxMenuItem mntmEnableWebServer;
     private JMenuItem mntmWebServerPort;
+    private JMenu mnProject;
     private JMenuItem mntmOpenDb;
     private JMenuItem mntmCloseDb;
     private JMenuItem mntmNewDb;
@@ -146,6 +152,8 @@ public class CcddMain
     private JMenuItem mntmRestoreDb;
     private JMenuItem mntmUnlock;
     private JMenuItem mntmVerifyDatabase;
+    private JMenuItem[] mntmRecentProjects;
+    private JMenu mnData;
     private JMenuItem mntmNewTable;
     private JMenuItem mntmEditTable;
     private JMenuItem mntmRenameTable;
@@ -171,6 +179,7 @@ public class CcddMain
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmShowVariables;
     private JMenuItem mntmSearchTable;
+    private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
     private JMenuItem mntmManageApps;
@@ -201,6 +210,10 @@ public class CcddMain
     // Flag indicating if dialog messages should be displayed on the command line instead of in
     // dialog boxes
     private boolean isHideGUI;
+
+    // Lists of recently opened project and table names
+    private final List<String> recentProjectNames;
+    private final List<String> recentTableNames;
 
     /**********************************************************************************************
      * Create the application
@@ -255,6 +268,10 @@ public class CcddMain
         dbTable = new CcddDbTableCommandHandler(CcddMain.this);
         fileIOHandler = new CcddFileIOHandler(CcddMain.this);
         scriptHandler = new CcddScriptHandler(CcddMain.this);
+
+        // Initialize the lists for storing the names of the recently opened projects and tables
+        recentProjectNames = new ArrayList<String>(0);
+        recentTableNames = new ArrayList<String>(0);
 
         // Build the main window
         initialize();
@@ -454,6 +471,26 @@ public class CcddMain
     protected Preferences getProgPrefs()
     {
         return progPrefs;
+    }
+
+    /**********************************************************************************************
+     * Get the list of recently opened project names
+     *
+     * @return List of recently opened project names
+     *********************************************************************************************/
+    protected List<String> getRecentProjectNames()
+    {
+        return recentProjectNames;
+    }
+
+    /**********************************************************************************************
+     * Get the list of recently opened table names
+     *
+     * @return List of recently opened table names
+     *********************************************************************************************/
+    protected List<String> getRecentTableNames()
+    {
+        return recentTableNames;
     }
 
     /**********************************************************************************************
@@ -1272,6 +1309,276 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Create/update the recently opened project menu items
+     *********************************************************************************************/
+    protected void updateRecentProjectsMenu()
+    {
+        // Get the string from the program preferences containing the names of the recently opened
+        // projects
+        String recent = getProgPrefs().get(PROJECT_STRINGS, "");
+
+        // Check if any recently opened project menu items exist
+        if (mntmRecentProjects != null && mntmRecentProjects.length != 0)
+        {
+            // Step through each of the existing recently opened project menu items
+            for (int index = 0; index < mntmRecentProjects.length; index++)
+            {
+                // Step through the action listeners for the menu item
+                for (ActionListener listener : mntmRecentProjects[index].getActionListeners())
+                {
+                    // Remove the listener
+                    mntmRecentProjects[index].removeActionListener(listener);
+                }
+
+                // Remove the menu item
+                mnProject.remove(mntmRecentProjects[index]);
+            }
+        }
+        // Check if at least one recently opened project's name was retrieved from the program
+        // preferences
+        else if (!recent.isEmpty())
+        {
+            // Add the separator to the menu that precedes the recently opened project items
+            mnProject.addSeparator();
+        }
+
+        // Check if at least one recently opened project's name was retrieved from the program
+        // preferences
+        if (!recent.isEmpty())
+        {
+            // Clear the list of recently opened projects, then parse the current list retrieved
+            // from the program preferences
+            recentProjectNames.clear();
+            recentProjectNames.addAll(Arrays.asList(recent.split(STRING_LIST_TEXT_SEPARATOR)));
+
+            // Check if a recently opened project name exists
+            if (!recentProjectNames.get(0).isEmpty())
+            {
+                mntmRecentProjects = new JMenuItem[recentProjectNames.size()];
+
+                // Step through each stored recently opened project name
+                for (int index = 0; index < recentProjectNames.size(); index++)
+                {
+                    // Create the new recently opened project menu item
+                    mntmRecentProjects[index] = createMenuItem(mnProject,
+                                                               (index + 1)
+                                                                          + " "
+                                                                          + recentProjectNames.get(index),
+                                                               KeyEvent.VK_1
+                                                                                                           + (index == 9
+                                                                                                                         ? -1
+                                                                                                                         : index),
+                                                               1,
+                                                               "Open project "
+                                                                  + recentProjectNames.get(index));
+
+                    // Add a listener for the recently opened project menu item
+                    mntmRecentProjects[index].addActionListener(new ActionListener()
+                    {
+                        /**************************************************************************
+                         * Open the selected project from the previous project menu item
+                         *************************************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Extract the project name from the menu item
+                            String projectName = ((JMenuItem) ae.getSource()).getText().replaceFirst("[0-9]+ ", "");
+
+                            // Check if this isn't the name of the currently open project
+                            if (!projectName.equals(dbControl.getProjectName()))
+                            {
+                                // Open the selected project
+                                dbControl.openDatabaseInBackground(projectName);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Create/update the recently opened tables menu items in the main window command menu and each
+     * open table editor command menu. The table name in the menu item is the shortened form used
+     * in the table editor tab (root: prototype.variable) in order to shorten the menu item length;
+     * the item's too tip displays the full table path. The table name in the menu is preceded by a
+     * number, which is used as the hot key
+     *********************************************************************************************/
+    protected void updateRecentTablesMenu()
+    {
+        // Get the string from the program preferences containing the names of the recently opened
+        // tables
+        String recent = getProgPrefs().get(TABLE_STRINGS, "");
+
+        // First update the main window command menu. Check if any recently opened table menu items
+        // exist
+        if (mntmRecentTables != null && mntmRecentTables.length != 0)
+        {
+            // Step through each of the existing recently opened table menu items
+            for (int index = 0; index < mntmRecentTables.length; index++)
+            {
+                // Step through the action listeners for the menu item
+                for (ActionListener listener : mntmRecentTables[index].getActionListeners())
+                {
+                    // Remove the listener
+                    mntmRecentTables[index].removeActionListener(listener);
+                }
+
+                // Remove the menu item
+                mnData.remove(mntmRecentTables[index]);
+            }
+        }
+        // Check if at least one recently opened table's name was retrieved from the program
+        // preferences
+        else if (!recent.isEmpty())
+        {
+            // Add the separator to the menu that precedes the recently opened tables items
+            mnData.addSeparator();
+        }
+
+        // Next update each table editor window command menu. Step through each open table editor
+        for (CcddTableEditorDialog editorDlg : tableEditorDialogs)
+        {
+            // Check if any recently opened table menu items exist
+            if (editorDlg.getRecentTableMenuItems() != null
+                && editorDlg.getRecentTableMenuItems().length != 0)
+            {
+                // Step through each of the existing recently opened table menu items
+                for (int index = 0; index < editorDlg.getRecentTableMenuItems().length; index++)
+                {
+                    // Step through the action listeners for the menu item
+                    for (ActionListener listener : editorDlg.getRecentTableMenuItems()[index].getActionListeners())
+                    {
+                        // Remove the listener
+                        editorDlg.getRecentTableMenuItems()[index].removeActionListener(listener);
+                    }
+
+                    // Remove the menu item
+                    editorDlg.getFilesMenu().remove(editorDlg.getRecentTableMenuItems()[index]);
+                }
+            }
+        }
+
+        // Check if at least one recently opened table's name was retrieved from the program
+        // preferences
+        if (!recent.isEmpty())
+        {
+            // Clear the list of recently opened tables, then parse the current list retrieved
+            // from the program preferences
+            recentTableNames.clear();
+            recentTableNames.addAll(Arrays.asList(recent.split(STRING_LIST_TEXT_SEPARATOR)));
+
+            // Check if a recently opened table name exists
+            if (!recentTableNames.get(0).isEmpty())
+            {
+                mntmRecentTables = new JMenuItem[recentTableNames.size()];
+
+                // Step through each open table editor
+                for (CcddTableEditorDialog editorDlg : tableEditorDialogs)
+                {
+                    editorDlg.setRecentTableMenuItems(new JMenuItem[recentTableNames.size()]);
+                }
+
+                // Step through each stored recently opened table name
+                for (int index = 0; index < recentTableNames.size(); index++)
+                {
+                    // Get the root and prototype/variable names from the table path
+                    String root = TableInformation.getRootTable(recentTableNames.get(index));
+                    String protoVar = TableInformation.getProtoVariableName(recentTableNames.get(index));
+
+                    // Create the new recently opened table menu item in the main window command
+                    // menu
+                    mntmRecentTables[index] = createMenuItem(mnData,
+                                                             (index + 1)
+                                                                     + " "
+                                                                     + (protoVar.equals(root)
+                                                                                              ? protoVar
+                                                                                              : root
+                                                                                                + ": "
+                                                                                                + protoVar),
+                                                             KeyEvent.VK_1
+                                                                                                             + (index == 9
+                                                                                                                           ? -1
+                                                                                                                           : index),
+                                                             1,
+                                                             "Open table "
+                                                                + recentTableNames.get(index));
+
+                    // Add a listener for the recently opened table menu item
+                    mntmRecentTables[index].addActionListener(new ActionListener()
+                    {
+                        /**************************************************************************
+                         * Open the selected table from the main window command menu recently
+                         * opened table menu item
+                         *************************************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            openRecentTable((JMenuItem) ae.getSource(), null);
+                        }
+                    });
+
+                    // Step through each open table editor
+                    for (final CcddTableEditorDialog editorDlg : tableEditorDialogs)
+                    {
+                        // Create the new recently opened table menu item in the table editor
+                        // command menu
+                        editorDlg.getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getFilesMenu(),
+                                                                                    (index + 1)
+                                                                                                              + " "
+                                                                                                              + (protoVar.equals(root)
+                                                                                                                                       ? protoVar
+                                                                                                                                       : root
+                                                                                                                                         + ": "
+                                                                                                                                         + protoVar),
+                                                                                    KeyEvent.VK_1
+                                                                                                                                                      + (index == 9
+                                                                                                                                                                    ? -1
+                                                                                                                                                                    : index),
+                                                                                    1,
+                                                                                    "Open table "
+                                                                                       + recentTableNames.get(index));
+
+                        // Add a listener for the recently opened table menu item
+                        editorDlg.getRecentTableMenuItems()[index].addActionListener(new ActionListener()
+                        {
+                            /**********************************************************************
+                             * Open the selected table from the table editor command menu recently
+                             * opened project menu item
+                             *********************************************************************/
+                            @Override
+                            public void actionPerformed(ActionEvent ae)
+                            {
+                                openRecentTable((JMenuItem) ae.getSource(), editorDlg);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Open a table from the specified recently opened tables menu item
+     *
+     * @param mnItem
+     *            recently opened menu item reference
+     *
+     * @param callingEditorDlg
+     *            reference to the table editor calling this method (used to open the table editor
+     *            in the existing editor dialog); null if the table is opened from the main window
+     *********************************************************************************************/
+    private void openRecentTable(JMenuItem mnItem, CcddTableEditorDialog callingEditorDlg)
+    {
+        // Extract the index number associated with the recently opened table
+        int menuIndex = Integer.valueOf(mnItem.getText().replaceFirst("([0-9]+).+", "$1"));
+
+        // Open the table indicated by the recently opened tables menu item
+        dbTable.loadTableDataInBackground(new String[] {recentTableNames.get(menuIndex - 1)},
+                                          callingEditorDlg);
+    }
+
+    /**********************************************************************************************
      * Initialize the contents of the main application frame
      *********************************************************************************************/
     private void initialize()
@@ -1341,7 +1648,7 @@ public class CcddMain
         mntmExit = createMenuItem(mnFile, "Exit", KeyEvent.VK_X, 1, "Exit the application");
 
         // Create the Project menu and menu items
-        JMenu mnProject = createMenu(menuBar, "Project", KeyEvent.VK_P, 1, null);
+        mnProject = createMenu(menuBar, "Project", KeyEvent.VK_P, 1, null);
         mntmOpenDb = createMenuItem(mnProject, "Open", KeyEvent.VK_O, 1, "Open an existing project database");
         mntmCloseDb = createMenuItem(mnProject, "Close", KeyEvent.VK_C, 1, "Close the currently open project database");
         mnProject.addSeparator();
@@ -1357,8 +1664,11 @@ public class CcddMain
         mnProject.addSeparator();
         mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, 1, "Perform a project database consistency check");
 
+        // Update the recently opened projects command menu items
+        updateRecentProjectsMenu();
+
         // Create the Data menu and menu items
-        JMenu mnData = createMenu(menuBar, "Data", KeyEvent.VK_D, 1, null);
+        mnData = createMenu(menuBar, "Data", KeyEvent.VK_D, 1, null);
         mntmNewTable = createMenuItem(mnData, "New table(s)", KeyEvent.VK_N, 1, "Create new data table(s)");
         mntmEditTable = createMenuItem(mnData, "Edit table(s)", KeyEvent.VK_E, 1, "Edit selected table(s)");
         mntmRenameTable = createMenuItem(mnData, "Rename table", KeyEvent.VK_R, 1, "Rename selected data table");
@@ -1373,7 +1683,7 @@ public class CcddMain
         mntmExportXTCE = createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export selected data table(s) in XTCE XML format");
         mnData.addSeparator();
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
-        mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_T, 1, "Open the table type manager");
+        mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_Y, 1, "Open the table type manager");
         mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
         mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro editor");
         mnData.addSeparator();
@@ -1391,7 +1701,11 @@ public class CcddMain
         mntmRemovePadding = createMenuItem(mnPadding, "Remove", KeyEvent.VK_R, 1, "Remove padding variables");
         mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
         mnData.addSeparator();
-        mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database tables");
+        mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database data and internal tables");
+
+        // Update the recently opened tables command menu items in the main window and table editor
+        // dialogs
+        updateRecentTablesMenu();
 
         // Create the Scheduling menu and menu items
         JMenu mnScheduling = createMenu(menuBar, "Scheduling", KeyEvent.VK_C, 1, null);

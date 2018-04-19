@@ -68,7 +68,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      * @param ccddMain
      *            main class
      *
-     * @param searchType
+     * @param searchDlgType
      *            search dialog type: TABLES, SCRIPTS, or LOG
      *
      * @param targetRow
@@ -79,11 +79,11 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            event log to search; null if not searching a log
      *********************************************************************************************/
     CcddSearchHandler(CcddMain ccddMain,
-                      SearchDialogType searchType,
+                      SearchDialogType searchDlgType,
                       Long targetRow,
                       CcddEventLogDialog eventLog)
     {
-        this.searchDlgType = searchType;
+        this.searchDlgType = searchDlgType;
         this.eventLog = eventLog;
 
         // Create references to shorten subsequent calls

@@ -184,6 +184,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                                                 "false")));
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(emptyBorder);
+                gbc.insets.left = 0;
                 gbc.gridy++;
                 inputPnl.add(hideDataTypeCb, gbc);
 

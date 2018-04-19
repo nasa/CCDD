@@ -21,6 +21,7 @@ import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_HOST;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_PORT;
 import static CCDD.CcddConstants.POSTGRESQL_SERVER_SSL;
+import static CCDD.CcddConstants.PROJECT_STRINGS;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.ConnectionType.NO_CONNECTION;
@@ -63,6 +64,7 @@ import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -1960,6 +1962,19 @@ public class CcddDbControlHandler
                             setDatabaseLockStatus(activeProject, true);
                         }
 
+                        // Check if the GUI is visible
+                        if (!ccddMain.isGUIHidden())
+                        {
+                            // Update the recently opened projects list and store it in the program
+                            // preferences, then update the command menu items
+                            CcddUtilities.updateRememberedItemList(projectName,
+                                                                   ccddMain.getRecentProjectNames(),
+                                                                   ModifiableSizeInfo.NUM_REMEMBERED_PROJECTS.getSize());
+                            ccddMain.getProgPrefs().put(PROJECT_STRINGS,
+                                                        CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentProjectNames()));
+                            ccddMain.updateRecentProjectsMenu();
+                        }
+
                         // Check if the reserved word list hasn't been retrieved
                         if (keyWords == null)
                         {
@@ -2006,9 +2021,9 @@ public class CcddDbControlHandler
                 {
                     try
                     {
-                        // Store the database name, user name, server host, server port, and SSL
+                        // Store the project name, user name, server host, server port, and SSL
                         // state in the program preferences backing store
-                        ccddMain.getProgPrefs().put(DATABASE, activeDatabase);
+                        ccddMain.getProgPrefs().put(DATABASE, activeProject);
                         ccddMain.getProgPrefs().put(USER, activeUser);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST, serverHost);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT, serverPort);
