@@ -28,8 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -177,7 +177,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
 
                 // Create a panel containing a grid of check boxes representing the scripts from
                 // which to choose
-                if (addCheckBoxes(null, checkBoxData, null, "Select script(s)", dialogPnl))
+                if (addCheckBoxes(null, checkBoxData, null, "Select script(s)", false, dialogPnl))
                 {
                     // Check if more than one data field name check box exists
                     if (getCheckBoxes().length > 2)

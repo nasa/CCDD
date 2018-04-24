@@ -805,7 +805,29 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String removeHTMLTags(String text)
     {
-        return text.replaceAll(HTMLTag.BREAK.getHTMLTag(), " ")
+        return removeHTMLTags(text, false);
+    }
+
+    /**********************************************************************************************
+     * Replace any HTML break tags with line feeds or spaces (depending on teh input flag), remove
+     * the remaining HTML tag(s) from the supplied text, and replace special character markers with
+     * the special character if recognized, else with a blank
+     *
+     * @param text
+     *            string from which to remove the HTML tags
+     *
+     * @param preserveBreaks
+     *            true to replace breaks with line feeds; false to replace breaks with spaces
+     *
+     * @return Input string with line feeds or spaces replacing breaks, minus any HTML tag(s), and
+     *         with special character markers replaced
+     *********************************************************************************************/
+    protected static String removeHTMLTags(String text, boolean preserveBreaks)
+    {
+        return text.replaceAll(HTMLTag.BREAK.getHTMLTag(),
+                               (preserveBreaks
+                                               ? "\n"
+                                               : " "))
                    .replaceAll("<[^>]*>", "")
                    .replaceAll(HTMLTag.SPACE.getHTMLTag(), " ")
                    .replaceAll(HTMLTag.AMP.getHTMLTag(), "&")

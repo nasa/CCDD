@@ -2772,6 +2772,26 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void scrollToRow(final int row)
     {
+        scrollToCell(row, 0);
+    }
+
+    /**********************************************************************************************
+     * Scroll the table so that the specified cell is visible
+     *
+     * @param row
+     *            row index to which to scroll, view coordinates
+     *
+     * @param column
+     *            column index to which to scroll, view coordinates
+     *********************************************************************************************/
+    protected void scrollToCell(final int row, final int column)
+    {
+        // Scroll the window to keep the specified cell visible. This is called twice; immediately
+        // and then in the invokeLater() call below. If only performed once the specified cell may
+        // not be visible since the rectangle returned by getCellRect() can differ; the second call
+        // ensures the cell is visible
+        scrollRectToVisible(getCellRect(row, column, true));
+
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
         {
@@ -2781,8 +2801,8 @@ public abstract class CcddJTableHandler extends JTable
             @Override
             public void run()
             {
-                // Scroll the window to keep the inserted row visible
-                scrollRectToVisible(getCellRect(row, 0, true));
+                // Scroll the window to keep the specified cell visible
+                scrollRectToVisible(getCellRect(row, column, true));
             }
         });
     }
@@ -4081,10 +4101,7 @@ public abstract class CcddJTableHandler extends JTable
          * @param newValue
          *            new contents for the cell
          *****************************************************************************************/
-        TableCellListener(int row,
-                          int column,
-                          Object oldValue,
-                          Object newValue)
+        TableCellListener(int row, int column, Object oldValue, Object newValue)
         {
             this.editRow = row;
             this.editColumn = column;
@@ -4144,18 +4161,12 @@ public abstract class CcddJTableHandler extends JTable
                             newValue = newValue.toString().replaceFirst("^"
                                                                         + REPLACE_INDICATOR,
                                                                         "");
-                            tableModel.setValueAt(newValue,
-                                                  editRow,
-                                                  editColumn,
-                                                  false);
+                            tableModel.setValueAt(newValue, editRow, editColumn, false);
                         }
 
                         // Make a copy of the data in case another cell starts editing while
                         // processing this cell's change
-                        new TableCellListener(editRow,
-                                              editColumn,
-                                              oldValue,
-                                              newValue);
+                        new TableCellListener(editRow, editColumn, oldValue, newValue);
 
                         // Get the table data as a list
                         List<Object[]> tableData = table.getTableDataList(false);

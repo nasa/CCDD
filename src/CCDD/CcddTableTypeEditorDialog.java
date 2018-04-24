@@ -64,7 +64,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private final CcddTableTypeHandler tableTypeHandler;
     private final List<CcddTableTypeEditorHandler> typeEditors;
     private CcddTableTypeEditorHandler activeEditor;
-    private CcddSearchTableDialog searchDlg;
+    private CcddFindReplaceDialog searchDlg;
 
     // Define globally so that it can be accessed by the action listeners, etc.
     private JMenu mnFile;
@@ -75,7 +75,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmStore;
     private JMenuItem mntmStoreAll;
     private JMenuItem mntmPrint;
-    private JMenuItem mntmSearch;
+    private JMenuItem mntmFindReplace;
     private JMenuItem mntmClose;
     private JMenuItem mntmUndo;
     private JMenuItem mntmRedo;
@@ -189,7 +189,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         mntmStore.setEnabled(enableIfType);
         mntmStoreAll.setEnabled(enableIfType);
         mntmPrint.setEnabled(enableIfType);
-        mntmSearch.setEnabled(enableIfType);
+        mntmFindReplace.setEnabled(enableIfType);
         btnClose.setEnabled(enable);
 
         // Set the menu item based on the input flag and if there are any data fields assigned to
@@ -307,7 +307,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 mntmStoreAll = ccddMain.createMenuItem(mnFile, "Store all", KeyEvent.VK_L, 1, "Store changes to all table types in the database");
                 mnFile.addSeparator();
                 mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current table type information");
-                mntmSearch = ccddMain.createMenuItem(mnFile, "Search", KeyEvent.VK_S, 1, "Search the active table type table");
+                mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/replace", KeyEvent.VK_F, 1, "Find/replace text in the active table type table");
                 mnFile.addSeparator();
                 mntmClose = ccddMain.createMenuItem(mnFile, "Close", KeyEvent.VK_C, 1, "Close the table type editor");
 
@@ -469,16 +469,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     }
                 });
 
-                // Add a listener for the Search menu item
-                mntmSearch.addActionListener(new ValidateCellActionListener()
+                // Add a listener for the Find/replace menu item
+                mntmFindReplace.addActionListener(new ValidateCellActionListener()
                 {
                     /**************************************************************************************
-                     * Display the search dialog
+                     * Display the find/replace dialog
                      *************************************************************************************/
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        searchTable();
+                        findReplace();
                     }
 
                     /**************************************************************************************
@@ -1400,11 +1400,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create and display the search dialog
+     * Create and display the find/replace dialog
      *********************************************************************************************/
-    protected void searchTable()
+    protected void findReplace()
     {
-        searchDlg = new CcddSearchTableDialog(ccddMain,
+        searchDlg = new CcddFindReplaceDialog(ccddMain,
                                               CcddTableTypeEditorDialog.this,
                                               activeEditor.getTable());
     }

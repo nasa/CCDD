@@ -505,7 +505,7 @@ headerNames = [numStructRows]
 fullHeaderNames = [numStructRows]
 inMiddleOfArray = False
 numITOSDigits = 8
-modNumDefault = 5
+modNumDefault = 4
 modNum = modNumDefault
 
 # Check if no structure or command data is supplied

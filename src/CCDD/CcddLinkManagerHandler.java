@@ -438,6 +438,16 @@ public class CcddLinkManagerHandler
                 variableTree = this;
                 cleanUpLinks(null);
             }
+
+            /**************************************************************************************
+             * Override to account for the tree having no header node between the root and table
+             * nodes
+             *************************************************************************************/
+            @Override
+            protected int getHeaderNodeLevel()
+            {
+                return super.getHeaderNodeLevel() - 1;
+            }
         };
 
         // Add the title panel components to the dialog panel
@@ -890,7 +900,7 @@ public class CcddLinkManagerHandler
         // Add the selected variable(s) to the link tree. The start node is decremented to account
         // for there not being an instance node in the tree
         linkTree.addSourceNodesToTargetNode(variableTree.getSelectedVariables(true),
-                                            variableTree.getHeaderNodeLevel() - 1,
+                                            variableTree.getHeaderNodeLevel(),
                                             true);
 
         // Set the link's sample rate to the currently selected rate. This only makes a change if

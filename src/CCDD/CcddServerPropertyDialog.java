@@ -7,12 +7,12 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_WEB_SERVER_PORT;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SERVER_STRINGS;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 
 import java.awt.Color;
@@ -197,6 +197,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                               userInfo,
                                               Arrays.asList(userIndex),
                                               "Select user",
+                                              false,
                                               selectPnl,
                                               gbc);
 

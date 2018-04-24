@@ -220,6 +220,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                 {TYPE_COMMAND, ""}},
                                 null,
                                 "Add columns required for table type",
+                                false,
                                 radioBtns,
                                 gbc);
                 gbc.gridy++;

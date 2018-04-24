@@ -321,12 +321,13 @@ function outputMnemonic(pageFile, row, fltCompName)
         // Get the variable name and array size
         var arraySize = ccdd.getStructureArraySize(row);
         var fullVariableName = ccdd.getFullVariableName(row);
-
+        
         // See if this row would exceed the maximum. If so start another column
         nextRow(pageFile, variableName, fullVariableName, row);
 
         // Get the full variable name (including the variable's structure path)
         var tmp = ccdd.getFullVariableName(row, " ");
+        println("tmp: "+tmp)
 
         // Find number of spaces (i.e. " ") in tmp and makes prepad a string
         // containing only that many spaces
@@ -339,11 +340,11 @@ function outputMnemonic(pageFile, row, fltCompName)
         {
             // In case this is an array member replace the square brackets
             variableName = convertArrayMember(variableName);
-
+            
             // Create the mnemonic definition
             var fullVariableName2 = prepad + fltCompName + fullVariableName;
             len = prepad.length() + variableName.length();
-
+             
             // Check if the data type is a structure
             if (itosEncode.equals(dataType))
             {
@@ -546,7 +547,7 @@ else
     var fullHeaderNames = Array(ccdd.getStructureTableNumRows());
     var inMiddleOfArray;
     var numITOSDigits = 8;
-    var modNumDefault = 5;
+    var modNumDefault = 4;
     var modNum = modNumDefault;
 
     // Get the value of the data field specifying the flight computer base value

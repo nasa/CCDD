@@ -385,6 +385,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                             getDataFieldNames(),
                                             null,
                                             "Select data fields to display/edit",
+                                            false,
                                             fieldPnl))
                 {
                     // Check if more than one data field name check box exists

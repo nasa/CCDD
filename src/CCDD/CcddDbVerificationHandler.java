@@ -50,10 +50,10 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
@@ -134,23 +134,33 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private class TableStorage
     {
-        TableInformation tableInformation;
+        TableInformation tableInfo;
         String[][] committedData;
 
         /******************************************************************************************
          * Table data storage class constructor
          *
-         * @param tableInformation
-         *            reference to the table information. The table data reflects the contents as
-         *            it exists in the database
-         *
-         * @param committedData
-         *            array containing the table data as it appears in the database
+         * @param tableInfo
+         *            reference to the table information. The table data initially reflects the
+         *            contents as it exists in the database
          *****************************************************************************************/
-        TableStorage(TableInformation tableInformation, String[][] committedData)
+        TableStorage(TableInformation tableInfo)
         {
-            this.tableInformation = tableInformation;
-            this.committedData = committedData;
+            this.tableInfo = tableInfo;
+
+            // Create storage for the data as it exists in the database
+            committedData = new String[tableInfo.getData().length][tableInfo.getData()[0].length];
+
+            // Step through each row in the table
+            for (int row = 0; row < tableInfo.getData().length; row++)
+            {
+                // Step through each column in the table
+                for (int column = 0; column < tableInfo.getData()[row].length; column++)
+                {
+                    // Store the table cell value in the committed data array
+                    committedData[row][column] = tableInfo.getData()[row][column];
+                }
+            }
         }
 
         /******************************************************************************************
@@ -160,7 +170,7 @@ public class CcddDbVerificationHandler
          *****************************************************************************************/
         protected TableInformation getTableInformation()
         {
-            return tableInformation;
+            return tableInfo;
         }
 
         /******************************************************************************************
@@ -1964,7 +1974,7 @@ public class CcddDbVerificationHandler
                     // Add the table information and data to the list. This stores a copy of the
                     // data (as it appears in the database) so that any changes made can be
                     // detected
-                    tableStorage.add(new TableStorage(tableInfo, tableInfo.getData()));
+                    tableStorage.add(new TableStorage(tableInfo));
 
                     // Get the table's type definition
                     typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -2500,17 +2510,17 @@ public class CcddDbVerificationHandler
         String[] columnValues = new String[tableInfo.getData().length];
 
         // Get the comment array for this table
-        String[] comment = dbTable.getTableComment(tableInfo.getProtoVariableName().toLowerCase(),
+        String[] comment = dbTable.getTableComment(tableInfo.getTablePath().toLowerCase(),
                                                    comments);
 
         // Get the table's type definition
-        TypeDefinition typeDefinition = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
         // Step through each column in the table
         for (int column = 0; column < tableInfo.getData()[0].length && !canceled; column++)
         {
             // Check if the values in this column must be unique
-            if (typeDefinition.isRowValueUnique()[column])
+            if (typeDefn != null && typeDefn.isRowValueUnique()[column])
             {
                 // Step through each row in the table
                 for (int row = 0; row < tableInfo.getData().length - 1 && !canceled; row++)
@@ -2539,7 +2549,7 @@ public class CcddDbVerificationHandler
                             issues.add(new TableIssue("Table '"
                                                       + tableInfo.getProtoVariableName()
                                                       + "' column '"
-                                                      + typeDefinition.getColumnNamesUser()[column]
+                                                      + typeDefn.getColumnNamesUser()[column]
                                                       + "' rows "
                                                       + (row + 1)
                                                       + " and "

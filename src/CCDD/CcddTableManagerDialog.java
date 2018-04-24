@@ -138,7 +138,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *            main class
      *
      * @param dialogType
-     *            table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE
+     *            table manager dialog type: NEW, EDIT, RENAME, COPY, DELETE, IMPORT, EXPORT_CSV,
+     *            EXPORT_XTCE, EXPORT_EDS, EXPORT_JSON
      *
      * @param callingEditorDialog
      *            reference to the table editor dialog that instantiated this table manager. Only
@@ -294,6 +295,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                             tableTypeHandler.getTypeInformation(),
                                             null,
                                             "Select table type",
+                                            false,
                                             dialogPnl,
                                             gbc))
                         {
@@ -676,7 +678,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 fileIOHandler.exportSelectedTables(pathFld.getText(),
                                                                    tablePaths.toArray(new String[0]),
                                                                    overwriteFileCb.isSelected(),
-                                                                   singleFileRBtn.isSelected(),
+                                                                   (singleFileRBtn != null
+                                                                                           ? singleFileRBtn.isSelected()
+                                                                                           : true),
                                                                    (replaceMacrosCb != null
                                                                                             ? replaceMacrosCb.isSelected()
                                                                                             : true),
@@ -1567,12 +1571,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the path selection panel
+     * Create the path/file selection panel
      *
      * @param fileExtn
      *            file extension type
      *
-     * @return JPanel containing the path selection panel
+     * @return JPanel containing the path/file selection panel
      *********************************************************************************************/
     private JPanel createPathSelectionPanel(final FileExtension fileExtn)
     {
@@ -1596,16 +1600,36 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         JPanel pathPnl = new JPanel(new GridBagLayout());
         pathPnl.setBorder(emptyBorder);
 
-        // Create the path selection dialog labels and fields
-        exportLbl = new JLabel(dialogType == ManagerDialogType.EXPORT_CSV
-                               || dialogType == ManagerDialogType.EXPORT_JSON
-                                                                              ? "Enter or select an export path"
-                                                                              : "Enter or select an export file");
+        // Set the flag to indicate that the input fields expects a path versus a file name
+        boolean isPath = (dialogType == ManagerDialogType.EXPORT_CSV
+                          || dialogType == ManagerDialogType.EXPORT_JSON)
+                         && callingEditorDlg == null;
+
+        String fileName = "";
+
+        // Check if input field expects file name
+        if (!isPath)
+        {
+            // Set the default file name
+            fileName = File.separator
+                       + (callingEditorDlg == null
+                                                   ? dbControl.getDatabaseName()
+                                                   : callingEditorDlg.getTableEditor()
+                                                                     .getTableInformation()
+                                                                     .getTablePath()
+                                                                     .replaceAll("[^a-zA-Z0-9_]", "_"))
+                       + fileExtn.getExtension();
+        }
+
+        // Create the path/file selection dialog labels and fields
+        exportLbl = new JLabel(isPath
+                                      ? "Enter or select an export path"
+                                      : "Enter or select an export file");
         exportLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(exportLbl, gbc);
 
-        // Create a text field for entering & displaying the path
-        pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath());
+        // Create a text field for entering & displaying the path/file
+        pathFld = new JTextField(ModifiablePathInfo.TABLE_EXPORT_PATH.getPath() + fileName, 20);
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         pathFld.setEditable(true);
         pathFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -1615,17 +1639,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.gridy++;
         pathPnl.add(pathFld, gbc);
 
-        // Create a button for choosing an export path
+        // Create a button for choosing an export path/file
         JButton btnSelectPath = CcddButtonPanelHandler.createButton("Select...",
                                                                     EXPORT_ICON,
                                                                     KeyEvent.VK_S,
-                                                                    "Open the export path selection dialog");
+                                                                    "Open the export path/file selection dialog");
 
-        // Add a listener for the Select path button
+        // Add a listener for the Select path/file button
         btnSelectPath.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Select a export storage path
+             * Select a export storage path/file
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
@@ -1633,7 +1657,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 FileEnvVar[] filePath;
 
                 // Check if tables should be exported to a single file
-                if (singleFileRBtn.isSelected())
+                if (singleFileRBtn == null || singleFileRBtn.isSelected())
                 {
                     // Allow the user to select the export storage path+file
                     filePath = new CcddDialogHandler().choosePathFile(ccddMain,
@@ -1659,16 +1683,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                       DialogOption.OK_CANCEL_OPTION);
                 }
 
-                // Check if a export path is selected
+                // Check if an export path/file is selected
                 if (filePath != null && filePath[0] != null)
                 {
-                    // Display the path name in the export path field
+                    // Display the path name in the export path/file field
                     pathFld.setText(filePath[0].getAbsolutePathWithEnvVars());
                 }
             }
         });
 
-        // Add the select export path button to the dialog
+        // Add the select export path/file button to the dialog
         gbc.weightx = 0.0;
         gbc.insets.right = 0;
         gbc.gridx++;
@@ -1893,8 +1917,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         throw new CCDDException("Must select a table from the tree");
                     }
 
-                    // Check if the table(s) are to be stored in a single file
-                    if (singleFileRBtn.isSelected())
+                    // Check if the table(s) are to be stored in a single file (if the button is
+                    // applicable to the export type)
+                    if (singleFileRBtn == null || singleFileRBtn.isSelected())
                     {
                         // Check if the name field is empty or contains no file name in the path
                         if (pathFld.getText().isEmpty()

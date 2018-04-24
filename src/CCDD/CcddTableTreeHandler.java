@@ -895,6 +895,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                 // Check if this node represents a variable
                 if (leaf
+                    // TODO ADD = AND LINK VARIABLE TREE SHOWS ICONS
                     && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
                     && (treeType == STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
@@ -1127,54 +1128,58 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                           "")));
                 }
 
-                boolean isParent = true;
-
-                // Step through each table
-                for (TableMembers otherMember : tableMembers)
+                // Check if the tree type isn't only for prototype tables
+                if (treeType != PROTOTYPE_TABLES)
                 {
-                    // Check if the current table has this table as a member, that the table isn't
-                    // referencing itself, and, if the tree is filtered by group, that this table
-                    // is a member of the group
-                    if (otherMember.getDataTypes().contains(member.getTableName())
-                        && !member.equals(otherMember)
-                        && (!isByGroup ||
-                            (nameList != null && nameList.contains(otherMember.getTableName()))))
+                    boolean isRoot = true;
+
+                    // Step through each table
+                    for (TableMembers otherMember : tableMembers)
                     {
-                        // Clear the flag indicating this is a parent table and stop searching
-                        isParent = false;
-                        break;
+                        // Check if the current table has this table as a member, that the table
+                        // isn't referencing itself, and, if the tree is filtered by group, that
+                        // this table is a member of the group
+                        if (otherMember.getDataTypes().contains(member.getTableName())
+                            && !member.equals(otherMember)
+                            && (!isByGroup ||
+                                (nameList != null && nameList.contains(otherMember.getTableName()))))
+                        {
+                            // Clear the flag indicating this is a root table and stop searching
+                            isRoot = false;
+                            break;
+                        }
                     }
-                }
 
-                // Check if this is a parent table or the special structures with primitives tree
-                // type. For the latter child nodes are created for non-root tables and placed in
-                // the prototype node
-                if (isParent || treeType == STRUCTURES_WITH_PRIMITIVES)
-                {
-                    recursionTable = null;
-
-                    // Build the nodes in the tree for this table and its member tables
-                    buildNodes(member,
-                               (!isParent && treeType == STRUCTURES_WITH_PRIMITIVES
-                                                                                    ? protoNode
-                                                                                    : instNode),
-                               new ToolTipTreeNode(member.getTableName(),
-                                                   getTableDescription(member.getTableName(),
-                                                                       "")));
-                    // Check if a recursive reference was detected and that warning dialogs aren't
-                    // suppressed
-                    if (recursionTable != null && !isSilent)
+                    // Check if this is a root table or the special structures with primitives tree
+                    // type. For the latter child nodes are created for non-root tables and placed
+                    // in the prototype node
+                    if (isRoot || treeType == STRUCTURES_WITH_PRIMITIVES)
                     {
-                        // Inform the user that the table has a recursive reference
-                        new CcddDialogHandler().showMessageDialog(parent,
-                                                                  "<html><b>Table '</b>"
-                                                                          + member.getTableName()
-                                                                          + "<b>' contains a recursive reference to '</b>"
-                                                                          + recursionTable
-                                                                          + "<b>'",
-                                                                  "Table Reference",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                        recursionTable = null;
+
+                        // Build the nodes in the tree for this table and its member tables
+                        buildNodes(member,
+                                   (!isRoot && treeType == STRUCTURES_WITH_PRIMITIVES
+                                                                                      ? protoNode
+                                                                                      : instNode),
+                                   new ToolTipTreeNode(member.getTableName(),
+                                                       getTableDescription(member.getTableName(),
+                                                                           "")));
+                        // Check if a recursive reference was detected and that warning dialogs
+                        // aren't suppressed
+                        if (recursionTable != null && !isSilent)
+                        {
+                            // Inform the user that the table has a recursive reference
+                            new CcddDialogHandler().showMessageDialog(parent,
+                                                                      "<html><b>Table '</b>"
+                                                                              + member.getTableName()
+                                                                              + "<b>' contains a recursive reference to '</b>"
+                                                                              + recursionTable
+                                                                              + "<b>'",
+                                                                      "Table Reference",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                        }
                     }
                 }
             }
@@ -1270,8 +1275,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                         // Check that no exclusion list is supplied, or if one is in effect that
                         // the variable, using its full path and name, is not in the exclusion list
-                        if (excludedVariables == null
-                            || !excludedVariables.contains(tablePath))
+                        if (excludedVariables == null || !excludedVariables.contains(tablePath))
                         {
                             // Add the primitive as a node to this child node
                             childNode.add(new ToolTipTreeNode(variable, ""));

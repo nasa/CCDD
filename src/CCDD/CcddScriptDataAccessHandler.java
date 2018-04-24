@@ -4378,7 +4378,7 @@ public class CcddScriptDataAccessHandler
 
         // Create a panel containing a grid of radio buttons representing the table types from
         // which to choose and display the radio button dialog
-        if (dialog.addRadioButtons(null, false, buttonInfo, null, label, panel, gbc)
+        if (dialog.addRadioButtons(null, false, buttonInfo, null, label, false, panel, gbc)
             && dialog.showOptionsDialog(parent,
                                         panel,
                                         "Select",
@@ -4422,7 +4422,7 @@ public class CcddScriptDataAccessHandler
 
             // Create a panel containing a grid of check boxes representing the table types from
             // which to choose and display the check box dialog
-            if (dialog.addCheckBoxes(null, boxInfo, null, label, panel)
+            if (dialog.addCheckBoxes(null, boxInfo, null, label, false, panel)
                 && dialog.showOptionsDialog(parent,
                                             panel,
                                             "Select",

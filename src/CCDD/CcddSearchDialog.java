@@ -417,6 +417,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                         columnNames.toArray(new String[0][0]),
                                         null,
                                         "",
+                                        false,
                                         columnPnl);
 
                 // Add a listener for check box selection changes

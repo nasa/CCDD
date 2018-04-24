@@ -1125,8 +1125,9 @@ public class CcddScriptHandler
             // present
             if (isAssociationAvailable(row))
             {
-                // Remove any HTML tags from the member column
-                assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()] = CcddUtilities.removeHTMLTags(assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString());
+                // Remove any HTML tags from the member column; convert HTML breaks to line feeds
+                assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()] = CcddUtilities.removeHTMLTags(assnsData.get(row)[AssociationsTableColumnInfo.MEMBERS.ordinal()].toString(),
+                                                                                                                 true);
 
                 // Add the association to the list of those to execute
                 selectedAssn.add(assnsData.get(row));
@@ -1356,6 +1357,7 @@ public class CcddScriptHandler
                     // Step through each table path+name
                     for (String tablePath : tablePaths)
                     {
+
                         // Initialize the array for each of the tables to load from the database
                         combinedData = new String[0][0];
 

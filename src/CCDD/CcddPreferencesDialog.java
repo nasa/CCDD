@@ -391,6 +391,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                             lafDescriptions,
                             null,
                             "Select the application's 'look & feel'",
+                            false,
                             lafPnl,
                             gbc);
 

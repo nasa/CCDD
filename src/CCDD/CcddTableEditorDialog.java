@@ -68,7 +68,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private final CcddFileIOHandler fileIOHandler;
     private CcddTableEditorHandler activeEditor;
     private final List<CcddTableEditorHandler> tableEditors;
-    private CcddSearchTableDialog searchDlg;
+    private CcddFindReplaceDialog searchDlg;
 
     // Components that need to be accessed by multiple methods
     private JMenu mnFile;
@@ -82,7 +82,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmExportJSON;
     private JMenuItem mntmExportXTCE;
     private JMenuItem mntmPrint;
-    private JMenuItem mntmSearch;
+    private JMenuItem mntmFindReplace;
     private JMenuItem mntmCloseActive;
     private JMenuItem mntmCloseAll;
     private JMenuItem[] mntmRecentTables;
@@ -287,7 +287,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportJSON.setEnabled(enable);
         mntmExportXTCE.setEnabled(enable);
         mntmPrint.setEnabled(enable);
-        mntmSearch.setEnabled(enable);
+        mntmFindReplace.setEnabled(enable);
         mntmCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
         mntmCloseAll.setEnabled(enable || mntmShowMacros.isSelected());
         mntmUndo.setEnabled(enable);
@@ -599,7 +599,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
         mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current editor table information");
-        mntmSearch = ccddMain.createMenuItem(mnFile, "Search", KeyEvent.VK_S, 1, "Search the active data table");
+        mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/Replace", KeyEvent.VK_F, 1, "Find/replace text in the active data table");
         mnFile.addSeparator();
         mntmCloseActive = ccddMain.createMenuItem(mnFile, "Close current", KeyEvent.VK_C, 2, "Close the current editor table");
         mntmCloseAll = ccddMain.createMenuItem(mnFile, "Close all", KeyEvent.VK_A, 1, "Close all tables in this editor");
@@ -836,16 +836,16 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
-        // Add a listener for the Search menu item
-        mntmSearch.addActionListener(new ValidateCellActionListener()
+        // Add a listener for the Find/replace menu item
+        mntmFindReplace.addActionListener(new ValidateCellActionListener()
         {
             /**************************************************************************************
-             * Display the search dialog
+             * Display the find/replace dialog
              *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
             {
-                searchTable();
+                findReplace();
             }
 
             /**************************************************************************************
@@ -1941,11 +1941,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Create and display the search dialog
+     * Create and display the find/replace dialog
      *********************************************************************************************/
-    protected void searchTable()
+    protected void findReplace()
     {
-        searchDlg = new CcddSearchTableDialog(ccddMain,
+        searchDlg = new CcddFindReplaceDialog(ccddMain,
                                               CcddTableEditorDialog.this,
                                               activeEditor.getTable())
         {

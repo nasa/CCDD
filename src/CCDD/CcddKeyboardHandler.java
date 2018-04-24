@@ -428,7 +428,7 @@ public class CcddKeyboardHandler
                                  && ccddMain.getTableTypeEditor().isFocused())
                         {
                             // Open the table search dialog for the table type editor dialog
-                            ccddMain.getTableTypeEditor().searchTable();
+                            ccddMain.getTableTypeEditor().findReplace();
                         }
                         // The main application window and the table type editor don't have the
                         // focus
@@ -441,7 +441,7 @@ public class CcddKeyboardHandler
                             if (editorDialog != null)
                             {
                                 // Open the table search dialog for the table editor dialog
-                                editorDialog.searchTable();
+                                editorDialog.findReplace();
                             }
                         }
                     }

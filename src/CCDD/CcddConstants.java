@@ -537,6 +537,7 @@ public class CcddConstants
     {
         INPUT_TEXT("Input Field", "Text input field font", "InputFieldTextFont", "DejaVu Sans", Font.PLAIN, 13),
         LABEL_PLAIN("Label (plain)", "Label and list font (plain)", "LabelPlainFont", "DejaVu Sans", Font.PLAIN, 13),
+        LABEL_ITALIC("Label (italic)", "Label and list font (italic)", "LabelItalicFont", "DejaVu Sans", Font.ITALIC, 13),
         LABEL_BOLD("Label (bold)", "Label font (bold); used for dialog labels", "LabelBoldFont", "DejaVu Sans", Font.BOLD, 13),
         TABLE_HEADER("Table Header", "Table column name font", "TableHeaderFont", "DejaVu Sans", Font.BOLD, 13),
         DATA_TABLE_CELL("Data Table Cell", "Table cell font (data tables)", "DataTableCellFont", "Monospaced", Font.PLAIN, 13),

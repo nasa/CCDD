@@ -447,7 +447,7 @@ $headerNames = [$numStructRows]
 $fullHeaderNames = [$numStructRows]
 $inMiddleOfArray = false
 $numITOSDigits = 8
-$modNumDefault = 5
+$modNumDefault = 4
 $modNum = $modNumDefault
 
 # Check if no structure or command data is supplied

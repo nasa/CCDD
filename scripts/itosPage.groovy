@@ -508,7 +508,7 @@ headerNames = new String[numStructRows]
 fullHeaderNames = new String[numStructRows]
 inMiddleOfArray = false
 numITOSDigits = 8
-modNumDefault = 5
+modNumDefault = 4
 modNum = modNumDefault
 
 // Check if no structure or command data is supplied

@@ -551,6 +551,16 @@ public class CcddVariableSizeAndConversionHandler
                 // Update the index pointing to the last member of the structure
                 lastIndex++;
 
+                // Check if this is the first member of an array
+                if (varPath.matches(".+(?:\\[0\\])+"))
+                {
+                    // Add the array definition path (same as that for the first array member,
+                    // minus the array index) and offset
+                    structureAndVariablePaths.add(varPath.replaceFirst("(.+)(?:\\[0\\])+", "$1"));
+                    structureAndVariableOffsets.add(offset);
+                    isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
+                }
+
                 // Add the variable path and its offset to the lists
                 structureAndVariablePaths.add(varPath);
                 structureAndVariableOffsets.add(offset);
@@ -758,7 +768,9 @@ public class CcddVariableSizeAndConversionHandler
                 for (ConversionListStorage conversionList : conversionLists)
                 {
                     // Check if this conversion lists uses the same separators as those requested
-                    if (conversionList.isSeparatorsEqual(varPathSeparator, excludeDataTypes, typeNameSeparator))
+                    if (conversionList.isSeparatorsEqual(varPathSeparator,
+                                                         excludeDataTypes,
+                                                         typeNameSeparator))
                     {
                         // Set the converted variable name list to the stored list and stop
                         // searching

@@ -37,6 +37,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -70,6 +72,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -80,6 +83,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesComponent.MultilineLabel;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -1428,6 +1432,10 @@ public class CcddDialogHandler extends JDialog
      * @param rbtnText
      *            text to display above the radio button panel
      *
+     * @param isDescItalic
+     *            true to display the description text in the italic label font; false to use the
+     *            plain label font
+     *
      * @param dialogPanel
      *            dialog panel on which to place the radio buttons
      *
@@ -1443,6 +1451,7 @@ public class CcddDialogHandler extends JDialog
                                       String[][] itemInformation,
                                       List<Integer> disabledItems,
                                       String rbtnText,
+                                      boolean isDescItalic,
                                       JPanel dialogPanel,
                                       GridBagConstraints dialogGbc)
     {
@@ -1569,20 +1578,29 @@ public class CcddDialogHandler extends JDialog
                     gbc.gridx++;
                 }
 
-                // Add the radio button to the dialog panel
-                rbtnGridPnl.add(radioButton[index], gbc);
+                // Add the radio button to the dialog panel. The inner panel allows the button to
+                // align with the top of the description
+                JPanel innerPnl = new JPanel(new BorderLayout());
+                innerPnl.setBorder(emptyBorder);
+                innerPnl.add(radioButton[index], BorderLayout.PAGE_START);
+                rbtnGridPnl.add(innerPnl, gbc);
 
                 // Check if a description is provided
-                if (itemInformation[index].length != 1
-                    && itemInformation[index][1] != null)
+                if (itemInformation[index].length != 1 && itemInformation[index][1] != null)
                 {
                     // Add the item description
                     gbc.weightx = 1.0;
+                    gbc.weighty = 1.0;
                     gbc.gridx++;
-                    JLabel descriptionLbl = new JLabel(itemInformation[index][1]);
-                    descriptionLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    rbtnGridPnl.add(descriptionLbl, gbc);
+                    MultilineLabel descriptionFld = new MultilineLabel(itemInformation[index][1]);
+                    descriptionFld.setBackground(UIManager.getColor("Label.background"));
+                    descriptionFld.setFont(isDescItalic
+                                                        ? ModifiableFontInfo.LABEL_ITALIC.getFont()
+                                                        : ModifiableFontInfo.LABEL_PLAIN.getFont());
+                    descriptionFld.setBorder(emptyBorder);
+                    rbtnGridPnl.add(descriptionFld, gbc);
                     gbc.weightx = 0.0;
+                    gbc.weighty = 0.0;
                 }
 
                 // Check if the item name matches the preselected item
@@ -1600,30 +1618,56 @@ public class CcddDialogHandler extends JDialog
                 }
             }
 
-            // Create a scroll pane to house the radio buttons in case there are a large number to
-            // choose from. Set the scroll speed of the scroll pane based on the row (i.e., radio
-            // button) height
-            JScrollPane scrollPane = new JScrollPane(rbtnGridPnl);
+            // Create an outer panel to contain the radio button panel, then add this outer panel
+            // to a scroll pane (in case there are a large number to choose from). The use of the
+            // outer panel allows the description column to wrap properly as the dialog is resized
+            // in width (primarily when the width gets smaller). Set the scroll speed of the scroll
+            // pane based on the row (i.e., radio button) height
+            final JPanel rbtnOuterPnl = new JPanel(new BorderLayout());
+            rbtnOuterPnl.add(rbtnGridPnl, BorderLayout.PAGE_START);
+            JScrollPane scrollPane = new JScrollPane(rbtnOuterPnl);
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(radioButton[0].getPreferredSize().height / 2
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
             // Calculate the maximum desirable height of the panel containing the radio buttons (=
             // # of rows * row height)
-            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
-                                      * rbtnGridPnl.getPreferredSize().getHeight()
-                                      / radioButton.length
-                                      * gridWidth);
+            int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
+                               * rbtnGridPnl.getPreferredSize().height
+                               / radioButton.length
+                               * gridWidth;
 
             // Check if the scrollable list exceeds the maximum desirable height
             if (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight)
             {
                 // Set the size of the scrollable list; the vertical scroll bar is displayed
-                scrollPane.setPreferredSize(new Dimension((int) rbtnGridPnl.getPreferredSize().getWidth()
-                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
+                scrollPane.setPreferredSize(new Dimension(rbtnGridPnl.getPreferredSize().width
+                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
+                                                            * 2
+                                                          + (isDescriptions
+                                                                            ? rbtnGridPnl.getPreferredSize().width / 2
+                                                                            : 0),
                                                           maxRowHeight));
             }
+
+            // Add a listener for changes in the scroll pane's size
+            scrollPane.addComponentListener(new ComponentAdapter()
+            {
+                /**********************************************************************************
+                 * Handle a change in the scroll pane's size
+                 *********************************************************************************/
+                @Override
+                public void componentResized(ComponentEvent ce)
+                {
+                    // Update the size of the panel containing the radio buttons and descriptions.
+                    // This causes any changes in width due to the descriptions wrapping to be
+                    // incorporated
+                    rbtnOuterPnl.setPreferredSize(new Dimension(rbtnOuterPnl.getPreferredSize().width,
+                                                                rbtnOuterPnl.getMinimumSize().height));
+                }
+            });
 
             // Add the scrollable panel containing the radio buttons to the outer radio button
             // panel in order for the border to appear
@@ -1665,6 +1709,10 @@ public class CcddDialogHandler extends JDialog
      * @param cboxText
      *            text to display above the check box panel
      *
+     * @param isDescItalic
+     *            true to display the description text in the italic label font; false to use the
+     *            plain label font
+     *
      * @param dialogPanel
      *            dialog panel on which to place the check boxes
      *
@@ -1676,6 +1724,7 @@ public class CcddDialogHandler extends JDialog
                                     String[][] itemInformation,
                                     List<Integer> disabledItems,
                                     String cboxText,
+                                    boolean isDescItalic,
                                     JPanel dialogPanel)
     {
         boolean cboxesAdded = false;
@@ -1794,39 +1843,52 @@ public class CcddDialogHandler extends JDialog
                     gbc.gridx++;
                 }
 
-                // Add the check box to the dialog panel
-                cboxGridPnl.add(checkBox[index], gbc);
+                // Add the radio button to the dialog panel. The inner panel allows the box to
+                // align with the top of the description
+                JPanel innerPnl = new JPanel(new BorderLayout());
+                innerPnl.setBorder(emptyBorder);
+                innerPnl.add(checkBox[index], BorderLayout.PAGE_START);
+                cboxGridPnl.add(innerPnl, gbc);
 
                 // Check if a description is provided
-                if (itemInformation[index].length != 1
-                    && itemInformation[index][1] != null)
+                if (itemInformation[index].length != 1 && itemInformation[index][1] != null)
                 {
                     // Add the item description
                     gbc.weightx = 1.0;
+                    gbc.weighty = 1.0;
                     gbc.gridx++;
-                    JLabel descriptionLbl = new JLabel(itemInformation[index][1]);
-                    descriptionLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    cboxGridPnl.add(descriptionLbl, gbc);
+                    MultilineLabel descriptionFld = new MultilineLabel(itemInformation[index][1]);
+                    descriptionFld.setBackground(UIManager.getColor("Label.background"));
+                    descriptionFld.setFont(isDescItalic
+                                                        ? ModifiableFontInfo.LABEL_ITALIC.getFont()
+                                                        : ModifiableFontInfo.LABEL_PLAIN.getFont());
+                    descriptionFld.setBorder(emptyBorder);
+                    cboxGridPnl.add(descriptionFld, gbc);
                     gbc.weightx = 0.0;
+                    gbc.weighty = 0.0;
                 }
 
                 // Check if the item name matches the preselected item
-                if (checkBox[index].isEnabled()
-                    && itemInformation[index][0].equals(cboxSelected))
+                if (checkBox[index].isEnabled() && itemInformation[index][0].equals(cboxSelected))
                 {
                     // Select the check box
                     checkBox[index].setSelected(true);
                 }
             }
 
-            // Create a scroll pane to house the check boxes in case there are a large number to
-            // choose from. Set the scroll speed of the scroll pane based on the row (i.e., check
-            // box) height
-            JScrollPane scrollPane = new JScrollPane(cboxGridPnl);
+            // Create an outer panel to contain the check box panel, then add this outer panel
+            // to a scroll pane (in case there are a large number to choose from). The use of the
+            // outer panel allows the description column to wrap properly as the dialog is resized
+            // in width (primarily when the width gets smaller). Set the scroll speed of the scroll
+            // pane based on the row (i.e., check box) height
+            final JPanel cboxOuterPnl = new JPanel(new BorderLayout());
+            cboxOuterPnl.add(cboxGridPnl, BorderLayout.PAGE_START);
+            JScrollPane scrollPane = new JScrollPane(cboxOuterPnl);
             scrollPane.setBorder(emptyBorder);
             scrollPane.setViewportBorder(emptyBorder);
             scrollPane.getVerticalScrollBar().setUnitIncrement(checkBox[0].getPreferredSize().height / 2
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
             // Calculate the maximum desirable height of the panel containing the check boxes (= #
             // of rows * row height)
@@ -1840,9 +1902,30 @@ public class CcddDialogHandler extends JDialog
             {
                 // Set the size of the scrollable list; the vertical scroll bar is displayed
                 scrollPane.setPreferredSize(new Dimension((int) cboxGridPnl.getPreferredSize().getWidth()
-                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2,
+                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
+                                                            * 2
+                                                          + (isDescriptions
+                                                                            ? cboxGridPnl.getPreferredSize().width / 2
+                                                                            : 0),
                                                           maxRowHeight));
             }
+
+            // Add a listener for changes in the scroll pane's size
+            scrollPane.addComponentListener(new ComponentAdapter()
+            {
+                /**********************************************************************************
+                 * Handle a change in the scroll pane's size
+                 *********************************************************************************/
+                @Override
+                public void componentResized(ComponentEvent ce)
+                {
+                    // Update the size of the panel containing the check boxes and descriptions.
+                    // This causes any changes in width due to the descriptions wrapping to be
+                    // incorporated
+                    cboxOuterPnl.setPreferredSize(new Dimension(cboxOuterPnl.getPreferredSize().width,
+                                                                cboxOuterPnl.getMinimumSize().height));
+                }
+            });
 
             // Add the scrollable panel containing the check boxes to the outer check box panel in
             // order for the border to appear

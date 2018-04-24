@@ -613,15 +613,55 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private String getVariablePath(String variableName, String dataType, boolean includeCustom)
     {
-        return variableHandler.getFullVariableName(tableInfo.getTablePath()
-                                                   + ","
-                                                   + dataType
-                                                   + "."
-                                                   + variableName,
-                                                   varPathSep,
-                                                   hideDataType,
-                                                   typeNameSep,
-                                                   includeCustom);
+        // TODO IF THE USER CHANGES THE VAR NAME, DATA TYPE, OR ARRAY SIZE THEN THE
+        // VARIABLE HANDLER WON'T RECOGNIZE THE NEW PATH SO IT RETURNS A BLANK. THIS CHANGE CAUSES
+        // IT TO CREATE A PATH. THERE IS A (SMALL) POTENTIAL FOR THE PATH IT CREATES TO BE A
+        // DUPLICATE. NEED TO ENSURE THAT THIS AUTO-GENERATED NAME ISN'T SEEN AS A DELTA (OR GETS
+        // STORED AS A USEER-DEFINED NAME)
+
+        // Get the variable path in program format
+        String path = tableInfo.getTablePath() + "," + dataType + "." + variableName;
+
+        // Get the path, applying the separators
+        String convertedPath = variableHandler.getFullVariableName(path,
+                                                                   varPathSep,
+                                                                   hideDataType,
+                                                                   typeNameSep,
+                                                                   includeCustom);
+
+        // Check if the variable isn't found in the variable list. This occurs if the user changes
+        // the variable name, data type, or array size
+        if (convertedPath.isEmpty())
+        {
+            // Build the converted variable path
+            convertedPath = tableInfo.getTablePath()
+                            + varPathSep
+                            + (hideDataType
+                                            ? ""
+                                            : dataType
+                                              + typeNameSep)
+                            + variableName;
+
+            // Check if the converted path is already used by another variable
+            while (variableHandler.isVariablePathInUse(path, convertedPath))
+            {
+                // Modify the path by appending an underscore
+                convertedPath += "_";
+            }
+        }
+
+        return convertedPath;
+
+        // TODO WAS:
+        // return variableHandler.getFullVariableName(tableInfo.getTablePath()
+        // + ","
+        // + dataType
+        // + "."
+        // + variableName,
+        // varPathSep,
+        // hideDataType,
+        // typeNameSep,
+        // includeCustom);
     }
 
     /**********************************************************************************************
@@ -1382,11 +1422,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                          && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
                          && !typeDefn.isPointerAllowed()[column])
 
-                    // This is an array definition, and the column is flagged as having a unique
-                    // value, the input type is 'message ID', or is the variable path
+                    // This is an array definition, and the input type is 'message ID' or is the
+                    // variable path
                      || ((isArrayDefinition
-                          && ((column != variableNameIndex && typeDefn.isRowValueUnique()[column])
-                              || typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
+                          && (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
                               || column == variablePathIndex)))
 
                     // This is the bit length cell and either the array size is present or the data
@@ -3698,9 +3737,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // type, and array size values match for these rows. Only a child table with
                     // these parameters committed may be opened
                     if (!variableName.isEmpty()
-                        && variableName.equals(committedInfo.getData()[comRow][variableNameIndex])
-                        && dataType.equals(committedInfo.getData()[comRow][dataTypeIndex])
-                        && arraySize.equals(committedInfo.getData()[comRow][arraySizeIndex]))
+                        && variableName.equals(newMacroHandler.getMacroExpansion(committedInfo.getData()[comRow][variableNameIndex].toString()))
+                        && dataType.equals(newMacroHandler.getMacroExpansion(committedInfo.getData()[comRow][dataTypeIndex].toString()))
+                        && arraySize.equals(newMacroHandler.getMacroExpansion(committedInfo.getData()[comRow][arraySizeIndex].toString())))
                     {
                         // Check if the table isn't a prototype (i.e., it's a child structure), or
                         // if it is a prototype that it's a top-level (root) structure
@@ -3818,6 +3857,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if any columns displaying primitive data types only exist
         if (!primColumns.isEmpty())
         {
+            validDataTypes = new ArrayList<String>();
+
             // Create a combo box for displaying data types
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
@@ -3841,7 +3882,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if any columns displaying both primitive & structure data types exist
         if (!primAndStructColumns.isEmpty())
         {
-            validDataTypes = new ArrayList<String>();
+            // Check if the list of valid data types wasn't already created above
+            if (validDataTypes == null)
+            {
+                validDataTypes = new ArrayList<String>();
+            }
+
             invalidDataTypes = new ArrayList<String>();
 
             // Create a combo box for displaying data types
@@ -4829,8 +4875,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     /**********************************************************************************************
      * Propagate the value in the specified column of an array definition row to each member of the
-     * array. For a string array if an array member is changed then only propagate the value to the
-     * other members of that string
+     * array. If the row value is unique for the indicated column then the value isn't propagated.
+     * For a string array if an array member is changed then only propagate the value to the other
+     * members of that string
      *
      * @param tableData
      *            list containing the table data row arrays
@@ -4844,54 +4891,59 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void propagateArrayValues(List<Object[]> tableData, int firstRow, int columnChanged)
     {
-        // Get the variable name
-        String variableName = getExpandedValueAt(tableData, firstRow, variableNameIndex);
-
-        // Set to true if the updated row is the array's definition. Set to false to indicate that
-        // only the members of the string indicated by the specified row are to be updated
-        boolean isArrayDefn = !variableName.endsWith("]");
-
-        // Check if this is an initial string member or if the flag is set that prevents
-        // overwriting array members (and the table is open in an editor)
-        if (!isArrayDefn || editorDialog == null || !editorDialog.isArrayOverwriteNone())
+        // Check if the value for this column isn't unique (propagating the value to the members
+        // creates duplicate values)
+        if (!typeDefn.isRowValueUnique()[columnChanged])
         {
-            // Get the variable name without the array index. If only one string in an array of
-            // strings is having its value changed then include the array index portions other than
-            // those that define the string's length
-            variableName = isArrayDefn
-                                       ? ArrayVariable.removeArrayIndex(variableName)
-                                       : ArrayVariable.removeStringSize(variableName);
+            // Get the variable name
+            String variableName = getExpandedValueAt(tableData, firstRow, variableNameIndex);
 
-            int lastRow = firstRow;
+            // Set to true if the updated row is the array's definition. Set to false to indicate
+            // that only the members of the string indicated by the specified row are to be updated
+            boolean isArrayDefn = !variableName.endsWith("]");
 
-            // Step forward in order to determine the ending row for this array/string by comparing
-            // the variable name in the current row to that in the first row
-            do
+            // Check if this is an initial string member or if the flag is set that prevents
+            // overwriting array members (and the table is open in an editor)
+            if (!isArrayDefn || editorDialog == null || !editorDialog.isArrayOverwriteNone())
             {
-                lastRow++;
-            } while (lastRow < tableData.size()
-                     && variableName.equals(isArrayDefn
-                                                        ? ArrayVariable.removeArrayIndex(getExpandedValueAt(tableData,
-                                                                                                            lastRow,
-                                                                                                            variableNameIndex))
-                                                        : ArrayVariable.removeStringSize(getExpandedValueAt(tableData,
-                                                                                                            lastRow,
-                                                                                                            variableNameIndex))));
-            lastRow--;
+                // Get the variable name without the array index. If only one string in an array of
+                // strings is having its value changed then include the array index portions other
+                // than those that define the string's length
+                variableName = isArrayDefn
+                                           ? ArrayVariable.removeArrayIndex(variableName)
+                                           : ArrayVariable.removeStringSize(variableName);
 
-            // Step through the array member rows
-            for (int curRow = firstRow + 1; curRow <= lastRow; curRow++)
-            {
-                // Check if this is an initial string member or if the flag that allows all array
-                // members to be overwritten is set (and the table is open in an editor) or if the
-                // current row's column is empty
-                if (!isArrayDefn
-                    || getExpandedValueAt(tableData, curRow, columnChanged).isEmpty()
-                    || editorDialog == null
-                    || editorDialog.isArrayOverwriteAll())
+                int lastRow = firstRow;
+
+                // Step forward in order to determine the ending row for this array/string by
+                // comparing the variable name in the current row to that in the first row
+                do
                 {
-                    // Set the value for this member to match that of the first row
-                    tableData.get(curRow)[columnChanged] = tableData.get(firstRow)[columnChanged];
+                    lastRow++;
+                } while (lastRow < tableData.size()
+                         && variableName.equals(isArrayDefn
+                                                            ? ArrayVariable.removeArrayIndex(getExpandedValueAt(tableData,
+                                                                                                                lastRow,
+                                                                                                                variableNameIndex))
+                                                            : ArrayVariable.removeStringSize(getExpandedValueAt(tableData,
+                                                                                                                lastRow,
+                                                                                                                variableNameIndex))));
+                lastRow--;
+
+                // Step through the array member rows
+                for (int curRow = firstRow + 1; curRow <= lastRow; curRow++)
+                {
+                    // Check if this is an initial string member or if the flag that allows all
+                    // array members to be overwritten is set (and the table is open in an editor)
+                    // or if the current row's column is empty
+                    if (!isArrayDefn
+                        || getExpandedValueAt(tableData, curRow, columnChanged).isEmpty()
+                        || editorDialog == null
+                        || editorDialog.isArrayOverwriteAll())
+                    {
+                        // Set the value for this member to match that of the first row
+                        tableData.get(curRow)[columnChanged] = tableData.get(firstRow)[columnChanged];
+                    }
                 }
             }
         }

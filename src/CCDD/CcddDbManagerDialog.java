@@ -164,6 +164,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                              roleInfo,
                                              null,
                                              "Select project owner",
+                                             false,
                                              selectPnl,
                                              gbc))
                         {
@@ -191,6 +192,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                              arrayItemData,
                                              disabledItems,
                                              "Select a project to open",
+                                             false,
                                              selectPnl,
                                              gbc))
                         {
@@ -213,6 +215,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             arrayItemData,
                                             disabledItems,
                                             "Select a project to rename",
+                                            false,
                                             selectPnl,
                                             gbc))
                         {
@@ -240,6 +243,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             arrayItemData,
                                             disabledItems,
                                             "Select a project to copy",
+                                            false,
                                             selectPnl,
                                             gbc))
                         {
@@ -316,6 +320,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                            arrayItemData,
                                            disabledItems,
                                            "Select a project to delete",
+                                           false,
                                            selectPnl))
                         {
                             // Inform the user that no project exists on the server
@@ -335,6 +340,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                            arrayItemData,
                                            disabledItems,
                                            "Select a project to unlock",
+                                           true,
                                            selectPnl))
                         {
                             // Inform the user that no project exists on the server
@@ -882,7 +888,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     String[] databaseAndUser = active.split(",");
 
                     // Check if the database name matches the one in the list
-                    if (arrayItemData[index][DB_PRJNAME].equalsIgnoreCase(databaseAndUser[0]))
+                    if (dbControl.convertProjectNameToDatabase(arrayItemData[index][DB_PRJNAME]).equals(databaseAndUser[0]))
                     {
                         // Append the user name to the status text
                         status += databaseAndUser[1] + ", ";
@@ -894,6 +900,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Check if the database is locked
                 if (isLocked)
                 {
+                    // Use a dummy name if no user is identified
+                    status = status.isEmpty()
+                                              ? "*unknown*"
+                                              : status;
+
                     // Check if this is the currently open database
                     if (arrayItemData[index][DB_PRJNAME].equals(dbControl.getDatabaseName()))
                     {
@@ -918,7 +929,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 }
 
                 // Replace the lock status flag with expanded lock status
-                arrayItemData[index][DB_LOCK] = "<html><i>" + status;
+                arrayItemData[index][DB_LOCK] = status;
             }
             // Not the unlock dialog
             else
@@ -931,7 +942,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         }
 
         // Remove the column containing the database version of the project name
-        arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData), DB_DBNAME)
+        arrayItemData = CcddUtilities.removeArrayListColumn(Arrays.asList(arrayItemData),
+                                                            DB_DBNAME)
                                      .toArray(new String[0][0]);
     }
 }

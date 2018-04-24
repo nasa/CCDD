@@ -786,6 +786,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                               arrayItemData,
                               disabledItems,
                               "Select target data stream(s)",
+                              false,
                               streamPnl))
             {
                 // Create a panel to contain the dialog components
