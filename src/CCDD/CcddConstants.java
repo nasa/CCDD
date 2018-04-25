@@ -212,6 +212,8 @@ public class CcddConstants
     protected static final String INSERT_ICON = "/images/insert.png";
     protected static final String DELETE_ICON = "/images/delete.png";
     protected static final String REPLACE_ICON = "/images/replace.png";
+    protected static final String REPLACE_FIND_ICON = "/images/replace_find.png";
+    protected static final String REPLACE_ALL_ICON = "/images/replace_all.png";
     protected static final String UP_ICON = "/images/up.png";
     protected static final String DOWN_ICON = "/images/down.png";
     protected static final String LEFT_ICON = "/images/left.png";
@@ -236,6 +238,7 @@ public class CcddConstants
     protected static final String FIELD_ICON = "/images/field.png";
     protected static final String CLEAR_ICON = "/images/clear.png";
     protected static final String SEARCH_ICON = "/images/search.png";
+    protected static final String SEARCH_PREVIOUS_ICON = "/images/search_previous.png";
     protected static final String TABLE_ICON = "/images/table.png";
     protected static final String CCDD_ICON = "/images/CCDD.png";
     protected static final String VARIABLE_ICON = "/images/variable.png";

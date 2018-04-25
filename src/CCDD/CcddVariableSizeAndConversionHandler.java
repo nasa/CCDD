@@ -867,19 +867,11 @@ public class CcddVariableSizeAndConversionHandler
             // returned
             if (isVariable.get(index))
             {
-                // Convert the variable path + name using underscores to separate the variables in
-                // the path, and retain the data types
+                // Convert the variable path + name
                 fullName = convertVariableName(structureAndVariablePaths.get(index),
                                                varPathSeparator,
                                                excludeDataTypes,
                                                typeNameSeparator);
-
-                // Compare the converted variable name to those already added to the list
-                while (convertedVariableName.contains(fullName))
-                {
-                    // A matching name already exists; append an underscore to this variable's name
-                    fullName += "_";
-                }
             }
 
             // Add the variable name to the converted variable name list
@@ -1005,11 +997,12 @@ public class CcddVariableSizeAndConversionHandler
     }
 
     /**********************************************************************************************
-     * Retain or remove the data types in the supplied variable path + name based on the input
-     * flag, replace the commas in the (which separate each structure variable in the path) with
-     * the specified separator character, replace any left brackets with underscores and right
-     * brackets with blanks (in case there are any array members in the path), and remove the bit
-     * length (if one is present)
+     * Return a unique name based on the variable path and the supplied separators. Retain or
+     * remove the data types in the supplied variable path + name based on the input flag, replace
+     * the commas in the (which separate each structure variable in the path) with the specified
+     * separator character, replace any left brackets with underscores and right brackets with
+     * blanks (in case there are any array members in the path), and remove the bit length (if one
+     * is present). Underscores are appended if the resulting name matches an existing one
      *
      * @param fullName
      *            variable path + name in the normal application format
@@ -1025,12 +1018,13 @@ public class CcddVariableSizeAndConversionHandler
      *
      * @return Variable path + name with the data types retained or removed, commas replaced by the
      *         separator character(s), left brackets replaced by underscores, right brackets
-     *         removed, and the bit length removed (if present)
+     *         removed, and the bit length removed (if present). Underscores are appended if the
+     *         resulting name matches an existing one so that teh returned name is unique
      *********************************************************************************************/
-    private String convertVariableName(String fullName,
-                                       String varPathSeparator,
-                                       boolean excludeDataTypes,
-                                       String typeNameSeparator)
+    protected String convertVariableName(String fullName,
+                                         String varPathSeparator,
+                                         boolean excludeDataTypes,
+                                         String typeNameSeparator)
     {
         // Check if data types are to be excluded
         if (excludeDataTypes)
@@ -1047,11 +1041,21 @@ public class CcddVariableSizeAndConversionHandler
             fullName = fullName.replaceAll("\\.", "@~~@");
         }
 
-        return fullName.replaceAll(",", varPathSeparator)
-                       .replaceAll("@~~@", typeNameSeparator)
-                       .replaceAll("\\[", "_")
-                       .replaceAll("\\]", "")
-                       .replaceFirst("\\:\\d+$", "");
+        // Replace the path and type separators
+        fullName = fullName.replaceAll(",", varPathSeparator)
+                           .replaceAll("@~~@", typeNameSeparator)
+                           .replaceAll("\\[", "_")
+                           .replaceAll("\\]", "")
+                           .replaceFirst("\\:\\d+$", "");
+
+        // Compare the converted variable name to those already added to the list
+        while (convertedVariableName.contains(fullName))
+        {
+            // A matching name already exists; append an underscore to this variable's name
+            fullName += "_";
+        }
+
+        return fullName;
     }
 
     /**********************************************************************************************

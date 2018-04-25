@@ -613,12 +613,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private String getVariablePath(String variableName, String dataType, boolean includeCustom)
     {
-        // TODO IF THE USER CHANGES THE VAR NAME, DATA TYPE, OR ARRAY SIZE THEN THE
-        // VARIABLE HANDLER WON'T RECOGNIZE THE NEW PATH SO IT RETURNS A BLANK. THIS CHANGE CAUSES
-        // IT TO CREATE A PATH. THERE IS A (SMALL) POTENTIAL FOR THE PATH IT CREATES TO BE A
-        // DUPLICATE. NEED TO ENSURE THAT THIS AUTO-GENERATED NAME ISN'T SEEN AS A DELTA (OR GETS
-        // STORED AS A USEER-DEFINED NAME)
-
         // Get the variable path in program format
         String path = tableInfo.getTablePath() + "," + dataType + "." + variableName;
 
@@ -634,34 +628,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         if (convertedPath.isEmpty())
         {
             // Build the converted variable path
-            convertedPath = tableInfo.getTablePath()
-                            + varPathSep
-                            + (hideDataType
-                                            ? ""
-                                            : dataType
-                                              + typeNameSep)
-                            + variableName;
-
-            // Check if the converted path is already used by another variable
-            while (variableHandler.isVariablePathInUse(path, convertedPath))
-            {
-                // Modify the path by appending an underscore
-                convertedPath += "_";
-            }
+            convertedPath = variableHandler.convertVariableName(path,
+                                                                varPathSep,
+                                                                hideDataType,
+                                                                typeNameSep);
         }
 
         return convertedPath;
-
-        // TODO WAS:
-        // return variableHandler.getFullVariableName(tableInfo.getTablePath()
-        // + ","
-        // + dataType
-        // + "."
-        // + variableName,
-        // varPathSep,
-        // hideDataType,
-        // typeNameSep,
-        // includeCustom);
     }
 
     /**********************************************************************************************

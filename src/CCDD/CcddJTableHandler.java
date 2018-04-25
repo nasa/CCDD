@@ -1443,15 +1443,6 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
-        // TODO WAS: (only # of rows checked, via the data vector size; causes exception if # of
-        // column increased)
-        // Check if the number of table rows changed
-        // if (tableData.length != tableModel.getDataVector().size())
-        // TODO ADDED: (added # of columns using the data vector)
-        // if (tableData.length != tableModel.getDataVector().size()
-        // || (tableData.length != 0 && tableModel.getDataVector().size() != 0 &&
-        // tableData[0].length != ((Vector<?>) tableModel.getDataVector().elementAt(0)).size()))
-        // TODO CHANGED TO: (# of row & columns, using the row & column count)
         // Check if the number of table rows or columns changed
         if (tableData.length != tableModel.getRowCount()
             || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
@@ -4185,8 +4176,7 @@ public abstract class CcddJTableHandler extends JTable
                         {
                             // Load the array of data into the table to reflect the updates made
                             // during validation
-                            loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
-                                                   true);
+                            loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
 
                             // Flag the end of the editing sequence for undo/redo purposes
                             undoManager.endEditSequence();

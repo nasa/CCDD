@@ -7,9 +7,11 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CLOSE_ICON;
-import static CCDD.CcddConstants.LEFT_ICON;
+import static CCDD.CcddConstants.REPLACE_ALL_ICON;
+import static CCDD.CcddConstants.REPLACE_FIND_ICON;
 import static CCDD.CcddConstants.REPLACE_ICON;
 import static CCDD.CcddConstants.SEARCH_ICON;
+import static CCDD.CcddConstants.SEARCH_PREVIOUS_ICON;
 import static CCDD.CcddConstants.SEARCH_STRINGS;
 import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 
@@ -65,7 +67,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     private JButton btnReplace;
     private JButton btnReplaceFind;
     private JButton btnReplaceAll;
-    private JTextField replaceFld; // TODO SHOULD THIS BE AUTOCOMPLETE?
+    private JTextField replaceFld;
 
     // Pattern for matching search text in the table cells
     private Pattern searchPattern;
@@ -74,6 +76,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     private String prevSearchText;
     private boolean prevIgnoreCase;
     private boolean prevAllowRegex;
+
+    // Flag that indicates if text was replaced in a table cell
+    private boolean isReplaced;
 
     // Listener for table editor dialog focus events; used in conjunction with the find/replace
     // dialog
@@ -307,14 +312,14 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
 
-                searchTable(false);
+                searchTable();
                 selectNextMatchingCell(1);
             }
         });
 
         // Find backward button
         JButton btnFindPrevious = CcddButtonPanelHandler.createButton("Find previous",
-                                                                      LEFT_ICON,
+                                                                      SEARCH_PREVIOUS_ICON,
                                                                       KeyEvent.VK_P,
                                                                       "Search backwards from the current cell for a cell containing a match");
 
@@ -328,14 +333,14 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                searchTable(false);
+                searchTable();
                 selectNextMatchingCell(-1);
             }
         });
 
         // Replace/find matching text button
         btnReplaceFind = CcddButtonPanelHandler.createButton("Replace/find",
-                                                             REPLACE_ICON, // TODO
+                                                             REPLACE_FIND_ICON,
                                                              KeyEvent.VK_L,
                                                              "Replace the matching text in the currently selected cell, "
                                                                             + "then select the next cell containing a match");
@@ -351,7 +356,6 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 replaceSelected();
-                searchTable(true);
                 selectNextMatchingCell(1);
             }
         });
@@ -372,13 +376,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 replaceSelected();
-                searchTable(true);
             }
         });
 
         // Replace all matching text button
         btnReplaceAll = CcddButtonPanelHandler.createButton("Replace all",
-                                                            REPLACE_ICON, // TODO
+                                                            REPLACE_ALL_ICON,
                                                             KeyEvent.VK_A,
                                                             "Replace the matching text in all table cells");
 
@@ -393,7 +396,6 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             public void actionPerformed(ActionEvent ae)
             {
                 replaceAll();
-                searchTable(true);
             }
         });
 
@@ -550,22 +552,14 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Search the table for text matching the search criteria
-     *
-     * @param forceSearch
-     *            false to allow a search only if the search criteria changed; true to force the
-     *            search operation (such as after a replace operation so that the match count is
-     *            updated)
      *********************************************************************************************/
-    private void searchTable(boolean forceSearch)
+    private void searchTable()
     {
         // Check if the search criteria changed
-        if (forceSearch
-            || !searchFld.getText().equals(prevSearchText)
+        if (!searchFld.getText().equals(prevSearchText)
             || ignoreCaseCb.isSelected() != prevIgnoreCase
             || allowRegexCb.isSelected() != prevAllowRegex)
         {
-            int matchCount = 0;
-
             // Store the search criteria
             prevSearchText = searchFld.getText();
             prevIgnoreCase = ignoreCaseCb.isSelected();
@@ -587,42 +581,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             // Highlight the matching text in the table cells
             table.highlightSearchText(searchPattern);
 
-            // Check if a search is in effect
-            if (searchPattern != null)
-            {
-                // Step through each row in the table (including hidden ones)
-                for (int row = 0; row < table.getModel().getRowCount(); row++)
-                {
-                    // Step through each column in the table (including hidden ones)
-                    for (int column = 0; column < table.getModel().getColumnCount(); column++)
-                    {
-                        // Check if the column is visible
-                        if (!table.isColumnHidden(column))
-                        {
-                            // TODO COLUMNS WITH DROP-DOWNS SHOULD BE IGNORED? MAYBE NOT ALL, BUT
-                            // SOME (E.G., APPLICABILITY)
-                            // Create the pattern matcher from the pattern
-                            Matcher matcher = searchPattern.matcher(table.getModel().getValueAt(row, column).toString());
-
-                            // Check if there is a match in the cell value
-                            while (matcher.find())
-                            {
-                                // Update the match results counter
-                                matchCount++;
-                            }
-                        }
-                    }
-                }
-
-                // Update the number of results found label
-                numMatchesLbl.setText("  (" + matchCount + " matches)");
-            }
-            // No search is in effect
-            else
-            {
-                // Blank the number of matches text
-                numMatchesLbl.setText("");
-            }
+            // Update the number of results found label
+            int matchCount = updateMatchCount();
 
             // Enable/disable the previous and next buttons based on if search text is present
             setReplaceEnable(matchCount != 0);
@@ -644,6 +604,8 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             // Check if a cell is selected
             if (row != -1 && column != -1)
             {
+                isReplaced = false;
+
                 // Get the table data array
                 List<Object[]> tableData = table.getTableDataList(false);
 
@@ -653,6 +615,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
                 // Replace the matching text in the selected cell
                 replaceMatchInCell(tableData, row, column, true, false);
+
+                // Update the table data if a replacement occurred
+                updateTableData(tableData);
             }
         }
     }
@@ -666,6 +631,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         if (searchPattern != null)
         {
             Boolean isContinue = true;
+            isReplaced = false;
 
             // Get the table data array
             List<Object[]> tableData = table.getTableDataList(false);
@@ -680,6 +646,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                     isContinue = replaceMatchInCell(tableData, row, column, isContinue, true);
                 }
             }
+
+            // Update the table data if a replacement occurred
+            updateTableData(tableData);
         }
     }
 
@@ -723,12 +692,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             Matcher matcher = searchPattern.matcher(oldValue.toString());
 
             // Check if there is a match in the cell value
-            if (matcher.find())
+            while (matcher.find())
             {
                 // Replace all matching text in the cell and validate the cell contents. If invalid
                 // the cell contents is automatically reverted to its previous value, which is
                 // assumed to be valid, so the flag indicating the last cell is valid is set
-                Object newValue = matcher.replaceAll(replaceFld.getText());
+                Object newValue = matcher.replaceFirst(replaceFld.getText());
                 table.getModel().setValueAt(newValue, row, column);
                 isContinue = table.validateCellContent(tableData,
                                                        row,
@@ -738,6 +707,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                                                        isContinue,
                                                        isMultiple);
                 table.setLastCellValid(true);
+                isReplaced = true;
             }
         }
 
@@ -829,7 +799,10 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                 if (!table.isColumnHidden(column))
                 {
                     // Create the pattern matcher from the search pattern
-                    Matcher matcher = searchPattern.matcher(table.getModel().getValueAt(row, column).toString());
+                    Matcher matcher = searchPattern.matcher(table.getModel()
+                                                                 .getValueAt(row,
+                                                                             column)
+                                                                 .toString());
 
                     // Check if there is a match in the cell value
                     if (matcher.find())
@@ -866,6 +839,77 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             // Continue to search until a match is found of the search wraps around to the starting
             // cell
         }
+    }
+
+    /**********************************************************************************************
+     * Update the table data if a replacement occurred
+     *
+     * @param tableData
+     *            list containing the table data row arrays
+     *********************************************************************************************/
+    private void updateTableData(List<Object[]> tableData)
+    {
+        // Check if text was replaced in a table cell
+        if (isReplaced)
+        {
+            // Load the array of data into the table
+            table.loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
+
+            // Force the table to redraw in order for all changes to appear
+            repaint();
+
+            // Flag the end of the editing sequence for undo/redo purposes
+            table.getUndoManager().endEditSequence();
+
+            // Update the number of results found label
+            updateMatchCount();
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the match counter text in the search dialog
+     *
+     * @return Number of matches
+     *********************************************************************************************/
+    private int updateMatchCount()
+    {
+        int matchCount = 0;
+
+        // Check if a search is in effect
+        if (searchPattern != null)
+        {
+            // Step through each row in the table (including hidden ones)
+            for (int row = 0; row < table.getModel().getRowCount(); row++)
+            {
+                // Step through each column in the table (including hidden ones)
+                for (int column = 0; column < table.getModel().getColumnCount(); column++)
+                {
+                    // Check if the column is visible
+                    if (!table.isColumnHidden(column))
+                    {
+                        // Create the pattern matcher from the pattern
+                        Matcher matcher = searchPattern.matcher(table.getModel()
+                                                                     .getValueAt(row,
+                                                                                 column)
+                                                                     .toString());
+
+                        // Check if there is a match in the cell value
+                        while (matcher.find())
+                        {
+                            // Update the match results counter
+                            matchCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update the number of matches found label
+        numMatchesLbl.setText(matchCount != 0
+                                              ? "  (" + matchCount + " matches)"
+                                              : "");
+
+        return matchCount;
     }
 
     /**********************************************************************************************
