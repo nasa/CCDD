@@ -29,6 +29,12 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.ccsds.schema.sois.seds.ArrayDataType;
 import org.ccsds.schema.sois.seds.ArrayDimensionsType;
@@ -673,7 +679,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // The full table name, with path, should be stored in the name space's short description
         // (the name space name doesn't allow the commas and periods used by the table path so it
         // has to go elsewhere; the export operation does this). If the short description doesn't
-        // exist, or isn't in the correct format, then the table name is extracted form the name
+        // exist, or isn't in the correct format, then the table name is extracted from the name
         // space name; however, this creates a 'flat' table reference, making it a prototype
         String tableName = namespace.getShortDescription() != null
                            && namespace.getShortDescription().matches(TABLE_PATH)
@@ -2043,8 +2049,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                (EndianType) extraInfo[0],
                                (boolean) extraInfo[1]);
 
-            // Output the XML to the specified file
-            marshaller.marshal(project, exportFile);
+            // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+            // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+            // is used to set the indentation amount (it doesn't have an indentation level limit)
+            DOMResult domResult = new DOMResult();
+            marshaller.marshal(project, domResult);
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+            transformer.transform(new DOMSource(domResult.getNode()),
+                                  new StreamResult(exportFile));
         }
         catch (JAXBException je)
         {
@@ -3646,29 +3660,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         return enumList;
-    }
-
-    /**********************************************************************************************
-     * Replace each space, comma, and period with an underscore and move any leading underscores to
-     * the end of each path segment
-     *
-     * @param path
-     *            system path in the form <</>path1</path2<...>>
-     *
-     * @return Path with each space, comma, and period replaced with an underscore and any leading
-     *         underscores moved to the end of each path segment
-     *********************************************************************************************/
-    private String cleanSystemPath(String path)
-    {
-        // Check if the path exists
-        if (path != null)
-        {
-            // Replace each space with an underscore and move any leading underscores to the end of
-            // each path segment
-            path = path.replaceAll("[ \\,\\.]", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
-        }
-
-        return path;
     }
 
     /**********************************************************************************************

@@ -901,15 +901,16 @@ public class CcddTableTypeHandler
             for (Object[] cmdArgCol : commandArgumentColumns)
             {
                 // Update the argument name with the argument index
-                cmdArgCol[0] = cmdArgCol[0].toString().replaceFirst("###", String.valueOf(argumentIndex));
+                String argName = cmdArgCol[0].toString().replaceFirst("###",
+                                                                      String.valueOf(argumentIndex));
 
                 // Add the command argument column. The argument description is updated with the
                 // argument index
                 addColumn(columnIndex,
-                          DefaultColumn.convertVisibleToDatabase(cmdArgCol[0].toString(),
+                          DefaultColumn.convertVisibleToDatabase(argName,
                                                                  (InputDataType) cmdArgCol[2],
                                                                  false),
-                          cmdArgCol[0].toString(),
+                          argName,
                           cmdArgCol[1].toString().replaceFirst("###",
                                                                String.valueOf(argumentIndex)),
                           (InputDataType) cmdArgCol[2],

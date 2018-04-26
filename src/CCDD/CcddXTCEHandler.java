@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.COL_MAXIMUM;
 import static CCDD.CcddConstants.COL_MINIMUM;
+import static CCDD.CcddConstants.TABLE_PATH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -27,6 +28,12 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.omg.space.xtce.AggregateDataType;
 import org.omg.space.xtce.AggregateDataType.MemberList;
@@ -742,8 +749,34 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                      ImportType importType,
                                      boolean onlyCmdToStruct) throws CCDDException
     {
-        // Get the table name based from the space system name
-        String tableName = system.getName();
+        // The full table name, with path, should be stored in the space system's short description
+        // (the space system name doesn't allow the commas and periods used by the table path so it
+        // has to go elsewhere; the export operation does this). If the short description doesn't
+        // exist, or isn't in the correct format, then the table name is extracted from the space
+        // system name; however, this creates a 'flat' table reference, making it a prototype
+        String tableName = system.getShortDescription() != null
+                           && system.getShortDescription().matches(TABLE_PATH)
+                                                                               ? system.getShortDescription()
+                                                                               : system.getName();
+
+        // Get the end of the system path
+        int index = system.getName().lastIndexOf("/");
+
+        // Check if the system path exists
+        if (index != -1)
+        {
+            // Extract the system path and remove it from the table name
+            systemPath = system.getName().substring(0, index);
+
+            // Check if the table name contains the system path (this is the case if the table name
+            // is extracted from the space system name and a system path is present)
+            if (tableName.contains("/"))
+            {
+                // Get the table name portion. Note that the name in this case can't have a path so
+                // the table is treated as a prototype
+                tableName = tableName.substring(0, index);
+            }
+        }
 
         // Get the child system's telemetry metadata information
         TelemetryMetaDataType tlmMetaData = system.getTelemetryMetaData();
@@ -2008,8 +2041,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 (String) extraInfo[5],
                                 (String) extraInfo[6]);
 
-            // Output the XML to the specified file
-            marshaller.marshal(project, exportFile);
+            // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+            // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+            // is used to set the indentation amount (it doesn't have an indentation level limit)
+            DOMResult domResult = new DOMResult();
+            marshaller.marshal(project, domResult);
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+            transformer.transform(new DOMSource(domResult.getNode()),
+                                  new StreamResult(exportFile));
         }
         catch (JAXBException je)
         {
@@ -2244,8 +2285,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                     // Get the name of the system to which this table belongs from the table's
                     // system path data field (if present)
-                    String systemPath = fieldHandler.getFieldValue(tableName,
-                                                                   InputDataType.SYSTEM_PATH);
+                    String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
+                                                                                   InputDataType.SYSTEM_PATH));
 
                     // Initialize the parent system to be the root (top-level) system
                     SpaceSystemType parentSystem = project.getValue();
@@ -2471,9 +2512,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                       + (dataTypeHandler.isPrimitive(rowData[typeColumn])
                                                                                                           ? rowData[varColumn]
                                                                                                           : tableName
-                                                                                                            + ","
+                                                                                                            + "_"
                                                                                                             + rowData[typeColumn]
-                                                                                                            + "."
+                                                                                                            + "_"
                                                                                                             + rowData[varColumn])
                                                       + TYPE);
                                     memberList.getMember().add(member);
@@ -2513,7 +2554,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         for (String tableName : tableNames)
         {
             // Get the space system for this table
-            SpaceSystemType spaceSystem = getSpaceSystemByName(tableName, project.getValue());
+            SpaceSystemType spaceSystem = getSpaceSystemByName(cleanSystemPath(tableName),
+                                                               project.getValue());
 
             // Check if the system was found and it has telemetry data
             if (spaceSystem != null && spaceSystem.getTelemetryMetaData() != null)
@@ -2579,7 +2621,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     {
         // Create the new space system and set the name attribute
         SpaceSystemType childSystem = factory.createSpaceSystemType();
-        childSystem.setName(systemName);
+        childSystem.setName(cleanSystemPath(systemName));
 
         // Check if a description is provided
         if (description != null && !description.isEmpty())
@@ -2587,6 +2629,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Set the description attribute
             childSystem.setLongDescription(description);
         }
+
+        // Store the table name, with its full path, in the short description field. This is used
+        // if the export file is used to import tables into a project
+        childSystem.setShortDescription(systemName);
 
         // Set the new space system's header attributes
         setHeader(childSystem,
@@ -2766,8 +2812,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         EntryListType entryList = factory.createEntryListType();
 
         // Get the name of the system to which this referenced structure belongs
-        String refSystemName = fieldHandler.getFieldValue(tableInfo.getTablePath(),
-                                                          InputDataType.SYSTEM_PATH);
+        String refSystemName = cleanSystemPath(fieldHandler.getFieldValue(tableInfo.getTablePath(),
+                                                                          InputDataType.SYSTEM_PATH));
 
         // Step through each row of data in the structure table
         for (String[] rowData : tableInfo.getData())
@@ -2830,10 +2876,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                  || refSystemName.isEmpty()
                                                                             ? ""
                                                                             : "/" + refSystemName)
-                                              + "/" + spaceSystem.getName() + ","
-                                              + rowData[typeColumn] + "." + rowData[varColumn]
-                                              + "/" + spaceSystem.getName() + ","
-                                              + rowData[typeColumn] + "." + rowData[varColumn]);
+                                              + "/" + spaceSystem.getName() + "_"
+                                              + rowData[typeColumn] + "_" + rowData[varColumn]
+                                              + "/" + spaceSystem.getName() + "_"
+                                              + rowData[typeColumn] + "_" + rowData[varColumn]);
                 entryList.getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry().add(containerType);
             }
             // This is a reference to the telemetry header table
@@ -2845,10 +2891,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                             || refSystemName.isEmpty()
                                                                        ? ""
                                                                        : "/" + refSystemName)
-                                         + "/" + spaceSystem.getName() + ","
-                                         + rowData[typeColumn] + "." + rowData[varColumn]
-                                         + "/" + spaceSystem.getName() + ","
-                                         + rowData[typeColumn] + "." + rowData[varColumn];
+                                         + "/" + spaceSystem.getName() + "_"
+                                         + rowData[typeColumn] + "_" + rowData[varColumn]
+                                         + "/" + spaceSystem.getName() + "_"
+                                         + rowData[typeColumn] + "_" + rowData[varColumn];
             }
         }
 
@@ -3002,9 +3048,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         parameter.setParameterTypeRef((dataTypeHandler.isPrimitive(dataType)
                                                                              ? parameterName
                                                                              : spaceSystem.getName()
-                                                                               + ","
+                                                                               + "_"
                                                                                + dataType
-                                                                               + "."
+                                                                               + "_"
                                                                                + parameterName)
                                       + (arraySize.isEmpty()
                                                              ? TYPE
@@ -3308,6 +3354,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             int index = 0;
             ArgumentList argList = factory.createMetaCommandTypeArgumentList();
             CommandContainerType cmdContainer = factory.createCommandContainerType();
+            cmdContainer.setName(commandName);
             CommandContainerEntryListType entryList = factory.createCommandContainerEntryListType();
 
             // Step through each argument
@@ -3500,8 +3547,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the a corresponding base data type exists
             if (baseDataType != null)
             {
-                // Set the parameter units
-                UnitSet unitSet = createUnitSet(units);
+                // Set the command units
+                UnitSet unitSet = units != null && !units.isEmpty()
+                                                                    ? createUnitSet(units)
+                                                                    : factory.createBaseDataTypeUnitSet();
 
                 // Check if enumeration parameters are provided
                 if (enumeration != null && !enumeration.isEmpty())
@@ -3544,7 +3593,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                     enumType.setIntegerDataEncoding(intEncodingType);
 
-                    // Set the enumeration list and units attributes
+                    // Set the enumeration list and units
                     enumType.setEnumerationList(enumList);
                     enumType.setUnitSet(unitSet);
 
@@ -3558,7 +3607,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         case INTEGER:
                             // Create an integer parameter and set its attributes
                             IntegerParameterType integerType = factory.createParameterTypeSetTypeIntegerParameterType();
-                            integerType.setUnitSet(unitSet);
                             IntegerDataEncodingType intEncodingType = factory.createIntegerDataEncodingType();
 
                             // Check if the parameter has a bit length
@@ -3591,7 +3639,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                                                                 ? "mostSignificantBitFirst"
                                                                                                                                                 : "leastSignificantBitFirst");
 
+                            // Set the encoding type and units
                             integerType.setIntegerDataEncoding(intEncodingType);
+                            integerType.setUnitSet(unitSet);
 
                             // Check if a minimum or maximum value is specified
                             if ((minimum != null && !minimum.isEmpty())
@@ -3628,6 +3678,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             floatEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                             floatEncodingType.setEncoding("IEEE754_1985");
                             floatType.setFloatDataEncoding(floatEncodingType);
+                            floatType.setUnitSet(unitSet);
 
                             // Check if a minimum or maximum value is specified
                             if ((minimum != null && !minimum.isEmpty())
@@ -3658,7 +3709,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         case STRING:
                             // Create a string parameter and set its attributes
                             StringParameterType stringType = factory.createParameterTypeSetTypeStringParameterType();
-                            stringType.setUnitSet(unitSet);
                             StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
 
                             // Set the string's size in bits based on the number of characters in
@@ -3672,6 +3722,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             stringType.setStringDataEncoding(stringEncodingType);
                             stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
+                            stringType.setUnitSet(unitSet);
                             parameterType = stringType;
                             break;
                     }
@@ -3683,8 +3734,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Create an aggregate type for the structure
             AggregateDataType aggregateType = factory.createAggregateDataType();
-            parameterName = spaceSystem.getName() + "," + dataType + "." + parameterName;
+            parameterName = spaceSystem.getName() + "_" + dataType + "_" + parameterName;
             parameterType = aggregateType;
+
+            // TODO ADDED TO SATISFY XML VALIDATOR
+            MemberList memberList = factory.createAggregateDataTypeMemberList();
+            Member member = factory.createAggregateDataTypeMemberListMember();
+            member.setName("");
+            member.setTypeRef("");
+            memberList.getMember().add(member);
+            aggregateType.setMemberList(memberList);
         }
 
         // Set the parameter type name
@@ -3780,14 +3839,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Check if the a corresponding base data type exists
         if (baseDataType != null)
         {
-            UnitSet unitSet = null;
-
-            // Check if units is provided
-            if (units != null && !units.isEmpty())
-            {
-                // Set the command units
-                unitSet = createUnitSet(units);
-            }
+            // Set the command units
+            UnitSet unitSet = units != null && !units.isEmpty()
+                                                                ? createUnitSet(units)
+                                                                : factory.createBaseDataTypeUnitSet();
 
             // Check if enumeration parameters are provided
             if (enumeration != null && !enumeration.isEmpty())
@@ -3875,7 +3930,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                          ? "mostSignificantBitFirst"
                                                                                                          : "leastSignificantBitFirst");
 
+                        // Set the encoding type and units
                         integerType.setIntegerDataEncoding(intEncodingType);
+                        integerType.setUnitSet(unitSet);
 
                         // Check if a minimum or maximum value is specified
                         if ((minimum != null && !minimum.isEmpty())
@@ -3913,6 +3970,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         floatEncodingType.setSizeInBits(BigInteger.valueOf(dataTypeHandler.getSizeInBits(dataType)));
                         floatEncodingType.setEncoding("IEEE754_1985");
                         floatType.setFloatDataEncoding(floatEncodingType);
+                        floatType.setUnitSet(unitSet);
 
                         // Check if a minimum or maximum value is specified
                         if ((minimum != null && !minimum.isEmpty())
@@ -3945,7 +4003,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     case STRING:
                         // Create a string command argument and set its attributes
                         StringDataType stringType = factory.createStringDataType();
-                        stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
                         StringDataEncodingType stringEncodingType = factory.createStringDataEncodingType();
 
                         // Set the string's size in bits based on the number of characters in the
@@ -3958,6 +4015,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         stringEncodingType.setEncoding("UTF-8");
 
                         stringType.setStringDataEncoding(stringEncodingType);
+                        stringType.setCharacterWidth(BigInteger.valueOf(stringSize));
+                        stringType.setUnitSet(unitSet);
                         commandDescription = stringType;
                         break;
                 }

@@ -715,4 +715,27 @@ public class CcddImportSupportHandler
                                                      ? parameterName
                                                      : dataType;
     }
+
+    /**********************************************************************************************
+     * Replace each space, comma, and period with an underscore and move any leading underscores to
+     * the end of each path segment
+     *
+     * @param path
+     *            system path in the form <</>path1</path2<...>>
+     *
+     * @return Path with each space, comma, and period replaced with an underscore and any leading
+     *         underscores moved to the end of each path segment
+     *********************************************************************************************/
+    protected String cleanSystemPath(String path)
+    {
+        // Check if the path exists
+        if (path != null)
+        {
+            // Replace each space with an underscore and move any leading underscores to the end of
+            // each path segment
+            path = path.replaceAll("[ \\,\\.]", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
+        }
+
+        return path;
+    }
 }
