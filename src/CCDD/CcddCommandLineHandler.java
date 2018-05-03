@@ -690,7 +690,7 @@ public class CcddCommandLineHandler
 
                             // Check if the name contains a file extension (it's a script file
                             // name)
-                            if (scriptAndTable[0].contains("."))
+                            if (name.contains("."))
                             {
                                 // Set the script and table in the association array (assumes no
                                 // table(s))

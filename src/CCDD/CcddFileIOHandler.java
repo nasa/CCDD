@@ -371,6 +371,15 @@ public class CcddFileIOHandler
                 // Read each line in the backup file
                 while ((line = br.readLine()) != null)
                 {
+                    // Check if this line creates the plpgsql language
+                    if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;"))
+                    {
+                        // Add the command to first drop the language. This allows backups created
+                        // from PostgreSQL versions 8.4 and earlier to be restored in version 9.0
+                        // and subsequent without generating an error
+                        line = "DROP LANGUAGE IF EXISTS plpgsql;\n" + line;
+                    }
+
                     // Check if the database owner hasn't been found already and that the line
                     // contains the owner information
                     if (!ownerFound

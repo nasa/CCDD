@@ -1237,11 +1237,11 @@ public abstract class CcddJTableHandler extends JTable
         // editing. If the table cells and rows are editable then set the keys for these actions
         setEditorKeys(isRowsAlterable);
 
-        // Add a listener for scroll bar thumb position changes
+        // Add a listener for scroll bar slider position changes
         scrollPane.getViewport().addChangeListener(new ChangeListener()
         {
             /**************************************************************************************
-             * Handle a scroll bar thumb position change for the table
+             * Handle a scroll bar slider position change for the table
              *************************************************************************************/
             @Override
             public void stateChanged(ChangeEvent ce)
@@ -4039,8 +4039,14 @@ public abstract class CcddJTableHandler extends JTable
             public void run()
             {
                 // Set the flag so that it instructs tableChanged() to recalculate the heights of
-                // all previous rows
-                inLayout = true;
+                // all rows prior to the last one displayed (true) or only for those currently
+                // displayed (false). Recalculating back to the beginning is needed for the scroll
+                // bar slider to resize as needed, based on the number of rows displayed and the
+                // total number of rows. As the number of rows in the table increases the
+                // calculation takes a proportionally longer time to complete. The slider size
+                // ceases to change once it reaches a minimum so calculating past this point is
+                // unnecessary; for this case the recalculation is skipped
+                inLayout = table.getRowCount() < 300;
 
                 // Update the table row heights
                 tableChanged(null);
@@ -4341,25 +4347,36 @@ public abstract class CcddJTableHandler extends JTable
             }
         }
 
-        // Perform the default action for the remaining mouse events
+        /******************************************************************************************
+         * Perform the default action
+         *****************************************************************************************/
         @Override
         public void mouseEntered(MouseEvent me)
         {
             headerListener.mouseEntered(me);
         }
 
+        /******************************************************************************************
+         * Perform the default action
+         *****************************************************************************************/
         @Override
         public void mouseExited(MouseEvent me)
         {
             headerListener.mouseExited(me);
         }
 
+        /******************************************************************************************
+         * Perform the default action
+         *****************************************************************************************/
         @Override
         public void mousePressed(MouseEvent me)
         {
             headerListener.mousePressed(me);
         }
 
+        /******************************************************************************************
+         * Perform the default action
+         *****************************************************************************************/
         @Override
         public void mouseReleased(MouseEvent me)
         {

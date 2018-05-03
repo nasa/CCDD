@@ -1616,14 +1616,15 @@ public class CcddScriptHandler
      *********************************************************************************************/
     protected static String convertAssociationMembersFormat(String assnMembers, boolean toInternal)
     {
-        return assnMembers.replaceAll(Pattern.quote((toInternal
-                                                                ? "\\s*"
-                                                                  + ASSN_TABLE_SEPARATOR_CMD_LN
-                                                                  + "\\s*"
-                                                                : ASSN_TABLE_SEPARATOR)),
+        return assnMembers.replaceAll((toInternal
+                                                  ? "\\s*"
+                                                    + Pattern.quote(ASSN_TABLE_SEPARATOR_CMD_LN)
+                                                    + "\\s*"
+                                                  : Pattern.quote(ASSN_TABLE_SEPARATOR)),
                                       (toInternal
                                                   ? ASSN_TABLE_SEPARATOR
-                                                  : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " "));
+                                                  : " " + ASSN_TABLE_SEPARATOR_CMD_LN + " "))
+                          .trim();
     }
 
     /**********************************************************************************************

@@ -2704,8 +2704,7 @@ public class CcddDbControlHandler
                     if (errorType.isEmpty())
                     {
                         // Log that the database restoration succeeded
-                        eventLog.logEvent(SUCCESS_MSG,
-                                          "Project '"
+                        eventLog.logEvent(SUCCESS_MSG, "Project '"
                                                        + projectName
                                                        + "' restored as '"
                                                        + restoreProjectName

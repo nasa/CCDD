@@ -327,8 +327,7 @@ function outputMnemonic(pageFile, row, fltCompName)
 
         // Get the full variable name (including the variable's structure path)
         var tmp = ccdd.getFullVariableName(row, " ");
-        println("tmp: "+tmp)
-
+        
         // Find number of spaces (i.e. " ") in tmp and makes prepad a string
         // containing only that many spaces
         var prepad = new java.lang.String(String(tmp.match(/ /g))).replaceAll("[\\,]", "");

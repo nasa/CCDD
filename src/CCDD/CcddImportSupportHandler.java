@@ -717,13 +717,13 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Replace each space, comma, and period with an underscore and move any leading underscores to
-     * the end of each path segment
+     * Replace each invalid character with an underscore and move any leading underscores to the
+     * end of each path segment
      *
      * @param path
      *            system path in the form <</>path1</path2<...>>
      *
-     * @return Path with each space, comma, and period replaced with an underscore and any leading
+     * @return Path with each invalid character replaced with an underscore and any leading
      *         underscores moved to the end of each path segment
      *********************************************************************************************/
     protected String cleanSystemPath(String path)
@@ -733,7 +733,9 @@ public class CcddImportSupportHandler
         {
             // Replace each space with an underscore and move any leading underscores to the end of
             // each path segment
-            path = path.replaceAll("[ \\,\\.]", "_").replaceAll("(^|/)_([^/]*)", "$1$2_");
+            path = path.replaceAll("\\]", "")
+                       .replaceAll("[^A-Za-z0-9_\\-\\/]", "_")
+                       .replaceAll("(^|/)_([^/]*)", "$1$2_");
         }
 
         return path;

@@ -318,30 +318,34 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     // Check if the entry is for a string type
                     if (value instanceof StringMetadataValueType)
                     {
-                        // Check if the item name matches that for the telemetry header table name
-                        // indicator
-                        if (value.getName().equals(InputDataType.XML_TLM_HDR.getInputName()))
+                        // Note: the name field contains the input type name, but with invalid
+                        // characters replaced with underscores; the short description has the
+                        // input type with no character replacement, so it's used for comparison
+
+                        // Check if the item's short description matches that for the telemetry
+                        // header table name indicator
+                        if (value.getShortDescription().equals(InputDataType.XML_TLM_HDR.getInputName()))
                         {
                             // Store the entry value as the telemetry header table name
                             tlmHeaderTable = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the command header table name
                         // indicator
-                        else if (value.getName().equals(InputDataType.XML_CMD_HDR.getInputName()))
+                        else if (value.getShortDescription().equals(InputDataType.XML_CMD_HDR.getInputName()))
                         {
                             // Store the entry value as the command header table name
                             cmdHeaderTable = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the application ID variable name
                         // indicator
-                        else if (value.getName().equals(InputDataType.XML_APP_ID.getInputName()))
+                        else if (value.getShortDescription().equals(InputDataType.XML_APP_ID.getInputName()))
                         {
                             // Store the entry value as the application ID variable name
                             applicationIDName = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the command function code
                         // variable name indicator
-                        else if (value.getName().equals(InputDataType.XML_FUNC_CODE.getInputName()))
+                        else if (value.getShortDescription().equals(InputDataType.XML_FUNC_CODE.getInputName()))
                         {
                             // Store the entry value as the command function code variable name
                             cmdFuncCodeName = ((StringMetadataValueType) value).getValue();
@@ -2226,7 +2230,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Store the telemetry header table name
             StringMetadataValueType tlmHdrTblValue = factory.createStringMetadataValueType();
-            tlmHdrTblValue.setName(InputDataType.XML_TLM_HDR.getInputName());
+            tlmHdrTblValue.setName(cleanSystemPath(InputDataType.XML_TLM_HDR.getInputName())); // TODO
+                                                                                               // REQD
+                                                                                               // FOR
+                                                                                               // VALIDATION
+            tlmHdrTblValue.setShortDescription(InputDataType.XML_TLM_HDR.getInputName());// TODO
+                                                                                         // REQD TO
+                                                                                         // PRESERVE
+                                                                                         // NAME
             tlmHdrTblValue.setValue(tlmHeaderTable);
             dataValue.getDateValueOrFloatValueOrIntegerValue().add(tlmHdrTblValue);
         }
@@ -2236,20 +2247,40 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Store the command header table name
             StringMetadataValueType cmdHdrTblValue = factory.createStringMetadataValueType();
-            cmdHdrTblValue.setName(InputDataType.XML_CMD_HDR.getInputName());
+            cmdHdrTblValue.setName(cleanSystemPath(InputDataType.XML_CMD_HDR.getInputName()));// TODO
+                                                                                              // REQD
+                                                                                              // FOR
+                                                                                              // VALIDATION
+            cmdHdrTblValue.setShortDescription(InputDataType.XML_CMD_HDR.getInputName());// TODO
+                                                                                         // REQD TO
+                                                                                         // PRESERVE
+                                                                                         // NAME
             cmdHdrTblValue.setValue(cmdHeaderTable);
             dataValue.getDateValueOrFloatValueOrIntegerValue().add(cmdHdrTblValue);
         }
 
         // Store the application ID variable name
         StringMetadataValueType appIDNameValue = factory.createStringMetadataValueType();
-        appIDNameValue.setName(InputDataType.XML_APP_ID.getInputName());
+        appIDNameValue.setName(cleanSystemPath(InputDataType.XML_APP_ID.getInputName()));// TODO
+                                                                                         // REQD
+                                                                                         // FOR
+                                                                                         // VALIDATION
+        appIDNameValue.setShortDescription(InputDataType.XML_APP_ID.getInputName());// TODO REQD TO
+                                                                                    // PRESERVE
+                                                                                    // NAME
         appIDNameValue.setValue(applicationIDName);
         dataValue.getDateValueOrFloatValueOrIntegerValue().add(appIDNameValue);
 
         // Store the command function code variable name
         StringMetadataValueType cmdCodeNameValue = factory.createStringMetadataValueType();
-        cmdCodeNameValue.setName(InputDataType.XML_FUNC_CODE.getInputName());
+        cmdCodeNameValue.setName(cleanSystemPath(InputDataType.XML_FUNC_CODE.getInputName()));// TODO
+                                                                                              // REQD
+                                                                                              // FOR
+                                                                                              // VALIDATION
+        cmdCodeNameValue.setShortDescription(InputDataType.XML_FUNC_CODE.getInputName());// TODO
+                                                                                         // REQD TO
+                                                                                         // PRESERVE
+                                                                                         // NAME
         cmdCodeNameValue.setValue(cmdFuncCodeName);
         dataValue.getDateValueOrFloatValueOrIntegerValue().add(cmdCodeNameValue);
 
@@ -2318,7 +2349,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             cmdHeaderPath = systemPath;
 
                             // Set the number of argument columns per command argument
-                            int columnsPerArg = 9;
+                            int columnsPerArg = CcddTableTypeHandler.commandArgumentColumns.length;
 
                             // Initialize the offset in the command row so that space if created
                             // for the command name and description, then created an array to
@@ -3448,6 +3479,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Set the encoding type to indicate an unsigned integer
                                 intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
                             }
+
+                            // TODO REQUIRED FOR VALIDATION
+                            MinMaxRangeType minMax = factory.createMinMaxRangeType();
+                            minMax.setRangeType(RangeType.INCLUSIVE_MIN_INCLUSIVE_MAX);
+                            integerRange.setMinMaxRange(minMax);
 
                             integerType.setRange(integerRange);
                             intEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
