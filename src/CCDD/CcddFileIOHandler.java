@@ -12,6 +12,7 @@ import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
+import static CCDD.CcddConstants.TABLE_PATH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -893,12 +894,7 @@ public class CcddFileIOHandler
             for (TableDefinition tableDefn : tableDefinitions)
             {
                 // Check if the table path/name format is valid
-                if (!tableDefn.getName().matches(InputDataType.VARIABLE.getInputMatch()
-                                                 + "(?:$|(?:,"
-                                                 + InputDataType.VARIABLE.getInputMatch()
-                                                 + "\\."
-                                                 + InputDataType.VARIABLE.getInputMatch()
-                                                 + ")+)"))
+                if (!tableDefn.getName().matches(TABLE_PATH))
                 {
                     // Inform the user the table path/name isn't in the correct format
                     throw new CCDDException("Invalid table path/name '</b>"

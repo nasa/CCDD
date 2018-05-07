@@ -443,7 +443,7 @@ public class CcddVariableSizeAndConversionHandler
         convertedVariableName = null;
 
         int lastIndex = 0;
-        int structIndex = 0;
+        int structIndex = -1;
 
         // Initialize the offset, bit count, and the previous variable's size, type, and bit length
         int offset = 0;
@@ -526,17 +526,17 @@ public class CcddVariableSizeAndConversionHandler
                 {
                     // Check that this isn't the first prototype structure detected. The size is
                     // stored once the end of the structure is reached
-                    if (lastIndex != 0)
+                    if (structIndex != -1)
                     {
                         // Adjust the offset to account for bit-packing
                         offset = adjustVariableOffset(lastDataType, "", offset);
 
                         // Store the offset as the size for this structure
                         structureAndVariableOffsets.set(structIndex, offset);
-
-                        // Store the index of the prototype structure
-                        structIndex = lastIndex;
                     }
+
+                    // Store the index of the prototype structure
+                    structIndex = lastIndex;
 
                     // Reset the offset since this indicates the start of a new root structure.
                     // Initialize the bit count, and the previous variable's size, type, and bit
@@ -548,9 +548,6 @@ public class CcddVariableSizeAndConversionHandler
                     lastBitLength = 0;
                 }
 
-                // Update the index pointing to the last member of the structure
-                lastIndex++;
-
                 // Check if this is the first member of an array
                 if (varPath.matches(".+(?:\\[0\\])+"))
                 {
@@ -559,17 +556,23 @@ public class CcddVariableSizeAndConversionHandler
                     structureAndVariablePaths.add(varPath.replaceFirst("(.+)(?:\\[0\\])+", "$1"));
                     structureAndVariableOffsets.add(offset);
                     isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
+
+                    // Update the index pointing to the last member of the structure processed
+                    lastIndex++;
                 }
 
                 // Add the variable path and its offset to the lists
                 structureAndVariablePaths.add(varPath);
                 structureAndVariableOffsets.add(offset);
                 isVariable.add(nodePath[1].toString().equals(DEFAULT_INSTANCE_NODE_NAME));
+
+                // Update the index pointing to the last member of the structure processed
+                lastIndex++;
             }
         }
 
-        // Check that a prototype structure was detected
-        if (lastIndex != 0)
+        // Check if a prototype structure was detected
+        if (structIndex != -1)
         {
             // Adjust the offset to account for bit-packing
             offset = adjustVariableOffset(lastDataType, "", offset);
