@@ -2952,7 +2952,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean startFirstColumn,
                                         boolean combineAsSingleEdit)
             {
-                System.out.println("pasteData: " + Arrays.toString(cellData)); // TODO
                 Boolean showMessage = true;
 
                 // Check if the pasted data should be combined into a single edit operation
@@ -3202,7 +3201,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                             // Insert the value into the cell
                                             tableData.get(adjustedRow)[columnModel] = newValue;
 
-                                            System.out.println("paste: pass: " + pass + "  (" + adjustedRow + ", " + columnModel + "): " + newValue); // TODO
                                             // Get the number of rows in the table prior to
                                             // inserting the new value
                                             int previousRows = tableData.size();

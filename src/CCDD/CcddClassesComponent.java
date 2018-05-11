@@ -3787,7 +3787,7 @@ public class CcddClassesComponent
                 {
                     // Get the tab's bounds and use it to update the minimum and maximum x and y
                     // values
-                    Rectangle tabBounds = getBoundsAt(index);
+                    Rectangle tabBounds = pane.getBoundsAt(index);
                     minX = (int) Math.min(minX, tabBounds.getMinX());
                     maxX = (int) Math.max(maxX, tabBounds.getMaxX());
                     minY = (int) Math.min(minY, tabBounds.getMinY());

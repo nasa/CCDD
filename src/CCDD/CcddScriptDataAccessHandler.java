@@ -33,8 +33,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
+import org.omg.space.xtce.ObjectFactory;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
+import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -48,6 +54,7 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
@@ -5309,5 +5316,55 @@ public class CcddScriptDataAccessHandler
                 System.out.println("");
             }
         }
+    }
+
+    // TODO
+
+    public boolean isArrayMember(Object variableName)
+    {
+        return ArrayVariable.isArrayMember(variableName);
+    }
+
+    public int[] getArrayIndexFromSize(String arrayString)
+    {
+        return ArrayVariable.getArrayIndexFromSize(arrayString);
+    }
+
+    public String formatArrayIndex(int[] arrayIndex)
+    {
+        return ArrayVariable.formatArrayIndex(arrayIndex);
+    }
+
+    public boolean isPrimitive(String dataTypeName)
+    {
+        return dataTypeHandler.isPrimitive(dataTypeName);
+    }
+
+    public Marshaller getXTCEMarshaller()
+    {
+        Marshaller marshaller = null;
+
+        try
+        {
+            // Create the XML marshaller used to convert the CCDD project data into XTCE XML format
+            JAXBContext context = JAXBContext.newInstance("org.omg.space.xtce");
+            marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
+                                   ModifiableOtherSettingInfo.XTCE_SCHEMA_LOCATION_URL.getValue());
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
+        }
+        catch (JAXBException je)
+        {
+            // Inform the user that the XTCE/JAXB set up failed
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>XTCE conversion setup failed; cause '"
+                                                              + je.getMessage()
+                                                              + "'",
+                                                      "XTCE Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+        }
+
+        return marshaller;
     }
 }

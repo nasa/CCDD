@@ -157,7 +157,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param importFile
      *            import file reference
      *
-     * @param importAll
+     * @param importType
      *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
@@ -360,86 +360,91 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                     switch (importTag)
                                     {
                                         case TABLE_TYPE:
-                                            // Check if this is the table type name and description
-                                            if (isTypeName)
+                                            // Check if all definitions are to be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
                                             {
-                                                // Reset the flag so that subsequent rows are
-                                                // treated as column definitions
-                                                isTypeName = false;
-                                                columnNumber = NUM_HIDDEN_COLUMNS;
-
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == 2
-                                                    || columnValues.length == 1)
+                                                // Check if this is the table type name and
+                                                // description
+                                                if (isTypeName)
                                                 {
-                                                    // Add the table type definition
-                                                    tableTypeDefn = new TableTypeDefinition(columnValues[0],
-                                                                                            (columnValues.length == 2
-                                                                                                                      ? columnValues[1]
-                                                                                                                      : ""));
-                                                    tableTypeDefns.add(tableTypeDefn);
+                                                    // Reset the flag so that subsequent rows are
+                                                    // treated as column definitions
+                                                    isTypeName = false;
+                                                    columnNumber = NUM_HIDDEN_COLUMNS;
+
+                                                    // Check if the expected number of inputs is
+                                                    // present
+                                                    if (columnValues.length == 2
+                                                        || columnValues.length == 1)
+                                                    {
+                                                        // Add the table type definition
+                                                        tableTypeDefn = new TableTypeDefinition(columnValues[0],
+                                                                                                (columnValues.length == 2
+                                                                                                                          ? columnValues[1]
+                                                                                                                          : ""));
+                                                        tableTypeDefns.add(tableTypeDefn);
+                                                    }
+                                                    // The number of inputs is incorrect
+                                                    else
+                                                    {
+                                                        // Check if the error should be ignored or
+                                                        // the import canceled
+                                                        continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                                                    "<html><b>Missing table type name in import file '</b>"
+                                                                                                                              + importFile.getAbsolutePath()
+                                                                                                                              + "<b>'; continue?",
+                                                                                                    "Table Type Error",
+                                                                                                    "Ignore this table type",
+                                                                                                    "Ignore this and any remaining invalid table types",
+                                                                                                    "Stop importing",
+                                                                                                    parent);
+                                                    }
                                                 }
-                                                // The number of inputs is incorrect
+                                                // This is a column definition
                                                 else
                                                 {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                                "<html><b>Missing table type name in import file '</b>"
-                                                                                                                          + importFile.getAbsolutePath()
-                                                                                                                          + "<b>'; continue?",
-                                                                                                "Table Type Error",
-                                                                                                "Ignore this table type",
-                                                                                                "Ignore this and any remaining invalid table types",
-                                                                                                "Stop importing",
-                                                                                                parent);
-                                                }
-                                            }
-                                            // This is a column definition
-                                            else
-                                            {
-                                                // Check if the expected number of inputs is
-                                                // present
-                                                if (columnValues.length == TableTypeEditorColumnInfo.values().length - 1)
-                                                {
-                                                    // Add the table type column definition,
-                                                    // checking for (and if possible, correcting)
-                                                    // errors
-                                                    continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
-                                                                                                              tableTypeDefn,
-                                                                                                              new String[] {String.valueOf(columnNumber),
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
-                                                                                                                            columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
-                                                                                                              importFile.getAbsolutePath(),
-                                                                                                              parent);
+                                                    // Check if the expected number of inputs is
+                                                    // present
+                                                    if (columnValues.length == TableTypeEditorColumnInfo.values().length - 1)
+                                                    {
+                                                        // Add the table type column definition,
+                                                        // checking for (and if possible,
+                                                        // correcting) errors
+                                                        continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                                                                                                  tableTypeDefn,
+                                                                                                                  new String[] {String.valueOf(columnNumber),
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
+                                                                                                                                columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
+                                                                                                                  importFile.getAbsolutePath(),
+                                                                                                                  parent);
 
-                                                    // Update the column index number for the next
-                                                    // column definition
-                                                    columnNumber++;
-                                                }
-                                                // The number of inputs is incorrect
-                                                else
-                                                {
-                                                    // Check if the error should be ignored or the
-                                                    // import canceled
-                                                    continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                                                "<html><b>Table type '"
-                                                                                                                          + tableTypeDefn.getTypeName()
-                                                                                                                          + "' definition has missing or extra "
-                                                                                                                          + "input(s) in import file '</b>"
-                                                                                                                          + importFile.getAbsolutePath()
-                                                                                                                          + "<b>'; continue?",
-                                                                                                "Table Type Error",
-                                                                                                "Ignore this table type",
-                                                                                                "Ignore this and any remaining invalid table types",
-                                                                                                "Stop importing",
-                                                                                                parent);
+                                                        // Update the column index number for the
+                                                        // next column definition
+                                                        columnNumber++;
+                                                    }
+                                                    // The number of inputs is incorrect
+                                                    else
+                                                    {
+                                                        // Check if the error should be ignored or
+                                                        // the import canceled
+                                                        continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
+                                                                                                    "<html><b>Table type '"
+                                                                                                                              + tableTypeDefn.getTypeName()
+                                                                                                                              + "' definition has missing or extra "
+                                                                                                                              + "input(s) in import file '</b>"
+                                                                                                                              + importFile.getAbsolutePath()
+                                                                                                                              + "<b>'; continue?",
+                                                                                                    "Table Type Error",
+                                                                                                    "Ignore this table type",
+                                                                                                    "Ignore this and any remaining invalid table types",
+                                                                                                    "Stop importing",
+                                                                                                    parent);
+                                                    }
                                                 }
                                             }
 
@@ -687,23 +692,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             // not used)
                                             if (columnValues.length == 2 || columnValues.length == 3)
                                             {
+                                                // Get the table's type definition. If importing
+                                                // into an existing table then use its type
+                                                // definition
+                                                typeDefn = importType == ImportType.IMPORT_ALL
+                                                                                               ? tableTypeHandler.getTypeDefinition(columnValues[1])
+                                                                                               : targetTypeDefn;
+
+                                                // Check if the table type doesn't exist
+                                                if (typeDefn == null)
+                                                {
+                                                    throw new CCDDException("Unknown table type '"
+                                                                            + columnValues[1]
+                                                                            + "'");
+                                                }
+
                                                 // Use the table name (with path, if applicable)
                                                 // and type to build the parent, path, and type for
                                                 // the table information class
                                                 tablePath = columnValues[0];
                                                 tableDefn.setName(tablePath);
                                                 tableDefn.setTypeName(columnValues[1]);
-
-                                                // Get the table's type definition
-                                                typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
-
-                                                // Check if the table type doesn't exist
-                                                if (typeDefn == null)
-                                                {
-                                                    throw new CCDDException("Unknown table type '"
-                                                                            + tableDefn.getTypeName()
-                                                                            + "'");
-                                                }
 
                                                 // Get the number of expected columns (the hidden
                                                 // columns, primary key and row index, should not

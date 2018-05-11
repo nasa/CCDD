@@ -64,7 +64,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -114,9 +113,6 @@ public class CcddDialogHandler extends JDialog
     // Component that initially has the focus; null to set the focus to the first (default)
     // component
     private Component initialFocusComponent;
-
-    // TODO
-    private JFrame ownerFrame;
 
     /**********************************************************************************************
      * File extension filter class
@@ -206,7 +202,6 @@ public class CcddDialogHandler extends JDialog
     {
         buttonSelected = JOptionPane.CLOSED_OPTION;
         checkBox = null;
-        ownerFrame = null; // TODO
 
         // Create a handler for the dialog buttons
         buttonHandler = new CcddButtonPanelHandler()
@@ -238,20 +233,6 @@ public class CcddDialogHandler extends JDialog
     {
         setVisible(false);
         dispose();
-
-        // TODO THIS WILL BRING THE OWNER (IF IT'S A JFRAME) BACK TO THE FRONT, BUT THIS CAN CAUSE
-        // A SEVERE FLICKER. HAVEN'T FOUND A WAY TO PERFORM THIS ONLY WHEN THE OWNER IS BURIED
-        if (ownerFrame != null)
-        {
-            // TODO CHECK IF THE FRAME IS ALREADY ACCTIVE. THIS CHECK SOMETIMES 'WORKS' AND
-            // PREVENTS THE CALLS TO setVisible() (WHICH CAUSE A FLICKER IF THE FRAME IS ALREADY ON
-            // TOP)
-            if (!ownerFrame.isActive())
-            {
-                ownerFrame.setVisible(false);
-                ownerFrame.setVisible(true);
-            }
-        }
     }
 
     /**********************************************************************************************
@@ -2075,11 +2056,6 @@ public class CcddDialogHandler extends JDialog
                 // Use the root pane for the parent
                 parent = getRootPane();
             }
-        }
-        // TODO
-        else if (parent instanceof JFrame)
-        {
-            ownerFrame = (JFrame) parent;
         }
 
         // Check if a parent component exists

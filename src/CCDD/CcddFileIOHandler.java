@@ -1232,6 +1232,7 @@ public class CcddFileIOHandler
             // Get the reference to the table's editor
             CcddTableEditorHandler tableEditor = tableEditorDlg.getTableEditor();
 
+            System.out.println("\nTABLE: " + tableInfo.getProtoVariableName()); // TODO
             // Paste the data into the table; check if the user canceled importing the table
             // following a cell validation error
             if (tableEditor.getTable().pasteData(cellData.toArray(new String[0]),

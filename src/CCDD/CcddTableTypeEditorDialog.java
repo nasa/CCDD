@@ -206,7 +206,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Perform the steps needed following execution of table modification
+     * Perform the steps needed following execution of table type modification
      *
      * @param commandError
      *            false if the database commands successfully completed; true if an error occurred

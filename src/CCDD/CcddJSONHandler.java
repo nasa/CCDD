@@ -651,8 +651,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // Create a new table type definition
                         TableDefinition tableDefn = new TableDefinition(tableName, tableDesc);
 
-                        // Get the table's type definition
-                        TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
+                        // Get the table's type definition. If importing into an existing table
+                        // then use its type definition
+                        TypeDefinition typeDefn = importType == ImportType.IMPORT_ALL
+                                                                                      ? tableTypeHandler.getTypeDefinition(tableType)
+                                                                                      : targetTypeDefn;
 
                         // Check if the table type doesn't exist
                         if (typeDefn == null)
