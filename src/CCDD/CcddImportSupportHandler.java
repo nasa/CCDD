@@ -603,8 +603,8 @@ public class CcddImportSupportHandler
      * @return Base primitive data type corresponding to the specified primitive data type; null if
      *         no match
      *********************************************************************************************/
-    protected BasePrimitiveDataType getBaseDataType(String dataType,
-                                                    CcddDataTypeHandler dataTypeHandler)
+    protected static BasePrimitiveDataType getBaseDataType(String dataType,
+                                                           CcddDataTypeHandler dataTypeHandler)
     {
         BasePrimitiveDataType basePrimitiveDataType = null;
 
@@ -693,30 +693,6 @@ public class CcddImportSupportHandler
     }
 
     /**********************************************************************************************
-     * Get the XML parameter/argument data type name determined by the supplied data type
-     *
-     * @param parameterName
-     *            parameter name
-     *
-     * @param dataType
-     *            data type
-     *
-     * @param dataTypeHandler
-     *            reference to the data type handler
-     *
-     * @return The parameter name if the data type is primitive, or the data type name if the data
-     *         type is a structure
-     *********************************************************************************************/
-    protected String getTypeNameByDataType(String parameterName,
-                                           String dataType,
-                                           CcddDataTypeHandler dataTypeHandler)
-    {
-        return dataTypeHandler.isPrimitive(dataType)
-                                                     ? parameterName
-                                                     : dataType;
-    }
-
-    /**********************************************************************************************
      * Replace each invalid character with an underscore and move any leading underscores to the
      * end of each path segment
      *
@@ -726,7 +702,7 @@ public class CcddImportSupportHandler
      * @return Path with each invalid character replaced with an underscore and any leading
      *         underscores moved to the end of each path segment
      *********************************************************************************************/
-    protected String cleanSystemPath(String path)
+    protected static String cleanSystemPath(String path)
     {
         // Check if the path exists
         if (path != null)

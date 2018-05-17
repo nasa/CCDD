@@ -87,7 +87,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
     // Components referenced by multiple methods
     private JButton btnSelectScript;
-    private JTextField scriptFld;
+    private JTextField scriptNameFld;
     private JTextField nameFld;
     private JTextArea descriptionFld;
     private JButton btnExecute;
@@ -325,7 +325,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
                                     // Store the script file name with path in the the script file
                                     // field
-                                    scriptFld.setText(assnsTable.getValueAt(row,
+                                    scriptNameFld.setText(assnsTable.getValueAt(row,
                                                                             assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()))
                                                                 .toString());
 
@@ -390,7 +390,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         public void actionPerformed(ActionEvent ae)
                         {
                             // Check that a script is specified
-                            if (!scriptFld.getText().trim().isEmpty())
+                            if (!scriptNameFld.getText().trim().isEmpty())
                             {
                                 addAssociation(TableInsertionPoint.START);
                             }
@@ -712,22 +712,22 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         JPanel scriptPnl = new JPanel(new GridBagLayout());
 
         // Create the script selection dialog labels and fields
-        JLabel scriptLbl = new JLabel("Enter or select a script file");
-        scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        JLabel scriptNameLbl = new JLabel("Enter or select a script file");
+        scriptNameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-        scriptPnl.add(scriptLbl, gbc);
+        scriptPnl.add(scriptNameLbl, gbc);
 
         // Create a text field for entering & displaying the script file name
-        scriptFld = new JTextField("");
-        scriptFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        scriptFld.setEditable(true);
-        scriptFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        scriptFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        scriptFld.setBorder(border);
+        scriptNameFld = new JTextField("");
+        scriptNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        scriptNameFld.setEditable(true);
+        scriptNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        scriptNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        scriptNameFld.setBorder(border);
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
         gbc.gridy++;
-        scriptPnl.add(scriptFld, gbc);
+        scriptPnl.add(scriptNameFld, gbc);
 
         // Create a button for choosing an output script
         btnSelectScript = CcddButtonPanelHandler.createButton("Select...",
@@ -766,7 +766,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                 ModifiablePathInfo.SCRIPT_PATH);
 
                     // Display the file name in the script name field
-                    scriptFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
+                    scriptNameFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
                 }
             }
         });
@@ -923,7 +923,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
             // Get a file descriptor for the script file name
-            FileEnvVar scriptFile = new FileEnvVar(scriptFld.getText());
+            FileEnvVar scriptFile = new FileEnvVar(scriptNameFld.getText());
 
             // Check that the script association already exists in the list
             if (isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),

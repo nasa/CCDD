@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -1232,7 +1233,6 @@ public class CcddFileIOHandler
             // Get the reference to the table's editor
             CcddTableEditorHandler tableEditor = tableEditorDlg.getTableEditor();
 
-            System.out.println("\nTABLE: " + tableInfo.getProtoVariableName()); // TODO
             // Paste the data into the table; check if the user canceled importing the table
             // following a cell validation error
             if (tableEditor.getTable().pasteData(cellData.toArray(new String[0]),
@@ -1641,6 +1641,13 @@ public class CcddFileIOHandler
      * @param classification3
      *            third level classification attribute (XTCE only)
      *
+     * @param useExternal
+     *            true to use external (script) methods in place of the internal ones (XTCE only)
+     *
+     * @param scriptFileName
+     *            name of the script file containing the external (script) methods (XTCE only);
+     *            ignored if useExternal is false
+     *
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
@@ -1662,6 +1669,8 @@ public class CcddFileIOHandler
                                         final String classification1,
                                         final String classification2,
                                         final String classification3,
+                                        final boolean useExternal,
+                                        final String scriptFileName,
                                         final Component parent)
     {
         // Execute the export operation in the background
@@ -1681,9 +1690,50 @@ public class CcddFileIOHandler
                 FileEnvVar file = null;
                 CcddImportExportInterface ioHandler = null;
                 List<String> skippedTables = new ArrayList<String>();
+                ScriptEngine scriptEngine = null;
 
                 // Create a data field handler
                 CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
+
+                // Check if external (script) methods are to be used
+                if (useExternal)
+                {
+                    try
+                    {
+                        // The table information isn't provided to the script data access handler
+                        // when creating the script engine below. Therefore, not all script data
+                        // access methods are available (i.e., those that refer to the table names,
+                        // rows, data, etc.). Barring an extensive rewrite of the export methods,
+                        // in order to provide the information the tables would have to be read
+                        // twice, once to create the script handler format (where tables of the
+                        // same type are combined) and again in the XTCE handler. Performing the
+                        // export operation via a script association does allow access to all of
+                        // the methods (and entails loading each table twice). The link and group
+                        // handlers aren't provided in the script engine call below either, but are
+                        // these loaded if an access method requiring them is called
+
+                        // Get the script engine for the supplied script file name
+                        scriptEngine = ccddMain.getScriptHandler().getScriptEngine(scriptFileName,
+                                                                                   new TableInformation[0],
+                                                                                   null,
+                                                                                   fieldHandler,
+                                                                                   null,
+                                                                                   null,
+                                                                                   parent);
+                    }
+                    catch (CCDDException ce)
+                    {
+                        // Inform the user that an error occurred accessing the script file
+                        new CcddDialogHandler().showMessageDialog(parent,
+                                                                  "<html><b>Cannot use external methods - using "
+                                                                          + "internal methods instead; cause '"
+                                                                          + ce.getMessage()
+                                                                          + "'",
+                                                                  "Script Error",
+                                                                  ce.getMessageType(),
+                                                                  DialogOption.OK_OPTION);
+                    }
+                }
 
                 // Check if the user elected to store all tables in a single file. The path must
                 // include a file name
@@ -1729,7 +1779,7 @@ public class CcddFileIOHandler
                 else if (fileExtn == FileExtension.XTCE)
                 {
                     // Create an XTCE handler, fieldHandler
-                    ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, parent);
+                    ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
                 }
 
                 // Check that no error occurred creating the format conversion handler
@@ -2173,7 +2223,7 @@ public class CcddFileIOHandler
         // Check if the path name ends with a period
         if (pathName.endsWith("."))
         {
-            // Remove file separator (if present) and the period the at the end of the path
+            // Remove file separator (if present) and the period at the end of the path
             pathName = pathName.replaceFirst(File.separator + "?\\.", "");
         }
 

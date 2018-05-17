@@ -1255,7 +1255,7 @@ public class CcddClassesDataTable
      * Command argument class. Contains associated command argument name, data type, enumeration,
      * minimum value, and maximum value column indices in view or model coordinates (as specified)
      *********************************************************************************************/
-    protected static class AssociatedColumns
+    public static class AssociatedColumns
     {
         private final int name;
         private final int dataType;
@@ -1394,7 +1394,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument name column index
          *****************************************************************************************/
-        protected int getName()
+        public int getName()
         {
             return name;
         }
@@ -1404,7 +1404,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument data type column index
          *****************************************************************************************/
-        protected int getDataType()
+        public int getDataType()
         {
             return dataType;
         }
@@ -1414,7 +1414,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument array size column index
          *****************************************************************************************/
-        protected int getArraySize()
+        public int getArraySize()
         {
             return arraySize;
         }
@@ -1424,7 +1424,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument bit length column index
          *****************************************************************************************/
-        protected int getBitLength()
+        public int getBitLength()
         {
             return bitLength;
         }
@@ -1434,7 +1434,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument enumeration column index
          *****************************************************************************************/
-        protected int getEnumeration()
+        public int getEnumeration()
         {
             return enumeration;
         }
@@ -1444,7 +1444,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument minimum column index
          *****************************************************************************************/
-        protected int getMinimum()
+        public int getMinimum()
         {
             return minMax.getMinimum();
         }
@@ -1454,7 +1454,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument maximum column index
          *****************************************************************************************/
-        protected int getMaximum()
+        public int getMaximum()
         {
             return minMax.getMaximum();
         }
@@ -1464,7 +1464,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument description column index
          *****************************************************************************************/
-        protected int getDescription()
+        public int getDescription()
         {
             return description;
         }
@@ -1474,7 +1474,7 @@ public class CcddClassesDataTable
          *
          * @return Command argument units column index
          *****************************************************************************************/
-        protected int getUnits()
+        public int getUnits()
         {
             return units;
         }

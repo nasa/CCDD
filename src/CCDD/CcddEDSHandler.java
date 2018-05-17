@@ -2861,7 +2861,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Build the parameter attributes
             InterfaceParameterType parameter = factory.createInterfaceParameterType();
             parameter.setName(parameterName);
-            parameter.setType(getTypeNameByDataType(parameterName, dataType, dataTypeHandler)
+            parameter.setType((dataTypeHandler.isPrimitive(dataType)
+                                                                     ? parameterName
+                                                                     : dataType)
                               + getObjectIdentifier(arraySize));
 
             // Check if a description is provided for this parameter
@@ -3381,7 +3383,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Create an array type and set its attributes
             ArrayDataType arrayType = factory.createArrayDataType();
-            String name = getTypeNameByDataType(parameterName, dataType, dataTypeHandler);
+            String name = dataTypeHandler.isPrimitive(dataType)
+                                                                ? parameterName
+                                                                : dataType;
             arrayType.setName(name + ARRAY);
             arrayType.setDataTypeRef(name + TYPE);
             ArrayDimensionsType dimList = factory.createArrayDimensionsType();

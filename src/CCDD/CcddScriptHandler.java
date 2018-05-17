@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1735,6 +1734,136 @@ public class CcddScriptHandler
     }
 
     /**********************************************************************************************
+     * Create a script engine for the supplied script file name and table information. Non-static
+     * and static script data access handlers are bound to the engine so that the public access
+     * methods can be utilized
+     *
+     * @param scriptFileName
+     *            script file name. The file extension is used to determine the script engine and
+     *            therefore must conform to standard extension usage
+     *
+     * @param tableInformation
+     *            array of table information
+     *
+     * @param groupNames
+     *            list containing the names of any groups referenced in the script association
+     *
+     * @param linkHandler
+     *            link handler reference
+     *
+     * @param fieldHandler
+     *            field handler reference
+     *
+     * @param groupHandler
+     *            group handler reference
+     *
+     * @param parent
+     *            GUI component calling this method
+     *
+     * @return Reference to the script engine; null if an error occurs
+     *
+     * @throws CCDDException
+     *             If an error occurs while attempting to access the script file
+     *********************************************************************************************/
+    protected ScriptEngine getScriptEngine(String scriptFileName,
+                                           TableInformation[] tableInformation,
+                                           CcddLinkHandler linkHandler,
+                                           CcddFieldHandler fieldHandler,
+                                           CcddGroupHandler groupHandler,
+                                           List<String> groupNames,
+                                           Component parent) throws CCDDException
+    {
+        ScriptEngine scriptEngine = null;
+
+        // Create the script file
+        FileEnvVar scriptFile = new FileEnvVar(scriptFileName);
+
+        // Check if the script file doesn't exist
+        if (!scriptFile.isFile())
+        {
+            // Inform the user that the selected file is missing
+            throw new CCDDException("cannot locate script file '" + scriptFileName + "'");
+        }
+
+        // Check if the script file can't be read
+        if (!scriptFile.canRead())
+        {
+            // Inform the user that the selected file can't be read
+            throw new CCDDException("cannot read script file '" + scriptFileName + "'");
+        }
+
+        // Get the location of the file extension indicator
+        int extensionStart = scriptFileName.lastIndexOf(".");
+
+        // Check if the file name has no extension (i.e., "fileName.___")
+        if (!(extensionStart > 0 && extensionStart != scriptFileName.length() - 1))
+        {
+            // Inform the user that the selected file is missing the file extension
+            throw new CCDDException("script file '" + scriptFileName + "' has no file extension");
+        }
+
+        // Extract the file extension from the file name
+        String extension = scriptFileName.substring(extensionStart + 1);
+
+        // Flag that indicates if a script engine is found that matches the script file extension
+        boolean isValidExt = false;
+
+        // Step through each engine factory
+        for (ScriptEngineFactory factory : scriptFactories)
+        {
+            // Check if this script engine is applicable to the script file's extension
+            if (factory.getExtensions().contains(extension))
+            {
+                // Set the flag that indicates a script engine is found that matches the extension
+                isValidExt = true;
+
+                // Get the script engine
+                scriptEngine = factory.getScriptEngine();
+
+                // Create an instance of the script data access handler, then use this as a
+                // reference for the version of the access handler class that contains static
+                // method calls to the non-static version. Some scripting languages work with
+                // either the non-static or static version (Python, Groovy), but others only work
+                // with the non-static (JavaScript, Ruby) or static version (Scala) (this can be
+                // Java version dependent as well).
+                CcddScriptDataAccessHandler accessHandler = new CcddScriptDataAccessHandler(ccddMain,
+                                                                                            scriptEngine,
+                                                                                            tableInformation,
+                                                                                            linkHandler,
+                                                                                            fieldHandler,
+                                                                                            groupHandler,
+                                                                                            scriptFileName,
+                                                                                            groupNames,
+                                                                                            parent);
+                CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
+
+                // Bind the script data access handlers (non-static and static versions) to the
+                // script context so that the handlers' public access methods can be accessed by
+                // the script using the binding names ('ccdd' or 'ccdds')
+                Bindings scriptBindings = scriptEngine.createBindings();
+                scriptBindings.put("ccdd", accessHandler);
+                scriptBindings.put("ccdds", staticHandler);
+                scriptEngine.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
+
+                // Stop searching since a match was found
+                break;
+            }
+        }
+
+        // Check if the file extension doesn't match one supported by any of the available script
+        // engines
+        if (!isValidExt)
+        {
+            // Inform the user that the selected file's extension isn't recognized
+            throw new CCDDException("script file '"
+                                    + scriptFileName
+                                    + "' extension is unsupported");
+        }
+
+        return scriptEngine;
+    }
+
+    /**********************************************************************************************
      * Execute a script
      *
      * @param scriptFileName
@@ -1772,103 +1901,33 @@ public class CcddScriptHandler
                                CcddGroupHandler groupHandler,
                                Component parent) throws CCDDException
     {
-        // Check if the script file doesn't exist
-        if (!new File(scriptFileName).isFile())
+        // Get the script engine for the supplied script file name and table information
+        ScriptEngine scriptEngine = getScriptEngine(scriptFileName,
+                                                    tableInformation,
+                                                    linkHandler,
+                                                    fieldHandler,
+                                                    groupHandler,
+                                                    groupNames,
+                                                    parent);
+
+        try
         {
-            // Inform the user that the selected file is missing
-            throw new CCDDException("cannot locate script file '" + scriptFileName + "'");
+            // Execute the script
+            scriptEngine.eval(new FileReader(scriptFileName));
         }
-
-        // Get the location of the file extension indicator
-        int extensionStart = scriptFileName.lastIndexOf(".");
-
-        // Check if the file name has no extension (i.e., "fileName.___")
-        if (!(extensionStart > 0 && extensionStart != scriptFileName.length() - 1))
+        catch (ScriptException se)
         {
-            // Inform the user that the selected file is missing the file extension
-            throw new CCDDException("script file '" + scriptFileName + "' has no file extension");
-        }
-
-        // Extract the file extension from the file name
-        String extension = scriptFileName.substring(extensionStart + 1);
-
-        // Flag that indicates if a script engine is found that matches the script file extension
-        boolean isValidExt = false;
-
-        // Step through each engine factory
-        for (ScriptEngineFactory factory : scriptFactories)
-        {
-            // Check if this script engine is applicable to the script file's extension
-            if (factory.getExtensions().contains(extension))
-            {
-                // Set the flag that indicates a script engine is found that matches the extension
-                isValidExt = true;
-
-                try
-                {
-                    // Get the script engine
-                    ScriptEngine scriptEngine = factory.getScriptEngine();
-
-                    // Create an instance of the script data access handler, then use this as a
-                    // reference for the version of the access handler class that contains static
-                    // method calls to the non-static version. Some scripting languages work with
-                    // either the non-static or static version (Python, Groovy), but others only
-                    // work with either the non-static or static version (JavaScript, Ruby, Scala;
-                    // this can be Java version dependent as well).
-                    CcddScriptDataAccessHandler accessHandler = new CcddScriptDataAccessHandler(ccddMain,
-                                                                                                tableInformation,
-                                                                                                linkHandler,
-                                                                                                fieldHandler,
-                                                                                                groupHandler,
-                                                                                                scriptFileName,
-                                                                                                groupNames,
-                                                                                                parent);
-                    CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
-
-                    // Bind the script data access handlers (non-static and static versions) to the
-                    // script context so that the handlers' public access methods can be accessed
-                    // by the script using the binding names ('ccdd' or 'ccdds')
-                    Bindings scriptBindings = scriptEngine.createBindings();
-                    scriptBindings.put("ccdd", accessHandler);
-                    scriptBindings.put("ccdds", staticHandler);
-                    scriptEngine.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
-
-                    // Execute the script
-                    scriptEngine.eval(new FileReader(scriptFileName));
-                }
-                catch (FileNotFoundException fnfe)
-                {
-                    // Inform the user that the selected file cannot be read
-                    throw new CCDDException("cannot read script file '" + scriptFileName + "'");
-                }
-                catch (ScriptException se)
-                {
-                    // Inform the user that the script encountered an error
-                    throw new CCDDException("script file '"
-                                            + scriptFileName
-                                            + "' error '"
-                                            + se.getMessage()
-                                            + "'");
-                }
-                catch (Exception e)
-                {
-                    // Display a dialog providing details on the unanticipated error
-                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
-                }
-
-                // Stop searching since a match was found
-                break;
-            }
-        }
-
-        // Check if the file extension doesn't match one supported by any of the available script
-        // engines
-        if (!isValidExt)
-        {
-            // Inform the user that the selected file's extension isn't recognized
+            // Inform the user that the script encountered an error
             throw new CCDDException("script file '"
                                     + scriptFileName
-                                    + "' extension is unsupported");
+                                    + "' error '"
+                                    + se.getMessage()
+                                    + "'");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 

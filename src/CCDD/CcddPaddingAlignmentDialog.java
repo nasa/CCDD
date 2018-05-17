@@ -75,8 +75,8 @@ public class CcddPaddingAlignmentDialog extends CcddDialogHandler
         JPanel dialogPnl = new JPanel(new GridBagLayout());
         dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
-        // Create the byte alignment value label
-        JLabel byteAlignmentLbl = new JLabel("Set byte alignment");
+        // Create the word byte size value label
+        JLabel byteAlignmentLbl = new JLabel("Set word byte size");
         byteAlignmentLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         dialogPnl.add(byteAlignmentLbl, gbc);
 
