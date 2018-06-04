@@ -23,7 +23,9 @@ import java.util.regex.Pattern;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.CommandLineType;
+import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 
@@ -641,7 +643,7 @@ public class CcddCommandLineHandler
         // Execute script command
         argument.add(new CommandHandler("execute",
                                         "Execute script(s)",
-                                        "[script name] or\n[\" or ']script file name["
+                                        "[association name] or\n[\" or ']script file name["
                                                              + SCRIPT_MEMBER_SEPARATOR
                                                              + "table1 or Group:group1\n  [+...[+"
                                                              + "tableN or Group:groupN]]][;...][\" or ']",
@@ -772,6 +774,278 @@ public class CcddCommandLineHandler
                 shutdownWhenComplete = true;
             }
         });
+
+        // TODO
+        // Import command
+        argument.add(new CommandHandler("import",
+                                        "Import tables, etc. from a CSV, EDS, JSON, or XTCE file",
+                                        "import file name",
+                                        CommandLineType.NAME,
+                                        6)
+        {
+            /**************************************************************************************
+             *
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                // TODO PARSER: NEED FORMAT. USE DEFAULT VALUE IF SUB-CMD NOT SPECIFIED
+                // -import "file=<file name> replace=<true or false> append=<true or false>
+                // useExisting=<true or false> backup=<true or false>"
+            }
+        });
+
+        // Export CSV command
+        argument.add(new CommandHandler("export",
+                                        "Export tables, etc. in CSV, EDS, JSON, or XTCE format",
+                                        "export file name ...",
+                                        CommandLineType.NAME,
+                                        6)
+        {
+            /**************************************************************************************
+             *
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                try
+                {
+
+                    // TODO PARSER: NEED FORMAT. USE DEFAULT VALUE IF SUB-CMD NOT SPECIFIED
+                    // -export "filePath=<file path> tablePaths=<table1<:table2<...>> or
+                    // group=<group1<:group2<...>>> or <all tables if none specified>>
+                    // multiple=<true
+                    // or false> overwrite=<true or false> subMacros=<true or false>
+                    // reservedIDs=<true
+                    // or false> projectFields=<true or false> variablePaths=<true or false>
+                    // pathSep=''
+                    // nameSep='' hideTypes=<true or false>"
+
+                    String filePath = null;
+                    String[] tablePaths = null;
+                    boolean overwriteFile = false;
+                    boolean singleFile = false;
+                    boolean replaceMacros = false;
+                    boolean includeReservedMsgIDs = false;
+                    boolean includeProjectFields = false;
+                    boolean includeVariablePaths = false;
+                    String[] separators = new String[3];
+                    FileExtension fileExtn = FileExtension.CSV;
+                    EndianType endianess = EndianType.BIG_ENDIAN;
+                    boolean isHeaderBigEndian = true;
+                    String version = null;
+                    String validationStatus = null;
+                    String classification1 = null;
+                    String classification2 = null;
+                    String classification3 = null;
+                    boolean useExternal = false;
+                    String scriptFileName = null;
+
+                    parmVal = "filePath=\"abc def\" tablePaths=\"aaa,bbb.ccc\"";
+
+                    System.out.println("arg = ." + parmVal + "."); // TODO
+
+                    // Step through each export command/argument pair
+                    for (String subCmd : CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
+                                                                            "\\s+",
+                                                                            -1,
+                                                                            false))
+                    {
+                        System.out.println(" sub = ." + subCmd + "."); // TODO
+
+                        // Separate the command and argument
+                        String[] nameAndArg = CcddUtilities.splitAndRemoveQuotes(subCmd,
+                                                                                 "\\s*=\\s*",
+                                                                                 2,
+                                                                                 true);
+                        System.out.println("  " + Arrays.toString(nameAndArg)); // TODO
+
+                        // Check if the command and argument are preset
+                        if (nameAndArg.length != 2)
+                        {
+                            // TODO ERROR
+                            throw new CCDDException("missing command argument for command '"
+                                                    + nameAndArg[0]
+                                                    + "'");
+                        }
+
+                        switch (nameAndArg[0])
+                        {
+                            case "filePath":
+                                filePath = nameAndArg[1];
+                                break;
+
+                            case "tablePaths":
+                                tablePaths = nameAndArg[1].split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR));
+                                break;
+
+                            case "overwriteFile":
+                                overwriteFile = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "singleFile":
+                                singleFile = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "replaceMacros":
+                                replaceMacros = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "includeReservedMsgIDs":
+                                includeReservedMsgIDs = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "includeProjectFields":
+                                includeProjectFields = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "includeVariablePaths":
+                                includeVariablePaths = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "pathSeparator":
+                                separators[0] = nameAndArg[1];
+                                break;
+
+                            case "nameSeparator":
+                                separators[1] = nameAndArg[1];
+                                break;
+
+                            case "hideDataType":
+                                separators[2] = Boolean.toString(Boolean.parseBoolean(nameAndArg[1]));
+                                break;
+
+                            case "fileExtn":
+                                if (nameAndArg[1].equalsIgnoreCase(FileExtension.CSV.getExtensionName()))
+                                {
+                                    fileExtn = FileExtension.CSV;
+                                }
+                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.EDS.getExtensionName()))
+                                {
+                                    fileExtn = FileExtension.EDS;
+                                }
+                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.JSON.getExtensionName()))
+                                {
+                                    fileExtn = FileExtension.JSON;
+                                }
+                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.XTCE.getExtensionName()))
+                                {
+                                    fileExtn = FileExtension.XTCE;
+                                }
+                                else
+                                {
+                                    // TODO UNKNOWN EXTN
+                                    throw new CCDDException("invalid export type '"
+                                                            + nameAndArg[1]
+                                                            + "'");
+                                }
+
+                                break;
+
+                            case "endianess":
+                                if (nameAndArg[1].equalsIgnoreCase("big"))
+                                {
+                                    endianess = EndianType.BIG_ENDIAN;
+                                }
+                                else if (nameAndArg[1].equalsIgnoreCase("little"))
+                                {
+                                    endianess = EndianType.LITTLE_ENDIAN;
+                                }
+                                else
+                                {
+                                    // TODO UNKNOWN ENDIANESS
+                                    throw new CCDDException("invalid endianess"
+                                                            + nameAndArg[1]
+                                                            + "'");
+                                }
+
+                                break;
+
+                            case "isHeaderBigEndian":
+                                isHeaderBigEndian = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "version":
+                                version = nameAndArg[1];
+                                break;
+
+                            case "validationStatus":
+                                validationStatus = nameAndArg[1];
+                                break;
+
+                            case "classification1":
+                                classification1 = nameAndArg[1];
+                                break;
+
+                            case "classification2":
+                                classification2 = nameAndArg[1];
+                                break;
+
+                            case "classification3":
+                                classification3 = nameAndArg[1];
+                                break;
+
+                            case "useExternal":
+                                useExternal = Boolean.parseBoolean(nameAndArg[1]);
+                                break;
+
+                            case "externalFileName":
+                                scriptFileName = nameAndArg[1];
+                                break;
+
+                            default:
+                                // TODO UNKNOWN
+                                throw new CCDDException();
+                        }
+                    }
+
+                    if (filePath == null || tablePaths == null)
+                    {
+                        throw new CCDDException("missing export file/path and/or table path(s)");
+                    }
+
+                    // ccddMain.getFileIOHandler().exportSelectedTables(filePath,
+                    // tablePaths,
+                    // overwriteFile,
+                    // singleFile,
+                    // replaceMacros,
+                    // includeReservedMsgIDs,
+                    // includeProjectFields,
+                    // includeVariablePaths,
+                    // ccddMain.getVariableHandler(),
+                    // separators,
+                    // fileExtn,
+                    // endianess,
+                    // isHeaderBigEndian,
+                    // version,
+                    // validationStatus,
+                    // classification1,
+                    // classification2,
+                    // classification3,
+                    // useExternal,
+                    // scriptFileName,
+                    // null);
+                }
+                catch (CCDDException ce)
+                {
+                    // Check if a bad parameter was detected
+                    if (errorMessage != null)
+                    {
+                        // Display the error message
+                        System.err.println("Error: " + errorMessage + "\n");
+
+                        // Exit the application
+                        System.exit(0);
+                    }
+                    // Invalid command
+                    else
+                    {
+                        // Display the command usage information and exit the application
+                        displayUsageInformation();
+                    }
+                }
+            }
+        });
     }
 
     /**********************************************************************************************
@@ -892,100 +1166,113 @@ public class CcddCommandLineHandler
             // Check if a bad parameter was detected
             if (errorMessage != null)
             {
+                // Display the error message
                 System.err.println("Error: " + errorMessage + "\n");
+
+                // Exit the application
+                System.exit(0);
             }
             // Invalid command
             else
             {
-                // Initialize the maximum usage parameter lengths
-                int descLen = 0;
-                int cmdLen = 0;
-                int valLen = 0;
-
-                // Sort the list of command arguments
-                Collections.sort(argument, new Comparator<CommandHandler>()
-                {
-                    /******************************************************************************
-                     * Override the compare method to sort based on the command name
-                     *****************************************************************************/
-                    @Override
-                    public int compare(CommandHandler cmd1, CommandHandler cmd2)
-                    {
-                        return cmd1.command.compareTo(cmd2.command);
-                    }
-                });
-
-                // Step through each command
-                for (CommandHandler cmd : argument)
-                {
-                    // Store the longest description and command text
-                    descLen = Math.max(descLen, cmd.description.length());
-                    cmdLen = Math.max(cmdLen, cmd.command.length());
-
-                    // Split the command value based on line feed characters
-                    String[] parts = cmd.value.split("\n");
-
-                    // Step through each portion of the value
-                    for (String part : parts)
-                    {
-                        // Store the longest value text
-                        valLen = Math.max(valLen, part.length());
-                    }
-                }
-
-                // Build the format string using the maximum lengths
-                String format = "  %-"
-                                + descLen
-                                + "."
-                                + descLen
-                                + "s  %-"
-                                + cmdLen
-                                + "."
-                                + cmdLen
-                                + "s  %-"
-                                + valLen
-                                + "s\n";
-
-                // Create a string filled with '-' characters
-                char[] dashes = new char[Math.max(Math.max(descLen, cmdLen), valLen)];
-                Arrays.fill(dashes, '-');
-                String dash = new String(dashes);
-
-                // Create a string filled with spaces for positioning wrapped value lines
-                char[] spaces = new char[descLen + cmdLen + 6];
-                Arrays.fill(spaces, ' ');
-                String space = new String(spaces);
-
-                // Initialize the usage information
-                String usage = String.format("usage:\n"
-                                             + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
-                                             + " Command line arguments:\n"
-                                             + format
-                                             + format,
-                                             "Description",
-                                             "Command",
-                                             "Value",
-                                             dash,
-                                             dash,
-                                             dash);
-
-                // Step through each command
-                for (CommandHandler cmd : argument)
-                {
-                    // Append the command's usage text
-                    usage += String.format(format,
-                                           cmd.description,
-                                           cmd.command,
-                                           cmd.value.replaceAll("\n", "\n" + space));
-                }
-
-                // Display the usage information
-                System.out.println(usage);
+                // Display the command usage information and exit the application
+                displayUsageInformation();
             }
-
-            // Exit the application
-            System.exit(0);
         }
+    }
+
+    /**********************************************************************************************
+     * Display the command usage information and exit the application
+     *********************************************************************************************/
+    private void displayUsageInformation()
+    {
+        // Initialize the maximum usage parameter lengths
+        int descLen = 0;
+        int cmdLen = 0;
+        int valLen = 0;
+
+        // Sort the list of command arguments
+        Collections.sort(argument, new Comparator<CommandHandler>()
+        {
+            /**************************************************************************************
+             * Override the compare method to sort based on the command name
+             *************************************************************************************/
+            @Override
+            public int compare(CommandHandler cmd1, CommandHandler cmd2)
+            {
+                return cmd1.command.compareTo(cmd2.command);
+            }
+        });
+
+        // Step through each command
+        for (CommandHandler cmd : argument)
+        {
+            // Store the longest description and command text
+            descLen = Math.max(descLen, cmd.description.length());
+            cmdLen = Math.max(cmdLen, cmd.command.length());
+
+            // Split the command value based on line feed characters
+            String[] parts = cmd.value.split("\n");
+
+            // Step through each portion of the value
+            for (String part : parts)
+            {
+                // Store the longest value text
+                valLen = Math.max(valLen, part.length());
+            }
+        }
+
+        // Build the format string using the maximum lengths
+        String format = "  %-"
+                        + descLen
+                        + "."
+                        + descLen
+                        + "s  %-"
+                        + cmdLen
+                        + "."
+                        + cmdLen
+                        + "s  %-"
+                        + valLen
+                        + "s\n";
+
+        // Create a string filled with '-' characters
+        char[] dashes = new char[Math.max(Math.max(descLen, cmdLen), valLen)];
+        Arrays.fill(dashes, '-');
+        String dash = new String(dashes);
+
+        // Create a string filled with spaces for positioning wrapped value lines
+        char[] spaces = new char[descLen + cmdLen + 6];
+        Arrays.fill(spaces, ' ');
+        String space = new String(spaces);
+
+        // Initialize the usage information
+        String usage = String.format("usage:\n"
+                                     + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
+                                     + " Command line arguments:\n"
+                                     + format
+                                     + format,
+                                     "Description",
+                                     "Command",
+                                     "Value",
+                                     dash,
+                                     dash,
+                                     dash);
+
+        // Step through each command
+        for (CommandHandler cmd : argument)
+        {
+            // Append the command's usage text
+            usage += String.format(format,
+                                   cmd.description,
+                                   cmd.command,
+                                   cmd.value.replaceAll("\n", "\n" + space));
+        }
+
+        // Display the usage information
+        System.out.println(usage);
+
+        // Exit the application
+        System.exit(0);
     }
 
     /**********************************************************************************************

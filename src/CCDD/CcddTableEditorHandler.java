@@ -4239,12 +4239,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
 
                 // Convert the cell value to an integer
-                int value = Integer.valueOf(newValueS);
+                long value = Long.valueOf(newValueS);
 
                 // Check if the value is outside the possible bounds for an unsigned integer of
                 // this data type's size
-                if (value < (int) newDataTypeHandler.getMinimum(dataType)
-                    || value > (int) newDataTypeHandler.getMaximum(dataType))
+                if (value < (long) newDataTypeHandler.getMinimum(dataType)
+                    || value > (long) newDataTypeHandler.getMaximum(dataType))
                 {
                     throw new CCDDException("Input value out of range for column '"
                                             + typeDefn.getColumnNamesUser()[column]
@@ -4258,7 +4258,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // the maximum
                 if (!minVal.isEmpty()
                     && !maxVal.isEmpty()
-                    && Integer.valueOf(minVal) > Integer.valueOf(maxVal))
+                    && Long.valueOf(minVal) > Long.valueOf(maxVal))
                 {
                     throw new CCDDException("Invalid input value for column '"
                                             + typeDefn.getColumnNamesUser()[column]
@@ -4280,12 +4280,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
 
                 // Convert the cell value to an integer
-                int value = Integer.valueOf(newValueS);
+                long value = Long.valueOf(newValueS);
 
                 // Check if the value is outside the possible bounds for a signed integer of this
                 // data type's size
-                if (value < (int) newDataTypeHandler.getMinimum(dataType)
-                    || value > (int) newDataTypeHandler.getMaximum(dataType))
+                if (value < (long) newDataTypeHandler.getMinimum(dataType)
+                    || value > (long) newDataTypeHandler.getMaximum(dataType))
                 {
                     throw new CCDDException("Input value out of range for column '"
                                             + typeDefn.getColumnNamesUser()[column]
@@ -4299,7 +4299,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // the maximum
                 if (!minVal.isEmpty()
                     && !maxVal.isEmpty()
-                    && Integer.valueOf(minVal) > Integer.valueOf(maxVal))
+                    && Long.valueOf(minVal) > Long.valueOf(maxVal))
                 {
                     throw new CCDDException("Invalid input value for column '"
                                             + typeDefn.getColumnNamesUser()[column]

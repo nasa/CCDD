@@ -451,7 +451,7 @@ public class CcddDataTypeHandler
         return getBaseDataType(dataTypeName) == BaseDataTypeInfo.POINTER;
     }
 
-    /******************************************************************************************
+    /**********************************************************************************************
      * Get the minimum possible value of the primitive type based on the data type and size in
      * bytes
      *
@@ -460,7 +460,7 @@ public class CcddDataTypeHandler
      *
      * @return Minimum possible value of the primitive type based on the data type and size in
      *         bytes
-     *****************************************************************************************/
+     *********************************************************************************************/
     protected Object getMinimum(String dataTypeName)
     {
         Object minimum = 0;
@@ -471,29 +471,29 @@ public class CcddDataTypeHandler
         // Check if the data type is an unsigned integer
         if (isUnsignedInt(dataTypeName))
         {
-            minimum = 0;
+            minimum = (long) 0;
         }
         // Check if the data type is a signed integer (an unsigned integer was already accounted
         // for above)
         else if (isInteger(dataTypeName))
         {
-            minimum = -(int) Math.pow(2, bytes * 8) / 2;
+            minimum = (long) (-(long) Math.pow(2, bytes * 8) / 2);
         }
         // Check if the data type is a floating point
         else if (isFloat(dataTypeName))
         {
             // Use the Java float and double minimum values
             minimum = bytes == 4
-                                 ? -Float.MAX_VALUE
+                                 ? (float) -Float.MAX_VALUE
                                  : bytes == 8
-                                              ? -Double.MAX_VALUE
+                                              ? (double) -Double.MAX_VALUE
                                               : 0;
         }
 
         return minimum;
     }
 
-    /******************************************************************************************
+    /**********************************************************************************************
      * Get the maximum possible value of the primitive type based on the data type and size in
      * bytes
      *
@@ -502,7 +502,7 @@ public class CcddDataTypeHandler
      *
      * @return Maximum possible value of the primitive type based on the data type and size in
      *         bytes
-     *****************************************************************************************/
+     *********************************************************************************************/
     protected Object getMaximum(String dataTypeName)
     {
         Object maximum = 0;
@@ -513,23 +513,23 @@ public class CcddDataTypeHandler
         // Check if the data type is an unsigned integer
         if (isUnsignedInt(dataTypeName))
         {
-            maximum = (int) Math.pow(2, bytes * 8);
+            maximum = (long) Math.pow(2, bytes * 8);
         }
         // Check if the data type is a signed integer (an unsigned integer was already accounted
         // for above)
         else if (isInteger(dataTypeName))
         {
-            int maxUnsigned = (int) Math.pow(2, bytes * 8);
-            maximum = maxUnsigned - maxUnsigned / 2 + 1;
+            long maxUnsigned = (long) Math.pow(2, bytes * 8);
+            maximum = (long) (maxUnsigned - maxUnsigned / 2 + 1);
         }
         // Check if the data type is a floating point
         else if (isFloat(dataTypeName))
         {
             // Use the Java float and double maximum values
             maximum = bytes == 4
-                                 ? Float.MAX_VALUE
+                                 ? (float) Float.MAX_VALUE
                                  : bytes == 8
-                                              ? Double.MAX_VALUE
+                                              ? (double) Double.MAX_VALUE
                                               : 0;
         }
 
