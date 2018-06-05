@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EndianType;
@@ -43,8 +44,10 @@ public class CcddCommandLineHandler
     // Array containing the command line arguments provided by the user
     private final String[] args;
 
-    // List containing the valid command line argument handlers
+    // Lists containing the valid command line argument handlers
     private final List<CommandHandler> argument;
+    private final List<CommandHandler> importArgument;
+    private final List<CommandHandler> exportArgument;
 
     // Flag that indicates the application should exit once the command is complete. Used by the
     // script execution command
@@ -53,6 +56,32 @@ public class CcddCommandLineHandler
     // Application exit value following script execution: = 0 if the script(s) completed
     // successfully; = 1 if a script fails to complete successfully
     private int scriptExitStatus;
+
+    // Import command parameters
+    private FileEnvVar[] dataFile;
+    private boolean replaceExisting;
+    private boolean appendExistingFields;
+    private boolean useExistingFields;
+
+    // Export command parameters
+    private String filePath;
+    private String[] tablePaths;
+    private boolean overwriteFile;
+    private boolean singleFile;
+    private boolean replaceMacros;
+    private boolean includeReservedMsgIDs;
+    private boolean includeProjectFields;
+    private boolean includeVariablePaths;
+    private final String[] separators;
+    private FileExtension fileExtn;
+    private EndianType endianess;
+    private boolean isHeaderBigEndian;
+    private String version;
+    private String validationStatus;
+    private String classification1;
+    private String classification2;
+    private String classification3;
+    private String scriptFileName;
 
     // Session event log file path command name
     private static final String LOG_PATH = "logPath";
@@ -72,6 +101,7 @@ public class CcddCommandLineHandler
         private final String[] options;
         private final Object[] conditions;
         private final int priority;
+        private final List<CommandHandler> subArgument;
 
         /******************************************************************************************
          * Individual command line argument handler class constructor for commands with a fixed set
@@ -97,11 +127,63 @@ public class CcddCommandLineHandler
          *            one with a higher number; commands with the same priority are executed in the
          *            order they appear on the command line
          *
+         * @param conditions
+         *            array of output parameters associated with each input option
+         *
          * @param options
          *            array of valid input options
          *
+         * @param subArgument
+         *            List of this commands sub-argument definitions
+         *****************************************************************************************/
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
+                                 Object[] conditions,
+                                 String[] options,
+                                 List<CommandHandler> subArgument)
+        {
+            this.command = command;
+            this.description = description;
+            this.value = value;
+            this.type = type;
+            this.priority = priority;
+            this.conditions = conditions;
+            this.options = options;
+            this.subArgument = subArgument;
+        }
+
+        /******************************************************************************************
+         * Individual command line argument handler class constructor for commands with a fixed set
+         * of valid options
+         *
+         * @param command
+         *            command name
+         *
+         * @param description
+         *            command description
+         *
+         * @param value
+         *            permissible values for this command
+         *
+         *
+         * @param type
+         *            command type: CommandLineType.NAME, CommandLineType.MINMAX,
+         *            CommandLineType.SIZE, CommandLineType.COLOR, or CommandLineType.OPTION
+         *
+         * @param priority
+         *            order in which the command line argument should be executed relative to the
+         *            other commands (a command with a lower priority number is executed prior to
+         *            one with a higher number; commands with the same priority are executed in the
+         *            order they appear on the command line
+         *
          * @param conditions
          *            array of output parameters associated with each input option
+         *
+         * @param options
+         *            array of valid input options
          *****************************************************************************************/
         protected CommandHandler(String command,
                                  String description,
@@ -111,13 +193,7 @@ public class CcddCommandLineHandler
                                  Object[] conditions,
                                  String[] options)
         {
-            this.command = command;
-            this.description = description;
-            this.value = value;
-            this.type = type;
-            this.priority = priority;
-            this.conditions = conditions;
-            this.options = options;
+            this(command, description, value, type, priority, conditions, options, null);
         }
 
         /******************************************************************************************
@@ -148,7 +224,42 @@ public class CcddCommandLineHandler
                                  CommandLineType type,
                                  int priority)
         {
-            this(command, description, value, type, priority, null, null);
+            this(command, description, value, type, priority, null, null, null);
+        }
+
+        /******************************************************************************************
+         * Individual command line argument handler class constructor for commands having no limit
+         * values or fixed set of options
+         *
+         * @param command
+         *            command name
+         *
+         * @param description
+         *            command description
+         *
+         * @param value
+         *            permissible values for this command
+         *
+         * @param type
+         *            command type: CmdType.NAME, or CmdType.COLOR
+         *
+         * @param priority
+         *            order in which the command line argument should be executed relative to the
+         *            other commands (a command with a lower priority number is executed prior to
+         *            one with a higher number; commands with the same priority are executed in the
+         *            order they appear on the command line
+         *
+         * @param subArguments
+         *            List of this commands sub-argument definitions
+         *****************************************************************************************/
+        protected CommandHandler(String command,
+                                 String description,
+                                 String value,
+                                 CommandLineType type,
+                                 int priority,
+                                 List<CommandHandler> subArguments)
+        {
+            this(command, description, value, type, priority, null, null, subArguments);
         }
 
         /******************************************************************************************
@@ -183,7 +294,7 @@ public class CcddCommandLineHandler
                                  int priority,
                                  Object[] conditions)
         {
-            this(command, description, value, type, priority, conditions, null);
+            this(command, description, value, type, priority, conditions, null, null);
         }
 
         /******************************************************************************************
@@ -194,6 +305,16 @@ public class CcddCommandLineHandler
         protected boolean hasArgument()
         {
             return type != CommandLineType.NONE;
+        }
+
+        /******************************************************************************************
+         * Get the list of sub-arguments for this command
+         *
+         * @return List of sub-arguments for this command; null if the command has no sub-arguments
+         *****************************************************************************************/
+        protected List<CommandHandler> getSubArgument()
+        {
+            return subArgument;
         }
 
         /******************************************************************************************
@@ -269,6 +390,30 @@ public class CcddCommandLineHandler
         this.args = args;
         errorMessage = null;
         argument = new ArrayList<CommandHandler>();
+        importArgument = new ArrayList<CommandHandler>();
+        exportArgument = new ArrayList<CommandHandler>();
+        dataFile = null;
+        replaceExisting = false;
+        appendExistingFields = false;
+        useExistingFields = false;
+        filePath = null;
+        tablePaths = null;
+        overwriteFile = false;
+        singleFile = false;
+        replaceMacros = false;
+        includeReservedMsgIDs = false;
+        includeProjectFields = false;
+        includeVariablePaths = false;
+        separators = new String[3];
+        fileExtn = FileExtension.CSV;
+        endianess = EndianType.BIG_ENDIAN;
+        isHeaderBigEndian = true;
+        version = null;
+        validationStatus = null;
+        classification1 = null;
+        classification2 = null;
+        classification3 = null;
+        scriptFileName = null;
 
         // Display application version information command
         argument.add(new CommandHandler("version",
@@ -314,7 +459,7 @@ public class CcddCommandLineHandler
                                         "Select CCDD project",
                                         "project name",
                                         CommandLineType.NAME,
-                                        1)
+                                        2)
         {
             /**************************************************************************************
              * Set the project database
@@ -775,275 +920,495 @@ public class CcddCommandLineHandler
             }
         });
 
-        // TODO
-        // Import command
+        // Import one or more tables
         argument.add(new CommandHandler("import",
                                         "Import tables, etc. from a CSV, EDS, JSON, or XTCE file",
-                                        "import file name",
+                                        "import file commands ...",
                                         CommandLineType.NAME,
-                                        6)
+                                        10,
+                                        importArgument)
         {
             /**************************************************************************************
-             *
+             * Import one or more tables from a file in CSV, EDS, JSON, or XTCE format
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                // TODO PARSER: NEED FORMAT. USE DEFAULT VALUE IF SUB-CMD NOT SPECIFIED
-                // -import "file=<file name> replace=<true or false> append=<true or false>
-                // useExisting=<true or false> backup=<true or false>"
+                // Separate the import sub-commands
+                String[] subArgs = CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
+                                                                      "\\s+",
+                                                                      -1,
+                                                                      false);
+
+                // Parse the import sub-commands
+                parseCommand(-1, -1, subArgs, getSubArgument());
+
+                // Check if a required sub-command is missing
+                if (dataFile == null)
+                {
+                    // Display the error message
+                    System.err.println("Error: Missing import file name\n");
+
+                    // Display the command usage information and exit the application
+                    displayUsageInformation();
+                }
+
+                // Import the table(s) from the specified file
+                ccddMain.getFileIOHandler().importFile(dataFile,
+                                                       false,
+                                                       replaceExisting,
+                                                       appendExistingFields,
+                                                       useExistingFields,
+                                                       (ccddMain.isGUIHidden()
+                                                                               ? null
+                                                                               : ccddMain.getMainFrame()));
             }
         });
 
-        // Export CSV command
+        // Export one or more tables
         argument.add(new CommandHandler("export",
                                         "Export tables, etc. in CSV, EDS, JSON, or XTCE format",
-                                        "export file name ...",
+                                        "export file commands ...",
                                         CommandLineType.NAME,
-                                        6)
+                                        10,
+                                        exportArgument)
         {
             /**************************************************************************************
-             *
+             * Export one or more tables to a file (or files) in CSV, EDS, JSON, or XTCE format
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                try
+                // Separate the export sub-commands
+                String[] subArgs = CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
+                                                                      "\\s+",
+                                                                      -1,
+                                                                      false);
+
+                // Parse the export sub-commands
+                parseCommand(-1, -1, subArgs, getSubArgument());
+
+                // Check if a required export sub-command is missing
+                if ((filePath == null
+                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE))
+                    || tablePaths == null)
                 {
+                    // Display the error message
+                    System.err.println("Error: Missing export file name (EDS or XTCE) and/or table path(s)\n");
 
-                    // TODO PARSER: NEED FORMAT. USE DEFAULT VALUE IF SUB-CMD NOT SPECIFIED
-                    // -export "filePath=<file path> tablePaths=<table1<:table2<...>> or
-                    // group=<group1<:group2<...>>> or <all tables if none specified>>
-                    // multiple=<true
-                    // or false> overwrite=<true or false> subMacros=<true or false>
-                    // reservedIDs=<true
-                    // or false> projectFields=<true or false> variablePaths=<true or false>
-                    // pathSep=''
-                    // nameSep='' hideTypes=<true or false>"
-
-                    String filePath = null;
-                    String[] tablePaths = null;
-                    boolean overwriteFile = false;
-                    boolean singleFile = false;
-                    boolean replaceMacros = false;
-                    boolean includeReservedMsgIDs = false;
-                    boolean includeProjectFields = false;
-                    boolean includeVariablePaths = false;
-                    String[] separators = new String[3];
-                    FileExtension fileExtn = FileExtension.CSV;
-                    EndianType endianess = EndianType.BIG_ENDIAN;
-                    boolean isHeaderBigEndian = true;
-                    String version = null;
-                    String validationStatus = null;
-                    String classification1 = null;
-                    String classification2 = null;
-                    String classification3 = null;
-                    boolean useExternal = false;
-                    String scriptFileName = null;
-
-                    parmVal = "filePath=\"abc def\" tablePaths=\"aaa,bbb.ccc\"";
-
-                    System.out.println("arg = ." + parmVal + "."); // TODO
-
-                    // Step through each export command/argument pair
-                    for (String subCmd : CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
-                                                                            "\\s+",
-                                                                            -1,
-                                                                            false))
-                    {
-                        System.out.println(" sub = ." + subCmd + "."); // TODO
-
-                        // Separate the command and argument
-                        String[] nameAndArg = CcddUtilities.splitAndRemoveQuotes(subCmd,
-                                                                                 "\\s*=\\s*",
-                                                                                 2,
-                                                                                 true);
-                        System.out.println("  " + Arrays.toString(nameAndArg)); // TODO
-
-                        // Check if the command and argument are preset
-                        if (nameAndArg.length != 2)
-                        {
-                            // TODO ERROR
-                            throw new CCDDException("missing command argument for command '"
-                                                    + nameAndArg[0]
-                                                    + "'");
-                        }
-
-                        switch (nameAndArg[0])
-                        {
-                            case "filePath":
-                                filePath = nameAndArg[1];
-                                break;
-
-                            case "tablePaths":
-                                tablePaths = nameAndArg[1].split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR));
-                                break;
-
-                            case "overwriteFile":
-                                overwriteFile = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "singleFile":
-                                singleFile = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "replaceMacros":
-                                replaceMacros = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "includeReservedMsgIDs":
-                                includeReservedMsgIDs = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "includeProjectFields":
-                                includeProjectFields = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "includeVariablePaths":
-                                includeVariablePaths = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "pathSeparator":
-                                separators[0] = nameAndArg[1];
-                                break;
-
-                            case "nameSeparator":
-                                separators[1] = nameAndArg[1];
-                                break;
-
-                            case "hideDataType":
-                                separators[2] = Boolean.toString(Boolean.parseBoolean(nameAndArg[1]));
-                                break;
-
-                            case "fileExtn":
-                                if (nameAndArg[1].equalsIgnoreCase(FileExtension.CSV.getExtensionName()))
-                                {
-                                    fileExtn = FileExtension.CSV;
-                                }
-                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.EDS.getExtensionName()))
-                                {
-                                    fileExtn = FileExtension.EDS;
-                                }
-                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.JSON.getExtensionName()))
-                                {
-                                    fileExtn = FileExtension.JSON;
-                                }
-                                else if (nameAndArg[1].equalsIgnoreCase(FileExtension.XTCE.getExtensionName()))
-                                {
-                                    fileExtn = FileExtension.XTCE;
-                                }
-                                else
-                                {
-                                    // TODO UNKNOWN EXTN
-                                    throw new CCDDException("invalid export type '"
-                                                            + nameAndArg[1]
-                                                            + "'");
-                                }
-
-                                break;
-
-                            case "endianess":
-                                if (nameAndArg[1].equalsIgnoreCase("big"))
-                                {
-                                    endianess = EndianType.BIG_ENDIAN;
-                                }
-                                else if (nameAndArg[1].equalsIgnoreCase("little"))
-                                {
-                                    endianess = EndianType.LITTLE_ENDIAN;
-                                }
-                                else
-                                {
-                                    // TODO UNKNOWN ENDIANESS
-                                    throw new CCDDException("invalid endianess"
-                                                            + nameAndArg[1]
-                                                            + "'");
-                                }
-
-                                break;
-
-                            case "isHeaderBigEndian":
-                                isHeaderBigEndian = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "version":
-                                version = nameAndArg[1];
-                                break;
-
-                            case "validationStatus":
-                                validationStatus = nameAndArg[1];
-                                break;
-
-                            case "classification1":
-                                classification1 = nameAndArg[1];
-                                break;
-
-                            case "classification2":
-                                classification2 = nameAndArg[1];
-                                break;
-
-                            case "classification3":
-                                classification3 = nameAndArg[1];
-                                break;
-
-                            case "useExternal":
-                                useExternal = Boolean.parseBoolean(nameAndArg[1]);
-                                break;
-
-                            case "externalFileName":
-                                scriptFileName = nameAndArg[1];
-                                break;
-
-                            default:
-                                // TODO UNKNOWN
-                                throw new CCDDException();
-                        }
-                    }
-
-                    if (filePath == null || tablePaths == null)
-                    {
-                        throw new CCDDException("missing export file/path and/or table path(s)");
-                    }
-
-                    // ccddMain.getFileIOHandler().exportSelectedTables(filePath,
-                    // tablePaths,
-                    // overwriteFile,
-                    // singleFile,
-                    // replaceMacros,
-                    // includeReservedMsgIDs,
-                    // includeProjectFields,
-                    // includeVariablePaths,
-                    // ccddMain.getVariableHandler(),
-                    // separators,
-                    // fileExtn,
-                    // endianess,
-                    // isHeaderBigEndian,
-                    // version,
-                    // validationStatus,
-                    // classification1,
-                    // classification2,
-                    // classification3,
-                    // useExternal,
-                    // scriptFileName,
-                    // null);
+                    // Display the command usage information and exit the application
+                    displayUsageInformation();
                 }
-                catch (CCDDException ce)
-                {
-                    // Check if a bad parameter was detected
-                    if (errorMessage != null)
-                    {
-                        // Display the error message
-                        System.err.println("Error: " + errorMessage + "\n");
 
-                        // Exit the application
-                        System.exit(0);
-                    }
-                    // Invalid command
-                    else
-                    {
-                        // Display the command usage information and exit the application
-                        displayUsageInformation();
-                    }
-                }
+                // Export the specified table(s)
+                ccddMain.getFileIOHandler().exportSelectedTables(filePath,
+                                                                 tablePaths,
+                                                                 overwriteFile,
+                                                                 singleFile,
+                                                                 replaceMacros,
+                                                                 includeReservedMsgIDs,
+                                                                 includeProjectFields,
+                                                                 includeVariablePaths,
+                                                                 ccddMain.getVariableHandler(),
+                                                                 separators,
+                                                                 fileExtn,
+                                                                 endianess,
+                                                                 isHeaderBigEndian,
+                                                                 version,
+                                                                 validationStatus,
+                                                                 classification1,
+                                                                 classification2,
+                                                                 classification3,
+                                                                 scriptFileName != null,
+                                                                 scriptFileName,
+                                                                 (ccddMain.isGUIHidden()
+                                                                                         ? null
+                                                                                         : ccddMain.getMainFrame()));
+            }
+        });
+
+        // Import command - file path + name
+        importArgument.add(new CommandHandler("fileName",
+                                              "Import file name (required)",
+                                              "import file name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the import file path + name
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                dataFile = new FileEnvVar[1];
+                dataFile[0] = new FileEnvVar((String) parmVal);
+            }
+        });
+
+        // Import command - replace existing tables
+        importArgument.add(new CommandHandler("replaceExisting",
+                                              "Replace existing table(s) (default: false)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to replace existing tables
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                replaceExisting = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - append existing fields
+        importArgument.add(new CommandHandler("appendExistingFields",
+                                              "Append existing data field(s) if table exists\n"
+                                                                      + " (only used if replaceExisting is true)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to append existing data fields
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                appendExistingFields = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - use existing fields
+        importArgument.add(new CommandHandler("useExistingFields",
+                                              "Use existing data field if imported one matches\n"
+                                                                   + " (only used if replaceExisting and\n"
+                                                                   + " appendExistingFields are true)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to use existing data fields
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                useExistingFields = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - file path + name
+        exportArgument.add(new CommandHandler("fileName",
+                                              "Export file path + name (required for EDS, XTCE)",
+                                              "export file name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the export file path + name
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                filePath = (String) parmVal;
+            }
+        });
+
+        // Export command - table path(s)
+        exportArgument.add(new CommandHandler("tablePaths",
+                                              "Table paths (required)",
+                                              "table paths",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the table(s) to export
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                tablePaths = ((String) parmVal).split(SCRIPT_MEMBER_SEPARATOR);// TODO
+            };
+        });
+
+        // Export command - overwrite existing file
+        exportArgument.add(new CommandHandler("overwriteFile",
+                                              "Overwrite existing file(s) (default: false)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to overwrite existing file(s)
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                overwriteFile = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - output to a single file
+        exportArgument.add(new CommandHandler("singleFile",
+                                              "Store in single file (default: false) (CSV, JSON)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output all tables to a single file
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                singleFile = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - replace macros
+        exportArgument.add(new CommandHandler("replaceMacros",
+                                              "Replace macros with values (default: false)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to replace each macro with its corresponding value
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                replaceMacros = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include reserved message IDs
+        exportArgument.add(new CommandHandler("includeReservedMsgIDs",
+                                              "Include reserved message ID list (default: false) (CSV, JSON)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the list of reserved message IDs
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeReservedMsgIDs = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include reserved message IDs
+        exportArgument.add(new CommandHandler("includeProjectFields",
+                                              "Include project data fields (default: false)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the project data field definitions
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeProjectFields = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include variable paths
+        exportArgument.add(new CommandHandler("includeVariablePaths",
+                                              "Include variable path list (default: false) (CSV, JSON)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the list of variable paths
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeVariablePaths = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - file extension
+        exportArgument.add(new CommandHandler("format",
+                                              "Export file format (default: csv)",
+                                              "csv, eds, json, or xtce",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {FileExtension.CSV, FileExtension.EDS, FileExtension.JSON, FileExtension.XTCE},
+                                              new String[] {"csv", "eds", "json", "xtce"})
+        {
+            /**************************************************************************************
+             * Set the export file format
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                fileExtn = (FileExtension) parmVal;
+            }
+        });
+
+        // Export command - data endianess
+        exportArgument.add(new CommandHandler("endianess",
+                                              "Endianess (default: big) (EDS, XTCE)",
+                                              "big or little",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {EndianType.BIG_ENDIAN, EndianType.LITTLE_ENDIAN},
+                                              new String[] {"big", "little"})
+        {
+            /**************************************************************************************
+             * Set the data endianess
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                endianess = (EndianType) parmVal;
+            }
+        });
+
+        // Export command - telemetry and command headers endianess
+        exportArgument.add(new CommandHandler("isHeaderBigEndian",
+                                              "Force telemetry & command header to big endian\n (default: true) (EDS, XTCE)",
+                                              "true or false",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to force the telemetry and command headers to be big endian
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                isHeaderBigEndian = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - version number
+        exportArgument.add(new CommandHandler("version",
+                                              "Version (EDS, XTCE)",
+                                              "text (default: 1.0)",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the version number
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                version = (String) parmVal;
+            }
+        });
+
+        // Export command - validation status
+        exportArgument.add(new CommandHandler("validationStatus",
+                                              "Validation status (EDS, XTCE)",
+                                              "text (default: Working)",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the validation status
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                validationStatus = (String) parmVal;
+            }
+        });
+
+        // Export command - classification level 1
+        exportArgument.add(new CommandHandler("classification1",
+                                              "Classification level 1 (XTCE)",
+                                              "text (default: DOMAIN)",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the level 1 classification
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                classification1 = (String) parmVal;
+            }
+        });
+
+        // Export command - classification level 2
+        exportArgument.add(new CommandHandler("classification2",
+                                              "Classification level 2 (XTCE)",
+                                              "text (default: SYSTEM)",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the level 2 classification
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                classification2 = (String) parmVal;
+            }
+        });
+
+        // Export command - classification level 3
+        exportArgument.add(new CommandHandler("classification3",
+                                              "Classification level 3 (XTCE)",
+                                              "text (default: INTERFACE)",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the level 3 classification
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                classification3 = (String) parmVal;
+            }
+        });
+
+        // Export command - external export script file name
+        exportArgument.add(new CommandHandler("externalFileName",
+                                              "External export script file name (EDS, XTCE)",
+                                              "external export script file name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the external export script file name
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                scriptFileName = (String) parmVal;
             }
         });
     }
@@ -1051,11 +1416,38 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Parse and execute the command line argument(s)
      *
-     * @param doLogPathOnly
-     *            true to only parse and execute the session event log file path command (if
-     *            present); false to parse and execute all commands
+     * @param startPriority
+     *            command priority boundary - ignore commands with a priority less than this value
+     *
+     * @param endPriority
+     *            command priority boundary - ignore commands with a priority greater than this
+     *            value
      *********************************************************************************************/
-    protected void parseCommand(boolean doLogPathOnly)
+    protected void parseCommand(int startPriority, int endPriority)
+    {
+        parseCommand(startPriority, endPriority, args, argument);
+    }
+
+    /**********************************************************************************************
+     * Parse and execute the command line argument(s)
+     *
+     * @param startPriority
+     *            command priority boundary - ignore commands with a priority less than this value
+     *
+     * @param endPriority
+     *            command priority boundary - ignore commands with a priority greater than this
+     *            value
+     *
+     * @param cmdLnArgs
+     *            array of command line arguments to parse
+     *
+     * @param commandArgument
+     *            list of valid command line commands
+     *********************************************************************************************/
+    private void parseCommand(int startPriority,
+                              int endPriority,
+                              String[] cmdLnArgs,
+                              List<CommandHandler> commandArgument)
     {
         try
         {
@@ -1064,7 +1456,7 @@ public class CcddCommandLineHandler
             scriptExitStatus = 0;
 
             // Step through the valid commands
-            for (CommandHandler cmd : argument)
+            for (CommandHandler cmd : commandArgument)
             {
                 // Check if the priority list doesn't contain the priority value for this command
                 if (!priorities.contains(cmd.priority))
@@ -1081,15 +1473,17 @@ public class CcddCommandLineHandler
             for (int priority : priorities)
             {
                 // Step through the command line arguments
-                for (int index = 0; index < args.length; index++)
+                for (int index = 0; index < cmdLnArgs.length; index++)
                 {
                     // Get the next command line argument
-                    String arg = args[index];
+                    String arg = cmdLnArgs[index];
 
                     // Check if the command doesn't start with a recognized delimiter
                     if (!(arg.startsWith("-") || arg.startsWith("/")))
                     {
-                        throw new CCDDException();
+                        throw new CCDDException("Unrecognized delimiter for command '"
+                                                + arg
+                                                + "'");
                     }
 
                     // Remove the delimiter
@@ -1098,7 +1492,7 @@ public class CcddCommandLineHandler
                     boolean isValidCmd = false;
 
                     // Step through the valid commands
-                    for (CommandHandler cmd : argument)
+                    for (CommandHandler cmd : commandArgument)
                     {
                         // Check if the command argument matches a valid command
                         if (arg.equalsIgnoreCase(cmd.command))
@@ -1116,23 +1510,26 @@ public class CcddCommandLineHandler
                                 index++;
 
                                 // Check if the number of command line arguments isn't exceeded
-                                if (index < args.length)
+                                if (index < cmdLnArgs.length)
                                 {
                                     // Get the parameter associated with the command
-                                    parm = args[index];
+                                    parm = cmdLnArgs[index];
                                 }
                                 // The end of the command line arguments is reached
                                 else
                                 {
-                                    throw new CCDDException();
+                                    throw new CCDDException("Missing argument for command '"
+                                                            + arg
+                                                            + "'");
                                 }
                             }
 
-                            // Check if the command's priority matches the current priority (if
-                            // processing all commands) or if this is the log path command (if only
-                            // the log path command is to be processed)
-                            if ((!doLogPathOnly && cmd.priority == priority)
-                                || (doLogPathOnly && arg.equals(LOG_PATH)))
+                            // Check if the command's priority falls within the specified priority
+                            // bounds
+                            if (priority == cmd.priority
+                                && (startPriority == -1
+                                    || (cmd.priority >= startPriority
+                                        && cmd.priority <= endPriority)))
                             {
                                 // Handle the command and check if it results in an error condition
                                 if (cmd.handler(parm))
@@ -1149,7 +1546,7 @@ public class CcddCommandLineHandler
                     // Check if the command wasn't recognized
                     if (!isValidCmd)
                     {
-                        throw new CCDDException();
+                        throw new CCDDException("Unrecognized command '" + arg + "'");
                     }
                 }
             }
@@ -1175,6 +1572,9 @@ public class CcddCommandLineHandler
             // Invalid command
             else
             {
+                // Display the error message
+                System.err.println("Error: " + ce.getMessage() + "\n");
+
                 // Display the command usage information and exit the application
                 displayUsageInformation();
             }
@@ -1207,32 +1607,62 @@ public class CcddCommandLineHandler
         // Step through each command
         for (CommandHandler cmd : argument)
         {
-            // Store the longest description and command text
-            descLen = Math.max(descLen, cmd.description.length());
+            // Store the longest command text
             cmdLen = Math.max(cmdLen, cmd.command.length());
 
-            // Split the command value based on line feed characters
-            String[] parts = cmd.value.split("\n");
-
-            // Step through each portion of the value
-            for (String part : parts)
+            // Step through each portion of the value text
+            for (String part : cmd.value.split("\n"))
             {
                 // Store the longest value text
                 valLen = Math.max(valLen, part.length());
             }
+
+            // Step through each line of the description text
+            for (String description : cmd.description.split("\n"))
+            {
+                // Store the longest description text
+                descLen = Math.max(descLen, description.length());
+            }
+
+            // Check if the command has any sub-commands
+            if (cmd.getSubArgument() != null)
+            {
+                // Step through each sub-command
+                for (CommandHandler subCmd : cmd.getSubArgument())
+                {
+                    // Store the longest command text
+                    cmdLen = Math.max(cmdLen, subCmd.command.length() + 2);
+
+                    // Step through each portion of the value text
+                    for (String part : subCmd.value.split("\n"))
+                    {
+                        // Store the longest value text
+                        valLen = Math.max(valLen, part.length());
+                    }
+
+                    // Step through each line of the description text
+                    for (String description : subCmd.description.split("\n"))
+                    {
+                        // Store the longest description text
+                        descLen = Math.max(descLen, description.length());
+                    }
+                }
+            }
         }
 
-        // Build the format string using the maximum lengths
+        // Build the format strings using the maximum lengths
         String format = "  %-"
-                        + descLen
-                        + "."
-                        + descLen
-                        + "s  %-"
                         + cmdLen
                         + "."
                         + cmdLen
                         + "s  %-"
                         + valLen
+                        + "."
+                        + valLen
+                        + "s  %-"
+                        + descLen
+                        + "."
+                        + descLen
                         + "s\n";
 
         // Create a string filled with '-' characters
@@ -1240,20 +1670,15 @@ public class CcddCommandLineHandler
         Arrays.fill(dashes, '-');
         String dash = new String(dashes);
 
-        // Create a string filled with spaces for positioning wrapped value lines
-        char[] spaces = new char[descLen + cmdLen + 6];
-        Arrays.fill(spaces, ' ');
-        String space = new String(spaces);
-
         // Initialize the usage information
         String usage = String.format("usage:\n"
                                      + "java -classpath <class_paths> CCDD.CcddMain [[<- or />]<command> <value> [...]]\n"
                                      + " Command line arguments:\n"
                                      + format
                                      + format,
-                                     "Description",
                                      "Command",
                                      "Value",
+                                     "Description",
                                      dash,
                                      dash,
                                      dash);
@@ -1261,11 +1686,51 @@ public class CcddCommandLineHandler
         // Step through each command
         for (CommandHandler cmd : argument)
         {
-            // Append the command's usage text
-            usage += String.format(format,
-                                   cmd.description,
-                                   cmd.command,
-                                   cmd.value.replaceAll("\n", "\n" + space));
+            String[] description = cmd.description.split("\n");
+            String[] value = cmd.value.split("\n");
+
+            // Step through each line describing the command
+            for (int index = 0; index < Math.max(description.length, value.length); index++)
+            {
+                // Append the command's usage text
+                usage += String.format(format,
+                                       (index == 0
+                                                   ? cmd.command
+                                                   : ""),
+                                       (index < value.length
+                                                             ? value[index]
+                                                             : ""),
+                                       (index < description.length
+                                                                   ? description[index]
+                                                                   : ""));
+            }
+
+            // Check if the command has any sub-commands
+            if (cmd.getSubArgument() != null)
+            {
+                // Step through each sub-command
+                for (CommandHandler subCmd : cmd.getSubArgument())
+                {
+                    description = subCmd.description.split("\n");
+                    value = subCmd.value.split("\n");
+
+                    // Step through each line describing the sub-command
+                    for (int index = 0; index < Math.max(description.length, value.length); index++)
+                    {
+                        // Append the command's usage text
+                        usage += String.format(format,
+                                               (index == 0
+                                                           ? "  " + subCmd.command
+                                                           : ""),
+                                               (index < value.length
+                                                                     ? value[index]
+                                                                     : ""),
+                                               (index < description.length
+                                                                           ? description[index]
+                                                                           : ""));
+                    }
+                }
+            }
         }
 
         // Display the usage information

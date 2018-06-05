@@ -101,6 +101,7 @@ import CCDD.CcddConstants.ServerPropertyDialogType;
 public class CcddMain
 {
     // Class references
+    private final CcddCommandLineHandler cmdLnHandler;
     private final CcddDbCommandHandler dbCommand;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
@@ -245,11 +246,11 @@ public class CcddMain
         tableEditorDialogs = new ArrayList<CcddTableEditorDialog>();
 
         // Create the command line handler
-        CcddCommandLineHandler cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
+        cmdLnHandler = new CcddCommandLineHandler(CcddMain.this, args);
 
         // Check if the command that sets the session event log file path is present, and if so set
         // the path
-        cmdLnHandler.parseCommand(true);
+        cmdLnHandler.parseCommand(0, 1);
 
         // Create the database command and control handler classes
         dbCommand = new CcddDbCommandHandler(CcddMain.this);
@@ -306,8 +307,9 @@ public class CcddMain
                                                       DialogOption.OK_OPTION);
         }
 
-        // Read the command line arguments and make adjustments as needed
-        cmdLnHandler.parseCommand(false);
+        // Execute the command line arguments that are not database-dependent and make adjustments
+        // as needed
+        cmdLnHandler.parseCommand(2, 9);
 
         // Make the main application window visible if the GUI set to be active
         frameCCDD.setVisible(!isGUIHidden());
@@ -740,6 +742,9 @@ public class CcddMain
             // Start the web server
             getWebServer().startServer();
         }
+
+        // Execute the command line arguments that are database-dependent
+        cmdLnHandler.parseCommand(10, 10);
     }
 
     /**********************************************************************************************

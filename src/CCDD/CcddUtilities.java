@@ -36,7 +36,7 @@ public class CcddUtilities
     private static enum HTMLTag
     {
         HTML("<html>", ""),
-        BREAK("<br>", ""),
+        BREAK("<br>", "\n"),
         AMP("&amp;", "&"),
         LESS("&lt;", "<"),
         GREAT("&gt;", ">"),
@@ -809,7 +809,7 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Replace any HTML break tags with line feeds or spaces (depending on teh input flag), remove
+     * Replace any HTML break tags with line feeds or spaces (depending on the input flag), remove
      * the remaining HTML tag(s) from the supplied text, and replace special character markers with
      * the special character if recognized, else with a blank
      *
@@ -868,21 +868,49 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Replace the HTML special characters in a text string with the equivalent HTML tags
+     * Convert the supplied text string to HTML, replacing the HTML special characters in the text
+     * string with the equivalent HTML tags
      *
      * @param inputText
      *            string to format for HTML
      *
-     * @return Input string with the HTML special characters replaced with the equivalent HTML tags
+     * @return Input string converted to HTML format
      *********************************************************************************************/
     protected static String convertToHTML(String inputText)
+    {
+        return convertToHTML(inputText, false);
+    }
+
+    /**********************************************************************************************
+     * Convert the supplied text string to HTML, replacing the HTML special characters in the text
+     * string with the equivalent HTML tags
+     *
+     * @param inputText
+     *            string to format for HTML
+     *
+     * @param ignoreBreaks
+     *            true to ignore replacing line feeds with breaks; false to replace line feeds with
+     *            breaks
+     *
+     * @return Input string converted to HTML format
+     *********************************************************************************************/
+    protected static String convertToHTML(String inputText, boolean ignoreBreaks)
     {
         // Step through each HTML tag
         for (HTMLTag tagInfo : HTMLTag.values())
         {
-            // Replace the reserved character in the input text string with its HTML tag equivalent
-            inputText = tagInfo.replaceReservedChar(inputText);
+            // Check if this isn't the line break tag, or if it is that line breaks are not to be
+            // ignored
+            if (tagInfo != HTMLTag.BREAK || !ignoreBreaks)
+            {
+                // Replace the reserved character in the input text string with its HTML tag
+                // equivalent
+                inputText = tagInfo.replaceReservedChar(inputText);
+            }
         }
+
+        // Prepend the HTML tag
+        inputText = HTMLTag.HTML.getHTMLTag() + inputText;
 
         return inputText;
     }
@@ -947,9 +975,8 @@ public class CcddUtilities
             // Check if the input text string is not formatted for HTML
             if (!inputText.startsWith(HTMLTag.HTML.getHTMLTag()))
             {
-                // Add the HTML tag and convert any special characters to their HTML equivalent
-                // tags
-                inputText = HTMLTag.HTML.getHTMLTag() + convertToHTML(inputText);
+                // Convert the input text to HTML format
+                inputText = convertToHTML(inputText, true);
             }
 
             // Initialize the index of the last tag found

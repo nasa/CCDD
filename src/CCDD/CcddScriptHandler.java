@@ -604,6 +604,15 @@ public class CcddScriptHandler
                 // Check if the association on the specified row is flagged as unavailable
                 if (!isAssociationAvailable(convertRowIndexToModel(row)))
                 {
+                    // Check if the text is HTML-formatted
+                    if (text.startsWith("<html>"))
+                    {
+                        // Remove any font color tags from the text. This is needed so that all of
+                        // the text is grayed out
+                        ((JTextComponent) component).setText(text.replaceAll("<font color[^>]*>",
+                                                                             ""));
+                    }
+
                     // Set the text color for this row to indicate it's not available
                     ((JTextComponent) component).setForeground(Color.GRAY);
 

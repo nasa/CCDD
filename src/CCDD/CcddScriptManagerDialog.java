@@ -326,8 +326,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                     // Store the script file name with path in the the script file
                                     // field
                                     scriptNameFld.setText(assnsTable.getValueAt(row,
-                                                                            assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()))
-                                                                .toString());
+                                                                                assnsTable.convertColumnIndexToView(AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()))
+                                                                    .toString());
 
                                     // Separate the table member portion into the individual table
                                     // names. The line breaks used for HTML formatting must be

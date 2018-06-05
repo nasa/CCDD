@@ -540,8 +540,8 @@ public class CcddFileIOHandler
      *            (if any). Only valid when replaceExisting is true
      *
      * @param useExistingFields
-     *            true to replace an existing data field with the imported ones if the field names
-     *            match. Only valid when replaceExisting and appendExistingFields are true
+     *            true to use an existing data field in place of the imported ones if the field
+     *            names match. Only valid when replaceExisting and appendExistingFields are true
      *
      * @param parent
      *            GUI component calling this method

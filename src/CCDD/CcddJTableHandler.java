@@ -1897,6 +1897,16 @@ public abstract class CcddJTableHandler extends JTable
                                                        int row,
                                                        int column)
         {
+            // Check if this is the first row in the table and the cell is not formatted for HTML
+            if (row == 0 && !value.toString().startsWith("<html>"))
+            {
+                // Convert the cell's content to HTML. If the first row in the table formatted for
+                // HTML is beyond row 13 and a previous row contains a line feed then the row with
+                // the line feed isn't displayed correctly (unless the table is scrolled to the row
+                // containing the HTML text). Forcing the first row to be HTML avoids the condition
+                value = CcddUtilities.convertToHTML(value.toString());
+            }
+
             // Check if the cell value is HTML-formatted
             if (value != null && value.toString().startsWith("<html>"))
             {
@@ -2548,7 +2558,7 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected class MoveCellSelection
     {
-        // Start and end selected row(s) and column(s), model coordinates
+        // Start and end selected row(s) (model coordinates) and column(s) (view coordinates)
         private final int startRow;
         private final int endRow;
         private final int startColumn;
@@ -2560,12 +2570,28 @@ public abstract class CcddJTableHandler extends JTable
          *****************************************************************************************/
         MoveCellSelection()
         {
-            // Get the start and end row indices in model coordinates, and the start and end column
-            // indices in view coordinates
-            startRow = convertRowIndexToModel(getSelectedRow());
-            endRow = convertRowIndexToModel(getSelectionModel().getMaxSelectionIndex());
-            startColumn = getSelectedColumn();
-            endColumn = getColumnModel().getSelectionModel().getMaxSelectionIndex();
+            // Get the cell coordinates of the first selected cell
+            int selRow = getSelectedRow();
+            int selCol = getSelectedColumn();
+
+            // Check if no cell is selected
+            if (selRow == -1 || selCol == -1)
+            {
+                startRow = -1;
+                endRow = -1;
+                startColumn = -1;
+                endColumn = -1;
+            }
+            // A cell is selected
+            else
+            {
+                // Get the start and end row indices in model coordinates, and the start and end
+                // column indices in view coordinates
+                startRow = convertRowIndexToModel(selRow);
+                endRow = convertRowIndexToModel(getSelectionModel().getMaxSelectionIndex());
+                startColumn = selCol;
+                endColumn = getColumnModel().getSelectionModel().getMaxSelectionIndex();
+            }
         }
 
         /******************************************************************************************
@@ -3592,8 +3618,7 @@ public abstract class CcddJTableHandler extends JTable
         MoveCellSelection selected = new MoveCellSelection();
 
         // Check if a valid column is selected: can't move the last column further to the right
-        if (selected.getEndColumn() != -1
-            && selected.getEndColumn() < getColumnCount() - 1)
+        if (selected.getEndColumn() != -1 && selected.getEndColumn() < getColumnCount() - 1)
         {
             // Flag the end of the editing sequence for undo/redo purposes
             undoManager.endEditSequence();

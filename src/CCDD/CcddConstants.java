@@ -858,7 +858,7 @@ public class CcddConstants
         INVALID_TEXT("Invalid table text", "Text color for invalid table rows. Used in the telemetry and application scheduler tables", "InvalidTextColor", 200, 0, 0),
         PADDING_BACK("Padding variable cell background", "Background color for a padding variable cell", "PaddingBackgroundColor", 240, 220, 240),
         SPECIAL_LABEL_TEXT("Dialog component group label", "Text color for a group of components in a dialog", "SpecialLabelTextColor", 170, 40, 80),
-        DATA_TYPE("Data type (tree)", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
+        DATA_TYPE("Data type", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
         TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180),
         TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tab move location indicator", "TabMoveLoccationIndicatorColor", 0, 100, 255);
