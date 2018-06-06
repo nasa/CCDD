@@ -580,7 +580,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // isn't manually set, and this isn't an array definition
                 if (!variableName.isEmpty()
                     && !dataType.isEmpty()
-                    && committedInfo.getData()[row][variablePathIndex].isEmpty()
+                    && (committedInfo.getData().length == 0
+                        || committedInfo.getData()[row][variablePathIndex].isEmpty())
                     && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
                         || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex))))
                 {

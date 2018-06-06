@@ -631,12 +631,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             {
                                 // Export the contents of the selected table(s) in the specified
                                 // format
-                                fileIOHandler.importFile(filePath,
-                                                         backupFirstCb.isSelected(),
-                                                         replaceExistingTablesCb.isSelected(),
-                                                         appendExistingFieldsCb.isSelected(),
-                                                         useExistingFieldsCb.isSelected(),
-                                                         CcddTableManagerDialog.this);
+                                fileIOHandler.importFileInBackground(filePath,
+                                                                     backupFirstCb.isSelected(),
+                                                                     replaceExistingTablesCb.isSelected(),
+                                                                     appendExistingFieldsCb.isSelected(),
+                                                                     useExistingFieldsCb.isSelected(),
+                                                                     CcddTableManagerDialog.this);
                             }
 
                             break;
@@ -679,65 +679,65 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                                 // Export the contents of the selected table(s) in the specified
                                 // format
-                                fileIOHandler.exportSelectedTables(pathFld.getText(),
-                                                                   tablePaths.toArray(new String[0]),
-                                                                   overwriteFileCb.isSelected(),
-                                                                   (singleFileRBtn != null
-                                                                                           ? singleFileRBtn.isSelected()
-                                                                                           : true),
-                                                                   (replaceMacrosCb != null
-                                                                                            ? replaceMacrosCb.isSelected()
-                                                                                            : true),
-                                                                   (includeReservedMsgIDsCb != null
-                                                                                                    ? includeReservedMsgIDsCb.isSelected()
-                                                                                                    : false),
-                                                                   (includeProjectFieldsCb != null
-                                                                                                   ? includeProjectFieldsCb.isSelected()
-                                                                                                   : false),
-                                                                   (includeVariablePaths != null
-                                                                                                 ? includeVariablePaths.isSelected()
-                                                                                                 : false),
-                                                                   (includeVariablePaths != null
-                                                                    && includeVariablePaths.isSelected()
-                                                                                                         ? ccddMain.getVariableHandler()
-                                                                                                         : null),
-                                                                   (varPathSepFld != null
-                                                                                          ? new String[] {varPathSepFld.getText(),
-                                                                                                          Boolean.toString(hideDataTypeCb.isSelected()),
-                                                                                                          typeNameSepFld.getText()}
-                                                                                          : null),
-                                                                   fileExtn,
-                                                                   (bigRBtn != null
-                                                                                    ? (bigRBtn.isSelected()
-                                                                                                            ? EndianType.BIG_ENDIAN
-                                                                                                            : EndianType.LITTLE_ENDIAN)
-                                                                                    : null),
-                                                                   (bigRBtn != null
-                                                                    && headerBigCBox != null
-                                                                                             ? (bigRBtn.isSelected() || headerBigCBox.isSelected())
-                                                                                             : false),
-                                                                   (versionFld != null
-                                                                                       ? versionFld.getText()
-                                                                                       : null),
-                                                                   (validStatFld != null
-                                                                                         ? validStatFld.getText()
-                                                                                         : null),
-                                                                   (class1Fld != null
-                                                                                      ? class1Fld.getText()
-                                                                                      : null),
-                                                                   (class2Fld != null
-                                                                                      ? class2Fld.getText()
-                                                                                      : null),
-                                                                   (class3Fld != null
-                                                                                      ? class3Fld.getText()
-                                                                                      : null),
-                                                                   (useExternalCBox != null
-                                                                                            ? useExternalCBox.isSelected()
-                                                                                            : false),
-                                                                   (scriptNameFld != null
-                                                                                          ? scriptNameFld.getText()
-                                                                                          : null),
-                                                                   CcddTableManagerDialog.this);
+                                fileIOHandler.exportSelectedTablesInBackground(pathFld.getText(),
+                                                                               tablePaths.toArray(new String[0]),
+                                                                               overwriteFileCb.isSelected(),
+                                                                               (singleFileRBtn != null
+                                                                                                       ? singleFileRBtn.isSelected()
+                                                                                                       : true),
+                                                                               (replaceMacrosCb != null
+                                                                                                        ? replaceMacrosCb.isSelected()
+                                                                                                        : true),
+                                                                               (includeReservedMsgIDsCb != null
+                                                                                                                ? includeReservedMsgIDsCb.isSelected()
+                                                                                                                : false),
+                                                                               (includeProjectFieldsCb != null
+                                                                                                               ? includeProjectFieldsCb.isSelected()
+                                                                                                               : false),
+                                                                               (includeVariablePaths != null
+                                                                                                             ? includeVariablePaths.isSelected()
+                                                                                                             : false),
+                                                                               (includeVariablePaths != null
+                                                                                && includeVariablePaths.isSelected()
+                                                                                                                     ? ccddMain.getVariableHandler()
+                                                                                                                     : null),
+                                                                               (varPathSepFld != null
+                                                                                                      ? new String[] {varPathSepFld.getText(),
+                                                                                                                      Boolean.toString(hideDataTypeCb.isSelected()),
+                                                                                                                      typeNameSepFld.getText()}
+                                                                                                      : null),
+                                                                               fileExtn,
+                                                                               (bigRBtn != null
+                                                                                                ? (bigRBtn.isSelected()
+                                                                                                                        ? EndianType.BIG_ENDIAN
+                                                                                                                        : EndianType.LITTLE_ENDIAN)
+                                                                                                : null),
+                                                                               (bigRBtn != null
+                                                                                && headerBigCBox != null
+                                                                                                         ? (bigRBtn.isSelected() || headerBigCBox.isSelected())
+                                                                                                         : false),
+                                                                               (versionFld != null
+                                                                                                   ? versionFld.getText()
+                                                                                                   : null),
+                                                                               (validStatFld != null
+                                                                                                     ? validStatFld.getText()
+                                                                                                     : null),
+                                                                               (class1Fld != null
+                                                                                                  ? class1Fld.getText()
+                                                                                                  : null),
+                                                                               (class2Fld != null
+                                                                                                  ? class2Fld.getText()
+                                                                                                  : null),
+                                                                               (class3Fld != null
+                                                                                                  ? class3Fld.getText()
+                                                                                                  : null),
+                                                                               (useExternalCBox != null
+                                                                                                        ? useExternalCBox.isSelected()
+                                                                                                        : false),
+                                                                               (scriptNameFld != null
+                                                                                                      ? scriptNameFld.getText()
+                                                                                                      : null),
+                                                                               CcddTableManagerDialog.this);
                             }
 
                             break;

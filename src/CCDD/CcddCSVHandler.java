@@ -253,12 +253,36 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // spreadsheet application then extra commas are appended to a row if
                         // needed for the number of columns to be equal with the other rows. These
                         // empty trailing columns are ignored
-                        line = line.replaceAll("(?:[,\\s*]|\\\"\\s*\\\")*$", "");
+                        line = line.trim().replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
 
                         // Check that the row isn't empty and isn't a comment line (starts with a #
                         // character)
                         if (!line.isEmpty() && !line.startsWith("#"))
                         {
+                            // Check if the line contains an odd number of double quotes
+                            if (line.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
+                            {
+                                String nextLine = null;
+
+                                // Step through the subsequent lines in order to find the end of
+                                // multi-line value
+                                while ((nextLine = br.readLine()) != null)
+                                {
+                                    // Append the line to the preceding one, inserting the line
+                                    // feed
+                                    line += "\n" + nextLine;
+
+                                    // Check if this is the line that ends the multi-line value
+                                    // (i.e., it ends with one double quote)
+                                    if (nextLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
+                                    {
+                                        // Stop searching; the multi-line string has been
+                                        // concatenated to the initial line
+                                        break;
+                                    }
+                                }
+                            }
+
                             // Parse the import data. The values are comma- separated; however,
                             // commas within quotes are ignored - this allows commas to be included
                             // in the data values

@@ -2886,6 +2886,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         try
         {
+            System.out.println("XTCE exportToFile start"); // TODO
             // Convert the table data into XTCE XML format
             convertTablesToXTCE(tableNames,
                                 (EndianType) extraInfo[0],
@@ -2906,6 +2907,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
             transformer.transform(new DOMSource(domResult.getNode()),
                                   new StreamResult(exportFile));
+            System.out.println("XTCE exportToFile complete"); // TODO
         }
         catch (JAXBException je)
         {

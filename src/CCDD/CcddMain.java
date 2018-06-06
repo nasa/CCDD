@@ -101,7 +101,7 @@ import CCDD.CcddConstants.ServerPropertyDialogType;
 public class CcddMain
 {
     // Class references
-    private final CcddCommandLineHandler cmdLnHandler;
+    private CcddCommandLineHandler cmdLnHandler;
     private final CcddDbCommandHandler dbCommand;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
@@ -250,7 +250,7 @@ public class CcddMain
 
         // Check if the command that sets the session event log file path is present, and if so set
         // the path
-        cmdLnHandler.parseCommand(0, 1);
+        cmdLnHandler.parseCommand(-1, 1);
 
         // Create the database command and control handler classes
         dbCommand = new CcddDbCommandHandler(CcddMain.this);
@@ -743,8 +743,16 @@ public class CcddMain
             getWebServer().startServer();
         }
 
-        // Execute the command line arguments that are database-dependent
-        cmdLnHandler.parseCommand(10, 10);
+        // Check if the command line handler exists
+        if (cmdLnHandler != null)
+        {
+            // Execute the command line arguments that are database-dependent
+            cmdLnHandler.parseCommand(10, -1);
+
+            // Set the handler reference to null so that the command line commands are not executed
+            // again
+            cmdLnHandler = null;
+        }
     }
 
     /**********************************************************************************************
@@ -1390,7 +1398,12 @@ public class CcddMain
                             String projectName = ((JMenuItem) ae.getSource()).getText().replaceFirst("[0-9]+ ", "");
 
                             // Check if this isn't the name of the currently open project
-                            if (!projectName.equals(dbControl.getProjectName()))
+                            if (!projectName.equals(dbControl.getProjectName())
+                                && ignoreUncommittedChanges("Open Project",
+                                                            "Discard changes?",
+                                                            true,
+                                                            null,
+                                                            frameCCDD))
                             {
                                 // Open the selected project
                                 dbControl.openDatabaseInBackground(projectName);
