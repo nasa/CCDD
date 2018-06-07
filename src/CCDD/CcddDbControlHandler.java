@@ -2028,6 +2028,15 @@ public class CcddDbControlHandler
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST, serverHost);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT, serverPort);
                         ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL, isSSL);
+
+                        // Check that the connection is to a project database and not just the
+                        // server (default database)
+                        if (isDatabaseConnected())
+                        {
+                            // Parse any command line commands that require a project database to
+                            // be open
+                            ccddMain.parseDbSpecificCommandLineCommands();
+                        }
                     }
                     catch (Exception e)
                     {

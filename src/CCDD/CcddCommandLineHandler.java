@@ -1045,6 +1045,8 @@ public class CcddCommandLineHandler
                     displayUsageInformation();
                 }
 
+                System.out.println("export tables; " + Arrays.toString(tablePaths)); // TODO
+
                 // Check if the GUI isn't displayed
                 if (ccddMain.isGUIHidden())
                 {
@@ -1217,11 +1219,14 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                // TODO
-                String fmt = CcddScriptHandler.convertAssociationMembersFormat((String) parmVal,
-                                                                               true);
-                System.out.println("fmt: " + fmt); // TODO
-                tablePaths = ccddMain.getScriptHandler().getAssociationTablePaths(fmt,
+                // Convert the table path list to the internal format used by script associations
+                String internalFormat = CcddScriptHandler.convertAssociationMembersFormat((String) parmVal,
+                                                                                          true);
+
+                // Parse the converted table path list. The paths are handled the same as those for
+                // script associations (hence the need for the conversion above); this includes
+                // expanding group references
+                tablePaths = ccddMain.getScriptHandler().getAssociationTablePaths(internalFormat,
                                                                                   new CcddGroupHandler(ccddMain,
                                                                                                        null,
                                                                                                        (ccddMain.isGUIHidden()
@@ -1231,7 +1236,6 @@ public class CcddCommandLineHandler
                                                                                                           ? null
                                                                                                           : ccddMain.getMainFrame()))
                                      .toArray(new String[0]);
-                System.out.println("tps: " + Arrays.toString(tablePaths)); // TODO
             };
         });
 

@@ -139,216 +139,227 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             @Override
             protected void execute()
             {
-                // Create a panel to hold the components of the dialog
-                selectPnl.setBorder(BorderFactory.createEmptyBorder());
-
-                // Create dialog based on supplied dialog type
-                switch (dialogType)
+                try
                 {
-                    case CREATE:
-                        // Get the array containing the roles
-                        String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
-                        String[][] roleInfo = new String[roles.length][2];
+                    // Create a panel to hold the components of the dialog
+                    selectPnl.setBorder(BorderFactory.createEmptyBorder());
 
-                        // Step through each role
-                        for (int index = 0; index < roles.length; index++)
-                        {
-                            // Store the role name
-                            roleInfo[index][0] = roles[index];
-                        }
+                    // Create dialog based on supplied dialog type
+                    switch (dialogType)
+                    {
+                        case CREATE:
+                            // Get the array containing the roles
+                            String[] roles = dbControl.queryRoleList(CcddDbManagerDialog.this);
+                            String[][] roleInfo = new String[roles.length][2];
 
-                        // Create a panel containing a grid of radio buttons representing the roles
-                        // from which to choose
-                        if (!addRadioButtons(null,
-                                             false,
-                                             roleInfo,
-                                             null,
-                                             "Select project owner",
-                                             false,
-                                             selectPnl,
-                                             gbc))
-                        {
-                            // Inform the user that no roles exist on the server
-                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>No role exists",
-                                                                      "Create Project",
-                                                                      JOptionPane.WARNING_MESSAGE,
-                                                                      DialogOption.OK_OPTION);
-                            errorFlag = true;
-                        }
-
-                        break;
-
-                    case OPEN:
-                        // Get the project names and descriptions
-                        getDatabaseInformation(true, false, null);
-
-                        // Create a panel containing a grid of radio buttons representing the
-                        // projects from which to choose
-                        if (!addRadioButtons((dbControl.getDatabaseName() == DEFAULT_DATABASE
-                                                                                              ? null
-                                                                                              : dbControl.getDatabaseName()),
-                                             false,
-                                             arrayItemData,
-                                             disabledItems,
-                                             "Select a project to open",
-                                             false,
-                                             selectPnl,
-                                             gbc))
-                        {
-                            // Inform the user that no project exists on the server for which the
-                            // current user has access
-                            displayDatabaseError("Open");
-                            errorFlag = true;
-                        }
-
-                        break;
-
-                    case RENAME:
-                        // Get the project names and descriptions
-                        getDatabaseInformation(true, false, dbControl.getDatabaseName());
-
-                        // Create a panel containing a grid of radio buttons representing the
-                        // projects from which to choose
-                        if (addRadioButtons(null,
-                                            false,
-                                            arrayItemData,
-                                            disabledItems,
-                                            "Select a project to rename",
-                                            false,
-                                            selectPnl,
-                                            gbc))
-                        {
-                            // Create the rename project name and description labels and fields
-                            addDatabaseInputFields("New project name", selectPnl, false, gbc);
-                        }
-                        // No project exists to choose
-                        else
-                        {
-                            // Inform the user that no project exists on the server
-                            displayDatabaseError("Rename");
-                            errorFlag = true;
-                        }
-
-                        break;
-
-                    case COPY:
-                        // Get the project names and descriptions
-                        getDatabaseInformation(false, false, null);
-
-                        // Create a panel containing a grid of radio buttons representing the
-                        // projects from which to choose
-                        if (addRadioButtons(null,
-                                            false,
-                                            arrayItemData,
-                                            disabledItems,
-                                            "Select a project to copy",
-                                            false,
-                                            selectPnl,
-                                            gbc))
-                        {
-                            // Create the copy project name and description labels and fields
-                            addDatabaseInputFields("Project copy name", selectPnl, false, gbc);
-
-                            // Create a date and time stamp check box
-                            stampChkBx = new JCheckBox("Append date and time to project name");
-                            stampChkBx.setBorder(BorderFactory.createEmptyBorder());
-                            stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                            stampChkBx.setSelected(false);
-                            stampChkBx.setEnabled(false);
-
-                            // Create a listener for check box selection actions
-                            stampChkBx.addActionListener(new ActionListener()
+                            // Step through each role
+                            for (int index = 0; index < roles.length; index++)
                             {
-                                String timeStamp = "";
-                                boolean isCopy = false;
+                                // Store the role name
+                                roleInfo[index][0] = roles[index];
+                            }
 
-                                /******************************************************************
-                                 * Handle check box selection actions
-                                 *****************************************************************/
-                                @Override
-                                public void actionPerformed(ActionEvent ae)
+                            // Create a panel containing a grid of radio buttons representing the
+                            // roles from which to choose
+                            if (!addRadioButtons(null,
+                                                 false,
+                                                 roleInfo,
+                                                 null,
+                                                 "Select project owner",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
+                            {
+                                // Inform the user that no roles exist on the server
+                                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                          "<html><b>No role exists",
+                                                                          "Create Project",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                                errorFlag = true;
+                                throw new CCDDException();
+                            }
+
+                            break;
+
+                        case OPEN:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(true, false, null);
+
+                            // Create a panel containing a grid of radio buttons representing the
+                            // projects from which to choose
+                            if (!addRadioButtons((dbControl.getDatabaseName() == DEFAULT_DATABASE
+                                                                                                  ? null
+                                                                                                  : dbControl.getDatabaseName()),
+                                                 false,
+                                                 arrayItemData,
+                                                 disabledItems,
+                                                 "Select a project to open",
+                                                 false,
+                                                 selectPnl,
+                                                 gbc))
+                            {
+                                throw new CCDDException("Open");
+                            }
+
+                            break;
+
+                        case RENAME:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(true, false, dbControl.getDatabaseName());
+
+                            // Create a panel containing a grid of radio buttons representing the
+                            // projects from which to choose
+                            if (addRadioButtons(null,
+                                                false,
+                                                arrayItemData,
+                                                disabledItems,
+                                                "Select a project to rename",
+                                                false,
+                                                selectPnl,
+                                                gbc))
+                            {
+                                // Create the rename project name and description labels and fields
+                                addDatabaseInputFields("New project name", selectPnl, false, gbc);
+                            }
+                            // No project exists to choose
+                            else
+                            {
+                                throw new CCDDException("Rename");
+                            }
+
+                            break;
+
+                        case COPY:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(false, false, null);
+
+                            // Create a panel containing a grid of radio buttons representing the
+                            // projects from which to choose
+                            if (addRadioButtons(null,
+                                                false,
+                                                arrayItemData,
+                                                disabledItems,
+                                                "Select a project to copy",
+                                                false,
+                                                selectPnl,
+                                                gbc))
+                            {
+                                // Create the copy project name and description labels and fields
+                                addDatabaseInputFields("Project copy name", selectPnl, false, gbc);
+
+                                // Create a date and time stamp check box
+                                stampChkBx = new JCheckBox("Append date and time to project name");
+                                stampChkBx.setBorder(BorderFactory.createEmptyBorder());
+                                stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                                stampChkBx.setSelected(false);
+                                stampChkBx.setEnabled(false);
+
+                                // Create a listener for check box selection actions
+                                stampChkBx.addActionListener(new ActionListener()
                                 {
-                                    // Check if the data and time stamp check box is selected
-                                    if (((JCheckBox) ae.getSource()).isSelected())
+                                    String timeStamp = "";
+                                    boolean isCopy = false;
+
+                                    /******************************************************************
+                                     * Handle check box selection actions
+                                     *****************************************************************/
+                                    @Override
+                                    public void actionPerformed(ActionEvent ae)
                                     {
-                                        // Get the current date and time stamp
-                                        timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+                                        // Check if the data and time stamp check box is selected
+                                        if (((JCheckBox) ae.getSource()).isSelected())
+                                        {
+                                            // Get the current date and time stamp
+                                            timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
-                                        isCopy = nameFld.getText().endsWith(COPY_APPEND);
+                                            isCopy = nameFld.getText().endsWith(COPY_APPEND);
 
-                                        // Append the date and time stamp to the file name
-                                        nameFld.setText(nameFld.getText().replaceFirst("(?:"
-                                                                                       + COPY_APPEND
-                                                                                       + "$|$)",
-                                                                                       timeStamp));
+                                            // Append the date and time stamp to the file name
+                                            nameFld.setText(nameFld.getText().replaceFirst("(?:"
+                                                                                           + COPY_APPEND
+                                                                                           + "$|$)",
+                                                                                           timeStamp));
+                                        }
+                                        // The check box is not selected
+                                        else
+                                        {
+                                            // Remove the date and time stamp
+                                            nameFld.setText(nameFld.getText().replaceFirst(timeStamp,
+                                                                                           isCopy
+                                                                                                  ? COPY_APPEND
+                                                                                                  : ""));
+                                        }
                                     }
-                                    // The check box is not selected
-                                    else
-                                    {
-                                        // Remove the date and time stamp
-                                        nameFld.setText(nameFld.getText().replaceFirst(timeStamp,
-                                                                                       isCopy
-                                                                                              ? COPY_APPEND
-                                                                                              : ""));
-                                    }
-                                }
-                            });
+                                });
 
-                            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
-                            gbc.gridy++;
-                            selectPnl.add(stampChkBx, gbc);
-                            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-                        }
-                        // No project exists to choose
-                        else
-                        {
-                            // Inform the user that no project exists on the server
-                            displayDatabaseError("Copy");
-                            errorFlag = true;
-                        }
+                                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+                                gbc.gridy++;
+                                selectPnl.add(stampChkBx, gbc);
+                                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                            }
+                            // No project exists to choose
+                            else
+                            {
+                                throw new CCDDException("Copy");
+                            }
 
-                        break;
+                            break;
 
-                    case DELETE:
-                        // Get the project names and descriptions
-                        getDatabaseInformation(true, false, null);
+                        case DELETE:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(true, false, null);
 
-                        // Create a panel containing a grid of check boxes representing the
-                        // projects from which to choose
-                        if (!addCheckBoxes(null,
-                                           arrayItemData,
-                                           disabledItems,
-                                           "Select a project to delete",
-                                           false,
-                                           selectPnl))
-                        {
-                            // Inform the user that no project exists on the server
-                            displayDatabaseError("Delete");
-                            errorFlag = true;
-                        }
+                            // Create a panel containing a grid of check boxes representing the
+                            // projects from which to choose
+                            if (!addCheckBoxes(null,
+                                               arrayItemData,
+                                               disabledItems,
+                                               "Select a project to delete",
+                                               false,
+                                               selectPnl))
+                            {
+                                throw new CCDDException("Delete");
+                            }
 
-                        break;
+                            break;
 
-                    case UNLOCK:
-                        // Get the project names and descriptions
-                        getDatabaseInformation(false, true, null);
+                        case UNLOCK:
+                            // Get the project names and descriptions
+                            getDatabaseInformation(false, true, null);
 
-                        // Create a panel containing a grid of check boxes representing the
-                        // projects from which to choose
-                        if (!addCheckBoxes(null,
-                                           arrayItemData,
-                                           disabledItems,
-                                           "Select a project to unlock",
-                                           true,
-                                           selectPnl))
-                        {
-                            // Inform the user that no project exists on the server
-                            displayDatabaseError("Unlock");
-                            errorFlag = true;
-                        }
+                            // Create a panel containing a grid of check boxes representing the
+                            // projects from which to choose
+                            if (!addCheckBoxes(null,
+                                               arrayItemData,
+                                               disabledItems,
+                                               "Select a project to unlock",
+                                               true,
+                                               selectPnl))
+                            {
+                                throw new CCDDException("Unlock");
+                            }
 
-                        break;
+                            break;
+                    }
+                }
+                catch (CCDDException ce)
+                {
+                    // Check if the error message is provided
+                    if (!ce.getMessage().isEmpty())
+                    {
+                        // Inform the user that no project exists on the server for which the user
+                        // has access
+                        displayDatabaseError(ce.getMessage());
+                    }
+
+                    errorFlag = true;
+                }
+                catch (Exception e)
+                {
+                    // Inform the user than an unexpected error occurred
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                    errorFlag = true;
                 }
             }
 
@@ -489,6 +500,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     }
                 }
             }
+
         });
     }
 
@@ -828,11 +840,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         if (dialogType == DbManagerDialogType.UNLOCK)
         {
             // Get the list of users of databases with active connections
-            activeUsers = dbControl.queryActiveList(CcddDbManagerDialog.this);
+            activeUsers = dbControl.queryActiveList(ccddMain.getMainFrame());
         }
 
         // Get the array containing the database names, lock statuses, and descriptions
-        String[] databases = dbControl.queryDatabaseByUserList(CcddDbManagerDialog.this,
+        String[] databases = dbControl.queryDatabaseByUserList(ccddMain.getMainFrame(),
                                                                dbControl.getUser());
         arrayItemData = new String[databases.length][];
 

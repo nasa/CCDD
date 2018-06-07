@@ -569,14 +569,6 @@ public class CcddFileIOHandler
                            useExistingFields,
                            parent);
             }
-
-            /**************************************************************************************
-             * Import table(s) command complete
-             *************************************************************************************/
-            @Override
-            protected void complete()
-            {
-            }
         });
     }
 
@@ -1749,14 +1741,6 @@ public class CcddFileIOHandler
                                      scriptFileName,
                                      parent);
             }
-
-            /**************************************************************************************
-             * Export selected table(s) command complete
-             *************************************************************************************/
-            @Override
-            protected void complete()
-            {
-            }
         });
     }
 
@@ -1862,7 +1846,6 @@ public class CcddFileIOHandler
                                            final String scriptFileName,
                                            final Component parent)
     {
-        System.out.println("fileIO export start"); // TODO
         boolean errorFlag = false;
         FileEnvVar file = null;
         CcddImportExportInterface ioHandler = null;
@@ -1990,6 +1973,14 @@ public class CcddFileIOHandler
                     {
                         errorFlag = true;
                     }
+
+                    // Check if the file is empty following the export. This occurs if an error
+                    // halts output to the file
+                    if (file.length() == 0)
+                    {
+                        // Delete the empty file
+                        file.delete();
+                    }
                 }
                 else
                 {
@@ -2029,6 +2020,14 @@ public class CcddFileIOHandler
                                                    classification3))
                         {
                             errorFlag = true;
+                        }
+
+                        // Check if the file is empty following the export. This occurs if an error
+                        // halts output to the file
+                        if (file.length() == 0)
+                        {
+                            // Delete the empty file
+                            file.delete();
                         }
                     }
                     // The table is skipped
@@ -2080,13 +2079,12 @@ public class CcddFileIOHandler
                                   "<html><b>Table export completed with errors");
         }
 
-        System.out.println("fileIO export complete"); // TODO
         return errorFlag;
     }
 
     /**********************************************************************************************
-     * Check if the specified data file exists and, if so, whether or not the user elects to
-     * overwrite it
+     * Check if the specified data file exists and isn't empty, and if so, whether or not the user
+     * elects to overwrite it
      *
      * @param exportFile
      *            reference to the file
@@ -2105,13 +2103,13 @@ public class CcddFileIOHandler
                                                   boolean overwriteFile,
                                                   Component parent)
     {
-        // Set the continue flag based on if the file exists
-        boolean continueExport = !exportFile.exists();
+        // Set the continue flag based on if the file exists and isn't empty
+        boolean continueExport = !(exportFile.exists() && exportFile.length() != 0);
 
         try
         {
-            // Check if the data file exists
-            if (exportFile.exists())
+            // Check if the data file exists and isn't empty
+            if (!continueExport)
             {
                 // Check if the user elects to overwrite existing files
                 if (overwriteFile

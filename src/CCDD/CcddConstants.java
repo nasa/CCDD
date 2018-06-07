@@ -74,7 +74,6 @@ public class CcddConstants
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
     protected static final String HIDE_SCRIPT_PATH = "HideScriptPath";
-    protected static final String PADDING_ALIGNMENT = "PaddingAlignment";
     protected static final String XTCE_EXPORT_SCRIPT = "XTCEExportScript";
 
     // Prefix assigned to internally created CCDD database tables
@@ -5969,7 +5968,7 @@ public class CcddConstants
                           + DATABASE_COMMENT_SEPARATOR
                           + "' || substr(description, length(datName || '"
                           + CCDD_PROJECT_IDENTIFIER
-                          + "') + 4) AS lock_name_desc FROM pg_database d LEFT JOIN "
+                          + "') + 4) AS dbname_viewname_lock_desc FROM pg_database d LEFT JOIN "
                           + "pg_shdescription ON pg_shdescription.objoid = d.oid "
                           + "WHERE d.datistemplate = false AND description LIKE '"
                           + CCDD_PROJECT_IDENTIFIER

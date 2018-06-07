@@ -311,19 +311,38 @@ public class CcddDbCommandHandler
             // Execute the command and obtain the results
             ResultSet resultSet = executeDbQuery(listType.getListCommand(listOption), parent);
 
+            // TODO ADDED NULL CHECK FOR TROUBLESHOOTING ascended121's ISSUE
+            if (resultSet == null)
+            {
+                throw new SQLException("list query returned null ResultSet");
+            }
+
             // Step through each of the results
             while (resultSet.next())
             {
                 switch (listType)
                 {
                     case KEYWORDS:
-                        // Get the list of keywords
+                        // Add the keyword to the list
                         list.add(resultSet.getString("WORD"));
                         break;
 
                     default:
-                        // Get the specified list
-                        list.add(resultSet.getString(1).trim());
+                        // TODO ADDED NULL CHECK FOR TROUBLESHOOTING ascended121's ISSUE
+                        // Get the result
+                        String result = resultSet.getString(1);
+
+                        // Check if the result is valid
+                        if (result != null)
+                        {
+                            // Get the result to the specified list
+                            list.add(result.trim());
+                        }
+                        else
+                        {
+                            System.out.println("ResultSet string is null"); // TODO
+                        }
+
                         break;
                 }
             }

@@ -1439,9 +1439,9 @@ public class CcddDialogHandler extends JDialog
      * @param dialogGbc
      *            dialog panel GridBagLayout layout constraints
      *
-     * @return true if there is more than one item to display; the dialog is populated with the
-     *         array of radio buttons. false if there are less than two items to display; the
-     *         dialog is unchanged
+     * @return true if there is one or more items to display; the dialog is populated with the
+     *         array of radio buttons. false if there are no items to display; the dialog panel is
+     *         unchanged
      *********************************************************************************************/
     protected boolean addRadioButtons(String rbtnSelected,
                                       boolean canReselect,
@@ -1713,9 +1713,9 @@ public class CcddDialogHandler extends JDialog
      * @param dialogPanel
      *            dialog panel on which to place the check boxes
      *
-     * @return true if there is more than one item to display; the dialog is populated with the
-     *         array of check boxes. false if there are less than two items to display; the dialog
-     *         is unchanged
+     * @return true if there is one or more items to display; the dialog is populated with the
+     *         array of check boxes. false if there are no items to display; the dialog panel is
+     *         unchanged
      *********************************************************************************************/
     protected boolean addCheckBoxes(String cboxSelected,
                                     String[][] itemInformation,

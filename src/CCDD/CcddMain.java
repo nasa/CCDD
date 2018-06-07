@@ -160,7 +160,6 @@ public class CcddMain
     private JMenuItem mntmRenameTable;
     private JMenuItem mntmCopyTable;
     private JMenuItem mntmDeleteTable;
-    private JMenuItem mntmSetAlignment;
     private JMenuItem mntmAddPadding;
     private JMenuItem mntmRemovePadding;
     private JMenuItem mntmImportTable;
@@ -277,6 +276,15 @@ public class CcddMain
         // Build the main window
         initialize();
 
+        // Build the command line argument as a single string for display in the initial status
+        // event
+        String cmdLn = "";
+
+        for (String arg : args)
+        {
+            cmdLn += arg + " ";
+        }
+
         // Log the CCDD and Java versions
         getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
                                       "CCDD: "
@@ -287,7 +295,8 @@ public class CcddMain
                                                                       + System.getProperty("java.version")
                                                                       + " ("
                                                                       + System.getProperty("sun.arch.data.model")
-                                                                      + "-bit)");
+                                                                      + "-bit) *** command line: "
+                                                                      + cmdLn);
 
         // Create a keyboard handler to adjust the response to the Enter key to act like the Space
         // key to activate certain control types and to adjust the response to the arrow keys based
@@ -742,7 +751,13 @@ public class CcddMain
             // Start the web server
             getWebServer().startServer();
         }
+    }
 
+    /**********************************************************************************************
+     * Execute the command line commands that depend on a project database being open
+     *********************************************************************************************/
+    protected void parseDbSpecificCommandLineCommands()
+    {
         // Check if the command line handler exists
         if (cmdLnHandler != null)
         {
@@ -750,7 +765,7 @@ public class CcddMain
             cmdLnHandler.parseCommand(10, -1);
 
             // Set the handler reference to null so that the command line commands are not executed
-            // again
+            // again (i.e., if another database is opened during the same session)
             cmdLnHandler = null;
         }
     }
@@ -920,7 +935,6 @@ public class CcddMain
         mntmRenameTable.setEnabled(dbControl.isDatabaseConnected());
         mntmCopyTable.setEnabled(dbControl.isDatabaseConnected());
         mntmDeleteTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmSetAlignment.setEnabled(dbControl.isDatabaseConnected());
         mntmAddPadding.setEnabled(dbControl.isDatabaseConnected());
         mntmRemovePadding.setEnabled(dbControl.isDatabaseConnected());
         mntmImportTable.setEnabled(dbControl.isDatabaseConnected());
@@ -1714,7 +1728,6 @@ public class CcddMain
         mntmEditDataField = createMenuItem(mnData, "Show/edit fields", KeyEvent.VK_F, 1, "Open the data field table editor");
         mnData.addSeparator();
         JMenu mnPadding = createSubMenu(mnData, "Padding", KeyEvent.VK_P, 1, null);
-        mntmSetAlignment = createMenuItem(mnPadding, "Set alignment", KeyEvent.VK_S, 1, "Set the padding byte alignment value");
         mntmAddPadding = createMenuItem(mnPadding, "Add/update", KeyEvent.VK_A, 1, "Add or update padding variables");
         mntmRemovePadding = createMenuItem(mnPadding, "Remove", KeyEvent.VK_R, 1, "Remove padding variables");
         mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
@@ -2102,19 +2115,6 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddTableManagerDialog(CcddMain.this, ManagerDialogType.DELETE);
-            }
-        });
-
-        // Add a listener for the Padding byte alignment Data menu item
-        mntmSetAlignment.addActionListener(new ActionListener()
-        {
-            /**************************************************************************************
-             * Set the padding byte alignment value
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                new CcddPaddingAlignmentDialog(CcddMain.this);
             }
         });
 

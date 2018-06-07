@@ -1608,8 +1608,7 @@ public class CcddScriptHandler
 
     /**********************************************************************************************
      * Convert the supplied string containing the association members from the internal table to
-     * the viewable format, or vice versa, depending on the input flag. The viewable format can be
-     * used directly with the command line 'execute' command
+     * the viewable format, or vice versa, depending on the input flag
      *
      * @param assnMembers
      *            tables and/or groups associated with the script, in either the internal or

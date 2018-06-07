@@ -7,7 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.PADDING_ALIGNMENT;
 import static CCDD.CcddConstants.PAD_DATA_TYPE;
 import static CCDD.CcddConstants.PAD_VARIABLE;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -51,7 +50,7 @@ public class CcddPaddingVariableHandler
     private JProgressBar progBar;
 
     // Variable padding byte alignment value
-    private int byteAlignment;
+    // private int largestDataType;
 
     // List containing the variable padding information for each structure table
     private List<StructurePaddingHandler> paddingInformation;
@@ -78,8 +77,10 @@ public class CcddPaddingVariableHandler
         private int dataTypeColumn;
         private int arraySizeColumn;
         private int bitLengthColumn;
-        private int largestDataType;
         private List<Integer> rateColumn;
+
+        // Size in bytes of the largest element in a structure
+        private int largestDataType;
 
         // Structure's total size in bytes
         private int totalSize;
@@ -355,21 +356,21 @@ public class CcddPaddingVariableHandler
                         // value
                         if (byteCount != 0
                             && variableSize != 1
-                            && (variableSize + byteCount) % byteAlignment != 0)
+                            && (variableSize + byteCount) % largestDataType != 0)
                         {
                             // Check if the variable doesn't fit within the remaining bytes
-                            if (variableSize + byteCount > byteAlignment)
+                            if (variableSize + byteCount > largestDataType)
                             {
                                 // Calculate the number of padding variables needed to align the
                                 // variable to the next alignment value
-                                numPads = byteAlignment - byteCount;
+                                numPads = largestDataType - byteCount;
                             }
                             // The variable doesn't exceed the next alignment point
                             else
                             {
                                 // Calculate the number of padding variables needed to align the
                                 // variable within the current alignment value
-                                numPads = (byteAlignment - byteCount) % variableSize;
+                                numPads = (largestDataType - byteCount) % variableSize;
                             }
 
                             // Add the padding variable(s). If this is an array member then adjust
@@ -423,7 +424,7 @@ public class CcddPaddingVariableHandler
 
                         // Add the size of the variable to the byte counter, then adjust the byte
                         // count if it equals or exceeds the alignment point
-                        byteCount = (byteCount + variableSize) % byteAlignment;
+                        byteCount = (byteCount + variableSize) % largestDataType;
                     }
                 }
                 // The variable's data type is a structure
@@ -435,12 +436,16 @@ public class CcddPaddingVariableHandler
                         // Check if the table name matches the structure data type
                         if (dataType.equals(childPadInfo.structureName))
                         {
-                            // Calculate the number of padding variables needed to align the child
-                            // structure variable
-                            numPads = (byteAlignment - byteCount) % childPadInfo.largestDataType;
+                            // Check if the child has any variables
+                            if (childPadInfo.largestDataType != 0)
+                            {
+                                // Calculate the number of padding variables needed to align the
+                                // child structure variable
+                                numPads = (largestDataType - byteCount) % childPadInfo.largestDataType;
 
-                            // Add the padding variable(s), if needed
-                            row = addPaddingVariable(row, numPads, 0);
+                                // Add the padding variable(s), if needed
+                                row = addPaddingVariable(row, numPads, 0);
+                            }
 
                             // Stop searching since the matching table was found
                             break;
@@ -458,12 +463,12 @@ public class CcddPaddingVariableHandler
             {
                 // Set the byte count equal to the alignment value so that the calculation below
                 // produces the correct result
-                byteCount = byteAlignment;
+                byteCount = largestDataType;
             }
 
             // Calculate the number of padding variables needed to fill out the structure to the
             // alignment point
-            numPads = (byteAlignment - byteCount) % (byteAlignment * largestDataType);
+            numPads = (largestDataType - byteCount) % (largestDataType * largestDataType);
 
             // Add the padding variable(s), if needed
             addPaddingVariable(tableEditor.getTable().getModel().getRowCount(), numPads, 0);
@@ -707,9 +712,6 @@ public class CcddPaddingVariableHandler
                                                    false,
                                                    false);
 
-                    // Get the current byte alignment value
-                    byteAlignment = Integer.valueOf(ccddMain.getProgPrefs().get(PADDING_ALIGNMENT, "4"));
-
                     // Step through each prototype structure table
                     for (String protoStruct : prototStructTables)
                     {
@@ -884,9 +886,7 @@ public class CcddPaddingVariableHandler
 
                         // Update the largest data type. Limit the size to no greater than the byte
                         // alignment value
-                        padInfo.largestDataType = Math.min(byteAlignment,
-                                                           Math.max(size,
-                                                                    padInfo.largestDataType));
+                        padInfo.largestDataType = Math.max(size, padInfo.largestDataType);
 
                         // Update the total size
                         padInfo.totalSize += size;
@@ -927,9 +927,14 @@ public class CcddPaddingVariableHandler
                 }
             }
 
-            // Round up the total structure size to the next alignment point (padding variables
-            // will be added as needed to meet this size)
-            padInfo.totalSize += byteAlignment - (padInfo.totalSize % byteAlignment);
+            // Check if the structure has any non-zero size elements
+            if (padInfo.largestDataType != 0)
+            {
+                // Round up the total structure size to the next alignment point (padding variables
+                // will be added as needed to meet this size)
+                padInfo.totalSize += padInfo.largestDataType
+                                     - (padInfo.totalSize % padInfo.largestDataType);
+            }
 
             // Set the flag indicating this structure's sizes are calculated
             padInfo.isSizesCalculated = true;
