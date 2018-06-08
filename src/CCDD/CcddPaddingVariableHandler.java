@@ -9,10 +9,10 @@ package CCDD;
 
 import static CCDD.CcddConstants.PAD_DATA_TYPE;
 import static CCDD.CcddConstants.PAD_VARIABLE;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -33,6 +33,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -48,9 +49,6 @@ public class CcddPaddingVariableHandler
 
     // Component referenced by multiple methods
     private JProgressBar progBar;
-
-    // Variable padding byte alignment value
-    // private int largestDataType;
 
     // List containing the variable padding information for each structure table
     private List<StructurePaddingHandler> paddingInformation;
@@ -597,10 +595,20 @@ public class CcddPaddingVariableHandler
      * @param ccddMain
      *            main class reference
      *
-     * @param addPadding
-     *            true to add or update the variable padding; false to remove the padding variables
+     * @param padOperation
+     *            PadOperationType: ADD_UPDATE to add or update the variable padding; REMOVE to
+     *            remove the padding variables
+     *
+     * @param prototStructTables
+     *            list of the prototype table names that will have the padding altered
+     *
+     * @param parent
+     *            GUI component on which to center the Halt dialog
      *********************************************************************************************/
-    CcddPaddingVariableHandler(final CcddMain ccddMain, final boolean addPadding)
+    CcddPaddingVariableHandler(final CcddMain ccddMain,
+                               final PadOperationType padOperation,
+                               final List<String> prototStructTables,
+                               final Component parent)
     {
         // Check if there are uncommitted changes and if so, confirm discarding the changes before
         // proceeding
@@ -649,9 +657,6 @@ public class CcddPaddingVariableHandler
                     dbTable = ccddMain.getDbTableCommandHandler();
                     dataTypeHandler = ccddMain.getDataTypeHandler();
 
-                    // Get an array of the prototype structure names
-                    String[] prototStructTables = dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE);
-
                     // Set the initial layout manager characteristics
                     GridBagConstraints gbc = new GridBagConstraints(0,
                                                                     0,
@@ -688,10 +693,10 @@ public class CcddPaddingVariableHandler
 
                     // Add a progress bar to the dialog
                     progBar = new JProgressBar(0,
-                                               prototStructTables.length
-                                                  * (addPadding
-                                                                ? 4
-                                                                : 2));
+                                               prototStructTables.size()
+                                                  * (padOperation == PadOperationType.ADD_UPDATE
+                                                                                                 ? 4
+                                                                                                 : 2));
                     progBar.setValue(0);
                     progBar.setStringPainted(true);
                     progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -702,11 +707,11 @@ public class CcddPaddingVariableHandler
                     dialogPnl.add(progBar, gbc);
 
                     // Display the padding adjustment progress/cancellation dialog
-                    cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
+                    cancelDialog.showOptionsDialog(parent,
                                                    dialogPnl,
-                                                   (addPadding
-                                                               ? "Adding/updating"
-                                                               : "Removing")
+                                                   (padOperation == PadOperationType.ADD_UPDATE
+                                                                                                ? "Adding/updating"
+                                                                                                : "Removing")
                                                               + " padding",
                                                    DialogOption.HALT_OPTION,
                                                    false,
@@ -743,7 +748,7 @@ public class CcddPaddingVariableHandler
                     }
 
                     // Check if padding variables should be added
-                    if (addPadding)
+                    if (padOperation == PadOperationType.ADD_UPDATE)
                     {
                         // Change the dialog text to indicate the new padding phase
                         textLbl.setText("<html><b>Determine structure sizes...</b><br><br>");
@@ -827,9 +832,10 @@ public class CcddPaddingVariableHandler
 
                     // Add a log entry indication the padding adjustment completed
                     eventLog.logEvent(STATUS_MSG,
-                                      (addPadding
-                                                  ? "Adding/updating"
-                                                  : "Removing") +
+                                      (padOperation == PadOperationType.ADD_UPDATE
+                                                                                   ? "Adding/updating"
+                                                                                   : "Removing")
+                                                  +
                                                   " padding variables "
                                                   + (canceled
                                                               ? "terminated by user"

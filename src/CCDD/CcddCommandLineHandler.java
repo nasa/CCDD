@@ -7,7 +7,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.SCRIPT_MEMBER_SEPARATOR;
@@ -834,113 +833,87 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Check if a project database, user, and host are specified
-                if (!ccddMain.getDbControlHandler().getDatabaseName().isEmpty()
-                    && !ccddMain.getDbControlHandler().getDatabaseName().equals(DEFAULT_DATABASE)
-                    && !ccddMain.getDbControlHandler().getUser().isEmpty()
-                    && !ccddMain.getDbControlHandler().getHost().isEmpty())
+                List<Object[]> associations = new ArrayList<Object[]>();
+
+                // Break the supplied string of semicolon-separated associations into the
+                // individual associations
+                String[] associationsArray = parmVal.toString().split(";");
+
+                // Step through each association
+                for (String associationString : associationsArray)
                 {
-                    // Check if the database opens successfully and that the project database
-                    // opened, as opposed to the server only
-                    if (!ccddMain.getDbControlHandler().openDatabase(ccddMain.getDbControlHandler().getProjectName())
-                        && ccddMain.getDbControlHandler().isDatabaseConnected())
+                    String[] association;
+
+                    // Break the supplied association into the script or script association name,
+                    // and table(s) (if any)
+                    String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
+
+                    // Remove any leading/trailing white space characters from the script name
+                    String name = scriptAndTable[0].trim();
+
+                    // Check if the name contains a file extension (it's a script file name)
+                    if (name.contains("."))
                     {
-                        List<Object[]> associations = new ArrayList<Object[]>();
+                        // Set the script and table in the association array (assumes no
+                        // table(s))
+                        association = new String[] {"", "", name, " "};
 
-                        // Break the supplied string of semicolon-separated associations into the
-                        // individual associations
-                        String[] associationsArray = parmVal.toString().split(";");
-
-                        // Step through each association
-                        for (String associationString : associationsArray)
+                        // Check if one or more tables are provided
+                        if (scriptAndTable.length == 2)
                         {
-                            String[] association;
-
-                            // Break the supplied association into the script or script association
-                            // name, and table(s) (if any)
-                            String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
-
-                            // Remove any leading/trailing white space characters from the script
-                            // name
-                            String name = scriptAndTable[0].trim();
-
-                            // Check if the name contains a file extension (it's a script file
-                            // name)
-                            if (name.contains("."))
-                            {
-                                // Set the script and table in the association array (assumes no
-                                // table(s))
-                                association = new String[] {"", "", name, " "};
-
-                                // Check if one or more tables are provided
-                                if (scriptAndTable.length == 2)
-                                {
-                                    // Set the association tables. If multiple tables are provided
-                                    // then separate these with the expected separator string
-                                    association[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler.convertAssociationMembersFormat(scriptAndTable[1],
-                                                                                                                                          true);
-                                }
-
-                                // Add the association to the list
-                                associations.add(association);
-                            }
-                            // No file extension; assume this is an association name
-                            else
-                            {
-                                // Get the association with this name
-                                association = ccddMain.getScriptHandler().getScriptAssociationByName(name, null);
-
-                                // Check if the association exists
-                                if (association != null)
-                                {
-                                    // Add the association to the list
-                                    associations.add(association);
-                                }
-                                // No association exists with this name
-                                else
-                                {
-                                    // Inform the user that the association name is invalid
-                                    ccddMain.getSessionEventLog().logFailEvent(null,
-                                                                               "Unrecognized association name '"
-                                                                                     + name
-                                                                                     + "'",
-                                                                               "<html><b>Unrecognized association name '"
-                                                                                            + name
-                                                                                            + "'");
-                                }
-                            }
+                            // Set the association tables. If multiple tables are provided then
+                            // separate these with the expected separator string
+                            association[AssociationsColumn.MEMBERS.ordinal()] = CcddScriptHandler.convertAssociationMembersFormat(scriptAndTable[1],
+                                                                                                                                  true);
                         }
 
-                        // Execute the script association(s) and log the result
-                        boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
-                                                                                              associations,
-                                                                                              null);
-                        ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
+                        // Add the association to the list
+                        associations.add(association);
+                    }
+                    // No file extension; assume this is an association name
+                    else
+                    {
+                        // Get the association with this name
+                        association = ccddMain.getScriptHandler().getScriptAssociationByName(name, null);
 
-                        // Step through the script execution fail flags
-                        for (boolean flag : isBad)
+                        // Check if the association exists
+                        if (association != null)
                         {
-                            // Check if the script execution failed
-                            if (flag)
-                            {
-                                // Set the application return value to indicate a failure and stop
-                                // searching
-                                exitStatus = 1;
-                                break;
-                            }
+                            // Add the association to the list
+                            associations.add(association);
+                        }
+                        // No association exists with this name
+                        else
+                        {
+                            // Inform the user that the association name is invalid
+                            ccddMain.getSessionEventLog().logFailEvent(null,
+                                                                       "Unrecognized association name '"
+                                                                             + name
+                                                                             + "'",
+                                                                       "<html><b>Unrecognized association name '"
+                                                                                    + name
+                                                                                    + "'");
                         }
                     }
                 }
-                // Missing project database, user, or host
-                else
-                {
-                    // Set the application return value to indicate a failure and stop searching
-                    exitStatus = 1;
 
-                    // Inform the user that one or more required parameters is missing
-                    ccddMain.getSessionEventLog().logFailEvent(null,
-                                                               "Project database, user name, and/or host missing",
-                                                               "<html><b>Project database, user name, and/or host missing");
+                // Execute the script association(s) and log the result
+                boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
+                                                                                      associations,
+                                                                                      null);
+                ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
+
+                // Step through the script execution fail flags
+                for (boolean flag : isBad)
+                {
+                    // Check if the script execution failed
+                    if (flag)
+                    {
+                        // Set the application return value to indicate a failure and stop
+                        // searching
+                        exitStatus = 1;
+                        break;
+                    }
                 }
             }
         });
@@ -1044,8 +1017,6 @@ public class CcddCommandLineHandler
                     // Display the command usage information and exit the application
                     displayUsageInformation();
                 }
-
-                System.out.println("export tables; " + Arrays.toString(tablePaths)); // TODO
 
                 // Check if the GUI isn't displayed
                 if (ccddMain.isGUIHidden())
@@ -1534,6 +1505,7 @@ public class CcddCommandLineHandler
      *********************************************************************************************/
     protected void parseCommand(int startPriority, int endPriority)
     {
+        // Execute the commands that fall within the priority range
         parseCommand(startPriority, endPriority, args, argument);
 
         // Check if a script association execution command was performed

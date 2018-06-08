@@ -382,14 +382,23 @@ public class CcddConstants
     // Table tree types
     protected static enum TableTreeType
     {
+        // Prototype and instance tables, all types
+        TABLES,
+
+        // Prototype and instance tables, all types, with primitive variables (for structures)
+        TABLES_WITH_PRIMITIVES,
+
         // Prototype tables only, all types
         PROTOTYPE_TABLES,
+
+        // Prototype tables only, structure types only
+        PROTOTYPE_STRUCTURES,
 
         // Instance tables only, all types
         INSTANCE_TABLES,
 
-        // Prototype and instance tables, all types
-        TABLES,
+        // Instance tables only, all types, with primitive variables (for structures)
+        INSTANCE_TABLES_WITH_PRIMITIVES,
 
         // Prototype and instance tables, structure types only, with primitive variables.
         // Structures that are not root tables appear in the prototype node, but include the child
@@ -403,13 +412,7 @@ public class CcddConstants
 
         // Instance tables only, structure types only, with primitive variables and their sample
         // rates
-        INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES,
-
-        // Prototype and instance tables, all types, with primitive variables (for structures)
-        TABLES_WITH_PRIMITIVES,
-
-        // Instance tables only, all types, with primitive variables (for structures)
-        INSTANCE_TABLES_WITH_PRIMITIVES
+        INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
     }
 
     // Table member types
@@ -533,6 +536,13 @@ public class CcddConstants
         AVAILABLE,
         TABLE_MISSING,
         SCRIPT_MISSING
+    }
+
+    // Padding dialog type
+    protected static enum PadOperationType
+    {
+        ADD_UPDATE,
+        REMOVE;
     }
 
     // Modifiable font information

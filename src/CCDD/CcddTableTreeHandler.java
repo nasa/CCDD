@@ -19,6 +19,7 @@ import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIV
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_STRUCTURES;
 import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.TABLES_WITH_PRIMITIVES;
@@ -497,7 +498,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @return Table tree root node
      *********************************************************************************************/
-    protected DefaultMutableTreeNode getRootNode()
+    protected ToolTipTreeNode getRootNode()
     {
         return root;
     }
@@ -686,14 +687,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
         // Set the flag to indicate if all nodes, only the prototype node, or only the instance
         // node should be built and displayed
-        nodeFilter = (treeType == PROTOTYPE_TABLES
-                                                   ? TableTreeNodeFilter.PROTOTYPE_ONLY
-                                                   : (treeType == INSTANCE_TABLES
-                                                      || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                                                      || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
-                                                      || treeType == INSTANCE_TABLES_WITH_PRIMITIVES
-                                                                                                     ? TableTreeNodeFilter.INSTANCE_ONLY
-                                                                                                     : TableTreeNodeFilter.ALL));
+        nodeFilter = ((treeType == PROTOTYPE_TABLES
+                       || treeType == PROTOTYPE_STRUCTURES)
+                                                            ? TableTreeNodeFilter.PROTOTYPE_ONLY
+                                                            : (treeType == INSTANCE_TABLES
+                                                               || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                                                               || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
+                                                               || treeType == INSTANCE_TABLES_WITH_PRIMITIVES
+                                                                                                              ? TableTreeNodeFilter.INSTANCE_ONLY
+                                                                                                              : TableTreeNodeFilter.ALL));
 
         // Check if both groups and table type are to be used to filter the table tree
         if (isByGroup && isByType)
@@ -738,7 +740,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     if (prototypeNodeName != null)
                     {
                         // Add the prototype node to the group's node
-                        prototype = new ToolTipTreeNode(prototypeNodeName, "Prototype tables");
+                        prototype = new ToolTipTreeNode(prototypeNodeName,
+                                                        treeType == PROTOTYPE_TABLES
+                                                                                     ? "Prototype tables"
+                                                                                     : "Prototype Structure Tables");
                         groupNode.add(prototype);
                     }
                     // No prototype node name is provided
@@ -797,7 +802,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (prototypeNodeName != null)
                 {
                     // Add the prototype node to the root node
-                    prototype = new ToolTipTreeNode(prototypeNodeName, "Prototype tables");
+                    prototype = new ToolTipTreeNode(prototypeNodeName,
+                                                    treeType == PROTOTYPE_TABLES
+                                                                                 ? "Prototype tables"
+                                                                                 : "Prototype Structure Tables");
                     root.add(prototype);
                 }
                 // No prototype node name is provided
@@ -895,7 +903,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                 // Check if this node represents a variable
                 if (leaf
-                    // TODO ADD = AND LINK VARIABLE TREE SHOWS ICONS
                     && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
                     && (treeType == STRUCTURES_WITH_PRIMITIVES
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
@@ -934,7 +941,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY)
         {
             // Add the prototype node to the all tables node
-            protoAllNode = new ToolTipTreeNode(prototypeNodeName, "Prototype tables");
+            protoAllNode = new ToolTipTreeNode(prototypeNodeName,
+                                               treeType == PROTOTYPE_TABLES
+                                                                            ? "Prototype tables"
+                                                                            : "Prototype Structure Tables");
             allTablesNode.add(protoAllNode);
         }
 
@@ -1118,9 +1128,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
             {
                 // Check if this isn't the special structures with primitives tree type (normal
-                // prototype nodes are excluded if it is)
+                // prototype nodes are excluded if it is), or if this tree only displays prototype
+                // structures
                 if (treeType != STRUCTURES_WITH_PRIMITIVES
-                    && nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY)
+                    && nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY
+                    && (treeType != PROTOTYPE_STRUCTURES
+                        || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
                 {
                     // Add the table to the prototype node
                     protoNode.add(new ToolTipTreeNode(member.getTableName(),
@@ -1129,7 +1142,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 }
 
                 // Check if the tree type isn't only for prototype tables
-                if (treeType != PROTOTYPE_TABLES)
+                if (treeType != PROTOTYPE_TABLES && treeType != PROTOTYPE_STRUCTURES)
                 {
                     boolean isRoot = true;
 
@@ -1869,7 +1882,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         return tables;
-
     }
 
     /**********************************************************************************************
