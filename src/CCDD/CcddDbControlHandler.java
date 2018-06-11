@@ -33,16 +33,22 @@ import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -114,6 +120,85 @@ public class CcddDbControlHandler
 
     // Temporary data storage table
     private static final String TEMP_TABLES = INTERNAL_TABLE_PREFIX + "temp_table";
+
+    /**********************************************************************************************
+     * Input stream consumer class
+     *********************************************************************************************/
+    private class StreamConsumer extends Thread
+    {
+        private final InputStream inputStream;
+        private final boolean storeOutput;
+        private StringBuilder output;
+
+        /******************************************************************************************
+         * Input stream consumer class constructor
+         *
+         * @param inputStream
+         *            reference to the input stream to consume
+         *
+         * @param storeOutput
+         *            true to store the contents of the stream; false to discard
+         *****************************************************************************************/
+        StreamConsumer(InputStream inputStream, boolean storeOutput)
+        {
+            this.inputStream = inputStream;
+            this.storeOutput = storeOutput;
+            output = null;
+        }
+
+        /******************************************************************************************
+         * Get the streams' content
+         *
+         * @return The contents of the stream; null if the content was not configured to be stored
+         *****************************************************************************************/
+        protected String getOutput()
+        {
+            return output.toString();
+        }
+
+        /******************************************************************************************
+         * Read the contents of the specified stream until it is empty
+         *****************************************************************************************/
+        @Override
+        public void run()
+        {
+            try
+            {
+                String line;
+
+                // Create a buffered reader for the input stream
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+
+                // Read each line in the stream
+                while ((line = br.readLine()) != null)
+                {
+                    // Check if the flag is set to store the stream's contents
+                    if (storeOutput)
+                    {
+                        // Check if this is the first line in the stream to be read
+                        if (output == null)
+                        {
+                            output = new StringBuilder();
+                        }
+                        // This isn't the first line of the stream
+                        else
+                        {
+                            // Append a semicolon to differentiate the lines
+                            output.append("; ");
+                        }
+
+                        // Append the output text
+                        output.append(line);
+                    }
+                }
+
+                br.close();
+            }
+            catch (IOException ioe)
+            {
+            }
+        }
+    }
 
     /**********************************************************************************************
      * Database control handler class constructor
@@ -383,6 +468,12 @@ public class CcddDbControlHandler
         return activeOwner;
     }
 
+    // TODO
+    protected boolean isPassword()
+    {
+        return !activePassword.isEmpty();
+    }
+
     /**********************************************************************************************
      * Set the database password
      *
@@ -416,16 +507,16 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Get the database server version number
+     * Get the PostgreSQL server version
      *
-     * @return String containing the database server version number; returns '*not connected*' if
-     *         not connected to the PostgreSQL server
+     * @return String containing the database server version in the format <major version>.<minor
+     *         version>; returns '*not connected*' if not connected to the PostgreSQL server
      *********************************************************************************************/
     protected String getDatabaseVersion()
     {
         String databaseVersion = "*not connected*";
 
-        // Check if the database is connected
+        // Check if the PostgreSQL server is connected
         if (isServerConnected())
         {
             try
@@ -450,6 +541,40 @@ public class CcddDbControlHandler
         }
 
         return databaseVersion;
+    }
+
+    /**********************************************************************************************
+     * Get the PostgreSQL major version number
+     *
+     * @return PostgreSQL major version number; -1 if not connected to the PostgreSQL server
+     *********************************************************************************************/
+    protected int getPostgreSQLMajorVersion()
+    {
+        int version = -1;
+
+        // Check if the PostgreSQL server is connected
+        if (isServerConnected())
+        {
+            try
+            {
+                // Get a reference to the database metadata
+                DatabaseMetaData metaData = connection.getMetaData();
+
+                // Get the database version number
+                version = metaData.getDatabaseMajorVersion();
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that the database version number is unavailable
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot obtain database version number; cause '"
+                                                               + se.getMessage()
+                                                               + "'",
+                                      "<html><b>Cannot obtain database version number");
+            }
+        }
+
+        return version;
     }
 
     /**********************************************************************************************
@@ -893,7 +1018,7 @@ public class CcddDbControlHandler
             // Execute the database update
             dbCommand.executeDbUpdate("CREATE DATABASE "
                                       + databaseName
-                                      + "; "
+                                      + " ENCODING 'UTF8'; "
                                       + buildDatabaseCommentCommand(projectName,
                                                                     false,
                                                                     description)
@@ -2028,15 +2153,6 @@ public class CcddDbControlHandler
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_HOST, serverHost);
                         ccddMain.getProgPrefs().put(POSTGRESQL_SERVER_PORT, serverPort);
                         ccddMain.getProgPrefs().putBoolean(POSTGRESQL_SERVER_SSL, isSSL);
-
-                        // Check that the connection is to a project database and not just the
-                        // server (default database)
-                        if (isDatabaseConnected())
-                        {
-                            // Parse any command line commands that require a project database to
-                            // be open
-                            ccddMain.parseDbSpecificCommandLineCommands();
-                        }
                     }
                     catch (Exception e)
                     {
@@ -2125,13 +2241,24 @@ public class CcddDbControlHandler
             @Override
             protected void complete()
             {
-                // Check if an error occurred due to a missing password
-                if (errorFlag && isMissingPassword)
+                // Check if an error occurred opening the database
+                if (errorFlag)
                 {
-                    // Get the user and password
-                    new CcddServerPropertyDialog(ccddMain,
-                                                 !projectName.equals(DEFAULT_DATABASE),
-                                                 ServerPropertyDialogType.LOGIN);
+                    // Check if an error occurred due to a missing password
+                    if (isMissingPassword)
+                    {
+                        // Get the user and password
+                        new CcddServerPropertyDialog(ccddMain,
+                                                     !projectName.equals(DEFAULT_DATABASE),
+                                                     ServerPropertyDialogType.LOGIN);
+                    }
+                }
+                // Check that successful connection was made to a project database and not just the
+                // server (default database)
+                else if (isDatabaseConnected())
+                {
+                    // Parse any command line commands that require a project database to be open
+                    ccddMain.parseDbSpecificCommandLineCommands();
                 }
             }
         });
@@ -2567,14 +2694,16 @@ public class CcddDbControlHandler
         String databaseName = convertProjectNameToDatabase(projectName);
 
         // Build the command to backup the database
-        String command = "pg_dump " + getUserHostAndPort() + databaseName + " -o -f ";
+        String command = "pg_dump " + getUserHostAndPort() + "-o -f ";
 
-        // Get the number of command line arguments
-        int numArgs = command.split(" ").length + 1;
+        // Get the number of command line arguments. Since the backup file name may have spaces the
+        // argument count must be made prior to appending it. The argument count is adjusted for
+        // the addition of the database name as well
+        int numArgs = command.split(" ").length + 2;
 
-        // Append the file name. Since it may have spaces the argument count must be made without
-        // it and the name is placed within quotes
-        command += backupFile.getAbsolutePath();
+        // Append the backup file and database names. Surround the file name with quotes in case it
+        // contains a space
+        command += "\"" + backupFile.getAbsolutePath() + "\" " + databaseName;
 
         // Log the database backup command
         eventLog.logEvent(COMMAND_MSG, command);
@@ -2696,12 +2825,12 @@ public class CcddDbControlHandler
                                      + restoreDatabaseName
                                      + " -v ON_ERROR_STOP=true -f ";
 
-                    // Get the number of command line arguments
+                    // Get the number of command line arguments. Since the restore file name may
+                    // have spaces the argument count must be made prior to appending it
                     int numArgs = command.split(" ").length + 1;
 
-                    // Append the file name. Since it may have spaces the argument count must be
-                    // made without it and the name is placed within quotes
-                    command += restoreFile.getAbsolutePath();
+                    // Append the file name, bounded by quotes in case it contains a space
+                    command += "\"" + restoreFile.getAbsolutePath() + "\"";
 
                     // Log the database restore command
                     eventLog.logEvent(COMMAND_MSG, command);
@@ -2735,7 +2864,7 @@ public class CcddDbControlHandler
             protected void complete()
             {
                 // Check if an error occurred restoring the database
-                if (!errorType.isEmpty())
+                if (errorType == null || !errorType.isEmpty())
                 {
                     // Inform the user that the database could not be restored
                     eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2770,51 +2899,54 @@ public class CcddDbControlHandler
 
         try
         {
-            // Create a list to contain the arguments for the command and add the arguments to the
-            // list
-            List<String> cmd = new ArrayList<String>();
-            Collections.addAll(cmd, command.split(" ", numArgs));
+            // Create a temporary file to contain the user's PostgreSQL password
+            File file = File.createTempFile("pgpass", "conf");
+
+            try
+            {
+                // Set the password file POSIX permissions as readable and writable by the user
+                // only
+                Set<PosixFilePermission> perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_WRITE);
+                Files.setPosixFilePermissions(file.toPath(), perms);
+            }
+            catch (Exception e)
+            {
+                // The operating system doesn't allow POSIX permissions; ignore. Linux, for
+                // example, uses the POSIX permissions. The Windows OS doesn't, but stores the
+                // password file in the user's folder path, so password security is still
+                // maintained
+            }
+
+            // Write the user and password information to the password file
+            Writer writer = new FileWriter(file);
+            writer.write(String.format("*:*:*:%s:%s\n", activeUser, activePassword));
+            writer.close();
 
             // Create the process builder to execute the command
-            ProcessBuilder builder = new ProcessBuilder(cmd);
+            ProcessBuilder builder = new ProcessBuilder(CcddUtilities.splitAndRemoveQuotes(command,
+                                                                                           " ",
+                                                                                           numArgs,
+                                                                                           true));
 
-            // Get the environment variables, then add another for the user's password
-            Map<String, String> environ = builder.environment();
-            environ.put("PGPASSWORD", activePassword);
+            // Assign the password file created above to the process builder
+            builder.environment().put("PGPASSFILE", file.getAbsolutePath());
 
-            // Execute the restore command
+            // Execute the command
             Process process = builder.start();
 
-            // Create a reader for stdout
-            BufferedReader inReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            // Read the output from stdout until no more exists. This prevents filling up the
-            // output buffer, which would cause the process to block indefinitely
-            while (inReader.readLine() != null)
-            {
-                ;
-            }
+            // Read the output from stdout and stderr until no more exists. This prevents filling
+            // up the output buffer, which would cause the process to block indefinitely
+            StreamConsumer outConsume = new StreamConsumer(process.getInputStream(), false);
+            StreamConsumer errConsume = new StreamConsumer(process.getErrorStream(), true);
+            errConsume.start();
+            outConsume.start();
 
             // Wait for the command to complete and check if it failed to successfully complete
             if (process.waitFor() != 0)
             {
-                // Create a reader for the error stream to get the cause of the error
-                BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String line;
-
-                // Step through each line in the error stream
-                while ((line = br.readLine()) != null)
-                {
-                    // Check if this isn't the first line of the error stream
-                    if (!errorType.isEmpty())
-                    {
-                        // Append a semicolon to differentiate the lines
-                        errorType += "; ";
-                    }
-
-                    // Append the error text
-                    errorType += line;
-                }
+                errorType = errConsume.getOutput();
             }
         }
         catch (Exception e)

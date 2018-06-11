@@ -18,6 +18,7 @@ import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
@@ -44,8 +45,12 @@ import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -67,6 +72,7 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
+import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -176,6 +182,87 @@ public class CcddFileIOHandler
         });
     }
 
+    // TODO
+    private boolean getPassword()
+    {
+        boolean isSet = false;
+
+        // Create a border for the input fields
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        0.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.NONE,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
+
+        // Create a panel to hold the components of the dialog
+        JPanel dialogPnl = new JPanel(new GridBagLayout());
+        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
+
+        // Add the user label and field
+        JLabel userLbl = new JLabel("User");
+        userLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        gbc.weightx = 0.0;
+        gbc.gridx = 0;
+        dialogPnl.add(userLbl, gbc);
+        JTextField userFld = new JTextField(dbControl.getUser(), 15);
+        userFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        userFld.setEditable(false);
+        userFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        userFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        userFld.setBorder(border);
+        gbc.weightx = 1.0;
+        gbc.gridx++;
+        dialogPnl.add(userFld, gbc);
+
+        // Add the password label and field
+        JLabel passwordLbl = new JLabel("Password");
+        passwordLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        gbc.insets.bottom = 0;
+        gbc.gridx = 0;
+        gbc.gridy++;
+        dialogPnl.add(passwordLbl, gbc);
+
+        JPasswordField passwordFld = new JPasswordField("", 15);
+        passwordFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        passwordFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        passwordFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        passwordFld.setBorder(border);
+        passwordFld.setEditable(true);
+        gbc.gridx++;
+        dialogPnl.add(passwordFld, gbc);
+
+        // Display the user & password dialog
+        if (new CcddDialogHandler().showOptionsDialog(ccddMain.getMainFrame(),
+                                                      dialogPnl,
+                                                      "Enter Password",
+                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+        {
+            // Store the password
+            dbControl.setPassword(String.valueOf(passwordFld.getPassword()));
+            isSet = true;
+        }
+
+        return isSet;
+    }
+
     /**********************************************************************************************
      * Backup the currently open project's database to a user-selected file using the pg_dump
      * utility. The backup data is stored in plain text format
@@ -185,6 +272,20 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void backupDatabaseToFile(boolean doInBackground)
     {
+        // TODO
+        boolean isPasswordSet = dbControl.isPassword();
+
+        if (!isPasswordSet)
+        {
+            isPasswordSet = getPassword();
+        }
+
+        if (!isPasswordSet)
+        {
+            return;
+        }
+        // end TODO
+
         // Get the name of the currently open database
         String databaseName = dbControl.getDatabaseName();
         String projectName = dbControl.getProjectName();
@@ -325,6 +426,20 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void restoreDatabaseFromFile()
     {
+        // TODO
+        boolean isPasswordSet = dbControl.isPassword();
+
+        if (!isPasswordSet)
+        {
+            isPasswordSet = getPassword();
+        }
+
+        if (!isPasswordSet)
+        {
+            return;
+        }
+        // end TODO
+
         File tempFile = null;
 
         // Allow the user to select the backup file path + name to load from
@@ -380,6 +495,14 @@ public class CcddFileIOHandler
                         // from PostgreSQL versions 8.4 and earlier to be restored in version 9.0
                         // and subsequent without generating an error
                         line = "DROP LANGUAGE IF EXISTS plpgsql;\n" + line;
+
+                        // Check if the PostgeSQL version is 9 or higher
+                        if (dbControl.getPostgreSQLMajorVersion() > 8)
+                        {
+                            // Add the command to drop the language extension; this is necessary in
+                            // order for the language to be dropped in PostgreSQL 9+
+                            line = "DROP EXTENSION plpgsql;\n" + line;
+                        }
                     }
 
                     // Check if the database owner hasn't been found already and that the line

@@ -311,7 +311,7 @@ public class CcddDbCommandHandler
             // Execute the command and obtain the results
             ResultSet resultSet = executeDbQuery(listType.getListCommand(listOption), parent);
 
-            // TODO ADDED NULL CHECK FOR TROUBLESHOOTING ascended121's ISSUE
+            // Check if the query failed
             if (resultSet == null)
             {
                 throw new SQLException("list query returned null ResultSet");
@@ -328,7 +328,6 @@ public class CcddDbCommandHandler
                         break;
 
                     default:
-                        // TODO ADDED NULL CHECK FOR TROUBLESHOOTING ascended121's ISSUE
                         // Get the result
                         String result = resultSet.getString(1);
 
@@ -337,10 +336,6 @@ public class CcddDbCommandHandler
                         {
                             // Get the result to the specified list
                             list.add(result.trim());
-                        }
-                        else
-                        {
-                            System.out.println("ResultSet string is null"); // TODO
                         }
 
                         break;

@@ -1165,11 +1165,12 @@ public class CcddScriptHandler
      *            list of script association to execute
      *
      * @param dialog
-     *            reference to the script dialog (manager or executive) calling this method
+     *            reference to the entity calling this method: the script manager or executive
+     *            dialog, or to the main window (if invoked from the command line)
      *********************************************************************************************/
-    private void getDataAndExecuteScriptInBackground(final CcddTableTreeHandler tree,
-                                                     final List<Object[]> associations,
-                                                     final CcddFrameHandler dialog)
+    protected void getDataAndExecuteScriptInBackground(final CcddTableTreeHandler tree,
+                                                       final List<Object[]> associations,
+                                                       final Component dialog)
     {
         final CcddDialogHandler cancelDialog = new CcddDialogHandler();
 
@@ -1182,8 +1183,13 @@ public class CcddScriptHandler
             @Override
             public void run()
             {
-                // Disable the calling dialog's controls
-                dialog.setControlsEnabled(false);
+                // Check if the script was executed via the script manager or executive dialogs
+                // (and not from the command line)
+                if (dialog instanceof CcddFrameHandler)
+                {
+                    // Disable the script manager or executive dialog's controls
+                    ((CcddFrameHandler) dialog).setControlsEnabled(false);
+                }
 
                 // Execute the script association(s) and obtain the completion status(es)
                 isBad = getDataAndExecuteScript(tree, associations, dialog);
@@ -1247,8 +1253,13 @@ public class CcddScriptHandler
                 // Log the result of the script execution(s)
                 logScriptCompletionStatus(associations, isBad);
 
-                // Enable the calling dialog's controls
-                dialog.setControlsEnabled(true);
+                // Check if the script was executed via the script manager or executive dialogs
+                // (and not from the command line)
+                if (dialog instanceof CcddFrameHandler)
+                {
+                    // Enable the script manager or executive dialog's controls
+                    ((CcddFrameHandler) dialog).setControlsEnabled(true);
+                }
             }
         });
 
@@ -1284,8 +1295,9 @@ public class CcddScriptHandler
         // Create an array to indicate if an association has a problem that prevents its execution
         boolean[] isBad = new boolean[associations.size()];
 
-        // Check if the script execution was initiated via command line command
-        if (parent == null)
+        // Check if the script execution was initiated via command line command (and not from the
+        // script manager or executive dialog)
+        if (!(parent instanceof CcddFrameHandler))
         {
             // Get the system environment variables map
             envVarMap = new HashMap<String, String>(System.getenv());

@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.SCRIPT_MEMBER_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -843,10 +844,45 @@ public class CcddCommandLineHandler
                 for (String associationString : associationsArray)
                 {
                     String[] association;
+                    String[] scriptAndTable;
 
-                    // Break the supplied association into the script or script association name,
-                    // and table(s) (if any)
-                    String[] scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
+                    // Get the index in the association string of the last occurrence of the file
+                    // name separator character (e.g., '/' or '\')
+                    int nameSepIndex = associationString.lastIndexOf(File.separator);
+
+                    // The characters used in the script file path are operating system dependent.
+                    // The script-member separator character can conflict with the path separators.
+                    // The separation of the association's script file and members is handled based
+                    // on if a potential conflict exists
+
+                    // Check if the file name separator is present, and if so that it occurs before
+                    // the script-member separator character (which may be a special character on
+                    // the operating system path; e.g. the colon following a drive letter in a
+                    // Windows path)
+                    if (nameSepIndex == -1
+                        || nameSepIndex < associationString.indexOf(SCRIPT_MEMBER_SEPARATOR))
+                    {
+                        // No special handling is required; break the supplied association into the
+                        // script or script association name, and table(s)/group(s) (if any)
+                        scriptAndTable = associationString.split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR), 2);
+                    }
+                    // The script file path contains the script-member separator character
+                    else
+                    {
+                        nameSepIndex++;
+
+                        // Break the supplied association into the script or script association
+                        // name, and table(s)/group(s) (if any), ignoring the first portion of the
+                        // script path that contains the script-member separator character
+                        scriptAndTable = associationString.substring(nameSepIndex)
+                                                          .split(Pattern.quote(SCRIPT_MEMBER_SEPARATOR),
+                                                                 2);
+
+                        // Prepend the portion of the path that was skipped to the script path
+                        scriptAndTable[0] = associationString.substring(0,
+                                                                        nameSepIndex)
+                                            + scriptAndTable[0];
+                    }
 
                     // Remove any leading/trailing white space characters from the script name
                     String name = scriptAndTable[0].trim();
@@ -897,23 +933,34 @@ public class CcddCommandLineHandler
                     }
                 }
 
-                // Execute the script association(s) and log the result
-                boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
-                                                                                      associations,
-                                                                                      null);
-                ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
-
-                // Step through the script execution fail flags
-                for (boolean flag : isBad)
+                // Check if the GUI isn't displayed
+                if (ccddMain.isGUIHidden())
                 {
-                    // Check if the script execution failed
-                    if (flag)
+                    // Execute the script association(s) and log the result
+                    boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
+                                                                                          associations,
+                                                                                          null);
+                    ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
+
+                    // Step through the script execution fail flags
+                    for (boolean flag : isBad)
                     {
-                        // Set the application return value to indicate a failure and stop
-                        // searching
-                        exitStatus = 1;
-                        break;
+                        // Check if the script execution failed
+                        if (flag)
+                        {
+                            // Set the application return value to indicate a failure and stop
+                            // searching
+                            exitStatus = 1;
+                            break;
+                        }
                     }
+                }
+                // The GUI is displayed
+                else
+                {
+                    ccddMain.getScriptHandler().getDataAndExecuteScriptInBackground(null,
+                                                                                    associations,
+                                                                                    ccddMain.getMainFrame());
                 }
             }
         });
