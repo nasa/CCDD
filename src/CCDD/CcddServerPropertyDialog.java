@@ -64,6 +64,12 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     // Flag indicating if the default database should be used after changing the log-in credentials
     private final boolean useActiveDatabase;
 
+    // Flag that indicates if the login dialog is resizable
+    private boolean allowResize;
+
+    // Flag that indicates if the password was successfully set in the Password dialog
+    boolean isPasswordSet;
+
     /**********************************************************************************************
      * Server properties dialog class constructor
      *
@@ -75,7 +81,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *            used when opening the database after changing the login credentials
      *
      * @param dialogType
-     *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
+     *            database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain,
                              boolean useActiveDatabase,
@@ -99,7 +105,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *            main class
      *
      * @param dialogType
-     *            database dialog type: LOGIN, DB_SERVER, or WEB_SERVER
+     *            database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain, ServerPropertyDialogType dialogType)
     {
@@ -107,10 +113,23 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Check if the password was successfully set in the Password dialog
+     *
+     * @return true if the password is set in the Password dialog; false if Cancel was selected or
+     *         the dialog type is not Password
+     *********************************************************************************************/
+    protected boolean isPasswordSet()
+    {
+        return isPasswordSet;
+    }
+
+    /**********************************************************************************************
      * Create the server properties dialog
      *********************************************************************************************/
     private void initialize()
     {
+        isPasswordSet = false;
+
         // Create a border for the input fields
         Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                            Color.LIGHT_GRAY,
@@ -144,120 +163,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         switch (dialogType)
         {
             case LOGIN:
-                // Initialize the flags that indicates if a user name is available and if the
-                // dialog should be resizable
-                boolean isUsers = false;
-                boolean allowResize = false;
-
-                // Add the server host to the dialog so that the user knows what credentials are
-                // required
-                JPanel serverPnl = new JPanel();
-                JLabel serverLbl1 = new JLabel("Enter credentials for server: ");
-                serverLbl1.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                serverLbl1.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                serverPnl.add(serverLbl1);
-                JLabel serverLbl2 = new JLabel(dbControl.getHost());
-                serverLbl2.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                serverLbl2.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-                serverPnl.add(serverLbl2);
-                gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbc.insets.bottom = 0;
-                selectPnl.add(serverPnl, gbc);
-                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-                gbc.weightx = 1.0;
-                gbc.gridwidth = 1;
-                gbc.gridy++;
-
-                // Check if a connection exists to the server
-                if (dbControl.isServerConnected())
+                // Add the user and password fields to the dialog. Check if there are any users
+                // registered in the server (if connected), or if a user name is entered
+                if (addLoginPanel(selectPnl, gbc, border))
                 {
-                    // Get the array containing the users
-                    String[] users = dbControl.queryUserList(CcddServerPropertyDialog.this);
-                    String[][] userInfo = new String[users.length][2];
-
-                    int userIndex = -1;
-
-                    // Step through each user
-                    for (int index = 0; index < users.length; index++)
-                    {
-                        // Store the user name
-                        userInfo[index][0] = users[index];
-
-                        // Check if this is the current user
-                        if (users[index].equals(dbControl.getUser()))
-                        {
-                            // Store the index for the current user
-                            userIndex = index;
-                        }
-                    }
-
-                    // Add radio buttons for the users
-                    isUsers = addRadioButtons(dbControl.getUser(),
-                                              false,
-                                              userInfo,
-                                              Arrays.asList(userIndex),
-                                              "Select user",
-                                              false,
-                                              selectPnl,
-                                              gbc);
-
-                    // Allow resizing the dialog if the number of users to choose from exceeds the
-                    // initial number of viewable rows (i.e., the scroll bar is displayed)
-                    allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize();
-
-                    gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
-                }
-                // No server connection exists; the user must enter a user name
-                else
-                {
-                    // Add the user label and field
-                    JLabel userLbl = new JLabel("User");
-                    userLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                    gbc.weightx = 0.0;
-                    gbc.gridx = 0;
-                    selectPnl.add(userLbl, gbc);
-                    userFld = new JTextField(dbControl.getUser(), 15);
-                    userFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                    userFld.setEditable(true);
-                    userFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                    userFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                    userFld.setBorder(border);
-                    gbc.weightx = 1.0;
-                    gbc.gridx++;
-                    selectPnl.add(userFld, gbc);
-
-                    isUsers = true;
-                }
-
-                // Check if any users exist
-                if (isUsers)
-                {
-                    // Add the password label and field
-                    JLabel passwordLbl = new JLabel("Password");
-                    passwordLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                    gbc.weightx = 0.0;
-                    gbc.gridx = 0;
-                    gbc.gridy++;
-                    gbc.insets.bottom = 0;
-                    selectPnl.add(passwordLbl, gbc);
-
-                    passwordFld = new JPasswordField("", 15);
-                    passwordFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                    passwordFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                    passwordFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                    passwordFld.setBorder(border);
-                    passwordFld.setEditable(true);
-                    gbc.weightx = 1.0;
-                    gbc.gridx++;
-                    selectPnl.add(passwordFld, gbc);
-
-                    // Check if a user is selected
-                    if (!dbControl.getUser().isEmpty())
-                    {
-                        // Set the password field to initially have the focus
-                        setInitialFocusComponent(passwordFld);
-                    }
-
                     // Display the user & password dialog
                     if (showOptionsDialog(ccddMain.getMainFrame(),
                                           selectPnl,
@@ -297,6 +206,23 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                                                               "Server Login",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
+                }
+
+                break;
+
+            case PASSWORD:
+                // Add the user and password fields to the dialog
+                addLoginPanel(selectPnl, gbc, border);
+
+                // Display the user & password dialog
+                if (new CcddDialogHandler().showOptionsDialog(ccddMain.getMainFrame(),
+                                                              selectPnl,
+                                                              "Enter Password",
+                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                {
+                    // Store the password
+                    dbControl.setPassword(String.valueOf(passwordFld.getPassword()));
+                    isPasswordSet = true;
                 }
 
                 break;
@@ -415,6 +341,142 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Add the user and password fields to the specified panel
+     *
+     * @param selectPnl
+     *            JPanel to which the fields are added
+     *
+     * @param gbc
+     *            reference to the GridBagConstraints governing the panel
+     *
+     * @param border
+     *            border with which to surround the input fields
+     *
+     * @return true if at least one user exists in the server or if the user can be entered
+     *         manually
+     *********************************************************************************************/
+    private boolean addLoginPanel(JPanel selectPnl, GridBagConstraints gbc, Border border)
+    {
+        // Initialize the flags that indicates if a user name is available and if the dialog should
+        // be resizable
+        boolean isUsers = false;
+        allowResize = false;
+
+        // Add the server host to the dialog so that the user knows what credentials are required
+        JPanel serverPnl = new JPanel();
+        JLabel serverLbl1 = new JLabel("Enter credentials for server: ");
+        serverLbl1.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        serverLbl1.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        serverPnl.add(serverLbl1);
+        JLabel serverLbl2 = new JLabel(dbControl.getHost());
+        serverLbl2.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        serverLbl2.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+        serverPnl.add(serverLbl2);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.insets.bottom = 0;
+        selectPnl.add(serverPnl, gbc);
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.weightx = 1.0;
+        gbc.gridwidth = 1;
+        gbc.gridy++;
+
+        // Check if a connection exists to the server
+        if (dbControl.isServerConnected() && dialogType == ServerPropertyDialogType.LOGIN)
+        {
+            // Get the array containing the users
+            String[] users = dbControl.queryUserList(CcddServerPropertyDialog.this);
+            String[][] userInfo = new String[users.length][2];
+
+            int userIndex = -1;
+
+            // Step through each user
+            for (int index = 0; index < users.length; index++)
+            {
+                // Store the user name
+                userInfo[index][0] = users[index];
+
+                // Check if this is the current user
+                if (users[index].equals(dbControl.getUser()))
+                {
+                    // Store the index for the current user
+                    userIndex = index;
+                }
+            }
+
+            // Add radio buttons for the users
+            isUsers = addRadioButtons(dbControl.getUser(),
+                                      false,
+                                      userInfo,
+                                      Arrays.asList(userIndex),
+                                      "Select user",
+                                      false,
+                                      selectPnl,
+                                      gbc);
+
+            // Allow resizing the dialog if the number of users to choose from exceeds the
+            // initial number of viewable rows (i.e., the scroll bar is displayed)
+            allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize();
+
+            gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+        }
+        // No server connection exists; the user must enter a user name
+        else
+        {
+            // Add the user label and field
+            JLabel userLbl = new JLabel("User");
+            userLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            gbc.weightx = 0.0;
+            gbc.gridx = 0;
+            selectPnl.add(userLbl, gbc);
+            userFld = new JTextField(dbControl.getUser(), 15);
+            userFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+            userFld.setEditable(dialogType == ServerPropertyDialogType.LOGIN);
+            userFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            userFld.setBackground(dialogType == ServerPropertyDialogType.LOGIN
+                                                                               ? ModifiableColorInfo.INPUT_BACK.getColor()
+                                                                               : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+            userFld.setBorder(border);
+            gbc.weightx = 1.0;
+            gbc.gridx++;
+            selectPnl.add(userFld, gbc);
+
+            isUsers = true;
+        }
+
+        // Check if any users exist
+        if (isUsers)
+        {
+            // Add the password label and field
+            JLabel passwordLbl = new JLabel("Password");
+            passwordLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            gbc.weightx = 0.0;
+            gbc.gridx = 0;
+            gbc.gridy++;
+            gbc.insets.bottom = 0;
+            selectPnl.add(passwordLbl, gbc);
+
+            passwordFld = new JPasswordField("", 15);
+            passwordFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+            passwordFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+            passwordFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+            passwordFld.setBorder(border);
+            passwordFld.setEditable(true);
+            gbc.weightx = 1.0;
+            gbc.gridx++;
+            selectPnl.add(passwordFld, gbc);
+
+            // Check if a user is selected
+            if (!dbControl.getUser().isEmpty())
+            {
+                // Set the password field to initially have the focus
+                setInitialFocusComponent(passwordFld);
+            }
+        }
+
+        return isUsers;
+    }
+
+    /**********************************************************************************************
      * Verify that the dialog content is valid
      *
      * @return true if the input values are valid
@@ -431,6 +493,9 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
             switch (dialogType)
             {
                 case LOGIN:
+                    // Remove any excess white space
+                    passwordFld.setText(String.valueOf(passwordFld.getPassword()).trim());
+
                     // Check if no connection exists to the server
                     if (!dbControl.isServerConnected())
                     {
@@ -448,6 +513,23 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     else if (getRadioButtonSelected().equals(dbControl.getUser()))
                     {
                         isValid = false;
+                    }
+
+                    break;
+
+                case PASSWORD:
+                    // Remove any excess white space
+                    passwordFld.setText(String.valueOf(passwordFld.getPassword()).trim());
+
+                    // Check if the password is valid for the user and database. Note that 'trust'
+                    // authentication allows any password (including a blank) to be entered
+                    if (!dbControl.authenticateUser(dbControl.getUser(),
+                                                    String.valueOf(passwordFld.getPassword())))
+                    {
+                        // Inform the user that the database port field is invalid
+                        throw new CCDDException("Password incorrect for user '"
+                                                + dbControl.getUser()
+                                                + "'");
                     }
 
                     break;

@@ -18,7 +18,6 @@ import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;
@@ -45,12 +44,8 @@ import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -72,11 +67,11 @@ import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
-import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -182,87 +177,6 @@ public class CcddFileIOHandler
         });
     }
 
-    // TODO
-    private boolean getPassword()
-    {
-        boolean isSet = false;
-
-        // Create a border for the input fields
-        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-                                                                                           Color.LIGHT_GRAY,
-                                                                                           Color.GRAY),
-                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
-
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        0.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.NONE,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                        0,
-                                                        0);
-
-        // Create a panel to hold the components of the dialog
-        JPanel dialogPnl = new JPanel(new GridBagLayout());
-        dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-
-        // Add the user label and field
-        JLabel userLbl = new JLabel("User");
-        userLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        gbc.weightx = 0.0;
-        gbc.gridx = 0;
-        dialogPnl.add(userLbl, gbc);
-        JTextField userFld = new JTextField(dbControl.getUser(), 15);
-        userFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        userFld.setEditable(false);
-        userFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        userFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        userFld.setBorder(border);
-        gbc.weightx = 1.0;
-        gbc.gridx++;
-        dialogPnl.add(userFld, gbc);
-
-        // Add the password label and field
-        JLabel passwordLbl = new JLabel("Password");
-        passwordLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        gbc.insets.bottom = 0;
-        gbc.gridx = 0;
-        gbc.gridy++;
-        dialogPnl.add(passwordLbl, gbc);
-
-        JPasswordField passwordFld = new JPasswordField("", 15);
-        passwordFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        passwordFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        passwordFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-        passwordFld.setBorder(border);
-        passwordFld.setEditable(true);
-        gbc.gridx++;
-        dialogPnl.add(passwordFld, gbc);
-
-        // Display the user & password dialog
-        if (new CcddDialogHandler().showOptionsDialog(ccddMain.getMainFrame(),
-                                                      dialogPnl,
-                                                      "Enter Password",
-                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-        {
-            // Store the password
-            dbControl.setPassword(String.valueOf(passwordFld.getPassword()));
-            isSet = true;
-        }
-
-        return isSet;
-    }
-
     /**********************************************************************************************
      * Backup the currently open project's database to a user-selected file using the pg_dump
      * utility. The backup data is stored in plain text format
@@ -272,149 +186,157 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void backupDatabaseToFile(boolean doInBackground)
     {
-        // TODO
-        boolean isPasswordSet = dbControl.isPassword();
+        // Set the flag if the current user's password is non-blank. Depending on the
+        // authentication set-up and operating system, the password may still be required by the
+        // pg_dump command even if the authentication method is 'trust'
+        boolean isPasswordSet = dbControl.isPasswordNonBlank();
 
+        // Check if no password is set
         if (!isPasswordSet)
         {
-            isPasswordSet = getPassword();
+            // Display the password dialog and obtain the password. Note that the user can enter a
+            // blank password (which may be valid)
+            CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain,
+                                                                           ServerPropertyDialogType.PASSWORD);
+
+            // Set the flag if the user selected the Okay button in the password dialog
+            isPasswordSet = dialog.isPasswordSet();
         }
 
-        if (!isPasswordSet)
+        // Check if the user's database password is set (either non-blank or explicitly set to
+        // blank )
+        if (isPasswordSet)
         {
-            return;
-        }
-        // end TODO
+            // Get the name of the currently open database
+            String databaseName = dbControl.getDatabaseName();
+            String projectName = dbControl.getProjectName();
 
-        // Get the name of the currently open database
-        String databaseName = dbControl.getDatabaseName();
-        String projectName = dbControl.getProjectName();
+            // Set the initial layout manager characteristics
+            GridBagConstraints gbc = new GridBagConstraints(0,
+                                                            0,
+                                                            1,
+                                                            1,
+                                                            1.0,
+                                                            0.0,
+                                                            GridBagConstraints.LINE_START,
+                                                            GridBagConstraints.BOTH,
+                                                            new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                       ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                       0,
+                                                                       0),
+                                                            0,
+                                                            0);
 
-        // Set the initial layout manager characteristics
-        GridBagConstraints gbc = new GridBagConstraints(0,
-                                                        0,
-                                                        1,
-                                                        1,
-                                                        1.0,
-                                                        0.0,
-                                                        GridBagConstraints.LINE_START,
-                                                        GridBagConstraints.BOTH,
-                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
-                                                                   0,
-                                                                   0),
-                                                        0,
-                                                        0);
+            // Create the backup file choice dialog
+            final CcddDialogHandler dlg = new CcddDialogHandler();
 
-        // Create the backup file choice dialog
-        final CcddDialogHandler dlg = new CcddDialogHandler();
+            // Create a date and time stamp check box
+            JCheckBox stampChkBx = new JCheckBox("Append date and time to file name");
+            stampChkBx.setBorder(BorderFactory.createEmptyBorder());
+            stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            stampChkBx.setSelected(false);
 
-        // Create a date and time stamp check box
-        JCheckBox stampChkBx = new JCheckBox("Append date and time to file name");
-        stampChkBx.setBorder(BorderFactory.createEmptyBorder());
-        stampChkBx.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        stampChkBx.setSelected(false);
-
-        // Create a listener for check box selection actions
-        stampChkBx.addActionListener(new ActionListener()
-        {
-            String timeStamp = "";
-
-            /**************************************************************************************
-             * Handle check box selection actions
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
+            // Create a listener for check box selection actions
+            stampChkBx.addActionListener(new ActionListener()
             {
-                // Check if the data and time stamp check box is selected
-                if (((JCheckBox) ae.getSource()).isSelected())
+                String timeStamp = "";
+
+                /**************************************************************************************
+                 * Handle check box selection actions
+                 *************************************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
                 {
-                    // Get the current date and time stamp
-                    timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-
-                    // Append the date and time stamp to the file name
-                    dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(Pattern.quote(FileExtension.DBU.getExtension()),
-                                                                                                 timeStamp + FileExtension.DBU.getExtension()));
-                }
-                // The check box is not selected
-                else
-                {
-                    // Remove the date and time stamp
-                    dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(timeStamp, ""));
-                }
-            }
-        });
-
-        // Create a panel to contain the date and time stamp check box
-        JPanel stampPnl = new JPanel(new GridBagLayout());
-        stampPnl.setBorder(BorderFactory.createEmptyBorder());
-        stampPnl.add(stampChkBx, gbc);
-
-        // Allow the user to select the backup file path + name
-        FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
-                                                   ccddMain.getMainFrame(),
-                                                   databaseName + FileExtension.DBU.getExtension(),
-                                                   null,
-                                                   new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                              FileExtension.DBU.getExtensionName())},
-                                                   false,
-                                                   false,
-                                                   "Backup Project " + projectName,
-                                                   ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                                   DialogOption.BACKUP_OPTION,
-                                                   stampPnl);
-
-        // Check if a file was chosen
-        if (dataFile != null && dataFile[0] != null)
-        {
-            boolean cancelBackup = false;
-
-            // Check if the backup file exists
-            if (dataFile[0].exists())
-            {
-                // Check if the existing file should be overwritten
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Overwrite existing backup file?",
-                                                              "Overwrite File",
-                                                              JOptionPane.QUESTION_MESSAGE,
-                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
-                {
-                    // Check if the file can be deleted
-                    if (!dataFile[0].delete())
+                    // Check if the data and time stamp check box is selected
+                    if (((JCheckBox) ae.getSource()).isSelected())
                     {
-                        // Inform the user that the existing backup file cannot be replaced
-                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot replace existing backup file<br>'</b>"
-                                                                                           + dataFile[0].getAbsolutePath()
-                                                                                           + "<b>'",
-                                                                  "File Error",
-                                                                  JOptionPane.ERROR_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                        // Get the current date and time stamp
+                        timeStamp = "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+                        // Append the date and time stamp to the file name
+                        dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(Pattern.quote(FileExtension.DBU.getExtension()),
+                                                                                                     timeStamp + FileExtension.DBU.getExtension()));
+                    }
+                    // The check box is not selected
+                    else
+                    {
+                        // Remove the date and time stamp
+                        dlg.getFileNameField().setText(dlg.getFileNameField().getText().replaceFirst(timeStamp, ""));
+                    }
+                }
+            });
+
+            // Create a panel to contain the date and time stamp check box
+            JPanel stampPnl = new JPanel(new GridBagLayout());
+            stampPnl.setBorder(BorderFactory.createEmptyBorder());
+            stampPnl.add(stampChkBx, gbc);
+
+            // Allow the user to select the backup file path + name
+            FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
+                                                       ccddMain.getMainFrame(),
+                                                       databaseName + FileExtension.DBU.getExtension(),
+                                                       null,
+                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                                  FileExtension.DBU.getExtensionName())},
+                                                       false,
+                                                       false,
+                                                       "Backup Project " + projectName,
+                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                       DialogOption.BACKUP_OPTION,
+                                                       stampPnl);
+
+            // Check if a file was chosen
+            if (dataFile != null && dataFile[0] != null)
+            {
+                boolean cancelBackup = false;
+
+                // Check if the backup file exists
+                if (dataFile[0].exists())
+                {
+                    // Check if the existing file should be overwritten
+                    if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>Overwrite existing backup file?",
+                                                                  "Overwrite File",
+                                                                  JOptionPane.QUESTION_MESSAGE,
+                                                                  DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                    {
+                        // Check if the file can be deleted
+                        if (!dataFile[0].delete())
+                        {
+                            // Inform the user that the existing backup file cannot be replaced
+                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>Cannot replace existing backup file<br>'</b>"
+                                                                                               + dataFile[0].getAbsolutePath()
+                                                                                               + "<b>'",
+                                                                      "File Error",
+                                                                      JOptionPane.ERROR_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                            cancelBackup = true;
+                        }
+                    }
+                    // File should not be overwritten
+                    else
+                    {
+                        // Cancel backing up the database
                         cancelBackup = true;
                     }
                 }
-                // File should not be overwritten
-                else
-                {
-                    // Cancel backing up the database
-                    cancelBackup = true;
-                }
-            }
 
-            // Check that no errors occurred and that the user didn't cancel the backup
-            if (!cancelBackup)
-            {
-                // Check if the operation should be performed in the background
-                if (doInBackground)
+                // Check that no errors occurred and that the user didn't cancel the backup
+                if (!cancelBackup)
                 {
-                    // Create a backup of the current database
-                    dbControl.backupDatabaseInBackground(projectName, dataFile[0]);
-                }
-                // Perform the operation in the foreground
-                else
-                {
-                    // Create a backup of the current database
-                    dbControl.backupDatabase(projectName, dataFile[0]);
+                    // Check if the operation should be performed in the background
+                    if (doInBackground)
+                    {
+                        // Create a backup of the current database
+                        dbControl.backupDatabaseInBackground(projectName, dataFile[0]);
+                    }
+                    // Perform the operation in the foreground
+                    else
+                    {
+                        // Create a backup of the current database
+                        dbControl.backupDatabase(projectName, dataFile[0]);
+                    }
                 }
             }
         }
@@ -426,216 +348,225 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     protected void restoreDatabaseFromFile()
     {
-        // TODO
-        boolean isPasswordSet = dbControl.isPassword();
+        // Set the flag if the current user's password is non-blank. Depending on the
+        // authentication set-up and operating system, the password may still be required by the
+        // psql command even if the authentication method is 'trust'
+        boolean isPasswordSet = dbControl.isPasswordNonBlank();
 
+        // Check if no password is set
         if (!isPasswordSet)
         {
-            isPasswordSet = getPassword();
+            // Display the password dialog and obtain the password. Note that the user can enter a
+            // blank password (which may be valid)
+            CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain,
+                                                                           ServerPropertyDialogType.PASSWORD);
+
+            // Set the flag if the user selected the Okay button in the password dialog
+            isPasswordSet = dialog.isPasswordSet();
         }
 
-        if (!isPasswordSet)
+        // Check if the user's database password is set (either non-blank or explicitly set to
+        // blank )
+        if (isPasswordSet)
         {
-            return;
-        }
-        // end TODO
+            File tempFile = null;
 
-        File tempFile = null;
+            // Allow the user to select the backup file path + name to load from
+            FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                           ccddMain.getMainFrame(),
+                                                                           null,
+                                                                           null,
+                                                                           new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
+                                                                                                                                      FileExtension.DBU.getExtensionName())},
+                                                                           false,
+                                                                           "Restore Project",
+                                                                           ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
+                                                                           DialogOption.RESTORE_OPTION);
 
-        // Allow the user to select the backup file path + name to load from
-        FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                       ccddMain.getMainFrame(),
-                                                                       null,
-                                                                       null,
-                                                                       new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                                                  FileExtension.DBU.getExtensionName())},
-                                                                       false,
-                                                                       "Restore Project",
-                                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
-                                                                       DialogOption.RESTORE_OPTION);
-
-        // Check if a file was chosen
-        if (dataFile != null && dataFile[0] != null)
-        {
-            BufferedReader br = null;
-            BufferedWriter bw = null;
-
-            try
+            // Check if a file was chosen
+            if (dataFile != null && dataFile[0] != null)
             {
-                // Check if the file doesn't exist
-                if (!dataFile[0].exists())
-                {
-                    throw new CCDDException("Cannot locate backup file<br>'</b>"
-                                            + dataFile[0].getAbsolutePath()
-                                            + "'");
-                }
+                BufferedReader br = null;
+                BufferedWriter bw = null;
 
-                boolean ownerFound = false;
-                boolean commentFound = false;
-                String line;
-                String projectName = null;
-                String projectOwner = null;
-                String projectDescription = null;
-
-                // Create a temporary file in which to copy the backup file contents
-                tempFile = File.createTempFile(dataFile[0].getName(), "");
-
-                // Create a buffered reader to read the file and a buffered writer to write the
-                // file
-                br = new BufferedReader(new FileReader(dataFile[0]));
-                bw = new BufferedWriter(new FileWriter(tempFile));
-
-                // Read each line in the backup file
-                while ((line = br.readLine()) != null)
-                {
-                    // Check if this line creates the plpgsql language
-                    if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;"))
-                    {
-                        // Add the command to first drop the language. This allows backups created
-                        // from PostgreSQL versions 8.4 and earlier to be restored in version 9.0
-                        // and subsequent without generating an error
-                        line = "DROP LANGUAGE IF EXISTS plpgsql;\n" + line;
-
-                        // Check if the PostgeSQL version is 9 or higher
-                        if (dbControl.getPostgreSQLMajorVersion() > 8)
-                        {
-                            // Add the command to drop the language extension; this is necessary in
-                            // order for the language to be dropped in PostgreSQL 9+
-                            line = "DROP EXTENSION plpgsql;\n" + line;
-                        }
-                    }
-
-                    // Check if the database owner hasn't been found already and that the line
-                    // contains the owner information
-                    if (!ownerFound
-                        && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
-                    {
-                        // Get the owner and store it, and set the flag indicating the owner is
-                        // located
-                        projectOwner = line.replaceFirst(".*Owner: ", "");
-                        ownerFound = true;
-                    }
-
-                    // Check if the database comment hasn't been found already and that the line
-                    // contains the comment information
-                    if (!commentFound
-                        && line.matches("COMMENT ON DATABASE .+ IS '"
-                                        + CCDD_PROJECT_IDENTIFIER
-                                        + ".+"))
-                    {
-                        // Split the line read from the file in order to get the project name and
-                        // description
-                        String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 3);
-
-                        // Check if the necessary components of the comment exist
-                        if (parts.length == 3)
-                        {
-                            // Extract the project name (with case preserved) and description, and
-                            // set the flag indicating the comment is located
-                            projectName = parts[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "';");
-                            commentFound = true;
-
-                            // Insert a comment indicator into the file so that this line isn't
-                            // executed when the database is restored
-                            line = "-- " + line;
-                        }
-                    }
-
-                    // Write the line to the temporary file
-                    bw.write(line + "\n");
-                }
-
-                // Check if the project owner, name, and description exist
-                if (ownerFound && commentFound)
-                {
-                    // Restore the database from the temporary file. This file has the line that
-                    // disables creation of the database comment, which is handled when the
-                    // restored database is created
-                    dbControl.restoreDatabase(projectName,
-                                              projectOwner,
-                                              projectDescription,
-                                              tempFile);
-
-                    // Store the data file path in the program preferences backing store
-                    storePath(ccddMain,
-                              dataFile[0].getAbsolutePathWithEnvVars(),
-                              true,
-                              ModifiablePathInfo.DATABASE_BACKUP_PATH);
-                }
-                // The project owner, name, and description don't exist
-                else
-                {
-                    throw new CCDDException("File<br>'</b>"
-                                            + dataFile[0].getAbsolutePath()
-                                            + "'<br><b> is not a backup file");
-                }
-            }
-            catch (CCDDException ce)
-            {
-                // Inform the user that the backup file error occurred
-                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>" + ce.getMessage(),
-                                                          "File Error",
-                                                          ce.getMessageType(),
-                                                          DialogOption.OK_OPTION);
-            }
-            catch (Exception e)
-            {
-                // Inform the user that the backup file cannot be read
-                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot read backup file<br>'</b>"
-                                                                                   + dataFile[0].getAbsolutePath()
-                                                                                   + "<b>'; cause '"
-                                                                                   + e.getMessage()
-                                                                                   + "'",
-                                                          "File Error",
-                                                          JOptionPane.ERROR_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-            }
-            finally
-            {
                 try
                 {
-                    // Check if the input file is open
-                    if (br != null)
+                    // Check if the file doesn't exist
+                    if (!dataFile[0].exists())
                     {
-                        // Close the input file
-                        br.close();
+                        throw new CCDDException("Cannot locate backup file<br>'</b>"
+                                                + dataFile[0].getAbsolutePath()
+                                                + "'");
+                    }
+
+                    boolean ownerFound = false;
+                    boolean commentFound = false;
+                    String line;
+                    String projectName = null;
+                    String projectOwner = null;
+                    String projectDescription = null;
+
+                    // Create a temporary file in which to copy the backup file contents
+                    tempFile = File.createTempFile(dataFile[0].getName(), "");
+
+                    // Create a buffered reader to read the file and a buffered writer to write the
+                    // file
+                    br = new BufferedReader(new FileReader(dataFile[0]));
+                    bw = new BufferedWriter(new FileWriter(tempFile));
+
+                    // Read each line in the backup file
+                    while ((line = br.readLine()) != null)
+                    {
+                        // Check if this line creates the plpgsql language
+                        if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;"))
+                        {
+                            // Add the command to first drop the language. This allows backups
+                            // created from PostgreSQL versions 8.4 and earlier to be restored in
+                            // version 9.0 and subsequent without generating an error
+                            line = "DROP LANGUAGE IF EXISTS plpgsql;\n" + line;
+
+                            // Check if the PostgeSQL version is 9 or higher
+                            if (dbControl.getPostgreSQLMajorVersion() > 8)
+                            {
+                                // Add the command to drop the language extension; this is
+                                // necessary in order for the language to be dropped in PostgreSQL
+                                // 9+
+                                line = "DROP EXTENSION plpgsql;\n" + line;
+                            }
+                        }
+
+                        // Check if the database owner hasn't been found already and that the line
+                        // contains the owner information
+                        if (!ownerFound
+                            && line.matches("-- Name: [^;]+; Type: [^;]+; Schema: [^;]+; Owner: .+"))
+                        {
+                            // Get the owner and store it, and set the flag indicating the owner is
+                            // located
+                            projectOwner = line.replaceFirst(".*Owner: ", "");
+                            ownerFound = true;
+                        }
+
+                        // Check if the database comment hasn't been found already and that the
+                        // line contains the comment information
+                        if (!commentFound
+                            && line.matches("COMMENT ON DATABASE .+ IS '"
+                                            + CCDD_PROJECT_IDENTIFIER
+                                            + ".+"))
+                        {
+                            // Split the line read from the file in order to get the project name
+                            // and description
+                            String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 3);
+
+                            // Check if the necessary components of the comment exist
+                            if (parts.length == 3)
+                            {
+                                // Extract the project name (with case preserved) and description,
+                                // and set the flag indicating the comment is located
+                                projectName = parts[DatabaseComment.PROJECT_NAME.ordinal()];
+                                projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "';");
+                                commentFound = true;
+
+                                // Insert a comment indicator into the file so that this line isn't
+                                // executed when the database is restored
+                                line = "-- " + line;
+                            }
+                        }
+
+                        // Write the line to the temporary file
+                        bw.write(line + "\n");
+                    }
+
+                    // Check if the project owner, name, and description exist
+                    if (ownerFound && commentFound)
+                    {
+                        // Restore the database from the temporary file. This file has the line
+                        // that disables creation of the database comment, which is handled when
+                        // the restored database is created
+                        dbControl.restoreDatabase(projectName,
+                                                  projectOwner,
+                                                  projectDescription,
+                                                  tempFile);
+
+                        // Store the data file path in the program preferences backing store
+                        storePath(ccddMain,
+                                  dataFile[0].getAbsolutePathWithEnvVars(),
+                                  true,
+                                  ModifiablePathInfo.DATABASE_BACKUP_PATH);
+                    }
+                    // The project owner, name, and description don't exist
+                    else
+                    {
+                        throw new CCDDException("File<br>'</b>"
+                                                + dataFile[0].getAbsolutePath()
+                                                + "'<br><b> is not a backup file");
                     }
                 }
-                catch (IOException ioe)
+                catch (CCDDException ce)
                 {
-                    // Inform the user that the input file cannot be closed
+                    // Inform the user that the backup file error occurred
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot close backup file<br>'</b>"
+                                                              "<html><b>" + ce.getMessage(),
+                                                              "File Error",
+                                                              ce.getMessageType(),
+                                                              DialogOption.OK_OPTION);
+                }
+                catch (Exception e)
+                {
+                    // Inform the user that the backup file cannot be read
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Cannot read backup file<br>'</b>"
                                                                                        + dataFile[0].getAbsolutePath()
-                                                                                       + "<b>'",
-                                                              "File Warning",
-                                                              JOptionPane.WARNING_MESSAGE,
+                                                                                       + "<b>'; cause '"
+                                                                                       + e.getMessage()
+                                                                                       + "'",
+                                                              "File Error",
+                                                              JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
                 finally
                 {
                     try
                     {
-                        // Check if the output file is open
-                        if (bw != null)
+                        // Check if the input file is open
+                        if (br != null)
                         {
-                            // Close the output file
-                            bw.close();
+                            // Close the input file
+                            br.close();
                         }
                     }
                     catch (IOException ioe)
                     {
-                        // Inform the user that the output file cannot be closed
+                        // Inform the user that the input file cannot be closed
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot close backup file<br>'</b>"
-                                                                                           + tempFile.getAbsolutePath()
+                                                                                           + dataFile[0].getAbsolutePath()
                                                                                            + "<b>'",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            // Check if the output file is open
+                            if (bw != null)
+                            {
+                                // Close the output file
+                                bw.close();
+                            }
+                        }
+                        catch (IOException ioe)
+                        {
+                            // Inform the user that the output file cannot be closed
+                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>Cannot close backup file<br>'</b>"
+                                                                                               + tempFile.getAbsolutePath()
+                                                                                               + "<b>'",
+                                                                      "File Warning",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+                        }
                     }
                 }
             }

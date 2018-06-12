@@ -468,17 +468,21 @@ public class CcddDbControlHandler
         return activeOwner;
     }
 
-    // TODO
-    protected boolean isPassword()
+    /**********************************************************************************************
+     * Check if the user's database password is not a blank
+     *
+     * @return true if the password is not blank
+     *********************************************************************************************/
+    protected boolean isPasswordNonBlank()
     {
         return !activePassword.isEmpty();
     }
 
     /**********************************************************************************************
-     * Set the database password
+     * Set the user's database password
      *
      * @param password
-     *            database password
+     *            user's database password
      *********************************************************************************************/
     protected void setPassword(String password)
     {
@@ -1748,7 +1752,7 @@ public class CcddDbControlHandler
                 {
                     // Check if the database name is in the list, which indicates that the user has
                     // access to this database
-                    if (activeDatabase.equalsIgnoreCase(database.split(",", 2)[0]))
+                    if (activeDatabase.equalsIgnoreCase(database.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
                     {
                         // Set the flag indicating the user has access to the currently open
                         // database and stop searching
@@ -2694,7 +2698,7 @@ public class CcddDbControlHandler
         String databaseName = convertProjectNameToDatabase(projectName);
 
         // Build the command to backup the database
-        String command = "pg_dump " + getUserHostAndPort() + "-o -f ";
+        String command = "pg_dump " + getUserHostAndPort() + "-w -o -f ";
 
         // Get the number of command line arguments. Since the backup file name may have spaces the
         // argument count must be made prior to appending it. The argument count is adjusted for

@@ -343,6 +343,7 @@ public class CcddConstants
     protected static enum ServerPropertyDialogType
     {
         LOGIN,
+        PASSWORD,
         DB_SERVER,
         WEB_SERVER
     }

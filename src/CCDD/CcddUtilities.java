@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
@@ -30,6 +31,14 @@ import CCDD.CcddConstants.ModifiableColorInfo;
  *************************************************************************************************/
 public class CcddUtilities
 {
+    // Command line quote type
+    private static enum QuoteType
+    {
+        NO_QUOTE,
+        SINGLE_QUOTE,
+        DOUBLE_QUOTE
+    };
+
     /**********************************************************************************************
      * HTML tag information class
      *********************************************************************************************/
@@ -321,6 +330,141 @@ public class CcddUtilities
         }
 
         return array;
+    }
+
+    /**********************************************************************************************
+     * Separate a command line string into an array of arguments. Account for quoting (single and
+     * double) of arguments within the string
+     *
+     * @param argString
+     *            command line argument string
+     *
+     * @return Array containing the separate command line arguments with any quotes removed
+     *********************************************************************************************/
+    protected static String[] parseCommandline(String argString)
+    {
+        String[] argArray;
+
+        // Check if the command line string is empty
+        if (argString == null || argString.trim().isEmpty())
+        {
+            // Create an empty the argument array
+            argArray = new String[0];
+        }
+        // The command line string isn't empty
+        else
+        {
+            ArrayList<String> result = new ArrayList<String>();
+            StringBuilder current = new StringBuilder();
+            boolean isLastTokenQuoted = false;
+            QuoteType activeQuote = QuoteType.NO_QUOTE;
+
+            // Create a tokenizer using single and double quotes, and a space as the tokens
+            StringTokenizer tokenizer = new StringTokenizer(argString, "\"\' ", true);
+
+            // Continue to parse the string as long as one of the tokens is present in the argument
+            // string
+            while (tokenizer.hasMoreTokens())
+            {
+                // Get the next argument or delimiter
+                String token = tokenizer.nextToken();
+
+                switch (activeQuote)
+                {
+                    // Single quote is active
+                    case SINGLE_QUOTE:
+                        // Check if this is the ending single quote
+                        if (token.equals("\'"))
+                        {
+                            // Reset the active quote to 'none'
+                            activeQuote = QuoteType.NO_QUOTE;
+                            isLastTokenQuoted = true;
+                        }
+                        // This is the continuation of a single-quoted argument
+                        else
+                        {
+                            // Add the argument to the list
+                            current.append(token);
+                        }
+
+                        break;
+
+                    // Double quote is active
+                    case DOUBLE_QUOTE:
+                        // Check if this is the ending double quote
+                        if (token.equals("\""))
+                        {
+                            // Reset the active quote to 'none'
+                            activeQuote = QuoteType.NO_QUOTE;
+                            isLastTokenQuoted = true;
+                        }
+                        // This is the continuation of a double-quoted argument
+                        else
+                        {
+                            // Add the argument to the list
+                            current.append(token);
+                        }
+
+                        break;
+
+                    // No quote is active
+                    case NO_QUOTE:
+                        // Check if the this is the starting single quote
+                        if (token.equals("\'"))
+                        {
+                            // Argument is bounded by single quotes
+                            activeQuote = QuoteType.SINGLE_QUOTE;
+                        }
+                        // Check if the this is the starting double quote
+                        else if (token.equals("\""))
+                        {
+                            // Argument is bounded by double quotes
+                            activeQuote = QuoteType.DOUBLE_QUOTE;
+                        }
+                        // Check if this is the argument separator
+                        else if (token.equals(" "))
+                        {
+                            // Check if this is a space within a quoted argument and the argument
+                            // isn't blank
+                            if (isLastTokenQuoted || current.length() != 0)
+                            {
+                                // Add the argument to the list
+                                result.add(current.toString());
+                                current.setLength(0);
+                            }
+                        }
+                        // This is a command line argument (or a at least a portion of one if
+                        // within quotes)
+                        else
+                        {
+                            // Add the argument(s) to the list
+                            current.append(token);
+                        }
+
+                        isLastTokenQuoted = false;
+                        break;
+                }
+            }
+
+            // Check if there is any remaining arguments text
+            if (isLastTokenQuoted || current.length() != 0)
+            {
+                // Add the argument(s) to the list
+                result.add(current.toString());
+            }
+
+            // Check if a quote is still in effect
+            if (activeQuote == QuoteType.SINGLE_QUOTE || activeQuote == QuoteType.DOUBLE_QUOTE)
+            {
+                // Alert the user that the number of quotes is unbalanced
+                throw new RuntimeException("unbalanced quotes in " + argString);
+            }
+
+            // Convert the argument list into an array
+            argArray = result.toArray(new String[0]);
+        }
+
+        return argArray;
     }
 
     /**********************************************************************************************

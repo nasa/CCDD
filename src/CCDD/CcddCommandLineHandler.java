@@ -980,14 +980,11 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Separate the import sub-commands
-                String[] subArgs = CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
-                                                                      "\\s+",
-                                                                      -1,
-                                                                      false);
-
                 // Parse the import sub-commands
-                parseCommand(-1, -1, subArgs, getSubArgument());
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandline(parmVal.toString()),
+                             getSubArgument());
 
                 // Check if a required sub-command is missing
                 if (dataFile == null)
@@ -1045,13 +1042,11 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 // Separate the export sub-commands
-                String[] subArgs = CcddUtilities.splitAndRemoveQuotes(parmVal.toString(),
-                                                                      "\\s+",
-                                                                      -1,
-                                                                      false);
-
                 // Parse the export sub-commands
-                parseCommand(-1, -1, subArgs, getSubArgument());
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandline(parmVal.toString()),
+                             getSubArgument());
 
                 // Check if a required export sub-command is missing
                 if ((filePath == null

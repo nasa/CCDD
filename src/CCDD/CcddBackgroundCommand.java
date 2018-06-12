@@ -152,9 +152,6 @@ public class CcddBackgroundCommand
             @Override
             protected void done()
             {
-                // Perform any special command termination steps
-                backCommand.complete();
-
                 // Check if the GUI is visible
                 if (!ccddMain.isGUIHidden())
                 {
@@ -190,6 +187,9 @@ public class CcddBackgroundCommand
                     // appear in the main window's session event log header
                     glassPane.setVisible(false);
                 }
+
+                // Perform any special command termination steps
+                backCommand.complete();
             }
         };
 
