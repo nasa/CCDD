@@ -434,7 +434,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                         // Add the table type column definition,
                                                         // checking for (and if possible,
                                                         // correcting) errors
-                                                        continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                                        continueOnTableTypeError = addImportedTableTypeColumnDefinition(continueOnTableTypeError,
                                                                                                                   tableTypeDefn,
                                                                                                                   new String[] {String.valueOf(columnNumber),
                                                                                                                                 columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],

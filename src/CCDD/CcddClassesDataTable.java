@@ -367,6 +367,7 @@ public class CcddClassesDataTable
         protected void setTablePath(String tablePath)
         {
             this.tablePath = tablePath;
+            isPrototype = !tablePath.contains(".");
         }
 
         /******************************************************************************************

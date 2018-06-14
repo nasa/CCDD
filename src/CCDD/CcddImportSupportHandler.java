@@ -104,11 +104,11 @@ public class CcddImportSupportHandler
      *             If the column name is missing or the user elects to stop the import operation
      *             due to an invalid input data type
      *********************************************************************************************/
-    protected boolean addImportedTableTypeDefinition(boolean continueOnError,
-                                                     TableTypeDefinition tableTypeDefn,
-                                                     String[] columnDefn,
-                                                     String fileName,
-                                                     Component parent) throws CCDDException
+    protected boolean addImportedTableTypeColumnDefinition(boolean continueOnError,
+                                                           TableTypeDefinition tableTypeDefn,
+                                                           String[] columnDefn,
+                                                           String fileName,
+                                                           Component parent) throws CCDDException
     {
         // Check if the column name is empty
         if (columnDefn[TableTypeEditorColumnInfo.NAME.ordinal()].isEmpty())

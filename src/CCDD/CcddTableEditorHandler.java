@@ -2951,7 +2951,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean isInsert,
                                         boolean isAddIfNeeded,
                                         boolean startFirstColumn,
-                                        boolean combineAsSingleEdit)
+                                        boolean combineAsSingleEdit,
+                                        boolean highlightPastedData)
             {
                 Boolean showMessage = true;
 
@@ -3261,20 +3262,24 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         getUndoManager().endEditSequence();
                     }
 
-                    // Check if there are rows left to be selected
-                    if (endRow - 1 - skippedRows > 0)
+                    // Check if the pasted data should be highlighted
+                    if (highlightPastedData)
                     {
-                        // Select all of the rows into which the data was pasted
-                        setRowSelectionInterval(startRow, endRow - 1 - skippedRows);
+                        // Check if there are rows left to be selected
+                        if (endRow - 1 - skippedRows > 0)
+                        {
+                            // Select all of the rows into which the data was pasted
+                            setRowSelectionInterval(startRow, endRow - 1 - skippedRows);
+                        }
+
+                        // Select all of the columns into which the data was pasted
+                        setColumnSelectionInterval(startColumn, endColumnSelect);
+
+                        // Select the pasted cells and force the table to be redrawn so that the
+                        // changes are displayed
+                        setSelectedCells(startRow, endRow - 1, startColumn, endColumnSelect);
+                        repaint();
                     }
-
-                    // Select all of the columns into which the data was pasted
-                    setColumnSelectionInterval(startColumn, endColumnSelect);
-
-                    // Select the pasted cells and force the table to be redrawn so that the
-                    // changes are displayed
-                    setSelectedCells(startRow, endRow - 1, startColumn, endColumnSelect);
-                    repaint();
 
                     // Check if any rows were ignored
                     if (isIgnoreRow)

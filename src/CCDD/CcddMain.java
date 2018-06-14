@@ -11,7 +11,6 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.DATABASE;
-import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
@@ -46,7 +45,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URLDecoder;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -907,6 +905,11 @@ public class CcddMain
      *********************************************************************************************/
     protected void setGUIActivated(boolean activate)
     {
+        // Set the flags based on the server and database connection statuses
+        boolean activateIfServer = activate && dbControl.isServerConnected();
+        boolean activateIfDatabase = activate && dbControl.isDatabaseConnected();
+        boolean activateIfRate = activateIfDatabase && rateHandler.getNumRateColumns() != 0;
+
         // Step through the menu bar items
         for (int index = 0; index < frameCCDD.getJMenuBar().getComponentCount(); index++)
         {
@@ -917,57 +920,74 @@ public class CcddMain
         // Update the current database label
         setCurrentProjectLabel();
 
-        // Enable/disable the menu items based on the server, database, template, and file
+        // Enable/disable the menu items based on the server, database, type, rate, and file
         // definition statuses
-        mntmOpenDb.setEnabled(dbControl.isServerConnected());
-        mntmCloseDb.setEnabled(dbControl.isDatabaseConnected());
-        mntmNewDb.setEnabled(dbControl.isServerConnected());
-        mntmRenameDb.setEnabled(dbControl.isServerConnected());
-        mntmCopyDb.setEnabled(dbControl.isServerConnected());
-        mntmDeleteDb.setEnabled(dbControl.isServerConnected());
-        mntmBackupDb.setEnabled(dbControl.isDatabaseConnected());
-        mntmRestoreDb.setEnabled(dbControl.isServerConnected());
-        mntmNewTable.setEnabled(dbControl.isDatabaseConnected()
+        mntmOpenDb.setEnabled(activateIfServer);
+        mntmCloseDb.setEnabled(activateIfDatabase);
+        mntmNewDb.setEnabled(activateIfServer);
+        mntmRenameDb.setEnabled(activateIfServer);
+        mntmCopyDb.setEnabled(activateIfServer);
+        mntmDeleteDb.setEnabled(activateIfServer);
+        mntmBackupDb.setEnabled(activateIfDatabase);
+        mntmRestoreDb.setEnabled(activateIfServer);
+        mntmNewTable.setEnabled(activateIfDatabase
                                 && tableTypeHandler != null
                                 && tableTypeHandler.getTypes() != null);
-        mntmEditTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmRenameTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmCopyTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmDeleteTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmPadding.setEnabled(dbControl.isDatabaseConnected());
-        mntmImportTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmExportCSV.setEnabled(dbControl.isDatabaseConnected());
-        mntmExportEDS.setEnabled(dbControl.isDatabaseConnected());
-        mntmExportJSON.setEnabled(dbControl.isDatabaseConnected());
-        mntmExportXTCE.setEnabled(dbControl.isDatabaseConnected());
-        mntmUnlock.setEnabled(dbControl.isServerConnected());
-        mntmVerifyDatabase.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageGroups.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageTableTypes.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageDataTypes.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageMacros.setEnabled(dbControl.isDatabaseConnected());
-        mntmAssignMsgID.setEnabled(dbControl.isDatabaseConnected());
-        mntmReserveMsgID.setEnabled(dbControl.isDatabaseConnected());
-        mntmShowAllMsgID.setEnabled(dbControl.isDatabaseConnected());
-        mntmDuplicateMsgID.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageProjectFields.setEnabled(dbControl.isDatabaseConnected());
-        mntmEditDataField.setEnabled(dbControl.isDatabaseConnected());
-        mntmShowVariables.setEnabled(dbControl.isDatabaseConnected());
-        mntmSearchTable.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageLinks.setEnabled(dbControl.isDatabaseConnected()
-                                   && rateHandler.getNumRateColumns() != 0);
-        mntmManageTlm.setEnabled(dbControl.isDatabaseConnected()
-                                 && rateHandler.getNumRateColumns() != 0);
-        mntmManageApps.setEnabled(dbControl.isDatabaseConnected());
-        mntmRateParameters.setEnabled(dbControl.isDatabaseConnected()
-                                      && rateHandler.getNumRateColumns() != 0);
-        mntmAppParameters.setEnabled(dbControl.isDatabaseConnected());
-        mntmManageScripts.setEnabled(dbControl.isDatabaseConnected());
-        mntmExecuteScripts.setEnabled(dbControl.isDatabaseConnected());
-        mntmStoreScripts.setEnabled(dbControl.isDatabaseConnected());
-        mntmRetrieveScripts.setEnabled(dbControl.isDatabaseConnected());
-        mntmDeleteScripts.setEnabled(dbControl.isDatabaseConnected());
-        mntmSearchScripts.setEnabled(dbControl.isDatabaseConnected());
+        mntmEditTable.setEnabled(activateIfDatabase);
+        mntmRenameTable.setEnabled(activateIfDatabase);
+        mntmCopyTable.setEnabled(activateIfDatabase);
+        mntmDeleteTable.setEnabled(activateIfDatabase);
+        mntmPadding.setEnabled(activateIfDatabase);
+        mntmImportTable.setEnabled(activateIfDatabase);
+        mntmExportCSV.setEnabled(activateIfDatabase);
+        mntmExportEDS.setEnabled(activateIfDatabase);
+        mntmExportJSON.setEnabled(activateIfDatabase);
+        mntmExportXTCE.setEnabled(activateIfDatabase);
+        mntmUnlock.setEnabled(activateIfServer);
+        mntmVerifyDatabase.setEnabled(activateIfDatabase);
+        mntmManageGroups.setEnabled(activateIfDatabase);
+        mntmManageTableTypes.setEnabled(activateIfDatabase);
+        mntmManageDataTypes.setEnabled(activateIfDatabase);
+        mntmManageMacros.setEnabled(activateIfDatabase);
+        mntmAssignMsgID.setEnabled(activateIfDatabase);
+        mntmReserveMsgID.setEnabled(activateIfDatabase);
+        mntmShowAllMsgID.setEnabled(activateIfDatabase);
+        mntmDuplicateMsgID.setEnabled(activateIfDatabase);
+        mntmManageProjectFields.setEnabled(activateIfDatabase);
+        mntmEditDataField.setEnabled(activateIfDatabase);
+        mntmShowVariables.setEnabled(activateIfDatabase);
+        mntmSearchTable.setEnabled(activateIfDatabase);
+        mntmManageLinks.setEnabled(activateIfRate);
+        mntmManageTlm.setEnabled(activateIfRate);
+        mntmManageApps.setEnabled(activateIfDatabase);
+        mntmRateParameters.setEnabled(activateIfRate);
+        mntmAppParameters.setEnabled(activateIfDatabase);
+        mntmManageScripts.setEnabled(activateIfDatabase);
+        mntmExecuteScripts.setEnabled(activateIfDatabase);
+        mntmStoreScripts.setEnabled(activateIfDatabase);
+        mntmRetrieveScripts.setEnabled(activateIfDatabase);
+        mntmDeleteScripts.setEnabled(activateIfDatabase);
+        mntmSearchScripts.setEnabled(activateIfDatabase);
+
+        // Check if a recent projects menu item exists
+        if (mntmRecentProjects != null && mntmRecentProjects.length != 0)
+        {
+            // Step through each project in the recently opened projects list
+            for (JMenuItem recent : mntmRecentProjects)
+            {
+                recent.setEnabled(activateIfServer);
+            }
+        }
+
+        // Check if a recent tables menu item exists
+        if (mntmRecentTables != null && mntmRecentTables.length != 0)
+        {
+            // Step through each table in the recently opened tables list
+            for (JMenuItem recent : mntmRecentTables)
+            {
+                recent.setEnabled(activateIfDatabase);
+            }
+        }
 
         // Step through each open table editor dialog
         for (CcddTableEditorDialog editorDialog : tableEditorDialogs)
@@ -2728,37 +2748,12 @@ public class CcddMain
                     // Check if the database control handler exists
                     if (dbControl != null)
                     {
-                        // Check if the database command handler exists and that a save point is
-                        // active
-                        if (dbCommand != null && dbCommand.getSavePointEnable())
+                        // Check if the database command handler exists
+                        if (dbCommand != null)
                         {
-                            try
-                            {
-                                // Revert the changes to the tables that were successfully updated
-                                // prior the current table
-                                dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
-                                                           + DB_SAVE_POINT_NAME
-                                                           + ";",
-                                                           frameCCDD);
-                            }
-                            catch (SQLException se)
-                            {
-                                // Check if the session event log exists
-                                if (!eventLogs.isEmpty())
-                                {
-                                    // Inform the user that the reversion to the save point failed
-                                    getSessionEventLog().logFailEvent(frameCCDD,
-                                                                      "Cannot revert changes to table(s); cause '"
-                                                                                 + se.getMessage()
-                                                                                 + "'",
-                                                                      "<html><b>Cannot revert changes to table(s)");
-                                }
-                            }
-                            finally
-                            {
-                                // Reset the flag for creating a save point
-                                dbCommand.setSavePointEnable(false);
-                            }
+                            // Revert any uncommitted changes back to the last save point, if one
+                            // exists
+                            dbCommand.rollbackToSavePoint(frameCCDD);
                         }
 
                         // Close the database connection

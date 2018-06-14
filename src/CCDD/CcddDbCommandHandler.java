@@ -7,13 +7,13 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.EventLogMessageType.COMMAND_MSG;
 
 import java.awt.Component;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +36,8 @@ public class CcddDbCommandHandler
     // PostgreSQL database statement
     private Statement statement;
 
-    // Command to create a save point
-    private static final String SAVE_POINT_COMMAND = "SAVEPOINT " + DB_SAVE_POINT_NAME + ";";
-
-    // Flag to enable/disable creating a save point prior to a transaction
-    private boolean savePointEnabled;
-
-    // Flag indicating that a save point has been created for this transaction block
-    private boolean isSavePointCreated;
+    // Save point for transaction rollbacks
+    private Savepoint savePoint;
 
     /**********************************************************************************************
      * Database command handler class constructor
@@ -55,8 +49,8 @@ public class CcddDbCommandHandler
     {
         this.ccddMain = ccddMain;
 
-        // Initialize the save point flags
-        setSavePointEnable(false);
+        // Initialize the save point
+        savePoint = null;
     }
 
     /**********************************************************************************************
@@ -182,20 +176,6 @@ public class CcddDbCommandHandler
     {
         Object result = null;
 
-        // Check if creation of a save point is enabled and a save point hasn't already been
-        // created
-        if (savePointEnabled && !isSavePointCreated)
-        {
-            // Execute the command to create a save point
-            statement.execute(SAVE_POINT_COMMAND);
-
-            // Log the save point command
-            eventLog.logEvent(COMMAND_MSG, SAVE_POINT_COMMAND);
-
-            // Set the flag to indicate the save point command has been created
-            isSavePointCreated = true;
-        }
-
         // Log the command
         eventLog.logEvent(COMMAND_MSG, command);
 
@@ -226,7 +206,7 @@ public class CcddDbCommandHandler
             }
 
             // Check if auto-commit is disabled and a save point isn't established
-            if (connection.getAutoCommit() == false && !savePointEnabled)
+            if (connection.getAutoCommit() == false && savePoint == null)
             {
                 // Commit the change to the database
                 connection.commit();
@@ -234,24 +214,33 @@ public class CcddDbCommandHandler
         }
         catch (SQLException se)
         {
-            // Check if auto-commit is disabled and a save point isn't established
-            if (connection.getAutoCommit() == false && !savePointEnabled)
+            try
             {
-                try
+                // Check if no save point exists
+                if (savePoint == null)
                 {
-                    // The command failed to complete successfully; revert the change to the
-                    // database
+                    // Revert the change to the database to before the last uncommitted transaction
                     connection.rollback();
                 }
-                catch (SQLException se2)
+                // The save point exists
+                else
                 {
-                    // Inform the user that rolling back the changes failed
-                    eventLog.logFailEvent(component,
-                                          "Cannot revert changes project; cause '"
-                                                     + se2.getMessage()
-                                                     + "'",
-                                          "<html><b>Cannot revert changes to project");
+                    // Revert any changes to the database to the save point
+                    connection.rollback(savePoint);
                 }
+            }
+            catch (SQLException se2)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(component,
+                                      "Cannot revert changes project; cause '"
+                                                 + se2.getMessage()
+                                                 + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
+            finally
+            {
+                savePoint = null;
             }
 
             // Re-throw the exception so that the caller can handle it
@@ -262,25 +251,97 @@ public class CcddDbCommandHandler
     }
 
     /**********************************************************************************************
-     * Get the save point status
+     * Revert any changes to the database back to the save point, if it exists
      *
-     * @return true if a save point is enabled and exists
+     * @param component
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected boolean getSavePointEnable()
+    protected void rollbackToSavePoint(Component component)
     {
-        return savePointEnabled && isSavePointCreated;
+        // Check if the save point exists
+        if (savePoint != null)
+        {
+            try
+            {
+                // Revert any changes to the database to the save point
+                connection.rollback(savePoint);
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that the reversion to the save point failed
+                eventLog.logFailEvent(component,
+                                      "Cannot revert changes to table(s); cause '"
+                                                 + se.getMessage()
+                                                 + "'",
+                                      "<html><b>Cannot revert changes to table(s)");
+            }
+            finally
+            {
+                // Release the save point
+                releaseSavePoint(component);
+            }
+        }
     }
 
     /**********************************************************************************************
-     * Enable or disable creation of a save point prior to a transaction
+     * Create the save point if it doesn't exist
      *
-     * @param enable
-     *            true to enable creating a save point
+     * @param component
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void setSavePointEnable(boolean enable)
+    protected void createSavePoint(Component component)
     {
-        savePointEnabled = enable;
-        isSavePointCreated = false;
+        // Check if the save point doesn't already exist
+        if (savePoint == null)
+        {
+            try
+            {
+                // Create the save point
+                savePoint = connection.setSavepoint();
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that the save point can't be released
+                eventLog.logFailEvent(component,
+                                      "Cannot create save point; cause '"
+                                                 + se.getMessage()
+                                                 + "'",
+                                      "<html><b>Cannot create save point");
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Release the save point if it exists
+     *
+     * @param component
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void releaseSavePoint(Component component)
+    {
+        // Check if the save point exists
+        if (savePoint != null)
+        {
+            try
+            {
+                // Release the save point. Each save point takes up shared memory, so releasing it
+                // prevents a memory 'leak'
+                connection.releaseSavepoint(savePoint);
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that the save point can't be released
+                eventLog.logFailEvent(component,
+                                      "Cannot release save point; cause '"
+                                                 + se.getMessage()
+                                                 + "'",
+                                      "<html><b>Cannot release save point");
+            }
+            finally
+            {
+                savePoint = null;
+            }
+        }
     }
 
     /**********************************************************************************************

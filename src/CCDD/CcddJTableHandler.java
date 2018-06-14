@@ -163,7 +163,7 @@ public abstract class CcddJTableHandler extends JTable
     private boolean isReloadData;
 
     // Flag that indicates that a table layout change is in progress
-    private boolean inLayout = false;
+    private boolean inLayout;
 
     // Lists to contain row indices and colors for rows that are displayed in special colors
     private List<Integer> rowColorIndex;
@@ -267,6 +267,7 @@ public abstract class CcddJTableHandler extends JTable
         lastSelectionStart = -1;
         lastSelectionEnd = -1;
         pattern = null;
+        inLayout = false;
     }
 
     /**********************************************************************************************
@@ -3154,7 +3155,7 @@ public abstract class CcddJTableHandler extends JTable
                 }
 
                 // Paste the data from the clipboard into the table
-                pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true);
+                pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true);
             }
         }
         catch (Exception e)
@@ -3199,6 +3200,9 @@ public abstract class CcddJTableHandler extends JTable
      *            manager's handling of the edit sequence (this allows handling externally so that
      *            other edits may be grouped with the paste operation)
      *
+     * @param highlightPastedData
+     *            true to highlight the cells containing the pasted data
+     *
      * @return true if the user elected to cancel pasting the data following a cell validation
      *         error
      *********************************************************************************************/
@@ -3207,7 +3211,8 @@ public abstract class CcddJTableHandler extends JTable
                                 boolean isInsert,
                                 boolean isAddIfNeeded,
                                 boolean startFirstColumn,
-                                boolean combineAsSingleEdit)
+                                boolean combineAsSingleEdit,
+                                boolean highlightPastedData)
     {
         Boolean showMessage = true;
         int modelRow = 0;
@@ -3425,17 +3430,21 @@ public abstract class CcddJTableHandler extends JTable
                 undoManager.endEditSequence();
             }
 
-            // Select all of the rows and columns into which the data was pasted
-            setRowSelectionInterval(startRow + rowModelDelta, endRow - 1 + rowModelDelta);
-            setColumnSelectionInterval(startColumn, endColumnSelect);
+            // Check if the pasted data should be highlighted
+            if (highlightPastedData)
+            {
+                // Select all of the rows and columns into which the data was pasted
+                setRowSelectionInterval(startRow + rowModelDelta, endRow - 1 + rowModelDelta);
+                setColumnSelectionInterval(startColumn, endColumnSelect);
 
-            // Select the pasted cells and force the table to be redrawn so that the changes are
-            // displayed
-            setSelectedCells(startRow + rowModelDelta,
-                             endRow - 1 + rowModelDelta,
-                             startColumn,
-                             endColumnSelect);
-            repaint();
+                // Select the pasted cells and force the table to be redrawn so that the changes
+                // are displayed
+                setSelectedCells(startRow + rowModelDelta,
+                                 endRow - 1 + rowModelDelta,
+                                 startColumn,
+                                 endColumnSelect);
+                repaint();
+            }
         }
 
         // Set the flag that indicates the last edited cell's content is valid

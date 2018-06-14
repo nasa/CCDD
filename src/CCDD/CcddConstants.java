@@ -1173,6 +1173,7 @@ public class CcddConstants
         NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
         NUM_REMEMBERED_PROJECTS("Maximum remembered project names", "Maximum number of remembered project names", "NumberOfRememberedProjects", 4, 1, 10),
         NUM_REMEMBERED_TABLES("Maximum remembered table names", "Maximum number of remembered table names", "NumberOfRememberedTables", 4, 1, 10),
+        MAX_IMPORTED_TAB_ROWS("Maximum editor tab rows during import", "Maximum number of tab rows a single editor dialog when importing tables", "MaxImportedTabRows", 15, 1, 1000),
         MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
         MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
         MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),

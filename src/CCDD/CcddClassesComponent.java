@@ -3858,7 +3858,14 @@ public class CcddClassesComponent
         @Override
         public void paintComponent(Graphics g)
         {
-            super.paintComponent(g);
+            try
+            {
+                super.paintComponent(g);
+            }
+            catch (Exception e)
+            {
+                System.out.println("num tabs: " + this.getTabCount() + "   name: " + this.getTitleAt(this.getTabCount() - 1)); // TODO
+            }
 
             // Check if the tab insertion indicator should be drawn
             if (isDrawRect)

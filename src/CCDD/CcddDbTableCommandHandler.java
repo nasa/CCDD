@@ -8,7 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
-import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
@@ -7347,10 +7346,8 @@ public class CcddDbTableCommandHandler
 
                 try
                 {
-                    // Enable creation of a save point in case an error occurs while modifying a
-                    // table. This prevents committing the changes to the database until after all
-                    // tables are modified
-                    dbCommand.setSavePointEnable(true);
+                    // Create a save point in case an error occurs while modifying a table
+                    dbCommand.createSavePoint(dialog);
 
                     // Check if only a change in data type name, data size (same size or smaller),
                     // or macro name occurred; if so then the internal table update process is
@@ -7526,6 +7523,9 @@ public class CcddDbTableCommandHandler
                                                                                  dialog),
                                               dialog);
 
+                    // Release the save point
+                    dbCommand.releaseSavePoint(dialog);
+
                     // Commit the change(s) to the database
                     dbCommand.getConnection().commit();
 
@@ -7534,33 +7534,14 @@ public class CcddDbTableCommandHandler
                 }
                 catch (SQLException se)
                 {
-                    try
-                    {
-                        // Inform the user that updating the macros failed
-                        eventLog.logFailEvent(dialog,
-                                              "Cannot update "
-                                                      + changeName.toLowerCase()
-                                                      + "; cause '"
-                                                      + se.getMessage()
-                                                      + "'",
-                                              "<html><b>Cannot update " + changeName.toLowerCase());
-
-                        // Revert the changes to the tables that were successfully updated prior
-                        // the current table
-                        dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
-                                                   + DB_SAVE_POINT_NAME
-                                                   + ";",
-                                                   dialog);
-                    }
-                    catch (SQLException se2)
-                    {
-                        // Inform the user that the reversion to the save point failed
-                        eventLog.logFailEvent(dialog,
-                                              "Cannot revert changes to table(s); cause '"
-                                                      + se.getMessage()
-                                                      + "'",
-                                              "<html><b>Cannot revert changes to table(s)");
-                    }
+                    // Inform the user that updating the macros failed
+                    eventLog.logFailEvent(dialog,
+                                          "Cannot update "
+                                                  + changeName.toLowerCase()
+                                                  + "; cause '"
+                                                  + se.getMessage()
+                                                  + "'",
+                                          "<html><b>Cannot update " + changeName.toLowerCase());
 
                     errorFlag = true;
                 }
@@ -7568,11 +7549,6 @@ public class CcddDbTableCommandHandler
                 {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, dialog);
-                }
-                finally
-                {
-                    // Reset the flag for creating a save point
-                    dbCommand.setSavePointEnable(false);
                 }
             }
 

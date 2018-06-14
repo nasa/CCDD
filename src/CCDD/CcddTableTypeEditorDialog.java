@@ -198,7 +198,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                    && activeEditor != null
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
 
-        // Set the menu item based on the input flag and if the editor represnts a command table
+        // Set the menu item based on the input flag and if the editor represents a command table
         // type
         mntmInsertCmdArgs.setEnabled(enableIfType
                                      && activeEditor != null
@@ -1150,8 +1150,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             activeEditor = null;
                         }
 
-                        // Update the editor controls state
-                        setControlsEnabled(!typeEditors.isEmpty());
+                        // Update the editor controls state due to the tab selection change. The
+                        // enable state of the File menu is chosen to determine the controls
+                        // state. This prevents the controls from being re-enabled due to the tab
+                        // selection changing when the controls should be disabled
+                        setControlsEnabled(mnFile.isEnabled());
                     }
                 });
 

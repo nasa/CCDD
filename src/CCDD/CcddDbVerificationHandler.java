@@ -10,7 +10,6 @@ package CCDD;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CANCEL_ICON;
-import static CCDD.CcddConstants.DB_SAVE_POINT_NAME;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.OK_BUTTON;
@@ -616,7 +615,7 @@ public class CcddDbVerificationHandler
                 // to verify each portion of the database) and use it to calculate the number of
                 // divisions within each step
                 int numVerificationSteps = 6;
-                numDivisionPerStep = 100 / numVerificationSteps;
+                numDivisionPerStep = 100;
 
                 // Add a progress bar to the dialog
                 progBar = new JProgressBar(0, numVerificationSteps * numDivisionPerStep);
@@ -1097,6 +1096,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
+                count++;
                 progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
@@ -1204,6 +1204,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
+                count++;
                 progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
@@ -1634,6 +1635,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
+                count++;
                 progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
         }
@@ -1902,6 +1904,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
+                count++;
                 progBar.setValue(startProgress + (numDivisionPerStep * count / total));
             }
 
@@ -2132,6 +2135,7 @@ public class CcddDbVerificationHandler
             }
 
             // Update the within-step progress value
+            count++;
             progBar.setValue(startProgress + (numDivisionPerStep * count / total));
         }
     }
@@ -2923,10 +2927,8 @@ public class CcddDbVerificationHandler
                     int row = 0;
                     boolean isSomeIgnored = false;
 
-                    // Enable creation of a save point in case an error occurs while modifying a
-                    // table. This prevents committing the changes to the database until after all
-                    // tables are modified
-                    dbCommand.setSavePointEnable(true);
+                    // Create a save point in case an error occurs while modifying a table
+                    dbCommand.createSavePoint(ccddMain.getMainFrame());
 
                     // Step through each issue detected
                     for (TableIssue issue : issues)
@@ -3057,6 +3059,9 @@ public class CcddDbVerificationHandler
                     // Check if an errors occurred when making the updates
                     if (!isErrors)
                     {
+                        // Release the save point
+                        dbCommand.releaseSavePoint(ccddMain.getMainFrame());
+
                         // Commit the change(s) to the database
                         dbCommand.getConnection().commit();
 
@@ -3092,44 +3097,20 @@ public class CcddDbVerificationHandler
                 }
                 catch (SQLException se)
                 {
-                    try
-                    {
-                        // Inform the user that checking the table consistency failed
-                        eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                              "Error verifying project database '"
-                                                                       + dbControl.getDatabaseName()
-                                                                       + "' consistency; cause '"
-                                                                       + se.getMessage()
-                                                                       + "'",
-                                              "<html><b>Error verifying project database '"
-                                                                              + dbControl.getDatabaseName()
-                                                                              + "' consistency");
+                    // Inform the user that checking the table consistency failed
+                    eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                          "Error verifying project database '"
+                                                                   + dbControl.getDatabaseName()
+                                                                   + "' consistency; cause '"
+                                                                   + se.getMessage()
+                                                                   + "'",
+                                          "<html><b>Error verifying project database '"
+                                                                          + dbControl.getDatabaseName()
+                                                                          + "' consistency");
 
-                        // Log that the table update(s) did not succeed
-                        message = "One or more project database inconsistencies were "
-                                  + "detected, but an error occurred while updating";
-
-                        // Revert the changes to the tables that were successfully updated prior
-                        // the current table
-                        dbCommand.executeDbCommand("ROLLBACK TO SAVEPOINT "
-                                                   + DB_SAVE_POINT_NAME
-                                                   + ";",
-                                                   dialog);
-                    }
-                    catch (SQLException se2)
-                    {
-                        // Inform the user that the reversion to the save point failed
-                        eventLog.logFailEvent(dialog,
-                                              "Cannot revert changes to table(s); cause '"
-                                                      + se.getMessage()
-                                                      + "'",
-                                              "<html><b>Cannot revert changes to table(s)");
-                    }
-                }
-                finally
-                {
-                    // Reset the flag for creating a save point
-                    dbCommand.setSavePointEnable(false);
+                    // Log that the table update(s) did not succeed
+                    message = "One or more project database inconsistencies were "
+                              + "detected, but an error occurred while updating";
                 }
             }
 

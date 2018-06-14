@@ -351,7 +351,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             {
                                 // Add the table type column definition, checking for (and if
                                 // possible, correcting) errors
-                                continueOnTableTypeError = addImportedTableTypeDefinition(continueOnTableTypeError,
+                                continueOnTableTypeError = addImportedTableTypeColumnDefinition(continueOnTableTypeError,
                                                                                           tableTypeDefn,
                                                                                           new String[] {String.valueOf(columnNumber),
                                                                                                         getString(typeJO,

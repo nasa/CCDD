@@ -103,6 +103,7 @@ import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
@@ -665,7 +666,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                cmdFuncCodeName);
 
             // Create the table type definitions for any new structure and command tables
-            createTableTypeDefinitions(rootSystem, importType, targetTypeDefn);
+            createTableTypeDefinitions(rootSystem, importFile, importType, targetTypeDefn);
 
             // Check if at least one structure or command table needs to be built
             if (structureTypeDefn != null || commandTypeDefn != null)
@@ -712,10 +713,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Remove the special command table type definition
                     tableTypeHandler.getTypeDefinitions().remove(commandAllTypeDefn);
                 }
-
-                // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // System.exit(1);
-                // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             }
         }
         catch (JAXBException je)
@@ -741,16 +738,24 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param rootSystem
      *            root space system
      *
+     * @param importFile
+     *            reference to the user-specified XML input file
+     *
      * @param importFileName
      *            import file name
      *
      * @param targetTypeDefn
      *            table type definition of the table in which to import the data; ignored if
      *            importing all tables
+     *
+     * @throws CCDDException
+     *             included due to calls to addImportedTableTypeColumnDefinition(); since default
+     *             column definitions are used this error can't occur
      *********************************************************************************************/
     private void createTableTypeDefinitions(SpaceSystemType rootSystem,
+                                            FileEnvVar importFile,
                                             ImportType importType,
-                                            TypeDefinition targetTypeDefn)
+                                            TypeDefinition targetTypeDefn) throws CCDDException
     {
         isTelemetry = false;
         isCommand = false;
@@ -779,6 +784,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if all tables are to be imported
             if (importType == ImportType.IMPORT_ALL)
             {
+                List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>(1);
                 String typeName = "XTCE Structure";
                 int sequence = 2;
 
@@ -790,36 +796,56 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     sequence++;
                 }
 
-                // Create the XTCE structure table type using the default structure columns
-                structureTypeDefn = tableTypeHandler.createTypeDefinition(typeName,
-                                                                          DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE),
-                                                                          "XTCE import structure table type");
+                // Create a table type definition for structure tables
+                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
+                                                                            "XTCE import structure table type");
+
+                // Step through each default structure column
+                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE))
+                {
+                    // Add the column to the table type definition
+                    addImportedTableTypeColumnDefinition(true,
+                                                         tableTypeDefn,
+                                                         CcddUtilities.convertObjectToString(columnDefn),
+                                                         importFile.getAbsolutePath(),
+                                                         parent);
+                }
 
                 // Get the current number of columns defined for the structure table type. The new
                 // columns are appended to the existing ones
-                int columnIndex = structureTypeDefn.getColumnCountDatabase();
+                int columnIndex = tableTypeDefn.getColumns().size();
 
                 // Add the minimum and maximum value columns
-                structureTypeDefn.addColumn(columnIndex,
-                                            structureTypeDefn.getColumnNameDatabase(COL_MINIMUM,
-                                                                                    InputDataType.MINIMUM),
-                                            COL_MINIMUM,
-                                            "Minimum value",
-                                            InputDataType.MINIMUM,
-                                            false,
-                                            false,
-                                            false,
-                                            true);
-                structureTypeDefn.addColumn(columnIndex + 1,
-                                            structureTypeDefn.getColumnNameDatabase(COL_MAXIMUM,
-                                                                                    InputDataType.MAXIMUM),
-                                            COL_MAXIMUM,
-                                            "Maximum value",
-                                            InputDataType.MAXIMUM,
-                                            false,
-                                            false,
-                                            false,
-                                            true);
+                addImportedTableTypeColumnDefinition(true,
+                                                     tableTypeDefn,
+                                                     new String[] {String.valueOf(columnIndex),
+                                                                   COL_MINIMUM,
+                                                                   "Minimum value",
+                                                                   InputDataType.MINIMUM.getInputName(),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(true)},
+                                                     importFile.getAbsolutePath(),
+                                                     parent);
+                addImportedTableTypeColumnDefinition(true,
+                                                     tableTypeDefn,
+                                                     new String[] {String.valueOf(columnIndex + 1),
+                                                                   COL_MAXIMUM,
+                                                                   "Maximum value",
+                                                                   InputDataType.MAXIMUM.getInputName(),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(false),
+                                                                   Boolean.toString(true)},
+                                                     importFile.getAbsolutePath(),
+                                                     parent);
+
+                // Add the structure table type definition. This also adds the tab for the new
+                // definition to the table type manager, if open
+                tableTypeDefns.add(tableTypeDefn);
+                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+                structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // Only a single table is to be imported
             else
@@ -859,6 +885,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if all tables are to be imported or the target is a structure table
             if (importType == ImportType.IMPORT_ALL || targetIsStructure)
             {
+                List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>(1);
                 String typeName = "XTCE Command";
                 int sequence = 2;
 
@@ -870,18 +897,34 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     sequence++;
                 }
 
+                // Create a table type definition for command tables
+                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
+                                                                            "XTCE import command table type");
+
+                // Step through each default command column
+                for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND))
+                {
+                    // Add the column to the table type definition
+                    addImportedTableTypeColumnDefinition(true,
+                                                         tableTypeDefn,
+                                                         CcddUtilities.convertObjectToString(columnDefn),
+                                                         importFile.getAbsolutePath(),
+                                                         parent);
+                }
+
+                // Get the current number of columns defined for the command table type. The new
+                // columns are appended to the existing ones
+                int columnIndex = tableTypeDefn.getColumns().size();
+
                 // Two XTCE command table types are created using the default command columns. The
                 // first is for the 'normal' command table; i.e., those that don't represent the
                 // command header. This table type is stored in the project database following the
                 // import operation. The second command table type accounts for those commands that
                 // represent the command header, which are translated into structures. These
                 // potentially have more argument columns than the normal commands. During import
-                // this larger table type is used to temporarily store the command information, but
-                // the table type is then deleted upon completion of the import operation, which
+                // this larger table type is used to temporarily store the command information. The
+                // table type is then deleted upon completion of the import operation, which
                 // prevents storing an unused table type in the project
-                commandTypeDefn = tableTypeHandler.createTypeDefinition(typeName,
-                                                                        DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND),
-                                                                        "XTCE import command table type");
                 commandAllTypeDefn = tableTypeHandler.createTypeDefinition(typeName + "_special",
                                                                            DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND),
                                                                            "XTCE import special command table type");
@@ -896,15 +939,43 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Check if the argument count is within that for a normal command table
                     if (argIndex <= maxNumArguments)
                     {
-                        // Add the default columns for this command argument to the normal command
-                        // table type
-                        commandTypeDefn.addCommandArgumentColumns(argIndex);
+                        // Step through each command argument column to add
+                        for (Object[] cmdArgCol : CcddTableTypeHandler.commandArgumentColumns)
+                        {
+                            // Update the argument name with the argument index
+                            String argName = cmdArgCol[0].toString().replaceFirst("###",
+                                                                                  String.valueOf(argIndex));
+
+                            // Add the command argument column. The argument description is updated
+                            // with the argument index
+                            addImportedTableTypeColumnDefinition(true,
+                                                                 tableTypeDefn,
+                                                                 new String[] {String.valueOf(columnIndex),
+                                                                               argName,
+                                                                               cmdArgCol[1].toString().replaceFirst("###",
+                                                                                                                    String.valueOf(argIndex)),
+                                                                               cmdArgCol[2].toString(),
+                                                                               Boolean.toString(false),
+                                                                               Boolean.toString(false),
+                                                                               Boolean.toString(false),
+                                                                               Boolean.toString(false)},
+                                                                 importFile.getAbsolutePath(),
+                                                                 parent);
+
+                            columnIndex++;
+                        }
                     }
 
                     // Add the default columns for this command argument to the overall command
                     // table type
                     commandAllTypeDefn.addCommandArgumentColumns(argIndex);
                 }
+
+                // Add the command table type definition. This also adds the tab for the new
+                // definition to the table type manager, if open
+                tableTypeDefns.add(tableTypeDefn);
+                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+                commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // A single command table is to be imported into an existing command table
             else
@@ -1348,26 +1419,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add the structure table definition to the list
                 tableDefinitions.add(tableDefn);
-
-                // TODO
-                // int x = 1;
-                // int y = 0;
-                // System.out.print("\n\nSTRUCT: " + tableDefn.getName() + "\n" +
-                // y + ":");
-                // for (String d : tableDefn.getData())
-                // {
-                // System.out.print(" " + d);
-                //
-                // if (x == structureTypeDefn.getColumnCountVisible())
-                // {
-                // x = 0;
-                // y++;
-                // System.out.print("\n" + y + ":");
-                // }
-                //
-                // x++;
-                // }
-                // System.out.print(" ");
             }
         }
     }
@@ -1754,27 +1805,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Add the command header structure table definition to the list
                         tableDefinitions.add(structTableDefn);
-
-                        // TODO
-                        // int x = 1;
-                        // int y = 0;
-                        // System.out.print("\n\nCMD->STRUCT: " + structTableDefn.getName() + "\n"
-                        // +
-                        // y + ":");
-                        // for (String d : structTableDefn.getData())
-                        // {
-                        // System.out.print(" " + d);
-                        //
-                        // if (x == structureTypeDefn.getColumnCountVisible())
-                        // {
-                        // x = 0;
-                        // y++;
-                        // System.out.print("\n" + y + ":");
-                        // }
-                        //
-                        // x++;
-                        // }
-                        // System.out.print(" ");
                     }
                 }
             }
@@ -1798,25 +1828,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Add the command table definition to the list
                 tableDefinitions.add(tableDefn);
-
-                // // TODO
-                // int x = 1;
-                // int y = 0;
-                // System.out.print("\n\nCMD: " + tableDefn.getName() + "\n" + y + ":");
-                // for (String d : tableDefn.getData())
-                // {
-                // System.out.print(" " + d);
-                //
-                // if (x == commandTypeDefn.getColumnCountVisible())
-                // {
-                // x = 0;
-                // y++;
-                // System.out.print("\n" + y + ":");
-                // }
-                //
-                // x++;
-                // }
-                // System.out.print(" ");
             }
         }
     }
@@ -2796,10 +2807,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Both the data type and variable name aren't present
                 else
                 {
-                    // TODO NOT SURE CONDITION CAN EXIST (IF CONSTRUCTED
-                    // CORRECTLY, THAT IS)
-                    System.out.println("BAD CONTAINER REF?: " + typeAndName[0]);
-
                     // Set the flag to indicate this is a valid container reference
                     isValidReference = true;
 
@@ -3091,9 +3098,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         ancillarySet.getAncillaryData().add(cmdCodeNameValue);
         project.getValue().setAncillaryDataSet(ancillarySet);
 
-        System.out.println("tlmHeaderTable: " + tlmHeaderTable); // TODO
-        System.out.println("applicationIDName: " + applicationIDName); // TODO
-
         // Add the project's space systems, parameters, and commands
         buildSpaceSystems(tableNames);
     }
@@ -3144,9 +3148,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // Check if this is a reference to the telemetry header table
                 if (TableInformation.getPrototypeName(tablePath).equals(tlmHeaderTable))
                 {
-                    // Set the table name to the prototype
+                    // Set the table name and path to the prototype
                     tableName = tlmHeaderTable;
                     loadTableName = tlmHeaderTable;
+                    tablePath = tlmHeaderTable;
                 }
                 // This is a reference to a descendant of the telemetry header table
                 else
@@ -4433,9 +4438,17 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             NameDescriptionType parameterType = null;
 
-            // TODO SET SIZE IN BITS IN BOTH THE TYPE AND THE ENCODING. WOULD USE ONE FOR BIT
-            // LENGTH AND OTHER FOR DATA TYPE SIZE EXCEPT ONLY INTEGER TYPE HAS BOTH; ENUM ONLY HAS
-            // THE ENCODING SIZE IN BITS
+            // Note: Each parameter has an associated size in bits equal to the size of its parent
+            // data type. In addition to its parent size, a bit-wise parameter (valid for an
+            // integer or enumeration) also has its bit length, the subset of bits it occupies in
+            // its parent. The value stored in the parameter encoding type's sizeInBits field is
+            // the bit length if a bit-wise parameter, else the parent data type size is used.
+            // Ideally both the bit length and overall sizes would be preserved (one in the
+            // parameter type's sizeInBits field and the other in the encoding type's sizeInBits
+            // field). However, this isn't always possible since the enumerated parameter type
+            // lacks the sizeInBits field. To prevent possible confusion of the values, for an
+            // integer parameter the parameter type's sizeInBits field is set to match the encoding
+            // type's sizeInBits field
 
             // Check if the parameter is an array
             if (arraySize != null && !arraySize.isEmpty())

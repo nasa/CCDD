@@ -119,7 +119,7 @@ public class CcddDbControlHandler
     private final String[][] functionParameters;
 
     // Temporary data storage table
-    private static final String TEMP_TABLES = INTERNAL_TABLE_PREFIX + "temp_table";
+    private static final String TEMP_TABLE_NAME = INTERNAL_TABLE_PREFIX + "temp_table";
 
     /**********************************************************************************************
      * Input stream consumer class
@@ -1128,6 +1128,15 @@ public class CcddDbControlHandler
                                                            "delete_function(function_name text)"),
                                        ccddMain.getMainFrame());
 
+            // Create a temporary table for storing the results returned by the database functions
+            dbCommand.executeDbCommand("DROP TABLE IF EXISTS "
+                                       + TEMP_TABLE_NAME
+                                       + "; CREATE TEMPORARY TABLE "
+                                       + TEMP_TABLE_NAME
+                                       + " (temp_result text); "
+                                       + buildOwnerCommand(DatabaseObject.TABLE, TEMP_TABLE_NAME),
+                                       ccddMain.getMainFrame());
+
             // Step through each internal table type
             for (InternalTable intTable : InternalTable.values())
             {
@@ -1238,24 +1247,24 @@ public class CcddDbControlHandler
                                        + "CREATE OR REPLACE FUNCTION find_prototype_columns_by_name("
                                        + "column_name_db text, table_types text[]) RETURNS "
                                        + "table(owner_name text, column_value text) AS $$ "
-                                       + "BEGIN DECLARE row record; BEGIN DROP TABLE IF EXISTS "
-                                       + TEMP_TABLES
-                                       + "; CREATE TEMP TABLE "
-                                       + TEMP_TABLES
-                                       + " AS SELECT tbl_name FROM (SELECT split_part("
+                                       + "BEGIN DECLARE row record; BEGIN TRUNCATE "
+                                       + TEMP_TABLE_NAME
+                                       + "; INSERT INTO "
+                                       + TEMP_TABLE_NAME
+                                       + " SELECT tbl_name FROM (SELECT split_part("
                                        + "obj_description, ',', 1) AS tbl_name, split_part("
                                        + "obj_description, ',', 2) AS tbl_type FROM (SELECT "
                                        + "obj_description(oid) FROM pg_class WHERE relkind = "
                                        + "'r' AND obj_description(oid) != '') AS tbl_desc) AS "
-                                       + "tbl_name WHERE table_types @> ARRAY[tbl_type] ORDER "
-                                       + "BY tbl_name ASC; FOR row IN SELECT tbl_name FROM "
-                                       + TEMP_TABLES
+                                       + "temp_result WHERE table_types @> ARRAY[tbl_type] ORDER "
+                                       + "BY temp_result ASC; FOR row IN SELECT temp_result FROM "
+                                       + TEMP_TABLE_NAME
                                        + " LOOP IF EXISTS (SELECT 1 FROM "
                                        + "information_schema.columns WHERE table_name = "
-                                       + "lower(row.tbl_name) AND column_name = E'' || "
+                                       + "lower(row.temp_result) AND column_name = E'' || "
                                        + "column_name_db || E'') THEN RETURN QUERY EXECUTE "
-                                       + "E'SELECT ''' || row.tbl_name || '''::text, ' || "
-                                       + "column_name_db || E' FROM ' || row.tbl_name || "
+                                       + "E'SELECT ''' || row.temp_result || '''::text, ' || "
+                                       + "column_name_db || E' FROM ' || row.temp_result || "
                                        + "E' WHERE ' || column_name_db || E' != '''''; "
                                        + "END IF; END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
@@ -1293,15 +1302,16 @@ public class CcddDbControlHandler
                                        ccddMain.getMainFrame());
 
             // Create function to reset the rate for a link that no longer has any member variables
+            // dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
             dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
                                        + "CREATE FUNCTION reset_link_rate() RETURNS VOID AS "
-                                       + "$$ BEGIN DECLARE row record; BEGIN DROP TABLE IF EXISTS "
-                                       + TEMP_TABLES
-                                       + "; CREATE TEMP TABLE "
-                                       + TEMP_TABLES
-                                       + " AS SELECT "
+                                       + "$$ BEGIN DECLARE row record; BEGIN TRUNCATE "
+                                       + TEMP_TABLE_NAME
+                                       + "; INSERT INTO "
+                                       + TEMP_TABLE_NAME
+                                       + " SELECT "
                                        + LinksColumn.LINK_NAME.getColumnName()
-                                       + " AS link_defn FROM (SELECT "
+                                       + " AS temp_result FROM (SELECT "
                                        + LinksColumn.LINK_NAME.getColumnName()
                                        + ", regexp_replace("
                                        + LinksColumn.MEMBER.getColumnName()
@@ -1309,12 +1319,12 @@ public class CcddDbControlHandler
                                        + InternalTable.LINKS.getTableName()
                                        + ") AS result WHERE rate != '' AND "
                                        + "rate != '0'; FOR row IN SELECT * FROM "
-                                       + TEMP_TABLES
+                                       + TEMP_TABLE_NAME
                                        + " LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(*) FROM "
                                        + InternalTable.LINKS.getTableName()
                                        + " WHERE "
                                        + LinksColumn.LINK_NAME.getColumnName()
-                                       + " = row.link_defn ) AS alias1 WHERE "
+                                       + " = row.temp_result) AS alias1 WHERE "
                                        + "count = '1') THEN EXECUTE E'UPDATE "
                                        + InternalTable.LINKS.getTableName()
                                        + " SET "
@@ -1323,7 +1333,7 @@ public class CcddDbControlHandler
                                        + LinksColumn.MEMBER.getColumnName()
                                        + ", E''^\\\\\\\\d+'', ''0'') WHERE "
                                        + LinksColumn.LINK_NAME.getColumnName()
-                                       + " = ''' || row.link_defn || ''''; END IF; "
+                                       + " = ''' || row.temp_result || ''''; END IF; "
                                        + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                        + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                            "reset_link_rate()"),
@@ -1460,26 +1470,26 @@ public class CcddDbControlHandler
                                                + "() RETURNS TABLE(tbl_name text, data_type "
                                                + "text, variable_name text, bit_length text, "
                                                + "rate text, enumeration text) AS $$ BEGIN "
-                                               + "DECLARE row record; BEGIN DROP TABLE IF EXISTS "
-                                               + TEMP_TABLES
-                                               + "; CREATE TEMP TABLE "
-                                               + TEMP_TABLES
-                                               + " AS SELECT t.tablename AS real_name FROM "
+                                               + "DECLARE row record; BEGIN TRUNCATE "
+                                               + TEMP_TABLE_NAME
+                                               + "; INSERT INTO "
+                                               + TEMP_TABLE_NAME
+                                               + " SELECT t.tablename AS temp_result FROM "
                                                + "pg_tables AS t WHERE t.schemaname = 'public' "
                                                + "AND substr(t.tablename, 1, 2) != '"
                                                + INTERNAL_TABLE_PREFIX
-                                               + "' ORDER BY real_name ASC; FOR row IN SELECT * FROM "
-                                               + TEMP_TABLES
+                                               + "' ORDER BY temp_result ASC; FOR row IN SELECT * FROM "
+                                               + TEMP_TABLE_NAME
                                                + " LOOP IF EXISTS (SELECT * FROM "
                                                + "(SELECT COUNT(*) FROM information_schema.columns "
-                                               + "WHERE table_name = row.real_name AND ("
+                                               + "WHERE table_name = row.temp_result AND ("
                                                + compareColumns
                                                + ")) AS alias1 WHERE count = '"
                                                + DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE)
                                                + "') THEN RETURN QUERY EXECUTE E'SELECT ''' || "
-                                               + "row.real_name || '''::text, * FROM get_def_columns_by_"
+                                               + "row.temp_result || '''::text, * FROM get_def_columns_by_"
                                                + functionParm[0]
-                                               + "(''' || row.real_name || ''')'; END IF; "
+                                               + "(''' || row.temp_result || ''')'; END IF; "
                                                + "END LOOP; END; END; $$ LANGUAGE plpgsql; "
                                                + buildOwnerCommand(DatabaseObject.FUNCTION,
                                                                    "get_table_members_by_"
@@ -1629,26 +1639,27 @@ public class CcddDbControlHandler
 
                 // Database function to search for all tables containing a data type column, and
                 // replace a target value with a new value
+
                 dbCommand.executeDbCommand(deleteFunction("update_data_type_names")
                                            + "CREATE FUNCTION update_data_type_names(oldType text, "
                                            + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "
-                                           + "record; BEGIN DROP TABLE IF EXISTS "
-                                           + TEMP_TABLES
-                                           + "; CREATE TEMP TABLE "
-                                           + TEMP_TABLES
-                                           + " AS SELECT t.tablename AS real_name "
+                                           + "record; BEGIN TRUNCATE "
+                                           + TEMP_TABLE_NAME
+                                           + "; INSERT INTO "
+                                           + TEMP_TABLE_NAME
+                                           + " SELECT t.tablename AS temp_result "
                                            + "FROM pg_tables AS t WHERE t.schemaname = 'public' "
                                            + "AND substr(t.tablename, 1, "
                                            + INTERNAL_TABLE_PREFIX.length()
                                            + ") != '"
                                            + INTERNAL_TABLE_PREFIX
                                            + "'; FOR row IN SELECT * FROM "
-                                           + TEMP_TABLES
+                                           + TEMP_TABLE_NAME
                                            + " LOOP IF EXISTS (SELECT 1 FROM "
                                            + "information_schema.columns WHERE table_name = "
-                                           + "row.real_name AND column_name = '"
+                                           + "row.temp_result AND column_name = '"
                                            + dbDataType
-                                           + "') THEN EXECUTE E'UPDATE ' || row.real_name || E' SET "
+                                           + "') THEN EXECUTE E'UPDATE ' || row.temp_result || E' SET "
                                            + dbDataType
                                            + " = ''' || newType || E''' WHERE "
                                            + dbDataType

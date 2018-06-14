@@ -270,61 +270,81 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     @Override
     protected void setControlsEnabled(boolean enable)
     {
-        // Set the flag for controls that are enabled only for a prototype or parent table
-        boolean enableParent = enable && activeEditor.getTableInformation().isPrototype();
+        // Set the flags based on the show macros, can have arrays, and table is prototype or child
+        // statuses
+        boolean enableIfNotMacro = enable && !mntmShowMacros.isSelected();
+        boolean enableIfArray = enableIfNotMacro && activeEditor.isCanHaveArrays();
+        boolean enableIfPrototype = enableIfNotMacro
+                                    && activeEditor.getTableInformation().isPrototype();
+        boolean enableIfChild = enableIfNotMacro
+                                && !activeEditor.getTableInformation().isPrototype();
 
-        // Set the flag for controls that are enabled only for a non-prototype and non-parent table
-        boolean enableChild = enable && !activeEditor.getTableInformation().isPrototype();
+        // Step through the menu bar items
+        for (int index = 0; index < getJMenuBar().getComponentCount(); index++)
+        {
+            // Enable/disable the item based on the input flag
+            getJMenuBar().getMenu(index).setEnabled(enable);
+        }
 
         // Set the menu item enable status
-        mntmEdit.setEnabled(enable);
-        mntmEditPrototype.setEnabled(enableChild);
-        mntmStore.setEnabled(enable);
-        mntmStoreAll.setEnabled(enable);
-        mntmImport.setEnabled(enable);
-        mntmExportCSV.setEnabled(enable);
-        mntmExportEDS.setEnabled(enable);
-        mntmExportJSON.setEnabled(enable);
-        mntmExportXTCE.setEnabled(enable);
-        mntmPrint.setEnabled(enable);
-        mntmFindReplace.setEnabled(enable);
-        mntmCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmCloseAll.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmUndo.setEnabled(enable);
-        mntmRedo.setEnabled(enable);
-        mntmCopy.setEnabled(enable);
-        mntmPaste.setEnabled(enableParent);
-        mntmInsertMacro.setEnabled(enable);
-        mntmShowMacros.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmInsert.setEnabled(enable);
-        mntmInsertRow.setEnabled(enableParent);
-        mntmDeleteRow.setEnabled(enableParent);
-        mntmExpColArray.setEnabled(enable && activeEditor.isCanHaveArrays());
-        mntmOverwriteAll.setEnabled(enable && activeEditor.isCanHaveArrays());
-        mntmOverwriteEmpty.setEnabled(enable && activeEditor.isCanHaveArrays());
-        mntmOverwriteNone.setEnabled(enable && activeEditor.isCanHaveArrays());
-        mntmMoveUp.setEnabled(enableParent);
-        mntmMoveDown.setEnabled(enableParent);
-        mntmMoveLeft.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmMoveRight.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmResetOrder.setEnabled(enable || mntmShowMacros.isSelected());
-        mntmWithBlanks.setEnabled(enable);
-        mntmWithPrototype.setEnabled(enableChild);
-        mntmManageFields.setEnabled(enable);
-        mntmClearValues.setEnabled(enable
+        mntmEdit.setEnabled(enableIfNotMacro);
+        mntmEditPrototype.setEnabled(enableIfChild);
+        mntmStore.setEnabled(enableIfNotMacro);
+        mntmStoreAll.setEnabled(enableIfNotMacro);
+        mntmImport.setEnabled(enableIfNotMacro);
+        mntmExportCSV.setEnabled(enableIfNotMacro);
+        mntmExportEDS.setEnabled(enableIfNotMacro);
+        mntmExportJSON.setEnabled(enableIfNotMacro);
+        mntmExportXTCE.setEnabled(enableIfNotMacro);
+        mntmPrint.setEnabled(enableIfNotMacro);
+        mntmFindReplace.setEnabled(enableIfNotMacro);
+        mntmCloseActive.setEnabled(enable);
+        mntmCloseAll.setEnabled(enable);
+        mntmUndo.setEnabled(enableIfNotMacro);
+        mntmRedo.setEnabled(enableIfNotMacro);
+        mntmCopy.setEnabled(enableIfNotMacro);
+        mntmPaste.setEnabled(enableIfPrototype);
+        mntmInsertMacro.setEnabled(enableIfNotMacro);
+        mntmShowMacros.setEnabled(enable);
+        mntmInsert.setEnabled(enableIfNotMacro);
+        mntmInsertRow.setEnabled(enableIfPrototype);
+        mntmDeleteRow.setEnabled(enableIfPrototype);
+        mntmExpColArray.setEnabled(enableIfArray);
+        mntmOverwriteAll.setEnabled(enableIfArray);
+        mntmOverwriteEmpty.setEnabled(enableIfArray);
+        mntmOverwriteNone.setEnabled(enableIfArray);
+        mntmMoveUp.setEnabled(enableIfPrototype);
+        mntmMoveDown.setEnabled(enableIfPrototype);
+        mntmMoveLeft.setEnabled(enable);
+        mntmMoveRight.setEnabled(enable);
+        mntmResetOrder.setEnabled(enable);
+        mntmWithBlanks.setEnabled(enableIfNotMacro);
+        mntmWithPrototype.setEnabled(enableIfChild);
+        mntmManageFields.setEnabled(enableIfNotMacro);
+        mntmClearValues.setEnabled(enableIfNotMacro
                                    && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
 
+        // Check if a recent tables menu item exists
+        if (mntmRecentTables != null && mntmRecentTables.length != 0)
+        {
+            // Step through each table in the recently opened tables list
+            for (JMenuItem recent : mntmRecentTables)
+            {
+                recent.setEnabled(enableIfNotMacro);
+            }
+        }
+
         // Set the button enable status
-        btnInsertRow.setEnabled(enableParent);
-        btnDeleteRow.setEnabled(enableParent);
-        btnMoveUp.setEnabled(enableParent);
-        btnMoveDown.setEnabled(enableParent);
-        btnMoveLeft.setEnabled(enable || mntmShowMacros.isSelected());
-        btnMoveRight.setEnabled(enable || mntmShowMacros.isSelected());
-        btnUndo.setEnabled(enable);
-        btnRedo.setEnabled(enable);
-        btnStore.setEnabled(enable);
-        btnCloseActive.setEnabled(enable || mntmShowMacros.isSelected());
+        btnInsertRow.setEnabled(enableIfPrototype);
+        btnDeleteRow.setEnabled(enableIfPrototype);
+        btnMoveUp.setEnabled(enableIfPrototype);
+        btnMoveDown.setEnabled(enableIfPrototype);
+        btnMoveLeft.setEnabled(enable);
+        btnMoveRight.setEnabled(enable);
+        btnUndo.setEnabled(enableIfNotMacro);
+        btnRedo.setEnabled(enableIfNotMacro);
+        btnStore.setEnabled(enableIfNotMacro);
+        btnCloseActive.setEnabled(enable);
     }
 
     /**********************************************************************************************
@@ -1050,9 +1070,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
-                // If the check box is selected then disable the controls that are not allowed
-                // while macros are shown, else enable the controls
-                setControlsEnabled(!mntmShowMacros.isSelected());
+                // Update the controls based on if the show macros check box is selected or not,
+                // and if the menus are enabled or not (the status of the File menu item is used to
+                // determine the overall menu item status)
+                setControlsEnabled(mnFile.isEnabled());
 
                 // Step through each table opened in the editor dialog
                 for (CcddTableEditorHandler editor : tableEditors)
@@ -1711,12 +1732,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Update the expand/collapse arrays check box
                     updateExpandArrayCheckBox();
 
-                    // Check if the Show macros command is not in effect
-                    if (!mntmShowMacros.isSelected())
-                    {
-                        // Update the editor controls state
-                        setControlsEnabled(true);
-                    }
+                    // Update the editor controls state
+                    setControlsEnabled(mnFile.isEnabled());
                 }
             }
         });
