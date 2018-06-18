@@ -3858,6 +3858,7 @@ public class CcddClassesComponent
         @Override
         public void paintComponent(Graphics g)
         {
+            // TODO ADDED TRY-CATCH DUE TO ISSUE DURING IMPORT OF LARGE NUMBER OF TABLES
             try
             {
                 super.paintComponent(g);

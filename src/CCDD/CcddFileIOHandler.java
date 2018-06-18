@@ -50,6 +50,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -97,8 +98,40 @@ public class CcddFileIOHandler
     private List<CcddTableEditorDialog> tableEditorDlgs;
     private final CcddEventLogDialog eventLog;
 
-    // Flag indicating if table importing is canceled by user input
-    private boolean cancelImport;
+    // Component referenced by multiple methods
+    private JProgressBar progBar;
+    private HaltDialog haltDialog;
+
+    // Flag indicating if table importing/exporting is canceled by user input
+    private boolean haltImpExp;
+
+    // Number of divisions in the halt dialog's progress bar per data file
+    private int numDivisionPerStep;
+
+    // Counters used to calculate the progress bar value
+    private int progCount;
+    private int prevProgCount;
+    private int progStart;
+    private int progTotal;
+
+    /**********************************************************************************************
+     * Verification cancellation dialog class
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    class HaltDialog extends CcddDialogHandler
+    {
+        /******************************************************************************************
+         * Handle the close dialog button action
+         *****************************************************************************************/
+        @Override
+        protected void closeDialog(int button)
+        {
+            // Set the flag to cancel verification
+            haltImpExp = true;
+
+            super.closeDialog(button);
+        };
+    }
 
     /**********************************************************************************************
      * File I/O handler class constructor
@@ -577,34 +610,58 @@ public class CcddFileIOHandler
         }
     }
 
-    // TODO
-    // Component referenced by multiple methods
-    private JProgressBar progBar;
-
-    private int numDivisionPerStep;
-
-    // Flag indicating that the user elected to cancel project database verification
-    private boolean canceled;
-
-    private HaltDialog cancelDialog;
-
-    /**************************************************************************************
-     * Verification cancellation dialog class
-     *************************************************************************************/
-    @SuppressWarnings("serial")
-    class HaltDialog extends CcddDialogHandler
+    /**********************************************************************************************
+     * Update the verification progress bar
+     *
+     * @param progText
+     *            text to display within the progress bar
+     *
+     * @param startValue
+     *            initial value at which to begin this sequence in the verification process
+     *********************************************************************************************/
+    private void updateProgressBar(final String progText, int startValue)
     {
-        /**********************************************************************************
-         * Handle the close dialog button action
-         *********************************************************************************/
-        @Override
-        protected void closeDialog(int button)
+        // Check if the start value is provided
+        if (startValue != -1)
         {
-            // Set the flag to cancel verification
-            canceled = true;
+            // Initialize the progress counters
+            progCount = 0;
+            prevProgCount = 0;
+            progStart = startValue;
+        }
 
-            super.closeDialog(button);
-        };
+        // Update the progress counter
+        progCount++;
+
+        // Create a runnable object to be executed
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /**************************************************************************************
+             * Since the progress bar involves a GUI update use invokeLater to execute the call on
+             * the event dispatch thread
+             *************************************************************************************/
+            @Override
+            public void run()
+            {
+                // Check if the progress text is provided
+                if (!progText.isEmpty())
+                {
+                    // Update the progress text
+                    progBar.setString(progText);
+                }
+
+                // Step through the progress count values beginning with the last one processed
+                for (int count = prevProgCount + 1; count <= progCount; count++)
+                {
+                    // Update the progress bar
+                    progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
+                    progBar.update(progBar.getGraphics());
+                }
+
+                // Store the last processed progress counter value
+                prevProgCount = progCount;
+            }
+        });
     }
 
     /**********************************************************************************************
@@ -631,6 +688,9 @@ public class CcddFileIOHandler
      *            true to use an existing data field in place of the imported ones if the field
      *            names match. Only valid when replaceExisting and appendExistingFields are true
      *
+     * @param openEditor
+     *            true to open a table editor for each imported table
+     *
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
@@ -639,36 +699,14 @@ public class CcddFileIOHandler
                                           final boolean replaceExisting,
                                           final boolean appendExistingFields,
                                           final boolean useExistingFields,
+                                          final boolean openEditor,
                                           final Component parent)
     {
-        canceled = false;
-        cancelDialog = new HaltDialog();
+        haltDialog = new HaltDialog();
 
         // Execute the import operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            // TODO
-            // /**************************************************************************************
-            // * Verification cancellation dialog class
-            // *************************************************************************************/
-            // @SuppressWarnings("serial")
-            // class HaltDialog extends CcddDialogHandler
-            // {
-            // /**********************************************************************************
-            // * Handle the close dialog button action
-            // *********************************************************************************/
-            // @Override
-            // protected void closeDialog(int button)
-            // {
-            // // Set the flag to cancel verification
-            // canceled = true;
-            //
-            // super.closeDialog(button);
-            // };
-            // }
-            //
-            // HaltDialog = new HaltDialog();
-
             /**************************************************************************************
              * Import the selected table(s)
              *************************************************************************************/
@@ -713,9 +751,10 @@ public class CcddFileIOHandler
                 // to verify each portion of the database) and use it to calculate the number of
                 // divisions within each step
                 numDivisionPerStep = 100;
+                progTotal = dataFile.length * numDivisionPerStep;
 
                 // Add a progress bar to the dialog
-                progBar = new JProgressBar(0, dataFile.length * numDivisionPerStep);
+                progBar = new JProgressBar(0, progTotal);
                 progBar.setValue(0);
                 progBar.setStringPainted(true);
                 progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -726,12 +765,12 @@ public class CcddFileIOHandler
                 dialogPnl.add(progBar, gbc);
 
                 // Display the import cancellation dialog
-                cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                               dialogPnl,
-                                               "Importing Table(s)",
-                                               DialogOption.HALT_OPTION,
-                                               false,
-                                               false);
+                haltDialog.showOptionsDialog(ccddMain.getMainFrame(),
+                                             dialogPnl,
+                                             "Importing Table(s)",
+                                             DialogOption.HALT_OPTION,
+                                             false,
+                                             false);
 
                 // Import the selected table(s)
                 importFile(dataFile,
@@ -739,6 +778,7 @@ public class CcddFileIOHandler
                            replaceExisting,
                            appendExistingFields,
                            useExistingFields,
+                           openEditor,
                            parent);
             }
 
@@ -749,41 +789,22 @@ public class CcddFileIOHandler
             protected void complete()
             {
                 // Check if the user didn't cancel import
-                if (!canceled)
+                if (!haltImpExp)
                 {
                     // Close the cancellation dialog
-                    cancelDialog.closeDialog();
+                    haltDialog.closeDialog();
                 }
                 // Import was canceled
                 else
                 {
                     // Note that import was canceled in the event log
                     eventLog.logEvent(STATUS_MSG, "Import terminated by user");
-                    canceled = false;
+                    haltImpExp = false;
                 }
 
-                cancelDialog = null;
+                haltDialog = null;
             }
         });
-        // end TODO
-
-        // // Execute the import operation in the background
-        // CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
-        // {
-        // /**************************************************************************************
-        // * Import the selected table(s)
-        // *************************************************************************************/
-        // @Override
-        // protected void execute()
-        // {
-        // importFile(dataFile,
-        // backupFirst,
-        // replaceExisting,
-        // appendExistingFields,
-        // useExistingFields,
-        // parent);
-        // }
-        // });
     }
 
     /**********************************************************************************************
@@ -810,18 +831,23 @@ public class CcddFileIOHandler
      *            true to use an existing data field in place of the imported ones if the field
      *            names match. Only valid when replaceExisting and appendExistingFields are true
      *
+     * @param openEditor
+     *            true to open a table editor for each imported table
+     *
      * @param parent
      *            GUI component calling this method
      *
      * @return true is the import operation completes successfully
      *********************************************************************************************/
-    protected boolean importFile(final FileEnvVar[] dataFile,
-                                 final boolean backupFirst,
-                                 final boolean replaceExisting,
-                                 final boolean appendExistingFields,
-                                 final boolean useExistingFields,
-                                 final Component parent)
+    protected boolean importFile(FileEnvVar[] dataFile,
+                                 boolean backupFirst,
+                                 boolean replaceExisting,
+                                 boolean appendExistingFields,
+                                 boolean useExistingFields,
+                                 boolean openEditor,
+                                 Component parent)
     {
+        haltImpExp = false;
         boolean errorFlag = false;
         List<TableDefinition> allTableDefinitions = new ArrayList<TableDefinition>();
         List<String> duplicateDefinitions = new ArrayList<String>();
@@ -854,17 +880,18 @@ public class CcddFileIOHandler
         // Step through each selected file
         for (FileEnvVar file : dataFile)
         {
-            // TODO
-            if (cancelDialog != null)
+            // Check if the halt dialog is active (import operation is executed in the background)
+            if (haltDialog != null)
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltImpExp)
                 {
                     break;
                 }
 
-                progBar.setString("Reading import file " + file.getName());
-                progBar.setValue(numDivisionPerStep * numFilesProcessed);
+                // Update the progress bar
+                updateProgressBar("Reading import file " + file.getName(),
+                                  numDivisionPerStep * numFilesProcessed);
                 numFilesProcessed++;
             }
 
@@ -916,16 +943,21 @@ public class CcddFileIOHandler
                     // Import the table definition(s) from the file
                     ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null);
 
-                    // TODO
-                    if (cancelDialog != null)
+                    // Check if the halt dialog is active (import operation is executed in the
+                    // background)
+                    if (haltDialog != null)
                     {
+                        // Force the dialog to the front
+                        haltDialog.toFront();
+
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltImpExp)
                         {
                             break;
                         }
 
-                        progBar.setString("Creating table(s)...");
+                        // Update the progress bar
+                        updateProgressBar("Creating table(s)...", progBar.getValue());
                     }
 
                     // Check if the user elected to append any new data fields to any existing ones
@@ -1021,8 +1053,14 @@ public class CcddFileIOHandler
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////
+        // TODO COULD CHECK CANCELED FLAG AND REVERT TO SAVE POINT. WOULD NEED TO CLOSE THE
+        // EDITOR DIALOG(S) AND CLEAN UP THE TABLE TYPE EDITOR (IF OPEN). AS IS, SOME
+        // TABLES, ETC. WILL BE CREATED, LEAVING THE DATABASE IN AN INDETERMINATE STATE
+        ////////////////////////////////////////////////////////////////////////////////////
+
         // Check if no errors occurred importing the table(s)
-        if (!errorFlag && !canceled)
+        if (!errorFlag && !haltImpExp)
         {
             try
             {
@@ -1030,11 +1068,10 @@ public class CcddFileIOHandler
                 dbCommand.createSavePoint(parent);
 
                 // Create the data tables from the imported table definitions from all files
-                createTablesFromDefinitions(allTableDefinitions, replaceExisting, parent);
-
-                // TODO COULD CHECK CANCELED FLAG AND REVERT TO SAVE POINT. WOULD NEED TO CLOSE THE
-                // EDITOR DIALOG(S) AND CLEAN UP THE TABLE TYPE EDITOR (IF OPEN). AS IS, SOME
-                // TABLES, ETC. WILL BE CREATED, LEAVING THE DATABASE IN AN INDETERMINATE STATE
+                createTablesFromDefinitions(allTableDefinitions,
+                                            replaceExisting,
+                                            openEditor,
+                                            parent);
 
                 // Release the save point
                 dbCommand.releaseSavePoint(parent);
@@ -1078,18 +1115,11 @@ public class CcddFileIOHandler
             // names, if applicable
             dbTable.updateMessageIDNamesColumns(parent);
 
-            // TODO
-            if (!canceled)
+            // Check if the import wasn't halted by the user
+            if (!haltImpExp)
             {
                 eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                   "Table import completed successfully");
-            }
-            else
-            {
-                eventLog.logFailEvent(parent,
-                                      "Import Halted",
-                                      "Table import partially completed; halted by user",
-                                      "<html><b>Table import partially completed; halted by user");
             }
 
             // Check if any duplicate table definitions were detected
@@ -1109,7 +1139,7 @@ public class CcddFileIOHandler
         {
             // Restore the table types, data types, macros, reserved message IDs, and data fields
             // to the values prior to the import operation
-            // TODO MAY NEED TO FORCE THE TABLE TYPE EDITOR TO BE REDONE, IF OPEN, IN ORDER TO GET
+            // TODO NEED TO FORCE THE TABLE TYPE EDITOR TO BE REDONE, IF OPEN, IN ORDER TO GET
             // RID OF TYPES THAT WERE CREATED
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
             dataTypeHandler.setDataTypeData(originalDataTypes);
@@ -1126,7 +1156,6 @@ public class CcddFileIOHandler
                                   "<html><b>Table import completed with errors");
         }
 
-        // TODO SHOULD THIS GO WITHIN THE '!errorFlag' STATEMENT ABOVE?
         // Step through each table editor dialog created during the import operation
         for (CcddTableEditorDialog tableEditorDlg : tableEditorDlgs)
         {
@@ -1146,6 +1175,9 @@ public class CcddFileIOHandler
      * @param replaceExisting
      *            true to replace a table that already exists in the database
      *
+     * @param openEditor
+     *            true to open a table editor for each imported table
+     *
      * @param parent
      *            GUI component calling this method
      *
@@ -1155,9 +1187,9 @@ public class CcddFileIOHandler
      *********************************************************************************************/
     private void createTablesFromDefinitions(List<TableDefinition> tableDefinitions,
                                              boolean replaceExisting,
+                                             boolean openEditor,
                                              final Component parent) throws CCDDException
     {
-        cancelImport = false;
         boolean prototypesOnly = true;
         List<String> skippedTables = new ArrayList<String>();
 
@@ -1167,37 +1199,25 @@ public class CcddFileIOHandler
                                                                   parent);
         List<String> allTables = tableTree.getTableTreePathList(null);
 
-        // Initialize the progress bar within-step value counters
-        int count = 0;
-        int startProgress = cancelDialog != null ? progBar.getValue() : 0;
-        int total = tableDefinitions.size() * 2;
+        // Check if the cancel import dialog is present
+        if (haltDialog != null)
+        {
+            // Initialize the progress bar within-step value counters. These are only used if the
+            // import is executed in a background process (i.e., via the command menu versus the
+            // command line)
+            // progCount = 0;
+            // prevProgCount = 0;
+            // progStart = progBar.getValue();
+            progTotal = tableDefinitions.size();
+        }
 
         // Perform two passes; first to process prototype tables, and second to process child
         // tables
-        for (int loop = 1; loop <= 2 && !cancelImport && !canceled; loop++)
+        for (int loop = 1; loop <= 2 && !haltImpExp; loop++)
         {
             // Step through each table definition
             for (TableDefinition tableDefn : tableDefinitions)
             {
-                // TODO THIS MUST BE REPEATED ELSEWHERE, SINCE MULTIPLE PASSES THROUGH THE
-                // LIST OF TABLE DEFNS OCCURS. SEE DB VERIFICATION ON HOW TO BREAK THIS UP
-                // Check if the cancel import dialog is present
-                if (cancelDialog != null)
-                {
-                    // Check if the user canceled verification
-                    if (canceled)
-                    {
-                        break;
-                    }
-
-                    // Update the within-step progress value
-                    count++;
-                    progBar.setValue(startProgress + (numDivisionPerStep * count / total));
-
-                    // Force the dialog to the front
-                    cancelDialog.toFront();
-                }
-
                 // Check if the table path/name format is valid
                 if (!tableDefn.getName().matches(TABLE_PATH))
                 {
@@ -1208,7 +1228,7 @@ public class CcddFileIOHandler
                 }
 
                 // Check if the table import was canceled by the user
-                if (cancelImport)
+                if (haltImpExp)
                 {
                     // Add the table to the list of those skipped
                     skippedTables.add(tableDefn.getName());
@@ -1221,6 +1241,16 @@ public class CcddFileIOHandler
                 if (!tableDefn.getData().isEmpty()
                     && (!tableDefn.getName().contains(".") != !prototypesOnly))
                 {
+                    // Check if the cancel import dialog is present
+                    if (haltDialog != null)
+                    {
+                        // Force the dialog to the front
+                        haltDialog.toFront();
+
+                        // Update the progress bar
+                        updateProgressBar("", -1);
+                    }
+
                     // Get the table type definition for this table
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
 
@@ -1244,7 +1274,7 @@ public class CcddFileIOHandler
 
                         // Step through each structure table referenced in the path of the new
                         // table
-                        for (int index = ancestors.length - 1; index >= 0 && !cancelImport; index--)
+                        for (int index = ancestors.length - 1; index >= 0 && !haltImpExp; index--)
                         {
                             boolean isReplace = false;
 
@@ -1323,9 +1353,10 @@ public class CcddFileIOHandler
                                                              protoData,
                                                              numColumns,
                                                              replaceExisting,
+                                                             openEditor,
                                                              "Cannot create prototype '"
-                                                                              + ancestorInfo.getPrototypeName()
-                                                                              + "' of child table",
+                                                                         + ancestorInfo.getPrototypeName()
+                                                                         + "' of child table",
                                                              allTables,
                                                              parent))
                                     {
@@ -1352,9 +1383,10 @@ public class CcddFileIOHandler
                                                              Arrays.asList(rowData),
                                                              numColumns,
                                                              replaceExisting,
+                                                             openEditor,
                                                              "Cannot create prototype '"
-                                                                              + ancestorInfo.getPrototypeName()
-                                                                              + "' of child table's ancestor",
+                                                                         + ancestorInfo.getPrototypeName()
+                                                                         + "' of child table's ancestor",
                                                              allTables,
                                                              parent))
                                     {
@@ -1380,9 +1412,10 @@ public class CcddFileIOHandler
                                              tableDefn.getData(),
                                              numColumns,
                                              replaceExisting,
+                                             openEditor,
                                              "Cannot create prototype '"
-                                                              + tableInfo.getPrototypeName()
-                                                              + "'",
+                                                         + tableInfo.getPrototypeName()
+                                                         + "'",
                                              allTables,
                                              parent))
                     {
@@ -1456,6 +1489,9 @@ public class CcddFileIOHandler
      * @param replaceExisting
      *            true to replace a table that already exists in the database
      *
+     * @param openEditor
+     *            true to open a table editor for each imported table
+     *
      * @param errorMsg
      *            error message prefix used in the event an error occurs
      *
@@ -1476,6 +1512,7 @@ public class CcddFileIOHandler
                                         List<String> cellData,
                                         int numColumns,
                                         boolean replaceExisting,
+                                        boolean openEditor,
                                         String errorMsg,
                                         List<String> allTables,
                                         Component parent) throws CCDDException
@@ -1537,48 +1574,61 @@ public class CcddFileIOHandler
         // doesn't already exist
         if (isImported)
         {
-            CcddTableEditorDialog tableEditorDlg;
+            CcddTableEditorHandler tableEditor;
 
             // Close any editors associated with this prototype table
             dbTable.closeDeletedTableEditors(tableName, ccddMain.getMainFrame());
 
-            // Create a list to hold the table's information
-            List<TableInformation> tableInformation = new ArrayList<TableInformation>();
-            tableInformation.add(tableInfo);
-
-            // Check if a table editor dialog has not already been created for the added tables, or
-            // if the number of tables opened in the editor has reached the maximum allowed
-            if (tableEditorDlgs.isEmpty()
-                || tableEditorDlgs.get(tableEditorDlgs.size() - 1).getTabbedPane().getTabRunCount()
-                   % ModifiableSizeInfo.MAX_IMPORTED_TAB_ROWS.getSize() == 0)
+            // Check if an editor is to be opened for the imported table(s)
+            if (openEditor)
             {
-                // Create a table editor dialog and open the new table editor in it
-                tableEditorDlg = new CcddTableEditorDialog(ccddMain, tableInformation);
-                ccddMain.getTableEditorDialogs().add(tableEditorDlg);
-                ccddMain.updateRecentTablesMenu();
-                tableEditorDlg.setControlsEnabled(false);
-                tableEditorDlgs.add(tableEditorDlg);
+                CcddTableEditorDialog tableEditorDlg;
 
-                // Check if the cancel import dialog is present
-                if (cancelDialog != null)
+                // Create a list to hold the table's information
+                List<TableInformation> tableInformation = new ArrayList<TableInformation>();
+                tableInformation.add(tableInfo);
+
+                // Check if a table editor dialog has not already been created for the added
+                // tables, or if the number of tables opened in the editor has reached the maximum
+                // allowed
+                if (tableEditorDlgs.isEmpty()
+                    || tableEditorDlgs.get(tableEditorDlgs.size() - 1).getTabbedPane().getTabRunCount()
+                       % ModifiableSizeInfo.MAX_IMPORTED_TAB_ROWS.getSize() == 0)
                 {
-                    // Force the dialog to the front
-                    cancelDialog.toFront();
+                    // Create a table editor dialog and open the new table editor in it
+                    tableEditorDlg = new CcddTableEditorDialog(ccddMain, tableInformation);
+                    ccddMain.getTableEditorDialogs().add(tableEditorDlg);
+                    ccddMain.updateRecentTablesMenu();
+                    tableEditorDlg.setControlsEnabled(false);
+                    tableEditorDlgs.add(tableEditorDlg);
+
+                    // Check if the cancel import dialog is present
+                    if (haltDialog != null)
+                    {
+                        // Force the dialog to the front
+                        haltDialog.toFront();
+                    }
                 }
+                // A table editor dialog is already created and hasn't reached the maximum number
+                // of tabs
+                else
+                {
+                    // Get the reference to the last editor dialog created
+                    tableEditorDlg = tableEditorDlgs.get(tableEditorDlgs.size() - 1);
+
+                    // Add the table editor to the existing editor dialog
+                    tableEditorDlg.addTablePanes(tableInformation);
+                }
+
+                // Get the reference to the table's editor
+                tableEditor = tableEditorDlg.getTableEditor();
             }
-            // A table editor dialog is already created and hasn't reached the maximum number of
-            // tabs
+            // Create the table without opening an editor
             else
             {
-                // Get the reference to the last editor dialog created
-                tableEditorDlg = tableEditorDlgs.get(tableEditorDlgs.size() - 1);
-
-                // Add the table editor to the existing editor dialog
-                tableEditorDlg.addTablePanes(tableInformation);
+                // Create the table editor handler without displaying the table
+                tableEditor = new CcddTableEditorHandler(ccddMain, tableInfo, null);
             }
-
-            // Get the reference to the table's editor
-            CcddTableEditorHandler tableEditor = tableEditorDlg.getTableEditor();
 
             // Paste the data into the table; check if the user canceled importing the table
             // following a cell validation error
@@ -1592,7 +1642,7 @@ public class CcddFileIOHandler
             {
                 // Set the flags to indicate that importing should stop and that this table is not
                 // imported
-                cancelImport = true;
+                haltImpExp = true;
                 isImported = false;
             }
             // The data was pasted without being canceled by the user

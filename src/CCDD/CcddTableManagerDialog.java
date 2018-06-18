@@ -92,6 +92,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox appendExistingFieldsCb;
     private JCheckBox useExistingFieldsCb;
     private JRadioButton singleFileRBtn;
+    private JCheckBox openEditorCb;
     private JCheckBox backupFirstCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
@@ -636,6 +637,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      replaceExistingTablesCb.isSelected(),
                                                                      appendExistingFieldsCb.isSelected(),
                                                                      useExistingFieldsCb.isSelected(),
+                                                                     openEditorCb.isSelected(),
                                                                      CcddTableManagerDialog.this);
                             }
 
@@ -968,6 +970,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(useExistingFieldsCb, gbc);
+
+        // Create a check box for indicating that the a table editor should be opened for each
+        // imported table
+        openEditorCb = new JCheckBox("Open editor for each imported table");
+        openEditorCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        openEditorCb.setBorder(emptyBorder);
+        openEditorCb.setToolTipText(CcddUtilities.wrapText("Open a table editor for each imported table",
+                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridy++;
+        dialogPnl.add(openEditorCb, gbc);
 
         // Create a check box for indicating that the project should be backed up prior to
         // importing tables

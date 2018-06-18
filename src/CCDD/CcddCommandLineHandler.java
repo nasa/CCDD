@@ -62,6 +62,7 @@ public class CcddCommandLineHandler
     private boolean replaceExisting;
     private boolean appendExistingFields;
     private boolean useExistingFields;
+    private boolean openEditor;
 
     // Export command parameters
     private String filePath;
@@ -1006,6 +1007,7 @@ public class CcddCommandLineHandler
                                                                replaceExisting,
                                                                appendExistingFields,
                                                                useExistingFields,
+                                                               false,
                                                                null))
                     {
                         // Set the application return value to indicate a failure
@@ -1021,6 +1023,7 @@ public class CcddCommandLineHandler
                                                            replaceExisting,
                                                            appendExistingFields,
                                                            useExistingFields,
+                                                           openEditor,
                                                            ccddMain.getMainFrame());
                 }
             }
@@ -1196,6 +1199,25 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 useExistingFields = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - open table editor
+        importArgument.add(new CommandHandler("openEditor",
+                                              "Open an editor for each imported table",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to open an editor for each imported table
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                openEditor = (Boolean) parmVal;
             }
         });
 

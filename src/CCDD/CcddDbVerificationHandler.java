@@ -44,6 +44,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
@@ -126,6 +127,12 @@ public class CcddDbVerificationHandler
 
     // Flag indicating that the user elected to cancel project database verification
     private boolean canceled;
+
+    // Counters used to calculate the progress bar value
+    private int progCount;
+    private int prevProgCount;
+    private int progStart;
+    private int progTotal;
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -614,11 +621,17 @@ public class CcddDbVerificationHandler
                 // Set the total number of verification steps (this is the number of methods called
                 // to verify each portion of the database) and use it to calculate the number of
                 // divisions within each step
-                int numVerificationSteps = 6;
+                int numVerificationSteps = 7;
                 numDivisionPerStep = 100;
 
+                // Initialize the progress bar counters
+                progCount = 0;
+                prevProgCount = 0;
+                progStart = 0;
+                progTotal = numVerificationSteps * numDivisionPerStep;
+
                 // Add a progress bar to the dialog
-                progBar = new JProgressBar(0, numVerificationSteps * numDivisionPerStep);
+                progBar = new JProgressBar(0, progTotal);
                 progBar.setValue(0);
                 progBar.setString("Verify owners");
                 progBar.setStringPainted(true);
@@ -655,6 +668,9 @@ public class CcddDbVerificationHandler
                     // Check if verification isn't canceled
                     if (!canceled)
                     {
+                        // Update the progress bar
+                        updateProgressBar("Verify owners", numDivisionPerStep);
+
                         // Check for inconsistencies in the owner role of the project database and
                         // its tables, sequences, indices, and functions
                         verifyOwners();
@@ -663,8 +679,7 @@ public class CcddDbVerificationHandler
                         if (!canceled)
                         {
                             // Update the progress bar
-                            progBar.setValue(numDivisionPerStep);
-                            progBar.setString("Verify internal tables");
+                            updateProgressBar("Verify internal tables", numDivisionPerStep * 2);
 
                             // Check for inconsistencies in the internal tables
                             verifyInternalTables(tableResult);
@@ -673,8 +688,7 @@ public class CcddDbVerificationHandler
                             if (!canceled)
                             {
                                 // Update the progress bar
-                                progBar.setValue(numDivisionPerStep * 2);
-                                progBar.setString("Verify path references");
+                                updateProgressBar("Verify path references", numDivisionPerStep * 3);
 
                                 // Verify the table and variable path references in the internal
                                 // tables
@@ -684,8 +698,8 @@ public class CcddDbVerificationHandler
                                 if (!canceled)
                                 {
                                     // Update the progress bar
-                                    progBar.setValue(numDivisionPerStep * 3);
-                                    progBar.setString("Verify input data types");
+                                    updateProgressBar("Verify input data types",
+                                                      numDivisionPerStep * 4);
 
                                     // verify the input data types in the table types and data
                                     // fields internal tables
@@ -695,8 +709,8 @@ public class CcddDbVerificationHandler
                                     if (!canceled)
                                     {
                                         // Update the progress bar
-                                        progBar.setValue(numDivisionPerStep * 4);
-                                        progBar.setString("Verify table types");
+                                        updateProgressBar("Verify table types",
+                                                          numDivisionPerStep * 5);
 
                                         // Check for inconsistencies between the table type
                                         // definitions and the tables of that type
@@ -706,14 +720,11 @@ public class CcddDbVerificationHandler
                                         if (!canceled)
                                         {
                                             // Update the progress bar
-                                            progBar.setValue(numDivisionPerStep * 5);
-                                            progBar.setString("Verify data tables");
+                                            updateProgressBar("Verify data tables",
+                                                              numDivisionPerStep * 6);
 
                                             // Check for inconsistencies within the data tables
                                             verifyDataTables();
-
-                                            // Update the progress bar
-                                            progBar.setValue(numDivisionPerStep * numVerificationSteps);
                                         }
                                     }
                                 }
@@ -762,6 +773,60 @@ public class CcddDbVerificationHandler
                     // Note that verification was canceled in the event log
                     eventLog.logEvent(STATUS_MSG, "Verification terminated by user");
                 }
+            }
+        });
+    }
+
+    /**********************************************************************************************
+     * Update the verification progress bar
+     *
+     * @param progText
+     *            text to display within the progress bar
+     *
+     * @param startValue
+     *            initial value at which to begin this sequence in the verification process
+     *********************************************************************************************/
+    private void updateProgressBar(final String progText, int startValue)
+    {
+        // Check if the start value is provided
+        if (startValue != -1)
+        {
+            // Initialize the progress counters
+            progCount = 0;
+            prevProgCount = 0;
+            progStart = startValue;
+        }
+
+        // Update the progress counter
+        progCount++;
+
+        // Create a runnable object to be executed
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            /**************************************************************************************
+             * Since the progress bar involves a GUI update use invokeLater to execute the call on
+             * the event dispatch thread
+             *************************************************************************************/
+            @Override
+            public void run()
+            {
+                // Check if the progress text is provided
+                if (!progText.isEmpty())
+                {
+                    // Update the progress text
+                    progBar.setString(progText);
+                }
+
+                // Step through the progress count values beginning with the last one processed
+                for (int count = prevProgCount + 1; count <= progCount; count++)
+                {
+                    // Update the progress bar
+                    progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
+                    progBar.update(progBar.getGraphics());
+                }
+
+                // Store the last processed progress counter value
+                prevProgCount = progCount;
             }
         });
     }
@@ -917,13 +982,9 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Initialize the progress bar within-step value counters
-            int count = 0;
-            int startProgress = progBar.getValue();
-
             // Get the total number of rows in the result set
             tableResult.last();
-            int total = tableResult.getRow();
+            progTotal = tableResult.getRow();
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1096,8 +1157,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                count++;
-                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
+                updateProgressBar("", -1);
             }
         }
         catch (SQLException se)
@@ -1128,13 +1188,9 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Initialize the progress bar within-step value counters
-            int count = 0;
-            int startProgress = progBar.getValue();
-
             // Get the total number of rows in the result set
             tableResult.last();
-            int total = tableResult.getRow();
+            progTotal = tableResult.getRow();
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1204,8 +1260,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                count++;
-                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
+                updateProgressBar("", -1);
             }
         }
         catch (
@@ -1255,13 +1310,9 @@ public class CcddDbVerificationHandler
             // logging multiple issues for the same table/variable in the same internal table
             List<String> badRefs = new ArrayList<String>();
 
-            // Initialize the progress bar within-step value counters
-            int count = 0;
-            int startProgress = progBar.getValue();
-
             // Get the total number of rows in the result set
             tableResult.last();
-            int total = tableResult.getRow();
+            progTotal = tableResult.getRow();
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1635,8 +1686,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                count++;
-                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
+                updateProgressBar("", -1);
             }
         }
         catch (SQLException se)
@@ -1714,13 +1764,9 @@ public class CcddDbVerificationHandler
             List<String[]> orders = dbTable.retrieveInformationTable(InternalTable.ORDERS,
                                                                      ccddMain.getMainFrame());
 
-            // Initialize the progress bar within-step value counters
-            int count = 0;
-            int startProgress = progBar.getValue();
-
             // Get the total number of rows in the result set
             tableResult.last();
-            int total = tableResult.getRow();
+            progTotal = tableResult.getRow();
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1904,8 +1950,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                count++;
-                progBar.setValue(startProgress + (numDivisionPerStep * count / total));
+                updateProgressBar("", -1);
             }
 
             tableResult.close();
@@ -1939,18 +1984,12 @@ public class CcddDbVerificationHandler
         // Initialize the storage for each table's information and committed data
         tableStorage = new ArrayList<TableStorage>();
 
-        // Initialize the progress bar within-step value counters
-        int count = 0;
-        int startProgress = progBar.getValue();
-
         // Get the total number of rows in the table tree
-        int total = tableTree.getNodeCount(tableTree.getRootNode());
+        progTotal = tableTree.getNodeCount(tableTree.getRootNode());
 
         // Step through the root node's children
         for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
-            count++;
-
             // Check if the user canceled verification
             if (canceled)
             {
@@ -2135,8 +2174,7 @@ public class CcddDbVerificationHandler
             }
 
             // Update the within-step progress value
-            count++;
-            progBar.setValue(startProgress + (numDivisionPerStep * count / total));
+            updateProgressBar("", -1);
         }
     }
 
