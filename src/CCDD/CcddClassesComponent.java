@@ -3856,16 +3856,18 @@ public class CcddClassesComponent
          * Paint the tabbed pane, including the tab insertion point indicator
          *****************************************************************************************/
         @Override
-        public void paintComponent(Graphics g)
+        public void paintComponent(final Graphics g)
         {
-            // TODO ADDED TRY-CATCH DUE TO ISSUE DURING IMPORT OF LARGE NUMBER OF TABLES
+
+            // TODO ADDED TRY-CATCH DUE TO ARRAY OUT OF BOUNDS EXCEPTIONS WHEN IMPORTING A LARGE
+            // NUMBER OF TABLES (WHICH CREATE A LARGE NUMBER OF TABLE EDITORS)
             try
             {
                 super.paintComponent(g);
             }
             catch (Exception e)
             {
-                System.out.println("num tabs: " + this.getTabCount() + "   name: " + this.getTitleAt(this.getTabCount() - 1)); // TODO
+                // TODO HIDE THE EXCEPTION
             }
 
             // Check if the tab insertion indicator should be drawn

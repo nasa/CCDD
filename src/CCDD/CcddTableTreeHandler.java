@@ -1770,7 +1770,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         String prototypeTable = TableInformation.getPrototypeName(tablePath);
 
                         // Check if the table isn't in the lists
-                        if (!ancestorTables.contains(prototypeTable) && !tablePaths.contains(prototypeTable))
+                        if (!ancestorTables.contains(prototypeTable)
+                            && !tablePaths.contains(prototypeTable))
                         {
                             // Add the table to the list
                             ancestorTables.add(prototypeTable);
@@ -1875,9 +1876,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Step through each selected table in the tree
             for (TreePath path : getSelectionPaths())
             {
-                // Add all of the tables that are descendants of this node to the list (excluding
-                // any duplicates and any children of a table already added to the list)
-                tables.addAll(getTablesWithoutChildren((ToolTipTreeNode) path.getLastPathComponent()));
+                // Step through all of the tables that are descendants of this node (excluding any
+                // duplicates and any children of a table already added to the list)
+                for (String table : getTablesWithoutChildren((ToolTipTreeNode) path.getLastPathComponent()))
+                {
+                    // Check if the table isn't already in the list
+                    if (!tables.contains(table))
+                    {
+                        // Add the tables that are descendants of this node to the list
+                        tables.add(table);
+                    }
+                }
             }
         }
 

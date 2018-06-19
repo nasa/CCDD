@@ -10,6 +10,8 @@ package CCDD;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableDefinition;
@@ -28,13 +30,6 @@ public interface CcddImportExportInterface
         IMPORT_ALL,
         FIRST_DATA_ONLY
     }
-
-    /**********************************************************************************************
-     * Get the status of the conversion setup error flag
-     *
-     * @return true if an error occurred setting up for the EDS conversion
-     *********************************************************************************************/
-    abstract boolean getErrorStatus();
 
     /**********************************************************************************************
      * Get the table definitions
@@ -103,15 +98,19 @@ public interface CcddImportExportInterface
      * @param extraInfo
      *            extra parameters dependent on the export format
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @throws JAXBException
+     *
+     * @throws CCDDException
+     *
+     * @throws Exception
      *********************************************************************************************/
-    abstract boolean exportToFile(FileEnvVar exportFile,
-                                  String[] tableNames,
-                                  boolean replaceMacros,
-                                  boolean includeReservedMsgIDs,
-                                  boolean includeProjectFields,
-                                  boolean includeVariablePaths,
-                                  CcddVariableSizeAndConversionHandler variableHandler,
-                                  String[] separators,
-                                  Object... extraInfo);
+    abstract void exportToFile(FileEnvVar exportFile,
+                               String[] tableNames,
+                               boolean replaceMacros,
+                               boolean includeReservedMsgIDs,
+                               boolean includeProjectFields,
+                               boolean includeVariablePaths,
+                               CcddVariableSizeAndConversionHandler variableHandler,
+                               String[] separators,
+                               Object... extraInfo) throws JAXBException, CCDDException, Exception;
 }

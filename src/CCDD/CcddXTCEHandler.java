@@ -154,9 +154,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private String classification2Attr;
     private String classification3Attr;
 
-    // Conversion setup error flag
-    private boolean errorFlag;
-
     // Flag to indicate if the telemetry and command headers are big endian (as with CCSDS)
     private boolean isHeaderBigEndian;
 
@@ -452,11 +449,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param parent
      *            GUI component instantiating this class
+     *
+     * @throws CCDDException
+     *             If an error occurs creating the handler
      *********************************************************************************************/
     CcddXTCEHandler(CcddMain ccddMain,
                     CcddFieldHandler fieldHandler,
                     ScriptEngine scriptEngine,
-                    Component parent)
+                    Component parent) throws CCDDException
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;
@@ -470,8 +470,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
 
-        errorFlag = false;
-
         // Build the data field information for all fields
         this.fieldHandler.buildFieldInformation(null);
 
@@ -483,16 +481,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Inform the user that the scripting language doesn't support the Invocable
                 // interface
-                new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>XTCE conversion failed; cause '"
-                                                                  + "The scripting language '"
-                                                                  + scriptEngine.getFactory().getLanguageName()
-                                                                  + "' does not implement the Invocable interface"
-                                                                  + "'",
-                                                          "XTCE Error",
-                                                          JOptionPane.ERROR_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-                errorFlag = true;
+                throw new CCDDException("XTCE conversion failed; cause '"
+                                        + "The scripting language '"
+                                        + scriptEngine.getFactory().getLanguageName()
+                                        + "' does not implement the Invocable interface"
+                                        + "'");
             }
 
             // Store the reference to the script engine as an Invocable interface
@@ -522,14 +515,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         catch (JAXBException je)
         {
             // Inform the user that the XTCE/JAXB set up failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>XTCE conversion setup failed; cause '"
-                                                              + je.getMessage()
-                                                              + "'",
-                                                      "XTCE Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
+            throw new CCDDException("XTCE conversion setup failed; cause '"
+                                    + je.getMessage()
+                                    + "'");
         }
     }
 
@@ -544,21 +532,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @param parent
      *            GUI component instantiating this class
+     *
+     * @throws CCDDException
+     *             If an error occurs creating the handler
      *********************************************************************************************/
-    CcddXTCEHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
+    CcddXTCEHandler(CcddMain ccddMain,
+                    CcddFieldHandler fieldHandler,
+                    Component parent) throws CCDDException
     {
         this(ccddMain, fieldHandler, null, parent);
-    }
-
-    /**********************************************************************************************
-     * Get the status of the conversion setup error flag
-     *
-     * @return true if an error occurred setting up for the XTCE conversion
-     *********************************************************************************************/
-    @Override
-    public boolean getErrorStatus()
-    {
-        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -588,13 +570,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            importing all tables
      *
      * @throws CCDDException
-     *             If a data is missing, extraneous, or in error in the import file
+     *             If data is missing, extraneous, or an error in the import file
      *
      * @throws IOException
      *             If an import file I/O error occurs
      *
      * @throws Exception
-     *             For any unanticipated errors
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile,
@@ -749,7 +731,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            importing all tables
      *
      * @throws CCDDException
-     *             included due to calls to addImportedTableTypeColumnDefinition(); since default
+     *             Included due to calls to addImportedTableTypeColumnDefinition(); since default
      *             column definitions are used this error can't occur
      *********************************************************************************************/
     private void createTableTypeDefinitions(SpaceSystemType rootSystem,
@@ -841,8 +823,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                      importFile.getAbsolutePath(),
                                                      parent);
 
-                // Add the structure table type definition. This also adds the tab for the new
-                // definition to the table type manager, if open
+                // Add the structure table type definition. Also add the tab for the new definition
+                // to the table type manager, if open
                 tableTypeDefns.add(tableTypeDefn);
                 tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -971,8 +953,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     commandAllTypeDefn.addCommandArgumentColumns(argIndex);
                 }
 
-                // Add the command table type definition. This also adds the tab for the new
-                // definition to the table type manager, if open
+                // Add the command table type definition. Also add the tab for the new definition
+                // to the table type manager, if open
                 tableTypeDefns.add(tableTypeDefn);
                 tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
@@ -2876,78 +2858,47 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            [5] second level classification attribute <br>
      *            [6] third level classification attribute
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @throws JAXBException
+     *             If an error occurs marshaling the project
+     *
+     * @throws CCDDException
+     *             If an error occurs executing an external (script) method
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(FileEnvVar exportFile,
-                                String[] tableNames,
-                                boolean replaceMacros,
-                                boolean includeReservedMsgIDs,
-                                boolean includeProjectFields,
-                                boolean includeVariablePaths,
-                                CcddVariableSizeAndConversionHandler variableHandler,
-                                String[] separators,
-                                Object... extraInfo)
+    public void exportToFile(FileEnvVar exportFile,
+                             String[] tableNames,
+                             boolean replaceMacros,
+                             boolean includeReservedMsgIDs,
+                             boolean includeProjectFields,
+                             boolean includeVariablePaths,
+                             CcddVariableSizeAndConversionHandler variableHandler,
+                             String[] separators,
+                             Object... extraInfo) throws JAXBException,
+                                                  CCDDException,
+                                                  Exception
     {
-        boolean errorFlag = false;
+        // Convert the table data into XTCE XML format
+        convertTablesToXTCE(tableNames,
+                            (EndianType) extraInfo[0],
+                            (boolean) extraInfo[1],
+                            (String) extraInfo[2],
+                            (String) extraInfo[3],
+                            (String) extraInfo[4],
+                            (String) extraInfo[5],
+                            (String) extraInfo[6]);
 
-        try
-        {
-            // Convert the table data into XTCE XML format
-            convertTablesToXTCE(tableNames,
-                                (EndianType) extraInfo[0],
-                                (boolean) extraInfo[1],
-                                (String) extraInfo[2],
-                                (String) extraInfo[3],
-                                (String) extraInfo[4],
-                                (String) extraInfo[5],
-                                (String) extraInfo[6]);
-
-            // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
-            // levels; once exceeded it starts back at the first column. Therefore, a Transformer
-            // is used to set the indentation amount (it doesn't have an indentation level limit)
-            DOMResult domResult = new DOMResult();
-            marshaller.marshal(project, domResult);
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
-            transformer.transform(new DOMSource(domResult.getNode()),
-                                  new StreamResult(exportFile));
-        }
-        catch (JAXBException je)
-        {
-            // Inform the user that the export operation failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export as XTCE XML to file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'; cause '"
-                                                              + je.getMessage()
-                                                              + "'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
-        }
-        catch (CCDDException ce)
-        {
-            // Inform the user that the export operation failed do to a script execution error
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export as XTCE XML to file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'; script execution error in '"
-                                                              + ce.getMessage(),
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-        }
-        catch (Exception e)
-        {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
-        }
-
-        return errorFlag;
+        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+        // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+        // is used to set the indentation amount (it doesn't have an indentation level limit)
+        DOMResult domResult = new DOMResult();
+        marshaller.marshal(project, domResult);
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+        transformer.transform(new DOMSource(domResult.getNode()), new StreamResult(exportFile));
     }
 
     /**********************************************************************************************
@@ -2989,7 +2940,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            third level classification attribute
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             error occurs executing an external (script) method
      *********************************************************************************************/
     private void convertTablesToXTCE(String[] tableNames,
                                      EndianType endianess,
@@ -3583,7 +3534,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @return Reference to the new space system
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     private SpaceSystemType addSpaceSystem(SpaceSystemType parentSystem,
                                            String systemName,
@@ -3736,7 +3687,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            export creation time and date
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addSpaceSystemHeader(SpaceSystemType spaceSystem,
                                         String classification,
@@ -3851,7 +3802,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            telemetry header application ID
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addSpaceSystemParameters(SpaceSystemType spaceSystem,
                                             String tableName,
@@ -4073,7 +4024,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            size, in characters, of a string parameter; ignored if not a string or character
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addParameterAndType(SpaceSystemType spaceSystem,
                                        String parameterName,
@@ -4209,7 +4160,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *         descendants; otherwise return the flag status unchanged
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected boolean addParameterSequenceEntry(SpaceSystemType spaceSystem,
                                                 String parameterName,
@@ -4379,7 +4330,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            size, in characters, of a string parameter; ignored if not a string or character
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void setParameterDataType(SpaceSystemType spaceSystem,
                                         String parameterName,
@@ -4678,7 +4629,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            space system reference
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void createCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
     {
@@ -4743,7 +4694,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            application ID
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addSpaceSystemCommands(SpaceSystemType spaceSystem,
                                           String[][] tableData,
@@ -5031,7 +4982,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            description of the command
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addCommand(SpaceSystemType spaceSystem,
                               String commandName,
@@ -5299,7 +5250,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *         specified attributes set
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected NameDescriptionType setArgumentDataType(SpaceSystemType spaceSystem,
                                                       String argumentName,
@@ -5597,7 +5548,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            parameter array size; null or blank if the parameter isn't an array
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void addContainerReference(String parameterName,
                                          String dataType,

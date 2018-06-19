@@ -16,11 +16,11 @@ import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
-import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,6 +53,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.bind.JAXBException;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.FileEnvVar;
@@ -103,7 +104,7 @@ public class CcddFileIOHandler
     private HaltDialog haltDialog;
 
     // Flag indicating if table importing/exporting is canceled by user input
-    private boolean haltImpExp;
+    private boolean haltImport;
 
     // Number of divisions in the halt dialog's progress bar per data file
     private int numDivisionPerStep;
@@ -127,7 +128,7 @@ public class CcddFileIOHandler
         protected void closeDialog(int button)
         {
             // Set the flag to cancel verification
-            haltImpExp = true;
+            haltImport = true;
 
             super.closeDialog(button);
         };
@@ -643,23 +644,33 @@ public class CcddFileIOHandler
             @Override
             public void run()
             {
-                // Check if the progress text is provided
-                if (!progText.isEmpty())
-                {
-                    // Update the progress text
-                    progBar.setString(progText);
-                }
+                // Get the progress bar graphics context
+                Graphics gCont = progBar.getGraphics();
 
-                // Step through the progress count values beginning with the last one processed
-                for (int count = prevProgCount + 1; count <= progCount; count++)
+                // Check if the context is valid
+                if (gCont != null)
                 {
-                    // Update the progress bar
-                    progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
-                    progBar.update(progBar.getGraphics());
-                }
+                    // Check if the progress text is provided
+                    if (!progText.isEmpty())
+                    {
+                        // Update the progress text
+                        progBar.setString(progText);
+                    }
 
-                // Store the last processed progress counter value
-                prevProgCount = progCount;
+                    // Step through the progress count values beginning with the last one processed
+                    for (int count = prevProgCount + 1; count <= progCount; count++)
+                    {
+                        // Update the progress bar
+                        progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
+                        progBar.update(gCont);
+                    }
+
+                    // Store the last processed progress counter value
+                    prevProgCount = progCount;
+
+                    // Redraw the halt dialog
+                    haltDialog.update(haltDialog.getGraphics());
+                }
             }
         });
     }
@@ -789,7 +800,7 @@ public class CcddFileIOHandler
             protected void complete()
             {
                 // Check if the user didn't cancel import
-                if (!haltImpExp)
+                if (!haltImport)
                 {
                     // Close the cancellation dialog
                     haltDialog.closeDialog();
@@ -797,9 +808,8 @@ public class CcddFileIOHandler
                 // Import was canceled
                 else
                 {
-                    // Note that import was canceled in the event log
-                    eventLog.logEvent(STATUS_MSG, "Import terminated by user");
-                    haltImpExp = false;
+                    haltImport = false;
+                    eventLog.logEvent(EventLogMessageType.FAIL_MSG, "Import canceled by user");
                 }
 
                 haltDialog = null;
@@ -847,8 +857,9 @@ public class CcddFileIOHandler
                                  boolean openEditor,
                                  Component parent)
     {
-        haltImpExp = false;
+        haltImport = false;
         boolean errorFlag = false;
+        String filePath = null;
         List<TableDefinition> allTableDefinitions = new ArrayList<TableDefinition>();
         List<String> duplicateDefinitions = new ArrayList<String>();
 
@@ -875,28 +886,35 @@ public class CcddFileIOHandler
             backupDatabaseToFile(false);
         }
 
-        int numFilesProcessed = 0;
-
-        // Step through each selected file
-        for (FileEnvVar file : dataFile)
+        try
         {
-            // Check if the halt dialog is active (import operation is executed in the background)
-            if (haltDialog != null)
+            int numFilesProcessed = 0;
+
+            // Create a save point in case an error occurs while creating or modifying a table
+            dbCommand.createSavePoint(parent);
+
+            // Step through each selected file
+            for (FileEnvVar file : dataFile)
             {
-                // Check if the user canceled verification
-                if (haltImpExp)
+                // Store the file path
+                filePath = file.getAbsolutePath();
+
+                // Check if the halt dialog is active (import operation is executed in the
+                // background)
+                if (haltDialog != null)
                 {
-                    break;
+                    // Check if the user canceled verification
+                    if (haltImport)
+                    {
+                        throw new CCDDException();
+                    }
+
+                    // Update the progress bar
+                    updateProgressBar("Reading import file " + file.getName(),
+                                      numDivisionPerStep * numFilesProcessed);
+                    numFilesProcessed++;
                 }
 
-                // Update the progress bar
-                updateProgressBar("Reading import file " + file.getName(),
-                                  numDivisionPerStep * numFilesProcessed);
-                numFilesProcessed++;
-            }
-
-            try
-            {
                 // Check if the file doesn't exist
                 if (!file.exists())
                 {
@@ -937,170 +955,91 @@ public class CcddFileIOHandler
                                             + "'; unrecognized file type");
                 }
 
-                // Check that no error occurred creating the format conversion handler
-                if (!ioHandler.getErrorStatus())
+                // Import the table definition(s) from the file
+                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null);
+
+                // Check if the halt dialog is active (import operation is executed in the
+                // background)
+                if (haltDialog != null)
                 {
-                    // Import the table definition(s) from the file
-                    ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null);
+                    // Force the dialog to the front
+                    haltDialog.toFront();
 
-                    // Check if the halt dialog is active (import operation is executed in the
-                    // background)
-                    if (haltDialog != null)
+                    // Check if the user canceled verification
+                    if (haltImport)
                     {
-                        // Force the dialog to the front
-                        haltDialog.toFront();
+                        throw new CCDDException();
+                    }
 
-                        // Check if the user canceled verification
-                        if (haltImpExp)
+                    // Update the progress bar
+                    updateProgressBar("Creating table(s)...", progBar.getValue());
+                }
+
+                // Check if the user elected to append any new data fields to any existing ones for
+                // a table
+                if (appendExistingFields)
+                {
+                    // Step through each table definition
+                    for (TableDefinition tableDefn : ioHandler.getTableDefinitions())
+                    {
+                        // Build the field information for this table
+                        fieldHandler.buildFieldInformation(tableDefn.getName());
+
+                        // Add the imported data field(s) to the table
+                        addImportedDataField(fieldHandler,
+                                             tableDefn,
+                                             tableDefn.getName(),
+                                             useExistingFields);
+                    }
+                }
+
+                // Step through each table definition from the import file
+                for (TableDefinition newDefn : ioHandler.getTableDefinitions())
+                {
+                    boolean isFound = false;
+
+                    // Step through each table definition already in the list
+                    for (TableDefinition existingDefn : allTableDefinitions)
+                    {
+                        // Check if the table is already defined in the list
+                        if (newDefn.getName().equals(existingDefn.getName()))
                         {
+                            // Add the table name and associated file name to the list of
+                            // duplicates
+                            duplicateDefinitions.add(newDefn.getName()
+                                                     + " (file: "
+                                                     + file.getName()
+                                                     + ")");
+
+                            // Set the flag indicating the table definition is a duplicate and stop
+                            // searching
+                            isFound = true;
                             break;
                         }
-
-                        // Update the progress bar
-                        updateProgressBar("Creating table(s)...", progBar.getValue());
                     }
 
-                    // Check if the user elected to append any new data fields to any existing ones
-                    // for a table
-                    if (appendExistingFields)
+                    // Check if the table is not already defined
+                    if (!isFound)
                     {
-                        // Step through each table definition
-                        for (TableDefinition tableDefn : ioHandler.getTableDefinitions())
-                        {
-                            // Build the field information for this table
-                            fieldHandler.buildFieldInformation(tableDefn.getName());
-
-                            // Add the imported data field(s) to the table
-                            addImportedDataField(fieldHandler,
-                                                 tableDefn,
-                                                 tableDefn.getName(),
-                                                 useExistingFields);
-                        }
-                    }
-
-                    // Step through each table definition from the import file
-                    for (TableDefinition newDefn : ioHandler.getTableDefinitions())
-                    {
-                        boolean isFound = false;
-
-                        // Step through each table definition already in the list
-                        for (TableDefinition existingDefn : allTableDefinitions)
-                        {
-                            // Check if the table is already defined in the list
-                            if (newDefn.getName().equals(existingDefn.getName()))
-                            {
-                                // Add the table name and associated file name to the list of
-                                // duplicates
-                                duplicateDefinitions.add(newDefn.getName()
-                                                         + " (file: "
-                                                         + file.getName()
-                                                         + ")");
-
-                                // Set the flag indicating the table definition is a duplicate and
-                                // stop searching
-                                isFound = true;
-                                break;
-                            }
-                        }
-
-                        // Check if the table is not already defined
-                        if (!isFound)
-                        {
-                            // Add the table definition to the list
-                            allTableDefinitions.add(newDefn);
-                        }
+                        // Add the table definition to the list
+                        allTableDefinitions.add(newDefn);
                     }
                 }
-                // An error occurred creating the format conversion handler
-                else
-                {
-                    errorFlag = true;
-                }
             }
-            catch (IOException ioe)
-            {
-                // Inform the user that the data file cannot be read
-                new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot read import file<br>'</b>"
-                                                                  + file.getAbsolutePath()
-                                                                  + "<b>'",
-                                                          "File Error",
-                                                          JOptionPane.ERROR_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-                errorFlag = true;
-            }
-            catch (CCDDException ce)
-            {
-                // Check if an error message is provided
-                if (!ce.getMessage().isEmpty())
-                {
-                    // Inform the user that an error occurred reading the import file
-                    new CcddDialogHandler().showMessageDialog(parent,
-                                                              "<html><b>"
-                                                                      + ce.getMessage(),
-                                                              "Import Error",
-                                                              ce.getMessageType(),
-                                                              DialogOption.OK_OPTION);
-                }
 
-                errorFlag = true;
-            }
-            catch (Exception e)
-            {
-                // Display a dialog providing details on the unanticipated error
-                CcddUtilities.displayException(e, parent);
-                errorFlag = true;
-            }
-        }
+            // Create the data tables from the imported table definitions from all files
+            createTablesFromDefinitions(allTableDefinitions,
+                                        replaceExisting,
+                                        openEditor,
+                                        parent);
 
-        ////////////////////////////////////////////////////////////////////////////////////
-        // TODO COULD CHECK CANCELED FLAG AND REVERT TO SAVE POINT. WOULD NEED TO CLOSE THE
-        // EDITOR DIALOG(S) AND CLEAN UP THE TABLE TYPE EDITOR (IF OPEN). AS IS, SOME
-        // TABLES, ETC. WILL BE CREATED, LEAVING THE DATABASE IN AN INDETERMINATE STATE
-        ////////////////////////////////////////////////////////////////////////////////////
+            // Release the save point. This must be done within a transaction block, so it must be
+            // done prior to the commit below
+            dbCommand.releaseSavePoint(parent);
 
-        // Check if no errors occurred importing the table(s)
-        if (!errorFlag && !haltImpExp)
-        {
-            try
-            {
-                // Create a save point in case an error occurs while creating or modifying a table
-                dbCommand.createSavePoint(parent);
+            // Commit the change(s) to the database
+            dbCommand.getConnection().commit();
 
-                // Create the data tables from the imported table definitions from all files
-                createTablesFromDefinitions(allTableDefinitions,
-                                            replaceExisting,
-                                            openEditor,
-                                            parent);
-
-                // Release the save point
-                dbCommand.releaseSavePoint(parent);
-
-                // Commit the change(s) to the database
-                dbCommand.getConnection().commit();
-            }
-            catch (CCDDException | SQLException cse)
-            {
-                errorFlag = true;
-
-                // Check if this is an internally generated exception and that an error message is
-                // provided
-                if (cse instanceof CCDDException && !cse.getMessage().isEmpty())
-                {
-                    // Inform the user that an error occurred reading the import file
-                    new CcddDialogHandler().showMessageDialog(parent,
-                                                              "<html><b>"
-                                                                      + cse.getMessage(),
-                                                              "File Error",
-                                                              ((CCDDException) cse).getMessageType(),
-                                                              DialogOption.OK_OPTION);
-                }
-            }
-        }
-
-        // Check if no errors occurred importing and creating the table(s)
-        if (!errorFlag)
-        {
             // Store the data file path in the program preferences backing store
             storePath(ccddMain,
                       dataFile[0].getAbsolutePathWithEnvVars(),
@@ -1115,12 +1054,8 @@ public class CcddFileIOHandler
             // names, if applicable
             dbTable.updateMessageIDNamesColumns(parent);
 
-            // Check if the import wasn't halted by the user
-            if (!haltImpExp)
-            {
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  "Table import completed successfully");
-            }
+            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                              "Table import completed successfully");
 
             // Check if any duplicate table definitions were detected
             if (!duplicateDefinitions.isEmpty())
@@ -1133,15 +1068,89 @@ public class CcddFileIOHandler
                                                           JOptionPane.INFORMATION_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
+
+            // Step through each table editor dialog created during the import operation
+            for (CcddTableEditorDialog tableEditorDlg : tableEditorDlgs)
+            {
+                // Enable the editor dialog's command menu items
+                tableEditorDlg.setControlsEnabled(true);
+            }
         }
-        // An error occurred while importing the table(s)
-        else
+        catch (IOException ioe)
         {
+            // Inform the user that the data file cannot be read
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>Cannot read import file<br>'</b>"
+                                                              + filePath
+                                                              + "<b>'",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+            errorFlag = true;
+        }
+        catch (CCDDException | SQLException cse)
+        {
+            // Check if this is an internally generated exception and that an error message is
+            // provided
+            if (cse instanceof CCDDException && !cse.getMessage().isEmpty())
+            {
+                // Inform the user that an error occurred importing the table(s)
+                new CcddDialogHandler().showMessageDialog(parent,
+                                                          "<html><b>"
+                                                                  + cse.getMessage(),
+                                                          "Import Error",
+                                                          ((CCDDException) cse).getMessageType(),
+                                                          DialogOption.OK_OPTION);
+            }
+
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
+
+        // Check if an error occurred
+        if (errorFlag)
+        {
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(parent);
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that an error occurred reverting changes to the database
+                new CcddDialogHandler().showMessageDialog(parent,
+                                                          "<html><b>Cannot revert changes to database; cause '"
+                                                                  + se.getMessage()
+                                                                  + "'",
+                                                          "Import Error",
+                                                          JOptionPane.ERROR_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+
+            // Step through each table editor dialog created during the import operation
+            for (CcddTableEditorDialog tableEditorDlg : tableEditorDlgs)
+            {
+                // Close the editor dialog
+                tableEditorDlg.closeFrame();
+            }
+
             // Restore the table types, data types, macros, reserved message IDs, and data fields
             // to the values prior to the import operation
-            // TODO NEED TO FORCE THE TABLE TYPE EDITOR TO BE REDONE, IF OPEN, IN ORDER TO GET
-            // RID OF TYPES THAT WERE CREATED
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
+
+            // Check if the table type editor is open
+            if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
+            {
+                // Remove any table types that were created during the import process, since these
+                // are now invalid
+                ccddMain.getTableTypeEditor().removeInvalidTabs();
+            }
+
             dataTypeHandler.setDataTypeData(originalDataTypes);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
@@ -1149,18 +1158,6 @@ public class CcddFileIOHandler
                                           originalDataFields,
                                           null,
                                           parent);
-
-            eventLog.logFailEvent(parent,
-                                  "Import Error",
-                                  "Table import completed with errors",
-                                  "<html><b>Table import completed with errors");
-        }
-
-        // Step through each table editor dialog created during the import operation
-        for (CcddTableEditorDialog tableEditorDlg : tableEditorDlgs)
-        {
-            // Enable the editor dialog's command menu items
-            tableEditorDlg.setControlsEnabled(true);
         }
 
         return errorFlag;
@@ -1202,18 +1199,13 @@ public class CcddFileIOHandler
         // Check if the cancel import dialog is present
         if (haltDialog != null)
         {
-            // Initialize the progress bar within-step value counters. These are only used if the
-            // import is executed in a background process (i.e., via the command menu versus the
-            // command line)
-            // progCount = 0;
-            // prevProgCount = 0;
-            // progStart = progBar.getValue();
+            // Initialize the progress bar within-step total
             progTotal = tableDefinitions.size();
         }
 
         // Perform two passes; first to process prototype tables, and second to process child
         // tables
-        for (int loop = 1; loop <= 2 && !haltImpExp; loop++)
+        for (int loop = 1; loop <= 2; loop++)
         {
             // Step through each table definition
             for (TableDefinition tableDefn : tableDefinitions)
@@ -1228,11 +1220,9 @@ public class CcddFileIOHandler
                 }
 
                 // Check if the table import was canceled by the user
-                if (haltImpExp)
+                if (haltImport)
                 {
-                    // Add the table to the list of those skipped
-                    skippedTables.add(tableDefn.getName());
-                    continue;
+                    throw new CCDDException();
                 }
 
                 // Check if cell data is provided in the import file. Creation of empty tables is
@@ -1274,7 +1264,7 @@ public class CcddFileIOHandler
 
                         // Step through each structure table referenced in the path of the new
                         // table
-                        for (int index = ancestors.length - 1; index >= 0 && !haltImpExp; index--)
+                        for (int index = ancestors.length - 1; index >= 0; index--)
                         {
                             boolean isReplace = false;
 
@@ -1582,7 +1572,7 @@ public class CcddFileIOHandler
             // Check if an editor is to be opened for the imported table(s)
             if (openEditor)
             {
-                CcddTableEditorDialog tableEditorDlg;
+                final CcddTableEditorDialog tableEditorDlg;
 
                 // Create a list to hold the table's information
                 List<TableInformation> tableInformation = new ArrayList<TableInformation>();
@@ -1601,13 +1591,6 @@ public class CcddFileIOHandler
                     ccddMain.updateRecentTablesMenu();
                     tableEditorDlg.setControlsEnabled(false);
                     tableEditorDlgs.add(tableEditorDlg);
-
-                    // Check if the cancel import dialog is present
-                    if (haltDialog != null)
-                    {
-                        // Force the dialog to the front
-                        haltDialog.toFront();
-                    }
                 }
                 // A table editor dialog is already created and hasn't reached the maximum number
                 // of tabs
@@ -1620,8 +1603,31 @@ public class CcddFileIOHandler
                     tableEditorDlg.addTablePanes(tableInformation);
                 }
 
+                // Check if the cancel import dialog is present
+                if (haltDialog != null)
+                {
+                    // Force the dialog to the front
+                    haltDialog.toFront();
+                }
+
                 // Get the reference to the table's editor
                 tableEditor = tableEditorDlg.getTableEditor();
+
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    /******************************************************************************
+                     * Since this involves a GUI update use invokeLater to execute the call on the
+                     * event dispatch thread
+                     *****************************************************************************/
+                    @Override
+                    public void run()
+                    {
+                        // (Re)draw the halt and the table editor dialogs
+                        haltDialog.update(haltDialog.getGraphics());
+                        tableEditorDlg.update(tableEditorDlg.getGraphics());
+                    }
+                });
             }
             // Create the table without opening an editor
             else
@@ -1640,32 +1646,27 @@ public class CcddFileIOHandler
                                                  true,
                                                  false))
             {
-                // Set the flags to indicate that importing should stop and that this table is not
-                // imported
-                haltImpExp = true;
-                isImported = false;
+                eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import canceled by user");
+                throw new CCDDException();
             }
-            // The data was pasted without being canceled by the user
-            else
-            {
-                // Build the addition, modification, and deletion command lists
-                tableEditor.buildUpdates();
 
-                // Perform the changes to the table in the database
-                if (dbTable.modifyTableData(tableEditor.getTableInformation(),
-                                            tableEditor.getAdditions(),
-                                            tableEditor.getModifications(),
-                                            tableEditor.getDeletions(),
-                                            false,
-                                            false,
-                                            true,
-                                            true,
-                                            true,
-                                            null,
-                                            parent))
-                {
-                    throw new CCDDException();
-                }
+            // Build the addition, modification, and deletion command lists
+            tableEditor.buildUpdates();
+
+            // Perform the changes to the table in the database
+            if (dbTable.modifyTableData(tableEditor.getTableInformation(),
+                                        tableEditor.getAdditions(),
+                                        tableEditor.getModifications(),
+                                        tableEditor.getDeletions(),
+                                        false,
+                                        false,
+                                        true,
+                                        true,
+                                        true,
+                                        null,
+                                        parent))
+            {
+                throw new CCDDException();
             }
         }
 
@@ -1788,92 +1789,88 @@ public class CcddFileIOHandler
                 // The file extension isn't recognized
                 else
                 {
-                    throw new CCDDException("Cannot import file '"
-                                            + dataFile[0].getAbsolutePath()
-                                            + "' into table; unrecognized file type");
+                    throw new IOException("Cannot import file '"
+                                          + dataFile[0].getAbsolutePath()
+                                          + "' into table; unrecognized file type");
                 }
 
-                // Check that no error occurred creating the format conversion handler
-                if (!ioHandler.getErrorStatus())
+                // Store the current table type information so that it can be restored
+                List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
+
+                // Import the data file into a table definition
+                ioHandler.importFromFile(dataFile[0],
+                                         ImportType.FIRST_DATA_ONLY,
+                                         tableHandler.getTableTypeDefinition());
+                tableDefinitions = ioHandler.getTableDefinitions();
+
+                // Check if a table definition was successfully created
+                if (tableDefinitions != null && !tableDefinitions.isEmpty())
                 {
-                    // Store the current table type information so that it can be restored
-                    List<TypeDefinition> originalTableTypes = tableTypeHandler.getTypeDefinitions();
+                    // Get a short-cut to the table definition to shorten subsequent calls
+                    TableDefinition tableDefn = tableDefinitions.get(0);
 
-                    // Import the data file into a table definition
-                    ioHandler.importFromFile(dataFile[0],
-                                             ImportType.FIRST_DATA_ONLY,
-                                             tableHandler.getTableTypeDefinition());
-                    tableDefinitions = ioHandler.getTableDefinitions();
+                    // End any active edit sequence, then disable auto-ending so that the import
+                    // operation can be handled as a single edit for undo/redo purposes
+                    tableHandler.getTable().getUndoManager().endEditSequence();
+                    tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(false);
 
-                    // Check if a table definition was successfully created
-                    if (tableDefinitions != null && !tableDefinitions.isEmpty())
+                    // Update the table description field in case the description changed
+                    tableHandler.setDescription(tableDefn.getDescription());
+
+                    // Add the imported data field(s) to the table
+                    addImportedDataField(tableHandler.getFieldHandler(),
+                                         tableDefn,
+                                         tableHandler.getTableInformation().getTablePath(),
+                                         useExistingFieldsCb.isSelected());
+
+                    // Update the field information in case the field values changed
+                    tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
+                    tableHandler.getFieldHandler().buildFieldInformation(tableHandler.getTableInformation().getTablePath());
+
+                    // Rebuild the table's editor panel which contains the data fields
+                    tableHandler.createDataFieldPanel(true);
+
+                    // Check if cell data is provided in the table definition
+                    if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
                     {
-                        // Get a short-cut to the table definition to shorten subsequent calls
-                        TableDefinition tableDefn = tableDefinitions.get(0);
+                        // Get the original number of rows in the table
+                        int numRows = tableHandler.getTableModel().getRowCount();
 
-                        // End any active edit sequence, then disable auto-ending so that the
-                        // import operation can be handled as a single edit for undo/redo purposes
-                        tableHandler.getTable().getUndoManager().endEditSequence();
-                        tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(false);
-
-                        // Update the table description field in case the description changed
-                        tableHandler.setDescription(tableDefn.getDescription());
-
-                        // Add the imported data field(s) to the table
-                        addImportedDataField(tableHandler.getFieldHandler(),
-                                             tableDefn,
-                                             tableHandler.getTableInformation().getTablePath(),
-                                             useExistingFieldsCb.isSelected());
-
-                        // Update the field information in case the field values changed
-                        tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-                        tableHandler.getFieldHandler().buildFieldInformation(tableHandler.getTableInformation().getTablePath());
-
-                        // Rebuild the table's editor panel which contains the data fields
-                        tableHandler.createDataFieldPanel(true);
-
-                        // Check if cell data is provided in the table definition
-                        if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
+                        // Paste the data into the table; check if the user hasn't canceled
+                        // importing the table following a cell validation error
+                        if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
+                                                               tableHandler.getTable().getColumnCount(),
+                                                               !overwriteChkBx.isSelected(),
+                                                               !overwriteChkBx.isSelected(),
+                                                               true,
+                                                               false,
+                                                               true))
                         {
-                            // Get the original number of rows in the table
-                            int numRows = tableHandler.getTableModel().getRowCount();
-
-                            // Paste the data into the table; check if the user hasn't canceled
-                            // importing the table following a cell validation error
-                            if (!tableHandler.getTable().pasteData(tableDefn.getData().toArray(new String[0]),
-                                                                   tableHandler.getTable().getColumnCount(),
-                                                                   !overwriteChkBx.isSelected(),
-                                                                   !overwriteChkBx.isSelected(),
-                                                                   true,
-                                                                   false,
-                                                                   true))
-                            {
-                                // Let the user know how many rows were added
-                                new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
-                                                                          "<html><b>"
-                                                                                                   + (tableHandler.getTableModel().getRowCount()
-                                                                                                      - numRows)
-                                                                                                   + " row(s) added",
-                                                                          "Paste Table Data",
-                                                                          JOptionPane.INFORMATION_MESSAGE,
-                                                                          DialogOption.OK_OPTION);
-                            }
+                            // Let the user know how many rows were added
+                            new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
+                                                                      "<html><b>"
+                                                                                               + (tableHandler.getTableModel().getRowCount()
+                                                                                                  - numRows)
+                                                                                               + " row(s) added",
+                                                                      "Paste Table Data",
+                                                                      JOptionPane.INFORMATION_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
                         }
-
-                        // Restore the table types to the values prior to the import operation
-                        tableTypeHandler.setTypeDefinitions(originalTableTypes);
-
-                        // Re-enable auto-ending of the edit sequence and end the sequence. The
-                        // imported data can be removed with a single undo if desired
-                        tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(true);
-                        tableHandler.getTable().getUndoManager().endEditSequence();
-
-                        // Store the data file path in the program preferences backing store
-                        storePath(ccddMain,
-                                  dataFile[0].getAbsolutePathWithEnvVars(),
-                                  true,
-                                  ModifiablePathInfo.TABLE_EXPORT_PATH);
                     }
+
+                    // Restore the table types to the values prior to the import operation
+                    tableTypeHandler.setTypeDefinitions(originalTableTypes);
+
+                    // Re-enable auto-ending of the edit sequence and end the sequence. The
+                    // imported data can be removed with a single undo if desired
+                    tableHandler.getTable().getUndoHandler().setAutoEndEditSequence(true);
+                    tableHandler.getTable().getUndoManager().endEditSequence();
+
+                    // Store the data file path in the program preferences backing store
+                    storePath(ccddMain,
+                              dataFile[0].getAbsolutePathWithEnvVars(),
+                              true,
+                              ModifiablePathInfo.TABLE_EXPORT_PATH);
                 }
             }
             catch (IOException ioe)
@@ -1895,7 +1892,7 @@ public class CcddFileIOHandler
                     // Inform the user that an error occurred reading the import file
                     new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
                                                               "<html><b>" + ce.getMessage(),
-                                                              "File Error",
+                                                              "Import Error",
                                                               ce.getMessageType(),
                                                               DialogOption.OK_OPTION);
                 }
@@ -2254,62 +2251,61 @@ public class CcddFileIOHandler
                                                                   + "internal methods instead; cause '"
                                                                   + ce.getMessage()
                                                                   + "'",
-                                                          "Script Error",
-                                                          ce.getMessageType(),
+                                                          "Export Error",
+                                                          JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
         }
 
-        // Check if the user elected to store all tables in a single file. The path must include a
-        // file name
-        if (singleFile)
+        try
         {
-            // Check if the file name doesn't end with the expected extension
-            if (!path.endsWith(fileExtn.getExtension()))
+            // Check if the user elected to store all tables in a single file. The path must
+            // include a file name
+            if (singleFile)
             {
-                // Append the extension to the file name
-                path += fileExtn.getExtension();
+                // Check if the file name doesn't end with the expected extension
+                if (!path.endsWith(fileExtn.getExtension()))
+                {
+                    // Append the extension to the file name
+                    path += fileExtn.getExtension();
+                }
+
+                // Create the file using the supplied name
+                file = new FileEnvVar(path);
+            }
+            // The table(s) are to be stored in individual files, so the path doesn't include a
+            // file name. Check if the path doesn't terminate with a name separator character
+            else if (!path.endsWith(File.separator))
+            {
+                // Append the name separator character to the path
+                path += File.separator;
             }
 
-            // Create the file using the supplied name
-            file = new FileEnvVar(path);
-        }
-        // The table(s) are to be stored in individual files, so the path doesn't include a file
-        // name. Check if the path doesn't terminate with a name separator character
-        else if (!path.endsWith(File.separator))
-        {
-            // Append the name separator character to the path
-            path += File.separator;
-        }
+            // Check if the output format is CSV
+            if (fileExtn == FileExtension.CSV)
+            {
+                // Create a CSV handler
+                ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
+            }
+            // Check if the output format is EDS XML
+            else if (fileExtn == FileExtension.EDS)
+            {
+                // Create an EDS handler
+                ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
+            }
+            // Check if the output format is JSON
+            else if (fileExtn == FileExtension.JSON)
+            {
+                // Create an JSON handler
+                ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
+            }
+            // Check if the output format is XTCE XML
+            else if (fileExtn == FileExtension.XTCE)
+            {
+                // Create an XTCE handler, fieldHandler
+                ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
+            }
 
-        // Check if the output format is CSV
-        if (fileExtn == FileExtension.CSV)
-        {
-            // Create a CSV handler
-            ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
-        }
-        // Check if the output format is EDS XML
-        else if (fileExtn == FileExtension.EDS)
-        {
-            // Create an EDS handler
-            ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
-        }
-        // Check if the output format is JSON
-        else if (fileExtn == FileExtension.JSON)
-        {
-            // Create an JSON handler
-            ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
-        }
-        // Check if the output format is XTCE XML
-        else if (fileExtn == FileExtension.XTCE)
-        {
-            // Create an XTCE handler, fieldHandler
-            ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
-        }
-
-        // Check that no error occurred creating the format conversion handler
-        if (!ioHandler.getErrorStatus())
-        {
             // Check if the tables are to be exported to a single file
             if (singleFile)
             {
@@ -2318,24 +2314,21 @@ public class CcddFileIOHandler
                 if (isOverwriteExportFileIfExists(file, overwriteFile, parent))
                 {
                     // Export the formatted table data to the specified file
-                    if (ioHandler.exportToFile(file,
-                                               tablePaths,
-                                               replaceMacros,
-                                               includeReservedMsgIDs,
-                                               includeProjectFields,
-                                               includeVariablePaths,
-                                               variableHandler,
-                                               separators,
-                                               endianess,
-                                               isHeaderBigEndian,
-                                               version,
-                                               validationStatus,
-                                               classification1,
-                                               classification2,
-                                               classification3))
-                    {
-                        errorFlag = true;
-                    }
+                    ioHandler.exportToFile(file,
+                                           tablePaths,
+                                           replaceMacros,
+                                           includeReservedMsgIDs,
+                                           includeProjectFields,
+                                           includeVariablePaths,
+                                           variableHandler,
+                                           separators,
+                                           endianess,
+                                           isHeaderBigEndian,
+                                           version,
+                                           validationStatus,
+                                           classification1,
+                                           classification2,
+                                           classification3);
 
                     // Check if the file is empty following the export. This occurs if an error
                     // halts output to the file
@@ -2368,22 +2361,19 @@ public class CcddFileIOHandler
                     {
                         // Export the formatted table data; the file name is derived from the table
                         // name
-                        if (ioHandler.exportToFile(file,
-                                                   new String[] {tablePath},
-                                                   replaceMacros,
-                                                   includeReservedMsgIDs,
-                                                   includeProjectFields,
-                                                   includeVariablePaths,
-                                                   variableHandler,
-                                                   separators,
-                                                   version,
-                                                   validationStatus,
-                                                   classification1,
-                                                   classification2,
-                                                   classification3))
-                        {
-                            errorFlag = true;
-                        }
+                        ioHandler.exportToFile(file,
+                                               new String[] {tablePath},
+                                               replaceMacros,
+                                               includeReservedMsgIDs,
+                                               includeProjectFields,
+                                               includeVariablePaths,
+                                               variableHandler,
+                                               separators,
+                                               version,
+                                               validationStatus,
+                                               classification1,
+                                               classification2,
+                                               classification3);
 
                         // Check if the file is empty following the export. This occurs if an error
                         // halts output to the file
@@ -2420,26 +2410,41 @@ public class CcddFileIOHandler
                       filePath,
                       singleFile,
                       ModifiablePathInfo.TABLE_EXPORT_PATH);
+
+            // Check if no errors occurred exporting the table(s)
+            if (!errorFlag)
+            {
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Table export completed successfully");
+            }
+            // An error occurred while exporting the table(s)
+            else
+            {
+                eventLog.logFailEvent(parent,
+                                      "Export Error",
+                                      "Table export completed with errors",
+                                      "<html><b>Table export completed with errors");
+            }
         }
-        // An error occurred creating the format conversion handler
-        else
+        catch (JAXBException | CCDDException jce)
         {
+            // Inform the user that the export operation failed
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>Cannot export to file<br>'</b>"
+                                                              + file.getAbsolutePath()
+                                                              + "<b>'; cause '"
+                                                              + jce.getMessage()
+                                                              + "'",
+                                                      "Export Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
             errorFlag = true;
         }
-
-        // Check if no errors occurred exporting the table(s)
-        if (!errorFlag)
+        catch (Exception e)
         {
-            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                              "Table export completed successfully");
-        }
-        // An error occurred while exporting the table(s)
-        else
-        {
-            eventLog.logFailEvent(parent,
-                                  "Export Error",
-                                  "Table export completed with errors",
-                                  "<html><b>Table export completed with errors");
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
         }
 
         return errorFlag;

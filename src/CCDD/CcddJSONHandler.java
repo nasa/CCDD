@@ -106,17 +106,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Get the status of the conversion setup error flag
-     *
-     * @return Always returns false for the JSON conversion
-     *********************************************************************************************/
-    @Override
-    public boolean getErrorStatus()
-    {
-        return false;
-    }
-
-    /**********************************************************************************************
      * Get the table definitions
      *
      * @return List of table definitions
@@ -285,7 +274,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *             If an import file I/O error occurs
      *
      * @throws Exception
-     *             For any unanticipated errors
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile,
@@ -352,24 +341,24 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 // Add the table type column definition, checking for (and if
                                 // possible, correcting) errors
                                 continueOnTableTypeError = addImportedTableTypeColumnDefinition(continueOnTableTypeError,
-                                                                                          tableTypeDefn,
-                                                                                          new String[] {String.valueOf(columnNumber),
-                                                                                                        getString(typeJO,
-                                                                                                                  TableTypeEditorColumnInfo.NAME.getColumnName()),
-                                                                                                        getString(typeJO,
-                                                                                                                  TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
-                                                                                                        getString(typeJO,
-                                                                                                                  TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()),
-                                                                                                        getString(typeJO,
-                                                                                                                  TableTypeEditorColumnInfo.UNIQUE.getColumnName()),
-                                                                                                        getString(typeJO,
-                                                                                                                  TableTypeEditorColumnInfo.REQUIRED.getColumnName()),
-                                                                                                        getString(typeJO,
-                                                                                                                  CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
-                                                                                                        getString(typeJO,
-                                                                                                                  CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()))},
-                                                                                          importFile.getAbsolutePath(),
-                                                                                          parent);
+                                                                                                tableTypeDefn,
+                                                                                                new String[] {String.valueOf(columnNumber),
+                                                                                                              getString(typeJO,
+                                                                                                                        TableTypeEditorColumnInfo.NAME.getColumnName()),
+                                                                                                              getString(typeJO,
+                                                                                                                        TableTypeEditorColumnInfo.DESCRIPTION.getColumnName()),
+                                                                                                              getString(typeJO,
+                                                                                                                        TableTypeEditorColumnInfo.INPUT_TYPE.getColumnName()),
+                                                                                                              getString(typeJO,
+                                                                                                                        TableTypeEditorColumnInfo.UNIQUE.getColumnName()),
+                                                                                                              getString(typeJO,
+                                                                                                                        TableTypeEditorColumnInfo.REQUIRED.getColumnName()),
+                                                                                                              getString(typeJO,
+                                                                                                                        CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.getColumnName())),
+                                                                                                              getString(typeJO,
+                                                                                                                        CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()))},
+                                                                                                importFile.getAbsolutePath(),
+                                                                                                parent);
 
                                 // Update the column index number for the next column definition
                                 columnNumber++;
@@ -832,21 +821,24 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param extraInfo
      *            unused
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @throws CCDDException
+     *             If a file I/O or JSON JavaScript parsing error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
     @Override
-    public boolean exportToFile(FileEnvVar exportFile,
-                                String[] tableNames,
-                                boolean replaceMacros,
-                                boolean includeReservedMsgIDs,
-                                boolean includeProjectFields,
-                                boolean includeVariablePaths,
-                                CcddVariableSizeAndConversionHandler variableHandler,
-                                String[] separators,
-                                Object... extraInfo)
+    public void exportToFile(FileEnvVar exportFile,
+                             String[] tableNames,
+                             boolean replaceMacros,
+                             boolean includeReservedMsgIDs,
+                             boolean includeProjectFields,
+                             boolean includeVariablePaths,
+                             CcddVariableSizeAndConversionHandler variableHandler,
+                             String[] separators,
+                             Object... extraInfo) throws CCDDException, Exception
     {
-        boolean errorFlag = false;
         FileWriter fw = null;
         BufferedWriter bw = null;
         PrintWriter pw = null;
@@ -1022,35 +1014,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
             pw.println((String) scriptEngine.get("result"));
         }
-        catch (IOException ioe)
+        catch (IOException | ScriptException e)
         {
-            // Inform the user that the data file cannot be written to
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot write to export file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
-        }
-        catch (ScriptException se)
-        {
-            // Inform the user that formatting the JSON output failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot format JSON output using JavaScript; cause '"
-                                                              + se.getMessage()
-                                                              + "'",
-                                                      "JavaScript Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
+            throw new CCDDException(e.getMessage());
         }
         catch (Exception e)
         {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
+            throw new Exception(e);
         }
         finally
         {
@@ -1089,8 +1059,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                           DialogOption.OK_OPTION);
             }
         }
-
-        return errorFlag;
     }
 
     /**********************************************************************************************

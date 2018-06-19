@@ -2032,6 +2032,12 @@ public class CcddDbTableCommandHandler
             // Get the table type definition for this table
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
+            // Check if the table type definition is valid
+            if (typeDefn == null)
+            {
+                throw new CCDDException("invalid table type");
+            }
+
             // Get a comma-separated list of the columns for this table's type
             String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase());
 
@@ -7523,7 +7529,8 @@ public class CcddDbTableCommandHandler
                                                                                  dialog),
                                               dialog);
 
-                    // Release the save point
+                    // Release the save point. This must be done within a transaction block, so it
+                    // must be done prior to the commit below
                     dbCommand.releaseSavePoint(dialog);
 
                     // Commit the change(s) to the database

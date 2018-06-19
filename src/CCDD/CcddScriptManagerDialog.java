@@ -96,6 +96,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     // Array to contain the script association table data
     private Object[][] committedAssnsData;
 
+    // Flag that indicates if an addition to the associations table is in progress
+    private boolean isAddingAssn = false;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Manage Script Associations";
 
@@ -303,8 +306,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                         {
                             // Check if a selection is made (for mouse button selection this
                             // returns true when the button is pressed, then false when released;
-                            // for a keyboard input this returns false)
-                            if (!lse.getValueIsAdjusting())
+                            // for a keyboard input this returns false) and that an association
+                            // table update isn't in progress (adding an association table row
+                            // could otherwise select tables inadvertently)
+                            if (!lse.getValueIsAdjusting() && !isAddingAssn)
                             {
                                 // Get the first selected table row
                                 int row = assnsTable.getSelectedRow();
@@ -392,7 +397,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                             // Check that a script is specified
                             if (!scriptNameFld.getText().trim().isEmpty())
                             {
-                                addAssociation(TableInsertionPoint.START);
+                                addAssociation(TableInsertionPoint.START, false);
                             }
                             // The script file field is blank
                             else
@@ -869,9 +874,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *            TableInsertionPoint.SELECTION to insert below the currently selected row, or
      *            TableInsertionPoint.END to insert as the last row in the table
      *
+     * @param ignoreDuplicate
+     *            true to ignore an identical, existing association (as is possible when replacing
+     *            an association, if no changes are made); false to prevent a duplicate association
+     *            (as when adding an association)
+     *
      * @return true if the association inputs are valid and the association is successfully added
      *********************************************************************************************/
-    private boolean addAssociation(TableInsertionPoint insertPoint)
+    private boolean addAssociation(TableInsertionPoint insertPoint, boolean ignoreDuplicate)
     {
         boolean isAdded = false;
 
@@ -925,9 +935,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Get a file descriptor for the script file name
             FileEnvVar scriptFile = new FileEnvVar(scriptNameFld.getText());
 
-            // Check that the script association already exists in the list
-            if (isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
-                                    members.toArray(new String[0])))
+            // Check if the script association already exists in the list
+            if (!ignoreDuplicate && isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
+                                                        members.toArray(new String[0])))
             {
                 throw new CCDDException("An association with this script and table(s) "
                                         + "already exists in the script associations table");
@@ -946,6 +956,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Remove the trailing table separator
             assn = CcddUtilities.removeTrailer(assn, ASSN_TABLE_SEPARATOR);
 
+            // Set the flag to indicate that an association addition is in progress
+            isAddingAssn = true;
+
             // Insert the new script association at the end of the associations table, then select
             // it and scroll to it
             assnsTable.insertRow(true,
@@ -958,6 +971,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                     ? AvailabilityType.AVAILABLE
                                                                     : AvailabilityType.SCRIPT_MISSING)});
 
+            isAddingAssn = false;
             isAdded = true;
         }
         catch (CCDDException ce)
@@ -993,7 +1007,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             int selectedRow = assnsTable.getSelectedRow();
 
             // Check if adding the new row below the selected row succeeded
-            if (addAssociation(TableInsertionPoint.SELECTION))
+            if (addAssociation(TableInsertionPoint.SELECTION, true))
             {
                 // Remove the selected association and set the selection to the newly added
                 // association

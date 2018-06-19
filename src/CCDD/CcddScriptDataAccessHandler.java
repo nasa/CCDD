@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
+import javax.xml.bind.JAXBException;
 
 import org.omg.space.xtce.BaseDataType.UnitSet;
 import org.omg.space.xtce.EntryListType;
@@ -54,6 +55,7 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
@@ -75,6 +77,7 @@ public class CcddScriptDataAccessHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
+    private final CcddEventLogDialog eventLog;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddFileIOHandler fileIOHandler;
@@ -109,6 +112,9 @@ public class CcddScriptDataAccessHandler
      *
      * @param ccddMain
      *            main class
+     *
+     * @param scriptEngine
+     *            script engine reference
      *
      * @param tableInformation
      *            array of table information
@@ -154,6 +160,7 @@ public class CcddScriptDataAccessHandler
         this.parent = parent;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
+        eventLog = ccddMain.getSessionEventLog();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
@@ -4584,6 +4591,57 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Output a 'success' message to the event log
+     *
+     * @param logMessage
+     *            text to output to the event log. A null or empty string is ignored
+     *********************************************************************************************/
+    public void writeSuccessLogEntry(String logMessage)
+    {
+        // Check if the event message is supplied
+        if (logMessage != null && !logMessage.isEmpty())
+        {
+            // Output the message to the event log
+            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                              "[script: " + scriptFileName + "] " + logMessage);
+        }
+    }
+
+    /**********************************************************************************************
+     * Output a 'fail' message to the event log
+     *
+     * @param logMessage
+     *            text to output to the event log. A null or empty string is ignored
+     *********************************************************************************************/
+    public void writeFailLogEntry(String logMessage)
+    {
+        // Check if the event message is supplied
+        if (logMessage != null && !logMessage.isEmpty())
+        {
+            // Output the message to the event log
+            eventLog.logEvent(EventLogMessageType.FAIL_MSG,
+                              "[script: " + scriptFileName + "] " + logMessage);
+        }
+    }
+
+    /**********************************************************************************************
+     * Output a 'status' message to the event log
+     *
+     * @param logMessage
+     *            text to output to the event log. A null or empty string is ignored
+     *********************************************************************************************/
+    public void writeStatusLogEntry(String logMessage)
+    {
+        // Check if the event message is supplied
+        if (logMessage != null && !logMessage.isEmpty())
+        {
+            // Output the message to the event log
+            eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                              "[script: " + scriptFileName + "] " + logMessage);
+        }
+    }
+
+    /**********************************************************************************************
      * Divide the supplied enumeration string into the values and labels. The enumeration
      * value/label separator character and the enumerated pair separator character are
      * automatically determined. Any leading or trailing white space characters are removed from
@@ -5546,27 +5604,51 @@ public class CcddScriptDataAccessHandler
                               String classification2,
                               String classification3)
     {
-        // Create the XTCE handler
-        xtceHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
+        boolean errorFlag = false;
 
-        // Export the specified tables to the specified output file in XTCE XML format
-        return xtceHandler.exportToFile(new FileEnvVar(outputFileName),
-                                        getTableNames(),
-                                        true, // unused for XTCE export
-                                        false, // unused for XTCE export
-                                        false, // unused for XTCE export
-                                        false, // unused for XTCE export
-                                        null, // unused for XTCE export
-                                        null, // unused for XTCE export
-                                        (isBigEndian
-                                                     ? EndianType.BIG_ENDIAN
-                                                     : EndianType.LITTLE_ENDIAN),
-                                        isHeaderBigEndian,
-                                        version,
-                                        validationStatus,
-                                        classification1,
-                                        classification2,
-                                        classification3);
+        try
+        {
+            // Create the XTCE handler
+            xtceHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
+
+            // Export the specified tables to the specified output file in XTCE XML format
+            xtceHandler.exportToFile(new FileEnvVar(outputFileName),
+                                     getTableNames(),
+                                     true, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     false, // unused for XTCE export
+                                     null, // unused for XTCE export
+                                     null, // unused for XTCE export
+                                     (isBigEndian
+                                                  ? EndianType.BIG_ENDIAN
+                                                  : EndianType.LITTLE_ENDIAN),
+                                     isHeaderBigEndian,
+                                     version,
+                                     validationStatus,
+                                     classification1,
+                                     classification2,
+                                     classification3);
+        }
+        catch (JAXBException | CCDDException jce)
+        {
+            // Inform the user that an error occurred
+            new CcddDialogHandler().showMessageDialog(parent,
+                                                      "<html><b>"
+                                                              + jce.getMessage(),
+                                                      "Export Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
+
+        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -5588,7 +5670,7 @@ public class CcddScriptDataAccessHandler
      *            export creation time and date
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem,
                                          String classification,
@@ -5750,7 +5832,7 @@ public class CcddScriptDataAccessHandler
      *            size, in characters, of a string parameter; ignored if not a string or character
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddParameterAndType(SpaceSystemType spaceSystem,
                                         String parameterName,
@@ -5807,7 +5889,7 @@ public class CcddScriptDataAccessHandler
      *         descendants; otherwise return the flag status unchanged
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public boolean xtceAddParameterSequenceEntry(SpaceSystemType spaceSystem,
                                                  String parameterName,
@@ -5868,7 +5950,7 @@ public class CcddScriptDataAccessHandler
      *            size, in characters, of a string parameter; ignored if not a string or character
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceSetParameterDataType(SpaceSystemType spaceSystem,
                                          String parameterName,
@@ -5906,7 +5988,7 @@ public class CcddScriptDataAccessHandler
      *            space system reference
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceCreateCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
     {
@@ -5945,7 +6027,7 @@ public class CcddScriptDataAccessHandler
      *            application ID
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
                                               String[][] tableData,
@@ -6005,7 +6087,7 @@ public class CcddScriptDataAccessHandler
      *            description of the command
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddCommand(SpaceSystemType spaceSystem,
                                String commandName,
@@ -6080,7 +6162,7 @@ public class CcddScriptDataAccessHandler
      *         specified attributes set
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public NameDescriptionType xtceSetArgumentDataType(SpaceSystemType spaceSystem,
                                                        String argumentName,
@@ -6135,7 +6217,7 @@ public class CcddScriptDataAccessHandler
      *            parameter array size; null or blank if the parameter isn't an array
      *
      * @throws CCDDException
-     *             error occurred executing an external (script) method
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddContainerReference(String parameterName,
                                           String dataType,

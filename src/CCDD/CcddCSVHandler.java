@@ -130,17 +130,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     }
 
     /**********************************************************************************************
-     * Get the status of the conversion setup error flag
-     *
-     * @return Always returns false for the CSV conversion
-     *********************************************************************************************/
-    @Override
-    public boolean getErrorStatus()
-    {
-        return false;
-    }
-
-    /**********************************************************************************************
      * Get the table definitions
      *
      * @return List of table definitions
@@ -173,7 +162,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *             If an import file I/O error occurs
      *
      * @throws Exception
-     *             For any unanticipated errors
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile,
@@ -435,17 +424,17 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                         // checking for (and if possible,
                                                         // correcting) errors
                                                         continueOnTableTypeError = addImportedTableTypeColumnDefinition(continueOnTableTypeError,
-                                                                                                                  tableTypeDefn,
-                                                                                                                  new String[] {String.valueOf(columnNumber),
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
-                                                                                                                                columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
-                                                                                                                  importFile.getAbsolutePath(),
-                                                                                                                  parent);
+                                                                                                                        tableTypeDefn,
+                                                                                                                        new String[] {String.valueOf(columnNumber),
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
+                                                                                                                                      columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
+                                                                                                                        importFile.getAbsolutePath(),
+                                                                                                                        parent);
 
                                                         // Update the column index number for the
                                                         // next column definition
@@ -1034,20 +1023,23 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param extraInfo
      *            unused
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @throws CCDDException
+     *             If a file I/O error occurs
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(FileEnvVar exportFile,
-                                String[] tableNames,
-                                boolean replaceMacros,
-                                boolean includeReservedMsgIDs,
-                                boolean includeProjectFields,
-                                boolean includeVariablePaths,
-                                CcddVariableSizeAndConversionHandler variableHandler,
-                                String[] separators,
-                                Object... extraInfo)
+    public void exportToFile(FileEnvVar exportFile,
+                             String[] tableNames,
+                             boolean replaceMacros,
+                             boolean includeReservedMsgIDs,
+                             boolean includeProjectFields,
+                             boolean includeVariablePaths,
+                             CcddVariableSizeAndConversionHandler variableHandler,
+                             String[] separators,
+                             Object... extraInfo) throws CCDDException, Exception
     {
-        boolean errorFlag = false;
         boolean addLineFeed = false;
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -1383,25 +1375,13 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
         }
-        catch (
-
-        IOException ioe)
+        catch (IOException ioe)
         {
-            // Inform the user that the data file cannot be written to
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot write to export file '</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
+            throw new CCDDException(ioe.getMessage());
         }
         catch (Exception e)
         {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
+            throw new Exception(e);
         }
         finally
         {
@@ -1440,7 +1420,5 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                           DialogOption.OK_OPTION);
             }
         }
-
-        return errorFlag;
     }
 }

@@ -51,6 +51,7 @@ import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
+import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table type editor dialog class
@@ -156,6 +157,38 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Remove the selected editor for the deleted type from the list, then remove its tab
         typeEditors.remove(tabbedPane.getSelectedIndex());
         tabbedPane.removeTabAt(tabbedPane.getSelectedIndex());
+    }
+
+    /**********************************************************************************************
+     * Remove any tabs that reference a non-existent table type
+     *********************************************************************************************/
+    protected void removeInvalidTabs()
+    {
+        // Step through each tab in the editor dialog
+        for (int index = tabbedPane.getTabCount() - 1; index >= 0; index--)
+        {
+            boolean isValid = false;
+
+            // Step through each defined table type
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+            {
+                // Check if the tab name matches the table type definition name
+                if (tabbedPane.getTitleAt(index).equals(typeDefn.getName()))
+                {
+                    // Set the flag to indicate the table type is valid and stop searching
+                    isValid = true;
+                    break;
+                }
+            }
+
+            // Check if the table type wasn't found
+            if (!isValid)
+            {
+                // Remove the table type
+                typeEditors.remove(index);
+                tabbedPane.removeTabAt(index);
+            }
+        }
     }
 
     /**********************************************************************************************

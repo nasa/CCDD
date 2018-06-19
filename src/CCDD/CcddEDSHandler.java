@@ -135,9 +135,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private DeviceType device;
     private DataSheetType dataSheet;
 
-    // Conversion setup error flag
-    private boolean errorFlag;
-
     // Names of the system paths for the common header for all command tables
     private String cmdHeaderPath;
 
@@ -196,8 +193,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param parent
      *            GUI component instantiating this class
+     *
+     * @throws CCDDException
+     *             If an error occurs creating the handler
      *********************************************************************************************/
-    CcddEDSHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
+    CcddEDSHandler(CcddMain ccddMain,
+                   CcddFieldHandler fieldHandler,
+                   Component parent) throws CCDDException
     {
         this.ccddMain = ccddMain;
         this.fieldHandler = fieldHandler;
@@ -210,8 +212,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
-
-        errorFlag = false;
 
         try
         {
@@ -232,26 +232,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         catch (JAXBException je)
         {
             // Inform the user that the EDS/JAXB set up failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>EDS conversion setup failed; cause '"
-                                                              + je.getMessage()
-                                                              + "'",
-                                                      "EDS Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
+            throw new CCDDException("EDS conversion setup failed; cause '"
+                                    + je.getMessage()
+                                    + "'");
         }
-    }
-
-    /**********************************************************************************************
-     * Get the status of the conversion setup error flag
-     *
-     * @return true if an error occurred setting up for the EDS conversion
-     *********************************************************************************************/
-    @Override
-    public boolean getErrorStatus()
-    {
-        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -287,7 +271,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *             If an import file I/O error occurs
      *
      * @throws Exception
-     *             For any unanticipated errors
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
     public void importFromFile(FileEnvVar importFile,
@@ -440,7 +424,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            importing all tables
      *
      * @throws CCDDException
-     *             included due to calls to addImportedTableTypeColumnDefinition(); since default
+     *             Included due to calls to addImportedTableTypeColumnDefinition(); since default
      *             column definitions are used this error can't occur
      *********************************************************************************************/
     private void createTableTypeDefinitions(FileEnvVar importFile,
@@ -2107,66 +2091,42 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
      *            [1] are the telemetry and command headers big endian (true or false)
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @throws JAXBException
+     *             If an error occurs marshaling the project
+     *
+     * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     @Override
-    public boolean exportToFile(FileEnvVar exportFile,
-                                String[] tableNames,
-                                boolean replaceMacros,
-                                boolean includeReservedMsgIDs,
-                                boolean includeProjectFields,
-                                boolean includeVariablePaths,
-                                CcddVariableSizeAndConversionHandler variableHandler,
-                                String[] separators,
-                                Object... extraInfo)
+    public void exportToFile(FileEnvVar exportFile,
+                             String[] tableNames,
+                             boolean replaceMacros,
+                             boolean includeReservedMsgIDs,
+                             boolean includeProjectFields,
+                             boolean includeVariablePaths,
+                             CcddVariableSizeAndConversionHandler variableHandler,
+                             String[] separators,
+                             Object... extraInfo) throws JAXBException, Exception
     {
-        boolean errorFlag = false;
+        // Convert the table data into EDS format
+        convertTablesToEDS(tableNames,
+                           replaceMacros,
+                           includeReservedMsgIDs,
+                           includeVariablePaths,
+                           variableHandler,
+                           separators,
+                           (EndianType) extraInfo[0],
+                           (boolean) extraInfo[1]);
 
-        try
-        {
-            // Convert the table data into EDS format
-            convertTablesToEDS(tableNames,
-                               replaceMacros,
-                               includeReservedMsgIDs,
-                               includeVariablePaths,
-                               variableHandler,
-                               separators,
-                               (EndianType) extraInfo[0],
-                               (boolean) extraInfo[1]);
-
-            // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
-            // levels; once exceeded it starts back at the first column. Therefore, a Transformer
-            // is used to set the indentation amount (it doesn't have an indentation level limit)
-            DOMResult domResult = new DOMResult();
-            marshaller.marshal(project, domResult);
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
-            transformer.transform(new DOMSource(domResult.getNode()),
-                                  new StreamResult(exportFile));
-        }
-        catch (JAXBException je)
-        {
-            // Inform the user that the database export failed
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export as EDS XML to file<br>'</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'; cause '"
-                                                              + je.getMessage()
-                                                              + "'",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
-        }
-        catch (Exception e)
-        {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
-        }
-
-        return errorFlag;
+        // Output the XML to the specified file. The Marshaller has a hard-coded limit of 8
+        // levels; once exceeded it starts back at the first column. Therefore, a Transformer
+        // is used to set the indentation amount (it doesn't have an indentation level limit)
+        DOMResult domResult = new DOMResult();
+        marshaller.marshal(project, domResult);
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+        transformer.transform(new DOMSource(domResult.getNode()), new StreamResult(exportFile));
     }
 
     /**********************************************************************************************

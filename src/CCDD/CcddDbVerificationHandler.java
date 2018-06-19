@@ -93,6 +93,7 @@ public class CcddDbVerificationHandler
 
     // Component referenced by multiple methods
     private JProgressBar progBar;
+    private HaltDialog haltDialog;
 
     // Number of divisions in the progress bar per verification step
     private int numDivisionPerStep;
@@ -133,6 +134,25 @@ public class CcddDbVerificationHandler
     private int prevProgCount;
     private int progStart;
     private int progTotal;
+
+    /**************************************************************************************
+     * Verification cancellation dialog class
+     *************************************************************************************/
+    @SuppressWarnings("serial")
+    class HaltDialog extends CcddDialogHandler
+    {
+        /**********************************************************************************
+         * Handle the close dialog button action
+         *********************************************************************************/
+        @Override
+        protected void closeDialog(int button)
+        {
+            // Set the flag to cancel verification
+            canceled = true;
+
+            super.closeDialog(button);
+        };
+    }
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -558,32 +578,13 @@ public class CcddDbVerificationHandler
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
             /**************************************************************************************
-             * Verification cancellation dialog class
-             *************************************************************************************/
-            @SuppressWarnings("serial")
-            class HaltDialog extends CcddDialogHandler
-            {
-                /**********************************************************************************
-                 * Handle the close dialog button action
-                 *********************************************************************************/
-                @Override
-                protected void closeDialog(int button)
-                {
-                    // Set the flag to cancel verification
-                    canceled = true;
-
-                    super.closeDialog(button);
-                };
-            }
-
-            HaltDialog cancelDialog = new HaltDialog();
-
-            /**************************************************************************************
              * Perform project database verification
              *************************************************************************************/
             @Override
             protected void execute()
             {
+                haltDialog = new HaltDialog();
+
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
                                                                 0,
@@ -643,12 +644,12 @@ public class CcddDbVerificationHandler
                 dialogPnl.add(progBar, gbc);
 
                 // Display the verification cancellation dialog
-                cancelDialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                               dialogPnl,
-                                               "Verifying Project",
-                                               DialogOption.HALT_OPTION,
-                                               false,
-                                               false);
+                haltDialog.showOptionsDialog(ccddMain.getMainFrame(),
+                                             dialogPnl,
+                                             "Verifying Project",
+                                             DialogOption.HALT_OPTION,
+                                             false,
+                                             false);
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and the
                 // user hasn't canceled the check
@@ -762,7 +763,7 @@ public class CcddDbVerificationHandler
                 if (!canceled)
                 {
                     // Close the cancellation dialog
-                    cancelDialog.closeDialog();
+                    haltDialog.closeDialog();
 
                     // Perform any corrections to the database authorized by the user
                     updateDatabase();
@@ -827,6 +828,9 @@ public class CcddDbVerificationHandler
 
                 // Store the last processed progress counter value
                 prevProgCount = progCount;
+
+                // Redraw the halt dialog
+                haltDialog.update(haltDialog.getGraphics());
             }
         });
     }
@@ -3097,7 +3101,8 @@ public class CcddDbVerificationHandler
                     // Check if an errors occurred when making the updates
                     if (!isErrors)
                     {
-                        // Release the save point
+                        // Release the save point. This must be done within a transaction block, so
+                        // it must be done prior to the commit below
                         dbCommand.releaseSavePoint(ccddMain.getMainFrame());
 
                         // Commit the change(s) to the database

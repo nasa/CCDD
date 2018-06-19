@@ -216,24 +216,31 @@ public class CcddDbCommandHandler
         {
             try
             {
-                // Check if no save point exists
-                if (savePoint == null)
+                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit is
+                // enabled. Auto-commit is usually disabled, but there are instances where it's
+                // enabled so this check is required to prevent an exception
+                if (connection.getAutoCommit() == false)
                 {
-                    // Revert the change to the database to before the last uncommitted transaction
-                    connection.rollback();
-                }
-                // The save point exists
-                else
-                {
-                    // Revert any changes to the database to the save point
-                    connection.rollback(savePoint);
+                    // Check if no save point exists
+                    if (savePoint == null)
+                    {
+                        // Revert the change to the database to before the last uncommitted
+                        // transaction
+                        connection.rollback();
+                    }
+                    // The save point exists
+                    else
+                    {
+                        // Revert any changes to the database to the save point
+                        connection.rollback(savePoint);
+                    }
                 }
             }
             catch (SQLException se2)
             {
                 // Inform the user that rolling back the changes failed
                 eventLog.logFailEvent(component,
-                                      "Cannot revert changes project; cause '"
+                                      "Cannot revert changes to project; cause '"
                                                  + se2.getMessage()
                                                  + "'",
                                       "<html><b>Cannot revert changes to project");
@@ -255,12 +262,16 @@ public class CcddDbCommandHandler
      *
      * @param component
      *            GUI component over which to center any error dialog
+     *
+     * @throws SQLException
+     *             If an error occurs rolling back to the save point
      *********************************************************************************************/
-    protected void rollbackToSavePoint(Component component)
+    protected void rollbackToSavePoint(Component component) throws SQLException
     {
         // Check if the save point exists
         if (savePoint != null)
         {
+            System.out.println("ROLL BACK TO SAVE POINT"); // TODO
             try
             {
                 // Revert any changes to the database to the save point
@@ -268,12 +279,7 @@ public class CcddDbCommandHandler
             }
             catch (SQLException se)
             {
-                // Inform the user that the reversion to the save point failed
-                eventLog.logFailEvent(component,
-                                      "Cannot revert changes to table(s); cause '"
-                                                 + se.getMessage()
-                                                 + "'",
-                                      "<html><b>Cannot revert changes to table(s)");
+                throw new SQLException(se);
             }
             finally
             {
@@ -288,26 +294,17 @@ public class CcddDbCommandHandler
      *
      * @param component
      *            GUI component over which to center any error dialog
+     *
+     * @throws SQLException
+     *             If an error occurs creating the save point
      *********************************************************************************************/
-    protected void createSavePoint(Component component)
+    protected void createSavePoint(Component component) throws SQLException
     {
         // Check if the save point doesn't already exist
         if (savePoint == null)
         {
-            try
-            {
-                // Create the save point
-                savePoint = connection.setSavepoint();
-            }
-            catch (SQLException se)
-            {
-                // Inform the user that the save point can't be released
-                eventLog.logFailEvent(component,
-                                      "Cannot create save point; cause '"
-                                                 + se.getMessage()
-                                                 + "'",
-                                      "<html><b>Cannot create save point");
-            }
+            // Create the save point
+            savePoint = connection.setSavepoint();
         }
     }
 
@@ -339,6 +336,7 @@ public class CcddDbCommandHandler
             }
             finally
             {
+                // Reset the save point whether or not the release is successful
                 savePoint = null;
             }
         }

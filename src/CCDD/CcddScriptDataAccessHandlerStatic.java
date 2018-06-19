@@ -747,6 +747,21 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getDatabaseQuery(sqlCommand);
     }
 
+    public static void writeSuccessLogEntry(String logMessage)
+    {
+        accessHandler.writeSuccessLogEntry(logMessage);
+    }
+
+    public static void writeFailLogEntry(String logMessage)
+    {
+        accessHandler.writeFailLogEntry(logMessage);
+    }
+
+    public static void writeStatusLogEntry(String logMessage)
+    {
+        accessHandler.writeStatusLogEntry(logMessage);
+    }
+
     public static String[][] parseEnumerationParameters(String enumeration)
     {
         return accessHandler.parseEnumerationParameters(enumeration);
