@@ -11,28 +11,17 @@ import static CCDD.CcddConstants.PAD_DATA_TYPE;
 import static CCDD.CcddConstants.PAD_VARIABLE;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
+import java.util.regex.Pattern;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
-import CCDD.CcddConstants.ModifiableFontInfo;
-import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -46,15 +35,10 @@ public class CcddPaddingVariableHandler
     private CcddDbTableCommandHandler dbTable;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddEventLogDialog eventLog;
-
-    // Component referenced by multiple methods
-    private JProgressBar progBar;
+    private CcddHaltDialog haltDlg;
 
     // List containing the variable padding information for each structure table
     private List<StructurePaddingHandler> paddingInformation;
-
-    // Flag indicating that the user elected to cancel padding adjustment
-    boolean canceled;
 
     /**********************************************************************************************
      * Structure padding handler class
@@ -276,7 +260,7 @@ public class CcddPaddingVariableHandler
             for (int row = 0; row < tableEditor.getTable().getModel().getRowCount(); row++)
             {
                 // Check if this row contains a padding variable
-                if (getVariableName(row).matches(PAD_VARIABLE + "[0-9]+$")
+                if (getVariableName(row).matches(PAD_VARIABLE)
                     && (getDataType(row).equals(PAD_DATA_TYPE)
                         || !getBitLength(row).isEmpty()))
                 {
@@ -495,7 +479,8 @@ public class CcddPaddingVariableHandler
             {
                 // Create an empty row array and set the padding variable name
                 Object[] rowData = tableEditor.getTable().getEmptyRow();
-                rowData[varNameColumn] = PAD_VARIABLE + padCounter;
+                rowData[varNameColumn] = PAD_VARIABLE.replaceFirst(Pattern.quote("[0-9]+"),
+                                                                   String.valueOf(padCounter));
 
                 // Check if the padding variable is not for filling up one or more bit-packed
                 // variables
@@ -625,112 +610,46 @@ public class CcddPaddingVariableHandler
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
             {
                 /**********************************************************************************
-                 * Padding adjustment progress/cancellation dialog class
-                 *********************************************************************************/
-                @SuppressWarnings("serial")
-                class HaltDialog extends CcddDialogHandler
-                {
-                    /******************************************************************************
-                     * Handle the close dialog button action
-                     *****************************************************************************/
-                    @Override
-                    protected void closeDialog(int button)
-                    {
-                        // Set the flag to cancel padding adjustment
-                        canceled = true;
-
-                        super.closeDialog(button);
-                    };
-                }
-
-                HaltDialog cancelDialog = new HaltDialog();
-
-                /**********************************************************************************
                  * Update structure table padding variables command
                  *********************************************************************************/
                 @Override
                 protected void execute()
                 {
                     paddingInformation = new ArrayList<StructurePaddingHandler>();
-                    int progress = 0;
 
                     dbTable = ccddMain.getDbTableCommandHandler();
                     dataTypeHandler = ccddMain.getDataTypeHandler();
 
-                    // Set the initial layout manager characteristics
-                    GridBagConstraints gbc = new GridBagConstraints(0,
-                                                                    0,
-                                                                    1,
-                                                                    1,
-                                                                    1.0,
-                                                                    0.0,
-                                                                    GridBagConstraints.LINE_START,
-                                                                    GridBagConstraints.BOTH,
-                                                                    new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                               0,
-                                                                               ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                                    0,
-                                                                    0);
-
-                    // Create the progress/cancellation dialog
-                    JPanel dialogPnl = new JPanel(new GridBagLayout());
-                    dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-                    JLabel textLbl = new JLabel("<html><b>Load tables and remove padding...<br><br>",
-                                                SwingConstants.LEFT);
-                    textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    gbc.gridy++;
-                    dialogPnl.add(textLbl, gbc);
-                    JLabel textLbl2 = new JLabel("<html><b>"
-                                                 + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                               + "to terminate padding adjustment ***",
-                                                                               Color.RED)
-                                                 + "</b><br><br>",
-                                                 SwingConstants.CENTER);
-                    textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    gbc.gridy++;
-                    dialogPnl.add(textLbl2, gbc);
-
-                    // Add a progress bar to the dialog
-                    progBar = new JProgressBar(0,
-                                               prototStructTables.size()
-                                                  * (padOperation == PadOperationType.ADD_UPDATE
-                                                                                                 ? 4
-                                                                                                 : 2));
-                    progBar.setValue(0);
-                    progBar.setStringPainted(true);
-                    progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                    gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                    gbc.insets.bottom = 0;
-                    gbc.gridy++;
-                    dialogPnl.add(progBar, gbc);
-
-                    // Display the padding adjustment progress/cancellation dialog
-                    cancelDialog.showOptionsDialog(parent,
-                                                   dialogPnl,
-                                                   (padOperation == PadOperationType.ADD_UPDATE
-                                                                                                ? "Adding/updating"
-                                                                                                : "Removing")
-                                                              + " padding",
-                                                   DialogOption.HALT_OPTION,
-                                                   false,
-                                                   false);
+                    // Create the padding adjustment cancellation dialog
+                    haltDlg = new CcddHaltDialog((padOperation == PadOperationType.ADD_UPDATE
+                                                                                              ? "Adding/updating"
+                                                                                              : "Removing"),
+                                                 "Loading tables and removing padding",
+                                                 "padding adjustment",
+                                                 prototStructTables.size()
+                                                                       * (padOperation == PadOperationType.ADD_UPDATE
+                                                                                                                      ? 4
+                                                                                                                      : 2),
+                                                 1,
+                                                 ccddMain.getMainFrame());
 
                     // Step through each prototype structure table
                     for (String protoStruct : prototStructTables)
                     {
                         // Check if the user canceled padding adjustment
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
+
+                        // Force the dialog to the front
+                        haltDlg.toFront();
 
                         // Load the table's data
                         StructurePaddingHandler paddingInfo = new StructurePaddingHandler(protoStruct);
 
                         // Update the progress bar text
-                        progBar.setString(paddingInfo.structureName);
+                        haltDlg.updateProgressBar(paddingInfo.structureName, -1);
 
                         // Check if the table loaded successfully
                         if (paddingInfo.isLoaded())
@@ -741,54 +660,46 @@ public class CcddPaddingVariableHandler
                             // Remove any existing padding variables from the table
                             paddingInfo.removePadding();
                         }
-
-                        // Update the padding progress
-                        progBar.setValue(progress);
-                        progress++;
                     }
 
                     // Check if padding variables should be added
                     if (padOperation == PadOperationType.ADD_UPDATE)
                     {
                         // Change the dialog text to indicate the new padding phase
-                        textLbl.setText("<html><b>Determine structure sizes...</b><br><br>");
+                        haltDlg.setLabel("Determining structure sizes");
 
                         // Step through each successfully loaded table
                         for (StructurePaddingHandler paddingInfo : paddingInformation)
                         {
                             // Check if the user canceled padding adjustment
-                            if (canceled)
+                            if (haltDlg.isHalted())
                             {
                                 break;
                             }
 
                             // Update the progress bar text
-                            progBar.setString(paddingInfo.structureName);
+                            haltDlg.updateProgressBar(paddingInfo.structureName, -1);
 
                             // Find largest primitive data type referenced in this table's
                             // hierarchy, including those in any child structures, and the
                             // structure's total size
                             setStructureSizes(paddingInfo);
-
-                            // Update the padding progress
-                            progBar.setValue(progress);
-                            progress++;
                         }
 
                         // Change the dialog text to indicate the new padding phase
-                        textLbl.setText("<html><b>Add padding...</b><br><br>");
+                        haltDlg.setLabel("Adding padding");
 
                         // Step through each successfully loaded table
                         for (StructurePaddingHandler paddingInfo : paddingInformation)
                         {
                             // Check if the user canceled padding adjustment
-                            if (canceled)
+                            if (haltDlg.isHalted())
                             {
                                 break;
                             }
 
                             // Update the progress bar text
-                            progBar.setString(paddingInfo.structureName);
+                            haltDlg.updateProgressBar(paddingInfo.structureName, -1);
 
                             // Check if the structure contains a variable with a non-zero size
                             if (paddingInfo.largestDataType != 0)
@@ -797,49 +708,56 @@ public class CcddPaddingVariableHandler
                                 // variables
                                 paddingInfo.addPadding();
                             }
-
-                            // Update the padding progress
-                            progBar.setValue(progress);
-                            progress++;
                         }
                     }
 
                     // Change the dialog text to indicate the new padding phase
-                    textLbl.setText("<html><b>Update project database...</b><br><br>");
+                    haltDlg.setLabel("Updating project database");
 
                     // Step through each successfully loaded table
                     for (StructurePaddingHandler paddingInfo : paddingInformation)
                     {
                         // Check if the user canceled padding adjustment
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
 
                         // Update the progress bar text
-                        progBar.setString(paddingInfo.structureName);
+                        haltDlg.updateProgressBar(paddingInfo.structureName, -1);
 
                         // Update the table in the project database
                         paddingInfo.updateTable();
-
-                        // Update the padding progress
-                        progBar.setValue(progress);
-                        progress++;
                     }
-
-                    // Close the progress/cancellation dialog
-                    cancelDialog.closeDialog();
 
                     // Add a log entry indication the padding adjustment completed
                     eventLog.logEvent(STATUS_MSG,
                                       (padOperation == PadOperationType.ADD_UPDATE
                                                                                    ? "Adding/updating"
                                                                                    : "Removing")
-                                                  +
-                                                  " padding variables "
-                                                  + (canceled
-                                                              ? "terminated by user"
-                                                              : "complete"));
+                                                  + " padding variables complete");
+                }
+
+                /**********************************************************************************
+                 * Padding adjustment complete
+                 *********************************************************************************/
+                @Override
+                protected void complete()
+                {
+                    // Check if the user didn't cancel padding adjustment
+                    if (!haltDlg.isHalted())
+                    {
+                        // Close the cancellation dialog
+                        haltDlg.closeDialog();
+                    }
+                    // Padding adjustment was canceled
+                    else
+                    {
+                        eventLog.logEvent(EventLogMessageType.FAIL_MSG,
+                                          "Padding adjustment canceled by user");
+                    }
+
+                    haltDlg = null;
                 }
             });
         }

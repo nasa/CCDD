@@ -4594,51 +4594,48 @@ public class CcddScriptDataAccessHandler
      * Output a 'success' message to the event log
      *
      * @param logMessage
-     *            text to output to the event log. A null or empty string is ignored
+     *            text to output to the event log
      *********************************************************************************************/
     public void writeSuccessLogEntry(String logMessage)
     {
-        // Check if the event message is supplied
-        if (logMessage != null && !logMessage.isEmpty())
-        {
-            // Output the message to the event log
-            eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                              "[script: " + scriptFileName + "] " + logMessage);
-        }
+        // Output the message to the event log
+        eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                          "[script: " + scriptFileName + "] "
+                                                           + (logMessage == null
+                                                                                 ? ""
+                                                                                 : logMessage));
     }
 
     /**********************************************************************************************
      * Output a 'fail' message to the event log
      *
      * @param logMessage
-     *            text to output to the event log. A null or empty string is ignored
+     *            text to output to the event log
      *********************************************************************************************/
     public void writeFailLogEntry(String logMessage)
     {
-        // Check if the event message is supplied
-        if (logMessage != null && !logMessage.isEmpty())
-        {
-            // Output the message to the event log
-            eventLog.logEvent(EventLogMessageType.FAIL_MSG,
-                              "[script: " + scriptFileName + "] " + logMessage);
-        }
+        // Output the message to the event log
+        eventLog.logEvent(EventLogMessageType.FAIL_MSG,
+                          "[script: " + scriptFileName + "] "
+                                                        + (logMessage == null
+                                                                              ? ""
+                                                                              : logMessage));
     }
 
     /**********************************************************************************************
      * Output a 'status' message to the event log
      *
      * @param logMessage
-     *            text to output to the event log. A null or empty string is ignored
+     *            text to output to the event log
      *********************************************************************************************/
     public void writeStatusLogEntry(String logMessage)
     {
-        // Check if the event message is supplied
-        if (logMessage != null && !logMessage.isEmpty())
-        {
-            // Output the message to the event log
-            eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                              "[script: " + scriptFileName + "] " + logMessage);
-        }
+        // Output the message to the event log
+        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                          "[script: " + scriptFileName + "] "
+                                                          + (logMessage == null
+                                                                                ? ""
+                                                                                : logMessage));
     }
 
     /**********************************************************************************************

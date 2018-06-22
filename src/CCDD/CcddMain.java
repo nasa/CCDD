@@ -1725,7 +1725,7 @@ public class CcddMain
         mntmCopyTable = createMenuItem(mnData, "Copy table", KeyEvent.VK_C, 1, "Copy selected data table");
         mntmDeleteTable = createMenuItem(mnData, "Delete table(s)", KeyEvent.VK_L, 1, "Delete selected data table(s)");
         mnData.addSeparator();
-        mntmImportTable = createMenuItem(mnData, "Import table(s)", KeyEvent.VK_I, 1, "Import selected CSV or XTCE/EDS XML file(s) to data table(s)");
+        mntmImportTable = createMenuItem(mnData, "Import table(s)", KeyEvent.VK_I, 1, "Import selected CSV, JSON, or EDS/XTCE XML file(s) to data table(s)");
         JMenu mnExport = createSubMenu(mnData, "Export table(s)", KeyEvent.VK_X, 1, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data table(s) in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data table(s) in EDS XML format");

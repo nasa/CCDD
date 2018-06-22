@@ -610,7 +610,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                argName,
                                                                                cmdArgCol[1].toString().replaceFirst("###",
                                                                                                                     String.valueOf(argIndex)),
-                                                                               cmdArgCol[2].toString(),
+                                                                               ((InputDataType) cmdArgCol[2]).getInputName(),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
@@ -671,51 +671,55 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                               boolean targetIsStructure,
                               boolean targetIsCommand)
     {
-        // Step through the interfaces in order to locate the name space's parameter and command
-        // sets
-        for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
+        // Check if the name space has a declared interface set
+        if (namespace.getDeclaredInterfaceSet() != null)
         {
-            // Check if the interface contains a parameter set
-            if (intfcDecType.getParameterSet() != null
-                && !intfcDecType.getParameterSet().getParameter().isEmpty())
+            // Step through the interfaces in order to locate the name space's parameter and
+            // command sets
+            for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
             {
-                isTelemetry = true;
-            }
-
-            // Check if the interface contains a command set
-            if (intfcDecType.getCommandSet() != null
-                && !intfcDecType.getCommandSet().getCommand().isEmpty())
-            {
-                // Check if the interface isn't flagged as abstract. This denotes a command header
-                // which is converted to a structure, and therefore necessitates creating a
-                // structure table type to contain it
-                if (intfcDecType.isAbstract())
+                // Check if the interface contains a parameter set
+                if (intfcDecType.getParameterSet() != null
+                    && !intfcDecType.getParameterSet().getParameter().isEmpty())
                 {
-                    isCmdToTlm = true;
-                }
-                // The command isn't flagged as abstract. This denotes a command table
-                else
-                {
-                    isCommand = true;
+                    isTelemetry = true;
                 }
 
-                // Step through each command
-                for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
+                // Check if the interface contains a command set
+                if (intfcDecType.getCommandSet() != null
+                    && !intfcDecType.getCommandSet().getCommand().isEmpty())
                 {
-                    // The number of entries in the meta-command type is the number of command
-                    // arguments required by this command. Store the largest number of command
-                    // arguments required by all commands in the import file
-                    maxNumArguments = Math.max(maxNumArguments, cmdType.getArgument().size());
-                }
-            }
+                    // Check if the interface isn't flagged as abstract. This denotes a command
+                    // header which is converted to a structure, and therefore necessitates
+                    // creating a structure table type to contain it
+                    if (intfcDecType.isAbstract())
+                    {
+                        isCmdToTlm = true;
+                    }
+                    // The command isn't flagged as abstract. This denotes a command table
+                    else
+                    {
+                        isCommand = true;
+                    }
 
-            // Check if the data from only the first table is to be read and one of the target
-            // table type has been found
-            if (importType == ImportType.FIRST_DATA_ONLY
-                && ((targetIsStructure && (isTelemetry || isCmdToTlm))
-                    || (targetIsCommand && isCommand)))
-            {
-                break;
+                    // Step through each command
+                    for (InterfaceCommandType cmdType : intfcDecType.getCommandSet().getCommand())
+                    {
+                        // The number of entries in the meta-command type is the number of command
+                        // arguments required by this command. Store the largest number of command
+                        // arguments required by all commands in the import file
+                        maxNumArguments = Math.max(maxNumArguments, cmdType.getArgument().size());
+                    }
+                }
+
+                // Check if the data from only the first table is to be read and one of the target
+                // table type has been found
+                if (importType == ImportType.FIRST_DATA_ONLY
+                    && ((targetIsStructure && (isTelemetry || isCmdToTlm))
+                        || (targetIsCommand && isCommand)))
+                {
+                    break;
+                }
             }
         }
     }
@@ -741,99 +745,104 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                      ImportType importType,
                                      boolean onlyCmdToStruct) throws CCDDException
     {
-        boolean hasParameter = false;
-        boolean hasCommand = false;
-        String systemPath = "";
-
-        // The full table name, with path, should be stored in the name space's short description
-        // (the name space name doesn't allow the commas and periods used by the table path so it
-        // has to go elsewhere; the export operation does this). If the short description doesn't
-        // exist, or isn't in the correct format, then the table name is extracted from the name
-        // space name; however, this creates a 'flat' table reference, making it a prototype
-        String tableName = namespace.getShortDescription() != null
-                           && namespace.getShortDescription().matches(TABLE_PATH)
-                                                                                  ? namespace.getShortDescription()
-                                                                                  : namespace.getName();
-
-        // Get the end of the system path
-        int index = namespace.getName().lastIndexOf("/");
-
-        // Check if the system path exists
-        if (index != -1)
+        // Check if the name space has a declared interface set
+        if (namespace.getDeclaredInterfaceSet() != null)
         {
-            // Extract the system path and remove it from the table name
-            systemPath = namespace.getName().substring(0, index);
+            boolean hasParameter = false;
+            boolean hasCommand = false;
+            String systemPath = "";
 
-            // Check if the table name contains the system path (this is the case if the table name
-            // is extracted from the name space name and a system path is present)
-            if (tableName.contains("/"))
+            // The full table name, with path, should be stored in the name space's short
+            // description (the name space name doesn't allow the commas and periods used by the
+            // table path so it has to go elsewhere; the export operation does this). If the short
+            // description doesn't exist, or isn't in the correct format, then the table name is
+            // extracted from the name space name; however, this creates a 'flat' table reference,
+            // making it a prototype
+            String tableName = namespace.getShortDescription() != null
+                               && namespace.getShortDescription().matches(TABLE_PATH)
+                                                                                      ? namespace.getShortDescription()
+                                                                                      : namespace.getName();
+
+            // Get the end of the system path
+            int index = namespace.getName().lastIndexOf("/");
+
+            // Check if the system path exists
+            if (index != -1)
             {
-                // Get the table name portion. Note that the name in this case can't have a path so
-                // the table is treated as a prototype
-                tableName = tableName.substring(0, index);
-            }
-        }
+                // Extract the system path and remove it from the table name
+                systemPath = namespace.getName().substring(0, index);
 
-        // Check if all tables are to be imported
-        if (importType == ImportType.IMPORT_ALL)
-        {
+                // Check if the table name contains the system path (this is the case if the table
+                // name is extracted from the name space name and a system path is present)
+                if (tableName.contains("/"))
+                {
+                    // Get the table name portion. Note that the name in this case can't have a
+                    // path so the table is treated as a prototype
+                    tableName = tableName.substring(0, index);
+                }
+            }
+
+            // Check if all tables are to be imported
+            if (importType == ImportType.IMPORT_ALL)
+            {
+                // Step through the interfaces in order to locate the name space's parameter and
+                // command sets. If the interface contains both a parameter and command set then
+                // the resulting tables created must have their names adjusted to prevent having a
+                // duplicate
+                for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
+                {
+                    // Check if the interface contains a parameter set
+                    if (intfcDecType.getParameterSet() != null
+                        && !intfcDecType.getParameterSet().getParameter().isEmpty())
+                    {
+                        hasParameter = true;
+                    }
+
+                    // Check if the interface contains a command set
+                    if (intfcDecType.getCommandSet() != null
+                        && !intfcDecType.getCommandSet().getCommand().isEmpty())
+                    {
+                        hasCommand = true;
+                    }
+                }
+            }
+
             // Step through the interfaces in order to locate the name space's parameter and
-            // command sets. If the interface contains both a parameter and command set then the
-            // resulting tables created must have their names adjusted to prevent having a
-            // duplicate
+            // command sets
             for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
             {
-                // Check if the interface contains a parameter set
+                // Check if the interface contains a parameter set and a structure table type
+                // definition exists to define it (the structure table type won't exists if
+                // importing into a single command table). If the interface contains a parameter
+                // set the assumption is made that this is a structure table
                 if (intfcDecType.getParameterSet() != null
-                    && !intfcDecType.getParameterSet().getParameter().isEmpty())
+                    && !intfcDecType.getParameterSet().getParameter().isEmpty()
+                    && structureTypeDefn != null)
                 {
-                    hasParameter = true;
+                    // Build the structure table from the telemetry data
+                    importStructureTable(namespace, intfcDecType, tableName, systemPath, hasCommand);
                 }
 
-                // Check if the interface contains a command set
+                // Check if the interface contains a command set; if so, the assumption is made
+                // that this is a command table
                 if (intfcDecType.getCommandSet() != null
                     && !intfcDecType.getCommandSet().getCommand().isEmpty())
                 {
-                    hasCommand = true;
+                    // Build the command table from the telemetry data
+                    importCommandTable(namespace,
+                                       intfcDecType,
+                                       tableName,
+                                       systemPath,
+                                       hasParameter,
+                                       onlyCmdToStruct);
                 }
-            }
-        }
 
-        // Step through the interfaces in order to locate the name space's parameter and command
-        // sets
-        for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
-        {
-            // Check if the interface contains a parameter set and a structure table type
-            // definition exists to define it (the structure table type won't exists if importing
-            // into a single command table). If the interface contains a parameter set the
-            // assumption is made that this is a structure table
-            if (intfcDecType.getParameterSet() != null
-                && !intfcDecType.getParameterSet().getParameter().isEmpty()
-                && structureTypeDefn != null)
-            {
-                // Build the structure table from the telemetry data
-                importStructureTable(namespace, intfcDecType, tableName, systemPath, hasCommand);
-            }
-
-            // Check if the interface contains a command set; if so, the assumption is made that
-            // this is a command table
-            if (intfcDecType.getCommandSet() != null
-                && !intfcDecType.getCommandSet().getCommand().isEmpty())
-            {
-                // Build the command table from the telemetry data
-                importCommandTable(namespace,
-                                   intfcDecType,
-                                   tableName,
-                                   systemPath,
-                                   hasParameter,
-                                   onlyCmdToStruct);
-            }
-
-            // Check if the data from all tables is to be read or no table of the target type has
-            // been located yet
-            if (importType == ImportType.IMPORT_ALL || tableDefinitions.isEmpty())
-            {
-                break;
+                // Check if the data from all tables is to be read or no table of the target type
+                // has been located yet
+                if (importType == ImportType.IMPORT_ALL || tableDefinitions.isEmpty())
+                {
+                    break;
+                }
             }
         }
     }
@@ -1243,7 +1252,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             dataType = parmType.getName();
 
                             // Check that the type name has the type indicator appended
-                            if (dataType.endsWith(TYPE))
+                            if (dataType.matches(".+" + TYPE + "[0-9]*"))
                             {
                                 // Remove the type indicator
                                 dataType = dataType.substring(0,
@@ -1480,75 +1489,80 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 rowData[cmdDescriptionIndex] = cmdType.getLongDescription();
             }
 
-            // Step through each data type set
-            for (RootDataType argType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
+            // Check if the command name space has a data type set
+            if (namespace.getDataTypeSet() != null)
             {
-                // Check if this is a container data type
-                if (argType instanceof ContainerDataType)
+                // Step through each data type set
+                for (RootDataType argType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
                 {
-                    ContainerDataType ccmd = (ContainerDataType) argType;
-
-                    // Check if the container is for the current command and the container's base
-                    // type matches the command header table name
-                    if (ccmd.getName().equals(cmdType.getName())
-                        && ccmd.getBaseType() != null
-                        && ccmd.getBaseType().equals(cmdHeaderTable)
-                        && ccmd.getConstraintSet() != null)
+                    // Check if this is a container data type
+                    if (argType instanceof ContainerDataType)
                     {
-                        // Step through each container constraint
-                        for (ContainerConstraintType constraint : ccmd.getConstraintSet().getConstraint())
-                        {
-                            // Check if the entry and constraint value exists
-                            if (constraint.getEntry() != null
-                                && constraint.getValueConstraint() != null
-                                && constraint.getValueConstraint().getValue() != null)
-                            {
-                                // Check if the argument name matches the application ID variable
-                                // name
-                                if (constraint.getEntry().equals(applicationIDName))
-                                {
-                                    boolean isExists = false;
+                        ContainerDataType ccmd = (ContainerDataType) argType;
 
-                                    // Step through the data fields already added to this table
-                                    for (String[] fieldInfo : tableDefn.getDataFields())
+                        // Check if the container is for the current command and the container's
+                        // base type matches the command header table name
+                        if (ccmd.getName().equals(cmdType.getName())
+                            && ccmd.getBaseType() != null
+                            && ccmd.getBaseType().equals(cmdHeaderTable)
+                            && ccmd.getConstraintSet() != null)
+                        {
+                            // Step through each container constraint
+                            for (ContainerConstraintType constraint : ccmd.getConstraintSet().getConstraint())
+                            {
+                                // Check if the entry and constraint value exists
+                                if (constraint.getEntry() != null
+                                    && constraint.getValueConstraint() != null
+                                    && constraint.getValueConstraint().getValue() != null)
+                                {
+                                    // Check if the argument name matches the application ID
+                                    // variable name
+                                    if (constraint.getEntry().equals(applicationIDName))
                                     {
-                                        // Check if a data field with the name matching the
-                                        // application ID variable name already exists. This is the
-                                        // case if the command table has multiple commands; the
-                                        // first one causes the application ID field to be created,
-                                        // so the subsequent ones are ignored to prevent duplicates
-                                        if (fieldInfo[FieldsColumn.FIELD_NAME.ordinal()].equals(constraint.getEntry()))
+                                        boolean isExists = false;
+
+                                        // Step through the data fields already added to this table
+                                        for (String[] fieldInfo : tableDefn.getDataFields())
                                         {
-                                            // Set the flag indicating the field already exists and
-                                            // stop searching
-                                            isExists = true;
-                                            break;
+                                            // Check if a data field with the name matching the
+                                            // application ID variable name already exists. This is
+                                            // the case if the command table has multiple commands;
+                                            // the first one causes the application ID field to be
+                                            // created, so the subsequent ones are ignored to
+                                            // prevent duplicates
+                                            if (fieldInfo[FieldsColumn.FIELD_NAME.ordinal()].equals(constraint.getEntry()))
+                                            {
+                                                // Set the flag indicating the field already exists
+                                                // and stop searching
+                                                isExists = true;
+                                                break;
+                                            }
+                                        }
+
+                                        // Check if the application ID data field doesn't exist
+                                        if (!isExists)
+                                        {
+                                            // Create a data field for the table containing the
+                                            // application ID and stop searching
+                                            tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                                                            constraint.getEntry(),
+                                                                                                            "Message ID",
+                                                                                                            InputDataType.MESSAGE_ID,
+                                                                                                            Math.min(Math.max(constraint.getValueConstraint().getValue().length(),
+                                                                                                                              5),
+                                                                                                                     40),
+                                                                                                            false,
+                                                                                                            ApplicabilityType.ALL,
+                                                                                                            constraint.getValueConstraint().getValue()));
                                         }
                                     }
-
-                                    // Check if the application ID data field doesn't exist
-                                    if (!isExists)
+                                    // Check if the argument name matches the command function code
+                                    // variable name
+                                    else if (constraint.getEntry().equals(cmdFuncCodeName))
                                     {
-                                        // Create a data field for the table containing the
-                                        // application ID and stop searching
-                                        tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                                                        constraint.getEntry(),
-                                                                                                        "Message ID",
-                                                                                                        InputDataType.MESSAGE_ID,
-                                                                                                        Math.min(Math.max(constraint.getValueConstraint().getValue().length(),
-                                                                                                                          5),
-                                                                                                                 40),
-                                                                                                        false,
-                                                                                                        ApplicabilityType.ALL,
-                                                                                                        constraint.getValueConstraint().getValue()));
+                                        // Store the command function code
+                                        rowData[cmdFuncCodeIndex] = constraint.getValueConstraint().getValue();
                                     }
-                                }
-                                // Check if the argument name matches the command function code
-                                // variable name
-                                else if (constraint.getEntry().equals(cmdFuncCodeName))
-                                {
-                                    // Store the command function code
-                                    rowData[cmdFuncCodeIndex] = constraint.getValueConstraint().getValue();
                                 }
                             }
                         }
@@ -2341,7 +2355,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Add the name space
                     NamespaceType namespace = addNamespace(systemPath,
-                                                           tableName,
+                                                           macroHandler.getMacroExpansion(tableName),
                                                            tableInfo.getDescription());
 
                     // Check if this is a structure table
@@ -2464,6 +2478,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // This is not the command header structure
                         else
                         {
+                            int uniqueID = 0;
+                            List<String> dataTypes = new ArrayList<String>();
+
                             // Export the parameter container for this structure
                             addParameterContainer(namespace,
                                                   tableInfo,
@@ -2480,6 +2497,26 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                 // definition is used to define the array)
                                 if (!ArrayVariable.isArrayMember(rowData[varColumn]))
                                 {
+                                    // Check if the data type references a structure
+                                    if (!dataTypeHandler.isPrimitive(rowData[typeColumn]))
+                                    {
+                                        // Check if this structure reference has already been used
+                                        // as a data type in this structure
+                                        if (dataTypes.contains(rowData[typeColumn]))
+                                        {
+                                            // Increment the unique ID identifier. The identifier
+                                            // prevents creating multiple parameter data types with
+                                            // the same name
+                                            uniqueID++;
+                                        }
+                                        // This is the first use of this structure data type
+                                        else
+                                        {
+                                            // Add the structure name to the list of those in use
+                                            dataTypes.add(rowData[typeColumn]);
+                                        }
+                                    }
+
                                     // Add the variable to the data sheet
                                     addParameter(namespace,
                                                  rowData[varColumn],
@@ -2498,6 +2535,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                  (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
                                                                                                                                   ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
                                                                                                                                   : 1),
+                                                 (uniqueID == 0
+                                                                ? ""
+                                                                : String.valueOf(uniqueID)),
                                                  applicationID);
                                 }
                             }
@@ -2534,8 +2574,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Get the name space for this table
             NamespaceType namespace = searchNamespacesForName(systemPath, cleanSystemPath(tableName));
 
-            // Check if the table's name space exists
-            if (namespace != null)
+            // Check if the table's name space exists and it has a data set
+            if (namespace != null && namespace.getDataTypeSet() != null)
             {
                 // Step through the each parameter type
                 for (RootDataType type : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
@@ -2628,9 +2668,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         // Store the table name, with its full path, in the short description field. This is used
         // if the export file is used to import tables into a project
         childSpace.setShortDescription(tableName);
-
-        // Create an interface set for the name space
-        childSpace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
 
         // Add the new names space
         dataSheet.getNamespace().add(childSpace);
@@ -2787,7 +2824,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 containerType = factory.createContainerDataType();
             }
 
-            containerType.setName(cleanSystemPath(tableInfo.getTablePath()) + TYPE);
+            containerType.setName(cleanSystemPath(macroHandler.getMacroExpansion(tableInfo.getTablePath()))
+                                  + TYPE);
 
             // Store the parameters in the parameter sequence container
             containerType.setEntryList(entryList);
@@ -2845,7 +2883,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param stringSize
      *            size, in characters, of a string parameter; ignored if not a string or character
      *
-     * @param appplicationID
+     * @param uniqueID
+     *            text used to uniquely identify data types with the same name; blank if the data
+     *            type has no name conflict
+     *
+     * @param applicationID
      *            application ID
      *********************************************************************************************/
     private void addParameter(NamespaceType namespace,
@@ -2857,6 +2899,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                               String units,
                               String description,
                               int stringSize,
+                              String uniqueID,
                               String applicationID)
     {
         // Check if a data type is provided. If none is provided then no entry for this parameter
@@ -2873,7 +2916,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         units,
                         description,
                         stringSize,
-                        "",
+                        uniqueID,
                         applicationID);
 
             // Build the parameter attributes
@@ -2882,7 +2925,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             parameter.setType((dataTypeHandler.isPrimitive(dataType)
                                                                      ? parameterName
                                                                      : dataType)
-                              + getObjectIdentifier(arraySize));
+                              + getObjectIdentifier(arraySize)
+                              + uniqueID);
 
             // Check if a description is provided for this parameter
             if (description != null && !description.isEmpty())
@@ -2892,6 +2936,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
 
             InterfaceDeclarationType intParmType = null;
+
+            // Check if the declared interface set doesn't exist
+            if (namespace.getDeclaredInterfaceSet() == null)
+            {
+                // Create an interface set for the name space
+                namespace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
+            }
 
             // Step through the interfaces in order to locate the name space's parameter set
             for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
@@ -2927,6 +2978,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private InterfaceDeclarationType createCommandSet(NamespaceType namespace)
     {
+        // Check if the declared interface set doesn't exist
         InterfaceDeclarationType intCmdType = factory.createInterfaceDeclarationType();
         intCmdType.setName(COMMAND);
 
@@ -3040,8 +3092,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         && cmdArg.getDataType() != -1 &&
                         !rowData[cmdArg.getDataType()].isEmpty())
                     {
-                        String uniqueID = "";
-                        int dupCount = 0;
+                        int uniqueID = 0;
 
                         // Store the command argument name and data type
                         argumentName = rowData[cmdArg.getName()];
@@ -3094,60 +3145,61 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             units = rowData[cmdArg.getUnits()];
                         }
 
-                        // Check if the minimum column exists
-                        if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
+                        // Check if the command argument has a minimum or maximum value
+                        if ((cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
+                            || (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty()))
                         {
-                            // Store the command argument minimum value
-                            DerivedTypeRangeType range = argType.getValidRange() == null
-                                                                                         ? factory.createDerivedTypeRangeType()
-                                                                                         : argType.getValidRange();
-                            MinMaxRangeType minMax = range.getMinMaxRange() == null
-                                                                                    ? factory.createMinMaxRangeType()
-                                                                                    : range.getMinMaxRange();
-                            minMax.setMin(BigDecimal.valueOf(Double.valueOf(rowData[cmdArg.getMinimum()])));
-                            argType.setValidRange(range);
-                        }
+                            DerivedTypeRangeType range = factory.createDerivedTypeRangeType();
+                            MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
+                            minMaxRange.setRangeType(RangeType.INCLUSIVE_MIN_INCLUSIVE_MAX);
 
-                        // Check if the maximum column exists
-                        if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
-                        {
-                            // Store the command argument maximum value
-                            DerivedTypeRangeType range = argType.getValidRange() == null
-                                                                                         ? factory.createDerivedTypeRangeType()
-                                                                                         : argType.getValidRange();
-                            MinMaxRangeType minMax = range.getMinMaxRange() == null
-                                                                                    ? factory.createMinMaxRangeType()
-                                                                                    : range.getMinMaxRange();
-                            minMax.setMax(BigDecimal.valueOf(Double.valueOf(rowData[cmdArg.getMaximum()])));
-                            argType.setValidRange(range);
-                        }
+                            // Set the flag if the parameter is in integer data type
+                            boolean isInteger = dataTypeHandler.isInteger(rowData[cmdArg.getDataType()]);
 
-                        // Step through the list of argument names used so far
-                        for (String argName : argumentNames)
-                        {
-                            // Check if the current argument name matches an existing one
-                            if (argumentName.equals(argName))
+                            // Check if a minimum value is specified
+                            if (cmdArg.getMinimum() != -1 && !rowData[cmdArg.getMinimum()].isEmpty())
                             {
-                                // Increment the duplicate name count
-                                dupCount++;
+                                // Set the minimum value
+                                minMaxRange.setMin(isInteger
+                                                             ? BigDecimal.valueOf(Integer.valueOf(rowData[cmdArg.getMinimum()]))
+                                                             : BigDecimal.valueOf(Float.valueOf(rowData[cmdArg.getMinimum()])));
                             }
+
+                            // Check if a maximum value is specified
+                            if (cmdArg.getMaximum() != -1 && !rowData[cmdArg.getMaximum()].isEmpty())
+                            {
+                                // Set the maximum value
+                                minMaxRange.setMax(isInteger
+                                                             ? BigDecimal.valueOf(Integer.valueOf(rowData[cmdArg.getMaximum()]))
+                                                             : BigDecimal.valueOf(Float.valueOf(rowData[cmdArg.getMaximum()])));
+                            }
+
+                            // Set the range
+                            range.setMinMaxRange(minMaxRange);
+                            argType.setValidRange(range);
                         }
 
-                        // Check if a duplicate argument name exists
-                        if (dupCount != 0)
+                        // Check if the argument name has already been used
+                        if (argumentNames.contains(argumentName))
                         {
-                            // Set the unique ID to the counter value
-                            uniqueID = String.valueOf(dupCount + 1);
+                            // Increment the unique ID identifier
+                            uniqueID++;
+                        }
+                        // This is the first occurrence of the argument name in this command table
+                        else
+                        {
+                            // Add the name to the list
+                            argumentNames.add(argumentName);
                         }
 
+                        // Set the argument type reference
                         argType.setType(argumentName
                                         + (arraySize != null && !arraySize.isEmpty()
                                                                                      ? ARRAY
                                                                                      : TYPE)
-                                        + uniqueID);
-
-                        // Add the name to the list
-                        argumentNames.add(argumentName);
+                                        + (uniqueID == 0
+                                                         ? ""
+                                                         : String.valueOf(uniqueID)));
 
                         // Get the argument's data type information
                         setDataType(namespace,
@@ -3159,7 +3211,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     units,
                                     null,
                                     stringSize,
-                                    uniqueID,
+                                    (uniqueID == 0
+                                                   ? ""
+                                                   : String.valueOf(uniqueID)),
                                     applicationID);
 
                         // Add the command argument to the list
@@ -3234,6 +3288,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         }
 
         InterfaceDeclarationType intCmdType = null;
+
+        // Check if the declared interface set doesn't exist
+        if (namespace.getDeclaredInterfaceSet() == null)
+        {
+            // Create an interface set for the name space
+            namespace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
+        }
 
         // Step through the interfaces in order to locate the name space's command set
         for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
@@ -3404,7 +3465,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             String name = dataTypeHandler.isPrimitive(dataType)
                                                                 ? parameterName
                                                                 : dataType;
-            arrayType.setName(name + ARRAY);
+            arrayType.setName(name + ARRAY + uniqueID);
             arrayType.setDataTypeRef(name + TYPE);
             ArrayDimensionsType dimList = factory.createArrayDimensionsType();
 
@@ -3463,6 +3524,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         // Set the encoding type to indicate an unsigned integer
                         intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
                     }
+                    // The data type is a signed integer
+                    else
+                    {
+                        // Set the encoding type to indicate a signed integer
+                        intEncodingType.setEncoding(IntegerEncodingType.SIGN_MAGNITUDE);
+                    }
 
                     intEncodingType.setByteOrder(endianess == EndianType.BIG_ENDIAN
                                                                                     ? ByteOrderType.BIG_ENDIAN
@@ -3500,6 +3567,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             {
                                 // Set the encoding type to indicate an unsigned integer
                                 intEncodingType.setEncoding(IntegerEncodingType.UNSIGNED);
+                            }
+                            // The data type is a signed integer
+                            else
+                            {
+                                // Set the encoding type to indicate a signed integer
+                                intEncodingType.setEncoding(IntegerEncodingType.SIGN_MAGNITUDE);
                             }
 
                             // Set the minimum and maximum range. This section is required for
@@ -3562,6 +3635,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                ? ByteOrderType.BIG_ENDIAN
                                                                                                : ByteOrderType.LITTLE_ENDIAN);
                             stringType.setStringDataEncoding(stringEncodingType);
+                            stringType.setLength(BigInteger.valueOf(stringSize));
                             parameterType = stringType;
                             break;
                     }

@@ -186,8 +186,8 @@ public class CcddConstants
     // Node name for the pseudo-group containing all tables
     protected static final String ALL_TABLES_GROUP_NODE_NAME = "All tables";
 
-    // Variable name prefix and data type for padding variables
-    protected static final String PAD_VARIABLE = "__pad";
+    // Variable name pattern and data type for padding variables
+    protected static final String PAD_VARIABLE = "pad[0-9]+__";
     protected static final String PAD_DATA_TYPE = "char";
 
     // Main window initial and minimum window size

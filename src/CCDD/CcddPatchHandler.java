@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
@@ -33,8 +34,12 @@ import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
+import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
+import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -82,6 +87,159 @@ public class CcddPatchHandler
 
         // Patch #11132017: Update the associations table to include a name column
         updateAssociationsTable2();
+
+        // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
+        updatePaddingVariables();
+    }
+
+    /**********************************************************************************************
+     * Update the padding variable format from '__pad#' to 'pad#__'. This is to accommodate XML
+     * exports that don't allow leading underscores in variable names (e.g., EDS)
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error occurs while applying
+     *             the patch
+     *********************************************************************************************/
+    private void updatePaddingVariables() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+            CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+
+            String varColNames = "";
+
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
+            {
+                // Check if the table type represents a structure
+                if (typeDefn.isStructure())
+                {
+                    // Append the variable name column name
+                    varColNames += typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE) + ",";
+                }
+            }
+
+            varColNames = CcddUtilities.removeTrailer(varColNames, ",");
+
+            // Search for pad variables using the old format in all prototype tables
+            ResultSet padData = dbCommand.executeDbQuery("SELECT * FROM search_tables(E'__pad', false, "
+                                                         + "false, 'PROTO', '{"
+                                                         + varColNames
+                                                         + "}');",
+                                                         ccddMain.getMainFrame());
+
+            // Check if there are any pad variables using the old format in any structure table
+            if (padData.next())
+            {
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update padding variable names??<br><br></b>"
+                                                                                       + "Changes the padding variable format from "
+                                                                                       + "'__pad#' to 'pad#__'.<br><b><i>If patch "
+                                                                                       + "not applied the affected variables will "
+                                                                                       + "no longer be recognized as padding",
+                                                              "Apply Patch #06212018",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    padData.close();
+                    throw new CCDDException("user elected to not install patch (#06212018)");
+                }
+
+                // Back up the project database before applying the patch
+                dbControl.backupDatabase(dbControl.getDatabaseName(),
+                                         new FileEnvVar(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                        + File.separator
+                                                        + dbControl.getDatabaseName()
+                                                        + "_"
+                                                        + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                        + FileExtension.DBU.getExtension()));
+
+                // Step through each prototype structure table
+                for (String protoStruct : dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE))
+                {
+                    // Get the table's comment
+                    String[] comment = dbTable.queryDataTableComment(protoStruct,
+                                                                     ccddMain.getMainFrame());
+
+                    // Get the table type definition for this table
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
+
+                    // Get the table's variable name column name
+                    String variableNameColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
+
+                    // Update the padding variable names to the new format
+                    dbCommand.executeDbCommand("UPDATE "
+                                               + protoStruct
+                                               + " SET "
+                                               + variableNameColumn
+                                               + " = regexp_replace("
+                                               + variableNameColumn
+                                               + ", E'^__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E'pad\\\\1__\\\\2');",
+                                               ccddMain.getMainFrame());
+                }
+
+                // Update the padding variable names in the custom values table to the new format
+                dbCommand.executeDbCommand("UPDATE "
+                                           + InternalTable.VALUES.getTableName()
+                                           + " SET "
+                                           + ValuesColumn.TABLE_PATH.getColumnName()
+                                           + " = regexp_replace("
+                                           + ValuesColumn.TABLE_PATH.getColumnName()
+                                           + ", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');",
+                                           ccddMain.getMainFrame());
+
+                // Update the padding variable names in the links table to the new format
+                dbCommand.executeDbCommand("UPDATE "
+                                           + InternalTable.LINKS.getTableName()
+                                           + " SET "
+                                           + LinksColumn.MEMBER.getColumnName()
+                                           + " = regexp_replace("
+                                           + LinksColumn.MEMBER.getColumnName()
+                                           + ", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');",
+                                           ccddMain.getMainFrame());
+
+                // Update the padding variable names in the telemetry scheduler table to the new
+                // format
+                dbCommand.executeDbCommand("UPDATE "
+                                           + InternalTable.TLM_SCHEDULER.getTableName()
+                                           + " SET "
+                                           + TlmSchedulerColumn.MEMBER.getColumnName()
+                                           + " = regexp_replace("
+                                           + TlmSchedulerColumn.MEMBER.getColumnName()
+                                           + ", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');",
+                                           ccddMain.getMainFrame());
+
+                // Inform the user that updating the padding variables completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' padding variable conversion complete");
+            }
+
+            padData.close();
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the padding variable names failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                                           + dbControl.getProjectName()
+                                                           + "' padding variable names to new format; cause '"
+                                                           + e.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot convert project '"
+                                                                  + dbControl.getProjectName()
+                                                                  + "' padding variable names to new format "
+                                                                  + "(project database will be closed)");
+
+            throw new CCDDException();
+        }
     }
 
     /**********************************************************************************************
@@ -128,7 +286,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     assnsData.close();
-                    throw new CCDDException("user elected to not install patch (#1113017)");
+                    throw new CCDDException("user elected to not install patch (#11132017)");
                 }
 
                 // Step through each of the query results

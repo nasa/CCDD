@@ -36,7 +36,7 @@ public class CcddDbCommandHandler
     // PostgreSQL database statement
     private Statement statement;
 
-    // Save point for transaction rollbacks
+    // Save point for transaction roll backs
     private Savepoint savePoint;
 
     /**********************************************************************************************
@@ -271,7 +271,6 @@ public class CcddDbCommandHandler
         // Check if the save point exists
         if (savePoint != null)
         {
-            System.out.println("ROLL BACK TO SAVE POINT"); // TODO
             try
             {
                 // Revert any changes to the database to the save point

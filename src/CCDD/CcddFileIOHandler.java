@@ -17,10 +17,8 @@ import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USERS_GUIDE;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -45,11 +43,8 @@ import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -98,41 +93,7 @@ public class CcddFileIOHandler
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private List<CcddTableEditorDialog> tableEditorDlgs;
     private final CcddEventLogDialog eventLog;
-
-    // Component referenced by multiple methods
-    private JProgressBar progBar;
-    private HaltDialog haltDialog;
-
-    // Flag indicating if table importing/exporting is canceled by user input
-    private boolean haltImport;
-
-    // Number of divisions in the halt dialog's progress bar per data file
-    private int numDivisionPerStep;
-
-    // Counters used to calculate the progress bar value
-    private int progCount;
-    private int prevProgCount;
-    private int progStart;
-    private int progTotal;
-
-    /**********************************************************************************************
-     * Verification cancellation dialog class
-     *********************************************************************************************/
-    @SuppressWarnings("serial")
-    class HaltDialog extends CcddDialogHandler
-    {
-        /******************************************************************************************
-         * Handle the close dialog button action
-         *****************************************************************************************/
-        @Override
-        protected void closeDialog(int button)
-        {
-            // Set the flag to cancel verification
-            haltImport = true;
-
-            super.closeDialog(button);
-        };
-    }
+    private CcddHaltDialog haltDlg;
 
     /**********************************************************************************************
      * File I/O handler class constructor
@@ -612,70 +573,6 @@ public class CcddFileIOHandler
     }
 
     /**********************************************************************************************
-     * Update the verification progress bar
-     *
-     * @param progText
-     *            text to display within the progress bar
-     *
-     * @param startValue
-     *            initial value at which to begin this sequence in the verification process
-     *********************************************************************************************/
-    private void updateProgressBar(final String progText, int startValue)
-    {
-        // Check if the start value is provided
-        if (startValue != -1)
-        {
-            // Initialize the progress counters
-            progCount = 0;
-            prevProgCount = 0;
-            progStart = startValue;
-        }
-
-        // Update the progress counter
-        progCount++;
-
-        // Create a runnable object to be executed
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            /**************************************************************************************
-             * Since the progress bar involves a GUI update use invokeLater to execute the call on
-             * the event dispatch thread
-             *************************************************************************************/
-            @Override
-            public void run()
-            {
-                // Get the progress bar graphics context
-                Graphics gCont = progBar.getGraphics();
-
-                // Check if the context is valid
-                if (gCont != null)
-                {
-                    // Check if the progress text is provided
-                    if (!progText.isEmpty())
-                    {
-                        // Update the progress text
-                        progBar.setString(progText);
-                    }
-
-                    // Step through the progress count values beginning with the last one processed
-                    for (int count = prevProgCount + 1; count <= progCount; count++)
-                    {
-                        // Update the progress bar
-                        progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
-                        progBar.update(gCont);
-                    }
-
-                    // Store the last processed progress counter value
-                    prevProgCount = progCount;
-
-                    // Redraw the halt dialog
-                    haltDialog.update(haltDialog.getGraphics());
-                }
-            }
-        });
-    }
-
-    /**********************************************************************************************
      * Import one or more files, creating new tables and optionally replacing existing ones. The
      * file(s) may contain definitions for more than one table. This method is executed in a
      * separate thread since it can take a noticeable amount time to complete, and by using a
@@ -713,8 +610,6 @@ public class CcddFileIOHandler
                                           final boolean openEditor,
                                           final Component parent)
     {
-        haltDialog = new HaltDialog();
-
         // Execute the import operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
@@ -724,64 +619,13 @@ public class CcddFileIOHandler
             @Override
             protected void execute()
             {
-                // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0,
-                                                                0,
-                                                                1,
-                                                                1,
-                                                                1.0,
-                                                                0.0,
-                                                                GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                           0,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                                0,
-                                                                0);
-
-                // Create the cancellation dialog
-                JPanel dialogPnl = new JPanel(new GridBagLayout());
-                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-                JLabel textLbl = new JLabel("<html><b>Import in progress...<br><br>",
-                                            SwingConstants.LEFT);
-                textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                gbc.gridy++;
-                dialogPnl.add(textLbl, gbc);
-                JLabel textLbl2 = new JLabel("<html><b>"
-                                             + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                           + "to terminate import ***",
-                                                                           Color.RED)
-                                             + "</b><br><br>",
-                                             SwingConstants.CENTER);
-                textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                gbc.gridy++;
-                dialogPnl.add(textLbl2, gbc);
-
-                // Set the total number of import steps (this is the number of methods called
-                // to verify each portion of the database) and use it to calculate the number of
-                // divisions within each step
-                numDivisionPerStep = 100;
-                progTotal = dataFile.length * numDivisionPerStep;
-
-                // Add a progress bar to the dialog
-                progBar = new JProgressBar(0, progTotal);
-                progBar.setValue(0);
-                progBar.setStringPainted(true);
-                progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                gbc.insets.bottom = 0;
-                gbc.gridy++;
-                dialogPnl.add(progBar, gbc);
-
-                // Display the import cancellation dialog
-                haltDialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                             dialogPnl,
-                                             "Importing Table(s)",
-                                             DialogOption.HALT_OPTION,
-                                             false,
-                                             false);
+                // Create the import cancellation dialog
+                haltDlg = new CcddHaltDialog("Import Table(s)",
+                                             "Importing tables",
+                                             "import",
+                                             100,
+                                             dataFile.length,
+                                             ccddMain.getMainFrame());
 
                 // Import the selected table(s)
                 importFile(dataFile,
@@ -800,19 +644,18 @@ public class CcddFileIOHandler
             protected void complete()
             {
                 // Check if the user didn't cancel import
-                if (!haltImport)
+                if (haltDlg.isHalted())
                 {
                     // Close the cancellation dialog
-                    haltDialog.closeDialog();
+                    haltDlg.closeDialog();
                 }
                 // Import was canceled
                 else
                 {
-                    haltImport = false;
                     eventLog.logEvent(EventLogMessageType.FAIL_MSG, "Import canceled by user");
                 }
 
-                haltDialog = null;
+                haltDlg = null;
             }
         });
     }
@@ -857,9 +700,9 @@ public class CcddFileIOHandler
                                  boolean openEditor,
                                  Component parent)
     {
-        haltImport = false;
         boolean errorFlag = false;
         String filePath = null;
+        CcddImportExportInterface ioHandler = null;
         List<TableDefinition> allTableDefinitions = new ArrayList<TableDefinition>();
         List<String> duplicateDefinitions = new ArrayList<String>();
 
@@ -873,8 +716,6 @@ public class CcddFileIOHandler
         List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
         List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = new ArrayList<String[]>(fieldHandler.getFieldDefinitions());
-
-        CcddImportExportInterface ioHandler = null;
 
         // Create a reference to a table editor dialog list
         tableEditorDlgs = new ArrayList<CcddTableEditorDialog>();
@@ -901,17 +742,17 @@ public class CcddFileIOHandler
 
                 // Check if the halt dialog is active (import operation is executed in the
                 // background)
-                if (haltDialog != null)
+                if (haltDlg != null)
                 {
                     // Check if the user canceled verification
-                    if (haltImport)
+                    if (haltDlg.isHalted())
                     {
                         throw new CCDDException();
                     }
 
                     // Update the progress bar
-                    updateProgressBar("Reading import file " + file.getName(),
-                                      numDivisionPerStep * numFilesProcessed);
+                    haltDlg.updateProgressBar("Reading import file " + file.getName(),
+                                              haltDlg.getNumDivisionPerStep() * numFilesProcessed);
                     numFilesProcessed++;
                 }
 
@@ -960,19 +801,20 @@ public class CcddFileIOHandler
 
                 // Check if the halt dialog is active (import operation is executed in the
                 // background)
-                if (haltDialog != null)
+                if (haltDlg != null)
                 {
                     // Force the dialog to the front
-                    haltDialog.toFront();
+                    haltDlg.toFront();
 
                     // Check if the user canceled verification
-                    if (haltImport)
+                    if (haltDlg.isHalted())
                     {
                         throw new CCDDException();
                     }
 
                     // Update the progress bar
-                    updateProgressBar("Creating table(s)...", progBar.getValue());
+                    haltDlg.updateProgressBar("Creating table(s)...",
+                                              haltDlg.getProgressBar().getValue());
                 }
 
                 // Check if the user elected to append any new data fields to any existing ones for
@@ -1197,10 +1039,10 @@ public class CcddFileIOHandler
         List<String> allTables = tableTree.getTableTreePathList(null);
 
         // Check if the cancel import dialog is present
-        if (haltDialog != null)
+        if (haltDlg != null)
         {
             // Initialize the progress bar within-step total
-            progTotal = tableDefinitions.size();
+            haltDlg.setProgressTotal(tableDefinitions.size());
         }
 
         // Perform two passes; first to process prototype tables, and second to process child
@@ -1220,7 +1062,7 @@ public class CcddFileIOHandler
                 }
 
                 // Check if the table import was canceled by the user
-                if (haltImport)
+                if (haltDlg.isHalted())
                 {
                     throw new CCDDException();
                 }
@@ -1232,14 +1074,16 @@ public class CcddFileIOHandler
                     && (!tableDefn.getName().contains(".") != !prototypesOnly))
                 {
                     // Check if the cancel import dialog is present
-                    if (haltDialog != null)
+                    if (haltDlg != null)
                     {
                         // Force the dialog to the front
-                        haltDialog.toFront();
+                        haltDlg.toFront();
 
                         // Update the progress bar
-                        updateProgressBar("", -1);
+                        haltDlg.updateProgressBar(null, -1);
                     }
+
+                    boolean isChildOfNonRoot = false;
 
                     // Get the table type definition for this table
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefn.getTypeName());
@@ -1256,9 +1100,15 @@ public class CcddFileIOHandler
                                                                       !tableDefn.getName().contains("."),
                                                                       tableDefn.getDataFields().toArray(new String[0][0]));
 
-                    // Check if the new table is not a prototype
+                    // Check if the new table is not a prototype. The prototype for the table and
+                    // each of its ancestors need to be created if these don't exist
                     if (!tableInfo.isPrototype())
                     {
+                        // Set the flag to indicate if this is a child of a non-root structure;
+                        // i.e., it only defines the prototype for other instances of the child's
+                        // prototype, and isn't a legitimate instance itself
+                        isChildOfNonRoot = !dbTable.getRootStructures().contains(tableInfo.getRootTable());
+
                         // Break the path into the individual structure variable references
                         String[] ancestors = tableInfo.getTablePath().split(",");
 
@@ -1314,25 +1164,41 @@ public class CcddFileIOHandler
                                     // Create a list to store a copy of the cell data
                                     List<String> protoData = new ArrayList<String>(tableDefn.getData());
 
-                                    // Step through each row of the cell data
-                                    for (int cellIndex = 0; cellIndex < tableDefn.getData().size(); cellIndex += numColumns)
+                                    // Check if this is the child of a non-root structure
+                                    if (isChildOfNonRoot)
                                     {
-                                        // Step through each column in the row
-                                        for (int colIndex = 0; colIndex < numColumns; colIndex++)
+                                        // Since this child defines its prototype, use all of the
+                                        // table data
+                                        protoData = tableDefn.getData();
+                                    }
+                                    // This is the child of a root structure (an instance of the
+                                    // table). The instance will contain all of the imported data,
+                                    // but the prototype that's created for the child will only get
+                                    // the data for columns that are flagged as required. This
+                                    // prevents successive children from overwriting the prototype
+                                    // with instance-specific cell values
+                                    else
+                                    {
+                                        // Step through each row of the cell data
+                                        for (int cellIndex = 0; cellIndex < tableDefn.getData().size(); cellIndex += numColumns)
                                         {
-                                            // Check if the column is not required by the table
-                                            // type
-                                            if (!DefaultColumn.isTypeRequiredColumn((typeDefn.isStructure()
-                                                                                                            ? TYPE_STRUCTURE
-                                                                                                            : (typeDefn.isCommand()
-                                                                                                                                    ? TYPE_COMMAND
-                                                                                                                                    : TYPE_OTHER)),
-                                                                                    typeDefn.getInputTypesVisible()[colIndex]))
+                                            // Step through each column in the row
+                                            for (int colIndex = 0; colIndex < numColumns; colIndex++)
                                             {
-                                                // Replace the non-required column value with a
-                                                // blank. The child's non-required values are
-                                                // therefore not inherited from the prototype
-                                                protoData.set(cellIndex + colIndex, "");
+                                                // Check if the column is not required by the table
+                                                // type
+                                                if (!DefaultColumn.isTypeRequiredColumn((typeDefn.isStructure()
+                                                                                                                ? TYPE_STRUCTURE
+                                                                                                                : (typeDefn.isCommand()
+                                                                                                                                        ? TYPE_COMMAND
+                                                                                                                                        : TYPE_OTHER)),
+                                                                                        typeDefn.getInputTypesVisible()[colIndex]))
+                                                {
+                                                    // Replace the non-required column value with a
+                                                    // blank. The child's non-required values are
+                                                    // therefore not inherited from the prototype
+                                                    protoData.set(cellIndex + colIndex, "");
+                                                }
                                             }
                                         }
                                     }
@@ -1387,36 +1253,52 @@ public class CcddFileIOHandler
                             }
                         }
 
-                        // Load the table's prototype data from the database and copy the
-                        // prototype's data to the table
-                        TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
-                                                                           false,
-                                                                           false,
-                                                                           false,
-                                                                           ccddMain.getMainFrame());
-                        tableInfo.setData(protoInfo.getData());
+                        // Check if this is the child of a root structure (an instance of the
+                        // table). If this is a child of a non-root table then its prototype is
+                        // created above and doesn't need to be created below
+                        if (!isChildOfNonRoot)
+                        {
+                            // Load the table's prototype data from the database and copy the
+                            // prototype's data to the table. The data from the import file is
+                            // pasted over the prototype's
+                            TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
+                                                                               false,
+                                                                               false,
+                                                                               false,
+                                                                               ccddMain.getMainFrame());
+                            tableInfo.setData(protoInfo.getData());
+                        }
                     }
 
-                    // Create a table from the imported information
-                    if (!createImportedTable(tableInfo,
-                                             tableDefn.getData(),
-                                             numColumns,
-                                             replaceExisting,
-                                             openEditor,
-                                             "Cannot create prototype '"
-                                                         + tableInfo.getPrototypeName()
-                                                         + "'",
-                                             allTables,
-                                             parent))
+                    // Check if this is the child of a root structure (an instance of the table).
+                    // If this is a child of a non-root table then its prototype is created above
+                    // and doesn't need to be created here
+                    if (!isChildOfNonRoot)
                     {
-                        // Add the skipped table to the list
-                        skippedTables.add(tableInfo.getTablePath());
+                        // Create a table from the imported information
+                        if (!createImportedTable(tableInfo,
+                                                 tableDefn.getData(),
+                                                 numColumns,
+                                                 replaceExisting,
+                                                 openEditor,
+                                                 "Cannot create table '"
+                                                             + tableInfo.getPrototypeName()
+                                                             + "'",
+                                                 allTables,
+                                                 parent))
+                        {
+                            // Add the skipped table to the list
+                            skippedTables.add(tableInfo.getTablePath());
+                        }
                     }
                 }
             }
 
             prototypesOnly = false;
         }
+
+        // Update the progress bar
+        haltDlg.updateProgressBar("Updating internal tables...", -1);
 
         // Check if any tables were skipped
         if (!skippedTables.isEmpty())
@@ -1604,10 +1486,10 @@ public class CcddFileIOHandler
                 }
 
                 // Check if the cancel import dialog is present
-                if (haltDialog != null)
+                if (haltDlg != null)
                 {
                     // Force the dialog to the front
-                    haltDialog.toFront();
+                    haltDlg.toFront();
                 }
 
                 // Get the reference to the table's editor
@@ -1624,7 +1506,7 @@ public class CcddFileIOHandler
                     public void run()
                     {
                         // (Re)draw the halt and the table editor dialogs
-                        haltDialog.update(haltDialog.getGraphics());
+                        haltDlg.update(haltDlg.getGraphics());
                         tableEditorDlg.update(tableEditorDlg.getGraphics());
                     }
                 });

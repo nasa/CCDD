@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -421,7 +422,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                            : tableInfo.getRootTable() + ": " + name);
 
         // Check that the table is open in a table editor (versus open for a macro name and/or
-        // value change)
+        // value change, for example)
         if (editorDialog != null)
         {
             // Set the dialog name so that this dialog can be recognized as being open by the table
@@ -561,7 +562,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Check if the variable path, variable name, and data type columns are present, the table
         // represents a structure, the table has been created, and the table is open in a table
-        // editor (versus open for a macro or data type change)
+        // editor (versus open for a macro or data type change, for example)
         if (variablePathIndex != -1
             && variableNameIndex != -1
             && dataTypeIndex != -1
@@ -1252,7 +1253,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 boolean isFieldChanged = false;
 
                 // Check that the table is open in a table editor (versus open for a macro name
-                // and/or value change)
+                // and/or value change, for example)
                 if (editorDialog != null)
                 {
                     // Update the field information with the current text field values
@@ -2129,8 +2130,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                              true);
 
                 // Check that the table is open in a table editor (versus open for a macro name
-                // and/or value change) and if this is the widest editor table in this tabbed
-                // editor dialog
+                // and/or value change, for example)
                 if (editorDialog != null)
                 {
                     // Get the minimum width needed to display all columns, but no wider than the
@@ -2203,7 +2203,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     else if (variableNameIndex != -1
                              && getExpandedValueAt(table.convertRowIndexToModel(row),
                                                    variableNameIndex).toString().matches(PAD_VARIABLE
-                                                                                         + "[0-9]+(?:\\[[0-9]+\\])?$"))
+                                                                                         + "(?:\\[[0-9]+\\])?$"))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
@@ -2223,280 +2223,293 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 super.setTableSortable();
 
-                // Get the table's row sorter
-                TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
-
-                // Create a runnable object to be executed
-                SwingUtilities.invokeLater(new Runnable()
+                // Check that the table is open in a table editor (versus open for a macro name
+                // and/or value change, for example)
+                if (editorDialog != null)
                 {
-                    /******************************************************************************
-                     * Execute after all pending Swing events are finished. This allows the number
-                     * of viewable columns to catch up with the column model when a column is
-                     * removed
-                     *****************************************************************************/
-                    @Override
-                    public void run()
-                    {
-                        // Issue a table change event so that the new row is displayed properly
-                        // when the array view is collapsed. Can't use tableModel here since it
-                        // isn't set when the first call to this method is made
-                        ((UndoableTableModel) table.getModel()).fireTableStructureChanged();
-                    }
-                });
+                    // Get the table's row sorter
+                    TableRowSorter<?> sorter = (TableRowSorter<?>) getRowSorter();
 
-                // Check if the table has a sorter (i.e., has at least one row)
-                if (sorter != null)
-                {
-                    // Check if the row filter hasn't been set and that there is an array row
-                    // filter
-                    if (sorter.getRowFilter() == null && rowFilter != null)
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
                     {
-                        // Apply the row filter that shows/hides the array members
-                        sorter.setRowFilter(rowFilter);
-                    }
-
-                    // Step through each table column
-                    for (int column = 0; column < table.getModel().getColumnCount(); column++)
-                    {
-                        // Get the input type format for this column
-                        final InputTypeFormat inputFormat = typeDefn.getInputTypes()[column].getInputFormat();
-
-                        // Add a column sort comparator
-                        sorter.setComparator(column, new Comparator<String>()
+                        /**************************************************************************
+                         * Execute after all pending Swing events are finished. This allows the
+                         * number of viewable columns to catch up with the column model when a
+                         * column is removed
+                         *************************************************************************/
+                        @Override
+                        public void run()
                         {
-                            /**********************************************************************
-                             * Override the comparison when sorting columns to account for the
-                             * column's input type format. Note that macros aren't expanded when
-                             * sorting. Though expansion provides an accurate sort, visually it's
-                             * confusing since the macro values aren't readily apparent. For
-                             * columns with a numeric input type that contain macros then initial
-                             * numeric portion (if any) if used when sorting
-                             *********************************************************************/
-                            @Override
-                            public int compare(String cell1, String cell2)
+                            // Issue a table change event so that the new row is displayed properly
+                            // when the array view is collapsed. Can't use tableModel here since it
+                            // isn't set when the first call to this method is made
+                            ((UndoableTableModel) table.getModel()).fireTableStructureChanged();
+                        }
+                    });
+
+                    // Check if the table has a sorter (i.e., has at least one row)
+                    if (sorter != null)
+                    {
+                        // Check if the row filter hasn't been set and that there is an array row
+                        // filter
+                        if (sorter.getRowFilter() == null && rowFilter != null)
+                        {
+                            // Apply the row filter that shows/hides the array members
+                            sorter.setRowFilter(rowFilter);
+                        }
+
+                        // Step through each table column
+                        for (int column = 0; column < table.getModel().getColumnCount(); column++)
+                        {
+                            // Get the input type format for this column
+                            final InputTypeFormat inputFormat = typeDefn.getInputTypes()[column].getInputFormat();
+
+                            // Add a column sort comparator
+                            sorter.setComparator(column, new Comparator<String>()
                             {
-                                Integer result = 0;
+                                /******************************************************************
+                                 * Override the comparison when sorting columns to account for the
+                                 * column's input type format. Note that macros aren't expanded
+                                 * when sorting. Though expansion provides an accurate sort,
+                                 * visually it's confusing since the macro values aren't readily
+                                 * apparent. For columns with a numeric input type that contain
+                                 * macros then initial numeric portion (if any) if used when
+                                 * sorting
+                                 *****************************************************************/
+                                @Override
+                                public int compare(String cell1, String cell2)
+                                {
+                                    Integer result = 0;
 
-                                // Check if either cell is empty
-                                if (cell1.isEmpty() || cell2.isEmpty())
-                                {
-                                    // Compare as text (alphabetically)
-                                    result = cell1.compareTo(cell2);
-                                }
-                                // Neither cell is empty
-                                else
-                                {
-                                    // Set the row sort comparator based on the column input format
-                                    // type
-                                    switch (inputFormat)
+                                    // Check if either cell is empty
+                                    if (cell1.isEmpty() || cell2.isEmpty())
                                     {
-                                        case TEXT:
-                                        case DATA_TYPE:
-                                        case ENUMERATION:
-                                        case PAGE_FORMAT:
-                                        case VARIABLE_PATH:
-                                        case BOOLEAN:
-                                            // Compare as text (alphabetically)
-                                            result = cell1.compareTo(cell2);
-                                            break;
-
-                                        default:
-                                            // Check if the initial portion of both cells is a
-                                            // number
-                                            if (cell1.matches(InputDataType.INTEGER.getInputMatch() + ".*")
-                                                && cell2.matches(InputDataType.INTEGER.getInputMatch() + ".*"))
-                                            {
-                                                switch (inputFormat)
-                                                {
-                                                    case INTEGER:
-                                                        // Compare the two cell values as integers
-                                                        result = Integer.compare(Integer.valueOf(cell1.replaceAll("("
-                                                                                                                  + InputDataType.INTEGER.getInputMatch()
-                                                                                                                  + ").*",
-                                                                                                                  "$1")),
-                                                                                 Integer.valueOf(cell2.replaceAll("("
-                                                                                                                  + InputDataType.INTEGER.getInputMatch()
-                                                                                                                  + ").*",
-                                                                                                                  "$1")));
-                                                        break;
-
-                                                    case HEXADECIMAL:
-                                                        // Compare the two cell values as integers
-                                                        result = Integer.compare(Integer.decode(cell1.replaceAll("("
-                                                                                                                 + InputDataType.HEXADECIMAL.getInputMatch()
-                                                                                                                 + ").*",
-                                                                                                                 "$1")),
-                                                                                 Integer.decode(cell2.replaceAll("("
-                                                                                                                 + InputDataType.HEXADECIMAL.getInputMatch()
-                                                                                                                 + ").*",
-                                                                                                                 "$1")));
-                                                        break;
-
-                                                    case FLOAT:
-                                                    case MINIMUM:
-                                                    case MAXIMUM:
-                                                        // Compare the two cell values as floating
-                                                        // points
-                                                        result = Double.compare(Double.valueOf(cell1.replaceAll("("
-                                                                                                                + InputDataType.FLOAT.getInputMatch()
-                                                                                                                + ").*",
-                                                                                                                "$1")),
-                                                                                Double.valueOf(cell2.replaceAll("("
-                                                                                                                + InputDataType.FLOAT.getInputMatch()
-                                                                                                                + ").*",
-                                                                                                                "$1")));
-                                                        break;
-
-                                                    case RATE:
-                                                        // Calculate the value of the cells'
-                                                        // expressions, then compare the results as
-                                                        // floating point values
-                                                        result = Double.compare(CcddMathExpressionHandler.evaluateExpression(cell1),
-                                                                                CcddMathExpressionHandler.evaluateExpression(cell2));
-                                                        break;
-
-                                                    case ARRAY:
-                                                        // Array sizes are in the format #<,#<...>.
-                                                        // Each cell's array dimensions are first
-                                                        // separated, then the first dimension is
-                                                        // compared between the two cells, then the
-                                                        // second, and so on until a mismatch is
-                                                        // found; the sort is performed based on
-                                                        // the mismatch (e.g., '1, 2' follows '1'
-                                                        // when sorted in ascending order)
-                                                        String[] dim1 = cell1.split("\\s*,\\s*");
-                                                        String[] dim2 = cell2.split("\\s*,\\s*");
-
-                                                        // Check if the first array size has the
-                                                        // same dimensions than the second
-                                                        if (dim1.length == dim2.length)
-                                                        {
-                                                            // Step through each array dimension as
-                                                            // long as there's no mismatch
-                                                            for (int index = 0; index < dim1.length && result == 0; index++)
-                                                            {
-                                                                // Check if the dimension values
-                                                                // are integers (and not a macro or
-                                                                // sizeof() call)
-                                                                if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                    && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
-                                                                {
-                                                                    // Compare the two array
-                                                                    // dimensions
-                                                                    result = Integer.compare(Integer.valueOf(dim1[index]),
-                                                                                             Integer.valueOf(dim2[index]));
-                                                                }
-                                                                // One or both dimension values
-                                                                // isn't a number
-                                                                else
-                                                                {
-                                                                    // Compare as text
-                                                                    // (alphabetically)
-                                                                    result = dim1[index].compareTo(dim2[index]);
-                                                                }
-                                                            }
-                                                        }
-                                                        // Check if the first array size has the
-                                                        // fewer dimensions than the second
-                                                        else if (dim1.length < dim2.length)
-                                                        {
-                                                            // Step through each array dimension as
-                                                            // long as there's no mismatch
-                                                            for (int index = 0; index < dim1.length && result == 0; index++)
-                                                            {
-                                                                // Check if the dimension values
-                                                                // are integers (and not a macro or
-                                                                // sizeof() call)
-                                                                if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                    && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
-                                                                {
-                                                                    // Compare the two array
-                                                                    // dimensions
-                                                                    result = Integer.compare(Integer.valueOf(dim1[index]),
-                                                                                             Integer.valueOf(dim2[index]));
-                                                                }
-                                                                // One or both dimension values
-                                                                // isn't a number
-                                                                else
-                                                                {
-                                                                    // Compare as text
-                                                                    // (alphabetically)
-                                                                    result = dim1[index].compareTo(dim2[index]);
-                                                                }
-                                                            }
-
-                                                            // Check if the each pair of array
-                                                            // dimension values are identical
-                                                            if (result == 0)
-                                                            {
-                                                                // Set the result to indicate the
-                                                                // first cell comes before the
-                                                                // second since the second has more
-                                                                // dimensions
-                                                                result = -1;
-                                                            }
-                                                        }
-                                                        // The first array size has the more
-                                                        // dimensions than the second
-                                                        else
-                                                        {
-                                                            // Step through each array dimension as
-                                                            // long as there's no mismatch
-                                                            for (int index = 0; index < dim2.length && result == 0; index++)
-                                                            {
-                                                                // Check if the dimension values
-                                                                // are integers (and not a macro or
-                                                                // sizeof() call)
-                                                                if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                    && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
-                                                                {
-                                                                    // Compare the two array
-                                                                    // dimensions
-                                                                    result = Integer.compare(Integer.valueOf(dim1[index]),
-                                                                                             Integer.valueOf(dim2[index]));
-                                                                }
-                                                                // One or both dimension values
-                                                                // isn't a number
-                                                                else
-                                                                {
-                                                                    // Compare as text
-                                                                    // (alphabetically)
-                                                                    result = dim1[index].compareTo(dim2[index]);
-                                                                }
-                                                            }
-
-                                                            // Check if the each pair of array
-                                                            // dimension values are identical
-                                                            if (result == 0)
-                                                            {
-                                                                // Set the result to indicate the
-                                                                // first cell comes after the
-                                                                // second since the second has
-                                                                // fewer dimensions
-                                                                result = 1;
-                                                            }
-                                                        }
-
-                                                        break;
-
-                                                    default:
-                                                        break;
-                                                }
-                                            }
-                                            // One or both cells doesn't begin with a number (this
-                                            // is the case if the cell begins with a macro or
-                                            // sizeof() call)
-                                            else
-                                            {
+                                        // Compare as text (alphabetically)
+                                        result = cell1.compareTo(cell2);
+                                    }
+                                    // Neither cell is empty
+                                    else
+                                    {
+                                        // Set the row sort comparator based on the column input
+                                        // format type
+                                        switch (inputFormat)
+                                        {
+                                            case TEXT:
+                                            case DATA_TYPE:
+                                            case ENUMERATION:
+                                            case PAGE_FORMAT:
+                                            case VARIABLE_PATH:
+                                            case BOOLEAN:
                                                 // Compare as text (alphabetically)
                                                 result = cell1.compareTo(cell2);
-                                            }
-                                    }
-                                }
+                                                break;
 
-                                return result;
-                            }
-                        });
+                                            default:
+                                                // Check if the initial portion of both cells is a
+                                                // number
+                                                if (cell1.matches(InputDataType.INTEGER.getInputMatch() + ".*")
+                                                    && cell2.matches(InputDataType.INTEGER.getInputMatch() + ".*"))
+                                                {
+                                                    switch (inputFormat)
+                                                    {
+                                                        case INTEGER:
+                                                            // Compare the two cell values as
+                                                            // integers
+                                                            result = Integer.compare(Integer.valueOf(cell1.replaceAll("("
+                                                                                                                      + InputDataType.INTEGER.getInputMatch()
+                                                                                                                      + ").*",
+                                                                                                                      "$1")),
+                                                                                     Integer.valueOf(cell2.replaceAll("("
+                                                                                                                      + InputDataType.INTEGER.getInputMatch()
+                                                                                                                      + ").*",
+                                                                                                                      "$1")));
+                                                            break;
+
+                                                        case HEXADECIMAL:
+                                                            // Compare the two cell values as
+                                                            // integers
+                                                            result = Integer.compare(Integer.decode(cell1.replaceAll("("
+                                                                                                                     + InputDataType.HEXADECIMAL.getInputMatch()
+                                                                                                                     + ").*",
+                                                                                                                     "$1")),
+                                                                                     Integer.decode(cell2.replaceAll("("
+                                                                                                                     + InputDataType.HEXADECIMAL.getInputMatch()
+                                                                                                                     + ").*",
+                                                                                                                     "$1")));
+                                                            break;
+
+                                                        case FLOAT:
+                                                        case MINIMUM:
+                                                        case MAXIMUM:
+                                                            // Compare the two cell values as
+                                                            // floating points
+                                                            result = Double.compare(Double.valueOf(cell1.replaceAll("("
+                                                                                                                    + InputDataType.FLOAT.getInputMatch()
+                                                                                                                    + ").*",
+                                                                                                                    "$1")),
+                                                                                    Double.valueOf(cell2.replaceAll("("
+                                                                                                                    + InputDataType.FLOAT.getInputMatch()
+                                                                                                                    + ").*",
+                                                                                                                    "$1")));
+                                                            break;
+
+                                                        case RATE:
+                                                            // Calculate the value of the cells'
+                                                            // expressions, then compare the
+                                                            // results as floating point values
+                                                            result = Double.compare(CcddMathExpressionHandler.evaluateExpression(cell1),
+                                                                                    CcddMathExpressionHandler.evaluateExpression(cell2));
+                                                            break;
+
+                                                        case ARRAY:
+                                                            // Array sizes are in the format
+                                                            // #<,#<...>. Each cell's array
+                                                            // dimensions are first separated, then
+                                                            // the first dimension is compared
+                                                            // between the two cells, then the
+                                                            // second, and so on until a mismatch
+                                                            // is found; the sort is performed
+                                                            // based on the mismatch (e.g., '1, 2'
+                                                            // follows '1' when sorted in ascending
+                                                            // order)
+                                                            String[] dim1 = cell1.split("\\s*,\\s*");
+                                                            String[] dim2 = cell2.split("\\s*,\\s*");
+
+                                                            // Check if the first array size has
+                                                            // the same dimensions than the second
+                                                            if (dim1.length == dim2.length)
+                                                            {
+                                                                // Step through each array
+                                                                // dimension as long as there's no
+                                                                // mismatch
+                                                                for (int index = 0; index < dim1.length && result == 0; index++)
+                                                                {
+                                                                    // Check if the dimension
+                                                                    // values are integers (and not
+                                                                    // a macro or sizeof() call)
+                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    {
+                                                                        // Compare the two array
+                                                                        // dimensions
+                                                                        result = Integer.compare(Integer.valueOf(dim1[index]),
+                                                                                                 Integer.valueOf(dim2[index]));
+                                                                    }
+                                                                    // One or both dimension values
+                                                                    // isn't a number
+                                                                    else
+                                                                    {
+                                                                        // Compare as text
+                                                                        // (alphabetically)
+                                                                        result = dim1[index].compareTo(dim2[index]);
+                                                                    }
+                                                                }
+                                                            }
+                                                            // Check if the first array size has
+                                                            // the fewer dimensions than the second
+                                                            else if (dim1.length < dim2.length)
+                                                            {
+                                                                // Step through each array
+                                                                // dimension as long as there's no
+                                                                // mismatch
+                                                                for (int index = 0; index < dim1.length && result == 0; index++)
+                                                                {
+                                                                    // Check if the dimension
+                                                                    // values are integers (and not
+                                                                    // a macro or sizeof() call)
+                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    {
+                                                                        // Compare the two array
+                                                                        // dimensions
+                                                                        result = Integer.compare(Integer.valueOf(dim1[index]),
+                                                                                                 Integer.valueOf(dim2[index]));
+                                                                    }
+                                                                    // One or both dimension values
+                                                                    // isn't a number
+                                                                    else
+                                                                    {
+                                                                        // Compare as text
+                                                                        // (alphabetically)
+                                                                        result = dim1[index].compareTo(dim2[index]);
+                                                                    }
+                                                                }
+
+                                                                // Check if the each pair of array
+                                                                // dimension values are identical
+                                                                if (result == 0)
+                                                                {
+                                                                    // Set the result to indicate
+                                                                    // the first cell comes before
+                                                                    // the second since the second
+                                                                    // has more dimensions
+                                                                    result = -1;
+                                                                }
+                                                            }
+                                                            // The first array size has the more
+                                                            // dimensions than the second
+                                                            else
+                                                            {
+                                                                // Step through each array
+                                                                // dimension as long as there's no
+                                                                // mismatch
+                                                                for (int index = 0; index < dim2.length && result == 0; index++)
+                                                                {
+                                                                    // Check if the dimension
+                                                                    // values are integers (and not
+                                                                    // a macro or sizeof() call)
+                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    {
+                                                                        // Compare the two array
+                                                                        // dimensions
+                                                                        result = Integer.compare(Integer.valueOf(dim1[index]),
+                                                                                                 Integer.valueOf(dim2[index]));
+                                                                    }
+                                                                    // One or both dimension values
+                                                                    // isn't a number
+                                                                    else
+                                                                    {
+                                                                        // Compare as text
+                                                                        // (alphabetically)
+                                                                        result = dim1[index].compareTo(dim2[index]);
+                                                                    }
+                                                                }
+
+                                                                // Check if the each pair of array
+                                                                // dimension values are identical
+                                                                if (result == 0)
+                                                                {
+                                                                    // Set the result to indicate
+                                                                    // the first cell comes after
+                                                                    // the second since the second
+                                                                    // has fewer dimensions
+                                                                    result = 1;
+                                                                }
+                                                            }
+
+                                                            break;
+
+                                                        default:
+                                                            break;
+                                                    }
+                                                }
+                                                // One or both cells doesn't begin with a number
+                                                // (this is the case if the cell begins with a
+                                                // macro or sizeof() call)
+                                                else
+                                                {
+                                                    // Compare as text (alphabetically)
+                                                    result = cell1.compareTo(cell2);
+                                                }
+                                        }
+                                    }
+
+                                    return result;
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -3353,13 +3366,27 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Handle a TableModelEvent event only if the table is open in a table editor
+             *************************************************************************************/
+            @Override
+            public void tableChanged(final TableModelEvent tme)
+            {
+                // Check that the table is open in a table editor (versus open for a macro name
+                // and/or value change, for example)
+                if (editorDialog != null)
+                {
+                    super.tableChanged(tme);
+                }
+            }
+
+            /**************************************************************************************
              * Handle a change to the table's content
              *************************************************************************************/
             @Override
             protected void processTableContentChange()
             {
                 // Check that the table is open in a table editor (versus open for a macro name
-                // and/or value change)
+                // and/or value change, for example)
                 if (editorDialog != null)
                 {
                     // Update the change indicator for the table
@@ -3405,7 +3432,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         updateVariablePaths();
 
         // Check that the table is open in a table editor (versus open for a macro or data type
-        // change)
+        // change, for example)
         if (editorDialog != null)
         {
             // Create the input field panel to contain the table editor
@@ -4116,32 +4143,36 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
             }
 
-            // Step through each command argument column grouping
-            for (AssociatedColumns cmdArg : associatedColumns)
-            {
-                // Check if the command argument's minimum column matches the current minimum
-                // column index
-                if (cmdArg.getMinimum() == minColumn)
-                {
-                    // Reset the minimum column index so that it isn't reused
-                    minColumn = -1;
-                }
-
-                // Check if the command argument's maximum column matches the current maximum
-                // column index
-                if (cmdArg.getMaximum() == maxColumn)
-                {
-                    // Reset the maximum column index so that it isn't reused
-                    maxColumn = -1;
-                }
-            }
-
-            // Check if either a minimum or maximum column exists not already associated with a
-            // command argument
+            // Check if either a minimum or maximum column was found
             if (minColumn != -1 || maxColumn != -1)
             {
-                // Add the new minimum/maximum column pairing to the list
-                minMaxPair.add(new MinMaxPair(minColumn, maxColumn));
+                // Step through each command argument column grouping
+                for (AssociatedColumns cmdArg : associatedColumns)
+                {
+                    // Check if the command argument's minimum column matches the current minimum
+                    // column index
+                    if (cmdArg.getMinimum() == minColumn)
+                    {
+                        // Reset the minimum column index so that it isn't reused
+                        minColumn = -1;
+                    }
+
+                    // Check if the command argument's maximum column matches the current maximum
+                    // column index
+                    if (cmdArg.getMaximum() == maxColumn)
+                    {
+                        // Reset the maximum column index so that it isn't reused
+                        maxColumn = -1;
+                    }
+                }
+
+                // Check if either a minimum or maximum column exists not already associated with a
+                // command argument
+                if (minColumn != -1 || maxColumn != -1)
+                {
+                    // Add the new minimum/maximum column pairing to the list
+                    minMaxPair.add(new MinMaxPair(minColumn, maxColumn));
+                }
             }
         }
     }
@@ -4623,7 +4654,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         tableModel.fireTableStructureChanged();
 
         // Check that the table is open in a table editor (versus open for a macro name and/or
-        // value change)
+        // value change, for example)
         if (editorDialog != null)
         {
             // Update the expand/collapse arrays check box
@@ -5072,7 +5103,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // which can produce a race condition if it's used for change comparisons
 
         // Check that the table is open in a table editor (versus open for a macro name and/or
-        // value change)
+        // value change, for example)
         if (editorDialog != null)
         {
             // Store the description into the table information class so that it can be used to

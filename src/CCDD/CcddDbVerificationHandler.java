@@ -782,10 +782,11 @@ public class CcddDbVerificationHandler
      * Update the verification progress bar
      *
      * @param progText
-     *            text to display within the progress bar
+     *            text to display within the progress bar; null to not update the text
      *
      * @param startValue
-     *            initial value at which to begin this sequence in the verification process
+     *            initial value at which to begin this sequence in the verification process; -1 to
+     *            not change the initial value
      *********************************************************************************************/
     private void updateProgressBar(final String progText, int startValue)
     {
@@ -812,7 +813,7 @@ public class CcddDbVerificationHandler
             public void run()
             {
                 // Check if the progress text is provided
-                if (!progText.isEmpty())
+                if (progText != null)
                 {
                     // Update the progress text
                     progBar.setString(progText);
@@ -1161,7 +1162,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar("", -1);
+                updateProgressBar(null, -1);
             }
         }
         catch (SQLException se)
@@ -1264,7 +1265,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar("", -1);
+                updateProgressBar(null, -1);
             }
         }
         catch (
@@ -1690,7 +1691,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar("", -1);
+                updateProgressBar(null, -1);
             }
         }
         catch (SQLException se)
@@ -1954,7 +1955,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar("", -1);
+                updateProgressBar(null, -1);
             }
 
             tableResult.close();
@@ -2178,7 +2179,7 @@ public class CcddDbVerificationHandler
             }
 
             // Update the within-step progress value
-            updateProgressBar("", -1);
+            updateProgressBar(null, -1);
         }
     }
 

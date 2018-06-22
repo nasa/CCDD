@@ -142,6 +142,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private Marshaller marshaller;
     private Unmarshaller unmarshaller;
     private ObjectFactory factory;
+    private SpaceSystemType rootSystem;
 
     // Reference to the script engine as an Invocable interface; used if external (script) methods
     // are used for the export operation
@@ -591,7 +592,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             JAXBElement<?> jaxbElement = (JAXBElement<?>) unmarshaller.unmarshal(importFile);
 
             // Get the top-level space system
-            SpaceSystemType rootSystem = (SpaceSystemType) jaxbElement.getValue();
+            rootSystem = (SpaceSystemType) jaxbElement.getValue();
 
             tableDefinitions = new ArrayList<TableDefinition>();
             structureTypeDefn = null;
@@ -936,7 +937,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                argName,
                                                                                cmdArgCol[1].toString().replaceFirst("###",
                                                                                                                     String.valueOf(argIndex)),
-                                                                               cmdArgCol[2].toString(),
+                                                                               ((InputDataType) cmdArgCol[2]).getInputName(),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
@@ -1093,7 +1094,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * method
      *
      * @param system
-     *            space system
+     *            space system to which the new system belongs
      *
      * @param systemPath
      *            full path name for this space system (based on its nesting within other space
@@ -1213,6 +1214,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         if (tlmMetaData.getContainerSet() != null)
         {
             int rowIndex = 0;
+
+            // Get the system under which the space systems in the container references are to be
+            // found. Specific instance tables are a sub-space system of the parent tables' space
+            // system, but If the table is a child of a non-root structure then the space system
+            // for the child's prototype is used, which is located in the root space system
+            SpaceSystemType ownerSystem = dbTable.getRootStructures().contains(tableName)
+                                                                                          ? system
+                                                                                          : rootSystem;
 
             // Create a table definition for this structure table. If the name space also includes
             // a command metadata (which creates a command table) then ensure the two tables have
@@ -1352,7 +1361,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     else if (seqEntry instanceof ContainerRefEntryType)
                     {
                         // Extract the structure reference
-                        parmInfo = processContainerReference(system,
+                        parmInfo = processContainerReference(ownerSystem,
                                                              sequenceEntries,
                                                              null,
                                                              seqEntry,
@@ -2962,13 +2971,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         classification3Attr = classification3;
 
         // Create the root space system
-        SpaceSystemType rootSystem = addSpaceSystem(null,
-                                                    cleanSystemPath(dbControl.getProjectName()),
-                                                    dbControl.getDatabaseDescription(dbControl.getDatabaseName()),
-                                                    dbControl.getProjectName(),
-                                                    classification1Attr,
-                                                    validationStatusAttr,
-                                                    versionAttr);
+        rootSystem = addSpaceSystem(null,
+                                    cleanSystemPath(dbControl.getProjectName()),
+                                    dbControl.getDatabaseDescription(dbControl.getDatabaseName()),
+                                    dbControl.getProjectName(),
+                                    classification1Attr,
+                                    validationStatusAttr,
+                                    versionAttr);
 
         // Set the project's build information
         AuthorSet author = factory.createHeaderTypeAuthorSet();
@@ -3262,9 +3271,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // Add the table's path to its system path. Change each comma to a '/'
                             // so that this instance is placed correctly in its space system
                             // hierarchy
-                            systemPath += "/" + tableInfo.getTablePath()
-                                                         .substring(0, index)
-                                                         .replaceAll(",", "/");
+                            systemPath += "/" +
+                                          macroHandler.getMacroExpansion(tableInfo.getTablePath()
+                                                                                  .substring(0, index)
+                                                                                  .replaceAll(",", "/"));
                         }
 
                         // Check if a system path exists (it always exists for an instance table,
@@ -3309,9 +3319,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // updated to those for this table since these aren't supplied if the space
                         // system is created due t being in a child's path
                         parentSystem = addSpaceSystem(parentSystem,
-                                                      cleanSystemPath(shortTableName),
+                                                      cleanSystemPath(macroHandler.getMacroExpansion(shortTableName)),
                                                       tableInfo.getDescription(),
-                                                      tablePath,
+                                                      macroHandler.getMacroExpansion(tablePath),
                                                       classification3Attr,
                                                       validationStatusAttr,
                                                       versionAttr);
@@ -3329,6 +3339,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
                             int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
                             int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
+
+                            // Expand any macros in the table path
+                            tableName = macroHandler.getMacroExpansion(tableName);
 
                             // Check if this is the command header structure or a descendant
                             // structure of the command header. In order for it to be referenced as
@@ -3547,7 +3560,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // Get the reference to the space system if it already exists
         SpaceSystemType childSystem = parentSystem == null
                                                            ? null
-                                                           : getSpaceSystemByName(systemName, parentSystem);
+                                                           : getSpaceSystemByName(systemName,
+                                                                                  parentSystem);
 
         // Check if the space system doesn't already exist
         if (childSystem == null)
@@ -4453,8 +4467,14 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     // Check if the data type is an unsigned integer
                     if (dataTypeHandler.isUnsignedInt(dataType))
                     {
-                        // Set the encoding type to indicate an unsigned integer
+                        // Set the encoding type to indicate an unsigned or signed integer
                         intEncodingType.setEncoding("unsigned");
+                    }
+                    // The data type is a signed integer
+                    else
+                    {
+                        // Set the encoding type to indicate a signed integer
+                        intEncodingType.setEncoding("signMagnitude");
                     }
 
                     // Set the bit order
@@ -4507,6 +4527,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Set the encoding type to indicate an unsigned integer
                                 integerType.setSigned(false);
                                 intEncodingType.setEncoding("unsigned");
+                            }
+                            // The data type is a signed integer
+                            else
+                            {
+                                // Set the encoding type to indicate a signed integer
+                                integerType.setSigned(true);
+                                intEncodingType.setEncoding("signMagnitude");
                             }
 
                             // Set the bit order
@@ -5367,6 +5394,12 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Set the encoding type to indicate an unsigned integer
                         intEncodingType.setEncoding("unsigned");
                     }
+                    // The data type is a signed integer
+                    else
+                    {
+                        // Set the encoding type to indicate a signed integer
+                        intEncodingType.setEncoding("signMagnitude");
+                    }
 
                     // Set the bit order
                     intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
@@ -5412,6 +5445,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Set the encoding type to indicate an unsigned integer
                                 integerType.setSigned(false);
                                 intEncodingType.setEncoding("unsigned");
+                            }
+                            // The data type is a signed integer
+                            else
+                            {
+                                // Set the encoding type to indicate a signed integer
+                                integerType.setSigned(true);
+                                intEncodingType.setEncoding("signMagnitude");
                             }
 
                             // Set the bit order

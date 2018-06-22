@@ -712,7 +712,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Array containing the separate elements of the data table comment
      *********************************************************************************************/
-    private String[] queryDataTableComment(String tableName, Component parent)
+    protected String[] queryDataTableComment(String tableName, Component parent)
     {
         // Get the table's comment, broken into its separate elements
         String comment[] = queryTableComment(tableName, parent);
@@ -2990,121 +2990,128 @@ public class CcddDbTableCommandHandler
                     if (!dataTypeHandler.isPrimitive(dataType)
                         && rootStructures.contains(dataType))
                     {
-                        // If the structure chosen as the variable's data type is a root structure,
-                        // then any custom values for this the root structure (which becomes a
-                        // child structure) are transferred to its new parent structure. References
-                        // in the other internal tables are also changed to the structure's new
-                        // path as a child
-                        valuesAddCmd.append("UPDATE "
-                                            + InternalTable.VALUES.getTableName()
-                                            + " SET "
-                                            + ValuesColumn.TABLE_PATH.getColumnName()
-                                            + " = regexp_replace("
-                                            + ValuesColumn.TABLE_PATH.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + ",', E'"
-                                            + newVariablePath
-                                            + ",'); ");
-                        groupsAddCmd.append("UPDATE "
-                                            + InternalTable.GROUPS.getTableName()
-                                            + " SET "
-                                            + GroupsColumn.MEMBERS.getColumnName()
-                                            + " = regexp_replace("
-                                            + GroupsColumn.MEMBERS.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + "(,|$)', E'"
-                                            + newVariablePath
-                                            + "\\\\1'); ");
-                        fieldsAddCmd.append("UPDATE "
-                                            + InternalTable.FIELDS.getTableName()
-                                            + " SET "
-                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                            + " = regexp_replace("
-                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + ",', E'"
-                                            + newVariablePath
-                                            + ",'); INSERT INTO "
-                                            + InternalTable.FIELDS.getTableName()
-                                            + " SELECT regexp_replace("
-                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + "', E'"
-                                            + newVariablePath
-                                            + "'), "
-                                            + FieldsColumn.FIELD_NAME.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_DESC.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_SIZE.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_TYPE.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_REQUIRED.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                            + ", "
-                                            + FieldsColumn.FIELD_VALUE.getColumnName()
-                                            + " FROM "
-                                            + InternalTable.FIELDS.getTableName()
-                                            + " WHERE "
-                                            + FieldsColumn.OWNER_NAME.getColumnName()
-                                            + " = '"
-                                            + dataType
-                                            + "' AND "
-                                            + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                            + " != '"
-                                            + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                                            + "'; ");
-                        ordersAddCmd.append("UPDATE "
-                                            + InternalTable.ORDERS.getTableName()
-                                            + " SET "
-                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                            + " = regexp_replace("
-                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + ",', E'"
-                                            + newVariablePath
-                                            + ",'); INSERT INTO "
-                                            + InternalTable.ORDERS.getTableName()
-                                            + " SELECT "
-                                            + OrdersColumn.USER_NAME.getColumnName()
-                                            + ", regexp_replace("
-                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                            + ", E'^"
-                                            + dataType
-                                            + "', E'"
-                                            + newVariablePath
-                                            + "'), "
-                                            + OrdersColumn.COLUMN_ORDER.getColumnName()
-                                            + " FROM "
-                                            + InternalTable.ORDERS.getTableName()
-                                            + " WHERE "
-                                            + OrdersColumn.TABLE_PATH.getColumnName()
-                                            + " = '"
-                                            + dataType
-                                            + "'; ");
-                        String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
-                        assnsAddCmd.append("UPDATE "
-                                           + InternalTable.ASSOCIATIONS.getTableName()
-                                           + " SET "
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + " = regexp_replace("
-                                           + AssociationsColumn.MEMBERS.getColumnName()
-                                           + ", E'(?:^"
-                                           + orgPathWithChildren
-                                           + "|("
-                                           + assnsSeparator
-                                           + ")"
-                                           + orgPathWithChildren
-                                           + ")', E'\\\\2"
-                                           + newVariablePath
-                                           + "\\\\1\\\\3', 'g'); ");
+                        // TODO ADDED 6/20/18 MAKE SURE THIS WORKS FOR ALL CASES
+                        // Check if the new parent is a root structure. This prevents updating the
+                        // path such that it creates a reference to a child of a non-root table,
+                        // which is invalid
+                        if (rootStructures.contains(tableInfo.getRootTable()))
+                        {
+                            // If the structure chosen as the variable's data type is a root
+                            // structure, then any custom values for this the root structure (which
+                            // becomes a child structure) are transferred to its new parent
+                            // structure. References in the other internal tables are also changed
+                            // to the structure's new path as a child
+                            valuesAddCmd.append("UPDATE "
+                                                + InternalTable.VALUES.getTableName()
+                                                + " SET "
+                                                + ValuesColumn.TABLE_PATH.getColumnName()
+                                                + " = regexp_replace("
+                                                + ValuesColumn.TABLE_PATH.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + ",', E'"
+                                                + newVariablePath
+                                                + ",'); ");
+                            groupsAddCmd.append("UPDATE "
+                                                + InternalTable.GROUPS.getTableName()
+                                                + " SET "
+                                                + GroupsColumn.MEMBERS.getColumnName()
+                                                + " = regexp_replace("
+                                                + GroupsColumn.MEMBERS.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + "(,|$)', E'"
+                                                + newVariablePath
+                                                + "\\\\1'); ");
+                            fieldsAddCmd.append("UPDATE "
+                                                + InternalTable.FIELDS.getTableName()
+                                                + " SET "
+                                                + FieldsColumn.OWNER_NAME.getColumnName()
+                                                + " = regexp_replace("
+                                                + FieldsColumn.OWNER_NAME.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + ",', E'"
+                                                + newVariablePath
+                                                + ",'); INSERT INTO "
+                                                + InternalTable.FIELDS.getTableName()
+                                                + " SELECT regexp_replace("
+                                                + FieldsColumn.OWNER_NAME.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + "', E'"
+                                                + newVariablePath
+                                                + "'), "
+                                                + FieldsColumn.FIELD_NAME.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_DESC.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_SIZE.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_REQUIRED.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                + ", "
+                                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                + " FROM "
+                                                + InternalTable.FIELDS.getTableName()
+                                                + " WHERE "
+                                                + FieldsColumn.OWNER_NAME.getColumnName()
+                                                + " = '"
+                                                + dataType
+                                                + "' AND "
+                                                + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                + " != '"
+                                                + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+                                                + "'; ");
+                            ordersAddCmd.append("UPDATE "
+                                                + InternalTable.ORDERS.getTableName()
+                                                + " SET "
+                                                + OrdersColumn.TABLE_PATH.getColumnName()
+                                                + " = regexp_replace("
+                                                + OrdersColumn.TABLE_PATH.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + ",', E'"
+                                                + newVariablePath
+                                                + ",'); INSERT INTO "
+                                                + InternalTable.ORDERS.getTableName()
+                                                + " SELECT "
+                                                + OrdersColumn.USER_NAME.getColumnName()
+                                                + ", regexp_replace("
+                                                + OrdersColumn.TABLE_PATH.getColumnName()
+                                                + ", E'^"
+                                                + dataType
+                                                + "', E'"
+                                                + newVariablePath
+                                                + "'), "
+                                                + OrdersColumn.COLUMN_ORDER.getColumnName()
+                                                + " FROM "
+                                                + InternalTable.ORDERS.getTableName()
+                                                + " WHERE "
+                                                + OrdersColumn.TABLE_PATH.getColumnName()
+                                                + " = '"
+                                                + dataType
+                                                + "'; ");
+                            String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
+                            assnsAddCmd.append("UPDATE "
+                                               + InternalTable.ASSOCIATIONS.getTableName()
+                                               + " SET "
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + " = regexp_replace("
+                                               + AssociationsColumn.MEMBERS.getColumnName()
+                                               + ", E'(?:^"
+                                               + orgPathWithChildren
+                                               + "|("
+                                               + assnsSeparator
+                                               + ")"
+                                               + orgPathWithChildren
+                                               + ")', E'\\\\2"
+                                               + newVariablePath
+                                               + "\\\\1\\\\3', 'g'); ");
+                        }
 
                         // References in the links and telemetry scheduler to the root structure
                         // and its children are not automatically amended to include the new parent
