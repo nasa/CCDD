@@ -567,7 +567,7 @@ function outputCommands(prefix, msgIDOffset, system)
         var commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System");
 
         // Check if the this command table's system matches the target system
-        if (system.equals(commandSystem))
+        if (!system || (commandSystem != null && system.equals(commandSystem)))
         {
             // Get the command name and code, and the message ID for the command
             // table
@@ -1045,12 +1045,12 @@ function outputCommandEnumerations(systemName)
     // Step through each row in the command table
     for (var row = 0; row < numCommandRows; row++)
     {
-        // Get the system with which he command is associated from the command
+        // Get the system with which the command is associated from the command
         // table's 'System' data field
         var commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System");
 
         // Check if the this command table's system matches the target system
-        if (systemName.equals(commandSystem))
+        if (!systemName || (commandSystem != null && systemName.equals(commandSystem)))
         {
             // Step through each of the commands arguments
             for (var argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
@@ -1585,6 +1585,12 @@ else
         {
             // Get the value of the 'System' data field for first command table
             var firstSystemName = ccdd.getTableDataFieldValue(ccdd.getCommandTableNames()[0], "System");
+
+            // If the system name doesn't exist then substitute a blank
+            if (firstSystemName == null)
+            {
+                firstSystemName = "";
+            }
 
             // Step through each flight computer
             for (var fcIndex = 0; fcIndex < numFlightComputers; fcIndex++)

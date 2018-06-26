@@ -753,7 +753,7 @@ public class CcddPaddingVariableHandler
                     // Padding adjustment was canceled
                     else
                     {
-                        eventLog.logEvent(EventLogMessageType.FAIL_MSG,
+                        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
                                           "Padding adjustment canceled by user");
                     }
 

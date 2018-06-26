@@ -878,7 +878,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     // Get the table's information
                     JSONObject tableInfoJO = getTableInformation(tblName,
-                                                                 !replaceMacros,
+                                                                 replaceMacros,
                                                                  includeVariablePaths,
                                                                  variableHandler,
                                                                  separators);

@@ -18,7 +18,6 @@ import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,11 +39,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
@@ -55,7 +51,7 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
-import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
@@ -90,13 +86,7 @@ public class CcddDbVerificationHandler
     private final CcddMacroHandler macroHandler;
     private TypeDefinition typeDefn;
     private CcddJTableHandler updateTable;
-
-    // Component referenced by multiple methods
-    private JProgressBar progBar;
-    private HaltDialog haltDialog;
-
-    // Number of divisions in the progress bar per verification step
-    private int numDivisionPerStep;
+    private CcddHaltDialog haltDlg;
 
     // Comments for all tables
     private String[][] comments;
@@ -125,34 +115,6 @@ public class CcddDbVerificationHandler
 
     // Flag indicating if changes are to be made to the tables
     private boolean isChanges;
-
-    // Flag indicating that the user elected to cancel project database verification
-    private boolean canceled;
-
-    // Counters used to calculate the progress bar value
-    private int progCount;
-    private int prevProgCount;
-    private int progStart;
-    private int progTotal;
-
-    /**************************************************************************************
-     * Verification cancellation dialog class
-     *************************************************************************************/
-    @SuppressWarnings("serial")
-    class HaltDialog extends CcddDialogHandler
-    {
-        /**********************************************************************************
-         * Handle the close dialog button action
-         *********************************************************************************/
-        @Override
-        protected void closeDialog(int button)
-        {
-            // Set the flag to cancel verification
-            canceled = true;
-
-            super.closeDialog(button);
-        };
-    }
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -560,8 +522,6 @@ public class CcddDbVerificationHandler
         // Initialize the database issues list
         issues = new ArrayList<TableIssue>();
 
-        canceled = false;
-
         // Execute the consistency check
         verifyDatabase();
     }
@@ -583,73 +543,13 @@ public class CcddDbVerificationHandler
             @Override
             protected void execute()
             {
-                haltDialog = new HaltDialog();
-
-                // Set the initial layout manager characteristics
-                GridBagConstraints gbc = new GridBagConstraints(0,
-                                                                0,
-                                                                1,
-                                                                1,
-                                                                1.0,
-                                                                0.0,
-                                                                GridBagConstraints.LINE_START,
-                                                                GridBagConstraints.BOTH,
-                                                                new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
-                                                                           0,
-                                                                           ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
-                                                                0,
-                                                                0);
-
-                // Create the cancellation dialog
-                JPanel dialogPnl = new JPanel(new GridBagLayout());
-                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
-                JLabel textLbl = new JLabel("<html><b>Verification in progress...<br><br>",
-                                            SwingConstants.LEFT);
-                textLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                gbc.gridy++;
-                dialogPnl.add(textLbl, gbc);
-                JLabel textLbl2 = new JLabel("<html><b>"
-                                             + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                           + "to terminate verification ***",
-                                                                           Color.RED)
-                                             + "</b><br><br>",
-                                             SwingConstants.CENTER);
-                textLbl2.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
-                gbc.gridy++;
-                dialogPnl.add(textLbl2, gbc);
-
-                // Set the total number of verification steps (this is the number of methods called
-                // to verify each portion of the database) and use it to calculate the number of
-                // divisions within each step
-                int numVerificationSteps = 7;
-                numDivisionPerStep = 100;
-
-                // Initialize the progress bar counters
-                progCount = 0;
-                prevProgCount = 0;
-                progStart = 0;
-                progTotal = numVerificationSteps * numDivisionPerStep;
-
-                // Add a progress bar to the dialog
-                progBar = new JProgressBar(0, progTotal);
-                progBar.setValue(0);
-                progBar.setString("Verify owners");
-                progBar.setStringPainted(true);
-                progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-                gbc.insets.bottom = 0;
-                gbc.gridy++;
-                dialogPnl.add(progBar, gbc);
-
                 // Display the verification cancellation dialog
-                haltDialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                             dialogPnl,
-                                             "Verifying Project",
-                                             DialogOption.HALT_OPTION,
-                                             false,
-                                             false);
+                haltDlg = new CcddHaltDialog("Verifying Project",
+                                             "Verification in progress",
+                                             "verification",
+                                             100,
+                                             7,
+                                             ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and the
                 // user hasn't canceled the check
@@ -667,62 +567,65 @@ public class CcddDbVerificationHandler
                                                                                               new String[] {"TABLE"});
 
                     // Check if verification isn't canceled
-                    if (!canceled)
+                    if (!haltDlg.isHalted())
                     {
                         // Update the progress bar
-                        updateProgressBar("Verify owners", numDivisionPerStep);
+                        haltDlg.updateProgressBar("Verify owners",
+                                                  haltDlg.getNumDivisionPerStep());
 
                         // Check for inconsistencies in the owner role of the project database and
                         // its tables, sequences, indices, and functions
                         verifyOwners();
 
                         // Check if verification isn't canceled
-                        if (!canceled)
+                        if (!haltDlg.isHalted())
                         {
                             // Update the progress bar
-                            updateProgressBar("Verify internal tables", numDivisionPerStep * 2);
+                            haltDlg.updateProgressBar("Verify internal tables",
+                                                      haltDlg.getNumDivisionPerStep() * 2);
 
                             // Check for inconsistencies in the internal tables
                             verifyInternalTables(tableResult);
 
                             // Check if verification isn't canceled
-                            if (!canceled)
+                            if (!haltDlg.isHalted())
                             {
                                 // Update the progress bar
-                                updateProgressBar("Verify path references", numDivisionPerStep * 3);
+                                haltDlg.updateProgressBar("Verify path references",
+                                                          haltDlg.getNumDivisionPerStep() * 3);
 
                                 // Verify the table and variable path references in the internal
                                 // tables
                                 verifyPathReferences(tableResult);
 
                                 // Check if verification isn't canceled
-                                if (!canceled)
+                                if (!haltDlg.isHalted())
                                 {
                                     // Update the progress bar
-                                    updateProgressBar("Verify input data types",
-                                                      numDivisionPerStep * 4);
+                                    haltDlg.updateProgressBar("Verify input data types",
+                                                              haltDlg.getNumDivisionPerStep() * 4);
 
                                     // verify the input data types in the table types and data
                                     // fields internal tables
                                     verifyInputTypes(tableResult);
 
                                     // Check if verification isn't canceled
-                                    if (!canceled)
+                                    if (!haltDlg.isHalted())
                                     {
                                         // Update the progress bar
-                                        updateProgressBar("Verify table types",
-                                                          numDivisionPerStep * 5);
+                                        haltDlg.updateProgressBar("Verify table types",
+                                                                  haltDlg.getNumDivisionPerStep() * 5);
 
                                         // Check for inconsistencies between the table type
                                         // definitions and the tables of that type
                                         verifyTableTypes(tableResult);
 
                                         // Check if verification isn't canceled
-                                        if (!canceled)
+                                        if (!haltDlg.isHalted())
                                         {
                                             // Update the progress bar
-                                            updateProgressBar("Verify data tables",
-                                                              numDivisionPerStep * 6);
+                                            haltDlg.updateProgressBar("Verify data tables",
+                                                                      haltDlg.getNumDivisionPerStep() * 6);
 
                                             // Check for inconsistencies within the data tables
                                             verifyDataTables();
@@ -760,10 +663,10 @@ public class CcddDbVerificationHandler
             protected void complete()
             {
                 // Check if the user didn't cancel verification
-                if (!canceled)
+                if (!haltDlg.isHalted())
                 {
                     // Close the cancellation dialog
-                    haltDialog.closeDialog();
+                    haltDlg.closeDialog();
 
                     // Perform any corrections to the database authorized by the user
                     updateDatabase();
@@ -771,8 +674,8 @@ public class CcddDbVerificationHandler
                 // Verification was canceled
                 else
                 {
-                    // Note that verification was canceled in the event log
-                    eventLog.logEvent(STATUS_MSG, "Verification terminated by user");
+                    eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                                      "Verification terminated by user");
                 }
             }
         });
@@ -788,53 +691,6 @@ public class CcddDbVerificationHandler
      *            initial value at which to begin this sequence in the verification process; -1 to
      *            not change the initial value
      *********************************************************************************************/
-    private void updateProgressBar(final String progText, int startValue)
-    {
-        // Check if the start value is provided
-        if (startValue != -1)
-        {
-            // Initialize the progress counters
-            progCount = 0;
-            prevProgCount = 0;
-            progStart = startValue;
-        }
-
-        // Update the progress counter
-        progCount++;
-
-        // Create a runnable object to be executed
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            /**************************************************************************************
-             * Since the progress bar involves a GUI update use invokeLater to execute the call on
-             * the event dispatch thread
-             *************************************************************************************/
-            @Override
-            public void run()
-            {
-                // Check if the progress text is provided
-                if (progText != null)
-                {
-                    // Update the progress text
-                    progBar.setString(progText);
-                }
-
-                // Step through the progress count values beginning with the last one processed
-                for (int count = prevProgCount + 1; count <= progCount; count++)
-                {
-                    // Update the progress bar
-                    progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
-                    progBar.update(progBar.getGraphics());
-                }
-
-                // Store the last processed progress counter value
-                prevProgCount = progCount;
-
-                // Redraw the halt dialog
-                haltDialog.update(haltDialog.getGraphics());
-            }
-        });
-    }
 
     /**********************************************************************************************
      * Check that the owner role matches for the project database and its tables, sequences,
@@ -864,7 +720,7 @@ public class CcddDbVerificationHandler
             while (mismatch.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -938,7 +794,7 @@ public class CcddDbVerificationHandler
             while (mismatch.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -987,9 +843,10 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Get the total number of rows in the result set
+            // Initialize the progress bar within-step total to the total number of rows in the
+            // result set
             tableResult.last();
-            progTotal = tableResult.getRow();
+            haltDlg.setItemsPerStep(tableResult.getRow());
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -998,7 +855,7 @@ public class CcddDbVerificationHandler
             while (tableResult.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -1016,7 +873,7 @@ public class CcddDbVerificationHandler
                     for (InternalTable intTable : InternalTable.values())
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1058,7 +915,7 @@ public class CcddDbVerificationHandler
                                 while (columnResult.next())
                                 {
                                     // Check if the user canceled verification
-                                    if (canceled)
+                                    if (haltDlg.isHalted())
                                     {
                                         break;
                                     }
@@ -1162,7 +1019,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null, -1);
             }
         }
         catch (SQLException se)
@@ -1193,9 +1050,10 @@ public class CcddDbVerificationHandler
 
         try
         {
-            // Get the total number of rows in the result set
+            // Initialize the progress bar within-step total to the total number of rows in the
+            // result set
             tableResult.last();
-            progTotal = tableResult.getRow();
+            haltDlg.setItemsPerStep(tableResult.getRow());
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1204,7 +1062,7 @@ public class CcddDbVerificationHandler
             while (tableResult.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -1236,7 +1094,7 @@ public class CcddDbVerificationHandler
                                                                       null))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1265,7 +1123,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null, -1);
             }
         }
         catch (
@@ -1315,9 +1173,10 @@ public class CcddDbVerificationHandler
             // logging multiple issues for the same table/variable in the same internal table
             List<String> badRefs = new ArrayList<String>();
 
-            // Get the total number of rows in the result set
+            // Initialize the progress bar within-step total to the total number of rows in the
+            // result set
             tableResult.last();
-            progTotal = tableResult.getRow();
+            haltDlg.setItemsPerStep(tableResult.getRow());
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1326,7 +1185,7 @@ public class CcddDbVerificationHandler
             while (tableResult.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -1343,7 +1202,7 @@ public class CcddDbVerificationHandler
                                                                    AssociationsColumn.SCRIPT_FILE.getColumnName()))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1436,7 +1295,7 @@ public class CcddDbVerificationHandler
                                                                    null))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1482,7 +1341,7 @@ public class CcddDbVerificationHandler
                                                                    null))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1527,7 +1386,7 @@ public class CcddDbVerificationHandler
                                                                    null))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1572,7 +1431,7 @@ public class CcddDbVerificationHandler
                                                                    null))
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1623,7 +1482,7 @@ public class CcddDbVerificationHandler
                     for (String variablePath : allTableAndVariableList)
                     {
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             break;
                         }
@@ -1649,7 +1508,7 @@ public class CcddDbVerificationHandler
                     }
 
                     // Check if the user hasn't canceled verification
-                    if (!canceled)
+                    if (!haltDlg.isHalted())
                     {
                         // Step through the custom values variables
                         for (String[] member : getInternalTableMembers(tableNameDb,
@@ -1657,7 +1516,7 @@ public class CcddDbVerificationHandler
                                                                        null))
                         {
                             // Check if the user canceled verification
-                            if (canceled)
+                            if (haltDlg.isHalted())
                             {
                                 break;
                             }
@@ -1691,7 +1550,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null, -1);
             }
         }
         catch (SQLException se)
@@ -1769,9 +1628,10 @@ public class CcddDbVerificationHandler
             List<String[]> orders = dbTable.retrieveInformationTable(InternalTable.ORDERS,
                                                                      ccddMain.getMainFrame());
 
-            // Get the total number of rows in the result set
+            // Initialize the progress bar within-step total to the total number of rows in the
+            // result set
             tableResult.last();
-            progTotal = tableResult.getRow();
+            haltDlg.setItemsPerStep(tableResult.getRow());
 
             // Start before the first row in the result set
             tableResult.beforeFirst();
@@ -1780,7 +1640,7 @@ public class CcddDbVerificationHandler
             while (tableResult.next())
             {
                 // Check if the user canceled verification
-                if (canceled)
+                if (haltDlg.isHalted())
                 {
                     break;
                 }
@@ -1807,7 +1667,7 @@ public class CcddDbVerificationHandler
                     if (typeDefinition != null)
                     {
                         // Step through each table in the column order table
-                        for (int index = 0; index < orders.size() && !canceled; index++)
+                        for (int index = 0; index < orders.size() && !haltDlg.isHalted(); index++)
                         {
                             // Check if the number of columns indicated in the column order table
                             // doesn't match the number of columns for this table's type
@@ -1854,7 +1714,7 @@ public class CcddDbVerificationHandler
                         while (columnResult.next())
                         {
                             // Check if the user canceled verification
-                            if (canceled)
+                            if (haltDlg.isHalted())
                             {
                                 break;
                             }
@@ -1918,7 +1778,7 @@ public class CcddDbVerificationHandler
                         columnResult.close();
 
                         // Step through the column found flags
-                        for (int index = 0; index < isFound.length && !canceled; index++)
+                        for (int index = 0; index < isFound.length && !haltDlg.isHalted(); index++)
                         {
                             // Check if the column wasn't located in the table
                             if (!isFound[index])
@@ -1955,7 +1815,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null, -1);
             }
 
             tableResult.close();
@@ -1989,14 +1849,15 @@ public class CcddDbVerificationHandler
         // Initialize the storage for each table's information and committed data
         tableStorage = new ArrayList<TableStorage>();
 
-        // Get the total number of rows in the table tree
-        progTotal = tableTree.getNodeCount(tableTree.getRootNode());
+        // Initialize the progress bar within-step total to the total number of rows in the table
+        // tree
+        haltDlg.setItemsPerStep(tableTree.getNodeCount(tableTree.getRootNode()));
 
         // Step through the root node's children
         for (Enumeration<?> element = tableTree.getRootNode().preorderEnumeration(); element.hasMoreElements();)
         {
             // Check if the user canceled verification
-            if (canceled)
+            if (haltDlg.isHalted())
             {
                 break;
             }
@@ -2045,17 +1906,17 @@ public class CcddDbVerificationHandler
                     int lastMissingRow = 0;
 
                     // Step through each row in the table
-                    for (int row = 0; row < tableInfo.getData().length && !canceled; row++)
+                    for (int row = 0; row < tableInfo.getData().length && !haltDlg.isHalted(); row++)
                     {
                         // Step through each column in the table
-                        for (int column = 0; column < tableInfo.getData()[row].length && !canceled; column++)
+                        for (int column = 0; column < tableInfo.getData()[row].length && !haltDlg.isHalted(); column++)
                         {
                             // Check if the cell value doesn't match the cell's input type
                             checkInputType(tableInfo, row, column);
                         }
 
                         // Check if the user canceled verification
-                        if (canceled)
+                        if (haltDlg.isHalted())
                         {
                             continue;
                         }
@@ -2179,7 +2040,7 @@ public class CcddDbVerificationHandler
             }
 
             // Update the within-step progress value
-            updateProgressBar(null, -1);
+            haltDlg.updateProgressBar(null, -1);
         }
     }
 
@@ -2522,7 +2383,7 @@ public class CcddDbVerificationHandler
     private void checkForRowIndexMismatch(TableInformation tableInfo)
     {
         // Step through each row in the table
-        for (int row = 0; row < tableInfo.getData().length && !canceled; row++)
+        for (int row = 0; row < tableInfo.getData().length && !haltDlg.isHalted(); row++)
         {
             // Check if the row index doesn't match the next consecutive row number
             if (!tableInfo.getData()[row][rowIndex].equals(String.valueOf(row + 1)))
@@ -2564,13 +2425,13 @@ public class CcddDbVerificationHandler
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
         // Step through each column in the table
-        for (int column = 0; column < tableInfo.getData()[0].length && !canceled; column++)
+        for (int column = 0; column < tableInfo.getData()[0].length && !haltDlg.isHalted(); column++)
         {
             // Check if the values in this column must be unique
             if (typeDefn != null && typeDefn.isRowValueUnique()[column])
             {
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().length - 1 && !canceled; row++)
+                for (int row = 0; row < tableInfo.getData().length - 1 && !haltDlg.isHalted(); row++)
                 {
                     // Store the column value in the temporary column value array, expanding any
                     // macros in the value. The temporary column values are stored so that macro
@@ -2582,10 +2443,10 @@ public class CcddDbVerificationHandler
                 }
 
                 // Step through each row in the table
-                for (int row = 0; row < tableInfo.getData().length - 1 && !canceled; row++)
+                for (int row = 0; row < tableInfo.getData().length - 1 && !haltDlg.isHalted(); row++)
                 {
                     // Step through the remaining rows in the table
-                    for (int otherRow = row + 1; otherRow < tableInfo.getData().length && !canceled; otherRow++)
+                    for (int otherRow = row + 1; otherRow < tableInfo.getData().length && !haltDlg.isHalted(); otherRow++)
                     {
                         // Check if the values in the columns for these two rows match and that the
                         // values aren't blank

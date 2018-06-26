@@ -84,11 +84,12 @@ public class CcddCommandLineHandler
     private String classification3;
     private String scriptFileName;
 
-    // Session event log file path command name
-    private static final String LOG_PATH = "logPath";
-
-    // Session script output file path command name
-    private static final String SCRIPT_OUTPUT_PATH = "scriptOutPath";
+    // Storage for the session event log, table export, and script output paths prior to changing
+    // these via the command line options. Used to restore the paths following completion of the
+    // project-specific command line commands
+    private final String orgLogPath;
+    private final String orgTableExportPath;
+    private final String orgScriptOutPath;
 
     /**********************************************************************************************
      * Individual command line argument handler class
@@ -397,7 +398,7 @@ public class CcddCommandLineHandler
         replaceExisting = false;
         appendExistingFields = false;
         useExistingFields = false;
-        filePath = null;
+        filePath = "";
         tablePaths = null;
         overwriteFile = false;
         singleFile = false;
@@ -417,6 +418,12 @@ public class CcddCommandLineHandler
         scriptFileName = null;
         shutdownWhenComplete = false;
         exitStatus = 0;
+
+        // Store the session event log, table export, and script output paths, in case these are
+        // modified
+        orgLogPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey(), "");
+        orgTableExportPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), "");
+        orgScriptOutPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
         // Display application version information command
         argument.add(new CommandHandler("version",
@@ -438,8 +445,10 @@ public class CcddCommandLineHandler
 
         // Event log file path command. This command, if present, is executed prior to all other
         // commands, regardless of relative priorities
-        argument.add(new CommandHandler(LOG_PATH,
-                                        "Set event log file path",
+        argument.add(new CommandHandler("logPath",
+                                        "Set event log file path. This\n"
+                                                   + "  path is in effect for the\n"
+                                                   + "  current session only",
                                         "file path",
                                         CommandLineType.NAME,
                                         1)
@@ -769,11 +778,14 @@ public class CcddCommandLineHandler
         });
 
         // Script output file path command
-        argument.add(new CommandHandler(SCRIPT_OUTPUT_PATH,
-                                        "Set script output file path",
+        argument.add(new CommandHandler("scriptOutPath",
+                                        "Set the script output file path. This\n"
+                                                         + "  command may be used more than once.\n"
+                                                         + "  This path is in effect for the\n"
+                                                         + "  current session only",
                                         "file path",
                                         CommandLineType.NAME,
-                                        1)
+                                        10)
         {
             /**************************************************************************************
              * Set the script output file path
@@ -968,8 +980,8 @@ public class CcddCommandLineHandler
 
         // Import one or more tables
         argument.add(new CommandHandler("import",
-                                        "Import tables, etc. from a\n"
-                                                  + "  CSV, EDS, JSON, or XTCE file",
+                                        "Import tables, etc. from a CSV, EDS,\n"
+                                                  + "  JSON, or XTCE file",
                                         "'<import sub-commands>'",
                                         CommandLineType.NAME,
                                         10,
@@ -1031,8 +1043,8 @@ public class CcddCommandLineHandler
 
         // Export one or more tables
         argument.add(new CommandHandler("export",
-                                        "Export tables, etc. in CSV,\n"
-                                                  + "  EDS, JSON, or XTCE format",
+                                        "Export tables, etc. in CSV, EDS, JSON,\n"
+                                                  + "  or XTCE format",
                                         "'<export sub-commands>'",
                                         CommandLineType.NAME,
                                         10,
@@ -1052,12 +1064,14 @@ public class CcddCommandLineHandler
                              getSubArgument());
 
                 // Check if a required export sub-command is missing
-                if ((filePath == null
-                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE))
+                if ((filePath.isEmpty()
+                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE
+                         || (singleFile
+                             && (fileExtn == FileExtension.CSV || fileExtn == FileExtension.JSON))))
                     || tablePaths == null)
                 {
                     // Display the error message
-                    System.err.println("Error: Missing export file name (EDS or XTCE) and/or table path(s)\n");
+                    System.err.println("Error: Missing export file name and/or table path(s)\n");
 
                     // Display the command usage information and exit the application
                     displayUsageInformation();
@@ -1182,9 +1196,9 @@ public class CcddCommandLineHandler
 
         // Import command - use existing fields
         importArgument.add(new CommandHandler("useExistingFields",
-                                              "Use existing data field if\n"
-                                                                   + "  imported one matches. Only used\n"
-                                                                   + "  if replaceExisting and\n"
+                                              "Use existing data field if imported\n"
+                                                                   + "  one matches. Only used if\n"
+                                                                   + "  replaceExisting and\n"
                                                                    + "  appendExistingFields are true",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
@@ -1223,8 +1237,11 @@ public class CcddCommandLineHandler
 
         // Export command - file path + name
         exportArgument.add(new CommandHandler("filePath",
-                                              "Export file path + name (required\n"
-                                                          + "  for EDS, XTCE)",
+                                              "Export file path + name (required for\n"
+                                                          + "  EDS, XTCE, and for CSV, JSON if\n"
+                                                          + "  exporting to a single file). This\n"
+                                                          + "  path is in effect for the current\n"
+                                                          + "  session only",
                                               "export file name",
                                               CommandLineType.NAME,
                                               0)
@@ -1374,8 +1391,7 @@ public class CcddCommandLineHandler
 
         // Export command - include variable paths
         exportArgument.add(new CommandHandler("includeVariablePaths",
-                                              "Include variable path list (CSV,\n"
-                                                                      + "  JSON)",
+                                              "Include variable path list (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1433,8 +1449,8 @@ public class CcddCommandLineHandler
 
         // Export command - telemetry and command headers endianess
         exportArgument.add(new CommandHandler("isHeaderBigEndian",
-                                              "Force telemetry & command header\n"
-                                                                   + "  to big endian (EDS, XTCE)",
+                                              "Force telemetry & command header to\n"
+                                                                   + "  big endian (EDS, XTCE)",
                                               "true or false (default: true)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1572,12 +1588,31 @@ public class CcddCommandLineHandler
         // Execute the commands that fall within the priority range
         parseCommand(startPriority, endPriority, args, argument);
 
-        // Check if a script association execution command was performed
-        if (endPriority == -1 && shutdownWhenComplete)
+        // Check if the project-specific commands have been completed
+        if (endPriority == -1)
         {
-            // Exit the application, supplying the execution status (= 1 if a failure occurred,
-            // otherwise returns 0)
-            ccddMain.exitApplication(false, exitStatus);
+            // Restore the original session event log, table export, and script output paths
+            CcddFileIOHandler.storePath(ccddMain,
+                                        orgLogPath,
+                                        false,
+                                        ModifiablePathInfo.SESSION_LOG_FILE_PATH);
+            CcddFileIOHandler.storePath(ccddMain,
+                                        orgTableExportPath,
+                                        false,
+                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+            CcddFileIOHandler.storePath(ccddMain,
+                                        orgScriptOutPath,
+                                        false,
+                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+
+            // Check if the application should be terminated following execution of the
+            // project-specific commands (script execution, export, or import)
+            if (shutdownWhenComplete)
+            {
+                // Exit the application, supplying the execution status (= 1 if a failure occurred,
+                // otherwise returns 0)
+                ccddMain.exitApplication(false, exitStatus);
+            }
         }
     }
 
@@ -1682,6 +1717,7 @@ public class CcddCommandLineHandler
                                 && (startPriority == -1 || cmd.priority >= startPriority)
                                 && (endPriority == -1 || cmd.priority <= endPriority))
                             {
+                                System.out.println("exec cmd: " + arg); // TODO
                                 // Handle the command and check if it results in an error condition
                                 if (cmd.handler(parm))
                                 {

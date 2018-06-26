@@ -627,7 +627,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Build the table tree
             buildTableTree(null, rateName, rateFilter, parent);
 
-            // restore the tree's expansion state
+            // Restore the tree's expansion state
             setExpansionState(expState);
         }
     }

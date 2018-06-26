@@ -652,7 +652,7 @@ public class CcddFileIOHandler
                 // Import was canceled
                 else
                 {
-                    eventLog.logEvent(EventLogMessageType.FAIL_MSG, "Import canceled by user");
+                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import canceled by user");
                 }
 
                 haltDlg = null;
@@ -1042,7 +1042,7 @@ public class CcddFileIOHandler
         if (haltDlg != null)
         {
             // Initialize the progress bar within-step total
-            haltDlg.setProgressTotal(tableDefinitions.size());
+            haltDlg.setItemsPerStep(tableDefinitions.size());
         }
 
         // Perform two passes; first to process prototype tables, and second to process child
@@ -2635,7 +2635,7 @@ public class CcddFileIOHandler
                                     ModifiablePathInfo modPath)
     {
         // Check if the file path includes a file name
-        if (hasFileName)
+        if (hasFileName && pathName.contains(File.separator))
         {
             // Strip the file name from the path
             pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));

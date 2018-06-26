@@ -41,11 +41,14 @@ public class CcddHaltDialog extends CcddDialogHandler
     // Number of divisions in the halt dialog's progress bar per data file
     private final int numDivisionPerStep;
 
+    // Total number of item for the current step
+    private int itemsPerStep;
+
     // Counters used to calculate the progress bar value
     private int progCount;
     private int prevProgCount;
     private int progStart;
-    private int progTotal;
+    private final int progMaximum;
     private int minWidth;
 
     /**********************************************************************************************
@@ -82,7 +85,8 @@ public class CcddHaltDialog extends CcddDialogHandler
         // Set the number of divisions within each step and use it, along with the number of items,
         // to calculate the total number of steps
         this.numDivisionPerStep = numDivisionPerStep;
-        progTotal = numSteps * numDivisionPerStep;
+        itemsPerStep = numDivisionPerStep;
+        progMaximum = numSteps * numDivisionPerStep;
 
         // Create the cancellation dialog
         initialize(title, label, operation, numDivisionPerStep != 0 && numSteps != 0, parent);
@@ -129,14 +133,14 @@ public class CcddHaltDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set the total number of steps for the progress bar
+     * Set the total number of items for the current step
      *
-     * @param progTotal
-     *            Total number of steps for the progress bar
+     * @param itemsPerStep
+     *            Total number of items for the current step
      *********************************************************************************************/
-    protected void setProgressTotal(int progTotal)
+    protected void setItemsPerStep(int itemsPerStep)
     {
-        this.progTotal = progTotal;
+        this.itemsPerStep = itemsPerStep;
     }
 
     /**********************************************************************************************
@@ -225,7 +229,7 @@ public class CcddHaltDialog extends CcddDialogHandler
         if (showProgressBar)
         {
             // Add a progress bar to the dialog
-            progBar = new JProgressBar(0, progTotal);
+            progBar = new JProgressBar(0, progMaximum);
             progBar.setValue(0);
             progBar.setStringPainted(true);
             progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -314,7 +318,7 @@ public class CcddHaltDialog extends CcddDialogHandler
                     for (int count = prevProgCount + 1; count <= progCount; count++)
                     {
                         // Update the progress bar
-                        progBar.setValue(progStart + (numDivisionPerStep * count / progTotal));
+                        progBar.setValue(progStart + (count * numDivisionPerStep / itemsPerStep));
                         progBar.update(gCont);
                     }
 

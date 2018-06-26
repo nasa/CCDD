@@ -485,7 +485,7 @@ def outputCommands(prefix, msgIDOffset, system)
         commandSystem = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNameByRow(row), "System")
 
         # Check if the this command table's system matches the target system
-        if system == commandSystem
+        if system == nil || ( commandSystem != nil && system == commandSystem)
             # Get the command name and code, and the message ID for the command
             # table
             commandName = $ccdd.getCommandName(row)
@@ -915,7 +915,7 @@ def outputCommandEnumerations(systemName)
         commandSystem = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNameByRow(row), "System")
 
         # Check if the this command table's system matches the target system
-        if systemName == commandSystem
+        if systemName == nil || (commandSystem != nil && systemName == commandSystem)
             # Step through each of the commands arguments
             for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
                 # Get the command argument's enumeration value
@@ -1388,6 +1388,11 @@ else
         if $numCommandRows > 0
             # Get the value of the 'System' data field for first command table
             firstSystemName = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNames()[0], "System")
+
+            # If the system name doesn't exist then substitute a blank
+            if firstSystemName == nil
+                firstSystemName = ""
+            end
 
             # Step through each flight computer
             for fcIndex in 0..$numFlightComputers - 1

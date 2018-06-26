@@ -559,7 +559,7 @@ def outputCommands(prefix, msgIDOffset, system)
         def commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System")
 
         // Check if the this command table's system matches the target system
-        if (system.equals(commandSystem))
+        if (system == null || (commandSystem != null && system.equals(commandSystem)))
         {
             // Get the command name and code, and the message ID for the command
             // table
@@ -1042,7 +1042,7 @@ def outputCommandEnumerations(systemName)
         def commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System")
 
         // Check if the this command table's system matches the target system
-        if (systemName.equals(commandSystem))
+        if (systemName == null || (commandSystem != null && systemName.equals(commandSystem)))
         {
             // Step through each of the commands arguments
             for (def argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
@@ -1586,6 +1586,12 @@ else
         {
             // Get the value of the 'System' data field for first command table
             def firstSystemName = ccdd.getTableDataFieldValue(ccdd.getCommandTableNames()[0], "System")
+
+            // If the system name doesn't exist then substitute a blank
+            if (firstSystemName == null)
+            {
+                firstSystemName = ""
+            }
 
             // Step through each flight computer
             for (def fcIndex = 0; fcIndex < numFlightComputers; fcIndex++)
