@@ -1096,7 +1096,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Get the visible column names based on the table's type
-                    String[] columnNames = typeDefn.getColumnNamesVisible();
+                    String[] columnNames = typeDefn.getColumnNamesDatabase();
 
                     // Check if the flag is set that indicates macros should be replaced
                     if (replaceMacros)
