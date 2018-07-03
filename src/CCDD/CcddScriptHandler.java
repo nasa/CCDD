@@ -74,7 +74,7 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -111,7 +111,7 @@ public class CcddScriptHandler
     private final List<ScriptEngineFactory> scriptFactories;
 
     // Global storage for the data obtained in the recursive table data reading method
-    private String[][] combinedData;
+    private Object[][] combinedData;
 
     // List containing the table paths for the tables loaded for a script association. Used to
     // prevent loading the same table more than once
@@ -282,7 +282,7 @@ public class CcddScriptHandler
                                     }
 
                                     // Get the name of the column that represents the variable name
-                                    String varColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
+                                    String varColumn = typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE);
 
                                     // Add the command to verify the existence of the variable in
                                     // the parent table to the overall verification command for
@@ -502,7 +502,7 @@ public class CcddScriptHandler
                         {
                             // Check if the association name does not match the alphanumeric input
                             // type
-                            if (!newValueS.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                            if (!newValueS.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
                             {
                                 throw new CCDDException("Illegal character(s) in association name");
                             }
@@ -1379,7 +1379,7 @@ public class CcddScriptHandler
                     {
 
                         // Initialize the array for each of the tables to load from the database
-                        combinedData = new String[0][0];
+                        combinedData = new Object[0][0];
 
                         // Read the table and child table data from the database and store the
                         // results from the last table loaded
@@ -1527,7 +1527,7 @@ public class CcddScriptHandler
                     for (int typeIndex = 0; typeIndex < tableTypes.size(); typeIndex++)
                     {
                         String tableName = "";
-                        String[][] allTableData = new String[0][0];
+                        Object[][] allTableData = new Object[0][0];
 
                         // Step through each table information instance
                         for (TableInformation tableInfo : tableInformation)
@@ -1993,7 +1993,7 @@ public class CcddScriptHandler
 
                 // Get the index of the column containing the data type for this table if it has
                 // one
-                int dataTypeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                int dataTypeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
 
                 // Step through each row
                 for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
@@ -2005,7 +2005,7 @@ public class CcddScriptHandler
 
                     // Store the data from the table in the combined storage array
                     combinedData = CcddUtilities.concatenateArrays(combinedData,
-                                                                   new String[][] {data[row]});
+                                                                   new Object[][] {data[row]});
 
                     // Check if this is a table reference (a data type column was found and it does
                     // not contain a primitive data type)
@@ -2013,13 +2013,13 @@ public class CcddScriptHandler
                         && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
                     {
                         // Get the column containing the variable name for this table
-                        int varNameColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                        int varNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
 
                         // Check that a variable name column was found
                         if (varNameColumn != -1)
                         {
                             // Get the column containing the array size for this table
-                            int arraySizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+                            int arraySizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
 
                             // Check if the data type or variable name isn't blank, and if an array
                             // size column doesn't exist or that the row doesn't reference an array

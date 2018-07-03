@@ -55,7 +55,7 @@ import CCDD.CcddClassesDataTable.TelemetryData;
 import CCDD.CcddClassesDataTable.Variable;
 import CCDD.CcddClassesDataTable.VariableGenerator;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -284,7 +284,7 @@ public class CcddSchedulerEditorHandler
                         }
 
                         // Check if the message name is an alphanumeric
-                        if (!newValueS.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                        if (!newValueS.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
                         {
                             // Inform the user that the message name contains invalid characters
                             throw new CCDDException("Invalid characters in message name");
@@ -318,14 +318,14 @@ public class CcddSchedulerEditorHandler
                     else if (column >= SchedulerColumn.ID.ordinal())
                     {
                         // Check if the message ID is a hexadecimal
-                        if (!newValueS.matches(InputDataType.HEXADECIMAL.getInputMatch()))
+                        if (!newValueS.matches(DefaultInputType.HEXADECIMAL.getInputMatch()))
                         {
                             // Inform the user that the message name contains invalid characters
                             throw new CCDDException("Invalid characters in message ID");
                         }
 
                         // Format the hexadecimal value
-                        newValueS = InputDataType.HEXADECIMAL.formatInput(newValueS);
+                        newValueS = DefaultInputType.HEXADECIMAL.formatInput(newValueS);
 
                         // Check that the new value isn't a blank
                         if (!newValueS.isEmpty())

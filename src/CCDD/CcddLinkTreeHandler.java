@@ -41,7 +41,7 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.LinkInformation;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -443,7 +443,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
 
                 // Check if this is a link description entry. These are indicated if the first
                 // character is a digit, which is the link rate
-                if (linkMember.matches(InputDataType.RATE.getInputMatch() + ",.*"))
+                if (linkMember.matches(DefaultInputType.RATE.getInputMatch() + ",.*"))
                 {
                     // Split the entry into the rate and description
                     String[] rateAndDesc = linkMember.split(",", 2);

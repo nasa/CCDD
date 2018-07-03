@@ -53,10 +53,10 @@ import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -91,6 +91,7 @@ public class CcddScriptDataAccessHandler
     private CcddCopyTableHandler copyHandler;
     private final CcddVariableSizeAndConversionHandler variableHandler;
     private CcddXTCEHandler xtceHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // Reference to the script engine
     private final ScriptEngine scriptEngine;
@@ -166,6 +167,7 @@ public class CcddScriptDataAccessHandler
         fileIOHandler = ccddMain.getFileIOHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
         variableHandler = ccddMain.getVariableHandler();
         tableTree = variableHandler.getVariableTree();
         copyHandler = null;
@@ -815,7 +817,8 @@ public class CcddScriptDataAccessHandler
                 int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
 
                 // Split the table path into an array
-                String[] parts = tableInfo.getData()[row][pathColumn].split(Pattern.quote(","));
+                String[] parts = tableInfo.getData()[row][pathColumn].toString()
+                                                                     .split(Pattern.quote(","));
 
                 // Check if the list doesn't already contain the parent name
                 if (!name.contains(parts[0]))
@@ -1036,7 +1039,7 @@ public class CcddScriptDataAccessHandler
                 int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
 
                 // Get the table's prototype name from the path
-                String tableName = tableInfo.getData()[row][pathColumn];
+                String tableName = tableInfo.getData()[row][pathColumn].toString();
 
                 // Check if only prototype names should be returned for child structures
                 if (prototypeOnly)
@@ -1081,7 +1084,7 @@ public class CcddScriptDataAccessHandler
                     int pathColumn = tableInfo.getData()[row].length - PATH_COLUMN_DELTA;
 
                     // Get the table's name, including the path (if it's a child structure)
-                    String tableName = tableInfo.getData()[row][pathColumn];
+                    String tableName = tableInfo.getData()[row][pathColumn].toString();
 
                     // Check if the table name hasn't been added to the list
                     if (!names.contains(tableName))
@@ -1154,7 +1157,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the variable name
-            variableName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+            variableName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1190,7 +1193,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the data type
-            dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)];
+            dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
         }
 
         return dataType;
@@ -1254,7 +1257,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the array size
-            arraySize = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX)];
+            arraySize = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1325,7 +1328,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the bit length
-            bitLength = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH)];
+            bitLength = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1398,13 +1401,13 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the index of the first column with the 'Description' input type
-            int column = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+            int column = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
 
             // Check if the column exists
             if (column != -1)
             {
                 // Get the description
-                description = tableInfo.getData()[row][column];
+                description = tableInfo.getData()[row][column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -1478,13 +1481,13 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Get the index of the first column with the 'Units' input type
-            int column = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
+            int column = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
 
             // Check if the column exists
             if (column != -1)
             {
                 // Get the units
-                units = tableInfo.getData()[row][column];
+                units = tableInfo.getData()[row][column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -1557,10 +1560,10 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Step through each enumeration column
-            for (int enumIndex : typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION))
+            for (int enumIndex : typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION))
             {
                 // Get the enumeration
-                String enumeration = tableInfo.getData()[row][enumIndex];
+                String enumeration = tableInfo.getData()[row][enumIndex].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -1599,10 +1602,10 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Step through each rate column
-            for (int rateIndex : typeDefn.getColumnIndicesByInputType(InputDataType.RATE))
+            for (int rateIndex : typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE))
             {
                 // Add the rate to the list
-                rates.add(tableInfo.getData()[row][rateIndex]);
+                rates.add(tableInfo.getData()[row][rateIndex].toString());
             }
         }
 
@@ -1667,7 +1670,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command name
-            commandName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME)];
+            commandName = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1738,7 +1741,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
             // Get the command code
-            commandCode = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE)];
+            commandCode = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)].toString();
 
             // Check if any macros should be expanded
             if (expandMacros)
@@ -1868,7 +1871,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument name
-                argName = tableInfo.getData()[row][commandArguments.get(argumentNumber).getName()];
+                argName = tableInfo.getData()[row][commandArguments.get(argumentNumber).getName()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -1916,7 +1919,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument data type
-                argDataType = tableInfo.getData()[row][commandArguments.get(argumentNumber).getDataType()];
+                argDataType = tableInfo.getData()[row][commandArguments.get(argumentNumber).getDataType()].toString();
             }
         }
 
@@ -1999,7 +2002,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument array size
-                argArraySize = tableInfo.getData()[row][commandArguments.get(argumentNumber).getArraySize()];
+                argArraySize = tableInfo.getData()[row][commandArguments.get(argumentNumber).getArraySize()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -2089,7 +2092,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument bit length
-                argBitLength = tableInfo.getData()[row][commandArguments.get(argumentNumber).getBitLength()];
+                argBitLength = tableInfo.getData()[row][commandArguments.get(argumentNumber).getBitLength()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -2179,7 +2182,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument enumeration
-                argEnumeration = tableInfo.getData()[row][commandArguments.get(argumentNumber).getEnumeration()];
+                argEnumeration = tableInfo.getData()[row][commandArguments.get(argumentNumber).getEnumeration()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -2270,7 +2273,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument minimum value
-                argMinimum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMinimum()];
+                argMinimum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMinimum()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -2361,7 +2364,7 @@ public class CcddScriptDataAccessHandler
                 TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                 // Get the argument maximum value
-                argMaximum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMaximum()];
+                argMaximum = tableInfo.getData()[row][commandArguments.get(argumentNumber).getMaximum()].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -2484,7 +2487,7 @@ public class CcddScriptDataAccessHandler
                     TableInformation tableInfo = getTableInformation(TYPE_COMMAND);
 
                     // Get the argument value
-                    argValue = tableInfo.getData()[row][tgtColumn];
+                    argValue = tableInfo.getData()[row][tgtColumn].toString();
 
                     // Check if any macros should be expanded
                     if (expandMacros)
@@ -2651,7 +2654,7 @@ public class CcddScriptDataAccessHandler
         {
             // Get the table type for the specified row
             typeName = tableInfo.getData()[row][tableInfo.getData()[row].length
-                                                - TYPE_COLUMN_DELTA];
+                                                - TYPE_COLUMN_DELTA].toString();
         }
 
         return typeName;
@@ -2681,7 +2684,7 @@ public class CcddScriptDataAccessHandler
                 {
                     // Store the table's type name and stop searching
                     typeName = tableInfo.getData()[row][tableInfo.getData()[row].length
-                                                        - TYPE_COLUMN_DELTA];
+                                                        - TYPE_COLUMN_DELTA].toString();
                     break;
                 }
             }
@@ -2802,7 +2805,7 @@ public class CcddScriptDataAccessHandler
             {
                 // Get the name of the data type column
                 String dataTypeColumnName = tableTypeHandler.getColumnNameByInputType(getStructureTypeNameByRow(row),
-                                                                                      InputDataType.PRIM_AND_STRUCT);
+                                                                                      DefaultInputType.PRIM_AND_STRUCT);
 
                 // Check that the data type column exists
                 if (dataTypeColumnName != null)
@@ -2874,9 +2877,9 @@ public class CcddScriptDataAccessHandler
         // Get the name of the variable name column
         String tableType = getStructureTypeNameByRow(row);
         String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
-                                                                                  InputDataType.VARIABLE);
+                                                                                  DefaultInputType.VARIABLE);
         String dataTypeColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
-                                                                              InputDataType.PRIM_AND_STRUCT);
+                                                                              DefaultInputType.PRIM_AND_STRUCT);
 
         // Check that the variable name and data type columns exist
         if (variableNameColumnName != null && dataTypeColumnName != null)
@@ -2962,9 +2965,9 @@ public class CcddScriptDataAccessHandler
         // Get the name of the variable name column
         String tableType = getStructureTypeNameByRow(row);
         String variableNameColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
-                                                                                  InputDataType.VARIABLE);
+                                                                                  DefaultInputType.VARIABLE);
         String dataTypeColumnName = tableTypeHandler.getColumnNameByInputType(tableType,
-                                                                              InputDataType.PRIM_AND_STRUCT);
+                                                                              DefaultInputType.PRIM_AND_STRUCT);
 
         // Check that the variable name and data type columns exist
         if (variableNameColumnName != null && dataTypeColumnName != null)
@@ -3344,7 +3347,7 @@ public class CcddScriptDataAccessHandler
             if (tableInfo.getData().length != 0 && pathColumn > 0)
             {
                 // Get the structure path for this row
-                structurePath = tableInfo.getData()[row][pathColumn];
+                structurePath = tableInfo.getData()[row][pathColumn].toString();
 
                 switch (pathType)
                 {
@@ -3746,7 +3749,7 @@ public class CcddScriptDataAccessHandler
             fieldValue = fieldInfo.getValue();
 
             // Check if the data field contains a message ID
-            if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID))
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
             {
                 // Remove the auto-assignment protection flag, if present
                 fieldValue = CcddMessageIDHandler.removeProtectionFlag(fieldValue);
@@ -4020,7 +4023,7 @@ public class CcddScriptDataAccessHandler
             if (column != -1)
             {
                 // Store the contents of the table at the specified row and column
-                tableData = tableInfo.getData()[row][column];
+                tableData = tableInfo.getData()[row][column].toString();
 
                 // Check if any macros should be expanded
                 if (expandMacros)
@@ -4030,7 +4033,7 @@ public class CcddScriptDataAccessHandler
                 }
 
                 // Check if the data field contains a message ID
-                if (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID))
+                if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
                 {
                     // Remove the auto-assignment protection flag, if present
                     tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -4254,7 +4257,7 @@ public class CcddScriptDataAccessHandler
                     {
                         // Store the contents of the table at the specified row and column and stop
                         // searching
-                        tableData = tableInfo.getData()[row][dataColumnIndex];
+                        tableData = tableInfo.getData()[row][dataColumnIndex].toString();
 
                         // Check if any macros should be expanded
                         if (expandMacros)
@@ -4264,7 +4267,7 @@ public class CcddScriptDataAccessHandler
                         }
 
                         // Check if the data field contains a message ID
-                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(InputDataType.MESSAGE_ID))
+                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
                         {
                             // Remove the auto-assignment protection flag, if present
                             tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -5388,11 +5391,11 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get an array containing every message ID name and its corresponding message ID, and the
      * owning entity from every table cell, data field (table or group), and telemetry message. ID
-     * names and IDs are determined by the input data type assigned to the table column or data
-     * field, and are matched one-to-one by relative position; i.e., the first message ID name data
-     * field for a table or group is paired with the first message ID data field, and so on. If
-     * more names are defined than IDs or vice versa then a blank ID/name is paired with the
-     * unmatched name/ID
+     * names and IDs are determined by the input type assigned to the table column or data field,
+     * and are matched one-to-one by relative position; i.e., the first message ID name data field
+     * for a table or group is paired with the first message ID data field, and so on. If more
+     * names are defined than IDs or vice versa then a blank ID/name is paired with the unmatched
+     * name/ID
      *
      * @return Two-dimensional array containing every message ID name and its corresponding message
      *         ID, and the owning entity, sorted by the owner name. Each row in the array is an
@@ -6328,7 +6331,7 @@ public class CcddScriptDataAccessHandler
                 System.out.println("Table data for type '" + tableInfo.getType() + "'");
 
                 // Get the table's data
-                String[][] data = tableInfo.getData();
+                Object[][] data = tableInfo.getData();
 
                 // Step through each row in the table
                 for (int row = 0; row < data.length; row++)

@@ -42,9 +42,9 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.JSONTags;
@@ -69,6 +69,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
     private TableInformation tableInfo;
     private final CcddFieldHandler fieldHandler;
 
@@ -103,6 +104,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
     }
 
     /**********************************************************************************************
@@ -358,6 +360,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                               getString(typeJO,
                                                                                                                         CcddUtilities.removeHTMLTags(TableTypeEditorColumnInfo.POINTER_ALLOWED.getColumnName()))},
                                                                                                 importFile.getAbsolutePath(),
+                                                                                                inputTypeHandler,
                                                                                                 parent);
 
                                 // Update the column index number for the next column definition
@@ -412,6 +415,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                              getString(typeJO,
                                                                                                                        FieldEditorColumnInfo.VALUE.getColumnName())},
                                                                                                importFile.getAbsolutePath(),
+                                                                                               inputTypeHandler,
                                                                                                parent);
                             }
                         }
@@ -597,6 +601,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                    getString(typeJO,
                                                                                                              FieldEditorColumnInfo.VALUE.getColumnName())},
                                                                                      importFile.getAbsolutePath(),
+                                                                                     inputTypeHandler,
                                                                                      parent);
                     }
                 }
@@ -733,6 +738,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                         getString(dataFieldJO,
                                                                                                                   FieldEditorColumnInfo.VALUE.getColumnName())},
                                                                                           importFile.getAbsolutePath(),
+                                                                                          inputTypeHandler,
                                                                                           parent);
                             }
                         }
@@ -916,8 +922,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                                     // Get the column indices for all columns that can contain a
                                     // primitive data type
-                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
-                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
+                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
+                                    dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
 
                                     // Step through each data type column
                                     for (int dataTypeColumn : dataTypeColumns)
@@ -949,9 +955,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 // Get the variable path
                                 String variablePath = tableInfo.getTablePath()
                                                       + ","
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)]
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                                                       + "."
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                 // Add the path, in both application and user-defined formats, to
                                 // the list to be output
@@ -1141,7 +1147,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData()[row].length; column++)
                     {
                         // Check if a cell isn't blank
-                        if (!tableInfo.getData()[row][column].isEmpty())
+                        if (!tableInfo.getData()[row][column].toString().isEmpty())
                         {
                             // Add the column name and value to the cell object
                             columnJO.put(columnNames[column], tableInfo.getData()[row][column]);
@@ -1155,7 +1161,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 && separators != null)
                             {
                                 // Get the variable's data type
-                                String dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)];
+                                String dataType = tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
 
                                 // Check if the data type is a primitive
                                 if (dataTypeHandler.isPrimitive(dataType))
@@ -1165,7 +1171,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                           + ","
                                                           + dataType
                                                           + "."
-                                                          + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+                                                          + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                     // Add the formatted path in the 'Variable Path' column
                                     columnJO.put("Variable Path",
@@ -1311,7 +1317,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                              tableInformation);
 
             // Get the system name
-            String systemName = fieldHandler.getFieldValue(tableName, InputDataType.SYSTEM_PATH);
+            String systemName = fieldHandler.getFieldValue(tableName, DefaultInputType.SYSTEM_PATH);
 
             // Check if the system name exists
             if (systemName != null && !systemName.isEmpty())

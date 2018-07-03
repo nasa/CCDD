@@ -41,9 +41,10 @@ import javax.swing.text.JTextComponent;
 import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.SearchDialogType;
+import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
@@ -60,6 +61,7 @@ public class CcddKeyboardHandler
     private CcddUndoManager modalUndoManager;
     private CcddJTableHandler modalTable;
     private CcddInputFieldPanelHandler editPnlHandler;
+    private CcddInputTypeHandler inputTypeHandler;
     private KeyboardFocusManager focusManager;
 
     /**********************************************************************************************
@@ -83,6 +85,7 @@ public class CcddKeyboardHandler
     {
         macroHandler = ccddMain.getMacroHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
     }
 
     /**********************************************************************************************
@@ -467,7 +470,7 @@ public class CcddKeyboardHandler
                                                                    editorDialog.getTableEditor().getValidDataTypes().toArray(new String[0]));
                             }
                         }
-                        // Check if the data type editor editing is active
+                        // Check if editing is active in the data type editor
                         else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddDataTypeEditorDialog
                                  && modalTable.isEditing())
                         {
@@ -492,7 +495,7 @@ public class CcddKeyboardHandler
                                                                    null);
                             }
                         }
-                        // Check if the macro editor editing is active
+                        // Check if editing is active in the the macro editor
                         else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddMacroEditorDialog
                                  && modalTable.isEditing())
                         {
@@ -559,7 +562,7 @@ public class CcddKeyboardHandler
                                     int column = table.convertColumnIndexToModel(table.getEditingColumn());
 
                                     // Get the input type for the column being edited
-                                    InputDataType inputType = editor.getTableTypeDefinition().getInputTypes()[column];
+                                    InputType inputType = editor.getTableTypeDefinition().getInputTypes()[column];
 
                                     // Insert the macro name chosen by the user into the text
                                     // component at the current text insertion point
@@ -579,7 +582,7 @@ public class CcddKeyboardHandler
                                 // at the current text insertion point
                                 macroHandler.insertMacroName((JDialog) SwingUtilities.getWindowAncestor(comp),
                                                              (JTextComponent) comp,
-                                                             InputDataType.TEXT,
+                                                             inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT),
                                                              null);
                             }
                         }
@@ -607,28 +610,28 @@ public class CcddKeyboardHandler
                     // Get the table editor dialog with the focus
                     CcddTableEditorDialog editorDialog = getFocusedTableEditorDialog();
 
-                    // Check if a table editor dialog has the focus
-                    if (editorDialog != null)
+                    // Check if a table editor dialog has the focus and a cell in the table is
+                    // being edited, or if editing is active in the input type editor
+                    if ((editorDialog != null
+                         && editorDialog.getTableEditor().getTable().isEditing())
+                        || (SwingUtilities.getWindowAncestor(comp) instanceof CcddInputTypeEditorDialog
+                            && modalTable.isEditing()))
                     {
-                        // Check if a cell in the table is being edited
-                        if (editorDialog.getTableEditor().getTable().isEditing())
-                        {
-                            JTextComponent textComp = (JTextComponent) comp;
+                        JTextComponent textComp = (JTextComponent) comp;
 
-                            // Get the cell's current value
-                            String cellValue = textComp.getText();
+                        // Get the cell's current value
+                        String cellValue = textComp.getText();
 
-                            // Get the starting position of the selected text
-                            int caretPosn = textComp.getSelectionStart();
+                        // Get the starting position of the selected text
+                        int caretPosn = textComp.getSelectionStart();
 
-                            // Replace the currently selected text with a line feed
-                            textComp.setText(cellValue.substring(0, caretPosn)
-                                             + "\n"
-                                             + cellValue.substring(textComp.getSelectionEnd()));
+                        // Replace the currently selected text with a line feed
+                        textComp.setText(cellValue.substring(0, caretPosn)
+                                         + "\n"
+                                         + cellValue.substring(textComp.getSelectionEnd()));
 
-                            // Position the cursor after the newly inserted line feed
-                            textComp.setCaretPosition(caretPosn + 1);
-                        }
+                        // Position the cursor after the newly inserted line feed
+                        textComp.setCaretPosition(caretPosn + 1);
                     }
                 }
 

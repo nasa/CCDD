@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary utilities class
@@ -333,6 +334,44 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
+     * Convert the supplied array of text items into a single string with the items separated by
+     * commas. If the length of the string exceeds a specified maximum then shorten the string to
+     * the maximum, find the last comma, truncate the string, and add an indication of how many
+     * other items are in the list
+     *
+     * @param itemArray
+     *            array of text items to combine
+     *
+     * @return The array of text items converted to a single, comma-separated string, and shortened
+     *         if above a maximum length
+     *********************************************************************************************/
+    protected static String convertArrayToStringTruncate(String[] itemArray)
+    {
+        // Convert the array of items into a single string
+        String names = convertArrayToString(itemArray);
+
+        // Check if the length of the item string exceeds the specified maximum
+        if (names.length() > ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize())
+        {
+            // Shorten the item list to the maximum length and find the index to the last comma,
+            // which separates the items
+            names = names.substring(0, ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize());
+            int index = names.lastIndexOf(",");
+
+            // Check if a comma exists
+            if (index != -1)
+            {
+                // Remove any partial item remaining after the truncation, along with the last
+                // comma, and add text to indicate how many other items are in the original list
+                names = names.substring(0, index);
+                names += " ... and " + (itemArray.length - names.split(",").length) + " others";
+            }
+        }
+
+        return names;
+    }
+
+    /**********************************************************************************************
      * Separate a command line string into an array of arguments. Account for quoting (single and
      * double) of arguments within the string
      *
@@ -341,7 +380,7 @@ public class CcddUtilities
      *
      * @return Array containing the separate command line arguments with any quotes removed
      *********************************************************************************************/
-    protected static String[] parseCommandline(String argString)
+    protected static String[] parseCommandLine(String argString)
     {
         String[] argArray;
 
@@ -540,7 +579,7 @@ public class CcddUtilities
      * @return Array containing the data from the input array plus the specified number of extra,
      *         empty columns appended
      *********************************************************************************************/
-    protected static String[] appendArrayColumns(String[] array, int numColumns)
+    protected static String[] appendArrayColumns(Object[] array, int numColumns)
     {
         // Create the new array with the number of specified extra columns
         String[] newArray = new String[array.length + numColumns];
@@ -552,7 +591,7 @@ public class CcddUtilities
         for (int column = 0; column < array.length; column++)
         {
             // Copy the input array value to the new array
-            newArray[column] = array[column];
+            newArray[column] = array[column].toString();
         }
 
         return newArray;
@@ -570,7 +609,7 @@ public class CcddUtilities
      * @return Array containing the data from the input array plus the specified number of extra,
      *         empty columns appended
      *********************************************************************************************/
-    protected static String[][] appendArrayColumns(String[][] array, int numColumns)
+    protected static String[][] appendArrayColumns(Object[][] array, int numColumns)
     {
         // Create the new array with the number of specified extra columns
         String[][] newArray = new String[array.length][array[0].length + numColumns];
@@ -585,7 +624,7 @@ public class CcddUtilities
             for (int column = 0; column < array[row].length; column++)
             {
                 // Copy the input array value to the new array
-                newArray[row][column] = array[row][column];
+                newArray[row][column] = array[row][column].toString();
             }
         }
 
@@ -764,9 +803,9 @@ public class CcddUtilities
      * @return Two-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
-    protected static String[][] concatenateArrays(String[][] array1, String[][] array2)
+    protected static Object[][] concatenateArrays(Object[][] array1, Object[][] array2)
     {
-        String[][] concatArray;
+        Object[][] concatArray;
 
         // Check if the first array is empty
         if (array1 == null || array1.length == 0)

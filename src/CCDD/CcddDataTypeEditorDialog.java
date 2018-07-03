@@ -51,9 +51,9 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -170,7 +170,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Update the data type handler with the changes
             dataTypeHandler.setDataTypeData(getUpdatedData());
 
-            // Update the data type columns
+            // Update the data type columns in the open table editors
             dbTable.updateDataTypeColumns(CcddDataTypeEditorDialog.this);
 
             // Update the copy of the data type data so it can be used to determine if changes are
@@ -292,7 +292,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             // Check if the data type name is present
                             if (!dataType.isEmpty())
                             {
-                                boolean isInUse = false;
+                                // boolean isInUse = false;
+                                List<String> tables = new ArrayList<String>();
 
                                 // Step through each reference to the data type name. The
                                 // references are checked to determine if it's to the actual data
@@ -304,29 +305,35 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     String[] tblColDescAndCntxt = dataTypeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
                                     String refComment = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()];
 
+                                    // Extract the viewable name and type of the table
+                                    String[] refNameAndType = refComment.split(",");
+
                                     // Check if the match is within a sizeof() call
                                     if (CcddVariableSizeAndConversionHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
                                                                                        dataType))
                                     {
-                                        // Set the flag to indicate the reference is to the data
-                                        // type, and stop searching
-                                        isInUse = true;
-                                        break;
+                                        // Check if the table name hasn't already been added to the
+                                        // list
+                                        if (!tables.contains(refNameAndType[0]))
+                                        {
+                                            // Add the table name to the list of those using the
+                                            // data type
+                                            tables.add(refNameAndType[0]);
+                                        }
+
+                                        continue;
                                     }
 
-                                    // Extract the viewable name and type of the table, and the
-                                    // name of the column containing the data type, Separate the
-                                    // column string into the individual column values
-                                    String[] refNameAndType = refComment.split(",");
+                                    // Separate the column string into the individual column values
                                     String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
-                                    // Use the type and column to get the column's input data type
+                                    // Use the type and column to get the column's input type
                                     TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
 
                                     // Get the indices for all columns that can reference a data
                                     // type
-                                    List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE);
-                                    primColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
+                                    List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE);
+                                    primColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
 
                                     // Step through each of the data type columns
                                     for (int column : primColumns)
@@ -334,39 +341,41 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                         // Check if the column contents matches the data type name
                                         if (refColumns[column].equals(dataType))
                                         {
-                                            // Set the flag to indicate the reference is to the
-                                            // data type, and stop searching
-                                            isInUse = true;
+                                            // Check if the table name hasn't already been added to
+                                            // the list
+                                            if (!tables.contains(refNameAndType[0]))
+                                            {
+                                                // Add the table name to the list of those using
+                                                // the data type
+                                                tables.add(refNameAndType[0]);
+                                            }
+
                                             break;
                                         }
-                                    }
-
-                                    // Check if the data type has a valid reference
-                                    if (isInUse)
-                                    {
-                                        // Stop searching
-                                        break;
                                     }
                                 }
 
                                 // Check if the data type is in use by a data table
-                                if (isInUse)
+                                if (!tables.isEmpty())
                                 {
                                     // Deselect the data type
                                     dataTypeTable.removeRowSelectionInterval(row, row);
 
                                     // Inform the user that the data type can't be deleted
                                     new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                              "<html><b>Cannot delete data type '"
+                                                                              "<html><b>Cannot delete data type '</b>"
                                                                                                              + dataType
-                                                                                                             + "'; data type is referenced by a data table",
+                                                                                                             + "<b>'; data type is referenced by table(s) '</b>"
+                                                                                                             + CcddUtilities.convertArrayToStringTruncate(tables.toArray(new String[0]))
+                                                                                                             + "<b>'",
                                                                               "Delete Data Type",
-                                                                              JOptionPane.QUESTION_MESSAGE,
+                                                                              JOptionPane.ERROR_MESSAGE,
                                                                               DialogOption.OK_OPTION);
                                 }
                             }
                         }
 
+                        // Delete all row(s) (still) selected
                         dataTypeTable.deleteRow(true);
                     }
                 });
@@ -722,7 +731,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             {
                                 // Check if the data type name does not match the alphanumeric
                                 // input type
-                                if (!newValueS.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                                if (!newValueS.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
                                 {
                                     throw new CCDDException("Illegal character(s) in data type name");
                                 }
@@ -731,7 +740,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             else
                             {
                                 // Initialize the C type name matching regular expression
-                                String match = InputDataType.ALPHANUMERIC_MULTI.getInputMatch();
+                                String match = DefaultInputType.ALPHANUMERIC_MULTI.getInputMatch();
 
                                 // Check if the base data type is a pointer
                                 if (tableData.get(row)[DataTypeEditorColumnInfo.BASE_TYPE.ordinal()].equals(BaseDataTypeInfo.POINTER.getName()))
@@ -768,13 +777,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         else if (column == DataTypeEditorColumnInfo.SIZE.ordinal())
                         {
                             // Check if the data type size is not a positive integer
-                            if (!newValueS.matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                            if (!newValueS.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                             {
                                 throw new CCDDException("Data type size must be a positive integer");
                             }
 
                             // Remove any unneeded characters and store the cleaned number
-                            tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(), "$1"));
+                            tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(DefaultInputType.INT_POSITIVE.getInputMatch(), "$1"));
                         }
                         // Check if this is the data type base type column
                         else if (column == DataTypeEditorColumnInfo.BASE_TYPE.ordinal())
@@ -850,12 +859,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                         String[] refNameAndType = refComment.split(",");
                                         String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
-                                        // Use the type and column to get the column's input data
-                                        // type
+                                        // Use the type and column to get the column's input type
                                         TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);
 
                                         // Get the index of the bit length column, if present
-                                        int bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+                                        int bitLengthIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
 
                                         // Check if the byte size changed
                                         if (column == DataTypeEditorColumnInfo.SIZE.ordinal())
@@ -890,7 +898,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                             }
 
                                             // Get the enumeration column index(ices), if present
-                                            List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+                                            List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
 
                                             // Step through each enumeration column
                                             for (int enumIndex : enumerationIndices)
@@ -918,14 +926,14 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                         if (column == DataTypeEditorColumnInfo.SIZE.ordinal())
                                         {
                                             throw new CCDDException("Bit length exceeds the size of the data type in table(s) '</b>"
-                                                                    + dbTable.getShortenedTableNames(tableNames.toArray(new String[0]))
+                                                                    + CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]))
                                                                     + "<b>'");
                                         }
                                         // The base type changed
                                         else
                                         {
                                             throw new CCDDException("Base data type inconsistent with data type usage in table(s) '</b>"
-                                                                    + dbTable.getShortenedTableNames(tableNames.toArray(new String[0]))
+                                                                    + CcddUtilities.convertArrayToStringTruncate(tableNames.toArray(new String[0]))
                                                                     + "<b>'");
                                         }
                                     }
@@ -1138,7 +1146,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             }
         });
 
-        // Create the data type cell editor for enumerations
+        // Create the data type cell editor for base types
         baseTypeCellEditor = new DefaultCellEditor(baseComboBox);
     }
 
@@ -1171,7 +1179,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Check that the end of the table hasn't been reached
             if (row < dataTypeTable.getRowCount())
             {
-                // Check if both the user-defined name and the C-language name is blank
+                // Check if both the user-defined name and the C-language name are blank
                 if (dataTypeTable.getValueAt(row,
                                              DataTypeEditorColumnInfo.USER_NAME.ordinal())
                                  .toString().isEmpty()

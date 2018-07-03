@@ -1862,8 +1862,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 for (CcddTableEditorHandler editor : tableEditors)
                 {
                     // Check if the table has changes and that no required columns are empty
-                    if (editor.isTableChanged()
-                        && !activeEditor.checkForMissingColumns())
+                    if (editor.isTableChanged() && !activeEditor.checkForMissingColumns())
                     {
                         // Build the addition, modification, and deletion command lists
                         editor.buildUpdates();

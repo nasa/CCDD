@@ -42,8 +42,9 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.MessageIDType;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -63,6 +64,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private CcddDbTableCommandHandler dbTable;
     private CcddTelemetrySchedulerDialog schedulerDlg;
     private CcddTableTypeHandler tableTypeHandler;
+    private CcddInputTypeHandler inputTypeHandler;
 
     // Components that need to be accessed by multiple methods
     private Border border;
@@ -377,6 +379,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             {
                 dbTable = ccddMain.getDbTableCommandHandler();
                 tableTypeHandler = ccddMain.getTableTypeHandler();
+                inputTypeHandler = ccddMain.getInputTypeHandler();
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -510,6 +513,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Check if the structure table message IDs should be assigned
                         if (msgTabs[0].getAssignCbx().isSelected())
                         {
+                            // TABLE WITH ROOT-ONLY FIELD)
                             structMsgChanged = assignTableMessageIDs(msgTabs[0],
                                                                      msgIDHandler.getStructureTables(),
                                                                      fieldInformation);
@@ -669,7 +673,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                     // Check if the message name pattern isn't in the format text%<0#>d<text> where
                     // # is one or more digits
-                    if (!tabInfo.getPatternFld().getText().matches(InputDataType.MESSAGE_ID_NAME.getInputMatch()
+                    if (!tabInfo.getPatternFld().getText().matches(DefaultInputType.MESSAGE_ID_NAME.getInputMatch()
                                                                    + "%(0\\d+)?d[a-zA-Z0-9_]*"))
                     {
                         // Inform the user that the input value is invalid
@@ -759,7 +763,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 if (isTlmName)
                 {
                     // Check if the starting message number is not a non-negative integer
-                    if (!tabInfo.getStartFld().getText().matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
+                    if (!tabInfo.getStartFld().getText().matches(DefaultInputType.INT_NON_NEGATIVE.getInputMatch()))
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
@@ -783,7 +787,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     else
                     {
                         // Clean up the field value
-                        tabInfo.getStartFld().setText(InputDataType.INT_NON_NEGATIVE.formatInput(tabInfo.getStartFld().getText()));
+                        tabInfo.getStartFld().setText(DefaultInputType.INT_NON_NEGATIVE.formatInput(tabInfo.getStartFld().getText()));
 
                         // Store the new value as the last valid value
                         lastValid = tabInfo.getStartFld().getText();
@@ -793,7 +797,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 else
                 {
                     // Check if the starting message ID value is not in hexadecimal format
-                    if (!tabInfo.getStartFld().getText().matches(InputDataType.HEXADECIMAL.getInputMatch()))
+                    if (!tabInfo.getStartFld().getText().matches(DefaultInputType.HEXADECIMAL.getInputMatch()))
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
@@ -812,7 +816,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     else
                     {
                         // Clean up the field value
-                        tabInfo.getStartFld().setText(InputDataType.HEXADECIMAL.formatInput(tabInfo.getStartFld().getText()));
+                        tabInfo.getStartFld().setText(DefaultInputType.HEXADECIMAL.formatInput(tabInfo.getStartFld().getText()));
 
                         // Store the new value as the last valid value
                         lastValid = tabInfo.getStartFld().getText();
@@ -861,7 +865,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 boolean isValid = true;
 
                 // Check if the message ID interval value is not a positive integer
-                if (!tabInfo.getIntervalFld().getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                if (!tabInfo.getIntervalFld().getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                 {
                     // Inform the user that the input value is invalid
                     new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
@@ -885,7 +889,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 else
                 {
                     // Clean up the field value
-                    tabInfo.getIntervalFld().setText(InputDataType.INT_POSITIVE.formatInput(tabInfo.getIntervalFld().getText()));
+                    tabInfo.getIntervalFld().setText(DefaultInputType.INT_POSITIVE.formatInput(tabInfo.getIntervalFld().getText()));
 
                     // Store the new value as the last valid value
                     lastValid = tabInfo.getIntervalFld().getText();
@@ -1037,7 +1041,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     && !typeDefn.isCommand()))
             {
                 // Get a list of the columns in this table type that are message IDs
-                List<Integer> msgIDColumns = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID);
+                List<Integer> msgIDColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID);
 
                 // Check if the table type has any columns that are message IDs
                 if (!msgIDColumns.isEmpty())
@@ -1135,11 +1139,17 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             FieldInformation fieldInfo = fieldInformation.get(index);
 
             // Check if the field contains a message ID, the field owner matches one of the
-            // supplied tables, and that either the overwrite check box is selected or the field is
-            // blank
-            if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
+            // supplied tables, the field is applicable if the table is a structure based on the
+            // structure's root/child status, and that either the overwrite check box is selected
+            // or the field is blank
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID))
                 && tables.contains(fieldInfo.getOwnerName())
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
+                && (fieldInfo.getApplicabilityType() == ApplicabilityType.ALL
+                    || (fieldInfo.getApplicabilityType() == ApplicabilityType.ROOT_ONLY
+                        && dbTable.getRootStructures().contains(fieldInfo.getOwnerName()))
+                    || (fieldInfo.getApplicabilityType() == ApplicabilityType.CHILD_ONLY
+                        && !dbTable.getRootStructures().contains(fieldInfo.getOwnerName())))
                 && (type.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused message ID
@@ -1221,7 +1231,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
             // Check if the field contains a message ID, is for a group, and that either the
             // overwrite check box is selected or the field is blank
-            if (fieldInfo.getInputType().equals(InputDataType.MESSAGE_ID)
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID))
                 && fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT)
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (type.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))

@@ -24,7 +24,7 @@ import javax.swing.border.Border;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -210,10 +210,10 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
             }
 
             // Check if the any parameter is not a positive integer value
-            if (!maxMsgsPerTimeSlotFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                || !maxMsgsPerSecFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                || !maxMsgsPerCycleFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch())
-                || !numTimeSlotsFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+            if (!maxMsgsPerTimeSlotFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
+                || !maxMsgsPerSecFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
+                || !maxMsgsPerCycleFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch())
+                || !numTimeSlotsFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
             {
                 // Inform the user that a parameter is invalid
                 throw new CCDDException("Application parameter values must be positive integer values");

@@ -42,7 +42,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -484,10 +484,10 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         {
                             // Check if the message ID does not match the hexadecimal range input
                             // type
-                            if (!newValueS.matches(InputDataType.HEXADECIMAL_RANGE.getInputMatch()))
+                            if (!newValueS.matches(DefaultInputType.HEXADECIMAL_RANGE.getInputMatch()))
                             {
                                 throw new CCDDException("Invalid message ID; "
-                                                        + InputDataType.HEXADECIMAL_RANGE.getInputName().toLowerCase()
+                                                        + DefaultInputType.HEXADECIMAL_RANGE.getInputName().toLowerCase()
                                                         + " expected");
                             }
 
@@ -526,14 +526,14 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
                             // Clean up the lower ID text
                             String[] range = newValueS.split("\\s*+-\\s*+");
-                            newValueS = InputDataType.HEXADECIMAL.formatInput(range[0]);
+                            newValueS = DefaultInputType.HEXADECIMAL.formatInput(range[0]);
 
                             // Check if the ID is a range
                             if (range.length == 2)
                             {
                                 // Clean up the upper ID text
                                 newValueS += " - "
-                                             + InputDataType.HEXADECIMAL.formatInput(range[1]);
+                                             + DefaultInputType.HEXADECIMAL.formatInput(range[1]);
                             }
 
                             // Store the new value in the table data array after formatting the

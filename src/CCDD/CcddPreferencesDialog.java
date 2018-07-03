@@ -50,7 +50,7 @@ import CCDD.CcddClassesComponent.JFontChooser;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.GUIUpdateType;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
@@ -980,7 +980,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         }
 
                         // Check if the size value isn't a positive integer
-                        if (!size.matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                        if (!size.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException(modSize.getName()
                                                     + "<b>' must be a positive integer value");
@@ -1203,7 +1203,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         }
 
                         // Check if the spacing value isn't a positive integer
-                        if (!spacing.matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                        if (!spacing.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException(modSpacing.getName()
                                                     + "<b>' must be a positive integer value");

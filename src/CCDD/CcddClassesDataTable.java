@@ -20,7 +20,8 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultApplicationField;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common classes class
@@ -124,7 +125,7 @@ public class CcddClassesDataTable
     {
         private String tableType;
         private String tablePath;
-        private String[][] tableData;
+        private Object[][] tableData;
         private String columnOrder;
         private String description;
         private boolean isPrototype;
@@ -162,7 +163,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         TableInformation(String tableType,
                          String tablePath,
-                         String[][] tableData,
+                         Object[][] tableData,
                          String columnOrder,
                          String description,
                          boolean isRootStructure)
@@ -213,7 +214,7 @@ public class CcddClassesDataTable
          *****************************************************************************************/
         TableInformation(String tableType,
                          String tablePath,
-                         String[][] tableData,
+                         Object[][] tableData,
                          String columnOrder,
                          String description,
                          boolean isRootStructure,
@@ -464,7 +465,7 @@ public class CcddClassesDataTable
          *
          * @return Table data array
          *****************************************************************************************/
-        protected String[][] getData()
+        protected Object[][] getData()
         {
             return tableData;
         }
@@ -475,7 +476,7 @@ public class CcddClassesDataTable
          * @param tableData
          *            table data array
          *****************************************************************************************/
-        protected void setData(String[][] tableData)
+        protected void setData(Object[][] tableData)
         {
             this.tableData = tableData;
         }
@@ -1099,14 +1100,14 @@ public class CcddClassesDataTable
                 // Check if the data type and (if present) variable name are in the correct format.
                 // Embedded macros are accounted for by simply removing the associated macro
                 // identifiers prior to checking the name
-                if (!dataTypeAndVariable[0].matches(InputDataType.VARIABLE.getInputMatch())
+                if (!dataTypeAndVariable[0].matches(DefaultInputType.VARIABLE.getInputMatch())
                     || (isChild
                         && !(dataTypeAndVariable.length == 2
                              && dataTypeAndVariable[1].replaceAll(MACRO_IDENTIFIER
                                                                   + "(.+?)"
                                                                   + MACRO_IDENTIFIER,
                                                                   "$1")
-                                                      .matches(InputDataType.VARIABLE.getInputMatch()
+                                                      .matches(DefaultInputType.VARIABLE.getInputMatch()
                                                                + "(?:\\[[0-9]+\\])?"))))
                 {
                     // Indicate that the table name/path doesn't match the valid pattern
@@ -1126,7 +1127,7 @@ public class CcddClassesDataTable
      *********************************************************************************************/
     protected static class TableTypeDefinition
     {
-        private final String typeName;
+        private String typeName;
         private final String description;
         private final List<Object[]> columns;
         private final List<String[]> dataFields;
@@ -1158,6 +1159,17 @@ public class CcddClassesDataTable
         protected String getTypeName()
         {
             return typeName;
+        }
+
+        /******************************************************************************************
+         * Set the table type name
+         *
+         * @param typeName
+         *            table type name
+         *****************************************************************************************/
+        protected void setTypeName(String typeName)
+        {
+            this.typeName = typeName;
         }
 
         /******************************************************************************************
@@ -1545,7 +1557,7 @@ public class CcddClassesDataTable
         private final String fieldName;
         private final String description;
         private final int charSize;
-        private final InputDataType inputType;
+        private final InputType inputType;
         private final boolean isRequired;
         private final ApplicabilityType applicability;
         private String value;
@@ -1568,7 +1580,7 @@ public class CcddClassesDataTable
          *            field display size in characters
          *
          * @param inputType
-         *            field InputDataType
+         *            field input type (InputType)
          *
          * @param isRequired
          *            true if a value is required for this field
@@ -1587,7 +1599,7 @@ public class CcddClassesDataTable
         FieldInformation(String ownerName,
                          String fieldName,
                          String description,
-                         InputDataType inputType,
+                         InputType inputType,
                          int charSize,
                          boolean isRequired,
                          ApplicabilityType applicability,
@@ -1723,7 +1735,7 @@ public class CcddClassesDataTable
          *
          * @return Field input type
          *****************************************************************************************/
-        protected InputDataType getInputType()
+        protected InputType getInputType()
         {
             return inputType;
         }

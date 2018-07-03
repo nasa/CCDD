@@ -47,9 +47,9 @@ import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -62,10 +62,11 @@ import CCDD.CcddConstants.TableSelectionMode;
 @SuppressWarnings("serial")
 public class CcddFieldEditorDialog extends CcddDialogHandler
 {
-    // Class reference
+    // Class references
     private final CcddKeyboardHandler keyboardHandler;
     private final CcddInputFieldPanelHandler fieldPnlHndlr;
     private CcddJTableHandler fieldTable;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // Components referenced by multiple methods
     private JPanel outerPanel;
@@ -124,6 +125,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                           int minimumWidth)
     {
         keyboardHandler = ccddMain.getKeyboardHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
         this.fieldPnlHndlr = fieldPnlHandler;
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
@@ -207,8 +209,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     String cellValue = fieldTable.getValueAt(row, inputTypeIndex).toString();
 
                     // Check if the row represents a separator or line break
-                    if (cellValue.equals(InputDataType.SEPARATOR.getInputName())
-                        || cellValue.equals(InputDataType.BREAK.getInputName()))
+                    if (cellValue.equals(DefaultInputType.SEPARATOR.getInputName())
+                        || cellValue.equals(DefaultInputType.BREAK.getInputName()))
                     {
                         // Set the flag to indicate this cell is not editable
                         isEditable = false;
@@ -316,7 +318,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                     else if (column == FieldEditorColumnInfo.SIZE.ordinal())
                     {
                         // Check if the field size is not a positive integer
-                        if (!newValueS.matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                        if (!newValueS.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException("Field size must be a positive integer");
                         }
@@ -331,7 +333,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         }
 
                         // Remove any unneeded characters and store the cleaned number
-                        tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(InputDataType.INT_POSITIVE.getInputMatch(),
+                        tableData.get(row)[column] = Integer.valueOf(newValueS.replaceAll(DefaultInputType.INT_POSITIVE.getInputMatch(),
                                                                                           "$1"));
                     }
                 }
@@ -406,8 +408,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         found = false;
 
                         // Check if the type is a separator or line break
-                        if (fieldTable.getValueAt(row, column).equals(InputDataType.SEPARATOR.getInputName())
-                            || fieldTable.getValueAt(row, column).equals(InputDataType.BREAK.getInputName()))
+                        if (fieldTable.getValueAt(row, column).equals(DefaultInputType.SEPARATOR.getInputName())
+                            || fieldTable.getValueAt(row, column).equals(DefaultInputType.BREAK.getInputName()))
                         {
                             found = true;
                         }
@@ -486,7 +488,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
 
-        // Create a drop-down combo box to display the available field input data types
+        // Create a drop-down combo box to display the available field input types
         setUpInputTypeColumn();
 
         // Create a drop-down combo box to display the available field applicability types
@@ -616,10 +618,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             {
                 fieldTable.insertRow(true,
                                      TableInsertionPoint.SELECTION,
-                                     new Object[] {InputDataType.SEPARATOR.getInputName(),
+                                     new Object[] {DefaultInputType.SEPARATOR.getInputName(),
                                                    "Line separator",
                                                    0,
-                                                   InputDataType.SEPARATOR.getInputName(),
+                                                   DefaultInputType.SEPARATOR.getInputName(),
                                                    false,
                                                    "",
                                                    ""});
@@ -643,10 +645,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             {
                 fieldTable.insertRow(true,
                                      TableInsertionPoint.SELECTION,
-                                     new Object[] {InputDataType.BREAK.getInputName(),
+                                     new Object[] {DefaultInputType.BREAK.getInputName(),
                                                    "Line break",
                                                    0,
-                                                   InputDataType.BREAK.getInputName(),
+                                                   DefaultInputType.BREAK.getInputName(),
                                                    false,
                                                    "",
                                                    ""});
@@ -838,8 +840,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set up the combo box containing the available field input input data types for display in
-     * the table's Input Type cells
+     * Set up the combo box containing the available field input input types for display in the
+     * table's Input Type cells
      *********************************************************************************************/
     private void setUpInputTypeColumn()
     {
@@ -855,8 +857,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         }
 
         // Create a combo box for displaying field input types
-        inputTypeCbox = new PaddedComboBox(InputDataType.getInputNames(false),
-                                           InputDataType.getDescriptions(true),
+        inputTypeCbox = new PaddedComboBox(inputTypeHandler.getNames(false),
+                                           inputTypeHandler.getDescriptions(true),
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
         // Add a listener to the combo box for focus changes
@@ -877,7 +879,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         fieldTable.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new DefaultCellEditor(inputTypeCbox));
 
         // Set the default selected type
-        inputTypeCbox.setSelectedItem(InputDataType.TEXT.getInputName());
+        inputTypeCbox.setSelectedItem(DefaultInputType.TEXT.getInputName());
     }
 
     /**********************************************************************************************

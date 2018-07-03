@@ -44,12 +44,12 @@ import javax.swing.text.JTextComponent;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DatabaseListCommand;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
+import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary macro handler class
@@ -335,14 +335,14 @@ public class CcddMacroHandler
      *            macro name
      *
      * @param inputType
-     *            input data type of the text component
+     *            input type of the text component (InputType)
      *
      * @param validDataTypes
      *            list of valid data types from which to choose
      *********************************************************************************************/
     protected void insertMacroName(Window owner,
                                    final JTextComponent textComp,
-                                   InputDataType inputType,
+                                   InputType inputType,
                                    List<String> validDataTypes)
     {
         comboDlg = new JDialog(owner);
@@ -366,8 +366,7 @@ public class CcddMacroHandler
 
                 // Check if the text component's text, with the macro's value inserted, is allowed
                 // in the target text component based on the component's input type
-                if ((text.isEmpty()
-                     || text.matches(inputType.getInputMatch()))
+                if ((text.isEmpty() || text.matches(inputType.getInputMatch()))
                     && !isMacroRecursive)
                 {
                     // Add the macro name to the list with its value as the item's tool tip text
@@ -934,7 +933,7 @@ public class CcddMacroHandler
      *
      * @return String array with any embedded macro names replaced with the associated macro values
      *********************************************************************************************/
-    protected String[][] replaceAllMacros(String[][] array)
+    protected Object[][] replaceAllMacros(Object[][] array)
     {
         // Step through each row in the array
         for (int row = 0; row < array.length; row++)
@@ -943,7 +942,9 @@ public class CcddMacroHandler
             for (int column = 0; column < array[row].length; column++)
             {
                 // Replace any macro names with the corresponding values
-                array[row][column] = getMacroExpansion(array[row][column]);
+                array[row][column] = array[row][column] instanceof String
+                                                                          ? getMacroExpansion(array[row][column].toString())
+                                                                          : array[row][column];
             }
         }
 

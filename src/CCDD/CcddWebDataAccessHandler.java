@@ -30,7 +30,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -39,7 +38,7 @@ import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.EventLogMessageType;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
@@ -807,7 +806,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
         // Convert the table tree to a list of table paths
         return allTablesTree.getTableTreePathList(null,
-                                                  (ToolTipTreeNode) allTablesTree.getRootNode(),
+                                                  allTablesTree.getRootNode(),
                                                   isMaxLevel
                                                              ? allTablesTree.getHeaderNodeLevel()
                                                              : -1);
@@ -2178,13 +2177,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         lastType = tableInfo.getType();
 
                         // Get the variable name column
-                        variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                        variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
 
                         // Get the data type column
-                        dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+                        dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
 
                         // Get the bit length column
-                        bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
+                        bitLengthIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
 
                         // Check if a data stream filter is in effect
                         if (!streamFilter.isEmpty())
@@ -2208,21 +2207,21 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         else
                         {
                             // Get the indices for all rate columns
-                            rateIndices = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+                            rateIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE);
                         }
 
                         // Get the enumeration column(s)
-                        enumerationIndices = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
+                        enumerationIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
 
                         // Check if a description column exists
-                        if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                        if ((descColName = typeDefn.getColumnNameByInputType(DefaultInputType.DESCRIPTION)) != null)
                         {
                             // Get the description column
                             descriptionIndex = typeDefn.getColumnIndexByUserName(descColName);
                         }
 
                         // Check if a units column exists
-                        if ((unitsColName = typeDefn.getColumnNameByInputType(InputDataType.UNITS)) != null)
+                        if ((unitsColName = typeDefn.getColumnNameByInputType(DefaultInputType.UNITS)) != null)
                         {
                             // Get the units column
                             unitsIndex = typeDefn.getColumnIndexByUserName(unitsColName);
@@ -2245,7 +2244,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                         // Check if the variable name is present. If not then all the variable data
                         // on this row is skipped
-                        if (!(cellValue = tableInfo.getData()[row][variableNameIndex]).isEmpty())
+                        if (!(cellValue = tableInfo.getData()[row][variableNameIndex].toString()).isEmpty())
                         {
                             boolean hasRate = false;
 
@@ -2254,7 +2253,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                             {
                                 // Check that a rate value is present and if the rate matches the
                                 // rate filter value (or no filter is in effect)
-                                if (!tableInfo.getData()[row][rateIndex].isEmpty()
+                                if (!tableInfo.getData()[row][rateIndex].toString().isEmpty()
                                     && (rateFilter.isEmpty()
                                         || tableInfo.getData()[row][rateIndex].equals(rateFilter)))
                                 {
@@ -2278,7 +2277,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                                 cellValue);
 
                                 // Check if the data type is present
-                                if (!(cellValue = tableInfo.getData()[row][dataTypeIndex]).isEmpty())
+                                if (!(cellValue = tableInfo.getData()[row][dataTypeIndex].toString()).isEmpty())
                                 {
                                     // Store the data type in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[dataTypeIndex],
@@ -2286,7 +2285,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                 }
 
                                 // Check if the bit length is present
-                                if (!(cellValue = tableInfo.getData()[row][bitLengthIndex]).isEmpty())
+                                if (!(cellValue = tableInfo.getData()[row][bitLengthIndex].toString()).isEmpty())
                                 {
                                     // Store the bit length in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[bitLengthIndex],
@@ -2297,7 +2296,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                 for (Integer enumerationIndex : enumerationIndices)
                                 {
                                     // Check if the enumeration is present
-                                    if (!(cellValue = tableInfo.getData()[row][enumerationIndex]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][enumerationIndex].toString()).isEmpty())
                                     {
                                         // Store the enumeration in the JSON output
                                         structureJO.put(typeDefn.getColumnNamesUser()[enumerationIndex],
@@ -2307,7 +2306,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                                 // Check if the description is present
                                 if (descriptionIndex != -1
-                                    && !(cellValue = tableInfo.getData()[row][descriptionIndex]).isEmpty())
+                                    && !(cellValue = tableInfo.getData()[row][descriptionIndex].toString()).isEmpty())
                                 {
                                     // Store the description in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
@@ -2316,7 +2315,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                                 // Check if the units is present
                                 if (unitsIndex != -1
-                                    && !(cellValue = tableInfo.getData()[row][unitsIndex]).isEmpty())
+                                    && !(cellValue = tableInfo.getData()[row][unitsIndex].toString()).isEmpty())
                                 {
                                     // Store the units in the JSON output
                                     structureJO.put(typeDefn.getColumnNamesUser()[descriptionIndex],
@@ -2415,13 +2414,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         typeDefn = tableTypeHandler.getTypeDefinition(tableInfo.getType());
 
                         // Get the command name column
-                        commandNameIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_NAME));
+                        commandNameIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.COMMAND_NAME));
 
                         // Get the command name column
-                        commandCodeIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.COMMAND_CODE));
+                        commandCodeIndex = typeDefn.getColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.COMMAND_CODE));
 
                         // Check if a command description column exists
-                        if ((descColName = typeDefn.getColumnNameByInputType(InputDataType.DESCRIPTION)) != null)
+                        if ((descColName = typeDefn.getColumnNameByInputType(DefaultInputType.DESCRIPTION)) != null)
                         {
                             // Get the command description column
                             commandDescriptionIndex = typeDefn.getColumnIndexByUserName(descColName);
@@ -2448,7 +2447,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                         // Check if the command name is present. If not then all the command data
                         // on this row is skipped
-                        if (!(cellValue = tableInfo.getData()[row][commandNameIndex]).isEmpty())
+                        if (!(cellValue = tableInfo.getData()[row][commandNameIndex].toString()).isEmpty())
                         {
                             JSONArray commandArgumentsJA = new JSONArray();
 
@@ -2460,7 +2459,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                           cellValue);
 
                             // Check if the command code is present
-                            if (!(cellValue = tableInfo.getData()[row][commandCodeIndex]).isEmpty())
+                            if (!(cellValue = tableInfo.getData()[row][commandCodeIndex].toString()).isEmpty())
                             {
                                 // Store the command code in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandCodeIndex],
@@ -2469,7 +2468,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                             // Check if the command description is present
                             if (commandDescriptionIndex != -1
-                                && !(cellValue = tableInfo.getData()[row][commandDescriptionIndex]).isEmpty())
+                                && !(cellValue = tableInfo.getData()[row][commandDescriptionIndex].toString()).isEmpty())
                             {
                                 // Store the command description in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandDescriptionIndex],
@@ -2484,14 +2483,14 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                                 // Check if the command argument name column has a value. If not,
                                 // all associated argument values are skipped
-                                if (!(cellValue = tableInfo.getData()[row][cmdArgument.getName()]).isEmpty())
+                                if (!(cellValue = tableInfo.getData()[row][cmdArgument.getName()].toString()).isEmpty())
                                 {
                                     // Store the command argument name in the JSON output
                                     commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getName()],
                                                           cellValue);
 
                                     // Check if the command argument data type column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getDataType()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getDataType()].toString()).isEmpty())
                                     {
                                         // Store the data type in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getDataType()],
@@ -2499,7 +2498,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     }
 
                                     // Check if the command argument array size column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getArraySize()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getArraySize()].toString()).isEmpty())
                                     {
                                         // Store the array size in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getArraySize()],
@@ -2507,7 +2506,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     }
 
                                     // Check if the command argument bit length column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getBitLength()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getBitLength()].toString()).isEmpty())
                                     {
                                         // Store the bit length in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getBitLength()],
@@ -2515,7 +2514,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     }
 
                                     // Check if the command argument enumeration column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getEnumeration()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getEnumeration()].toString()).isEmpty())
                                     {
                                         // Store the enumeration in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getEnumeration()],
@@ -2523,7 +2522,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     }
 
                                     // Check if the command argument minimum column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMinimum()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMinimum()].toString()).isEmpty())
                                     {
                                         // Store the minimum value in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getMinimum()],
@@ -2531,7 +2530,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     }
 
                                     // Check if the command argument maximum column has a value
-                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMaximum()]).isEmpty())
+                                    if (!(cellValue = tableInfo.getData()[row][cmdArgument.getMaximum()].toString()).isEmpty())
                                     {
                                         // Store the maximum value in the JSON output
                                         commandArgumentJO.put(typeDefn.getColumnNamesUser()[cmdArgument.getMaximum()],
@@ -2543,7 +2542,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                     for (int otherArg : cmdArgument.getOther())
                                     {
                                         // Check if the other argument column has a value
-                                        if (!(cellValue = tableInfo.getData()[row][otherArg]).isEmpty())
+                                        if (!(cellValue = tableInfo.getData()[row][otherArg].toString()).isEmpty())
                                         {
                                             // Store the value in the JSON output
                                             commandArgumentJO.put(typeDefn.getColumnNamesUser()[otherArg],

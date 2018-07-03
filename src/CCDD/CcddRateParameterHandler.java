@@ -20,7 +20,7 @@ import java.util.List;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DefaultColumn;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.RateParameter;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -34,6 +34,7 @@ public class CcddRateParameterHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
+    private CcddInputTypeHandler inputTypeHandler;
 
     // Rate parameters
     private int maxSecPerMsg;
@@ -54,6 +55,7 @@ public class CcddRateParameterHandler
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Initialize the rate information list
         rateInformation = new ArrayList<RateInformation>();
@@ -402,7 +404,7 @@ public class CcddRateParameterHandler
                 for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
                 {
                     // Check if the column is a sample rate
-                    if (typeDefn.getInputTypes()[index] == InputDataType.RATE)
+                    if (typeDefn.getInputTypes()[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE)))
                     {
                         // Get the column's visible name
                         String colName = typeDefn.getColumnNamesUser()[index];
@@ -808,7 +810,9 @@ public class CcddRateParameterHandler
             ratesInUse.addAll(dbTable.queryDatabase("SELECT DISTINCT ON (2) * FROM find_columns_by_name('"
                                                     + rateName
                                                     + "', '"
-                                                    + DefaultColumn.convertVisibleToDatabase(rateName, InputDataType.RATE, true)
+                                                    + DefaultColumn.convertVisibleToDatabase(rateName,
+                                                                                             DefaultInputType.RATE.getInputName(),
+                                                                                             true)
                                                     + "', '{"
                                                     + Arrays.toString(tableTypeHandler.getStructureTableTypes()).replaceAll("[\\[\\]]",
                                                                                                                             "")

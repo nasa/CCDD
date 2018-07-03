@@ -36,7 +36,7 @@ import javax.swing.border.Border;
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -548,7 +548,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
                     // Check if the database server port is invalid
                     if (!portFld.getText().isEmpty()
-                        && !portFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                        && !portFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                     {
                         // Inform the user that the database port field is invalid
                         throw new CCDDException("Server port must be blank or a positive integer");
@@ -561,7 +561,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                     portFld.setText(portFld.getText().trim());
 
                     // Check if the web server port is invalid
-                    if (!portFld.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+                    if (!portFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                     {
                         // Inform the user that the web server port field is invalid
                         throw new CCDDException("Server port must be a positive integer");

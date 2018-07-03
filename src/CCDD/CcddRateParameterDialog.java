@@ -40,7 +40,7 @@ import javax.swing.event.ChangeListener;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -167,7 +167,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         field.setText(field.getText().trim());
 
         // Check if the any rate parameter is not a positive integer value
-        if (!field.getText().matches(InputDataType.INT_POSITIVE.getInputMatch()))
+        if (!field.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
         {
             // Inform the user that a rate is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,

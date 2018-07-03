@@ -65,7 +65,6 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -74,6 +73,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableCellSelection;
 import CCDD.CcddUndoHandler.UndoableTextField;
@@ -1291,10 +1291,10 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // a boolean value (these are not compared for duplicate values)
                         else if (!checkBoxColumns.contains(columnModel))
                         {
-                            // Get the input data type for this data field
-                            InputDataType inputType = fieldHandler.getFieldInformationByName(ownerPath,
-                                                                                             columnNames[columnModel])
-                                                                  .getInputType();
+                            // Get the input type for this data field
+                            InputType inputType = fieldHandler.getFieldInformationByName(ownerPath,
+                                                                                         columnNames[columnModel])
+                                                              .getInputType();
 
                             // Get the text in the cell, formatted per its input type, but without
                             // preserving the leading zeroes for hexadecimal values

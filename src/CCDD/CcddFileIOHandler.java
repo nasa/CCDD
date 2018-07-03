@@ -58,11 +58,11 @@ import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -91,6 +91,7 @@ public class CcddFileIOHandler
     private CcddDataTypeHandler dataTypeHandler;
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private CcddInputTypeHandler inputTypeHandler;
     private List<CcddTableEditorDialog> tableEditorDlgs;
     private final CcddEventLogDialog eventLog;
     private CcddHaltDialog haltDlg;
@@ -121,6 +122,7 @@ public class CcddFileIOHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
     }
 
     /**********************************************************************************************
@@ -644,7 +646,7 @@ public class CcddFileIOHandler
             protected void complete()
             {
                 // Check if the user didn't cancel import
-                if (haltDlg.isHalted())
+                if (!haltDlg.isHalted())
                 {
                     // Close the cancellation dialog
                     haltDlg.closeDialog();
@@ -905,7 +907,7 @@ public class CcddFileIOHandler
                 // Inform the user that one or more duplicate table definitions were detected
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Ignored the following duplicate table definition(s):</b><br>"
-                                                                  + dbTable.getShortenedTableNames(duplicateDefinitions.toArray(new String[0])),
+                                                                  + CcddUtilities.convertArrayToStringTruncate(duplicateDefinitions.toArray(new String[0])),
                                                           "Duplicate Table(s)",
                                                           JOptionPane.INFORMATION_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1192,6 +1194,7 @@ public class CcddFileIOHandler
                                                                                                                 : (typeDefn.isCommand()
                                                                                                                                         ? TYPE_COMMAND
                                                                                                                                         : TYPE_OTHER)),
+                                                                                        inputTypeHandler,
                                                                                         typeDefn.getInputTypesVisible()[colIndex]))
                                                 {
                                                     // Replace the non-required column value with a
@@ -1230,8 +1233,8 @@ public class CcddFileIOHandler
                                     // Add the variable reference to the new table
                                     String[] rowData = new String[typeDefn.getColumnCountVisible()];
                                     Arrays.fill(rowData, "");
-                                    rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.VARIABLE))] = typeAndVar[1];
-                                    rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(InputDataType.PRIM_AND_STRUCT))] = typeAndVar[0];
+                                    rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.VARIABLE))] = typeAndVar[1];
+                                    rowData[typeDefn.getVisibleColumnIndexByUserName(typeDefn.getColumnNameByInputType(DefaultInputType.PRIM_AND_STRUCT))] = typeAndVar[0];
 
                                     // Create the prototype of the child table and populate it with
                                     // the protected column data
@@ -1306,7 +1309,7 @@ public class CcddFileIOHandler
             // Inform the user that one or more tables were not imported
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Table(s) not imported<br>'</b>"
-                                                              + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                              + CcddUtilities.convertArrayToStringTruncate(skippedTables.toArray(new String[0]))
                                                               + "<b>';<br>table already exists",
                                                       "Import Warning",
                                                       JOptionPane.WARNING_MESSAGE,
@@ -2280,7 +2283,7 @@ public class CcddFileIOHandler
                 // Inform the user that one or more tables were not exported
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Table(s) not exported<br>'</b>"
-                                                                  + dbTable.getShortenedTableNames(skippedTables.toArray(new String[0]))
+                                                                  + CcddUtilities.convertArrayToStringTruncate(skippedTables.toArray(new String[0]))
                                                                   + "<b>';<br>output file already exists or file I/O error",
                                                           "Export Error",
                                                           JOptionPane.WARNING_MESSAGE,

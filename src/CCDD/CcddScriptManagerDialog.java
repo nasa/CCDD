@@ -61,7 +61,7 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -908,7 +908,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             if (!nameFld.getText().isEmpty())
             {
                 // Check if the association name does not match the alphanumeric input type
-                if (!nameFld.getText().matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+                if (!nameFld.getText().matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
                 {
                     throw new CCDDException("Illegal character(s) in association name");
                 }

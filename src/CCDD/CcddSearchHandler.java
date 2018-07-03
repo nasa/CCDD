@@ -28,9 +28,9 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventColumns;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
@@ -223,7 +223,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                         if (typeDefn.isStructure())
                         {
                             // Get the variable name column index
-                            int index = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                            int index = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
 
                             // Check that a variable name exists
                             if (index != -1 && !columnValue[index].isEmpty())
@@ -236,7 +236,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                         else if (typeDefn.isCommand())
                         {
                             // Get the command name column index
-                            int index = typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME);
+                            int index = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME);
 
                             // Check that a command name exists
                             if (index != -1 && !columnValue[index].isEmpty())
@@ -847,11 +847,11 @@ public class CcddSearchHandler extends CcddDialogHandler
      * @param matches
      *            list containing the search results for the data type or macro reference
      *
-     * @param tbleTypeHndlr
+     * @param tblTypeHndlr
      *            reference to the table type handler
      *********************************************************************************************/
     protected static void removeArrayMemberReferences(List<String> matches,
-                                                      CcddTableTypeHandler tbleTypeHndlr)
+                                                      CcddTableTypeHandler tblTypeHndlr)
     {
         // Step through each match (in reverse since an entry in the list may need to be removed)
         for (int index = matches.size() - 1; index >= 0; index--)
@@ -859,27 +859,32 @@ public class CcddSearchHandler extends CcddDialogHandler
             // Separate the match components
             String[] tblColDescAndCntxt = matches.get(index).split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
-            // Separate the user-viewable table name and table type
-            String[] tableAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
-
-            // Get the table's type definition
-            TypeDefinition typeDefn = tbleTypeHndlr.getTypeDefinition(tableAndType[1]);
-
-            // Check if the reference is in an array size column
-            if (typeDefn.getDbColumnNameByInputType(InputDataType.ARRAY_INDEX).equals(tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()]))
+            // Check if the comment portion isn't empty. The comment contains the table's visible
+            // name and type for a data table, but is empty for a custom values table reference
+            if (!tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].isEmpty())
             {
-                // Separate the location into the individual columns. Commas between double quotes
-                // are ignored so that an erroneous column separation doesn't occur
-                String[] columns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                // Separate the user-viewable table name and table type
+                String[] tableAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
 
-                // Get the index of the variable name column
-                int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
+                // Get the table's type definition
+                TypeDefinition typeDefn = tblTypeHndlr.getTypeDefinition(tableAndType[1]);
 
-                // Check if the variable name is an array member
-                if (varNameIndex != -1 && ArrayVariable.isArrayMember(columns[varNameIndex]))
+                // Check if the reference is in an array size column
+                if (typeDefn.getDbColumnNameByInputType(DefaultInputType.ARRAY_INDEX).equals(tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()]))
                 {
-                    // Remove the match
-                    matches.remove(index);
+                    // Separate the location into the individual columns. Commas between double
+                    // quotes are ignored so that an erroneous column separation doesn't occur
+                    String[] columns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                    // Get the index of the variable name column
+                    int varNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+
+                    // Check if the variable name is an array member
+                    if (varNameIndex != -1 && ArrayVariable.isArrayMember(columns[varNameIndex]))
+                    {
+                        // Remove the match
+                        matches.remove(index);
+                    }
                 }
             }
         }

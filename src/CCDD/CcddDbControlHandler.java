@@ -61,10 +61,10 @@ import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
@@ -1173,7 +1173,7 @@ public class CcddDbControlHandler
                                        + "text, table_description text, column_value "
                                        + "text) AS $$ DECLARE search_text text := "
                                        + "regexp_replace(search_text, E'([^a-zA-Z0-9 ])', "
-                                       + "E'\\\\\\\\\\\\1'); BEGIN FOR schema_name, "
+                                       + "E'\\\\\\\\\\\\1', 'g'); BEGIN FOR schema_name, "
                                        + "table_name, table_description, column_name IN "
                                        + "SELECT c.table_schema, c.table_name, "
                                        + "coalesce(d.description,''), c.column_name "
@@ -1198,6 +1198,12 @@ public class CcddDbControlHandler
                                        + InternalTable.VALUES.getTableName().replaceFirst("^"
                                                                                           + INTERNAL_TABLE_PREFIX, "")
                                        + ").)*$') OR (selected_tables ~* '"
+                                       + SearchType.INPUT.toString()
+                                       + "' AND ((c.table_name ~* E'^"
+                                       + InternalTable.TABLE_TYPES.getTableName()
+                                       + "') OR (c.table_name ~* E'^"
+                                       + InternalTable.FIELDS.getTableName()
+                                       + "'))) OR (selected_tables ~* '"
                                        + SearchType.SCRIPT.toString()
                                        + "' AND c.table_name ~ E'^"
                                        + InternalTable.SCRIPT.getTableName()
@@ -1409,8 +1415,8 @@ public class CcddDbControlHandler
                     if (typeDefn.isStructure())
                     {
                         // Get this type's first rate and enumeration column names
-                        dbRate = typeDefn.getDbColumnNameByInputType(InputDataType.RATE);
-                        dbEnumeration = typeDefn.getDbColumnNameByInputType(InputDataType.ENUMERATION);
+                        dbRate = typeDefn.getDbColumnNameByInputType(DefaultInputType.RATE);
+                        dbEnumeration = typeDefn.getDbColumnNameByInputType(DefaultInputType.ENUMERATION);
 
                         // Create the portion of the command comparing the column name to the first
                         // rate and enumeration column names
@@ -1509,7 +1515,7 @@ public class CcddDbControlHandler
                     {
                         // Get the rate column name (in its database form)
                         String rateColName = DefaultColumn.convertVisibleToDatabase(rateInfo.getRateName(),
-                                                                                    InputDataType.RATE,
+                                                                                    DefaultInputType.RATE.getInputName(),
                                                                                     true);
 
                         // Add detection for the rate column. If the column doesn't exist in the

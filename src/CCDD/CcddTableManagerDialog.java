@@ -54,7 +54,7 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -1850,7 +1850,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         }
 
         // Check if the name contains an illegal character
-        if (!tableName.matches(InputDataType.ALPHANUMERIC.getInputMatch()))
+        if (!tableName.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
         {
             // Inform the user that the name is invalid
             throw new CCDDException("Illegal character(s) in table name '" + tableName + "'");

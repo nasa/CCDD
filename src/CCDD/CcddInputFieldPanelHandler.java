@@ -38,8 +38,8 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesComponent.WrapLayout;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -61,6 +61,7 @@ public abstract class CcddInputFieldPanelHandler
     private CcddUndoHandler undoHandler;
     private CcddFieldHandler dataFieldHandler;
     private UndoableDataFieldPanel undoFieldPnl;
+    private CcddInputTypeHandler inputTypeHandler;
 
     // Components referenced by multiple methods
     private UndoableTextArea descriptionFld;
@@ -309,16 +310,21 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param fieldHandler
      *            field handler reference
+     *
+     * @param inputTypeHandler
+     *            input type handler reference
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(final Component fieldPnlHndlrOwner,
                                                final JScrollPane tableScrollPane,
                                                String ownerName,
                                                String description,
-                                               CcddFieldHandler fieldHandler)
+                                               CcddFieldHandler fieldHandler,
+                                               CcddInputTypeHandler inputTypeHandler)
     {
         this.fieldPnlHndlrOwner = fieldPnlHndlrOwner;
         this.ownerName = ownerName;
         this.dataFieldHandler = fieldHandler;
+        this.inputTypeHandler = inputTypeHandler;
 
         // Create the handler for undoing/redoing data field changes
         undoFieldPnl = undoHandler.new UndoableDataFieldPanel();
@@ -541,28 +547,23 @@ public abstract class CcddInputFieldPanelHandler
                     switch (fieldInfo.getInputType().getInputFormat())
                     {
                         case PAGE_FORMAT:
-                            switch (fieldInfo.getInputType())
+                            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
                             {
-                                case BREAK:
-                                    // Create a text field for the separator so it can be handled
-                                    // like other fields
-                                    fieldInfo.setInputFld(undoHandler.new UndoableTextField());
+                                // Create a text field for the separator so it can be handled like
+                                // other fields
+                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
-                                    // Add a vertical separator to the field panel
-                                    fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
-                                    break;
+                                // Add a vertical separator to the field panel
+                                fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
+                            }
+                            else if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR)))
+                            {
+                                // Create a text field for the separator so it can be handled like
+                                // other fields
+                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
 
-                                case SEPARATOR:
-                                    // Create a text field for the separator so it can be handled
-                                    // like other fields
-                                    fieldInfo.setInputFld(undoHandler.new UndoableTextField());
-
-                                    // Add a horizontal separator to the field panel
-                                    fieldPnl.add(new JSeparator());
-                                    break;
-
-                                default:
-                                    break;
+                                // Add a horizontal separator to the field panel
+                                fieldPnl.add(new JSeparator());
                             }
 
                             break;
@@ -624,7 +625,7 @@ public abstract class CcddInputFieldPanelHandler
                             singleFldPnl.add(fieldLbl);
 
                             // Check if the input type is for multi-line text
-                            if (fieldInfo.getInputType().equals(InputDataType.TEXT_MULTI))
+                            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI)))
                             {
                                 // Create the data field input field as a text area, which allows
                                 // new line characters which cause the field to be displayed in
@@ -701,8 +702,8 @@ public abstract class CcddInputFieldPanelHandler
 
                                     // Check if the field's input type doesn't allow leading and
                                     // trailing white space characters
-                                    if (fieldInfo.getInputType() != InputDataType.TEXT_WHT_SPC
-                                        && fieldInfo.getInputType() != InputDataType.TEXT_MULTI_WHT_SPC)
+                                    if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
+                                        && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
                                     {
                                         // Remove leading and trailing white space characters
                                         inputTxt = inputTxt.trim();

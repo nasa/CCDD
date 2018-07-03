@@ -17,18 +17,20 @@ import java.util.List;
 
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary field handler class
  *************************************************************************************************/
 public class CcddFieldHandler
 {
-    // Main class reference
+    // Class references
     private final CcddMain ccddMain;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // List of field definitions
     private List<String[]> fieldDefinitions;
@@ -45,6 +47,7 @@ public class CcddFieldHandler
     CcddFieldHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Create storage for the field definitions and information
         fieldDefinitions = new ArrayList<String[]>();
@@ -227,13 +230,13 @@ public class CcddFieldHandler
      *            references a structure, group name, or table type name)
      *
      * @param inputType
-     *            input type of the field for which to get the field information
+     *            input type of the field for which to get the field information (InputType)
      *
      * @return Reference to the data field information for the first field that matches the owner
      *         and input type; null if the no match is found
      *********************************************************************************************/
     protected FieldInformation getFieldInformationByInputType(String ownerName,
-                                                              InputDataType inputType)
+                                                              InputType inputType)
     {
         FieldInformation fieldInfo = null;
 
@@ -242,7 +245,7 @@ public class CcddFieldHandler
         {
             // Check if the owner and field types match the ones supplied (case insensitive)
             if (info.getOwnerName().equalsIgnoreCase(ownerName)
-                && info.getInputType() == inputType)
+                && info.getInputType().equals(inputType))
             {
                 // Store the field information reference and stop searching
                 fieldInfo = info;
@@ -280,22 +283,8 @@ public class CcddFieldHandler
                     || ownerName.isEmpty()
                     || ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
                 {
-                    // Get the input type from its name. The text input type is the default if the
-                    // input type name is invalid
-                    InputDataType inputType = InputDataType.TEXT;
-                    String inputTypeName = fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString();
-
-                    // Step through each field input type
-                    for (InputDataType type : InputDataType.values())
-                    {
-                        // Check if the type matches this field's input type
-                        if (inputTypeName.equals(type.getInputName()))
-                        {
-                            // Store the field input type and stop searching
-                            inputType = type;
-                            break;
-                        }
-                    }
+                    // Get the input type from its name
+                    InputType inputType = inputTypeHandler.getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
 
                     // Get the applicability type from its name. The all tables applicability type
                     // is the default if the applicability type name is invalid
@@ -419,7 +408,8 @@ public class CcddFieldHandler
                     || !compFieldInfoA.get(index).getInputType().equals(compFieldInfoB.get(index).getInputType())
                     || compFieldInfoA.get(index).getSize() != compFieldInfoB.get(index).getSize()
                     || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
-                    || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired())
+                    || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired()
+                    || compFieldInfoA.get(index).getApplicabilityType() != compFieldInfoB.get(index).getApplicabilityType())
                 {
                     // Set the flag indicating a field is changed and stop searching
                     isFieldChanged = true;
@@ -455,7 +445,7 @@ public class CcddFieldHandler
                 fieldDefinitions.add(getFieldDefinitionArray(ownerName,
                                                              data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                              data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                             InputDataType.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                             inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
                                                              Integer.valueOf(data[FieldEditorColumnInfo.SIZE.ordinal()].toString()),
                                                              Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
                                                              ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
@@ -535,7 +525,7 @@ public class CcddFieldHandler
      *            field description
      *
      * @param inputType
-     *            input data type
+     *            input type (InputType)
      *
      * @param size
      *            field display size in characters
@@ -553,7 +543,7 @@ public class CcddFieldHandler
     protected static String[] getFieldDefinitionArray(String ownerName,
                                                       String fieldName,
                                                       String description,
-                                                      InputDataType inputType,
+                                                      InputType inputType,
                                                       int size,
                                                       boolean isRequired,
                                                       ApplicabilityType applicability,
@@ -639,12 +629,12 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Count the number of the specified field type that exists in the field information
      *
-     * @param fieldType
-     *            FieldInputType
+     * @param fieldInputType
+     *            field input type (InputType)
      *
      * @return The number of the specified field type that exists in the field information
      *********************************************************************************************/
-    protected int getFieldTypeCount(InputDataType fieldType)
+    protected int getFieldTypeCount(InputType fieldInputType)
     {
         int count = 0;
 
@@ -652,7 +642,7 @@ public class CcddFieldHandler
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Check if the field type matches the specified type
-            if (fieldInfo.getInputType().equals(fieldType))
+            if (fieldInfo.getInputType().equals(fieldInputType))
             {
                 // Increment the type counter
                 count++;
@@ -669,12 +659,12 @@ public class CcddFieldHandler
      *            field owner name
      *
      * @param inputType
-     *            InputDataTYpe for which to search
+     *            input type for which to search (InputType)
      *
      * @return Value of the data field with the specified input type for the specified field owner;
      *         null if the owner doesn't have a data field of that type
      *********************************************************************************************/
-    protected String getFieldValue(String fieldOwner, InputDataType inputType)
+    protected String getFieldValue(String fieldOwner, InputType inputType)
     {
         String fieldValue = null;
 
@@ -689,6 +679,24 @@ public class CcddFieldHandler
         }
 
         return fieldValue;
+    }
+
+    /**********************************************************************************************
+     * Get the value of the data field with the specified default input type for the specified
+     * field owner
+     *
+     * @param fieldOwner
+     *            field owner name
+     *
+     * @param inputType
+     *            default input type for which to search (DefaultInputType)
+     *
+     * @return Value of the data field with the specified default input type for the specified
+     *         field owner; null if the owner doesn't have a data field of that type
+     *********************************************************************************************/
+    protected String getFieldValue(String fieldOwner, DefaultInputType inputType)
+    {
+        return getFieldValue(fieldOwner, inputTypeHandler.getInputTypeByDefaultType(inputType));
     }
 
     /**********************************************************************************************

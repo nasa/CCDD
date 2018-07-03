@@ -106,9 +106,9 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -127,6 +127,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddMacroHandler macroHandler;
     private final CcddFieldHandler fieldHandler;
     private final CcddRateParameterHandler rateHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -470,6 +471,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Build the data field information for all fields
         this.fieldHandler.buildFieldInformation(null);
@@ -608,28 +610,28 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     // Check if the item name matches that for the telemetry header table name
                     // indicator
-                    if (data.getName().equals(InputDataType.XML_TLM_HDR.getInputName()))
+                    if (data.getName().equals(DefaultInputType.XML_TLM_HDR.getInputName()))
                     {
                         // Store the item value as the telemetry header table name
                         tlmHeaderTable = data.getValue();
                     }
                     // Check if the item name matches that for the command header table name
                     // indicator
-                    else if (data.getName().equals(InputDataType.XML_CMD_HDR.getInputName()))
+                    else if (data.getName().equals(DefaultInputType.XML_CMD_HDR.getInputName()))
                     {
                         // Store the item value as the command header table name
                         cmdHeaderTable = data.getValue();
                     }
                     // Check if the item name matches that for the application ID variable name
                     // indicator
-                    else if (data.getName().equals(InputDataType.XML_APP_ID.getInputName()))
+                    else if (data.getName().equals(DefaultInputType.XML_APP_ID.getInputName()))
                     {
                         // Store the item value as the application ID variable name
                         applicationIDName = data.getValue();
                     }
                     // Check if the item name matches that for the command function code variable
                     // name indicator
-                    else if (data.getName().equals(InputDataType.XML_FUNC_CODE.getInputName()))
+                    else if (data.getName().equals(DefaultInputType.XML_FUNC_CODE.getInputName()))
                     {
                         // Store the item value as the command function code variable name
                         cmdFuncCodeName = data.getValue();
@@ -771,14 +773,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 String typeName = "XTCE Structure";
                 int sequence = 2;
 
-                // Continue to check while a table type with this name exists
-                while (tableTypeHandler.getTypeDefinition(typeName) != null)
-                {
-                    // Alter the name so that there isn't a duplicate
-                    typeName = "XTCE Structure " + sequence;
-                    sequence++;
-                }
-
                 // Create a table type definition for structure tables
                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
                                                                             "XTCE import structure table type");
@@ -791,6 +785,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                          tableTypeDefn,
                                                          CcddUtilities.convertObjectToString(columnDefn),
                                                          importFile.getAbsolutePath(),
+                                                         inputTypeHandler,
                                                          parent);
                 }
 
@@ -804,30 +799,42 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                      new String[] {String.valueOf(columnIndex),
                                                                    COL_MINIMUM,
                                                                    "Minimum value",
-                                                                   InputDataType.MINIMUM.getInputName(),
+                                                                   DefaultInputType.MINIMUM.getInputName(),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(true)},
                                                      importFile.getAbsolutePath(),
+                                                     inputTypeHandler,
                                                      parent);
                 addImportedTableTypeColumnDefinition(true,
                                                      tableTypeDefn,
                                                      new String[] {String.valueOf(columnIndex + 1),
                                                                    COL_MAXIMUM,
                                                                    "Maximum value",
-                                                                   InputDataType.MAXIMUM.getInputName(),
+                                                                   DefaultInputType.MAXIMUM.getInputName(),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(true)},
                                                      importFile.getAbsolutePath(),
+                                                     inputTypeHandler,
                                                      parent);
 
-                // Add the structure table type definition. Also add the tab for the new definition
-                // to the table type manager, if open
+                // Add the structure table type definition
                 tableTypeDefns.add(tableTypeDefn);
-                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+
+                // Continue to check while a table type with this name exists. This also adds the
+                // tab for the new definition to the table type manager, if open
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                {
+                    // Alter the name so that there isn't a duplicate
+                    typeName = "XTCE Structure " + sequence;
+                    tableTypeDefns.get(0).setTypeName(typeName);
+                    sequence++;
+                }
+
+                // Store the reference to the structure table type definition
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // Only a single table is to be imported
@@ -837,15 +844,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             // Get structure table column indices
-            variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
-            dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
-            arraySizeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX));
-            bitLengthIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH));
-            enumerationIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION));
-            minimumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.MINIMUM));
-            maximumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM));
-            descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
-            unitsIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.UNITS));
+            variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE));
+            dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT));
+            arraySizeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX));
+            bitLengthIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH));
+            enumerationIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.ENUMERATION));
+            minimumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.MINIMUM));
+            maximumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.MAXIMUM));
+            descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION));
+            unitsIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.UNITS));
 
             // Get the number of columns defined in the structure table type
             numStructureColumns = structureTypeDefn.getColumnCountVisible();
@@ -872,14 +879,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 String typeName = "XTCE Command";
                 int sequence = 2;
 
-                // Continue to check while a table type with this name exists
-                while (tableTypeHandler.getTypeDefinition(typeName) != null)
-                {
-                    // Alter the name so that there isn't a duplicate
-                    typeName = "XTCE Command " + sequence;
-                    sequence++;
-                }
-
                 // Create a table type definition for command tables
                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
                                                                             "XTCE import command table type");
@@ -892,6 +891,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                          tableTypeDefn,
                                                          CcddUtilities.convertObjectToString(columnDefn),
                                                          importFile.getAbsolutePath(),
+                                                         inputTypeHandler,
                                                          parent);
                 }
 
@@ -937,12 +937,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                argName,
                                                                                cmdArgCol[1].toString().replaceFirst("###",
                                                                                                                     String.valueOf(argIndex)),
-                                                                               ((InputDataType) cmdArgCol[2]).getInputName(),
+                                                                               ((DefaultInputType) cmdArgCol[2]).getInputName(),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false)},
                                                                  importFile.getAbsolutePath(),
+                                                                 inputTypeHandler,
                                                                  parent);
 
                             columnIndex++;
@@ -954,10 +955,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     commandAllTypeDefn.addCommandArgumentColumns(argIndex);
                 }
 
-                // Add the command table type definition. Also add the tab for the new definition
-                // to the table type manager, if open
+                // Add the command table type definition
                 tableTypeDefns.add(tableTypeDefn);
-                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+
+                // Continue to check while a table type with this name exists. This also adds the
+                // tab for the new definition to the table type manager, if open
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                {
+                    // Alter the name so that there isn't a duplicate
+                    typeName = "XTCE Command " + sequence;
+                    tableTypeDefns.get(0).setTypeName(typeName);
+                    sequence++;
+                }
+
+                // Store the reference to the command table type definition
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // A single command table is to be imported into an existing command table
@@ -972,9 +983,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                           : commandAllTypeDefn.getAssociatedCommandArgumentColumns(true);
 
             // Get the command table column indices
-            commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
-            cmdFuncCodeIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE));
-            cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+            commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME));
+            cmdFuncCodeIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE));
+            cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION));
 
             // Store the number of columns defined in the command table types
             numCommandColumns = commandTypeDefn.getColumnCountVisible();
@@ -1286,7 +1297,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                                 comparison.getParameterRef(),
                                                                                                 "Message ID",
-                                                                                                InputDataType.MESSAGE_ID,
+                                                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID),
                                                                                                 Math.min(Math.max(comparison.getValue().length(),
                                                                                                                   5),
                                                                                                          40),
@@ -1400,7 +1411,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                 "System path",
                                                                                 "System Path",
-                                                                                InputDataType.SYSTEM_PATH,
+                                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                                 Math.min(Math.max(systemPath.length(),
                                                                                                   5),
                                                                                          40),
@@ -1541,7 +1552,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                         tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                                         argAssn.getArgumentName(),
                                                                                                         "Message ID",
-                                                                                                        InputDataType.MESSAGE_ID,
+                                                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID),
                                                                                                         Math.min(Math.max(argAssn.getArgumentValue().length(),
                                                                                                                           5),
                                                                                                                  40),
@@ -1786,7 +1797,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         structTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                               "System path",
                                                                                               "System Path",
-                                                                                              InputDataType.SYSTEM_PATH,
+                                                                                              inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                                               Math.min(Math.max(systemPath.length(),
                                                                                                                 5),
                                                                                                        40),
@@ -1809,7 +1820,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                 "System path",
                                                                                 "System Path",
-                                                                                InputDataType.SYSTEM_PATH,
+                                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                                 Math.min(Math.max(systemPath.length(),
                                                                                                   5),
                                                                                          40),
@@ -2995,16 +3006,16 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
         // Get the names of the tables representing the CCSDS telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                    InputDataType.XML_TLM_HDR);
+                                                    DefaultInputType.XML_TLM_HDR);
         cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                    InputDataType.XML_CMD_HDR);
+                                                    DefaultInputType.XML_CMD_HDR);
 
         // Get the telemetry and command header argument column names for the application ID and
         // the command function code. These are stored as project-level data fields
         applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                       InputDataType.XML_APP_ID);
+                                                       DefaultInputType.XML_APP_ID);
         cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                     InputDataType.XML_FUNC_CODE);
+                                                     DefaultInputType.XML_FUNC_CODE);
 
         // Check if the application ID argument column name isn't set in the project
         if (applicationIDName == null)
@@ -3030,7 +3041,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Store the telemetry header table name
             AncillaryData tlmHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-            tlmHdrTblValue.setName(InputDataType.XML_TLM_HDR.getInputName());
+            tlmHdrTblValue.setName(DefaultInputType.XML_TLM_HDR.getInputName());
             tlmHdrTblValue.setValue(tlmHeaderTable);
             ancillarySet.getAncillaryData().add(tlmHdrTblValue);
         }
@@ -3040,20 +3051,20 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Store the command header table name
             AncillaryData cmdHdrTblValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-            cmdHdrTblValue.setName(InputDataType.XML_CMD_HDR.getInputName());
+            cmdHdrTblValue.setName(DefaultInputType.XML_CMD_HDR.getInputName());
             cmdHdrTblValue.setValue(cmdHeaderTable);
             ancillarySet.getAncillaryData().add(cmdHdrTblValue);
         }
 
         // Store the application ID variable name
         AncillaryData appIDNameValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        appIDNameValue.setName(InputDataType.XML_APP_ID.getInputName());
+        appIDNameValue.setName(DefaultInputType.XML_APP_ID.getInputName());
         appIDNameValue.setValue(applicationIDName);
         ancillarySet.getAncillaryData().add(appIDNameValue);
 
         // Store the command function code variable name
         AncillaryData cmdCodeNameValue = factory.createDescriptionTypeAncillaryDataSetAncillaryData();
-        cmdCodeNameValue.setName(InputDataType.XML_FUNC_CODE.getInputName());
+        cmdCodeNameValue.setName(DefaultInputType.XML_FUNC_CODE.getInputName());
         cmdCodeNameValue.setValue(cmdFuncCodeName);
         ancillarySet.getAncillaryData().add(cmdCodeNameValue);
         project.getValue().setAncillaryDataSet(ancillarySet);
@@ -3076,8 +3087,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         List<String> processedTables = new ArrayList<String>();
 
         // Get the telemetry and command header table system paths (if present)
-        String tlmHdrSysPath = fieldHandler.getFieldValue(tlmHeaderTable, InputDataType.SYSTEM_PATH);
-        String cmdHdrSysPath = fieldHandler.getFieldValue(cmdHeaderTable, InputDataType.SYSTEM_PATH);
+        String tlmHdrSysPath = fieldHandler.getFieldValue(tlmHeaderTable, DefaultInputType.SYSTEM_PATH);
+        String cmdHdrSysPath = fieldHandler.getFieldValue(cmdHeaderTable, DefaultInputType.SYSTEM_PATH);
 
         // Step through each table path+name
         for (String tablePath : tableNames)
@@ -3234,7 +3245,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Get the application ID data field value, if present
                         String applicationID = fieldHandler.getFieldValue(loadTableName,
-                                                                          InputDataType.MESSAGE_ID);
+                                                                          DefaultInputType.MESSAGE_ID);
 
                         // Check if the system path isn't already defined (this is the case for
                         // children of the telemetry header table)
@@ -3243,7 +3254,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             // Get the path of the system to which this table belongs from the
                             // table'ss root table system path data field (if present)
                             systemPath = fieldHandler.getFieldValue(tableInfo.getRootTable(),
-                                                                    InputDataType.SYSTEM_PATH);
+                                                                    DefaultInputType.SYSTEM_PATH);
                         }
 
                         // Initialize the parent system to be the root (top-level) system
@@ -3330,15 +3341,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         if (typeDefn.isStructure())
                         {
                             // Get the default column indices
-                            int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                            int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                            int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-                            int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-                            int enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
-                            int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-                            int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
-                            int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
-                            int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
+                            int varColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                            int typeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                            int sizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                            int bitColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+                            int enumColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ENUMERATION);
+                            int descColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
+                            int unitsColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
+                            int minColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.MINIMUM);
+                            int maxColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.MAXIMUM);
 
                             // Expand any macros in the table path
                             tableName = macroHandler.getMacroExpansion(tableName);
@@ -3371,7 +3382,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 tableData[0][1] = tableInfo.getDescription();
 
                                 // Step through each row in the command header table
-                                for (String[] rowData : tableInfo.getData())
+                                for (String[] rowData : CcddUtilities.convertObjectToString(tableInfo.getData()))
                                 {
                                     // Check if this isn't an array member (the array definition is
                                     // sufficient to define the array elements)
@@ -3462,7 +3473,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // telemetry meta data
                                 addSpaceSystemParameters(parentSystem,
                                                          tableName,
-                                                         tableInfo.getData(),
+                                                         CcddUtilities.convertObjectToString(tableInfo.getData()),
                                                          varColumn,
                                                          typeColumn,
                                                          sizeColumn,
@@ -3487,7 +3498,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             // Get the first description type column in the command table type
                             // definition
-                            int cmdDescColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
+                            int cmdDescColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
 
                             // Check if the description belongs to a command argument and not the
                             // overall command. All columns prior to the first argument name apply
@@ -3503,9 +3514,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                             // Add the command(s) from this table to the parent system
                             addSpaceSystemCommands(parentSystem,
-                                                   tableInfo.getData(),
-                                                   typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME),
-                                                   typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE),
+                                                   CcddUtilities.convertObjectToString(tableInfo.getData()),
+                                                   typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME),
+                                                   typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE),
                                                    cmdDescColumn,
                                                    false,
                                                    cmdHdrSysPath,

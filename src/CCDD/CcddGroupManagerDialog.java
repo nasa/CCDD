@@ -87,6 +87,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private CcddFieldHandler fieldHandler;
     private CcddGroupHandler groupHandler;
     private CcddInputFieldPanelHandler fieldPnlHndlr;
+    private final CcddInputTypeHandler inputTypeHandler;
     private CcddUndoManager undoManager;
     private CcddUndoHandler undoHandler;
 
@@ -140,6 +141,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Create references to shorten subsequent calls
         groupMgr = this;
         dbTable = ccddMain.getDbTableCommandHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
         fldTblEditor = ccddMain.getFieldTableEditor();
 
         // Set the reference to this dialog in main
@@ -458,7 +460,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                           null,
                                                           null,
                                                           null,
-                                                          fieldHandler);
+                                                          fieldHandler,
+                                                          inputTypeHandler);
 
                 // Set the modal undo manager in the keyboard handler while the group manager is
                 // active
@@ -518,7 +521,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             for (DefaultApplicationField field : DefaultApplicationField.values())
                             {
                                 // Create a new data field
-                                FieldInformation newField = field.createFieldInformation(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()));
+                                FieldInformation newField = field.createFieldInformation(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
+                                                                                         inputTypeHandler);
 
                                 boolean isExists = false;
 
@@ -1212,7 +1216,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 for (DefaultApplicationField field : DefaultApplicationField.values())
                 {
                     // Add the field to the group
-                    fieldInfo.add(field.createFieldInformation(CcddFieldHandler.getFieldGroupName(groupNameFld.getText())));
+                    fieldInfo.add(field.createFieldInformation(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()),
+                                                               inputTypeHandler));
                 }
             }
 

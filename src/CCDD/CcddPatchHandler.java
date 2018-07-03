@@ -28,10 +28,10 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
@@ -120,7 +120,7 @@ public class CcddPatchHandler
                 if (typeDefn.isStructure())
                 {
                     // Append the variable name column name
-                    varColNames += typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE) + ",";
+                    varColNames += typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE) + ",";
                 }
             }
 
@@ -171,7 +171,7 @@ public class CcddPatchHandler
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
 
                     // Get the table's variable name column name
-                    String variableNameColumn = typeDefn.getDbColumnNameByInputType(InputDataType.VARIABLE);
+                    String variableNameColumn = typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE);
 
                     // Update the padding variable names to the new format
                     dbCommand.executeDbCommand("UPDATE "
@@ -708,6 +708,7 @@ public class CcddPatchHandler
             CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
             CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
             CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+            CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
 
             try
             {
@@ -839,7 +840,7 @@ public class CcddPatchHandler
                                            newColumnDefn[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
                                            newColumnDefn[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()].toString(),
                                            newColumnDefn[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
-                                           InputDataType.getInputTypeByName(newColumnDefn[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
+                                           inputTypeHandler.getInputTypeByName(newColumnDefn[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
                                            newColumnDefn[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t")
                                                                                                                   ? true
                                                                                                                   : false,

@@ -996,7 +996,7 @@ public class CcddCommandLineHandler
                 // Parse the import sub-commands
                 parseCommand(-1,
                              -1,
-                             CcddUtilities.parseCommandline(parmVal.toString()),
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
                              getSubArgument());
 
                 // Check if a required sub-command is missing
@@ -1060,7 +1060,7 @@ public class CcddCommandLineHandler
                 // Parse the export sub-commands
                 parseCommand(-1,
                              -1,
-                             CcddUtilities.parseCommandline(parmVal.toString()),
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
                              getSubArgument());
 
                 // Check if a required export sub-command is missing
@@ -1717,7 +1717,6 @@ public class CcddCommandLineHandler
                                 && (startPriority == -1 || cmd.priority >= startPriority)
                                 && (endPriority == -1 || cmd.priority <= endPriority))
                             {
-                                System.out.println("exec cmd: " + arg); // TODO
                                 // Handle the command and check if it results in an error condition
                                 if (cmd.handler(parm))
                                 {

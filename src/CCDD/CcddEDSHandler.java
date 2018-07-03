@@ -94,10 +94,10 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -117,6 +117,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddMacroHandler macroHandler;
     private final CcddFieldHandler fieldHandler;
     private final CcddRateParameterHandler rateHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // GUI component instantiating this class
     private final Component parent;
@@ -212,6 +213,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         try
         {
@@ -309,28 +311,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                         // Check if the item's short description matches that for the telemetry
                         // header table name indicator
-                        if (value.getShortDescription().equals(InputDataType.XML_TLM_HDR.getInputName()))
+                        if (value.getShortDescription().equals(DefaultInputType.XML_TLM_HDR.getInputName()))
                         {
                             // Store the entry value as the telemetry header table name
                             tlmHeaderTable = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the command header table name
                         // indicator
-                        else if (value.getShortDescription().equals(InputDataType.XML_CMD_HDR.getInputName()))
+                        else if (value.getShortDescription().equals(DefaultInputType.XML_CMD_HDR.getInputName()))
                         {
                             // Store the entry value as the command header table name
                             cmdHeaderTable = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the application ID variable name
                         // indicator
-                        else if (value.getShortDescription().equals(InputDataType.XML_APP_ID.getInputName()))
+                        else if (value.getShortDescription().equals(DefaultInputType.XML_APP_ID.getInputName()))
                         {
                             // Store the entry value as the application ID variable name
                             applicationIDName = ((StringMetadataValueType) value).getValue();
                         }
                         // Check if the item name matches that for the command function code
                         // variable name indicator
-                        else if (value.getShortDescription().equals(InputDataType.XML_FUNC_CODE.getInputName()))
+                        else if (value.getShortDescription().equals(DefaultInputType.XML_FUNC_CODE.getInputName()))
                         {
                             // Store the entry value as the command function code variable name
                             cmdFuncCodeName = ((StringMetadataValueType) value).getValue();
@@ -435,6 +437,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         isCommand = false;
         maxNumArguments = 1;
 
+        CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
+
         // Set the flags to indicate if the target is a structure or command table
         boolean targetIsStructure = importType == ImportType.IMPORT_ALL
                                                                         ? true
@@ -461,14 +465,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 String typeName = "EDS Structure";
                 int sequence = 2;
 
-                // Continue to check while a table type with this name exists
-                while (tableTypeHandler.getTypeDefinition(typeName) != null)
-                {
-                    // Alter the name so that there isn't a duplicate
-                    typeName = "EDS Structure " + sequence;
-                    sequence++;
-                }
-
                 // Create a table type definition for structure tables
                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
                                                                             "EDS import structure table type");
@@ -481,6 +477,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                          tableTypeDefn,
                                                          CcddUtilities.convertObjectToString(columnDefn),
                                                          importFile.getAbsolutePath(),
+                                                         inputTypeHandler,
                                                          parent);
                 }
 
@@ -494,30 +491,42 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                      new String[] {String.valueOf(columnIndex),
                                                                    COL_MINIMUM,
                                                                    "Minimum value",
-                                                                   InputDataType.MINIMUM.getInputName(),
+                                                                   DefaultInputType.MINIMUM.getInputName(),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(true)},
                                                      importFile.getAbsolutePath(),
+                                                     inputTypeHandler,
                                                      parent);
                 addImportedTableTypeColumnDefinition(true,
                                                      tableTypeDefn,
                                                      new String[] {String.valueOf(columnIndex + 1),
                                                                    COL_MAXIMUM,
                                                                    "Maximum value",
-                                                                   InputDataType.MAXIMUM.getInputName(),
+                                                                   DefaultInputType.MAXIMUM.getInputName(),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(false),
                                                                    Boolean.toString(true)},
                                                      importFile.getAbsolutePath(),
+                                                     inputTypeHandler,
                                                      parent);
 
-                // Add the structure table type definition. This also adds the tab for the new
-                // definition to the table type manager, if open
+                // Add the structure table type definition
                 tableTypeDefns.add(tableTypeDefn);
-                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+
+                // Continue to check while a table type with this name exists. This also adds the
+                // tab for the new definition to the table type manager, if open
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                {
+                    // Alter the name so that there isn't a duplicate
+                    typeName = "EDS Structure " + sequence;
+                    tableTypeDefns.get(0).setTypeName(typeName);
+                    sequence++;
+                }
+
+                // Store the reference to the structure table type definition
                 structureTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // Only a single table is to be imported
@@ -527,15 +536,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
 
             // Get structure table column indices
-            variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.VARIABLE));
-            dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT));
-            arraySizeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX));
-            bitLengthIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH));
-            enumerationIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION));
-            minimumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.MINIMUM));
-            maximumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM));
-            descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
-            unitsIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(InputDataType.UNITS));
+            variableNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE));
+            dataTypeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT));
+            arraySizeIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX));
+            bitLengthIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH));
+            enumerationIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.ENUMERATION));
+            minimumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.MINIMUM));
+            maximumIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.MAXIMUM));
+            descriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION));
+            unitsIndex = CcddTableTypeHandler.getVisibleColumnIndex(structureTypeDefn.getColumnIndexByInputType(DefaultInputType.UNITS));
 
             // Get the number of columns defined in the structure table type
             numStructureColumns = structureTypeDefn.getColumnCountVisible();
@@ -562,14 +571,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 String typeName = "EDS Command";
                 int sequence = 2;
 
-                // Continue to check while a table type with this name exists
-                while (tableTypeHandler.getTypeDefinition(typeName) != null)
-                {
-                    // Alter the name so that there isn't a duplicate
-                    typeName = "EDS Command " + sequence;
-                    sequence++;
-                }
-
                 // Create a table type definition for command tables
                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
                                                                             "EDS import command table type");
@@ -582,6 +583,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                          tableTypeDefn,
                                                          CcddUtilities.convertObjectToString(columnDefn),
                                                          importFile.getAbsolutePath(),
+                                                         inputTypeHandler,
                                                          parent);
                 }
 
@@ -610,12 +612,13 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                argName,
                                                                                cmdArgCol[1].toString().replaceFirst("###",
                                                                                                                     String.valueOf(argIndex)),
-                                                                               ((InputDataType) cmdArgCol[2]).getInputName(),
+                                                                               ((DefaultInputType) cmdArgCol[2]).getInputName(),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false),
                                                                                Boolean.toString(false)},
                                                                  importFile.getAbsolutePath(),
+                                                                 inputTypeHandler,
                                                                  parent);
 
                             columnIndex++;
@@ -626,7 +629,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // Add the command table type definition. This also adds the tab for the new
                 // definition to the table type manager, if open
                 tableTypeDefns.add(tableTypeDefn);
-                tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler);
+
+                // Continue to check while a table type with this name exists. This also adds the
+                // tab for the new definition to the table type manager, if open
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                {
+                    // Alter the name so that there isn't a duplicate
+                    typeName = "EDS Command " + sequence;
+                    tableTypeDefns.get(0).setTypeName(typeName);
+                    sequence++;
+                }
+
+                // Store the reference to the command table type definition
                 commandTypeDefn = tableTypeHandler.getTypeDefinition(typeName);
             }
             // A single command table is to be imported into an existing command table
@@ -639,9 +653,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             commandArguments = commandTypeDefn.getAssociatedCommandArgumentColumns(true);
 
             // Get the command table column indices
-            commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME));
-            cmdFuncCodeIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE));
-            cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION));
+            commandNameIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME));
+            cmdFuncCodeIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE));
+            cmdDescriptionIndex = CcddTableTypeHandler.getVisibleColumnIndex(commandTypeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION));
 
             // Get the number of columns defined in the command table type
             numCommandColumns = commandTypeDefn.getColumnCountVisible();
@@ -1282,7 +1296,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                                         constraint.getEntry(),
                                                                                                         "Message ID",
-                                                                                                        InputDataType.MESSAGE_ID,
+                                                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID),
                                                                                                         Math.min(Math.max(systemPath.length(),
                                                                                                                           5),
                                                                                                                  40),
@@ -1399,7 +1413,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                         "System path",
                                                                         "System Path",
-                                                                        InputDataType.SYSTEM_PATH,
+                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                         Math.min(Math.max(systemPath.length(),
                                                                                           5),
                                                                                  40),
@@ -1547,7 +1561,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                             tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                                             constraint.getEntry(),
                                                                                                             "Message ID",
-                                                                                                            InputDataType.MESSAGE_ID,
+                                                                                                            inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID),
                                                                                                             Math.min(Math.max(constraint.getValueConstraint().getValue().length(),
                                                                                                                               5),
                                                                                                                      40),
@@ -2036,7 +2050,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 structTableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                                       "System path",
                                                                                       "System Path",
-                                                                                      InputDataType.SYSTEM_PATH,
+                                                                                      inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                                       Math.min(Math.max(systemPath.length(),
                                                                                                         5),
                                                                                                40),
@@ -2058,7 +2072,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
                                                                             "System path",
                                                                             "System Path",
-                                                                            InputDataType.SYSTEM_PATH,
+                                                                            inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                             Math.min(Math.max(systemPath.length(),
                                                                                               5),
                                                                                      40),
@@ -2249,16 +2263,16 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         // Get the names of the tables representing the telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                    InputDataType.XML_TLM_HDR);
+                                                    DefaultInputType.XML_TLM_HDR);
         cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                    InputDataType.XML_CMD_HDR);
+                                                    DefaultInputType.XML_CMD_HDR);
 
         // Get the command header argument names for the application ID and the command function
         // code. These are stored as project-level data fields
         applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                       InputDataType.XML_APP_ID);
+                                                       DefaultInputType.XML_APP_ID);
         cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                     InputDataType.XML_FUNC_CODE);
+                                                     DefaultInputType.XML_FUNC_CODE);
 
         // Check if the application ID argument column name isn't set in the project
         if (applicationIDName == null)
@@ -2285,8 +2299,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Store the telemetry header table name
             StringMetadataValueType tlmHdrTblValue = factory.createStringMetadataValueType();
-            tlmHdrTblValue.setName(cleanSystemPath(InputDataType.XML_TLM_HDR.getInputName()));
-            tlmHdrTblValue.setShortDescription(InputDataType.XML_TLM_HDR.getInputName());
+            tlmHdrTblValue.setName(cleanSystemPath(DefaultInputType.XML_TLM_HDR.getInputName()));
+            tlmHdrTblValue.setShortDescription(DefaultInputType.XML_TLM_HDR.getInputName());
             tlmHdrTblValue.setValue(tlmHeaderTable);
             dataValue.getDateValueOrFloatValueOrIntegerValue().add(tlmHdrTblValue);
         }
@@ -2296,23 +2310,23 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Store the command header table name
             StringMetadataValueType cmdHdrTblValue = factory.createStringMetadataValueType();
-            cmdHdrTblValue.setName(cleanSystemPath(InputDataType.XML_CMD_HDR.getInputName()));
-            cmdHdrTblValue.setShortDescription(InputDataType.XML_CMD_HDR.getInputName());
+            cmdHdrTblValue.setName(cleanSystemPath(DefaultInputType.XML_CMD_HDR.getInputName()));
+            cmdHdrTblValue.setShortDescription(DefaultInputType.XML_CMD_HDR.getInputName());
             cmdHdrTblValue.setValue(cmdHeaderTable);
             dataValue.getDateValueOrFloatValueOrIntegerValue().add(cmdHdrTblValue);
         }
 
         // Store the application ID variable name
         StringMetadataValueType appIDNameValue = factory.createStringMetadataValueType();
-        appIDNameValue.setName(cleanSystemPath(InputDataType.XML_APP_ID.getInputName()));
-        appIDNameValue.setShortDescription(InputDataType.XML_APP_ID.getInputName());
+        appIDNameValue.setName(cleanSystemPath(DefaultInputType.XML_APP_ID.getInputName()));
+        appIDNameValue.setShortDescription(DefaultInputType.XML_APP_ID.getInputName());
         appIDNameValue.setValue(applicationIDName);
         dataValue.getDateValueOrFloatValueOrIntegerValue().add(appIDNameValue);
 
         // Store the command function code variable name
         StringMetadataValueType cmdCodeNameValue = factory.createStringMetadataValueType();
-        cmdCodeNameValue.setName(cleanSystemPath(InputDataType.XML_FUNC_CODE.getInputName()));
-        cmdCodeNameValue.setShortDescription(InputDataType.XML_FUNC_CODE.getInputName());
+        cmdCodeNameValue.setName(cleanSystemPath(DefaultInputType.XML_FUNC_CODE.getInputName()));
+        cmdCodeNameValue.setShortDescription(DefaultInputType.XML_FUNC_CODE.getInputName());
         cmdCodeNameValue.setValue(cmdFuncCodeName);
         dataValue.getDateValueOrFloatValueOrIntegerValue().add(cmdCodeNameValue);
 
@@ -2346,12 +2360,12 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                     // Get the application ID data field value, if present
                     String applicationID = fieldHandler.getFieldValue(tableName,
-                                                                      InputDataType.MESSAGE_ID);
+                                                                      DefaultInputType.MESSAGE_ID);
 
                     // Get the name of the system to which this table belongs from the table's
                     // system path data field (if present)
                     String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
-                                                                                   InputDataType.SYSTEM_PATH));
+                                                                                   DefaultInputType.SYSTEM_PATH));
 
                     // Add the name space
                     NamespaceType namespace = addNamespace(systemPath,
@@ -2362,15 +2376,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     if (typeDefn.isStructure())
                     {
                         // Get the default column indices
-                        int varColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                        int typeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                        int sizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-                        int bitColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-                        int enumColumn = typeDefn.getColumnIndexByInputType(InputDataType.ENUMERATION);
-                        int descColumn = typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION);
-                        int unitsColumn = typeDefn.getColumnIndexByInputType(InputDataType.UNITS);
-                        int minColumn = typeDefn.getColumnIndexByInputType(InputDataType.MINIMUM);
-                        int maxColumn = typeDefn.getColumnIndexByInputType(InputDataType.MAXIMUM);
+                        int varColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                        int typeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                        int sizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                        int bitColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+                        int enumColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ENUMERATION);
+                        int descColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION);
+                        int unitsColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.UNITS);
+                        int minColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.MINIMUM);
+                        int maxColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.MAXIMUM);
 
                         // Check if this is the command header structure. In order for it to be
                         // referenced as the header for the command tables it must be converted
@@ -2398,7 +2412,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             tableData[0][1] = tableInfo.getDescription();
 
                             // Step through each row in the command header table
-                            for (String[] rowData : tableInfo.getData())
+                            for (String[] rowData : CcddUtilities.convertObjectToString(tableInfo.getData()))
                             {
                                 // Store the components of each variable within the command header
                                 // in the form of a command argument
@@ -2491,14 +2505,14 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                   maxColumn);
 
                             // Step through each row in the structure table
-                            for (String[] rowData : tableInfo.getData())
+                            for (Object[] rowData : tableInfo.getData())
                             {
                                 // Check if the variable isn't an array member (the array
                                 // definition is used to define the array)
                                 if (!ArrayVariable.isArrayMember(rowData[varColumn]))
                                 {
                                     // Check if the data type references a structure
-                                    if (!dataTypeHandler.isPrimitive(rowData[typeColumn]))
+                                    if (!dataTypeHandler.isPrimitive(rowData[typeColumn].toString()))
                                     {
                                         // Check if this structure reference has already been used
                                         // as a data type in this structure
@@ -2513,28 +2527,28 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                         else
                                         {
                                             // Add the structure name to the list of those in use
-                                            dataTypes.add(rowData[typeColumn]);
+                                            dataTypes.add(rowData[typeColumn].toString());
                                         }
                                     }
 
                                     // Add the variable to the data sheet
                                     addParameter(namespace,
-                                                 rowData[varColumn],
-                                                 rowData[typeColumn],
-                                                 rowData[sizeColumn],
-                                                 rowData[bitColumn],
-                                                 (enumColumn != -1 && !rowData[enumColumn].isEmpty()
-                                                                                                     ? rowData[enumColumn]
-                                                                                                     : null),
-                                                 (unitsColumn != -1 && !rowData[unitsColumn].isEmpty()
-                                                                                                       ? rowData[unitsColumn]
-                                                                                                       : null),
-                                                 (descColumn != -1 && !rowData[descColumn].isEmpty()
-                                                                                                     ? rowData[descColumn]
-                                                                                                     : null),
-                                                 (dataTypeHandler.isString(rowData[typeColumn]) && !rowData[sizeColumn].isEmpty()
-                                                                                                                                  ? Integer.valueOf(rowData[sizeColumn].replaceAll("^.*(\\d+)$", "$1"))
-                                                                                                                                  : 1),
+                                                 rowData[varColumn].toString(),
+                                                 rowData[typeColumn].toString(),
+                                                 rowData[sizeColumn].toString(),
+                                                 rowData[bitColumn].toString(),
+                                                 (enumColumn != -1 && !rowData[enumColumn].toString().isEmpty()
+                                                                                                                ? rowData[enumColumn].toString()
+                                                                                                                : null),
+                                                 (unitsColumn != -1 && !rowData[unitsColumn].toString().isEmpty()
+                                                                                                                  ? rowData[unitsColumn].toString()
+                                                                                                                  : null),
+                                                 (descColumn != -1 && !rowData[descColumn].toString().isEmpty()
+                                                                                                                ? rowData[descColumn].toString()
+                                                                                                                : null),
+                                                 (dataTypeHandler.isString(rowData[typeColumn].toString()) && !rowData[sizeColumn].toString().isEmpty()
+                                                                                                                                                        ? Integer.valueOf(rowData[sizeColumn].toString().replaceAll("^.*(\\d+)$", "$1"))
+                                                                                                                                                        : 1),
                                                  (uniqueID == 0
                                                                 ? ""
                                                                 : String.valueOf(uniqueID)),
@@ -2552,10 +2566,10 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                         // Add the command(s) from this table to the data sheet
                         addNamespaceCommands(namespace,
-                                             tableInfo.getData(),
-                                             typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_NAME),
-                                             typeDefn.getColumnIndexByInputType(InputDataType.COMMAND_CODE),
-                                             typeDefn.getColumnIndexByInputType(InputDataType.DESCRIPTION),
+                                             CcddUtilities.convertObjectToString(tableInfo.getData()),
+                                             typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME),
+                                             typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE),
+                                             typeDefn.getColumnIndexByInputType(DefaultInputType.DESCRIPTION),
                                              false,
                                              applicationID);
                     }
@@ -2569,7 +2583,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Get the name of the system to which this table belongs from the table's
             // system path data field (if present)
             String systemPath = cleanSystemPath(fieldHandler.getFieldValue(tableName,
-                                                                           InputDataType.SYSTEM_PATH));
+                                                                           DefaultInputType.SYSTEM_PATH));
 
             // Get the name space for this table
             NamespaceType namespace = searchNamespacesForName(systemPath, cleanSystemPath(tableName));
@@ -2765,7 +2779,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         EntryListType entryList = factory.createEntryListType();
 
         // Step through each row of data in the structure table
-        for (String[] rowData : tableInfo.getData())
+        for (Object[] rowData : tableInfo.getData())
         {
             // Check if this is not an array member (non-array parameters and array definitions are
             // used to create the list)
@@ -2773,36 +2787,37 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 // Store the parameter reference in the list
                 EntryType entryType = factory.createEntryType();
-                entryType.setName(rowData[varColumn]);
-                entryType.setType(rowData[typeColumn] + getObjectIdentifier(rowData[sizeColumn]));
+                entryType.setName(rowData[varColumn].toString());
+                entryType.setType(rowData[typeColumn]
+                                  + getObjectIdentifier(rowData[sizeColumn].toString()));
 
                 // Check if a minimum or maximum value exists
-                if ((minColumn != -1 && !rowData[minColumn].isEmpty())
-                    || (maxColumn != -1 && !rowData[maxColumn].isEmpty()))
+                if ((minColumn != -1 && !rowData[minColumn].toString().isEmpty())
+                    || (maxColumn != -1 && !rowData[maxColumn].toString().isEmpty()))
                 {
                     DerivedTypeRangeType range = factory.createDerivedTypeRangeType();
                     MinMaxRangeType minMaxRange = factory.createMinMaxRangeType();
                     minMaxRange.setRangeType(RangeType.INCLUSIVE_MIN_INCLUSIVE_MAX);
 
                     // Set the flag if the parameter is in integer data type
-                    boolean isInteger = dataTypeHandler.isInteger(rowData[typeColumn]);
+                    boolean isInteger = dataTypeHandler.isInteger(rowData[typeColumn].toString());
 
                     // Check if a minimum value is specified
-                    if (minColumn != -1 && !rowData[minColumn].isEmpty())
+                    if (minColumn != -1 && !rowData[minColumn].toString().isEmpty())
                     {
                         // Set the minimum value
                         minMaxRange.setMin(isInteger
-                                                     ? BigDecimal.valueOf(Integer.valueOf(rowData[minColumn]))
-                                                     : BigDecimal.valueOf(Float.valueOf(rowData[minColumn])));
+                                                     ? BigDecimal.valueOf(Integer.valueOf(rowData[minColumn].toString()))
+                                                     : BigDecimal.valueOf(Float.valueOf(rowData[minColumn].toString())));
                     }
 
                     // Check if a maximum value is specified
-                    if (maxColumn != -1 && !rowData[maxColumn].isEmpty())
+                    if (maxColumn != -1 && !rowData[maxColumn].toString().isEmpty())
                     {
                         // Set the maximum value
                         minMaxRange.setMax(isInteger
-                                                     ? BigDecimal.valueOf(Integer.valueOf(rowData[maxColumn]))
-                                                     : BigDecimal.valueOf(Float.valueOf(rowData[maxColumn])));
+                                                     ? BigDecimal.valueOf(Integer.valueOf(rowData[maxColumn].toString()))
+                                                     : BigDecimal.valueOf(Float.valueOf(rowData[maxColumn].toString())));
                     }
 
                     // Set the range

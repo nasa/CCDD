@@ -31,12 +31,13 @@ import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
+import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table type handler class. The table definition consists of one or
@@ -49,6 +50,7 @@ public class CcddTableTypeHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
+    private final CcddInputTypeHandler inputTypeHandler;
 
     // Type definitions list
     private List<TypeDefinition> typeDefinitions;
@@ -59,31 +61,31 @@ public class CcddTableTypeHandler
     // Command argument column definitions
     protected final static Object[][] commandArgumentColumns = new Object[][] {{COL_ARGUMENT + " ### Name",
                                                                                 "Command argument ### name",
-                                                                                InputDataType.ARGUMENT_NAME},
+                                                                                DefaultInputType.ARGUMENT_NAME},
                                                                                {COL_ARGUMENT + " ### " + COL_DESCRIPTION,
                                                                                 "Command argument ### description",
-                                                                                InputDataType.DESCRIPTION},
+                                                                                DefaultInputType.DESCRIPTION},
                                                                                {COL_ARGUMENT + " ### " + COL_UNITS,
                                                                                 "Command argument ### units",
-                                                                                InputDataType.UNITS},
+                                                                                DefaultInputType.UNITS},
                                                                                {COL_ARGUMENT + " ### " + COL_DATA_TYPE,
                                                                                 "Command argument ### data type",
-                                                                                InputDataType.PRIMITIVE},
+                                                                                DefaultInputType.PRIMITIVE},
                                                                                {COL_ARGUMENT + " ### " + COL_ARRAY_SIZE,
                                                                                 "Command argument ### array size",
-                                                                                InputDataType.ARRAY_INDEX},
+                                                                                DefaultInputType.ARRAY_INDEX},
                                                                                {COL_ARGUMENT + " ### " + COL_BIT_LENGTH,
                                                                                 "Command argument ### bit length",
-                                                                                InputDataType.BIT_LENGTH},
+                                                                                DefaultInputType.BIT_LENGTH},
                                                                                {COL_ARGUMENT + " ### " + COL_ENUMERATION,
                                                                                 "Command argument ### enumeration",
-                                                                                InputDataType.ENUMERATION},
+                                                                                DefaultInputType.ENUMERATION},
                                                                                {COL_ARGUMENT + " ### " + COL_MINIMUM,
                                                                                 "Command argument ### minimum value",
-                                                                                InputDataType.MINIMUM},
+                                                                                DefaultInputType.MINIMUM},
                                                                                {COL_ARGUMENT + " ### " + COL_MAXIMUM,
                                                                                 "Command argument ### maximum value",
-                                                                                InputDataType.MAXIMUM}};
+                                                                                DefaultInputType.MAXIMUM}};
 
     /**********************************************************************************************
      * Table type definition class
@@ -105,8 +107,8 @@ public class CcddTableTypeHandler
         // Table column tool tip text
         private final List<String> columnToolTip;
 
-        // Table column input data type
-        private final List<InputDataType> columnInputType;
+        // Table column input type
+        private final List<InputType> columnInputType;
 
         // Flag indicating if the column value must be unique for each row
         private final List<Boolean> isRowValueUnique;
@@ -130,7 +132,7 @@ public class CcddTableTypeHandler
             columnNamesDatabase = new ArrayList<String>();
             columnNamesUser = new ArrayList<String>();
             columnToolTip = new ArrayList<String>();
-            columnInputType = new ArrayList<InputDataType>();
+            columnInputType = new ArrayList<InputType>();
             isColumnRequired = new ArrayList<Boolean>();
             isRowValueUnique = new ArrayList<Boolean>();
             isStructureOk = new ArrayList<Boolean>();
@@ -238,22 +240,31 @@ public class CcddTableTypeHandler
             for (int row = NUM_HIDDEN_COLUMNS; row < columnNamesDatabase.size(); row++)
             {
                 // Convert he column name to the database equivalent
-                columnNamesDatabase.set(row, DefaultColumn.convertVisibleToDatabase(columnNamesDatabase.get(row),
-                                                                                    columnInputType.get(row),
-                                                                                    isStructure));
+                columnNamesDatabase.set(row,
+                                        DefaultColumn.convertVisibleToDatabase(columnNamesDatabase.get(row),
+                                                                               columnInputType.get(row).getInputName(),
+                                                                               isStructure));
             }
         }
 
         /******************************************************************************************
-         * Convert the visible column name to its database equivalent. The database column name is
-         * the visible name with any characters that are invalid in a database column name replaced
+         * Column name converted to its database equivalent. The database column name is the
+         * visible name with any characters that are invalid in a database column name replaced
          * with an underscore; however, if the table type represents a structure then certain
          * column names use fixed values
+         *
+         * @param columnNameVisible
+         *            visible column name
+         *
+         * @param inputType
+         *            input type (InputType)
+         *
+         * @return Column name converted to its database equivalent
          *****************************************************************************************/
-        protected String getColumnNameDatabase(String columnNameVisible, InputDataType inputType)
+        protected String getColumnNameDatabase(String columnNameVisible, InputType inputType)
         {
             return DefaultColumn.convertVisibleToDatabase(columnNameVisible,
-                                                          inputType,
+                                                          inputType.getInputName(),
                                                           isStructure());
         }
 
@@ -320,23 +331,23 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Get the array of column input data types
+         * Get the array of column input types
          *
-         * @return Array of column input data types
+         * @return Array of column input types
          *****************************************************************************************/
-        protected InputDataType[] getInputTypes()
+        protected InputType[] getInputTypes()
         {
-            return columnInputType.toArray(new InputDataType[0]);
+            return columnInputType.toArray(new InputType[0]);
         }
 
         /******************************************************************************************
-         * Get the array of column input data types that are not hidden
+         * Get the array of column input types that are not hidden
          *
-         * @return Array of column input data types that are not hidden
+         * @return Array of column input types that are not hidden
          *****************************************************************************************/
-        protected InputDataType[] getInputTypesVisible()
+        protected InputType[] getInputTypesVisible()
         {
-            return Arrays.copyOfRange(columnInputType.toArray(new InputDataType[0]),
+            return Arrays.copyOfRange(columnInputType.toArray(new InputType[0]),
                                       NUM_HIDDEN_COLUMNS,
                                       columnInputType.size());
         }
@@ -365,12 +376,12 @@ public class CcddTableTypeHandler
          * Get the index of the first column having the specified input type
          *
          * @param inputType
-         *            column input type (InputDataType)
+         *            column input type (InputType)
          *
          * @return Index of the first column of the specified input type; -1 if no column of the
          *         specified type is found
          *****************************************************************************************/
-        protected int getColumnIndexByInputType(InputDataType inputType)
+        protected int getColumnIndexByInputType(InputType inputType)
         {
             int colIndex = -1;
 
@@ -390,15 +401,29 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
+         * Get the index of the first column having the specified default input type
+         *
+         * @param inputType
+         *            column input type (DefaultInputType)
+         *
+         * @return Index of the first column of the specified default input type; -1 if no column
+         *         of the specified type is found
+         *****************************************************************************************/
+        protected int getColumnIndexByInputType(DefaultInputType inputType)
+        {
+            return getColumnIndexByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
+        }
+
+        /******************************************************************************************
          * Get the index or indices of the column(s) having the specified input type
          *
          * @param inputType
-         *            column input type (InputDataType)
+         *            column input type (InputType)
          *
          * @return List containing the index (or indices) of the column(s) of the specified input
          *         type; an empty list if no column of the specified type is found
          *****************************************************************************************/
-        protected List<Integer> getColumnIndicesByInputType(InputDataType inputType)
+        protected List<Integer> getColumnIndicesByInputType(InputType inputType)
         {
             List<Integer> colIndex = new ArrayList<Integer>();
 
@@ -417,15 +442,29 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
+         * Get the index or indices of the column(s) having the specified default input type
+         *
+         * @param defaultInputType
+         *            column input type (DefaultInputType)
+         *
+         * @return List containing the index (or indices) of the column(s) of the specified default
+         *         input type; an empty list if no column of the specified type is found
+         *****************************************************************************************/
+        protected List<Integer> getColumnIndicesByInputType(DefaultInputType inputType)
+        {
+            return getColumnIndicesByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
+        }
+
+        /******************************************************************************************
          * Get the visible name of the first column having the specified input type
          *
          * @param inputType
-         *            column input type (InputDataType)
+         *            column input type (InputType)
          *
          * @return Visible name of the first column with the specified input type; null if no
          *         column of the specified type is found
          *****************************************************************************************/
-        protected String getColumnNameByInputType(InputDataType inputType)
+        protected String getColumnNameByInputType(InputType inputType)
         {
             String colName = null;
 
@@ -445,15 +484,29 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
+         * Get the visible name of the first column having the specified default input type
+         *
+         * @param inputType
+         *            column input type (DefaultInputType)
+         *
+         * @return Visible name of the first column with the specified default input type; null if
+         *         no column of the specified type is found
+         *****************************************************************************************/
+        protected String getColumnNameByInputType(DefaultInputType inputType)
+        {
+            return getColumnNameByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
+        }
+
+        /******************************************************************************************
          * Get the database name of the first column having the specified input type
          *
          * @param inputType
-         *            column input type (InputDataType)
+         *            column input type (InputType)
          *
          * @return Database name of the first column with the specified input type; null if no
          *         column of the specified type is found
          *****************************************************************************************/
-        protected String getDbColumnNameByInputType(InputDataType inputType)
+        protected String getDbColumnNameByInputType(InputType inputType)
         {
             String colName = null;
 
@@ -470,6 +523,20 @@ public class CcddTableTypeHandler
             }
 
             return colName;
+        }
+
+        /******************************************************************************************
+         * Get the database name of the first column having the specified default input type
+         *
+         * @param inputType
+         *            column input type (DefaultInputType)
+         *
+         * @return Database name of the first column with the specified default input type; null if
+         *         no column of the specified type is found
+         *****************************************************************************************/
+        protected String getDbColumnNameByInputType(DefaultInputType inputType)
+        {
+            return getDbColumnNameByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
         }
 
         /******************************************************************************************
@@ -566,7 +633,7 @@ public class CcddTableTypeHandler
          *            column description used as the table editor column header tool tip text
          *
          * @param inputType
-         *            column input data type
+         *            column input type (InputType)
          *
          * @param isRowValueUnique
          *            true if the each row value in the column must have a unique value
@@ -585,7 +652,7 @@ public class CcddTableTypeHandler
                                  String databaseName,
                                  String visibleName,
                                  String comment,
-                                 InputDataType inputType,
+                                 InputType inputType,
                                  Boolean isRowValueUnique,
                                  Boolean isColumnRequired,
                                  Boolean isStructure,
@@ -649,7 +716,7 @@ public class CcddTableTypeHandler
                 // column, and the column input type doesn't exist in this table type
                 if (column.getTableType().equals(typeName)
                     && column.isProtected()
-                    && getColumnIndicesByInputType(column.getInputType()).isEmpty())
+                    && getColumnIndicesByInputType(inputTypeHandler.getInputTypeByDefaultType(column.getInputType())).isEmpty())
                 {
                     // Set the flag to indicate that this table type doesn't have all of the target
                     // type's columns and stop searching
@@ -675,8 +742,8 @@ public class CcddTableTypeHandler
          *
          * @return Row index for the specified variable name; -1 if the variable name is not found
          *****************************************************************************************/
-        protected int getRowIndexByColumnValue(String[][] tableData,
-                                               String columnValue,
+        protected int getRowIndexByColumnValue(Object[][] tableData,
+                                               Object columnValue,
                                                int columnIndex)
         {
             int varRow = -1;
@@ -768,13 +835,13 @@ public class CcddTableTypeHandler
             List<Integer> otherColumn = null;
 
             // Get the column input types
-            InputDataType[] inputTypes = getInputTypes();
+            InputType[] inputTypes = getInputTypes();
 
             // Step through each column defined for this table's type
             for (int index = 0; index < getColumnCountDatabase(); index++)
             {
                 // Check if the column expects a command argument name
-                if (inputTypes[index] == InputDataType.ARGUMENT_NAME)
+                if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARGUMENT_NAME)))
                 {
                     // Save the name column index and initialize the associated column indices
                     nameColumn = index;
@@ -792,7 +859,7 @@ public class CcddTableTypeHandler
                     for (index++; index < getColumnCountDatabase(); index++)
                     {
                         // Check if the column expects a command argument name
-                        if (inputTypes[index] == InputDataType.ARGUMENT_NAME)
+                        if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARGUMENT_NAME)))
                         {
                             // Adjust the loop index and stop searching since this is the beginning
                             // of the next argument's columns
@@ -802,54 +869,54 @@ public class CcddTableTypeHandler
 
                         // Check that this isn't the command name or command code column (these are
                         // never part of an argument grouping)
-                        if (inputTypes[index] != InputDataType.COMMAND_NAME
-                            && inputTypes[index] != InputDataType.COMMAND_CODE)
+                        if (!inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_NAME))
+                            && !inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.COMMAND_CODE)))
                         {
                             // Check that this is a data type column
-                            if (inputTypes[index] == InputDataType.PRIMITIVE
-                                || inputTypes[index] == InputDataType.PRIM_AND_STRUCT)
+                            if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIMITIVE))
+                                || inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIM_AND_STRUCT)))
                             {
                                 // Save the data type column index
                                 dataTypeColumn = index;
                             }
                             // Check that this is an array size column
-                            else if (inputTypes[index] == InputDataType.ARRAY_INDEX)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARRAY_INDEX)))
                             {
                                 // Save the array size column index
                                 arrayColumn = index;
                             }
                             // Check that this is a bit length column
-                            else if (inputTypes[index] == InputDataType.BIT_LENGTH)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BIT_LENGTH)))
                             {
                                 // Save the bit length column index
                                 bitColumn = index;
                             }
                             // Check that this is an enumeration column
-                            else if (inputTypes[index] == InputDataType.ENUMERATION)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION)))
                             {
                                 // Save the enumeration column index
                                 enumColumn = index;
                             }
                             // Check that this is a minimum column
-                            else if (inputTypes[index] == InputDataType.MINIMUM)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM)))
                             {
                                 // Save the minimum column index
                                 minColumn = index;
                             }
                             // Check that this is a maximum column
-                            else if (inputTypes[index] == InputDataType.MAXIMUM)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM)))
                             {
                                 // Save the maximum column index
                                 maxColumn = index;
                             }
                             // Check that this is a description column
-                            else if (inputTypes[index] == InputDataType.DESCRIPTION)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.DESCRIPTION)))
                             {
                                 // Save the description column index
                                 descColumn = index;
                             }
                             // Check that this is a units column
-                            else if (inputTypes[index] == InputDataType.UNITS)
+                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.UNITS)))
                             {
                                 // Save the units column index
                                 unitsColumn = index;
@@ -908,12 +975,12 @@ public class CcddTableTypeHandler
                 // argument index
                 addColumn(columnIndex,
                           DefaultColumn.convertVisibleToDatabase(argName,
-                                                                 (InputDataType) cmdArgCol[2],
+                                                                 ((InputType) cmdArgCol[2]).getInputName(),
                                                                  false),
                           argName,
                           cmdArgCol[1].toString().replaceFirst("###",
                                                                String.valueOf(argumentIndex)),
-                          (InputDataType) cmdArgCol[2],
+                          inputTypeHandler.getInputTypeByDefaultType((DefaultInputType) cmdArgCol[2]),
                           false,
                           false,
                           false,
@@ -935,6 +1002,7 @@ public class CcddTableTypeHandler
         this.ccddMain = ccddMain;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
         typeDefinitions = new ArrayList<TypeDefinition>();
 
         // Create the table type from the definitions stored in the database
@@ -1010,7 +1078,7 @@ public class CcddTableTypeHandler
                                typeData[TableTypesColumn.COLUMN_NAME_DB.ordinal()].toString(),
                                typeData[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()].toString(),
                                typeData[TableTypesColumn.COLUMN_DESCRIPTION.ordinal()].toString(),
-                               InputDataType.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
+                               inputTypeHandler.getInputTypeByName(typeData[TableTypesColumn.INPUT_TYPE.ordinal()].toString()),
                                typeData[TableTypesColumn.ROW_VALUE_UNIQUE.ordinal()].equals("t")
                                                                                                  ? true
                                                                                                  : false,
@@ -1063,7 +1131,7 @@ public class CcddTableTypeHandler
                            DefaultColumn.PRIMARY_KEY.getDbName(),
                            DefaultColumn.PRIMARY_KEY.getName(),
                            description,
-                           DefaultColumn.PRIMARY_KEY.getInputType(),
+                           inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.PRIMARY_KEY.getInputType()),
                            DefaultColumn.PRIMARY_KEY.isRowValueUnique(),
                            DefaultColumn.PRIMARY_KEY.isInputRequired(),
                            DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
@@ -1072,7 +1140,7 @@ public class CcddTableTypeHandler
                            DefaultColumn.ROW_INDEX.getDbName(),
                            DefaultColumn.ROW_INDEX.getName(),
                            DefaultColumn.ROW_INDEX.getDescription(),
-                           DefaultColumn.ROW_INDEX.getInputType(),
+                           inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.ROW_INDEX.getInputType()),
                            DefaultColumn.ROW_INDEX.isRowValueUnique(),
                            DefaultColumn.ROW_INDEX.isInputRequired(),
                            DefaultColumn.PRIMARY_KEY.isStructureAllowed(),
@@ -1081,15 +1149,12 @@ public class CcddTableTypeHandler
         // Step through each row in the type definition data
         for (int row = 0; row < typeData.length; row++)
         {
-            // Get the InputDataType for this column
-            InputDataType inputType = InputDataType.getInputTypeByName(typeData[row][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString());
-
             // Add the column names, description, input type, and flags to the type definition
             typeDefn.addColumn(row,
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.NAME.ordinal()],
                                (String) typeData[row][TableTypeEditorColumnInfo.DESCRIPTION.ordinal()],
-                               inputType,
+                               inputTypeHandler.getInputTypeByName(typeData[row][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.UNIQUE.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.REQUIRED.ordinal()],
                                (Boolean) typeData[row][TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal()],
@@ -1208,19 +1273,19 @@ public class CcddTableTypeHandler
 
     /**********************************************************************************************
      * Get the name of the first column in the specified table type's definition that matches the
-     * specified input data type
+     * specified input type
      *
      * @param typeName
      *            table type name
      *
      * @param inputType
-     *            column input type (InputDataType)
+     *            column input type (InputType)
      *
      * @return Name (as seen by the user) of the first column in the specified table type's
-     *         definition that matches the specified input data type; null if the input type
-     *         doesn't exist in the table type definition
+     *         definition that matches the specified input type; null if the input type doesn't
+     *         exist in the table type definition
      *********************************************************************************************/
-    protected String getColumnNameByInputType(String typeName, InputDataType inputType)
+    protected String getColumnNameByInputType(String typeName, InputType inputType)
     {
         String columnName = null;
 
@@ -1235,6 +1300,26 @@ public class CcddTableTypeHandler
         }
 
         return columnName;
+    }
+
+    /**********************************************************************************************
+     * Get the name of the first column in the specified table type's definition that matches the
+     * specified default input type
+     *
+     * @param typeName
+     *            table type name
+     *
+     * @param inputType
+     *            column input type (DefaultInputType)
+     *
+     * @return Name (as seen by the user) of the first column in the specified table type's
+     *         definition that matches the specified default input type; null if the input type
+     *         doesn't exist in the table type definition
+     *********************************************************************************************/
+    protected String getColumnNameByInputType(String typeName, DefaultInputType inputType)
+    {
+        return getColumnNameByInputType(typeName,
+                                        inputTypeHandler.getInputTypeByDefaultType(inputType));
     }
 
     /**********************************************************************************************
@@ -1279,7 +1364,7 @@ public class CcddTableTypeHandler
             if (typeDefn.isStructure())
             {
                 // Step through each of the table's enumeration columns
-                for (int enumIndex : typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION))
+                for (int enumIndex : typeDefn.getColumnIndicesByInputType(inputTypeHandler.getInputTypeByName(DefaultInputType.ENUMERATION.getInputName())))
                 {
                     // Get the name of the column
                     String name = useDbName

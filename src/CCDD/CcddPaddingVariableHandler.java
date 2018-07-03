@@ -21,7 +21,7 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.EventLogMessageType;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -142,11 +142,11 @@ public class CcddPaddingVariableHandler
 
                 // Get the column indices for the variable name, data type, array size, and bit
                 // length
-                varNameColumn = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                dataTypeColumn = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                arraySizeColumn = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-                bitLengthColumn = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-                rateColumn = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+                varNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                dataTypeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                arraySizeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                bitLengthColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+                rateColumn = typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE);
 
                 // Set the flag indicating that the structure's total size and largest member
                 // variable haven't been calculated

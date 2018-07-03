@@ -45,7 +45,7 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -681,7 +681,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                                                                                                  String.valueOf(argumentIndex)),
                                                                             cmdArgCol[1].toString().replaceFirst("###",
                                                                                                                  String.valueOf(argumentIndex)),
-                                                                            ((InputDataType) cmdArgCol[2]).getInputName(),
+                                                                            ((DefaultInputType) cmdArgCol[2]).getInputName(),
                                                                             false,
                                                                             false,
                                                                             false,

@@ -12,7 +12,6 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -30,6 +29,7 @@ import CCDD.CcddClassesComponent.ModifiableFont;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
+import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common constants class
@@ -136,6 +136,9 @@ public class CcddConstants
     // Characters used to separate the data field owner and name that is assigned as the text field
     // name for the undo handler
     protected static final String DATA_FIELD_IDENTIFIER_SEPARATOR = "%~%";
+
+    // Characters used to separate the input type selection items in the input type table
+    protected static final String SELECTION_ITEM_LIST_SEPARATOR = "\n";
 
     // Special character to denote that a child data table cell value is to be replaced with the
     // corresponding entry in its prototype table, and that its entry in the custom values table is
@@ -462,6 +465,7 @@ public class CcddConstants
         ALL,
         PROTO,
         DATA,
+        INPUT,
         SCRIPT
     }
 
@@ -2061,9 +2065,9 @@ public class CcddConstants
     }
 
     /**********************************************************************************************
-     * Input data types. The Break and Separator types are used by data fields
+     * Default input types. The Break and Separator types are used by data fields
      *********************************************************************************************/
-    protected static enum InputDataType
+    protected static enum DefaultInputType
     {
         ALPHANUMERIC("Alphanumeric",
                      "[a-zA-Z_][a-zA-Z0-9_]*",
@@ -2324,10 +2328,10 @@ public class CcddConstants
         private final String inputDescription;
 
         /******************************************************************************************
-         * Input data types constructor
+         * Default input types constructor
          *
          * @param inputName
-         *            input data type name
+         *            input type name
          *
          * @param inputMatch
          *            regular expression match for the input type
@@ -2338,7 +2342,7 @@ public class CcddConstants
          * @param inputDescription
          *            input type description
          *****************************************************************************************/
-        InputDataType(String inputName, String inputMatch, InputTypeFormat inputFormat, String inputDescription)
+        DefaultInputType(String inputName, String inputMatch, InputTypeFormat inputFormat, String inputDescription)
         {
             this.inputName = inputName;
             this.inputMatch = inputMatch;
@@ -2347,9 +2351,9 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Get the input data type name
+         * Get the input type name
          *
-         * @return Input data type name
+         * @return Input type name
          *****************************************************************************************/
         protected String getInputName()
         {
@@ -2399,7 +2403,7 @@ public class CcddConstants
          *****************************************************************************************/
         protected String formatInput(String valueS)
         {
-            return formatInput(valueS, true);
+            return CcddInputTypeHandler.formatInput(valueS, inputFormat, true);
         }
 
         /******************************************************************************************
@@ -2419,172 +2423,7 @@ public class CcddConstants
          *****************************************************************************************/
         protected String formatInput(String valueS, boolean preserveZeroes)
         {
-            // Check that the value is not blank
-            if (!valueS.isEmpty())
-            {
-                // Check if the value is an integer
-                if (inputFormat.equals(InputTypeFormat.INTEGER))
-                {
-                    // Format the string as an integer
-                    valueS = Integer.valueOf(valueS).toString();
-                }
-                // Check if the value is a floating point
-                else if (inputFormat.equals(InputTypeFormat.FLOAT))
-                {
-                    // Format the string as a floating point
-                    valueS = Double.valueOf(valueS).toString();
-                }
-                // Check if the value is in hexadecimal
-                else if (inputFormat.equals(InputTypeFormat.HEXADECIMAL))
-                {
-                    // Set the string to append that indicates if this is a protected message ID or
-                    // not
-                    String protect = valueS.endsWith(PROTECTED_MSG_ID_IDENT)
-                                                                             ? PROTECTED_MSG_ID_IDENT
-                                                                             : "";
-
-                    // Remove leading hexadecimal identifier if present and the protection flag if
-                    // present, then convert the value to an integer (base 16)
-                    valueS = valueS.replaceFirst("^0x|^0X", "").replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
-                    int value = Integer.valueOf(valueS, 16);
-
-                    // Get the leading zeroes, if any
-                    String leadZeroes = valueS.replaceFirst("(^0*)[a-fA-F0-9]*", "$1");
-
-                    // Check if the value is zero
-                    if (value == 0)
-                    {
-                        // Remove the first leading zero so it isn't duplicated, but retain any
-                        // extra zeroes added by the user so these can be restored
-                        leadZeroes = leadZeroes.substring(0, leadZeroes.length() - 1);
-                    }
-
-                    // Format the string as a hexadecimal, adding the hexadecimal identifier, if
-                    // needed, and preserving any leading zeroes
-                    valueS = String.format("0x%s%x",
-                                           (preserveZeroes
-                                                           ? leadZeroes
-                                                           : ""),
-                                           value)
-                             + protect;
-                }
-                // Check if the value is a boolean
-                else if (inputFormat.equals(InputTypeFormat.BOOLEAN))
-                {
-                    // Format the string as a boolean
-                    valueS = valueS.toLowerCase();
-                }
-                // Check if the values represents array index values
-                else if (inputFormat.equals(InputTypeFormat.ARRAY))
-                {
-                    // Remove all spaces and replace any commas with a comma and space
-                    valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
-                }
-            }
-
-            return valueS;
-        }
-
-        /******************************************************************************************
-         * Get the input data type with the name that matches the one specified
-         *
-         * @param name
-         *            input data type name to match (case insensitive)
-         *
-         * @return Input data type with the name that matches the one specified; returns null if
-         *         the input type doesn't exist
-         *****************************************************************************************/
-        protected static InputDataType getInputTypeByName(String name)
-        {
-            InputDataType inputType = null;
-
-            // Step through each input data type
-            for (InputDataType type : InputDataType.values())
-            {
-                // Check if the input type name matches the target name, ignoring case
-                if (type.inputName.equalsIgnoreCase(name))
-                {
-                    // Store the matching input type and stop searching
-                    inputType = type;
-                    break;
-                }
-            }
-
-            return inputType;
-        }
-
-        /******************************************************************************************
-         * Get an array of all of the input data type names, excluding separators and breaks
-         *
-         * @param includeSpecialTypes
-         *            true to include special input types (data type, enumeration, and variable
-         *            path); false to exclude
-         *
-         * @return Array of all of the input data type names
-         *****************************************************************************************/
-        protected static String[] getInputNames(boolean includeSpecialTypes)
-        {
-            // Create an array to hold the input type names
-            List<String> inputNames = new ArrayList<String>();
-
-            // Step through each input type
-            for (InputDataType inputType : InputDataType.values())
-            {
-                // Check that this isn't a page format type and, if special types are to be
-                // excluded, that this isn't one of those types
-                if (!inputType.inputFormat.equals(InputTypeFormat.PAGE_FORMAT)
-                    && (includeSpecialTypes
-                        || (!inputType.inputFormat.equals(InputTypeFormat.DATA_TYPE)
-                            && !inputType.inputFormat.equals(InputTypeFormat.ENUMERATION)
-                            && !inputType.inputFormat.equals(InputTypeFormat.VARIABLE_PATH))))
-                {
-                    // Store the input type name in the array
-                    inputNames.add(inputType.inputName);
-                }
-            }
-
-            // Sort the input type names alphabetically
-            Collections.sort(inputNames);
-
-            return inputNames.toArray(new String[0]);
-        }
-
-        /******************************************************************************************
-         * Get an array of all of the input data type descriptions, sorted based on the
-         * alphabetically sorted input names, excluding separators and breaks
-         *
-         * @param includeSpecialTypes
-         *            true to include special input types (data type and enumeration); false to
-         *            exclude
-         *
-         * @return Array of all of the input data type descriptions
-         *****************************************************************************************/
-        protected static String[] getDescriptions(boolean includeSpecialTypes)
-        {
-            // Get the list of input names, sorted alphabetically
-            String[] inputNames = getInputNames(includeSpecialTypes);
-
-            // Create an array to hold the input type descriptions
-            String[] inputDescriptions = new String[inputNames.length];
-
-            // Step through each input type name
-            for (int nameIndex = 0; nameIndex < inputNames.length; nameIndex++)
-            {
-                // Step through each input type
-                for (int index = 0; index < InputDataType.values().length; index++)
-                {
-                    // Check if the input type names match
-                    if (inputNames[nameIndex].equals(InputDataType.values()[index].getInputName()))
-                    {
-                        // Store the description corresponding to this input name and stop
-                        // searching
-                        inputDescriptions[nameIndex] = InputDataType.values()[index].getInputDescription();
-                        break;
-                    }
-                }
-            }
-
-            return inputDescriptions;
+            return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
         }
     }
 
@@ -2680,7 +2519,7 @@ public class CcddConstants
         PRIMARY_KEY("",
                     "_Key_",
                     "Primary key",
-                    InputDataType.INT_POSITIVE,
+                    DefaultInputType.INT_POSITIVE,
                     true,
                     true,
                     true,
@@ -2690,7 +2529,7 @@ public class CcddConstants
         ROW_INDEX("",
                   "_Index_",
                   "Row index",
-                  InputDataType.INT_POSITIVE,
+                  DefaultInputType.INT_POSITIVE,
                   true,
                   true,
                   true,
@@ -2702,7 +2541,7 @@ public class CcddConstants
         VARIABLE_NAME(TYPE_STRUCTURE,
                       "Variable Name",
                       "Parameter name",
-                      InputDataType.VARIABLE,
+                      DefaultInputType.VARIABLE,
                       true,
                       true,
                       true,
@@ -2712,7 +2551,7 @@ public class CcddConstants
         DESCRIPTION_STRUCT(TYPE_STRUCTURE,
                            COL_DESCRIPTION,
                            "Parameter description",
-                           InputDataType.DESCRIPTION,
+                           DefaultInputType.DESCRIPTION,
                            false,
                            false,
                            false,
@@ -2722,7 +2561,7 @@ public class CcddConstants
         UNITS(TYPE_STRUCTURE,
               COL_UNITS,
               "Parameter units",
-              InputDataType.UNITS,
+              DefaultInputType.UNITS,
               false,
               false,
               false,
@@ -2732,7 +2571,7 @@ public class CcddConstants
         DATA_TYPE(TYPE_STRUCTURE,
                   COL_DATA_TYPE,
                   "Parameter data type",
-                  InputDataType.PRIM_AND_STRUCT,
+                  DefaultInputType.PRIM_AND_STRUCT,
                   true,
                   false,
                   true,
@@ -2742,7 +2581,7 @@ public class CcddConstants
         ARRAY_SIZE(TYPE_STRUCTURE,
                    COL_ARRAY_SIZE,
                    "Parameter array size",
-                   InputDataType.ARRAY_INDEX,
+                   DefaultInputType.ARRAY_INDEX,
                    true,
                    false,
                    false,
@@ -2752,7 +2591,7 @@ public class CcddConstants
         BIT_LENGTH(TYPE_STRUCTURE,
                    "Bit Length",
                    "Parameter number of bits (bit values only)",
-                   InputDataType.BIT_LENGTH,
+                   DefaultInputType.BIT_LENGTH,
                    true,
                    false,
                    false,
@@ -2762,7 +2601,7 @@ public class CcddConstants
         ENUMERATION(TYPE_STRUCTURE,
                     COL_ENUMERATION,
                     "Enumerated parameters",
-                    InputDataType.ENUMERATION,
+                    DefaultInputType.ENUMERATION,
                     true,
                     false,
                     false,
@@ -2772,7 +2611,7 @@ public class CcddConstants
         RATE(TYPE_STRUCTURE,
              "Rate",
              "Downlink data rate, samples/second",
-             InputDataType.RATE,
+             DefaultInputType.RATE,
              true,
              false,
              false,
@@ -2784,7 +2623,7 @@ public class CcddConstants
         COMMAND_NAME(TYPE_COMMAND,
                      "Command Name",
                      "Command name",
-                     InputDataType.COMMAND_NAME,
+                     DefaultInputType.COMMAND_NAME,
                      true,
                      true,
                      true,
@@ -2794,7 +2633,7 @@ public class CcddConstants
         COMMAND_CODE(TYPE_COMMAND,
                      "Command Code",
                      "Command function code",
-                     InputDataType.COMMAND_CODE,
+                     DefaultInputType.COMMAND_CODE,
                      true,
                      true,
                      true,
@@ -2804,7 +2643,7 @@ public class CcddConstants
         DESCRIPTION_CMD(TYPE_COMMAND,
                         COL_DESCRIPTION,
                         "Command description",
-                        InputDataType.DESCRIPTION,
+                        DefaultInputType.DESCRIPTION,
                         false,
                         false,
                         false,
@@ -2814,7 +2653,7 @@ public class CcddConstants
         ARG_NAME_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 Name",
                    "Command argument 1 name",
-                   InputDataType.ARGUMENT_NAME,
+                   DefaultInputType.ARGUMENT_NAME,
                    false,
                    false,
                    false,
@@ -2824,7 +2663,7 @@ public class CcddConstants
         ARG_DESCRIPTION_1(TYPE_COMMAND,
                           COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
                           "Command argument 1 description",
-                          InputDataType.DESCRIPTION,
+                          DefaultInputType.DESCRIPTION,
                           false,
                           false,
                           false,
@@ -2834,7 +2673,7 @@ public class CcddConstants
         ARG_UNITS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_UNITS,
                     "Command argument 1 units",
-                    InputDataType.UNITS,
+                    DefaultInputType.UNITS,
                     false,
                     false,
                     false,
@@ -2844,7 +2683,7 @@ public class CcddConstants
         ARG_TYPE_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
                    "Command argument 1 data type",
-                   InputDataType.PRIMITIVE,
+                   DefaultInputType.PRIMITIVE,
                    false,
                    false,
                    false,
@@ -2854,7 +2693,7 @@ public class CcddConstants
         ARG_ARRAY_SIZE_1(TYPE_COMMAND,
                          COL_ARGUMENT + " 1 " + COL_ARRAY_SIZE,
                          "Command argument 1 array size",
-                         InputDataType.ARRAY_INDEX,
+                         DefaultInputType.ARRAY_INDEX,
                          false,
                          false,
                          false,
@@ -2864,7 +2703,7 @@ public class CcddConstants
         ARG_BIT_LENGTH_1(TYPE_COMMAND,
                          COL_ARGUMENT + " 1 " + COL_BIT_LENGTH,
                          "Command argument 1 bit length",
-                         InputDataType.BIT_LENGTH,
+                         DefaultInputType.BIT_LENGTH,
                          false,
                          false,
                          false,
@@ -2874,7 +2713,7 @@ public class CcddConstants
         ARG_ENUMS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
                     "Command argument 1 enumeration",
-                    InputDataType.ENUMERATION,
+                    DefaultInputType.ENUMERATION,
                     false,
                     false,
                     false,
@@ -2884,7 +2723,7 @@ public class CcddConstants
         ARG_MIN_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MINIMUM,
                   "Command argument 1 minimum value",
-                  InputDataType.MINIMUM,
+                  DefaultInputType.MINIMUM,
                   false,
                   false,
                   false,
@@ -2894,7 +2733,7 @@ public class CcddConstants
         ARG_MAX_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MAXIMUM,
                   "Command argument 1 maximum value",
-                  InputDataType.MAXIMUM,
+                  DefaultInputType.MAXIMUM,
                   false,
                   false,
                   false,
@@ -2905,7 +2744,7 @@ public class CcddConstants
         private final String tableType;
         private final String columnName;
         private final String description;
-        private final InputDataType inputType;
+        private final DefaultInputType inputType;
         private final boolean isRequiredForType;
         private final boolean isRowValueUnique;
         private final boolean isInputRequired;
@@ -2926,7 +2765,7 @@ public class CcddConstants
          *            column description; this is used as the column's tool tip text
          *
          * @param inputType
-         *            column input data type
+         *            column input type (DefaultInputType)
          *
          * @param isRequiredForType
          *            true if this column is required in order to define a table type. Tables that
@@ -2956,7 +2795,7 @@ public class CcddConstants
         DefaultColumn(String tableType,
                       String columnName,
                       String description,
-                      InputDataType inputType,
+                      DefaultInputType inputType,
                       boolean isRequiredForType,
                       boolean isRowValueUnique,
                       boolean isInputRequired,
@@ -3062,7 +2901,7 @@ public class CcddConstants
          *
          * @return Default column input type
          *****************************************************************************************/
-        protected InputDataType getInputType()
+        protected DefaultInputType getInputType()
         {
             return inputType;
         }
@@ -3086,13 +2925,13 @@ public class CcddConstants
          * @param columnName
          *            column name (as seen by the user)
          *
-         * @param inputType
-         *            column input type (InputDataType)
+         * @param inputTypeName
+         *            column input type name
          *
          * @return Database column name corresponding to the visible column name
          *********************************************************************************************/
         protected static String convertVisibleToDatabase(String columnName,
-                                                         InputDataType inputType,
+                                                         String inputTypeName,
                                                          boolean isStructure)
         {
             String dbColumnName = null;
@@ -3100,32 +2939,31 @@ public class CcddConstants
             // Check if the column belongs to a structure type table
             if (isStructure)
             {
-                switch (inputType)
+                if (inputTypeName.equals(DefaultInputType.VARIABLE.getInputName()))
                 {
-                    case VARIABLE:
-                        // Use the default database name for the variable name column
-                        dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
-                        break;
-
-                    case ARRAY_INDEX:
-                        // Use the default database name for the array size column
-                        dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
-                        break;
-
-                    case BIT_LENGTH:
-                        // Use the default database name for the bit length column
-                        dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
-                        break;
-
-                    case PRIM_AND_STRUCT:
-                        // Use the default database name for the data type column
-                        dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
-                        break;
-
-                    default:
-                        // Replace any characters that aren't allowed in a database column name
-                        // with underscores
-                        dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+                    // Use the default database name for the variable name column
+                    dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
+                }
+                else if (inputTypeName.equals(DefaultInputType.ARRAY_INDEX.getInputName()))
+                {
+                    // Use the default database name for the variable name column
+                    dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
+                }
+                else if (inputTypeName.equals(DefaultInputType.BIT_LENGTH.getInputName()))
+                {
+                    // Use the default database name for the variable name column
+                    dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
+                }
+                else if (inputTypeName.equals(DefaultInputType.PRIM_AND_STRUCT.getInputName()))
+                {
+                    // Use the default database name for the variable name column
+                    dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
+                }
+                else
+                {
+                    // Replace any characters that aren't allowed in a database column name
+                    // with underscores
+                    dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
                 }
             }
             // The column doesn't belong to a structure type table
@@ -3198,14 +3036,18 @@ public class CcddConstants
          * @param compareTableType
          *            table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER
          *
+         * @param inputTypeHandler
+         *            input type handler reference
+         *
          * @param compareInputType
-         *            column input type
+         *            column input type (InputType)
          *
          * @return true if the supplied table type and column input type match that for a column
          *         required to define the specified type
          *****************************************************************************************/
         protected static boolean isTypeRequiredColumn(String compareTableType,
-                                                      InputDataType compareInputType)
+                                                      CcddInputTypeHandler inputTypeHandler,
+                                                      InputType compareInputType)
         {
             boolean isColumnRequired = false;
 
@@ -3214,7 +3056,7 @@ public class CcddConstants
             {
                 // Check if the table type and column input type match the one in the table
                 if (defCol.tableType.equals(compareTableType)
-                    && defCol.inputType.equals(compareInputType))
+                    && inputTypeHandler.getInputTypeByDefaultType(defCol.inputType).equals(compareInputType))
                 {
                     // Set the flag based on this parameter's required by table type status and
                     // stop searching
@@ -3227,8 +3069,8 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Check if the supplied table type and input data type match one of the default table type
-         * & input type pairs
+         * Check if the supplied table type and input type match one of the default table type &
+         * input type pairs
          *
          * @param compareTableType
          *            table type
@@ -3236,8 +3078,8 @@ public class CcddConstants
          * @param compareColumnName
          *            column name
          *
-         * @return true if the supplied table type and input data type match a protected table type
-         *         and input type combination, and if this pair is flagged as protected
+         * @return true if the supplied table type and input type match a protected table type and
+         *         input type combination, and if this pair is flagged as protected
          *****************************************************************************************/
         protected static boolean isInputTypeUnique(String compareTableType, String compareInputType)
         {
@@ -3495,19 +3337,19 @@ public class CcddConstants
                             + ", "
                             + FieldsColumn.FIELD_VALUE.columnName
                             + ") VALUES ('Type:Structure', 'Telemetry message ID name', 'Telemetry message ID name', '15', '"
-                            + InputDataType.MESSAGE_ID_NAME.getInputName()
+                            + DefaultInputType.MESSAGE_ID_NAME.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
                             + "', ''), ('Type:Structure', 'Telemetry message ID', 'Telemetry message ID', '7', '"
-                            + InputDataType.MESSAGE_ID.getInputName()
+                            + DefaultInputType.MESSAGE_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
                             + "', ''), ('Type:Command', 'Command ID name', 'Command ID name', '15', '"
-                            + InputDataType.MESSAGE_ID_NAME.getInputName()
+                            + DefaultInputType.MESSAGE_ID_NAME.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ALL.getApplicabilityName()
                             + "', ''), ('Type:Command', 'Command message ID', 'Command message ID', '7', '"
-                            + InputDataType.MESSAGE_ID.getInputName()
+                            + DefaultInputType.MESSAGE_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ALL.getApplicabilityName()
                             + "', '')"),
@@ -3520,6 +3362,21 @@ public class CcddConstants
                                 GroupsColumn.MEMBERS.dataType}},
                "WITH OIDS",
                ""),
+
+        // User-defined input types
+        INPUT_TYPES("input_types",
+                    new String[][] {{InputTypesColumn.NAME.columnName,
+                                     InputTypesColumn.NAME.dataType},
+                                    {InputTypesColumn.DESCRIPTION.columnName,
+                                     InputTypesColumn.DESCRIPTION.dataType},
+                                    {InputTypesColumn.MATCH.columnName,
+                                     InputTypesColumn.MATCH.dataType},
+                                    {InputTypesColumn.FORMAT.columnName,
+                                     InputTypesColumn.FORMAT.dataType},
+                                    {InputTypesColumn.ITEMS.columnName,
+                                     InputTypesColumn.ITEMS.dataType}},
+                    "WITH OIDS",
+                    ""),
 
         // Variable links
         LINKS("links",
@@ -3602,18 +3459,11 @@ public class CcddConstants
                     "WITH OIDS",
 
                     // Enforce that (type, index) must be unique
-                    "CREATE UNIQUE INDEX "
-                                 + INTERNAL_TABLE_PREFIX
-                                 + "table_types_idx ON "
-                                 + INTERNAL_TABLE_PREFIX
-                                 + "table_types (type, index); "
+                    "CREATE UNIQUE INDEX " + INTERNAL_TABLE_PREFIX + "table_types_idx ON " + INTERNAL_TABLE_PREFIX + "table_types (type, index); "
 
-                                 // Create default table definition for the telemetry and command
-                                 // table types
-                                 + "INSERT INTO "
-                                 + INTERNAL_TABLE_PREFIX
-                                 + "table_types VALUES "
-                                 + DefaultColumn.getColumnDefinitions()),
+                    // Create default table definition for the telemetry and command
+                    // table types
+                                 + "INSERT INTO " + INTERNAL_TABLE_PREFIX + "table_types VALUES " + DefaultColumn.getColumnDefinitions()),
 
         // Telemetry scheduler
         TLM_SCHEDULER("tlm_scheduler",
@@ -3626,13 +3476,7 @@ public class CcddConstants
                                       {TlmSchedulerColumn.MEMBER.columnName,
                                        TlmSchedulerColumn.MEMBER.dataType}},
                       "WITH OIDS",
-                      "COMMENT ON TABLE "
-                                   + INTERNAL_TABLE_PREFIX
-                                   + "tlm_scheduler IS '1,1,false,\""
-                                   + DefaultColumn.RATE.getName()
-                                   + "\",\""
-                                   + DefaultColumn.RATE.getName()
-                                   + "\",1,56000'"),
+                      "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\"" + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
 
         // Data table values for non-prototype tables
         VALUES("values",
@@ -4011,6 +3855,37 @@ public class CcddConstants
         }
 
         /******************************************************************************************
+         * Input types columns
+         *****************************************************************************************/
+        protected static enum InputTypesColumn
+        {
+            NAME("name", "text"),
+            DESCRIPTION("description", "text"),
+            MATCH("match", "text"),
+            FORMAT("format", "text"),
+            ITEMS("items", "text"),
+            OID("index", "text");
+
+            private final String columnName;
+            private final String dataType;
+
+            /**************************************************************************************
+             * Input types table columns constructor
+             *
+             * @param columnName
+             *            input types table column name
+             *
+             * @param dataType
+             *            input types table column data type
+             *************************************************************************************/
+            InputTypesColumn(String columnName, String dataType)
+            {
+                this.columnName = columnName;
+                this.dataType = dataType;
+            }
+        }
+
+        /******************************************************************************************
          * Table type definitions table columns
          *****************************************************************************************/
         protected static enum TableTypesColumn
@@ -4293,7 +4168,7 @@ public class CcddConstants
         DESCRIPTION("Description", "Table column description", "", false),
         INPUT_TYPE("Input Type",
                    "Input type that can be entered in this column",
-                   InputDataType.TEXT.getInputName(),
+                   DefaultInputType.TEXT.getInputName(),
                    true),
         UNIQUE("Unique",
                "Select if each row value in this column must be unique",
@@ -4497,70 +4372,70 @@ public class CcddConstants
     {
         SCHEDULE_RATE("Schedule Rate",
                       "Application execution rate, cycles/second",
-                      InputDataType.INT_POSITIVE,
+                      DefaultInputType.INT_POSITIVE,
                       7,
                       true,
                       ApplicabilityType.ALL,
                       "1"),
         EXECUTION_TIME("Execution Time",
                        "Estimated time for this application to execute",
-                       InputDataType.INT_POSITIVE,
+                       DefaultInputType.INT_POSITIVE,
                        7,
                        true,
                        ApplicabilityType.ALL,
                        "1"),
         PRIORITY("Execution Priority",
                  "Application execution priority",
-                 InputDataType.INT_POSITIVE,
+                 DefaultInputType.INT_POSITIVE,
                  3,
                  true,
                  ApplicabilityType.ALL,
                  "1"),
         MESSAGE_RATE("Message rate",
                      "Application message rate, samples/second",
-                     InputDataType.INT_POSITIVE,
+                     DefaultInputType.INT_POSITIVE,
                      7,
                      true,
                      ApplicabilityType.ALL,
                      "1"),
         WAKE_UP_NAME("Wake-Up Name",
                      "Application wake-up name",
-                     InputDataType.MESSAGE_ID_NAME,
+                     DefaultInputType.MESSAGE_ID_NAME,
                      10,
                      true,
                      ApplicabilityType.ALL,
                      ""),
         WAKE_UP_ID("Wake-Up ID",
                    "Application wake-up ID",
-                   InputDataType.MESSAGE_ID,
+                   DefaultInputType.MESSAGE_ID,
                    7,
                    true,
                    ApplicabilityType.ALL,
                    "0x1"),
         HK_SEND_RATE("HK_Send Rate",
                      "Application housekeeping send rate",
-                     InputDataType.INT_POSITIVE,
+                     DefaultInputType.INT_POSITIVE,
                      7,
                      true,
                      ApplicabilityType.ALL,
                      "1"),
         HK_WAKE_UP_NAME("HK Wake-Up Name",
                         "Application housekeeping wake-up name",
-                        InputDataType.MESSAGE_ID_NAME,
+                        DefaultInputType.MESSAGE_ID_NAME,
                         10,
                         true,
                         ApplicabilityType.ALL,
                         ""),
         HK_WAKE_UP_ID("HK Wake-Up ID",
                       "Application housekeeping wake-up ID",
-                      InputDataType.MESSAGE_ID,
+                      DefaultInputType.MESSAGE_ID,
                       7,
                       true,
                       ApplicabilityType.ALL,
                       "0x1"),
         SCH_GROUP("SCH Group",
                   "Application Schedule group",
-                  InputDataType.ALPHANUMERIC,
+                  DefaultInputType.ALPHANUMERIC,
                   10,
                   true,
                   ApplicabilityType.ALL,
@@ -4568,7 +4443,7 @@ public class CcddConstants
 
         private final String fieldName;
         private final String description;
-        private final InputDataType inputType;
+        private final DefaultInputType inputType;
         private final int size;
         private final boolean isRequired;
         private final ApplicabilityType applicability;
@@ -4584,7 +4459,7 @@ public class CcddConstants
          *            data field description
          *
          * @param inputType
-         *            data field input data type
+         *            data field input type
          *
          * @param size
          *            data field size in characters
@@ -4600,7 +4475,7 @@ public class CcddConstants
          *****************************************************************************************/
         DefaultApplicationField(String fieldName,
                                 String description,
-                                InputDataType inputType,
+                                DefaultInputType inputType,
                                 int size,
                                 boolean isRequired,
                                 ApplicabilityType applicability,
@@ -4641,14 +4516,18 @@ public class CcddConstants
          * @param ownerName
          *            table or group name to which the field belongs
          *
+         * @param inputTypeHandler
+         *            input type handler reference
+         *
          * @return FieldInformation for the default data field
          *****************************************************************************************/
-        protected FieldInformation createFieldInformation(String ownerName)
+        protected FieldInformation createFieldInformation(String ownerName,
+                                                          CcddInputTypeHandler inputTypeHandler)
         {
             return new FieldInformation(ownerName,
                                         fieldName,
                                         description,
-                                        inputType,
+                                        inputTypeHandler.getInputTypeByDefaultType(inputType),
                                         size,
                                         isRequired,
                                         applicability,
@@ -4908,6 +4787,133 @@ public class CcddConstants
     }
 
     /**********************************************************************************************
+     * Input type editor column information
+     *********************************************************************************************/
+    protected static enum InputTypeEditorColumnInfo
+    {
+        NAME("Type Name", "User-defined input type name", "", true),
+        DESCRIPTION("Description", "Input type description", "", false),
+        MATCH("Match", "Regular expression constraining values to the input type", ".*", true),
+        FORMAT("Format Type", "Generic type for formatting values", InputTypeFormat.TEXT.toString().toLowerCase(), false),
+        ITEMS("Valid Selections", "List of valid inputs, separated by line feeds", "", false),
+        OID("OID", "Input type index", "", false);
+
+        private final String columnName;
+        private final String toolTip;
+        private final String initialValue;
+        private final boolean isRequired;
+
+        /******************************************************************************************
+         * Input type editor column information constructor
+         *
+         * @param columnName
+         *            text to display for the input type editor column header
+         *
+         * @param toolTip
+         *            tool tip text to display for the column
+         *
+         * @param initialValue
+         *            initial column value
+         *
+         * @param isRequired
+         *            true if a value is required in this column
+         *****************************************************************************************/
+        InputTypeEditorColumnInfo(String columnName,
+                                  String toolTip,
+                                  String initialValue,
+                                  boolean isRequired)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+            this.initialValue = initialValue;
+            this.isRequired = isRequired;
+        }
+
+        /******************************************************************************************
+         * Get the input type editor column name
+         *
+         * @return Input type editor column name
+         *****************************************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /******************************************************************************************
+         * Get the input type editor column required flag
+         *
+         * @return Input type editor column required flag
+         *****************************************************************************************/
+        protected boolean isRequired()
+        {
+            return isRequired;
+        }
+
+        /******************************************************************************************
+         * Get the input type editor column names
+         *
+         * @return Array containing the input type editor column names
+         *****************************************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[InputTypeEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (InputTypeEditorColumnInfo type : InputTypeEditorColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /******************************************************************************************
+         * Get the input type editor column tool tips
+         *
+         * @return Array containing the input type editor column tool tips
+         *****************************************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[InputTypeEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (InputTypeEditorColumnInfo type : InputTypeEditorColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+
+        /******************************************************************************************
+         * Get a row with initialized values for the input type editor
+         *
+         * @return Array containing initial values for a row in the input type editor
+         *****************************************************************************************/
+        protected static String[] getEmptyRow()
+        {
+            String[] emptyRow = new String[InputTypeEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (InputTypeEditorColumnInfo type : InputTypeEditorColumnInfo.values())
+            {
+                // Initialize the column value
+                emptyRow[index] = type.initialValue;
+                index++;
+            }
+
+            return emptyRow;
+        }
+    }
+
+    /**********************************************************************************************
      * Data field editor column information
      *********************************************************************************************/
     protected static enum FieldEditorColumnInfo
@@ -4915,7 +4921,7 @@ public class CcddConstants
         NAME("Field Name", "Data field name", "", true),
         DESCRIPTION("Description", "Data field description", "", false),
         SIZE("Size", "Data field size (characters)", "", true),
-        INPUT_TYPE("Input Type", "Data field input data type", "Text", true),
+        INPUT_TYPE("Input Type", "Data field input type", "Text", true),
         REQUIRED("Required",
                  "Select if a value is required in the column",
                  false,
@@ -6456,6 +6462,7 @@ public class CcddConstants
         {
             return defaultButton;
         }
+
     }
 
     /**********************************************************************************************

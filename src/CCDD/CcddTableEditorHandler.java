@@ -64,8 +64,8 @@ import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -74,6 +74,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -94,6 +95,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private final CcddMacroHandler newMacroHandler;
     private final CcddRateParameterHandler rateHandler;
     private final CcddVariableSizeAndConversionHandler variableHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
     private CcddJTableHandler table;
     private final TableInformation tableInfo;
     private UndoableTableModel tableModel;
@@ -129,13 +131,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private int variablePathIndex;
 
     // Column indices for the variable name, data type, array size, bit length, enumeration(s), and
-    // rate(s) (in model coordinates). These are only set for tables representing structures
+    // rate(s) (in model coordinates). These are only set for structure tables representing
+    // structures
     private int variableNameIndex;
     private int dataTypeIndex;
     private int arraySizeIndex;
     private int bitLengthIndex;
     private List<Integer> enumerationIndex;
     private List<Integer> rateIndex;
+
+    // Column indices for user-defined selection columns
+    private List<Integer> selectionIndex;
 
     // Variable path separators and flag to show/hide the data type
     private String varPathSep;
@@ -153,7 +159,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     // Temporary table cell storage for when macro names are replaced by their corresponding values
     // so that the original cell contents can be restored
-    private String[][] originalCellData;
+    private Object[][] originalCellData;
 
     // Lists of table content changes to process
     private final List<TableModification> additions;
@@ -213,6 +219,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Initialize the lists of table content changes
         additions = new ArrayList<TableModification>();
@@ -582,7 +589,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (!variableName.isEmpty()
                     && !dataType.isEmpty()
                     && (committedInfo.getData().length == 0
-                        || committedInfo.getData()[row][variablePathIndex].isEmpty())
+                        || committedInfo.getData()[row][variablePathIndex].toString().isEmpty())
                     && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
                         || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex))))
                 {
@@ -707,15 +714,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void getSpecialColumnIndices()
     {
+        selectionIndex = new ArrayList<Integer>();
+
         // Check if the table represents a structure
         if (typeDefn.isStructure())
         {
-            variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-            dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-            arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
-            bitLengthIndex = typeDefn.getColumnIndexByInputType(InputDataType.BIT_LENGTH);
-            enumerationIndex = typeDefn.getColumnIndicesByInputType(InputDataType.ENUMERATION);
-            rateIndex = typeDefn.getColumnIndicesByInputType(InputDataType.RATE);
+            variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+            dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+            arraySizeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+            bitLengthIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
+            enumerationIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
+            rateIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE);
         }
         // The table doesn't represent a structure
         else
@@ -731,12 +740,23 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         }
 
         // Get the list of message names & IDs column(s)
-        msgIDNameIndex = typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID_NAMES_AND_IDS);
+        msgIDNameIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID_NAMES_AND_IDS);
 
         // Set the variable path column index. This column is only active for a structure table,
         // but can appear in other table types (if the column is added to a structure type and then
         // the type is altered to not be a structure)
-        variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+        variablePathIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
+
+        // Step through each input type containing a selection array
+        for (InputType inputType : inputTypeHandler.getSelectionInputTypes())
+        {
+            // Step through each column having the specified input type
+            for (Integer column : typeDefn.getColumnIndicesByInputType(inputType))
+            {
+                // Add the column index to the list
+                selectionIndex.add(column);
+            }
+        }
     }
 
     /**********************************************************************************************
@@ -797,11 +817,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             for (int column = 0; column < tableModel.getColumnCount(); column++)
             {
                 // Get the cell value
-                String cellValue = tableModel.getValueAt(row, column).toString();
+                Object cellValue = tableModel.getValueAt(row, column);
 
                 // Check if the cell value begins with the flag that indicates the custom value for
                 // this cell was deleted
-                if (cellValue.startsWith(REPLACE_INDICATOR))
+                if (cellValue.toString().startsWith(REPLACE_INDICATOR))
                 {
                     // Get this cell's editor component
                     Component comp = ((DefaultCellEditor) table.getCellEditor(table.convertRowIndexToView(row),
@@ -815,7 +835,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
 
                     // Remove the flag from the cell value
-                    cellValue = cellValue.replaceFirst("^" + REPLACE_INDICATOR, "");
+                    cellValue = cellValue.toString().replaceFirst("^" + REPLACE_INDICATOR, "");
 
                     // Store the value in the cell without the flag
                     tableModel.setValueAt(cellValue, row, column);
@@ -985,7 +1005,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         for (int column = 0; column < tableModel.getColumnCount(); column++)
                         {
                             // Get the value of the cell prior to the change
-                            String preChangeCell = preChangeData[preRow][column].toString();
+                            Object preChangeCell = preChangeData[preRow][column].toString();
 
                             // Check if the values differ between the committed and uncommitted
                             // cell values
@@ -1274,12 +1294,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
-             * Allow multiple line display in all columns
+             * Allow multiple line display in the non-boolean columns
              *************************************************************************************/
             @Override
             protected boolean isColumnMultiLine(int column)
             {
-                return true;
+                return !typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
             }
 
             /**************************************************************************************
@@ -1289,6 +1309,24 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             protected boolean isColumnHidden(int column)
             {
                 return column == primaryKeyIndex || column == rowIndex;
+            }
+
+            /**************************************************************************************
+             * Display the columns with a boolean input type as check boxes
+             *************************************************************************************/
+            @Override
+            protected boolean isColumnBoolean(int column)
+            {
+                return typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
+            }
+
+            /**************************************************************************************
+             * Allow resizing of the non-boolean columns
+             *************************************************************************************/
+            @Override
+            protected boolean isColumnResizable(int column)
+            {
+                return !typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
             }
 
             /**************************************************************************************
@@ -1315,7 +1353,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     int modelColumn = convertColumnIndexToModel(column);
 
                     // Check if the cell is editable
-                    isEditable = isDataAlterable(((List<?>) tableModel.getDataVector().elementAt(modelRow)).toArray(new String[0]),
+                    isEditable = isDataAlterable(((List<?>) tableModel.getDataVector().elementAt(modelRow)).toArray(new Object[0]),
                                                  modelRow,
                                                  modelColumn);
                 }
@@ -1400,7 +1438,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // This is an array definition, and the input type is 'message ID' or is the
                     // variable path
                      || ((isArrayDefinition
-                          && (typeDefn.getInputTypes()[column].equals(InputDataType.MESSAGE_ID)
+                          && (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID))
                               || column == variablePathIndex)))
 
                     // This is the bit length cell and either the array size is present or the data
@@ -1597,6 +1635,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                 try
                 {
+                    boolean hasMacroSizeof = false;
+
                     // Set the parameters that govern recalculating packed variables to begin with
                     // the first row in the table and to use the first variable in the pack to set
                     // the rates for other variables in the same pack
@@ -1613,7 +1653,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // to this structure's prototype or the prototype of one of its children
                     if (variableHandler.isInvalidReference())
                     {
-                        throw new CCDDException("Invalid input value in column '</b>"
+                        throw new CCDDException("Invalid input value in table '</b>"
+                                                + tableInfo.getTablePath()
+                                                + "<b>' for column '</b>"
                                                 + typeDefn.getColumnNamesUser()[column]
                                                 + "<b>'; data type invalid or unknown in sizeof() call");
                     }
@@ -1641,7 +1683,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                                      otherRow,
                                                                                      column)))
                                 {
-                                    throw new CCDDException("Invalid input value for column '</b>"
+                                    throw new CCDDException("Invalid input value in table '</b>"
+                                                            + tableInfo.getTablePath()
+                                                            + "<b>' for column '</b>"
                                                             + typeDefn.getColumnNamesUser()[column]
                                                             + "<b>'; value must be unique");
                                 }
@@ -1664,7 +1708,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                                row,
                                                                                otherColGrp.getName())))
                                     {
-                                        throw new CCDDException("Invalid input value for column '</b>"
+                                        throw new CCDDException("Invalid input value in table '</b>"
+                                                                + tableInfo.getTablePath()
+                                                                + "<b>' for column '</b>"
                                                                 + typeDefn.getColumnNamesUser()[column]
                                                                 + "<b>'; command argument names must be unique for a command");
                                     }
@@ -1709,7 +1755,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Check if the value doesn't match the expected input type
                         if (!newValueS.matches(typeDefn.getInputTypes()[column].getInputMatch()))
                         {
-                            throw new CCDDException("Invalid characters in column '</b>"
+                            throw new CCDDException("Invalid characters in table '</b>"
+                                                    + tableInfo.getTablePath()
+                                                    + "<b>' for column '</b>"
                                                     + typeDefn.getColumnNamesUser()[column]
                                                     + "<b>'; characters consistent with input type '"
                                                     + typeDefn.getInputTypes()[column].getInputName()
@@ -1726,21 +1774,26 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
 
-                    // Flag that indicates that the new cell value contains a macro and/or a
-                    // sizeof() call
-                    boolean hasMacroSizeof = CcddMacroHandler.hasMacro(newValue.toString())
-                                             || CcddVariableSizeAndConversionHandler.hasSizeof(newValue.toString());
-
-                    // Check if the new value doesn't contain a macro or sizeof() reference; this
-                    // prevents the macro reference from being lost
-                    if (!hasMacroSizeof)
+                    // Check if the cell's input type isn't a boolean. Boolean values are
+                    // represented by a check box and can't contain a macro
+                    if (!typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN)))
                     {
-                        // Store the new value in the table data array after formatting the cell
-                        // value per its input type. This is needed primarily to clean up numeric
-                        // formatting
-                        newValueS = typeDefn.getInputTypes()[column].formatInput(newValueS);
-                        newValue = newValueS;
-                        tableData.get(row)[column] = newValueS;
+                        // Flag that indicates that the new cell value contains a macro and/or a
+                        // sizeof() call
+                        hasMacroSizeof = CcddMacroHandler.hasMacro(newValue.toString())
+                                         || CcddVariableSizeAndConversionHandler.hasSizeof(newValue.toString());
+
+                        // Check if the new value doesn't contain a macro or sizeof() reference;
+                        // this prevents the macro reference from being lost
+                        if (!hasMacroSizeof)
+                        {
+                            // Store the new value in the table data array after formatting the
+                            // cell value per its input type. This is needed primarily to clean up
+                            // numeric formatting
+                            newValueS = typeDefn.getInputTypes()[column].formatInput(newValueS);
+                            newValue = newValueS;
+                            tableData.get(row)[column] = newValueS;
+                        }
                     }
 
                     // Replace any macro in the original text with its corresponding value
@@ -1794,9 +1847,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             // if a data type is pasted into the cell
                             if (invalidDataTypes != null && invalidDataTypes.contains(dataType))
                             {
-                                throw new CCDDException("Data type '</b>"
+                                throw new CCDDException("Invalid data type '</b>"
                                                         + dataType
-                                                        + "<b>' invalid; structure cannot reference itself or an ancestor");
+                                                        + "<b>' in table '</b>"
+                                                        + tableInfo.getTablePath()
+                                                        + "<b>'; structure cannot reference itself or an ancestor");
                             }
 
                             // Check if the variable is an array
@@ -1810,7 +1865,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     && !bitLength.isEmpty()
                                     && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                                 {
-                                    throw new CCDDException("Bit length exceeds the size of the data type");
+                                    throw new CCDDException("Invalid bit length in table '</b>"
+                                                            + tableInfo.getTablePath()
+                                                            + "<b>'; bit length exceeds the size of the data type");
                                 }
 
                                 // Get the array index values from the array size column and update
@@ -1911,7 +1968,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 && dataType != null
                                 && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                             {
-                                throw new CCDDException("Bit length exceeds the size of the data type");
+                                throw new CCDDException("Invalid bit length in table '</b>"
+                                                        + tableInfo.getTablePath()
+                                                        + "<b>'; bit length exceeds the size of the data type");
                             }
 
                             // Adjust the rates of any other bit-wise variables that are packed
@@ -1938,7 +1997,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                         + variableName,
                                                                         newValueS))
                                 {
-                                    throw new CCDDException("Variable path already in use in another structure");
+                                    throw new CCDDException("Invalid variable path in table '</b>"
+                                                            + tableInfo.getTablePath()
+                                                            + "<b>'; variable path already in use in another structure");
                                 }
                             }
                             // The cell has been blanked
@@ -2143,7 +2204,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     {
                         // Set the initial and preferred editor size
                         editorDialog.setTableWidth(width);
-                        editorDialog.setPreferredSize(new Dimension(width, editorDialog.getPreferredSize().height));
+                        editorDialog.setPreferredSize(new Dimension(width,
+                                                                    editorDialog.getPreferredSize().height));
                     }
                 }
 
@@ -2165,6 +2227,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Create drop-down combo boxes that display the available message ID names and
                 // values
                 setUpMsgNamesAndIDsColumn(null);
+
+                // Create drop-down combo boxes that display a list of selection items
+                setUpSelectionColumns();
 
                 // Create the mouse listener for the data type column
                 createDataTypeColumnMouseListener();
@@ -2202,8 +2267,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // variable
                     else if (variableNameIndex != -1
                              && getExpandedValueAt(table.convertRowIndexToModel(row),
-                                                   variableNameIndex).toString().matches(PAD_VARIABLE
-                                                                                         + "(?:\\[[0-9]+\\])?$"))
+                                                   variableNameIndex).matches(PAD_VARIABLE
+                                                                              + "(?:\\[[0-9]+\\])?$"))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
@@ -2266,7 +2331,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             final InputTypeFormat inputFormat = typeDefn.getInputTypes()[column].getInputFormat();
 
                             // Add a column sort comparator
-                            sorter.setComparator(column, new Comparator<String>()
+                            sorter.setComparator(column, new Comparator<Object>()
                             {
                                 /******************************************************************
                                  * Override the comparison when sorting columns to account for the
@@ -2278,12 +2343,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                  * sorting
                                  *****************************************************************/
                                 @Override
-                                public int compare(String cell1, String cell2)
+                                public int compare(Object cell1Obj, Object cell2Obj)
                                 {
                                     Integer result = 0;
 
+                                    // Convert the cell values to strings for comparison purposes
+                                    String cell1 = cell1Obj.toString();
+                                    String cell2 = cell2Obj.toString();
+
                                     // Check if either cell is empty
-                                    if (cell1.isEmpty() || cell2.isEmpty())
+                                    if (cell1.toString().isEmpty() || cell2.toString().isEmpty())
                                     {
                                         // Compare as text (alphabetically)
                                         result = cell1.compareTo(cell2);
@@ -2308,8 +2377,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                             default:
                                                 // Check if the initial portion of both cells is a
                                                 // number
-                                                if (cell1.matches(InputDataType.INTEGER.getInputMatch() + ".*")
-                                                    && cell2.matches(InputDataType.INTEGER.getInputMatch() + ".*"))
+                                                if (cell1.matches(DefaultInputType.INTEGER.getInputMatch() + ".*")
+                                                    && cell2.matches(DefaultInputType.INTEGER.getInputMatch() + ".*"))
                                                 {
                                                     switch (inputFormat)
                                                     {
@@ -2317,11 +2386,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                             // Compare the two cell values as
                                                             // integers
                                                             result = Integer.compare(Integer.valueOf(cell1.replaceAll("("
-                                                                                                                      + InputDataType.INTEGER.getInputMatch()
+                                                                                                                      + DefaultInputType.INTEGER.getInputMatch()
                                                                                                                       + ").*",
                                                                                                                       "$1")),
                                                                                      Integer.valueOf(cell2.replaceAll("("
-                                                                                                                      + InputDataType.INTEGER.getInputMatch()
+                                                                                                                      + DefaultInputType.INTEGER.getInputMatch()
                                                                                                                       + ").*",
                                                                                                                       "$1")));
                                                             break;
@@ -2330,11 +2399,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                             // Compare the two cell values as
                                                             // integers
                                                             result = Integer.compare(Integer.decode(cell1.replaceAll("("
-                                                                                                                     + InputDataType.HEXADECIMAL.getInputMatch()
+                                                                                                                     + DefaultInputType.HEXADECIMAL.getInputMatch()
                                                                                                                      + ").*",
                                                                                                                      "$1")),
                                                                                      Integer.decode(cell2.replaceAll("("
-                                                                                                                     + InputDataType.HEXADECIMAL.getInputMatch()
+                                                                                                                     + DefaultInputType.HEXADECIMAL.getInputMatch()
                                                                                                                      + ").*",
                                                                                                                      "$1")));
                                                             break;
@@ -2345,11 +2414,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                             // Compare the two cell values as
                                                             // floating points
                                                             result = Double.compare(Double.valueOf(cell1.replaceAll("("
-                                                                                                                    + InputDataType.FLOAT.getInputMatch()
+                                                                                                                    + DefaultInputType.FLOAT.getInputMatch()
                                                                                                                     + ").*",
                                                                                                                     "$1")),
                                                                                     Double.valueOf(cell2.replaceAll("("
-                                                                                                                    + InputDataType.FLOAT.getInputMatch()
+                                                                                                                    + DefaultInputType.FLOAT.getInputMatch()
                                                                                                                     + ").*",
                                                                                                                     "$1")));
                                                             break;
@@ -2388,8 +2457,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                     // Check if the dimension
                                                                     // values are integers (and not
                                                                     // a macro or sizeof() call)
-                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    if (dim1[index].matches(DefaultInputType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(DefaultInputType.INTEGER.getInputMatch()))
                                                                     {
                                                                         // Compare the two array
                                                                         // dimensions
@@ -2418,8 +2487,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                     // Check if the dimension
                                                                     // values are integers (and not
                                                                     // a macro or sizeof() call)
-                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    if (dim1[index].matches(DefaultInputType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(DefaultInputType.INTEGER.getInputMatch()))
                                                                     {
                                                                         // Compare the two array
                                                                         // dimensions
@@ -2459,8 +2528,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                                     // Check if the dimension
                                                                     // values are integers (and not
                                                                     // a macro or sizeof() call)
-                                                                    if (dim1[index].matches(InputDataType.INTEGER.getInputMatch())
-                                                                        && dim2[index].matches(InputDataType.INTEGER.getInputMatch()))
+                                                                    if (dim1[index].matches(DefaultInputType.INTEGER.getInputMatch())
+                                                                        && dim2[index].matches(DefaultInputType.INTEGER.getInputMatch()))
                                                                     {
                                                                         // Compare the two array
                                                                         // dimensions
@@ -2838,7 +2907,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             protected String getSpecialReplacement(int row, int column)
             {
                 return dbTable.queryTableCellValue(tableInfo.getPrototypeName(),
-                                                   committedInfo.getData()[row][primaryKeyIndex],
+                                                   committedInfo.getData()[row][primaryKeyIndex].toString(),
                                                    typeDefn.getColumnNamesDatabase()[column],
                                                    editorDialog);
             }
@@ -3349,12 +3418,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (!table.isEditing() && value instanceof String)
                 {
                     // Get the input type for this column
-                    InputDataType inputType = typeDefn.getInputTypes()[column];
+                    InputType inputType = typeDefn.getInputTypes()[column];
 
                     // Check if the column's input type doesn't allow leading and trailing white
                     // space characters
-                    if (inputType != InputDataType.TEXT_WHT_SPC
-                        && inputType != InputDataType.TEXT_MULTI_WHT_SPC)
+                    if (!inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
+                        && !inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
                     {
                         // Perform the default clean-up (remove leading and trailing white space
                         // characters)
@@ -3440,7 +3509,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         scrollPane,
                                         tableInfo.getProtoVariableName(),
                                         tableInfo.getDescription(),
-                                        tableInfo.getFieldHandler());
+                                        tableInfo.getFieldHandler(),
+                                        inputTypeHandler);
 
             // Store the current data field information in the event an undo/redo operation occurs
             storeCurrentFieldInformation();
@@ -3532,7 +3602,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Replace the table cells with their original contents (i.e., show macro names in
                 // place of their corresponding values)
                 tableModel.setValueAt((isExpand
-                                                ? macroHandler.getMacroExpansion(originalCellData[row][column])
+                                                ? macroHandler.getMacroExpansion(originalCellData[row][column].toString())
                                                 : originalCellData[row][column]),
                                       row,
                                       column,
@@ -3856,8 +3926,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Get the lists of columns that display primitive data types and primitive & structure
         // data types
-        List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE);
-        List<Integer> primAndStructColumns = typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT);
+        List<Integer> primColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE);
+        List<Integer> primAndStructColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT);
 
         // Check if any columns displaying primitive data types only exist
         if (!primColumns.isEmpty())
@@ -4119,7 +4189,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             for (; minIndex < table.getModel().getColumnCount(); minIndex++)
             {
                 // Check that this is a minimum column
-                if (typeDefn.getInputTypes()[minIndex] == InputDataType.MINIMUM)
+                if (typeDefn.getInputTypes()[minIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM)))
                 {
                     // Save the minimum column index, increment the index for matching up with the
                     // next pairing, and stop searching
@@ -4133,7 +4203,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             for (; maxIndex < table.getModel().getColumnCount(); maxIndex++)
             {
                 // Check that this is a maximum column
-                if (typeDefn.getInputTypes()[maxIndex] == InputDataType.MAXIMUM)
+                if (typeDefn.getInputTypes()[maxIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM)))
                 {
                     // Save the maximum column index, increment the index for matching up with the
                     // next pairing, and stop searching
@@ -4266,12 +4336,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             if (newDataTypeHandler.isUnsignedInt(dataType))
             {
                 // Check if the value doesn't match the expected input type
-                if (!newValueS.matches(InputDataType.INT_NON_NEGATIVE.getInputMatch()))
+                if (!newValueS.matches(DefaultInputType.INT_NON_NEGATIVE.getInputMatch()))
                 {
-                    throw new CCDDException("Invalid input type for column '"
+                    throw new CCDDException("Invalid input type in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; input type '"
-                                            + InputDataType.INT_NON_NEGATIVE.getInputName().toLowerCase()
+                                            + DefaultInputType.INT_NON_NEGATIVE.getInputName().toLowerCase()
                                             + "' expected");
                 }
 
@@ -4283,7 +4355,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (value < (long) newDataTypeHandler.getMinimum(dataType)
                     || value > (long) newDataTypeHandler.getMaximum(dataType))
                 {
-                    throw new CCDDException("Input value out of range for column '"
+                    throw new CCDDException("Input value out of range in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; must be greater than "
                                             + newDataTypeHandler.getMinimum(dataType)
@@ -4297,7 +4371,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     && !maxVal.isEmpty()
                     && Long.valueOf(minVal) > Long.valueOf(maxVal))
                 {
-                    throw new CCDDException("Invalid input value for column '"
+                    throw new CCDDException("Invalid input value in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; the minimum must be less than or equal to the maximum");
                 }
@@ -4307,12 +4383,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             else if (newDataTypeHandler.isInteger(dataType))
             {
                 // Check if the value doesn't match the expected input type
-                if (!newValueS.matches(InputDataType.INTEGER.getInputMatch()))
+                if (!newValueS.matches(DefaultInputType.INTEGER.getInputMatch()))
                 {
-                    throw new CCDDException("Invalid input type for column '"
+                    throw new CCDDException("Invalid input type in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; input type '"
-                                            + InputDataType.INTEGER.getInputName().toLowerCase()
+                                            + DefaultInputType.INTEGER.getInputName().toLowerCase()
                                             + "' expected");
                 }
 
@@ -4324,7 +4402,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (value < (long) newDataTypeHandler.getMinimum(dataType)
                     || value > (long) newDataTypeHandler.getMaximum(dataType))
                 {
-                    throw new CCDDException("Input value out of range for column '"
+                    throw new CCDDException("Input value out of range in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; must be greater than "
                                             + newDataTypeHandler.getMinimum(dataType)
@@ -4338,7 +4418,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     && !maxVal.isEmpty()
                     && Long.valueOf(minVal) > Long.valueOf(maxVal))
                 {
-                    throw new CCDDException("Invalid input value for column '"
+                    throw new CCDDException("Invalid input value in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; the minimum must be less than or equal to the maximum");
                 }
@@ -4347,12 +4429,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             else if (newDataTypeHandler.isFloat(dataType))
             {
                 // Check if the value doesn't match the expected input type
-                if (!newValueS.matches(InputDataType.FLOAT.getInputMatch()))
+                if (!newValueS.matches(DefaultInputType.FLOAT.getInputMatch()))
                 {
-                    throw new CCDDException("Invalid input type for column '"
+                    throw new CCDDException("Invalid input type in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; input type '"
-                                            + InputDataType.FLOAT.getInputName().toLowerCase()
+                                            + DefaultInputType.FLOAT.getInputName().toLowerCase()
                                             + "' expected");
                 }
 
@@ -4364,7 +4448,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (value < (double) newDataTypeHandler.getMinimum(dataType)
                     || value > (double) newDataTypeHandler.getMaximum(dataType))
                 {
-                    throw new CCDDException("Input value out of range for column '"
+                    throw new CCDDException("Input value out of range in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; must be greater than "
                                             + newDataTypeHandler.getMinimum(dataType)
@@ -4378,7 +4464,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     && !maxVal.isEmpty()
                     && Double.valueOf(minVal) > Double.valueOf(maxVal))
                 {
-                    throw new CCDDException("Invalid input value for column '"
+                    throw new CCDDException("Invalid input value in table '</b>"
+                                            + tableInfo.getTablePath()
+                                            + "<b>' for column '"
                                             + typeDefn.getColumnNamesUser()[column]
                                             + "'; the minimum must be less than or equal to the maximum");
                 }
@@ -4883,6 +4971,32 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
+     * Set up or update the combo box columns containing selection lists
+     *********************************************************************************************/
+    protected void setUpSelectionColumns()
+    {
+        // Step through each selection column
+        for (Integer column : selectionIndex)
+        {
+            // Create a combo box for displaying selection lists
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+
+            // Step through each item in the selection
+            for (String item : inputTypeHandler.getSelectionInputTypeItems(typeDefn.getInputTypes()[column].getInputName()))
+            {
+                // Add the selection item to the combo box list
+                comboBox.addItem(item);
+            }
+
+            // Get the column reference for the selection column
+            TableColumn selectionColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(column));
+
+            // Set the table column editor to the combo box
+            selectionColumn.setCellEditor(new DefaultCellEditor(comboBox));
+        }
+    }
+
+    /**********************************************************************************************
      * Propagate the value in the specified column of an array definition row to each member of the
      * array. If the row value is unique for the indicated column then the value isn't propagated.
      * For a string array if an array member is changed then only propagate the value to the other
@@ -4905,7 +5019,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         if (!typeDefn.isRowValueUnique()[columnChanged])
         {
             // Get the variable name
-            String variableName = getExpandedValueAt(tableData, firstRow, variableNameIndex);
+            String variableName = getExpandedValueAt(tableData,
+                                                     firstRow,
+                                                     variableNameIndex);
 
             // Set to true if the updated row is the array's definition. Set to false to indicate
             // that only the members of the string indicated by the specified row are to be updated
@@ -5054,7 +5170,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             {
                                 // Set the flag to indicate if the variable path is automatically
                                 // set
-                                boolean isVarPathAuto = committedInfo.getData()[commRow][variablePathIndex].isEmpty();
+                                boolean isVarPathAuto = committedInfo.getData()[commRow][variablePathIndex].toString().isEmpty();
 
                                 // Check if the variable path was manually set and has been changed
                                 // (either to a new name or allowed to be automatically), or the

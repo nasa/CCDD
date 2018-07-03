@@ -30,8 +30,8 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
@@ -52,6 +52,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddDbControlHandler dbControl;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
     private final CcddFieldHandler fieldHandler;
 
     // GUI component instantiating this class
@@ -127,6 +128,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
     }
 
     /**********************************************************************************************
@@ -434,6 +436,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                       columnValues[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
                                                                                                                                       columnValues[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
                                                                                                                         importFile.getAbsolutePath(),
+                                                                                                                        inputTypeHandler,
                                                                                                                         parent);
 
                                                         // Update the column index number for the
@@ -492,6 +495,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                  columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
                                                                                                                                  columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                                    importFile.getAbsolutePath(),
+                                                                                                                   inputTypeHandler,
                                                                                                                    parent);
                                                 }
                                                 // The number of inputs is incorrect
@@ -657,6 +661,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
                                                                                                                                columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                                  importFile.getAbsolutePath(),
+                                                                                                                 inputTypeHandler,
                                                                                                                  parent);
                                                 }
                                                 // The number of inputs is incorrect
@@ -865,6 +870,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                         columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
                                                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                           importFile.getAbsolutePath(),
+                                                                                                          inputTypeHandler,
                                                                                                           parent);
                                             }
                                             // The number of inputs is incorrect
@@ -1111,7 +1117,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                               CcddUtilities.addEmbeddedQuotesAndCommas(tableInfo.getTablePath(),
                                                                        tableInfo.getType(),
                                                                        fieldHandler.getFieldValue(tblName,
-                                                                                                  InputDataType.SYSTEM_PATH)));
+                                                                                                  DefaultInputType.SYSTEM_PATH)));
 
                     // Check if the table has a description
                     if (!tableInfo.getDescription().isEmpty())
@@ -1130,7 +1136,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     {
                         // Output the table row data, skipping the hidden columns
                         pw.printf("%s\n",
-                                  CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(tableInfo.getData()[row],
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableInfo.getData()[row]),
                                                                                               NUM_HIDDEN_COLUMNS,
                                                                                               tableInfo.getData()[row].length)));
 
@@ -1141,8 +1147,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                             // Get the column indices for all columns that can contain a primitive
                             // data type
-                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIM_AND_STRUCT));
-                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(InputDataType.PRIMITIVE));
+                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
+                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
 
                             // Step through each data type column
                             for (int dataTypeColumn : dataTypeColumns)
@@ -1171,9 +1177,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Get the variable path
                                 String variablePath = tableInfo.getTablePath()
                                                       + ","
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT)]
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                                                       + "."
-                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)];
+                                                      + tableInfo.getData()[row][typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                                 // Add the path, in both application and user-defined formats, to
                                 // the list to be output

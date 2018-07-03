@@ -51,8 +51,8 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.EventLogMessageType;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -84,6 +84,7 @@ public class CcddDbVerificationHandler
     private final CcddEventLogDialog eventLog;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddMacroHandler macroHandler;
+    private final CcddInputTypeHandler inputTypeHandler;
     private TypeDefinition typeDefn;
     private CcddJTableHandler updateTable;
     private CcddHaltDialog haltDlg;
@@ -123,7 +124,7 @@ public class CcddDbVerificationHandler
     private class TableStorage
     {
         TableInformation tableInfo;
-        String[][] committedData;
+        Object[][] committedData;
 
         /******************************************************************************************
          * Table data storage class constructor
@@ -137,7 +138,7 @@ public class CcddDbVerificationHandler
             this.tableInfo = tableInfo;
 
             // Create storage for the data as it exists in the database
-            committedData = new String[tableInfo.getData().length][tableInfo.getData()[0].length];
+            committedData = new Object[tableInfo.getData().length][tableInfo.getData()[0].length];
 
             // Step through each row in the table
             for (int row = 0; row < tableInfo.getData().length; row++)
@@ -166,7 +167,7 @@ public class CcddDbVerificationHandler
          *
          * @return Table data as it appears in the database
          *****************************************************************************************/
-        protected String[][] getCommittedData()
+        protected Object[][] getCommittedData()
         {
             return committedData;
         }
@@ -514,6 +515,7 @@ public class CcddDbVerificationHandler
         eventLog = ccddMain.getSessionEventLog();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Data table column indices
         primaryKeyIndex = DefaultColumn.PRIMARY_KEY.ordinal();
@@ -602,11 +604,11 @@ public class CcddDbVerificationHandler
                                 if (!haltDlg.isHalted())
                                 {
                                     // Update the progress bar
-                                    haltDlg.updateProgressBar("Verify input data types",
+                                    haltDlg.updateProgressBar("Verify input types",
                                                               haltDlg.getNumDivisionPerStep() * 4);
 
-                                    // verify the input data types in the table types and data
-                                    // fields internal tables
+                                    // verify the input types in the table types and data fields
+                                    // internal tables
                                     verifyInputTypes(tableResult);
 
                                     // Check if verification isn't canceled
@@ -1038,8 +1040,8 @@ public class CcddDbVerificationHandler
     }
 
     /**********************************************************************************************
-     * Check that the input data types in the table types and data fields internal tables are
-     * valid. If any invalid entries are detected then get user approval to alter the table(s)
+     * Check that the input types in the table types and data fields internal tables are valid. If
+     * any invalid entries are detected then get user approval to alter the table(s)
      *
      * @param tableResult
      *            metadata for all tables
@@ -1100,9 +1102,9 @@ public class CcddDbVerificationHandler
                         }
 
                         // Check if the input type is invalid
-                        if (InputDataType.getInputTypeByName(inputType[0]) == null)
+                        if (inputTypeHandler.isInputTypeValid(inputType[0]))
                         {
-                            // Invalid input data type
+                            // Invalid input type
                             issues.add(new TableIssue("Internal table '"
                                                       + tableNameDb
                                                       + "' references an invalid input type, '"
@@ -1440,7 +1442,7 @@ public class CcddDbVerificationHandler
                         // already been detected, and if it isn't in the list of valid names
                         if (!member[0].isEmpty()
                             && !badRefs.contains(member[0])
-                            && !allTableAndVariableList.contains(member[0].replaceFirst(InputDataType.FLOAT_POSITIVE.getInputMatch()
+                            && !allTableAndVariableList.contains(member[0].replaceFirst(DefaultInputType.FLOAT_POSITIVE.getInputMatch()
                                                                                         + Pattern.quote(TLM_SCH_SEPARATOR),
                                                                                         "")))
                         {
@@ -1889,9 +1891,9 @@ public class CcddDbVerificationHandler
 
                     // Get the variable name, data type, and array size column indices for this
                     // table type
-                    variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                    dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                    arraySizeIndex = typeDefn.getColumnIndexByInputType(InputDataType.ARRAY_INDEX);
+                    variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                    dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                    arraySizeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
 
                     // Initialize the array check parameters: array data type, name, number of
                     // members, array dimension sizes, and current index position
@@ -1926,14 +1928,14 @@ public class CcddDbVerificationHandler
                         {
                             // Check if the array size isn't blank
                             if (tableInfo.getData()[row][arraySizeIndex] != null
-                                && !tableInfo.getData()[row][arraySizeIndex].isEmpty())
+                                && !tableInfo.getData()[row][arraySizeIndex].toString().isEmpty())
                             {
                                 // Check if this is the first pass through the array; an array
                                 // definition is expected
                                 if (membersRemaining == 0)
                                 {
                                     // Get the variable name for this row
-                                    arrayName = tableInfo.getData()[row][variableNameIndex];
+                                    arrayName = tableInfo.getData()[row][variableNameIndex].toString();
 
                                     // Store the index of the array definition row
                                     definitionRow = row;
@@ -1947,7 +1949,7 @@ public class CcddDbVerificationHandler
                                     {
                                         // Get the number of array members remaining and data type
                                         // for this row and initialize the array index
-                                        totalArraySize = ArrayVariable.getArrayIndexFromSize(macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex]));
+                                        totalArraySize = ArrayVariable.getArrayIndexFromSize(macroHandler.getMacroExpansion(tableInfo.getData()[row][arraySizeIndex].toString()));
 
                                         // Get the total number of members for this array
                                         membersRemaining = ArrayVariable.getNumMembersFromArrayDimension(totalArraySize);
@@ -1956,7 +1958,7 @@ public class CcddDbVerificationHandler
                                         currentArrayIndex = new int[totalArraySize.length];
 
                                         // Get the data type
-                                        dataType = tableInfo.getData()[row][dataTypeIndex];
+                                        dataType = tableInfo.getData()[row][dataTypeIndex].toString();
 
                                         // Check if the expected array definition is missing
                                         if (checkForArrayDefinition(tableInfo, row, arrayName))
@@ -1989,7 +1991,7 @@ public class CcddDbVerificationHandler
                                         checkArraySizesMatch(tableInfo,
                                                              row,
                                                              arrayName,
-                                                             tableInfo.getData()[row][arraySizeIndex]);
+                                                             tableInfo.getData()[row][arraySizeIndex].toString());
 
                                         // Check if the array definition and all of its members
                                         // have the same data type
@@ -2083,7 +2085,7 @@ public class CcddDbVerificationHandler
     private void checkInputType(TableInformation tableInfo, int row, int column)
     {
         // Get the cell value
-        String data = macroHandler.getMacroExpansion(tableInfo.getData()[row][column]);
+        String data = macroHandler.getMacroExpansion(tableInfo.getData()[row][column].toString());
 
         // Check if the cell is not an array member variable name and if the value doesn't match
         // the input type expected for this column
@@ -2134,7 +2136,7 @@ public class CcddDbVerificationHandler
         if (row != 0)
         {
             // Get the variable name from the preceding row
-            String previousName = tableInfo.getData()[row - 1][variableNameIndex];
+            String previousName = tableInfo.getData()[row - 1][variableNameIndex].toString();
 
             // Check if the current and previous rows contain array members
             if (ArrayVariable.isArrayMember(arrayName)
@@ -2235,8 +2237,8 @@ public class CcddDbVerificationHandler
         String expectedArrayIndex = ArrayVariable.formatArrayIndex(currentArrayIndex);
 
         // Check if the variable name doesn't match the expected array member name
-        if (!tableInfo.getData()[row][variableNameIndex].matches(Pattern.quote(arrayName
-                                                                               + expectedArrayIndex)))
+        if (!tableInfo.getData()[row][variableNameIndex].toString().matches(Pattern.quote(arrayName
+                                                                                          + expectedArrayIndex)))
         {
             // Expected array member is missing
             issues.add(new TableIssue("Table '"
@@ -2437,9 +2439,9 @@ public class CcddDbVerificationHandler
                     // macros in the value. The temporary column values are stored so that macro
                     // expansion need only be done once per table cell, which speeds the comparison
                     // below
-                    columnValues[row] = !tableInfo.getData()[row][column].isEmpty()
-                                                                                    ? macroHandler.getMacroExpansion(tableInfo.getData()[row][column])
-                                                                                    : "";
+                    columnValues[row] = !tableInfo.getData()[row][column].toString().isEmpty()
+                                                                                               ? macroHandler.getMacroExpansion(tableInfo.getData()[row][column].toString())
+                                                                                               : "";
                 }
 
                 // Step through each row in the table
@@ -2509,8 +2511,8 @@ public class CcddDbVerificationHandler
         arrayRow[primaryKeyIndex] = "";
         arrayRow[rowIndex] = "";
         arrayRow[variableNameIndex] = arrayName;
-        arrayRow[dataTypeIndex] = tableInfo.getData()[definitionRow][dataTypeIndex];
-        arrayRow[arraySizeIndex] = tableInfo.getData()[definitionRow][arraySizeIndex];
+        arrayRow[dataTypeIndex] = tableInfo.getData()[definitionRow][dataTypeIndex].toString();
+        arrayRow[arraySizeIndex] = tableInfo.getData()[definitionRow][arraySizeIndex].toString();
 
         // Set the flag indicating a table changed
         isChanges = true;
@@ -2528,7 +2530,7 @@ public class CcddDbVerificationHandler
     private void buildUpdates(TableStorage tblStrg)
     {
         // Get a copy of the table data. This copy has changes applied due to any errors detected
-        String[][] updatedData = tblStrg.getTableInformation().getData();
+        Object[][] updatedData = tblStrg.getTableInformation().getData();
 
         // Set the table data in the table information to its original content
         tblStrg.getTableInformation().setData(tblStrg.getCommittedData());
@@ -2903,7 +2905,7 @@ public class CcddDbVerificationHandler
                             else if (issue.getRowData() != null)
                             {
                                 // Insert the row into the existing table data
-                                List<String[]> tableData = new ArrayList<String[]>(Arrays.asList(issue.getTableInformation().getData()));
+                                List<Object[]> tableData = new ArrayList<Object[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
                                 issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
                                 rowAdjust++;
@@ -2912,7 +2914,7 @@ public class CcddDbVerificationHandler
                             else
                             {
                                 // Remove the row from the existing table data
-                                List<String[]> tableData = new ArrayList<String[]>(Arrays.asList(issue.getTableInformation().getData()));
+                                List<Object[]> tableData = new ArrayList<Object[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.remove(issue.getRow() + rowAdjust);
                                 issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
                                 rowAdjust--;

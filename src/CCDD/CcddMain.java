@@ -118,6 +118,7 @@ public class CcddMain
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddInputTypeHandler inputTypeHandler;
     private CcddWebServer webServer;
 
     // References to the various search dialogs
@@ -164,9 +165,10 @@ public class CcddMain
     private JMenuItem mntmExportEDS;
     private JMenuItem mntmExportJSON;
     private JMenuItem mntmExportXTCE;
-    private JMenuItem mntmManageDataTypes;
-    private JMenuItem mntmManageTableTypes;
     private JMenuItem mntmManageGroups;
+    private JMenuItem mntmManageTableTypes;
+    private JMenuItem mntmManageDataTypes;
+    private JMenuItem mntmManageInputTypes;
     private JMenuItem mntmManageMacros;
     private JMenuItem mntmAssignMsgID;
     private JMenuItem mntmReserveMsgID;
@@ -632,6 +634,16 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Get the input type handler
+     *
+     * @return Input type handler reference
+     *********************************************************************************************/
+    protected CcddInputTypeHandler getInputTypeHandler()
+    {
+        return inputTypeHandler;
+    }
+
+    /**********************************************************************************************
      * Get the keyboard handler
      *
      * @return Keyboard handler reference
@@ -690,6 +702,10 @@ public class CcddMain
      *********************************************************************************************/
     protected void setPreFunctionDbSpecificHandlers()
     {
+        // Read the custom input types from the project database and combine these with the
+        // hard-coded types
+        inputTypeHandler = new CcddInputTypeHandler(CcddMain.this);
+
         // Read the table type definitions from the database
         tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
 
@@ -948,6 +964,7 @@ public class CcddMain
         mntmManageGroups.setEnabled(activateIfDatabase);
         mntmManageTableTypes.setEnabled(activateIfDatabase);
         mntmManageDataTypes.setEnabled(activateIfDatabase);
+        mntmManageInputTypes.setEnabled(activateIfDatabase);
         mntmManageMacros.setEnabled(activateIfDatabase);
         mntmAssignMsgID.setEnabled(activateIfDatabase);
         mntmReserveMsgID.setEnabled(activateIfDatabase);
@@ -1735,6 +1752,7 @@ public class CcddMain
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
         mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_Y, 1, "Open the table type manager");
         mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
+        mntmManageInputTypes = createMenuItem(mnData, "Manage input types", KeyEvent.VK_U, 1, "Open the input type editor");
         mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro editor");
         mnData.addSeparator();
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
@@ -2268,6 +2286,20 @@ public class CcddMain
             {
                 // Open the data type editor
                 new CcddDataTypeEditorDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Manage Input Types menu item
+        mntmManageInputTypes.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Show the input type editor dialog
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Open the input type editor
+                new CcddInputTypeEditorDialog(CcddMain.this);
             }
         });
 

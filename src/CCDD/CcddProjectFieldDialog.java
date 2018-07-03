@@ -187,7 +187,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                           null,
                                                           null,
                                                           committedDescription,
-                                                          fieldHandler);
+                                                          fieldHandler,
+                                                          ccddMain.getInputTypeHandler());
 
                 // Set the modal undo manager in the keyboard handler while the project data
                 // field manager is active

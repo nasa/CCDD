@@ -22,7 +22,7 @@ import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
@@ -30,12 +30,12 @@ import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
-/**********************************************************************************************
+/**************************************************************************************************
  * CFS Command & Data Dictionary message ID handler class
  *
  * @param ccddMain
  *            main class
- *********************************************************************************************/
+ *************************************************************************************************/
 public class CcddMessageIDHandler
 {
     // Class references
@@ -206,7 +206,7 @@ public class CcddMessageIDHandler
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
             // Step through each column that contains message IDs
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID))
+            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID))
             {
                 // Query the database for those values in the specified message ID column that are
                 // in use in any table, including any references in the custom values table
@@ -238,7 +238,7 @@ public class CcddMessageIDHandler
                                               + " WHERE "
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
                                               + " = '"
-                                              + InputDataType.MESSAGE_ID.getInputName()
+                                              + DefaultInputType.MESSAGE_ID.getInputName()
                                               + "' AND "
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
                                               + " != '';",
@@ -376,11 +376,11 @@ public class CcddMessageIDHandler
     /**********************************************************************************************
      * Get the list containing every message ID name and its corresponding message ID, and the
      * owning entity from every table cell, data field (table or group), and telemetry message. ID
-     * names and IDs are determined by the input data type assigned to the table column or data
-     * field, and are matched one-to-one by relative position; i.e., the first message ID name data
-     * field for a table or group is paired with the first message ID data field, and so on. If
-     * more names are defined than IDs or vice versa then a blank ID/name is paired with the
-     * unmatched name/ID
+     * names and IDs are determined by the input type assigned to the table column or data field,
+     * and are matched one-to-one by relative position; i.e., the first message ID name data field
+     * for a table or group is paired with the first message ID data field, and so on. If more
+     * names are defined than IDs or vice versa then a blank ID/name is paired with the unmatched
+     * name/ID
      *
      * @param sortOrder
      *            order in which to sort the message ID list: BY_OWNER or BY_NAME
@@ -408,7 +408,7 @@ public class CcddMessageIDHandler
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
             // Step through each column that contains message ID names
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID_NAME))
+            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID_NAME))
             {
                 // Query the database for those values in the specified message ID name column that
                 // are in use in any table, including any references in the custom values table
@@ -424,7 +424,7 @@ public class CcddMessageIDHandler
             }
 
             // Step through each column that contains message IDs
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(InputDataType.MESSAGE_ID))
+            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID))
             {
                 // Query the database for those values in the specified message ID column that are
                 // in use in any table, including any references in the custom values table
@@ -450,7 +450,7 @@ public class CcddMessageIDHandler
                                                   + " WHERE "
                                                   + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
                                                   + " = '"
-                                                  + InputDataType.MESSAGE_ID_NAME.getInputName()
+                                                  + DefaultInputType.MESSAGE_ID_NAME.getInputName()
                                                   + "' AND "
                                                   + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
                                                   + " != '' ORDER BY OID;",
@@ -466,7 +466,7 @@ public class CcddMessageIDHandler
                                               + " WHERE "
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
                                               + " = '"
-                                              + InputDataType.MESSAGE_ID.getInputName()
+                                              + DefaultInputType.MESSAGE_ID.getInputName()
                                               + "' AND "
                                               + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
                                               + " != '' ORDER BY OID;",

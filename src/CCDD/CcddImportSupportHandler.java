@@ -19,7 +19,7 @@ import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
@@ -95,6 +95,9 @@ public class CcddImportSupportHandler
      * @param fileName
      *            import file name
      *
+     * @param inputTypeHandler
+     *            input type handler reference
+     *
      * @param parent
      *            GUI component calling this method
      *
@@ -102,12 +105,13 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException
      *             If the column name is missing or the user elects to stop the import operation
-     *             due to an invalid input data type
+     *             due to an invalid input type
      *********************************************************************************************/
     protected boolean addImportedTableTypeColumnDefinition(boolean continueOnError,
                                                            TableTypeDefinition tableTypeDefn,
                                                            String[] columnDefn,
                                                            String fileName,
+                                                           CcddInputTypeHandler inputTypeHandler,
                                                            Component parent) throws CCDDException
     {
         // Check if the column name is empty
@@ -125,10 +129,10 @@ public class CcddImportSupportHandler
         if (columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].isEmpty())
         {
             // Default to text
-            columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = InputDataType.TEXT.getInputName();
+            columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
         }
         // Check if the input type name is invalid
-        else if (InputDataType.getInputTypeByName(columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]) == null)
+        else if (!inputTypeHandler.isInputTypeValid(columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]))
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
@@ -147,7 +151,7 @@ public class CcddImportSupportHandler
                                                parent);
 
             // Default to text
-            columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = InputDataType.TEXT.getInputName();
+            columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
         }
 
         // Add the table type column definition
@@ -180,6 +184,9 @@ public class CcddImportSupportHandler
      * @param fileName
      *            import file name
      *
+     * @param inputTypeHandler
+     *            input type handler reference
+     *
      * @param parent
      *            GUI component calling this method
      *
@@ -187,12 +194,13 @@ public class CcddImportSupportHandler
      *
      * @throws CCDDException
      *             If the data field name is missing or the user elects to stop the import
-     *             operation due to an invalid input data type
+     *             operation due to an invalid input type
      *********************************************************************************************/
     protected boolean addImportedDataFieldDefinition(boolean continueOnError,
                                                      Object defnContainer,
                                                      String[] fieldDefn,
                                                      String fileName,
+                                                     CcddInputTypeHandler inputTypeHandler,
                                                      Component parent) throws CCDDException
     {
         // Check if the field name is empty
@@ -215,10 +223,10 @@ public class CcddImportSupportHandler
         if (fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].isEmpty())
         {
             // Default to text
-            fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = InputDataType.TEXT.getInputName();
+            fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
         }
         // Check if the input type name is invalid
-        else if (InputDataType.getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]) == null)
+        else if (!inputTypeHandler.isInputTypeValid(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
@@ -226,7 +234,9 @@ public class CcddImportSupportHandler
                                                                 + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
                                                                 + "' definition input type '"
                                                                 + fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]
-                                                                + "' unrecognized in import file '</b>"
+                                                                + "' for owner '</b>"
+                                                                + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                                                + "<b>' unrecognized in import file '</b>"
                                                                 + fileName
                                                                 + "<b>'; continue?",
                                                "Data Field Error",
@@ -237,7 +247,7 @@ public class CcddImportSupportHandler
                                                parent);
 
             // Default to text
-            fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = InputDataType.TEXT.getInputName();
+            fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = DefaultInputType.TEXT.getInputName();
         }
 
         // Check if the applicability is empty
@@ -255,7 +265,9 @@ public class CcddImportSupportHandler
                                                                 + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
                                                                 + "' definition applicability type '"
                                                                 + fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                                                + "' unrecognized in import file '</b>"
+                                                                + "' for owner '</b>"
+                                                                + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                                                + "<b>' unrecognized in import file '</b>"
                                                                 + fileName
                                                                 + "<b>'; continue?",
                                                "Data Field Error",
@@ -408,7 +420,7 @@ public class CcddImportSupportHandler
         {
             // Get the name of the table representing the telemetry header from the project
             tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                        InputDataType.XML_TLM_HDR);
+                                                        DefaultInputType.XML_TLM_HDR);
         }
         // The telemetry header table name is set in the import file. Check if the project-level
         // data fields are to be created
@@ -421,7 +433,7 @@ public class CcddImportSupportHandler
                                                    String.valueOf(Math.min(Math.max(tlmHeaderTable.length(),
                                                                                     5),
                                                                            40)),
-                                                   InputDataType.XML_TLM_HDR.getInputName(),
+                                                   DefaultInputType.XML_TLM_HDR.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
                                                    tlmHeaderTable});
@@ -432,7 +444,7 @@ public class CcddImportSupportHandler
         {
             // Get the name of the table representing the command header from the project
             cmdHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                        InputDataType.XML_CMD_HDR);
+                                                        DefaultInputType.XML_CMD_HDR);
         }
         // The command header table name is set in the import file. Check if the project-level data
         // fields are to be created
@@ -445,7 +457,7 @@ public class CcddImportSupportHandler
                                                    String.valueOf(Math.min(Math.max(cmdHeaderTable.length(),
                                                                                     5),
                                                                            40)),
-                                                   InputDataType.XML_CMD_HDR.getInputName(),
+                                                   DefaultInputType.XML_CMD_HDR.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
                                                    cmdHeaderTable});
@@ -456,7 +468,7 @@ public class CcddImportSupportHandler
         {
             // Get the application ID variable name from the project field
             applicationIDName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                           InputDataType.XML_APP_ID);
+                                                           DefaultInputType.XML_APP_ID);
 
             // Check if the application ID variable name isn't set in the project
             if (applicationIDName == null)
@@ -477,7 +489,7 @@ public class CcddImportSupportHandler
                                                    String.valueOf(Math.min(Math.max(applicationIDName.length(),
                                                                                     5),
                                                                            40)),
-                                                   InputDataType.XML_APP_ID.getInputName(),
+                                                   DefaultInputType.XML_APP_ID.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
                                                    applicationIDName});
@@ -488,7 +500,7 @@ public class CcddImportSupportHandler
         {
             // Get the command function code variable name from the project field
             cmdFuncCodeName = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
-                                                         InputDataType.XML_FUNC_CODE);
+                                                         DefaultInputType.XML_FUNC_CODE);
 
             // Check if the command function code variable name isn't set in the project
             if (cmdFuncCodeName == null)
@@ -509,7 +521,7 @@ public class CcddImportSupportHandler
                                                    String.valueOf(Math.min(Math.max(cmdFuncCodeName.length(),
                                                                                     5),
                                                                            40)),
-                                                   InputDataType.XML_FUNC_CODE.getInputName(),
+                                                   DefaultInputType.XML_FUNC_CODE.getInputName(),
                                                    "false",
                                                    ApplicabilityType.ALL.getApplicabilityName(),
                                                    cmdFuncCodeName});

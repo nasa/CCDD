@@ -51,8 +51,8 @@ import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InputDataType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -87,6 +87,7 @@ public class CcddDbTableCommandHandler
     private CcddDataTypeHandler dataTypeHandler;
     private CcddLinkHandler addLinkHandler;
     private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddInputTypeHandler inputTypeHandler;
 
     // Flag that indicates a variable has been added to a link definition and the links table
     // should be updated
@@ -140,6 +141,7 @@ public class CcddDbTableCommandHandler
         dataTypeHandler = ccddMain.getDataTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Get the list of root structure tables
         rootStructures = getRootStructures(ccddMain.getMainFrame());
@@ -1092,7 +1094,7 @@ public class CcddDbTableCommandHandler
         boolean errorFlag = false;
 
         // Convert the array of names into a single string, separated by commas
-        String allNames = getShortenedTableNames(tableNames);
+        String allNames = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
         try
         {
@@ -1550,7 +1552,7 @@ public class CcddDbTableCommandHandler
                                            final Component parent)
     {
         // Convert the array of names into a single string
-        final String names = getShortenedTableNames(tableNames);
+        final String names = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
         // Have the user confirm deleting the selected table(s)
         if (new CcddDialogHandler().showMessageDialog(parent,
@@ -1617,7 +1619,7 @@ public class CcddDbTableCommandHandler
         boolean errorFlag = false;
 
         // Convert the array of names into a single string
-        String names = getShortenedTableNames(tableNames);
+        String names = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
         try
         {
@@ -2053,13 +2055,13 @@ public class CcddDbTableCommandHandler
                                                          parent);
 
             // Create a list to contain the database table rows
-            List<String[]> dbRows = new ArrayList<String[]>();
+            List<Object[]> dbRows = new ArrayList<Object[]>();
 
             // Step through each of the query results
             while (rowData.next())
             {
                 // Create an array to contain the column values
-                String[] columnValues = new String[typeDefn.getColumnCountDatabase()];
+                Object[] columnValues = new Object[typeDefn.getColumnCountDatabase()];
 
                 // Step through each column in the row
                 for (int column = 0; column < typeDefn.getColumnCountDatabase(); column++)
@@ -2074,6 +2076,14 @@ public class CcddDbTableCommandHandler
                         // Replace the null with a blank
                         columnValues[column] = "";
                     }
+                    // Check if the input type for this column is a boolean
+                    else if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN)))
+                    {
+                        // Store the column value as a boolean
+                        columnValues[column] = columnValues[column].toString().equalsIgnoreCase("true")
+                                                                                                        ? true
+                                                                                                        : false;
+                    }
                 }
 
                 // Add the row data to the list
@@ -2085,7 +2095,7 @@ public class CcddDbTableCommandHandler
             // Create the table information handler for this table
             tableInfo = new TableInformation(comment[TableCommentIndex.TYPE.ordinal()],
                                              tablePath,
-                                             dbRows.toArray(new String[0][0]),
+                                             dbRows.toArray(new Object[0][0]),
                                              (loadColumnOrder
                                                               ? queryColumnOrder(tablePath,
                                                                                  comment[TableCommentIndex.TYPE.ordinal()],
@@ -2102,8 +2112,8 @@ public class CcddDbTableCommandHandler
                                                             : null));
 
             // Get the index of the variable name and data type columns
-            int varNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-            int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
+            int varNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+            int dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
 
             // Check if the variable name and data type columns exist, and if the table has a path
             // (i.e., it's a child table). If so it may have values in the custom values table that
@@ -2111,7 +2121,7 @@ public class CcddDbTableCommandHandler
             if (varNameIndex != -1 && dataTypeIndex != -1 && tablePath.contains(","))
             {
                 // Get the column index for the variable path
-                int varPathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+                int varPathIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
 
                 // Check if the variable path column is present
                 if (varPathIndex != -1)
@@ -5088,6 +5098,7 @@ public class CcddDbTableCommandHandler
                 case ASSOCIATIONS:
                 case DATA_TYPES:
                 case FIELDS:
+                case INPUT_TYPES:
                 case MACROS:
                 case ORDERS:
                 case RESERVED_MSG_IDS:
@@ -5160,6 +5171,16 @@ public class CcddDbTableCommandHandler
                 {
                     // Perform the groups store command completion steps
                     ((CcddGroupManagerDialog) parent).doGroupUpdatesComplete(errorFlag);
+                }
+
+                break;
+
+            case INPUT_TYPES: // TODO
+                // Check if the store request originated from the input type editor dialog
+                if (parent instanceof CcddInputTypeEditorDialog)
+                {
+                    // Perform the input types command completion steps
+                    ((CcddInputTypeEditorDialog) parent).doInputTypeUpdatesComplete(errorFlag);
                 }
 
                 break;
@@ -5757,7 +5778,7 @@ public class CcddDbTableCommandHandler
                     {
                         // Convert the array of tables names into a single string and shorten it if
                         // too long
-                        names = getShortenedTableNames(tableNames);
+                        names = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
                         // Check if the user confirms deleting the affected table(s)
                         if (new CcddDialogHandler().showMessageDialog(parent,
@@ -6065,10 +6086,9 @@ public class CcddDbTableCommandHandler
                     // Step through each addition
                     for (String add[] : additions)
                     {
-                        // Get the input data type, and the column name in database form
-                        InputDataType inputDataType = InputDataType.getInputTypeByName(add[1]);
+                        // Get the column name in database form
                         String dbName = DefaultColumn.convertVisibleToDatabase(add[0],
-                                                                               inputDataType,
+                                                                               add[1],
                                                                                isStructure);
 
                         // Append the add command
@@ -6084,10 +6104,10 @@ public class CcddDbTableCommandHandler
                     {
                         // Get the old and new column names in database form
                         String oldDbName = DefaultColumn.convertVisibleToDatabase(mod[0],
-                                                                                  InputDataType.getInputTypeByName(mod[2]),
+                                                                                  mod[2],
                                                                                   isStructure);
                         String newDbName = DefaultColumn.convertVisibleToDatabase(mod[1],
-                                                                                  InputDataType.getInputTypeByName(mod[3]),
+                                                                                  mod[3],
                                                                                   isStructure);
 
                         // Check if the database form of the name changed
@@ -6107,10 +6127,9 @@ public class CcddDbTableCommandHandler
                     // Step through each deletion
                     for (String[] del : deletions)
                     {
-                        // Get the input data type, and the column name in database form
-                        InputDataType inputDataType = InputDataType.getInputTypeByName(del[1]);
+                        // Get the column name in database form
                         String dbName = DefaultColumn.convertVisibleToDatabase(del[0],
-                                                                               inputDataType,
+                                                                               del[1],
                                                                                isStructure);
 
                         // Append the delete command
@@ -6214,7 +6233,7 @@ public class CcddDbTableCommandHandler
                         boolean hasSharedRate = false;
 
                         // Step through each rate column in the table type definition
-                        for (int column : originalDefn.getColumnIndicesByInputType(InputDataType.RATE))
+                        for (int column : originalDefn.getColumnIndicesByInputType(DefaultInputType.RATE))
                         {
                             // Get the rate column name (as seen by the user)
                             String rateName = originalDefn.getColumnNamesUser()[column];
@@ -6288,11 +6307,11 @@ public class CcddDbTableCommandHandler
                         // Check if the table type represents a structure and the column input type
                         // was a rate
                         if (isStructure && wasStructure
-                            && mod[2].equals(InputDataType.RATE.getInputName()))
+                            && mod[2].equals(DefaultInputType.RATE.getInputName()))
                         {
                             // Check if the column changed from a rate column to not being a rate
                             // column
-                            if (!mod[3].equals(InputDataType.RATE.getInputName()))
+                            if (!mod[3].equals(DefaultInputType.RATE.getInputName()))
                             {
                                 // Check if the rate name is used by another structure table type
                                 if (rateHandler.getRateInformationByRateName(mod[0]).getNumSharedTableTypes() > 1)
@@ -6380,7 +6399,7 @@ public class CcddDbTableCommandHandler
                         // Check if the table type represents a structure and a rate column is
                         // deleted
                         if (isStructure && wasStructure
-                            && del[1].equals(InputDataType.RATE.getInputName()))
+                            && del[1].equals(DefaultInputType.RATE.getInputName()))
                         {
                             // Check if the rate name is used by another structure table type
                             if (rateHandler.getRateInformationByRateName(del[0]).getNumSharedTableTypes() > 1)
@@ -6415,8 +6434,8 @@ public class CcddDbTableCommandHandler
                     fieldHandler.buildFieldInformation(tableName);
 
                     // Get the number of separator and line break fields
-                    int numSep = fieldHandler.getFieldTypeCount(InputDataType.SEPARATOR);
-                    int numBrk = fieldHandler.getFieldTypeCount(InputDataType.BREAK);
+                    int numSep = fieldHandler.getFieldTypeCount(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR));
+                    int numBrk = fieldHandler.getFieldTypeCount(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK));
 
                     int sepCount = 0;
                     int brkCount = 0;
@@ -6426,13 +6445,13 @@ public class CcddDbTableCommandHandler
                     for (FieldInformation fieldInfo : fieldInformation)
                     {
                         // Check if this is a separator
-                        if (fieldInfo.getInputType().equals(InputDataType.SEPARATOR))
+                        if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR)))
                         {
                             // Increment the separator counter
                             sepCount++;
                         }
                         // Check if this is a line break
-                        else if (fieldInfo.getInputType().equals(InputDataType.BREAK))
+                        else if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
                         {
                             // Increment the line break counter
                             brkCount++;
@@ -6454,9 +6473,9 @@ public class CcddDbTableCommandHandler
 
                             // ... or the field is a separator and the number of this type of
                             // separator in the type editor exceeds the number already in the table
-                            || (fieldInfo.getInputType().equals(InputDataType.SEPARATOR)
+                            || (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
                                 && sepCount > numSep)
-                            || (fieldInfo.getInputType().equals(InputDataType.BREAK)
+                            || (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK))
                                 && brkCount > numBrk))
                         {
                             // Add the data field to the table and set the flag indicating a change
@@ -6507,7 +6526,9 @@ public class CcddDbTableCommandHandler
                 {
                     // Convert the array of tables names into a single string and shorten it if too
                     // long
-                    names = " and table(s) '</b>" + getShortenedTableNames(tableNames) + "<b>'";
+                    names = " and table(s) '</b>"
+                            + CcddUtilities.convertArrayToStringTruncate(tableNames)
+                            + "<b>'";
                 }
 
                 // Build the command to update the data fields table and the telemetry scheduler
@@ -6562,7 +6583,7 @@ public class CcddDbTableCommandHandler
                 for (String add[] : additions)
                 {
                     // Check if the column is a rate column
-                    if (add[1].equals(InputDataType.RATE.getInputName()))
+                    if (add[1].equals(DefaultInputType.RATE.getInputName()))
                     {
                         // Add the rate column to the rate information
                         rateHandler.addRateInformation(add[0]);
@@ -6573,22 +6594,22 @@ public class CcddDbTableCommandHandler
                 for (String[] mod : modifications)
                 {
                     // Check if the column changed from a rate column to not being a rate column
-                    if (mod[2].equals(InputDataType.RATE.getInputName())
-                        && !mod[3].equals(InputDataType.RATE.getInputName()))
+                    if (mod[2].equals(DefaultInputType.RATE.getInputName())
+                        && !mod[3].equals(DefaultInputType.RATE.getInputName()))
                     {
                         // Delete the rate column from the rate information
                         rateHandler.deleteRateInformation(mod[2]);
                     }
                     // Check if the column changed from not being a rate column to a rate column
-                    else if (!mod[2].equals(InputDataType.RATE.getInputName())
-                             && mod[3].equals(InputDataType.RATE.getInputName()))
+                    else if (!mod[2].equals(DefaultInputType.RATE.getInputName())
+                             && mod[3].equals(DefaultInputType.RATE.getInputName()))
                     {
                         // Add the rate column to the rate information
                         rateHandler.addRateInformation(mod[3]);
                     }
                     // Check if the column is (and was) a rate column (i.e., the rate column name
                     // changed)
-                    else if (mod[3].equals(InputDataType.RATE.getInputName()))
+                    else if (mod[3].equals(DefaultInputType.RATE.getInputName()))
                     {
                         // Rename (or add if the rate column is shared with another table type) the
                         // rate column in the rate information
@@ -6600,7 +6621,7 @@ public class CcddDbTableCommandHandler
                 for (String[] del : deletions)
                 {
                     // Check if the column is a rate column
-                    if (del[1].equals(InputDataType.RATE.getInputName()))
+                    if (del[1].equals(DefaultInputType.RATE.getInputName()))
                     {
                         // Delete the rate column from the rate information
                         rateHandler.deleteRateInformation(del[0]);
@@ -6624,41 +6645,6 @@ public class CcddDbTableCommandHandler
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, editorDialog);
         }
-    }
-
-    /**********************************************************************************************
-     * Convert the supplied array of table names into a single string with the names separated by
-     * commas. If the length of the string exceeds a specified maximum then shorten the string to
-     * the maximum, find the last comma, truncate the string, and add an indication of how many
-     * other tables are in the list
-     *
-     * @return The array of table names converted to a single, comma-separated string, and
-     *         shortened if above a maximum length
-     *********************************************************************************************/
-    protected String getShortenedTableNames(String[] tableNames)
-    {
-        // Convert the array of names into a single string
-        String names = CcddUtilities.convertArrayToString(tableNames);
-
-        // Check if the length of the table name string exceeds the specified maximum
-        if (names.length() > ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize())
-        {
-            // Shorten the name list to the maximum length and find the index to the last comma,
-            // which separates the table names
-            names = names.substring(0, ModifiableSizeInfo.MAX_DIALOG_MESSAGE_LENGTH.getSize());
-            int index = names.lastIndexOf(",");
-
-            // Check if a comma exists
-            if (index != -1)
-            {
-                // Remove any partial name remaining after the truncation, along with the last
-                // comma, and add text to indicate how many other names are in the original list
-                names = names.substring(0, index);
-                names += " ... and " + (tableNames.length - names.split(",").length) + " others";
-            }
-        }
-
-        return names;
     }
 
     /**********************************************************************************************
@@ -6786,6 +6772,35 @@ public class CcddDbTableCommandHandler
                     editor.updateVariablePaths();
 
                     // Force the table to repaint to update the highlighting of the changed data
+                    // types
+                    editor.getTable().repaint();
+                }
+            }
+        }
+    }
+
+    // TODO
+    /**********************************************************************************************
+     * Update the input type columns in the open table editors
+     *
+     * @param parent
+     *            GUI component calling this method
+     *********************************************************************************************/
+    protected void updateInputTypeColumns(Component parent)
+    {
+        // Check if any editor dialogs are open
+        if (!ccddMain.getTableEditorDialogs().isEmpty())
+        {
+            // Step through each open table editor dialog
+            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
+            {
+                // Step through each individual editor
+                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
+                {
+                    // Update the input type combo box list if the table contains one
+                    editor.setUpSelectionColumns();
+
+                    // Force the table to repaint to update the highlighting of the changed input
                     // types
                     editor.getTable().repaint();
                 }
@@ -7240,7 +7255,7 @@ public class CcddDbTableCommandHandler
                                 // column index for the variable name
                                 if (isPrototype
                                                 ? matchColumn.equals(tableData.get(row)[DefaultColumn.PRIMARY_KEY.ordinal()])
-                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE)].toString()))
+                                                : matchColumn.equals(tableData.get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)].toString()))
                                 {
                                     // Step through each column in the row, skipping the primary
                                     // key and row index columns

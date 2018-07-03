@@ -22,7 +22,7 @@ import javax.swing.tree.TreeNode;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DatabaseListCommand;
-import CCDD.CcddConstants.InputDataType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
@@ -893,7 +893,7 @@ public class CcddVariableSizeAndConversionHandler
                 if (typeDefn.isStructure())
                 {
                     // Get the index of the column containing the variable path
-                    int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+                    int variablePathIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
 
                     // Check if the variable path column is present
                     if (variablePathIndex != -1)
@@ -946,9 +946,9 @@ public class CcddVariableSizeAndConversionHandler
                     // Get the table's type definition and from that the variable name, data type,
                     // and variable path column indices
                     TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableNameAndType[1]);
-                    int variableNameIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE);
-                    int dataTypeIndex = typeDefn.getColumnIndexByInputType(InputDataType.PRIM_AND_STRUCT);
-                    int variablePathIndex = typeDefn.getColumnIndexByInputType(InputDataType.VARIABLE_PATH);
+                    int variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                    int dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                    int variablePathIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
 
                     // Add the variable path to the lists (program- and user-defined)
                     userDefinedVariablePathKey.add(tableNameAndType[0]
