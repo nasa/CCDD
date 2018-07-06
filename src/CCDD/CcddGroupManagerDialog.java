@@ -1612,7 +1612,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // changed
                 isDiffers = CcddFieldHandler.isFieldChanged(currentInfo.getFieldInformation(),
                                                             committedInfo.getFieldInformation(),
-                                                            true);
+                                                            true,
+                                                            inputTypeHandler);
             }
             // This is a new group
             else

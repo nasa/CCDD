@@ -27,9 +27,9 @@ import javax.swing.ScrollPaneConstants;
 import CCDD.CcddClassesComponent.ModifiableColor;
 import CCDD.CcddClassesComponent.ModifiableFont;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
-import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common constants class

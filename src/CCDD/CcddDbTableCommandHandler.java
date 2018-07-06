@@ -43,6 +43,7 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableMembers;
@@ -58,9 +59,11 @@ import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.GroupsColumn;
+import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.OrdersColumn;
+import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
@@ -2622,7 +2625,6 @@ public class CcddDbTableCommandHandler
      *            current data type handler) if the change does not originate from the data type
      *            editor
      *
-     *
      * @param parent
      *            reference to the GUI component over which any error dialogs should be centered
      *********************************************************************************************/
@@ -2636,7 +2638,6 @@ public class CcddDbTableCommandHandler
                                                final boolean updateColumnOrder,
                                                final boolean updateFieldInfo,
                                                final CcddDataTypeHandler newDataTypeHandler,
-                                               final CcddMacroHandler newMacroHandler,
                                                final Component parent)
     {
         // Execute the command in the background
@@ -2705,7 +2706,6 @@ public class CcddDbTableCommandHandler
      *            data type handler with data type modifications. null (or a reference to the
      *            current data type handler) if the change does not originate from the data type
      *            editor
-     *
      *
      * @param parent
      *            reference to the GUI component over which any error dialogs should be centered
@@ -5175,16 +5175,6 @@ public class CcddDbTableCommandHandler
 
                 break;
 
-            case INPUT_TYPES: // TODO
-                // Check if the store request originated from the input type editor dialog
-                if (parent instanceof CcddInputTypeEditorDialog)
-                {
-                    // Perform the input types command completion steps
-                    ((CcddInputTypeEditorDialog) parent).doInputTypeUpdatesComplete(errorFlag);
-                }
-
-                break;
-
             case LINKS:
                 // Check if the store request originated from the link manager dialog
                 if (parent instanceof CcddLinkManagerDialog)
@@ -5219,6 +5209,7 @@ public class CcddDbTableCommandHandler
 
             case DATA_TYPES:
             case FIELDS:
+            case INPUT_TYPES:
             case MACROS:
             case ORDERS:
             case SCRIPT:
@@ -6779,31 +6770,39 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    // TODO
     /**********************************************************************************************
      * Update the input type columns in the open table editors
+     *
+     * @param inputTypeNamess
+     *            list of the input type names, before and after the changes
      *
      * @param parent
      *            GUI component calling this method
      *********************************************************************************************/
-    protected void updateInputTypeColumns(Component parent)
+    protected void updateInputTypeColumns(List<String[]> inputTypeNames, Component parent)
     {
-        // Check if any editor dialogs are open
-        if (!ccddMain.getTableEditorDialogs().isEmpty())
+        // Step through each open table editor dialog
+        for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
         {
-            // Step through each open table editor dialog
-            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
+            // Step through each individual editor
+            for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
-                // Step through each individual editor
-                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
-                {
-                    // Update the input type combo box list if the table contains one
-                    editor.setUpSelectionColumns();
+                // Update the table editor for the input type change
+                editor.updateForInputTypeChange(inputTypeNames);
 
-                    // Force the table to repaint to update the highlighting of the changed input
-                    // types
-                    editor.getTable().repaint();
-                }
+                // Force the table to repaint to update the highlighting of the changed input types
+                editor.getTable().repaint();
+            }
+        }
+
+        // Check if the table type editor dialog is open
+        if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
+        {
+            // Step through each table type editor
+            for (CcddTableTypeEditorHandler editor : ccddMain.getTableTypeEditor().getTypeEditors())
+            {
+                // Update the input type combo box list
+                editor.setUpInputTypeColumn();
             }
         }
     }
@@ -6962,9 +6961,9 @@ public class CcddDbTableCommandHandler
      * @param dialog
      *            reference to the data type or macro editor dialog
      *********************************************************************************************/
-    protected void modifyTablePerDataTypeOrMacroChanges(final List<TableModification> modifications,
-                                                        final List<String[]> updates,
-                                                        final CcddDialogHandler dialog)
+    protected void modifyTablesPerDataTypeOrMacroChanges(final List<TableModification> modifications,
+                                                         final List<String[]> updates,
+                                                         final CcddDialogHandler dialog)
     {
         final CcddDataTypeHandler newDataTypeHandler;
         final CcddMacroHandler newMacroHandler;
@@ -7026,7 +7025,8 @@ public class CcddDbTableCommandHandler
                 editor = new CcddTableEditorHandler(ccddMain,
                                                     tableInformation,
                                                     newDataTypeHandler,
-                                                    newMacroHandler);
+                                                    newMacroHandler,
+                                                    dialog);
             }
 
             /**************************************************************************************
@@ -7057,7 +7057,7 @@ public class CcddDbTableCommandHandler
             List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
 
             /**************************************************************************************
-             * Modify data types (macros) command
+             * Modify data types (macros)
              *************************************************************************************/
             @Override
             protected void execute()
@@ -7240,7 +7240,7 @@ public class CcddDbTableCommandHandler
                                                     && !macroValue.equals(newMacroHandler.getMacroValue(newName)));
 
                         // Check if the data type or macro name changed, or the data type size or
-                        // base type, or macro value, changed
+                        // base type, or macro value changed
                         if (isNameChange || isValueChange)
                         {
                             // Get the table's data (again if a name change occurred since changes
@@ -7559,11 +7559,12 @@ public class CcddDbTableCommandHandler
                     dbCommand.getConnection().commit();
 
                     // Inform the user that the update succeeded
-                    eventLog.logEvent(SUCCESS_MSG, changeName + " and all affected tables updated");
+                    eventLog.logEvent(SUCCESS_MSG,
+                                      changeName + " and all affected tables updated");
                 }
                 catch (SQLException se)
                 {
-                    // Inform the user that updating the macros failed
+                    // Inform the user that updating the data types (macros) failed
                     eventLog.logFailEvent(dialog,
                                           "Cannot update "
                                                   + changeName.toLowerCase()
@@ -7582,7 +7583,7 @@ public class CcddDbTableCommandHandler
             }
 
             /**************************************************************************************
-             * Modify data types or macros command complete
+             * Modify data types or macros complete
              *************************************************************************************/
             @Override
             protected void complete()
@@ -7600,6 +7601,333 @@ public class CcddDbTableCommandHandler
                 {
                     ((CcddMacroEditorDialog) dialog).doMacroUpdatesComplete(errorFlag);
                 }
+            }
+        });
+    }
+
+    /**********************************************************************************************
+     * Modify all tables affected by changes to the user-defined input types. This command is
+     * executed in a separate thread since it can take a noticeable amount time to complete, and by
+     * using a separate thread the GUI is allowed to continue to update. The GUI menu commands,
+     * however, are disabled until the database command completes execution
+     *
+     * @param modifications
+     *            list of input type definition modifications
+     *
+     * @param updates
+     *            list of string arrays reflecting the content of the input types after being
+     *            changed in the input type editor
+     *
+     * @param dialog
+     *            reference to the input type editor dialog
+     *********************************************************************************************/
+    protected void modifyTablesPerInputTypeChanges(final List<TableModification> modifications,
+                                                   final String[][] updates,
+                                                   final CcddInputTypeEditorDialog dialog)
+    {
+        // Create new input and table type handlers based on the input type changes
+        final CcddInputTypeHandler newInputTypeHandler = new CcddInputTypeHandler(updates);
+        final CcddTableTypeHandler newTableTypeHandler = new CcddTableTypeHandler(ccddMain,
+                                                                                  newInputTypeHandler);
+
+        /******************************************************************************************
+         * Class for table information for those tables modified due to changes in an input type
+         * definition
+         *****************************************************************************************/
+        class ModifiedTable
+        {
+            private final TableInformation tableInformation;
+            private final CcddTableEditorHandler editor;
+
+            /**************************************************************************************
+             * Class constructor for table information for those tables modified due to changes in
+             * an input type definition
+             *
+             * @param tablePath
+             *            table path (if applicable) and name
+             *************************************************************************************/
+            ModifiedTable(String tablePath)
+            {
+                // Load the table's information from the project database
+                tableInformation = loadTableData(tablePath, false, true, false, dialog);
+
+                // Create a table editor handler using the updated input types, but without
+                // displaying the editor itself
+                editor = new CcddTableEditorHandler(ccddMain,
+                                                    tableInformation,
+                                                    newTableTypeHandler,
+                                                    newInputTypeHandler,
+                                                    dialog);
+            }
+
+            /**************************************************************************************
+             * Get the reference to the table information
+             *
+             * @return Reference to the table information
+             *************************************************************************************/
+            protected TableInformation getTableInformation()
+            {
+                return tableInformation;
+            }
+
+            /**************************************************************************************
+             * Get the reference to the table editor
+             *
+             * @return Reference to the table editor
+             *************************************************************************************/
+            protected CcddTableEditorHandler getEditor()
+            {
+                return editor;
+            }
+        }
+
+        // Execute the command in the background
+        CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand()
+        {
+            boolean errorFlag = false;
+            List<String[]> inputTypeNames = new ArrayList<String[]>();
+
+            /**************************************************************************************
+             * Modify input types
+             *************************************************************************************/
+            @Override
+            protected void execute()
+            {
+                CcddFieldHandler fieldHandler = null;
+                List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
+
+                try
+                {
+                    // Step through each input table modification
+                    for (TableModification mod : modifications)
+                    {
+                        // Store the input type name before and after the update, in case the name
+                        // changed
+                        inputTypeNames.add(new String[] {mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString(),
+                                                         mod.getRowData()[InputTypesColumn.NAME.ordinal()].toString()});
+
+                        // Check if the input type regular expression match string or selection
+                        // item list changed
+                        if (!mod.getOriginalRowData()[InputTypesColumn.MATCH.ordinal()].equals(mod.getRowData()[InputTypesColumn.MATCH.ordinal()])
+                            || !mod.getOriginalRowData()[InputTypesColumn.ITEMS.ordinal()].equals(mod.getRowData()[InputTypesColumn.ITEMS.ordinal()]))
+                        {
+                            List<String> tableTypes = new ArrayList<String>();
+                            List<String> fields = new ArrayList<String>();
+
+                            // Get the input type definition
+                            InputType inputType = inputTypeHandler.getInputTypeByName(mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString());
+
+                            // Step through each reference to the input type name
+                            for (String inputTypeRef : inputTypeHandler.getInputTypeReferences(mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString(), dialog))
+                            {
+                                // Split the reference into table name, column name, comment, and
+                                // context
+                                String[] tblColCmtAndCntxt = inputTypeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                                // Extract the context from the reference
+                                String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                                // Check if the context is in a table type definition
+                                if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
+                                {
+                                    // Check if the table type name hasn't already been added to
+                                    // the list
+                                    if (!tableTypes.contains(refColumns[TableTypesColumn.TYPE_NAME.ordinal()]))
+                                    {
+                                        // Add the table type name to the list of those using the
+                                        // input type
+                                        tableTypes.add(refColumns[TableTypesColumn.TYPE_NAME.ordinal()]);
+                                    }
+                                }
+                                // Check if the context is in a data field definition
+                                else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
+                                {
+                                    // Check if the data field owner hasn't already been added to
+                                    // the list
+                                    if (!fields.contains(refColumns[FieldsColumn.OWNER_NAME.ordinal()]))
+                                    {
+                                        // Add the data field owner to the list of those using the
+                                        // input type
+                                        fields.add(refColumns[FieldsColumn.OWNER_NAME.ordinal()]);
+
+                                        // Check if the data field handler hasn't been created
+                                        if (fieldHandler == null)
+                                        {
+                                            // Create a data field handler
+                                            fieldHandler = new CcddFieldHandler(ccddMain,
+                                                                                null,
+                                                                                dialog);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Step through each change in the table type definitions
+                            for (String tableType : tableTypes)
+                            {
+                                // Get the names of the prototype tables of this table type
+                                String[] tables = getPrototypeTablesOfType(tableType);
+
+                                // Check if any tables of this type exist
+                                if (tables.length != 0)
+                                {
+                                    Boolean showMessage = true;
+
+                                    // Get the original table type definition
+                                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
+
+                                    // Get the column(s) in the table type of this input type
+                                    List<Integer> columns = typeDefn.getColumnIndicesByInputType(inputType);
+
+                                    // Step through each prototype table of this table type
+                                    for (String tableName : tables)
+                                    {
+                                        ModifiedTable modifiedTable = null;
+
+                                        // Step through each table already loaded for modifications
+                                        for (ModifiedTable modTbl : modifiedTables)
+                                        {
+                                            // Check if the table has already been loaded
+                                            if (modTbl.getTableInformation().getTablePath().equals(tableName))
+                                            {
+                                                // Store the reference to the modified table and
+                                                // stop searching
+                                                modifiedTable = modTbl;
+                                                break;
+                                            }
+                                        }
+
+                                        // Check if the table isn't already loaded
+                                        if (modifiedTable == null)
+                                        {
+                                            // Load the table and add it to the list
+                                            modifiedTable = new ModifiedTable(tableName);
+                                            modifiedTables.add(modifiedTable);
+
+                                            // Check if the table arrays aren't expanded
+                                            if (!modifiedTable.getEditor().isExpanded())
+                                            {
+                                                // Expand the table arrays
+                                                modifiedTable.getEditor().showHideArrayMembers();
+                                            }
+                                        }
+
+                                        // Get the reference to the table to shorten subsequent
+                                        // calls
+                                        CcddJTableHandler table = modifiedTable.getEditor().getTable();
+
+                                        // Get the table's data (again if a name change occurred
+                                        // since changes were made)
+                                        List<Object[]> tableData = table.getTableDataList(false);
+
+                                        // Step through each row
+                                        for (int row = 0; row < tableData.size(); row++)
+                                        {
+                                            // Step through each column with the modified input
+                                            // type
+                                            for (Integer column : columns)
+                                            {
+                                                // TODO IF THE VALUE IS NO LONGER VALID THEN A
+                                                // BLANK IS SUBSTITUTED
+                                                // Make the change to the cell
+                                                showMessage = table.validateCellContent(tableData,
+                                                                                        row,
+                                                                                        column,
+                                                                                        "",
+                                                                                        tableData.get(row)[column],
+                                                                                        showMessage,
+                                                                                        true);
+
+                                                // Load the updated array of data into the table
+                                                table.loadDataArrayIntoTable(tableData.toArray(new Object[0][0]),
+                                                                             false);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Step through each change in the data field definitions
+                            for (String field : fields)
+                            {
+                                // TODO NEED TO DO THE STEPS TO VALIDATE FIELD VALUES
+                                System.out.println("need to update field: " + field); // TODO
+                            }
+                        }
+                    }
+
+                    // Create a save point in case an error occurs while modifying a table
+                    dbCommand.createSavePoint(dialog);
+
+                    // Step through each modified table
+                    for (ModifiedTable modTbl : modifiedTables)
+                    {
+                        // Build the additions, modifications, and deletions to the table
+                        modTbl.getEditor().buildUpdates();
+
+                        // Make the table modifications to the project database and to any open
+                        // table editors that contain the input type reference(s)
+                        if (modifyTableData(modTbl.getTableInformation(),
+                                            modTbl.getEditor().getAdditions(),
+                                            modTbl.getEditor().getModifications(),
+                                            modTbl.getEditor().getDeletions(),
+                                            true,
+                                            false,
+                                            false,
+                                            false,
+                                            false, // TODO should this be true?
+                                            null,
+                                            dialog))
+                        {
+                            throw new SQLException("table modification error");
+                        }
+                    }
+
+                    // Store the updated input types table
+                    dbCommand.executeDbUpdate(storeNonTableTypesInfoTableCommand(InternalTable.INPUT_TYPES,
+                                                                                 CcddUtilities.removeArrayListColumn(Arrays.asList(dialog.getUpdatedData()),
+                                                                                                                     InputTypesColumn.OID.ordinal()),
+                                                                                 null,
+                                                                                 dialog),
+                                              dialog);
+
+                    // Release the save point. This must be done within a transaction block, so it
+                    // must be done prior to the commit below
+                    dbCommand.releaseSavePoint(dialog);
+
+                    // Commit the change(s) to the database
+                    dbCommand.getConnection().commit();
+
+                    // Inform the user that the update succeeded
+                    eventLog.logEvent(SUCCESS_MSG,
+                                      "Input types and all affected tables and fields updated");
+                }
+                catch (SQLException se)
+                {
+                    // Inform the user that updating the macros failed
+                    eventLog.logFailEvent(dialog,
+                                          "Cannot update input types; cause '"
+                                                  + se.getMessage()
+                                                  + "'",
+                                          "<html><b>Cannot update input types");
+
+                    errorFlag = true;
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, dialog);
+                }
+            }
+
+            /**************************************************************************************
+             * Modify input types complete
+             *************************************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Perform the input types command completion steps
+                dialog.doInputTypeUpdatesComplete(errorFlag, inputTypeNames);
             }
         });
     }

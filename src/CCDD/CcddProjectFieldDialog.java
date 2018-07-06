@@ -474,7 +474,8 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
 
         return CcddFieldHandler.isFieldChanged(fieldHandler.getFieldInformation(),
                                                committedFieldInformation,
-                                               false)
+                                               false,
+                                               ccddMain.getInputTypeHandler())
                || !committedDescription.equals(fieldPnlHndlr.getDescription());
     }
 

@@ -33,6 +33,7 @@ import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -40,7 +41,6 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
-import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -345,7 +345,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // changed
                 boolean isFieldChanged = CcddFieldHandler.isFieldChanged(fieldHandler.getFieldInformation(),
                                                                          committedInfo.getFieldInformation(),
-                                                                         true);
+                                                                         true,
+                                                                         inputTypeHandler);
 
                 return isFieldChanged
                        || !committedDescription.equals(getDescription())
@@ -1119,7 +1120,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Set up the combo box containing the available table type input types for display in the
      * table's Input Type cells
      *********************************************************************************************/
-    private void setUpInputTypeColumn()
+    protected void setUpInputTypeColumn()
     {
         // Create a combo box for displaying table type input types
         comboBox = new PaddedComboBox(getInputTypeNames(),

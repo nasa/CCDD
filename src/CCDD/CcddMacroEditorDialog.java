@@ -45,6 +45,7 @@ import javax.swing.table.TableCellRenderer;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -55,7 +56,6 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableSelectionMode;
-import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -484,9 +484,9 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                             buildUpdates();
 
                             // Update the tables affected by the changes to the macro(s)
-                            dbTable.modifyTablePerDataTypeOrMacroChanges(modifications,
-                                                                         getUpdatedData(),
-                                                                         CcddMacroEditorDialog.this);
+                            dbTable.modifyTablesPerDataTypeOrMacroChanges(modifications,
+                                                                          getUpdatedData(),
+                                                                          CcddMacroEditorDialog.this);
                         }
                     }
                 });

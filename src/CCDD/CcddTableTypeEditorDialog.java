@@ -44,8 +44,8 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -63,7 +63,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
-    private final List<CcddTableTypeEditorHandler> typeEditors;
     private CcddTableTypeEditorHandler activeEditor;
     private CcddFindReplaceDialog searchDlg;
 
@@ -94,6 +93,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JCheckBoxMenuItem mntmOverwrite;
     private JButton btnClose;
     private DnDTabbedPane tabbedPane;
+
+    // List of references to the individual table type editors
+    private final List<CcddTableTypeEditorHandler> typeEditors;
 
     // List containing the table type names for the types that are being updated. If a table type
     // change is stored, any tables of that type with unsaved changes will have the changes
@@ -135,6 +137,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     protected CcddTableTypeEditorHandler getTypeEditor()
     {
         return activeEditor;
+    }
+
+    /**********************************************************************************************
+     * Get the table type editor list reference
+     *
+     * @return Reference to the table type editor list
+     *********************************************************************************************/
+    protected List<CcddTableTypeEditorHandler> getTypeEditors()
+    {
+        return typeEditors;
     }
 
     /**********************************************************************************************

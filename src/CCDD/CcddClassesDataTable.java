@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.SELECTION_ITEM_LIST_SEPARATOR;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 
 import java.awt.Component;
@@ -21,7 +22,7 @@ import javax.swing.JOptionPane;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.DefaultInputType;
-import CCDD.CcddInputTypeHandler.InputType;
+import CCDD.CcddConstants.InputTypeFormat;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common classes class
@@ -1225,6 +1226,143 @@ public class CcddClassesDataTable
         }
     }
 
+    // TODO MOVE TO CcddConstants OR CcddClassesComponent?
+    /**********************************************************************************************
+     * Input type class
+     *********************************************************************************************/
+    protected static class InputType
+    {
+        private final String inputName;
+        private final String inputMatch;
+        private final InputTypeFormat inputFormat;
+        private final String inputDescription;
+        private final List<String> inputItems;
+
+        /******************************************************************************************
+         * Input type class constructor
+         *
+         * @param inputName
+         *            input type name
+         *
+         * @param inputMatch
+         *            regular expression match for the input type
+         *
+         * @param inputFormat
+         *            input type format
+         *
+         * @param inputDescription
+         *            input type description
+         *
+         * @param inputItems
+         *            string containing the acceptable values for this input type, separated by the
+         *            selection item list separator; null or blank if the input type doesn't
+         *            constrain the inputs to items form a list. The list is used to create the
+         *            contents of the combo box in the table column with this input type
+         *****************************************************************************************/
+        InputType(String inputName,
+                  String inputMatch,
+                  InputTypeFormat inputFormat,
+                  String inputDescription,
+                  String inputItems)
+        {
+            this.inputName = inputName;
+            this.inputMatch = inputMatch;
+            this.inputFormat = inputFormat;
+            this.inputDescription = inputDescription;
+            this.inputItems = inputItems == null
+                              || inputItems.isEmpty()
+                                                      ? null
+                                                      : Arrays.asList(inputItems.split(SELECTION_ITEM_LIST_SEPARATOR));
+        }
+
+        /******************************************************************************************
+         * Get the input type name
+         *
+         * @return Input type name
+         *****************************************************************************************/
+        protected String getInputName()
+        {
+            return inputName;
+        }
+
+        /******************************************************************************************
+         * Get the input type matching regular expression
+         *
+         * @return Input type matching regular expression
+         *****************************************************************************************/
+        protected String getInputMatch()
+        {
+            return inputMatch;
+        }
+
+        /******************************************************************************************
+         * Get the input type format
+         *
+         * @return Input type format
+         *****************************************************************************************/
+        protected InputTypeFormat getInputFormat()
+        {
+            return inputFormat;
+        }
+
+        /******************************************************************************************
+         * Get the input type description
+         *
+         * @return Input type description
+         *****************************************************************************************/
+        protected String getInputDescription()
+        {
+            return inputDescription;
+        }
+
+        /******************************************************************************************
+         * Get the input type selection items
+         *
+         * @return List of input type selection items; null if the input type has no selection
+         *         items
+         *****************************************************************************************/
+        protected List<String> getInputItems()
+        {
+            return inputItems;
+        }
+
+        /******************************************************************************************
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values. Leading zeroes are preserved for
+         * hexadecimal values
+         *
+         * @param valueS
+         *            value, represented as a string, to reformat
+         *
+         * @return Input value reformatted based on its input type
+         *****************************************************************************************/
+        protected String formatInput(String valueS)
+        {
+            return CcddInputTypeHandler.formatInput(valueS, inputFormat, true);
+        }
+
+        /******************************************************************************************
+         * Reformat the input value for numeric types. This adds a leading zero to floating point
+         * values if the first character is a decimal, and removes '+' signs and unneeded leading
+         * zeroes from integer and floating point values
+         *
+         * @param valueS
+         *            value, represented as a string, to reformat
+         *
+         * @param preserveZeroes
+         *            true to preserve leading zeroes in hexadecimal values; false to eliminate the
+         *            extra zeroes (this is useful when comparing the text representation of two
+         *            hexadecimal values)
+         *
+         * @return Input value reformatted based on its input type
+         *****************************************************************************************/
+        protected String formatInput(String valueS, boolean preserveZeroes)
+        {
+            return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
+        }
+    }
+
     /**********************************************************************************************
      * Project definition class. Contains the information necessary to construct the project-level
      * data fields derived from a CSV, EDS, JSON, or XTCE import file
@@ -1557,7 +1695,7 @@ public class CcddClassesDataTable
         private final String fieldName;
         private final String description;
         private final int charSize;
-        private final InputType inputType;
+        private InputType inputType;
         private final boolean isRequired;
         private final ApplicabilityType applicability;
         private String value;
@@ -1738,6 +1876,12 @@ public class CcddClassesDataTable
         protected InputType getInputType()
         {
             return inputType;
+        }
+
+        // TODO
+        protected void setInputType(InputType inputType)
+        {
+            this.inputType = inputType;
         }
     }
 

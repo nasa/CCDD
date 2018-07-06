@@ -59,6 +59,7 @@ import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.MinMaxPair;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
@@ -74,7 +75,6 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
-import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
@@ -101,6 +101,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private UndoableTableModel tableModel;
     private CcddTableTreeHandler tableTree;
     private TypeDefinition typeDefn;
+
+    // GUI component over which to center any error dialog. This is the editor dialog to which the
+    // editor belongs if the dialog is open
+    private final Component parent;
 
     // Cell editor for data type cell in a row that has an enumeration
     private DefaultCellEditor enumDataTypeCellEditor;
@@ -199,27 +203,34 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @param editorDialog
      *            editor dialog from which this editor was created
+     *
+     * @param parent
+     *            GUI component over which to center any error dialogs
      *********************************************************************************************/
     CcddTableEditorHandler(CcddMain ccddMain,
                            TableInformation tableInfo,
+                           CcddTableTypeHandler tableTypeHandler,
+                           CcddInputTypeHandler inputTypeHandler,
                            CcddDataTypeHandler newDataTypeHandler,
                            CcddMacroHandler newMacroHandler,
-                           CcddTableEditorDialog editorDialog)
+                           CcddTableEditorDialog editorDialog,
+                           Component parent)
     {
         this.ccddMain = ccddMain;
         this.tableInfo = tableInfo;
+        this.tableTypeHandler = tableTypeHandler;
+        this.inputTypeHandler = inputTypeHandler;
         this.newDataTypeHandler = newDataTypeHandler;
         this.newMacroHandler = newMacroHandler;
         this.editorDialog = editorDialog;
+        this.parent = parent;
 
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
-        tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
-        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Initialize the lists of table content changes
         additions = new ArrayList<TableModification>();
@@ -253,6 +264,42 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param tableInfo
      *            table information
      *
+     * @param newDataTypeHandler
+     *            data type handler reference for when the data type definitions have changed; same
+     *            as the main data type handler if this is not a data type change instance
+     *
+     * @param newMacroHandler
+     *            macro handler reference for when the macro names and/or values have changed; same
+     *            as the main macro handler if this is not a macro change instance
+     *
+     * @param editorDialog
+     *            editor dialog from which this editor was created
+     *********************************************************************************************/
+    CcddTableEditorHandler(CcddMain ccddMain,
+                           TableInformation tableInfo,
+                           CcddDataTypeHandler newDataTypeHandler,
+                           CcddMacroHandler newMacroHandler,
+                           CcddTableEditorDialog editorDialog)
+    {
+        this(ccddMain,
+             tableInfo,
+             ccddMain.getTableTypeHandler(),
+             ccddMain.getInputTypeHandler(),
+             newDataTypeHandler,
+             newMacroHandler,
+             editorDialog,
+             editorDialog);
+    }
+
+    /**********************************************************************************************
+     * Table editor handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param tableInfo
+     *            table information
+     *
      * @param editorDialog
      *            editor dialog from which this editor was created
      *********************************************************************************************/
@@ -262,9 +309,46 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         this(ccddMain,
              tableInfo,
+             ccddMain.getTableTypeHandler(),
+             ccddMain.getInputTypeHandler(),
              ccddMain.getDataTypeHandler(),
              ccddMain.getMacroHandler(),
+             editorDialog,
              editorDialog);
+    }
+
+    /**********************************************************************************************
+     * Table editor handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param tableInfo
+     *            table information
+     *
+     * @param tableTypeHandler
+     *            table type handler reference reflecting updates to the input type definitions
+     *
+     * @param inputTypeHandler
+     *            input type handler reference reflecting updates to the input type definitions
+     *
+     * @param parent
+     *            GUI component over which to center any error dialogs
+     *********************************************************************************************/
+    protected CcddTableEditorHandler(CcddMain ccddMain,
+                                     TableInformation tableInfo,
+                                     CcddTableTypeHandler tableTypeHandler,
+                                     CcddInputTypeHandler inputTypeHandler,
+                                     Component parent)
+    {
+        this(ccddMain,
+             tableInfo,
+             tableTypeHandler,
+             inputTypeHandler,
+             ccddMain.getDataTypeHandler(),
+             ccddMain.getMacroHandler(),
+             null,
+             parent);
     }
 
     /**********************************************************************************************
@@ -287,9 +371,17 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     protected CcddTableEditorHandler(CcddMain ccddMain,
                                      TableInformation tableInfo,
                                      CcddDataTypeHandler newDataTypeHandler,
-                                     CcddMacroHandler newMacroHandler)
+                                     CcddMacroHandler newMacroHandler,
+                                     Component parent)
     {
-        this(ccddMain, tableInfo, newDataTypeHandler, newMacroHandler, null);
+        this(ccddMain,
+             tableInfo,
+             ccddMain.getTableTypeHandler(),
+             ccddMain.getInputTypeHandler(),
+             newDataTypeHandler,
+             newMacroHandler,
+             null,
+             parent);
     }
 
     /**********************************************************************************************
@@ -806,6 +898,52 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
+     * Update the table editor following a change to an input type definition
+     *
+     * @param inputTypeNames
+     *            list of the input type names, before and after the changes
+     *********************************************************************************************/
+    protected void updateForInputTypeChange(List<String[]> inputTypeNames)
+    {
+        // Update the editor's type definition reference
+        setTypeDefinition();
+
+        // Get the model column indices for columns with special input types
+        getSpecialColumnIndices();
+
+        // Update the input type combo box lists
+        setUpSelectionColumns();
+
+        // TODO NEED TO CHECK IF ALL THE BELOW STEPS ARE NECESSARY (THE FIELD HANDLER UPDATES
+        // DEFINITELY ARE!)
+        // Update the table editor contents
+        table.loadAndFormatData();
+
+        // Check that the table is open in a table editor
+        if (editorDialog != null)
+        {
+            // Update the input types in the field handlers (committed and active)
+            committedInfo.getFieldHandler().updateFieldInputTypes(inputTypeNames);
+            tableInfo.getFieldHandler().updateFieldInputTypes(inputTypeNames);
+
+            // Create a runnable object to be executed
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                /**********************************************************************************
+                 * Execute after all pending Swing events are finished
+                 *********************************************************************************/
+                @Override
+                public void run()
+                {
+                    // Force the table to redraw in case the number of columns changed
+                    tableModel.fireTableDataChanged();
+                    tableModel.fireTableStructureChanged();
+                }
+            });
+        }
+    }
+
+    /**********************************************************************************************
      * Remove the custom value deletion flag in a cell, if present
      *********************************************************************************************/
     protected void clearCustomValueDeletionFlags()
@@ -1074,7 +1212,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Check if the data fields don't match those stored in the database
             if (CcddFieldHandler.isFieldChanged(getFieldHandler().getFieldInformation(),
                                                 dbTableInfo.getFieldHandler().getFieldInformation(),
-                                                false))
+                                                false,
+                                                inputTypeHandler))
             {
                 // Create a copy of the current data fields
                 List<FieldInformation> currentFields = getFieldHandler().getFieldInformationCopy();
@@ -1283,7 +1422,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // have changed
                     isFieldChanged = CcddFieldHandler.isFieldChanged(tableInfo.getFieldHandler().getFieldInformation(),
                                                                      committedInfo.getFieldHandler().getFieldInformation(),
-                                                                     false);
+                                                                     false,
+                                                                     inputTypeHandler);
                 }
 
                 return super.isTableChanged(previousData, ignoreColumns)
@@ -2078,7 +2218,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         if (!isMultiple)
                         {
                             // Inform the user that the input value is invalid
-                            new CcddDialogHandler().showMessageDialog(editorDialog,
+                            new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>" + ce.getMessage(),
                                                                       "Invalid Input",
                                                                       JOptionPane.WARNING_MESSAGE,
@@ -2089,7 +2229,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         {
                             // Inform the user that the input value is invalid
                             CcddDialogHandler validityDlg = new CcddDialogHandler();
-                            int buttonSelected = validityDlg.showIgnoreCancelDialog(editorDialog,
+                            int buttonSelected = validityDlg.showIgnoreCancelDialog(parent,
                                                                                     "<html><b>" + ce.getMessage(),
                                                                                     "Invalid Input",
                                                                                     "Ignore this invalid input",
@@ -3367,11 +3507,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     if (isIgnoreRow)
                     {
                         // Inform the user how many rows were skipped
-                        new CcddDialogHandler().showMessageDialog(editorDialog,
+                        new CcddDialogHandler().showMessageDialog(parent,
                                                                   "<html><b>"
-                                                                                + skippedRows
-                                                                                + " array member row(s) ignored due "
-                                                                                + "to missing array definition(s)",
+                                                                          + skippedRows
+                                                                          + " array member row(s) ignored due "
+                                                                          + "to missing array definition(s)",
                                                                   "Rows Ignored",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -3838,15 +3978,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             dbTable.loadTableDataInBackground(dataType, editorDialog);
 
                             // Inform the user that the prototype of the selected table is opened
-                            new CcddDialogHandler().showMessageDialog(editorDialog,
+                            new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>Since prototype table '</b>"
-                                                                                    + tableInfo.getPrototypeName()
-                                                                                    + "<b>' is a child of another table it "
-                                                                                    + "cannot have its own child tables; "
-                                                                                    + "therefore the <i>prototype</i>, "
-                                                                                    + "instead of an instance, of table '</b>"
-                                                                                    + dataType
-                                                                                    + "<b>' was opened",
+                                                                              + tableInfo.getPrototypeName()
+                                                                              + "<b>' is a child of another table it "
+                                                                              + "cannot have its own child tables; "
+                                                                              + "therefore the <i>prototype</i>, "
+                                                                              + "instead of an instance, of table '</b>"
+                                                                              + dataType
+                                                                              + "<b>' was opened",
                                                                       "Edit Table",
                                                                       JOptionPane.INFORMATION_MESSAGE,
                                                                       DialogOption.OK_OPTION);
@@ -4973,7 +5113,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set up or update the combo box columns containing selection lists
      *********************************************************************************************/
-    protected void setUpSelectionColumns()
+    private void setUpSelectionColumns()
     {
         // Step through each selection column
         for (Integer column : selectionIndex)
@@ -5380,12 +5520,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                             // Inform the user that a row is missing required data. If Cancel is
                             // selected then do not perform checks on other columns and rows
-                            if (new CcddDialogHandler().showMessageDialog(editorDialog,
+                            if (new CcddDialogHandler().showMessageDialog(parent,
                                                                           "<html><b>Data must be provided for column '"
-                                                                                        + tableModel.getColumnName(column)
-                                                                                        + "' [row "
-                                                                                        + (row + 1)
-                                                                                        + "]",
+                                                                                  + tableModel.getColumnName(column)
+                                                                                  + "' [row "
+                                                                                  + (row + 1)
+                                                                                  + "]",
                                                                           "Missing Data",
                                                                           JOptionPane.WARNING_MESSAGE,
                                                                           DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

@@ -28,8 +28,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -48,6 +49,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
@@ -81,6 +83,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     // editor and is used to determine what changes have been made to the table since the previous
     // field editor update
     private Object[][] committedData;
+
+    // List of input type table content changes to process
+    private List<TableModification> modifications;
 
     // List of input type references already loaded from the database. This is used to avoid
     // repeated searches for a the same input type
@@ -158,8 +163,12 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
      * @param commandError
      *            false if the database commands successfully completed; true if an error occurred
      *            and the changes were not made
+     *
+     * @param inputTypeNames
+     *            list of the input type names, before and after the changes
      *********************************************************************************************/
-    protected void doInputTypeUpdatesComplete(boolean commandError)
+    protected void doInputTypeUpdatesComplete(boolean commandError,
+                                              List<String[]> inputTypeNames)
     {
         // Check that no error occurred performing the database commands
         if (!commandError)
@@ -167,8 +176,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             // Update the input type handler with the changes
             inputTypeHandler.setInputTypeData(getUpdatedData());
 
+            // Update the table type handler with the input type changes
+            ccddMain.getTableTypeHandler().updateInputTypes(inputTypeNames);
+
             // Update the input type columns in the open table editors
-            dbTable.updateInputTypeColumns(CcddInputTypeEditorDialog.this);
+            dbTable.updateInputTypeColumns(inputTypeNames, CcddInputTypeEditorDialog.this);
 
             // Update the copy of the input type data so it can be used to determine if changes are
             // made
@@ -201,6 +213,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             protected void execute()
             {
+                modifications = new ArrayList<TableModification>();
                 loadedReferences = new ArrayList<InputTypeReference>();
 
                 // Set the initial layout manager characteristics
@@ -469,15 +482,13 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                                                          JOptionPane.QUESTION_MESSAGE,
                                                                          DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                         {
-                            // TODO Probably should do a buildUpdates() method, using the OID, to
-                            // change the existing input type references if one is renamed
+                            // Get a list of the input type modifications
+                            buildUpdates();
 
-                            // Store the updated input types table
-                            dbTable.storeInformationTableInBackground(InternalTable.INPUT_TYPES,
-                                                                      CcddUtilities.removeArrayListColumn(Arrays.asList(getUpdatedData()),
-                                                                                                          InputTypesColumn.OID.ordinal()),
-                                                                      null,
-                                                                      CcddInputTypeEditorDialog.this);
+                            // Update the tables affected by the changes to the input type(s)
+                            dbTable.modifyTablesPerInputTypeChanges(modifications,
+                                                                    getUpdatedData(),
+                                                                    CcddInputTypeEditorDialog.this);
                         }
                     }
                 });
@@ -540,7 +551,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
      *
      * @return Reference to the specified input type in the prototype tables
      *********************************************************************************************/
-    private InputTypeReference getInputTypeReferences(String inputTypeName)
+    protected InputTypeReference getInputTypeReferences(String inputTypeName)
     {
         InputTypeReference inputTypeRefs = null;
 
@@ -721,6 +732,21 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 {
                                     throw new CCDDException("Input type name already in use");
                                 }
+                            }
+                        }
+                        // Check if the regular expression match string has been changed
+                        else if (column == InputTypeEditorColumnInfo.MATCH.ordinal())
+                        {
+                            try
+                            {
+                                // Validate the regular expression by attempting to compile it
+                                Pattern.compile(newValueS);
+                            }
+                            catch (PatternSyntaxException pse)
+                            {
+                                throw new CCDDException("Invalid regular expression; cause '</b>"
+                                                        + pse.getMessage()
+                                                        + "<b>'");
                             }
                         }
                     }
@@ -932,7 +958,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
      *
      * @return Array containing the updated input type data
      *********************************************************************************************/
-    private String[][] getUpdatedData()
+    protected String[][] getUpdatedData()
     {
         return CcddUtilities.convertObjectToString(inputTypeTable.getTableData(true));
     }
@@ -1014,5 +1040,60 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         }
 
         return dataIsMissing;
+    }
+
+    /**********************************************************************************************
+     * Compare the current input type table data to the committed data and create lists of the
+     * changed values necessary to update the table in the database to match the current values
+     *********************************************************************************************/
+    private void buildUpdates()
+    {
+        // Remove change information from a previous commit, if any
+        modifications.clear();
+
+        // Get the number of rows that have been committed to the database
+        int numCommitted = committedData.length;
+
+        // Get the input type table cell values
+        Object[][] tableData = inputTypeTable.getTableData(true);
+
+        // Step through each row in the input type table
+        for (int tblRow = 0; tblRow < tableData.length; tblRow++)
+        {
+            boolean matchFound = false;
+
+            // Step through each row in the committed version of the input type table data
+            for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
+            {
+                // Check if the index values match for these rows
+                if (tableData[tblRow][InputTypesColumn.OID.ordinal()].equals(committedData[comRow][InputTypesColumn.OID.ordinal()]))
+                {
+                    // Set the flags indicating this row has a match
+                    matchFound = true;
+
+                    boolean isChangedColumn = false;
+
+                    // Step through each column in the row
+                    for (int column = 0; column < tableData[tblRow].length; column++)
+                    {
+                        // Check if the current and committed values don't match
+                        if (!tableData[tblRow][column].equals(committedData[comRow][column]))
+                        {
+                            // Set the flag to indicate a column value changed and stop searching
+                            isChangedColumn = true;
+                            break;
+                        }
+                    }
+
+                    // Check if any columns were changed
+                    if (isChangedColumn)
+                    {
+                        // Store the row modification information
+                        modifications.add(new TableModification(tableData[tblRow],
+                                                                committedData[comRow]));
+                    }
+                }
+            }
+        }
     }
 }

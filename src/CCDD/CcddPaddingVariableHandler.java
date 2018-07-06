@@ -20,8 +20,8 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.TableInformation;
-import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 

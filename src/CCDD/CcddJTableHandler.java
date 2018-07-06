@@ -1855,7 +1855,7 @@ public abstract class CcddJTableHandler extends JTable
     private class HTMLCellRenderer extends JTextPane implements TableCellRenderer
     {
         /******************************************************************************************
-         * HTML-formatted Multi-line table cell renderer constructor
+         * HTML-formatted multi-line table cell renderer constructor
          *****************************************************************************************/
         HTMLCellRenderer()
         {
@@ -1898,6 +1898,8 @@ public abstract class CcddJTableHandler extends JTable
                                                        int row,
                                                        int column)
         {
+            System.out.println(row + ", " + column + " val: ." + value + "."); // TODO
+
             // Check if this is the first row in the table and the cell is not formatted for HTML
             if (row == 0 && !value.toString().startsWith("<html>"))
             {
@@ -1906,6 +1908,7 @@ public abstract class CcddJTableHandler extends JTable
                 // the line feed isn't displayed correctly (unless the table is scrolled to the row
                 // containing the HTML text). Forcing the first row to be HTML avoids the condition
                 value = CcddUtilities.convertToHTML(value.toString());
+                System.out.println("  convert to HTML: ." + value + "."); // TODO
             }
 
             // Check if the cell value is HTML-formatted
@@ -1976,7 +1979,7 @@ public abstract class CcddJTableHandler extends JTable
             {
                 // Set the cell renderer based on if the column supports HTML-formatted text, is
                 // displayed in multiple lines, or is displayed in a single line. HTML supports
-                // multiple lines, so takes precedence over the multiple line stting
+                // multiple lines, so takes precedence over the multiple line setting
                 tableColumn.setCellRenderer(isColumnHTML(columnModel)
                                                                       ? htmlRenderer
                                                                       : (isColumnMultiLine(columnModel)

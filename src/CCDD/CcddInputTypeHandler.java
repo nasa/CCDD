@@ -8,7 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
-import static CCDD.CcddConstants.SELECTION_ITEM_LIST_SEPARATOR;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InputTypeFormat;
@@ -36,7 +36,7 @@ import CCDD.CcddConstants.SearchType;
 public class CcddInputTypeHandler
 {
     // Class reference
-    private final CcddDbCommandHandler dbCommand;
+    private CcddDbCommandHandler dbCommand;
 
     // List of input types, both default and custom ones defined by the user
     private final List<InputType> inputTypes;
@@ -44,139 +44,11 @@ public class CcddInputTypeHandler
     // Array containing the custom input type information. This is used by the input type editor
     private String[][] customInputTypes;
 
+    // List of input type that have selection items
+    private final List<InputType> selectionInputTypes;
+
     // Map used to locate an input type based on its name as the key
     private final Map<String, InputType> inputTypeMap;
-
-    /**********************************************************************************************
-     * Input type class
-     *********************************************************************************************/
-    protected class InputType
-    {
-        private final String inputName;
-        private final String inputMatch;
-        private final InputTypeFormat inputFormat;
-        private final String inputDescription;
-        private final String[] inputItems;
-
-        /******************************************************************************************
-         * Input type class constructor
-         *
-         * @param inputName
-         *            input type name
-         *
-         * @param inputMatch
-         *            regular expression match for the input type
-         *
-         * @param inputFormat
-         *            input type format
-         *
-         * @param inputDescription
-         *            input type description
-         *
-         * @param inputItems
-         *            array of acceptable values for this input type; null if the input type
-         *            doesn't constrain the inputs to items form a list. The list is used to create
-         *            the contents of the combo box in the table column with this input type
-         *****************************************************************************************/
-        InputType(String inputName,
-                  String inputMatch,
-                  InputTypeFormat inputFormat,
-                  String inputDescription,
-                  String[] inputItems)
-        {
-            this.inputName = inputName;
-            this.inputMatch = inputMatch;
-            this.inputFormat = inputFormat;
-            this.inputDescription = inputDescription;
-            this.inputItems = inputItems;
-        }
-
-        /******************************************************************************************
-         * Get the input type name
-         *
-         * @return Input type name
-         *****************************************************************************************/
-        protected String getInputName()
-        {
-            return inputName;
-        }
-
-        /******************************************************************************************
-         * Get the input type matching regular expression
-         *
-         * @return Input type matching regular expression
-         *****************************************************************************************/
-        protected String getInputMatch()
-        {
-            return inputMatch;
-        }
-
-        /******************************************************************************************
-         * Get the input type format
-         *
-         * @return Input type format
-         *****************************************************************************************/
-        protected InputTypeFormat getInputFormat()
-        {
-            return inputFormat;
-        }
-
-        /******************************************************************************************
-         * Get the input type description
-         *
-         * @return Input type description
-         *****************************************************************************************/
-        protected String getInputDescription()
-        {
-            return inputDescription;
-        }
-
-        /******************************************************************************************
-         * Get the input type items
-         *
-         * @return Input type items
-         *****************************************************************************************/
-        protected String[] getInputItems()
-        {
-            return inputItems;
-        }
-
-        /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to floating point
-         * values if the first character is a decimal, and removes '+' signs and unneeded leading
-         * zeroes from integer and floating point values. Leading zeroes are preserved for
-         * hexadecimal values
-         *
-         * @param valueS
-         *            value, represented as a string, to reformat
-         *
-         * @return Input value reformatted based on its input type
-         *****************************************************************************************/
-        protected String formatInput(String valueS)
-        {
-            return CcddInputTypeHandler.formatInput(valueS, inputFormat, true);
-        }
-
-        /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to floating point
-         * values if the first character is a decimal, and removes '+' signs and unneeded leading
-         * zeroes from integer and floating point values
-         *
-         * @param valueS
-         *            value, represented as a string, to reformat
-         *
-         * @param preserveZeroes
-         *            true to preserve leading zeroes in hexadecimal values; false to eliminate the
-         *            extra zeroes (this is useful when comparing the text representation of two
-         *            hexadecimal values)
-         *
-         * @return Input value reformatted based on its input type
-         *****************************************************************************************/
-        protected String formatInput(String valueS, boolean preserveZeroes)
-        {
-            return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
-        }
-    }
 
     /**********************************************************************************************
      * Input type handler class constructor
@@ -188,6 +60,7 @@ public class CcddInputTypeHandler
     {
         inputTypeMap = new HashMap<>();
         inputTypes = new ArrayList<InputType>(0);
+        selectionInputTypes = new ArrayList<InputType>(0);
         dbCommand = ccddMain.getDbCommandHandler();
 
         // Set the input type list, combining the default types and the custom types stored in the
@@ -197,6 +70,58 @@ public class CcddInputTypeHandler
                                                            true,
                                                            ccddMain.getMainFrame())
                                  .toArray(new String[0][0]));
+    }
+
+    /**********************************************************************************************
+     * Input type handler class constructor
+     *
+     * @param inputTypesArray
+     *            array of custom input type definitions
+     *********************************************************************************************/
+    CcddInputTypeHandler(String[][] inputTypesArray)
+    {
+        inputTypeMap = new HashMap<>();
+        inputTypes = new ArrayList<InputType>(0);
+        selectionInputTypes = new ArrayList<InputType>(0);
+
+        // Set the input type list, combining the default types and the supplied custom types
+        setInputTypeData(inputTypesArray);
+    }
+
+    /**********************************************************************************************
+     * Check if the an input type exists with the specified name
+     *
+     * @param inputTypeName
+     *            input type name to match (case insensitive)
+     *
+     * @return true if an input exists with the specified name
+     *********************************************************************************************/
+    protected boolean isInputTypeValid(String inputTypeName)
+    {
+        return inputTypeMap.get(inputTypeName.toLowerCase()) != null;
+    }
+
+    /**********************************************************************************************
+     * Check if the two input types differ
+     *
+     * @param inputTypeA
+     *            first input type to compare
+     *
+     * @param inputTypeB
+     *            second input type to compare
+     *
+     * @return true if the input types differ
+     *********************************************************************************************/
+    protected boolean isInputTypeChanged(InputType inputTypeA, InputType inputTypeB)
+    {
+        return !inputTypeA.getInputName().equals(inputTypeB.getInputName())
+               || !inputTypeA.getInputDescription().equals(inputTypeB.getInputDescription())
+               || !inputTypeA.getInputMatch().equals(inputTypeB.getInputMatch())
+               || !inputTypeA.getInputFormat().equals(inputTypeB.getInputFormat())
+               || (inputTypeA.getInputItems() != null
+                   && inputTypeB.getInputItems() != null
+                   && !CcddUtilities.isArraySetsEqual(inputTypeA.getInputItems().toArray(new String[0]),
+                                                      inputTypeB.getInputItems().toArray(new String[0])));
     }
 
     /**********************************************************************************************
@@ -220,8 +145,10 @@ public class CcddInputTypeHandler
         // Store the custom input type definitions
         this.customInputTypes = customInputTypes;
 
-        // Clear the existing input type list
+        // Clear the existing input type lists
+        inputTypeMap.clear();
         inputTypes.clear();
+        selectionInputTypes.clear();
 
         // Step through the default input types
         for (DefaultInputType inputType : DefaultInputType.values())
@@ -257,15 +184,22 @@ public class CcddInputTypeHandler
                                          customType[InputTypesColumn.MATCH.ordinal()],
                                          inputFormat,
                                          customType[InputTypesColumn.DESCRIPTION.ordinal()],
-                                         customType[InputTypesColumn.ITEMS.ordinal()].split(SELECTION_ITEM_LIST_SEPARATOR)));
+                                         customType[InputTypesColumn.ITEMS.ordinal()]));
         }
 
         // Step through each input type (default and custom)
         for (InputType inputType : inputTypes)
         {
+            // Check if the input type has an item array
+            if (inputType.getInputItems() != null)
+            {
+                // Add the input type to the list
+                selectionInputTypes.add(inputType);
+            }
+
             // Add the input type to the map, using the name as the key (converted to lower case to
             // eliminate case sensitivity)
-            inputTypeMap.put(inputType.inputName.toLowerCase(), inputType);
+            inputTypeMap.put(inputType.getInputName().toLowerCase(), inputType);
         }
     }
 
@@ -308,57 +242,31 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Check if the an input type exists with the specified name
-     *
-     * @param inputTypeName
-     *            input type name to match (case insensitive)
-     *
-     * @return true if an input exists with the specified name
-     *********************************************************************************************/
-    protected boolean isInputTypeValid(String inputTypeName)
-    {
-        return inputTypeMap.get(inputTypeName.toLowerCase()) != null;
-    }
-
-    /**********************************************************************************************
      * Get the list of input types that have an item array
      *
      * @return List of input types that have an item array
      *********************************************************************************************/
     protected List<InputType> getSelectionInputTypes()
     {
-        List<InputType> selectionInputTypes = new ArrayList<InputType>();
-
-        // Step through the input types
-        for (InputType inputType : inputTypes)
-        {
-            // Check if the input type has an item array
-            if (inputType.getInputItems() != null)
-            {
-                // Add the input type to the list
-                selectionInputTypes.add(inputType);
-            }
-        }
-
         return selectionInputTypes;
     }
 
     /**********************************************************************************************
      * Get the item array for the specified input type
      *
-     * @return Item array for the specified input type
+     * @return Item list for the specified input type
      *********************************************************************************************/
-    protected String[] getSelectionInputTypeItems(String inputTypeName)
+    protected List<String> getSelectionInputTypeItems(String inputTypeName)
     {
-        String[] selectionTypeItems = new String[0];
+        List<String> selectionTypeItems = new ArrayList<String>(0);
 
         // Get the input type based on the supplied name
         InputType inputType = getInputTypeByName(inputTypeName);
 
         // Check if the input type exists and has an item array
-        if (inputType != null && inputType.getInputItems() != null)
+        if (inputType != null)
         {
-            // STore the reference to the input type's item array
+            // Store the reference to the input type's item array
             selectionTypeItems = inputType.getInputItems();
         }
 
@@ -527,9 +435,9 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Get a list containing the tables in the project database that reference the specified input
-     * type name. Only the columns containing input types in the table type and data field internal
-     * tables are searched
+     * Get the references in the table type and data field internal tables that match the specified
+     * input type name. Only the columns containing input types in the table type and data field
+     * internal tables are searched
      *
      * @param inputTypeName
      *            input type name for which to search

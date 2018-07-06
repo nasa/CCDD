@@ -28,6 +28,7 @@ import java.util.List;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
@@ -37,7 +38,6 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
-import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table type handler class. The table definition consists of one or
@@ -338,6 +338,16 @@ public class CcddTableTypeHandler
         protected InputType[] getInputTypes()
         {
             return columnInputType.toArray(new InputType[0]);
+        }
+
+        /******************************************************************************************
+         * Get the list of column input types
+         *
+         * @return List of column input types
+         *****************************************************************************************/
+        protected List<InputType> getInputTypesList()
+        {
+            return columnInputType;
         }
 
         /******************************************************************************************
@@ -996,17 +1006,31 @@ public class CcddTableTypeHandler
      *
      * @param ccddMain
      *            main class
+     *
+     * @param inputTypeHandler
+     *            reference to the input type handler
      *********************************************************************************************/
-    CcddTableTypeHandler(CcddMain ccddMain)
+    CcddTableTypeHandler(CcddMain ccddMain, CcddInputTypeHandler inputTypeHandler)
     {
         this.ccddMain = ccddMain;
+        this.inputTypeHandler = inputTypeHandler;
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
-        inputTypeHandler = ccddMain.getInputTypeHandler();
         typeDefinitions = new ArrayList<TypeDefinition>();
 
         // Create the table type from the definitions stored in the database
         createTypesFromDatabase();
+    }
+
+    /**********************************************************************************************
+     * Table type handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *********************************************************************************************/
+    CcddTableTypeHandler(CcddMain ccddMain)
+    {
+        this(ccddMain, ccddMain.getInputTypeHandler());
     }
 
     /**********************************************************************************************
@@ -1035,7 +1059,7 @@ public class CcddTableTypeHandler
     /**********************************************************************************************
      * Set the list of table type definitions
      *
-     * @param typeDefinitionse
+     * @param typeDefinitions
      *            list of table type definitions
      *********************************************************************************************/
     protected void setTypeDefinitions(List<TypeDefinition> typeDefinitions)
@@ -1382,6 +1406,44 @@ public class CcddTableTypeHandler
         }
 
         return enumColumns;
+    }
+
+    /**********************************************************************************************
+     * Update the input type for each table type definition column following a change to the input
+     * type definitions
+     *
+     * @param inputTypeNames
+     *            list of the input type names, before and after the changes
+     *********************************************************************************************/
+    protected void updateInputTypes(List<String[]> inputTypeNames)
+    {
+        // Step through each table type definition
+        for (TypeDefinition typeDefn : getTypeDefinitions())
+        {
+            // Step through each column's input type
+            for (int index = 0; index < typeDefn.getInputTypesList().size(); index++)
+            {
+                // Get the column's input type name before the change
+                String inputTypeName = typeDefn.getInputTypesList().get(index).getInputName();
+
+                // Step through each input type that changed
+                for (String[] oldAndNewName : inputTypeNames)
+                {
+                    // Check if the input type name changed
+                    if (oldAndNewName[0].equals(inputTypeName))
+                    {
+                        // Set the column's input type name to the (possibly) new input type name
+                        // and stop searching
+                        inputTypeName = oldAndNewName[1];
+                        break;
+                    }
+                }
+
+                // Set the column's input type based on the input type name
+                typeDefn.getInputTypesList().set(index,
+                                                 inputTypeHandler.getInputTypeByName(inputTypeName));
+            }
+        }
     }
 
     /**********************************************************************************************

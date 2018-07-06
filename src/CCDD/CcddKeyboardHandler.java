@@ -38,13 +38,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.SearchDialogType;
-import CCDD.CcddInputTypeHandler.InputType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;

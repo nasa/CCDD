@@ -486,7 +486,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                             buildUpdates();
 
                             // Update the tables affected by the changes to the data type(s)
-                            dbTable.modifyTablePerDataTypeOrMacroChanges(modifications,
+                            dbTable.modifyTablesPerDataTypeOrMacroChanges(modifications,
                                                                          getUpdatedData(),
                                                                          CcddDataTypeEditorDialog.this);
                         }

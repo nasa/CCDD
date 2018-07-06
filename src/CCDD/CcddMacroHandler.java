@@ -43,13 +43,13 @@ import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
-import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary macro handler class

@@ -1837,7 +1837,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                             true,
                                             true,
                                             null,
-                                            null,
                                             CcddTableEditorDialog.this);
     }
 

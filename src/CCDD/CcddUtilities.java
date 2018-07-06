@@ -45,12 +45,15 @@ public class CcddUtilities
      *********************************************************************************************/
     private static enum HTMLTag
     {
-        HTML("<html>", ""),
-        BREAK("<br>", "\n"),
+        // The order of the HTML enumerations prevents accidental conversion of special characters
+        // within a tag from being interpreted as a tag character (e.g., the '<' in '<br>' would be
+        // converted to a '&lt;' if the break tag appears prior to the less than tag in the list)
         AMP("&amp;", "&"),
         LESS("&lt;", "<"),
         GREAT("&gt;", ">"),
-        SPACE("&#160;", " ");
+        SPACE("&#160;", " "),
+        HTML("<html>", ""),
+        BREAK("<br>", "\n");
 
         private final String htmlTag;
         private final String tagChar;

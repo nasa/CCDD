@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
-import CCDD.CcddInputTypeHandler.InputType;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary field handler class
@@ -185,6 +185,39 @@ public class CcddFieldHandler
         {
             // Clear the field information
             fieldInformation.clear();
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the input type for each field definition following a change to the input type
+     * definitions
+     *
+     * @param inputTypeNames
+     *            list of the input type names, before and after the changes
+     *********************************************************************************************/
+    protected void updateFieldInputTypes(List<String[]> inputTypeNames)
+    {
+        // Step through each field definition
+        for (FieldInformation fieldInfo : fieldInformation)
+        {
+            // Get the field's input type name before the change
+            String inputTypeName = fieldInfo.getInputType().getInputName();
+
+            // Step through each input type that changed
+            for (String[] oldAndNewName : inputTypeNames)
+            {
+                // Check if the input type name changed
+                if (oldAndNewName[0].equals(inputTypeName))
+                {
+                    // Set the field's input type name to the (possibly) new input type name and
+                    // stop searching
+                    inputTypeName = oldAndNewName[1];
+                    break;
+                }
+
+                // Set the field's input type based on the input type name
+                fieldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
+            }
         }
     }
 
@@ -386,11 +419,15 @@ public class CcddFieldHandler
      *            true if the owner name is ignored. This is the case if called by the data field
      *            or table type editors
      *
+     * @param inpTypeHndlr
+     *            reference to the input type handler
+     *
      * @return Data field definitions array
      *********************************************************************************************/
     protected static boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
                                             List<FieldInformation> compFieldInfoB,
-                                            boolean isIgnoreOwnerName)
+                                            boolean isIgnoreOwnerName,
+                                            CcddInputTypeHandler inpTypeHndlr)
     {
         // Set the change flag if the number of fields in the two field handlers differ
         boolean isFieldChanged = compFieldInfoA.size() != compFieldInfoB.size();
@@ -405,7 +442,8 @@ public class CcddFieldHandler
                 if ((!isIgnoreOwnerName && !compFieldInfoA.get(index).getOwnerName().equals(compFieldInfoB.get(index).getOwnerName()))
                     || !compFieldInfoA.get(index).getFieldName().equals(compFieldInfoB.get(index).getFieldName())
                     || !compFieldInfoA.get(index).getDescription().equals(compFieldInfoB.get(index).getDescription())
-                    || !compFieldInfoA.get(index).getInputType().equals(compFieldInfoB.get(index).getInputType())
+                    || inpTypeHndlr.isInputTypeChanged(compFieldInfoA.get(index).getInputType(),
+                                                       compFieldInfoB.get(index).getInputType())
                     || compFieldInfoA.get(index).getSize() != compFieldInfoB.get(index).getSize()
                     || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
                     || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired()
