@@ -113,6 +113,9 @@ public class CcddDbTableCommandHandler
     // updated as needed, is used in place of querying for the list as needed
     private List<String> rootStructures;
 
+    // Characters used to create a unique delimiter for literal strings stored in the database
+    private final static String DELIMITER_CHARACTERS = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
     /**********************************************************************************************
      * Database table command handler class constructor
      *
@@ -174,17 +177,44 @@ public class CcddDbTableCommandHandler
             // Check if the item contains a single quote or backslash character
             if (objectS.contains("'") || objectS.contains("\\"))
             {
-                // Check if the item contains $$
-                if (objectS.contains("$$"))
-                {
-                    // Use $_$ as the delimiter
-                    delim = "$_$";
-                }
-                // The item doesn't contain $$
-                else
+                // Check if the item doesn't contain $$
+                if (!objectS.contains("$$"))
                 {
                     // Use $$ as the delimiter
                     delim = "$$";
+                }
+                // The item does contain $$. A delimiter that doesn't conflict with the text must
+                // be created. This delimiter is in the form $_$ where _ is a single underscore or
+                // upper/lower case letter, or one or more underscores followed by a single upper
+                // or lower case letter
+                else
+                {
+                    String delimInit = "";
+                    int index = 0;
+
+                    do
+                    {
+                        do
+                        {
+                            // Use $_$ as the delimiter where '_' is an underscore or letter
+                            delim = "$" + delimInit + DELIMITER_CHARACTERS.charAt(index) + "$";
+                            index++;
+                        } while (objectS.contains(delim) && index < DELIMITER_CHARACTERS.length());
+                        // Continue to change the delimiter character until no matching string is
+                        // found in the supplied text, or until all legal characters are exhausted
+
+                        // Check if a match exists in the supplied text using all of the legal
+                        // characters in the delimiter
+                        if (index == DELIMITER_CHARACTERS.length())
+                        {
+                            // Insert an(other) underscore into the delimiter and reset the
+                            // character index and try again to find a non-interfering delimiter
+                            delimInit += "_";
+                            index = 0;
+                        }
+                    } while (index == 0);
+                    // Continue to try potential delimiters until one is found that doesn't have a
+                    // match within the supplied text
                 }
             }
 
@@ -6801,8 +6831,8 @@ public class CcddDbTableCommandHandler
             // Step through each table type editor
             for (CcddTableTypeEditorHandler editor : ccddMain.getTableTypeEditor().getTypeEditors())
             {
-                // Update the input type combo box list
-                editor.setUpInputTypeColumn();
+                // Update the table type editor for the input type change
+                editor.updateForInputTypeChange(inputTypeNames);
             }
         }
     }
@@ -7015,7 +7045,7 @@ public class CcddDbTableCommandHandler
              * @param tablePath
              *            table path (if applicable) and name
              *************************************************************************************/
-            ModifiedTable(String tablePath)
+            private ModifiedTable(String tablePath)
             {
                 // Load the table's information from the project database
                 tableInformation = loadTableData(tablePath, false, true, false, dialog);
@@ -7693,18 +7723,55 @@ public class CcddDbTableCommandHandler
             @Override
             protected void execute()
             {
-                CcddFieldHandler fieldHandler = null;
                 List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
 
                 try
                 {
-                    // Step through each input table modification
+                    String tableTypeCommand = "";
+                    String fieldCommand = "";
+
+                    // Step through each input type table modification
                     for (TableModification mod : modifications)
                     {
+                        // Get the original and (possibly) updated input type names to shorten
+                        // subsequent calls
+                        String oldName = mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString();
+                        String newName = mod.getRowData()[InputTypesColumn.NAME.ordinal()].toString();
+
                         // Store the input type name before and after the update, in case the name
-                        // changed
-                        inputTypeNames.add(new String[] {mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString(),
-                                                         mod.getRowData()[InputTypesColumn.NAME.ordinal()].toString()});
+                        // changed. Input types are generally fetched from the handler based on the
+                        // name, so a name change makes this no longer possible. Providing a name
+                        // translation list allows locating the correct input type
+                        inputTypeNames.add(new String[] {oldName, newName});
+
+                        // Check if the input type name changed
+                        if (!oldName.equals(newName))
+                        {
+                            // Append the commands to update the input type name in the table types
+                            // and data fields tables
+                            tableTypeCommand += "UPDATE "
+                                                + InternalTable.TABLE_TYPES.getTableName()
+                                                + " SET "
+                                                + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                + " = "
+                                                + delimitText(newName)
+                                                + " WHERE "
+                                                + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                + " = "
+                                                + delimitText(oldName)
+                                                + "; ";
+                            fieldCommand += "UPDATE "
+                                            + InternalTable.FIELDS.getTableName()
+                                            + " SET "
+                                            + FieldsColumn.FIELD_TYPE.getColumnName()
+                                            + " = "
+                                            + delimitText(newName)
+                                            + " WHERE "
+                                            + FieldsColumn.FIELD_TYPE.getColumnName()
+                                            + " = "
+                                            + delimitText(oldName)
+                                            + "; ";
+                        }
 
                         // Check if the input type regular expression match string or selection
                         // item list changed
@@ -7712,13 +7779,13 @@ public class CcddDbTableCommandHandler
                             || !mod.getOriginalRowData()[InputTypesColumn.ITEMS.ordinal()].equals(mod.getRowData()[InputTypesColumn.ITEMS.ordinal()]))
                         {
                             List<String> tableTypes = new ArrayList<String>();
-                            List<String> fields = new ArrayList<String>();
+                            List<String[]> fields = new ArrayList<String[]>();
 
-                            // Get the input type definition
-                            InputType inputType = inputTypeHandler.getInputTypeByName(mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString());
+                            // Get the original and new input type definition references
+                            InputType inputType = inputTypeHandler.getInputTypeByName(oldName);
 
                             // Step through each reference to the input type name
-                            for (String inputTypeRef : inputTypeHandler.getInputTypeReferences(mod.getOriginalRowData()[InputTypesColumn.NAME.ordinal()].toString(), dialog))
+                            for (String inputTypeRef : inputTypeHandler.getInputTypeReferences(oldName, dialog))
                             {
                                 // Split the reference into table name, column name, comment, and
                                 // context
@@ -7727,7 +7794,8 @@ public class CcddDbTableCommandHandler
                                 // Extract the context from the reference
                                 String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
-                                // Check if the context is in a table type definition
+                                // Check if the input item regular expression match or selection
+                                // items changed and the context is in a table type definition
                                 if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
                                 {
                                     // Check if the table type name hasn't already been added to
@@ -7742,23 +7810,9 @@ public class CcddDbTableCommandHandler
                                 // Check if the context is in a data field definition
                                 else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
                                 {
-                                    // Check if the data field owner hasn't already been added to
-                                    // the list
-                                    if (!fields.contains(refColumns[FieldsColumn.OWNER_NAME.ordinal()]))
-                                    {
-                                        // Add the data field owner to the list of those using the
-                                        // input type
-                                        fields.add(refColumns[FieldsColumn.OWNER_NAME.ordinal()]);
-
-                                        // Check if the data field handler hasn't been created
-                                        if (fieldHandler == null)
-                                        {
-                                            // Create a data field handler
-                                            fieldHandler = new CcddFieldHandler(ccddMain,
-                                                                                null,
-                                                                                dialog);
-                                        }
-                                    }
+                                    // Add the data field definition to the list of those using the
+                                    // input type
+                                    fields.add(refColumns);
                                 }
                             }
 
@@ -7827,8 +7881,6 @@ public class CcddDbTableCommandHandler
                                             // type
                                             for (Integer column : columns)
                                             {
-                                                // TODO IF THE VALUE IS NO LONGER VALID THEN A
-                                                // BLANK IS SUBSTITUTED
                                                 // Make the change to the cell
                                                 showMessage = table.validateCellContent(tableData,
                                                                                         row,
@@ -7848,10 +7900,27 @@ public class CcddDbTableCommandHandler
                             }
 
                             // Step through each change in the data field definitions
-                            for (String field : fields)
+                            for (String[] field : fields)
                             {
-                                // TODO NEED TO DO THE STEPS TO VALIDATE FIELD VALUES
-                                System.out.println("need to update field: " + field); // TODO
+                                // Check if the field's value no longer matches the regular
+                                // expression
+                                if (!field[FieldsColumn.FIELD_VALUE.ordinal()].matches(mod.getRowData()[InputTypesColumn.MATCH.ordinal()].toString()))
+                                {
+                                    // Build the command to set the field value to blank
+                                    fieldCommand += "UPDATE "
+                                                    + InternalTable.FIELDS.getTableName()
+                                                    + " SET "
+                                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                    + " = '' WHERE "
+                                                    + FieldsColumn.OWNER_NAME.getColumnName()
+                                                    + " = "
+                                                    + delimitText(field[FieldsColumn.OWNER_NAME.ordinal()])
+                                                    + " AND "
+                                                    + FieldsColumn.FIELD_NAME.getColumnName()
+                                                    + " = "
+                                                    + delimitText(field[FieldsColumn.FIELD_NAME.ordinal()])
+                                                    + "; ";
+                                }
                             }
                         }
                     }
@@ -7875,12 +7944,19 @@ public class CcddDbTableCommandHandler
                                             false,
                                             false,
                                             false,
-                                            false, // TODO should this be true?
+                                            false,
                                             null,
                                             dialog))
                         {
                             throw new SQLException("table modification error");
                         }
+                    }
+
+                    // Check if any input type name changes were made
+                    if (!tableTypeCommand.isEmpty() || !fieldCommand.isEmpty())
+                    {
+                        // Execute the command to update the input type name in the internal tables
+                        dbCommand.executeDbUpdate(tableTypeCommand + fieldCommand, dialog);
                     }
 
                     // Store the updated input types table

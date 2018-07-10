@@ -914,8 +914,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the input type combo box lists
         setUpSelectionColumns();
 
-        // TODO NEED TO CHECK IF ALL THE BELOW STEPS ARE NECESSARY (THE FIELD HANDLER UPDATES
-        // DEFINITELY ARE!)
+        // TODO NEED TO CHECK IF THIS ISNECESSARY
         // Update the table editor contents
         table.loadAndFormatData();
 
@@ -926,27 +925,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             committedInfo.getFieldHandler().updateFieldInputTypes(inputTypeNames);
             tableInfo.getFieldHandler().updateFieldInputTypes(inputTypeNames);
 
-            // Create a runnable object to be executed
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                /**********************************************************************************
-                 * Execute after all pending Swing events are finished
-                 *********************************************************************************/
-                @Override
-                public void run()
-                {
-                    // Force the table to redraw in case the number of columns changed
-                    tableModel.fireTableDataChanged();
-                    tableModel.fireTableStructureChanged();
-                }
-            });
+            // Redraw the data field panel
+            createDataFieldPanel(false);
         }
     }
 
     /**********************************************************************************************
      * Remove the custom value deletion flag in a cell, if present
      *********************************************************************************************/
-    protected void clearCustomValueDeletionFlags()
+    private void clearCustomValueDeletionFlags()
     {
         // Step through each row in the table
         for (int row = 0; row < tableModel.getRowCount(); row++)

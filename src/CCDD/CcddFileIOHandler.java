@@ -805,9 +805,6 @@ public class CcddFileIOHandler
                 // background)
                 if (haltDlg != null)
                 {
-                    // Force the dialog to the front
-                    haltDlg.toFront();
-
                     // Check if the user canceled verification
                     if (haltDlg.isHalted())
                     {
@@ -1078,9 +1075,6 @@ public class CcddFileIOHandler
                     // Check if the cancel import dialog is present
                     if (haltDlg != null)
                     {
-                        // Force the dialog to the front
-                        haltDlg.toFront();
-
                         // Update the progress bar
                         haltDlg.updateProgressBar(null, -1);
                     }

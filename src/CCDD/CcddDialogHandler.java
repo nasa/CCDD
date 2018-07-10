@@ -2007,9 +2007,9 @@ public class CcddDialogHandler extends JDialog
      *            true to allow the dialog to be resized
      *
      * @param modal
-     *            false to allow the main application window to still be operated while the dialog
-     *            is open
-     *
+     *            false to allow the other application windows to still be operated while the
+     *            dialog is open
+     * 
      * @return Selected button type
      *********************************************************************************************/
     protected int createDialog(Component parent,

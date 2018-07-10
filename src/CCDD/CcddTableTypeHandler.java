@@ -248,27 +248,6 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Column name converted to its database equivalent. The database column name is the
-         * visible name with any characters that are invalid in a database column name replaced
-         * with an underscore; however, if the table type represents a structure then certain
-         * column names use fixed values
-         *
-         * @param columnNameVisible
-         *            visible column name
-         *
-         * @param inputType
-         *            input type (InputType)
-         *
-         * @return Column name converted to its database equivalent
-         *****************************************************************************************/
-        protected String getColumnNameDatabase(String columnNameVisible, InputType inputType)
-        {
-            return DefaultColumn.convertVisibleToDatabase(columnNameVisible,
-                                                          inputType.getInputName(),
-                                                          isStructure());
-        }
-
-        /******************************************************************************************
          * Get the array of column names as seen by the user (includes names for hidden columns)
          *
          * @return Array of column names as seen by the user
@@ -774,50 +753,6 @@ public class CcddTableTypeHandler
         }
 
         /******************************************************************************************
-         * Get the row index in the structure table for the specified variable name
-         *
-         * @param tableData
-         *            list of table data, one-dimensional
-         *
-         * @param numColumns
-         *            number of table columns
-         *
-         * @param columnValue
-         *            variable name
-         *
-         * @param columnIndex
-         *            column index of the variable name column
-         *
-         * @return Row index for the specified variable name; -1 if the variable name is not found
-         *****************************************************************************************/
-        protected int getRowIndexByColumnValue(List<String> tableData,
-                                               int numColumns,
-                                               String columnValue,
-                                               int columnIndex)
-        {
-            int varRow = -1;
-
-            // Step through each row of table data
-            for (int row = 0; row < tableData.size(); row += numColumns)
-            {
-                // Step through each column of the row
-                for (int column = 0; column < numColumns; column++)
-                {
-                    // Check if the variable name matches the name in this row
-                    if (columnValue.equals(tableData.get(row + column)))
-                    {
-                        // Store the row index and stop searching
-                        varRow = row / numColumns;
-                        row = tableData.size();
-                        break;
-                    }
-                }
-            }
-
-            return varRow;
-        }
-
-        /******************************************************************************************
          * Get the list of groupings of associated command argument columns
          *
          * @param useViewIndex
@@ -985,7 +920,7 @@ public class CcddTableTypeHandler
                 // argument index
                 addColumn(columnIndex,
                           DefaultColumn.convertVisibleToDatabase(argName,
-                                                                 ((InputType) cmdArgCol[2]).getInputName(),
+                                                                 ((DefaultInputType) cmdArgCol[2]).getInputName(),
                                                                  false),
                           argName,
                           cmdArgCol[1].toString().replaceFirst("###",

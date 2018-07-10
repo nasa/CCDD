@@ -1102,7 +1102,7 @@ public class CcddDbVerificationHandler
                         }
 
                         // Check if the input type is invalid
-                        if (inputTypeHandler.isInputTypeValid(inputType[0]))
+                        if (!inputTypeHandler.isInputTypeValid(inputType[0]))
                         {
                             // Invalid input type
                             issues.add(new TableIssue("Internal table '"
@@ -1110,16 +1110,20 @@ public class CcddDbVerificationHandler
                                                       + "' references an invalid input type, '"
                                                       + inputType[0]
                                                       + "'",
-                                                      "Replace input type with 'Text'",
+                                                      "Replace input type with '"
+                                                             + DefaultInputType.TEXT.getInputName()
+                                                             + "'",
                                                       "UPDATE "
-                                                                                        + tableNameDb
-                                                                                        + " SET "
-                                                                                        + columnName
-                                                                                        + " = 'Text' WHERE "
-                                                                                        + columnName
-                                                                                        + " = '"
-                                                                                        + inputType[0]
-                                                                                        + "';"));
+                                                                    + tableNameDb
+                                                                    + " SET "
+                                                                    + columnName
+                                                                    + " = '"
+                                                                    + DefaultInputType.TEXT.getInputName()
+                                                                    + "' WHERE "
+                                                                    + columnName
+                                                                    + " = '"
+                                                                    + inputType[0]
+                                                                    + "';"));
                         }
                     }
                 }

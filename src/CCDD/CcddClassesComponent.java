@@ -572,7 +572,9 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Return the color selected for the check box
+         * Get the color selected for the check box
+         *
+         * @return Color selected for the check box
          *****************************************************************************************/
         protected Color getIconColor()
         {
@@ -1134,38 +1136,6 @@ public class CcddClassesComponent
         protected boolean isOneOrNone()
         {
             return cells.size() <= 1;
-        }
-    }
-
-    /**********************************************************************************************
-     * Array list class with case insensitive contains method
-     *********************************************************************************************/
-    @SuppressWarnings("serial")
-    protected static class ArrayListCaseInsensitive extends ArrayList<String>
-    {
-        /******************************************************************************************
-         * Override the contains method. Compare the input object to each member of the list,
-         * ignoring case, and return true if a match is found
-         *****************************************************************************************/
-        @Override
-        public boolean contains(Object o)
-        {
-            boolean isMatch = false;
-            String checkString = (String) o;
-
-            // Step through each string in the list
-            for (String listString : this)
-            {
-                // Check if the strings match (case insensitive)
-                if (checkString.equalsIgnoreCase(listString))
-                {
-                    // Set the flag to indicate a match and stop searching
-                    isMatch = true;
-                    break;
-                }
-            }
-
-            return isMatch;
         }
     }
 
@@ -2734,7 +2704,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Transferable tab class
          *****************************************************************************************/
-        class TabTransferable implements Transferable
+        public class TabTransferable implements Transferable
         {
             private TabTransferData data = null;
 
@@ -2795,7 +2765,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Tab transfer data class
          *****************************************************************************************/
-        class TabTransferData
+        public class TabTransferData
         {
             private DnDTabbedPane tabbedPane = null;
             private int tabIndex = -1;
@@ -2803,7 +2773,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Tab transfer data class constructor
              *************************************************************************************/
-            public TabTransferData()
+            TabTransferData()
             {
             }
 
@@ -2816,7 +2786,7 @@ public class CcddClassesComponent
              * @param tabIndex
              *            index of the tab being moved
              *************************************************************************************/
-            public TabTransferData(DnDTabbedPane tabbedPane, int tabIndex)
+            TabTransferData(DnDTabbedPane tabbedPane, int tabIndex)
             {
                 this.tabbedPane = tabbedPane;
                 this.tabIndex = tabIndex;
@@ -2869,7 +2839,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Drop target listener class
          *****************************************************************************************/
-        class CCDDDropTargetListener implements DropTargetListener
+        public class CCDDDropTargetListener implements DropTargetListener
         {
             /**************************************************************************************
              * Handle a drop target drag event
@@ -3056,7 +3026,7 @@ public class CcddClassesComponent
          * Drag and drop glass pane class. The glass pane is used to display an image of the tab
          * being moved
          *****************************************************************************************/
-        static class DnDGlassPane extends JPanel
+        public static class DnDGlassPane extends JPanel
         {
             private final Point location;
             private BufferedImage dragImage;

@@ -1898,8 +1898,6 @@ public abstract class CcddJTableHandler extends JTable
                                                        int row,
                                                        int column)
         {
-            System.out.println(row + ", " + column + " val: ." + value + "."); // TODO
-
             // Check if this is the first row in the table and the cell is not formatted for HTML
             if (row == 0 && !value.toString().startsWith("<html>"))
             {
@@ -1908,7 +1906,6 @@ public abstract class CcddJTableHandler extends JTable
                 // the line feed isn't displayed correctly (unless the table is scrolled to the row
                 // containing the HTML text). Forcing the first row to be HTML avoids the condition
                 value = CcddUtilities.convertToHTML(value.toString());
-                System.out.println("  convert to HTML: ." + value + "."); // TODO
             }
 
             // Check if the cell value is HTML-formatted
@@ -1999,14 +1996,14 @@ public abstract class CcddJTableHandler extends JTable
      * Create a cell editor for cells that can display text on more than one line. This allows
      * adjusting the row height to fit the text as it is added or deleted
      *********************************************************************************************/
-    class MultiLineCellEditor extends DefaultCellEditor
+    private class MultiLineCellEditor extends DefaultCellEditor
     {
-        protected JTextArea textArea;
+        private final JTextArea textArea;
 
         /******************************************************************************************
          * Multi-line table cell editor constructor
          *****************************************************************************************/
-        public MultiLineCellEditor(final JTextArea textArea)
+        MultiLineCellEditor(final JTextArea textArea)
         {
             // This is a dummy action required by the interface. The check box is never used
             super(new JCheckBox());

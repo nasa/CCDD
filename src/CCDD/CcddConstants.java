@@ -79,9 +79,6 @@ public class CcddConstants
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
 
-    // Name of the database save point
-    protected static final String DB_SAVE_POINT_NAME = "ccdd_savepoint";
-
     // Script description text tag
     protected static final String SCRIPT_DESCRIPTION_TAG = "description:";
 
@@ -233,7 +230,6 @@ public class CcddConstants
     protected static final String RENAME_ICON = "/images/rename.png";
     protected static final String COPY_ICON = "/images/copy.png";
     protected static final String EXECUTE_ICON = "/images/execute.png";
-    protected static final String EXECUTE_ALL_ICON = "/images/execute_all.png";
     protected static final String HALT_EXECUTION_ICON = "/images/halt.png";
     protected static final String GROUP_ICON = "/images/group.png";
     protected static final String SEPARATOR_ICON = "/images/separator.png";
@@ -2049,19 +2045,55 @@ public class CcddConstants
      *********************************************************************************************/
     protected static enum InputTypeFormat
     {
-        TEXT,
-        ARRAY,
-        INTEGER,
-        FLOAT,
-        RATE,
-        HEXADECIMAL,
-        BOOLEAN,
-        ENUMERATION,
-        DATA_TYPE,
-        MINIMUM,
-        MAXIMUM,
-        VARIABLE_PATH,
-        PAGE_FORMAT
+        TEXT(true),
+        ARRAY(true),
+        INTEGER(true),
+        FLOAT(true),
+        RATE(false),
+        HEXADECIMAL(true),
+        BOOLEAN(true),
+        ENUMERATION(false),
+        DATA_TYPE(false),
+        MINIMUM(false),
+        MAXIMUM(false),
+        VARIABLE_PATH(false),
+        PAGE_FORMAT(false);
+
+        private final boolean isUserSelectable;
+
+        /******************************************************************************************
+         * Default input type formats constructor
+         *
+         * @param inputName
+         *            input type name
+         *****************************************************************************************/
+        InputTypeFormat(boolean isUserSelectable)
+        {
+            this.isUserSelectable = isUserSelectable;
+        }
+
+        /******************************************************************************************
+         * Get the input format name in viewable format (initial character capitalized; remained
+         * lower case)
+         *
+         * @return Input format name in viewable format
+         *****************************************************************************************/
+        protected String getFormatName()
+        {
+            String name = toString();
+            return name.charAt(0) + name.toLowerCase().substring(1);
+        }
+
+        /******************************************************************************************
+         * Check if this input format can be selected by the user. Certain formats are for internal
+         * use only; the remaining ones can be displayed (e.g., in the input types editor)
+         *
+         * @return true if the format can be selected by the user
+         *****************************************************************************************/
+        protected boolean isUserSelectable()
+        {
+            return isUserSelectable;
+        }
     }
 
     /**********************************************************************************************
@@ -2342,7 +2374,10 @@ public class CcddConstants
          * @param inputDescription
          *            input type description
          *****************************************************************************************/
-        DefaultInputType(String inputName, String inputMatch, InputTypeFormat inputFormat, String inputDescription)
+        DefaultInputType(String inputName,
+                         String inputMatch,
+                         InputTypeFormat inputFormat,
+                         String inputDescription)
         {
             this.inputName = inputName;
             this.inputMatch = inputMatch;
@@ -2404,26 +2439,6 @@ public class CcddConstants
         protected String formatInput(String valueS)
         {
             return CcddInputTypeHandler.formatInput(valueS, inputFormat, true);
-        }
-
-        /******************************************************************************************
-         * Reformat the input value for numeric types. This adds a leading zero to floating point
-         * values if the first character is a decimal, and removes '+' signs and unneeded leading
-         * zeroes from integer and floating point values
-         *
-         * @param valueS
-         *            value, represented as a string, to reformat
-         *
-         * @param preserveZeroes
-         *            true to preserve leading zeroes in hexadecimal values; false to eliminate the
-         *            extra zeroes (this is useful when comparing the text representation of two
-         *            hexadecimal values)
-         *
-         * @return Input value reformatted based on its input type
-         *****************************************************************************************/
-        protected String formatInput(String valueS, boolean preserveZeroes)
-        {
-            return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
         }
     }
 
@@ -4791,11 +4806,11 @@ public class CcddConstants
      *********************************************************************************************/
     protected static enum InputTypeEditorColumnInfo
     {
-        NAME("Type Name", "User-defined input type name", "", true),
+        NAME("Type Name", "Input type name", "", true),
         DESCRIPTION("Description", "Input type description", "", false),
-        MATCH("Match", "Regular expression constraining values to the input type", ".*", true),
-        FORMAT("Format Type", "Generic type for formatting values", InputTypeFormat.TEXT.toString().toLowerCase(), false),
-        ITEMS("Valid Selections", "List of valid inputs, separated by line feeds", "", false),
+        MATCH("RegEx Match", "Regular expression for constraining values of this input type", ".*", true),
+        ITEMS("Selection Items", "Text strings, separated by line feeds, by which the input value is constrained", "", false),
+        FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.toString().toLowerCase(), false),
         OID("OID", "Input type index", "", false);
 
         private final String columnName;
@@ -4827,16 +4842,6 @@ public class CcddConstants
             this.toolTip = toolTip;
             this.initialValue = initialValue;
             this.isRequired = isRequired;
-        }
-
-        /******************************************************************************************
-         * Get the input type editor column name
-         *
-         * @return Input type editor column name
-         *****************************************************************************************/
-        protected String getColumnName()
-        {
-            return columnName;
         }
 
         /******************************************************************************************
@@ -6350,7 +6355,6 @@ public class CcddConstants
         DELETE_OPTION("Delete", 'D', "Cancel", DELETE_ICON, 2, -1),
         IMPORT_OPTION("Import", 'I', "Cancel", IMPORT_ICON, 2, -1),
         EXPORT_OPTION("Export", 'E', "Cancel", EXPORT_ICON, 2, -1),
-        LOAD_OPTION("Load", 'L', "Cancel", IMPORT_ICON, 2, -1),
         RENAME_OPTION("Rename", 'R', "Cancel", RENAME_ICON, 2, -1),
         COPY_OPTION("Copy", 'P', "Cancel", COPY_ICON, 2, -1),
         BACKUP_OPTION("Backup", 'B', "Cancel", COPY_ICON, 2, -1),

@@ -89,7 +89,7 @@ public class CcddVariableSizeAndConversionHandler
     /**********************************************************************************************
      * Conversion list storage class
      *********************************************************************************************/
-    class ConversionListStorage
+    private class ConversionListStorage
     {
         private final String varPathSeparator;
         private final boolean excludeDataTypes;
@@ -1022,7 +1022,7 @@ public class CcddVariableSizeAndConversionHandler
      * @return Variable path + name with the data types retained or removed, commas replaced by the
      *         separator character(s), left brackets replaced by underscores, right brackets
      *         removed, and the bit length removed (if present). Underscores are appended if the
-     *         resulting name matches an existing one so that teh returned name is unique
+     *         resulting name matches an existing one so that the returned name is unique
      *********************************************************************************************/
     protected String convertVariableName(String fullName,
                                          String varPathSeparator,

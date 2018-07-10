@@ -63,6 +63,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableSelectionMode;
+import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary input type editor dialog class
@@ -551,7 +552,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
      *
      * @return Reference to the specified input type in the prototype tables
      *********************************************************************************************/
-    protected InputTypeReference getInputTypeReferences(String inputTypeName)
+    private InputTypeReference getInputTypeReferences(String inputTypeName)
     {
         InputTypeReference inputTypeRefs = null;
 
@@ -596,7 +597,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnMultiLine(int column)
             {
-                return column != InputTypeEditorColumnInfo.FORMAT.ordinal();
+                return true;
             }
 
             /**************************************************************************************
@@ -614,7 +615,23 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return true;
+                boolean isEditable = true;
+
+                // Check if the table model exists, and if the table has at least one row
+                if (inputTypeTable.getModel() != null && inputTypeTable.getModel().getRowCount() != 0)
+                {
+                    // Convert the view row and column indices to model coordinates
+                    int modelRow = convertRowIndexToModel(row);
+                    int modelColumn = convertColumnIndexToModel(column);
+
+                    // Check if the cell is editable
+                    isEditable = isDataAlterable(((List<?>) ((UndoableTableModel) inputTypeTable.getModel()).getDataVector()
+                                                                                                            .elementAt(modelRow)).toArray(new Object[0]),
+                                                 modelRow,
+                                                 modelColumn);
+                }
+
+                return isEditable;
             }
 
             /**************************************************************************************
@@ -623,8 +640,18 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
-                return isCellEditable(convertRowIndexToView(row),
-                                      convertColumnIndexToView(column));
+                boolean isAlterable = true;
+
+                // Check if the table data has at least one row
+                if (rowData != null && rowData.length != 0)
+                {
+                    // Disable editing the regular expression match column if the selection items
+                    // column isn't blank
+                    isAlterable = !(column == InputTypeEditorColumnInfo.MATCH.ordinal()
+                                    && !rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty());
+                }
+
+                return isAlterable;
             }
 
             /**************************************************************************************
@@ -749,6 +776,22 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                                         + "<b>'");
                             }
                         }
+                        // Check if the regular expression match string has been changed
+                        else if (column == InputTypeEditorColumnInfo.ITEMS.ordinal())
+                        {
+                            // Convert the items in the cell to the corresponding regular
+                            // expression
+                            String itemRegEx = inputTypeHandler.convertItemsToRegEx(newValueS);
+
+                            // Check if the regular expression was created (null is returned if the
+                            // item list cell is empty)
+                            if (itemRegEx != null)
+                            {
+                                // Set the input match regular expression to mirror the selection
+                                // items
+                                tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = itemRegEx;
+                            }
+                        }
                     }
                 }
                 catch (CCDDException ce)
@@ -809,33 +852,44 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                       && isRowSelected(row)
                       && (isColumnSelected(column) || !getColumnSelectionAllowed())))
                 {
-                    boolean found = true;
-
-                    // Convert the column to model coordinates
-                    int modelColumn = inputTypeTable.convertColumnIndexToModel(column);
-
-                    // Check if input type name is blank
-                    if ((modelColumn == InputTypeEditorColumnInfo.NAME.ordinal())
-                        && inputTypeTable.getValueAt(row,
-                                                     InputTypeEditorColumnInfo.NAME.ordinal())
-                                         .toString().isEmpty())
+                    // Check if this cell is protected from changes
+                    if (!isCellEditable(row, column))
                     {
-                        // Set the flag indicating that the cell value is invalid
-                        found = false;
+                        // Change the cell's text and background colors
+                        comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
                     }
-                    // Check if the cell is required and is empty
-                    else if (InputTypeEditorColumnInfo.values()[modelColumn].isRequired()
-                             && inputTypeTable.getValueAt(row, column).toString().isEmpty())
+                    // The cell value can be changed
+                    else
                     {
-                        // Set the flag indicating that the cell value is invalid
-                        found = false;
-                    }
+                        boolean found = true;
 
-                    // Check if the cell value is invalid
-                    if (!found)
-                    {
-                        // Change the cell's background color
-                        comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                        // Convert the column to model coordinates
+                        int modelColumn = inputTypeTable.convertColumnIndexToModel(column);
+
+                        // Check if input type name is blank
+                        if ((modelColumn == InputTypeEditorColumnInfo.NAME.ordinal())
+                            && inputTypeTable.getValueAt(row,
+                                                         InputTypeEditorColumnInfo.NAME.ordinal())
+                                             .toString().isEmpty())
+                        {
+                            // Set the flag indicating that the cell value is invalid
+                            found = false;
+                        }
+                        // Check if the cell is required and is empty
+                        else if (InputTypeEditorColumnInfo.values()[modelColumn].isRequired()
+                                 && inputTypeTable.getValueAt(row, column).toString().isEmpty())
+                        {
+                            // Set the flag indicating that the cell value is invalid
+                            found = false;
+                        }
+
+                        // Check if the cell value is invalid
+                        if (!found)
+                        {
+                            // Change the cell's background color
+                            comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                        }
                     }
                 }
 
@@ -931,8 +985,12 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Step through each input type format
         for (InputTypeFormat type : InputTypeFormat.values())
         {
-            // Add the input type format to the list
-            formatComboBox.addItem(type.toString().toLowerCase());
+            // Check if the format type is selectable
+            if (type.isUserSelectable())
+            {
+                // Add the input type format name to the list
+                formatComboBox.addItem(type.getFormatName());
+            }
         }
 
         // Add a listener to the combo box for focus changes

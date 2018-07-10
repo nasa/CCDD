@@ -1518,23 +1518,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Search the entire table tree and get the list of path arrays where the node contains the
-     * search table's name. If no search name is provided then a list of all nodes is returned. The
-     * paths are in the form of arrays, with any HTML tags preserved
-     *
-     * @param searchName
-     *            name of table to search for in the node names; null to get all paths for the
-     *            parent node
-     *
-     * @return List of paths to the nodes matching the search table's name, or all nodes if the
-     *         search name is null
-     *********************************************************************************************/
-    protected List<Object[]> getTableTreePathArray(String searchName)
-    {
-        return getTableTreePathArray(searchName, root, -1);
-    }
-
-    /**********************************************************************************************
      * Search the table tree starting at the specified node and get the list of path arrays where
      * the node contains the search table's name. If no search name is provided then a list of all
      * nodes is returned. The paths are in the form of arrays, with any HTML tags preserved

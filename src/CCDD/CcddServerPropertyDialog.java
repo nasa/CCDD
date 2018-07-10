@@ -35,8 +35,8 @@ import javax.swing.border.Border;
 
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -68,7 +68,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     private boolean allowResize;
 
     // Flag that indicates if the password was successfully set in the Password dialog
-    boolean isPasswordSet;
+    private boolean isPasswordSet;
 
     /**********************************************************************************************
      * Server properties dialog class constructor

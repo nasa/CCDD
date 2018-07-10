@@ -95,10 +95,6 @@ public class CcddPatchHandler
     /**********************************************************************************************
      * Update the padding variable format from '__pad#' to 'pad#__'. This is to accommodate XML
      * exports that don't allow leading underscores in variable names (e.g., EDS)
-     *
-     * @throws CCDDException
-     *             If the user elects to not install the patch or an error occurs while applying
-     *             the patch
      *********************************************************************************************/
     private void updatePaddingVariables() throws CCDDException
     {
@@ -138,11 +134,11 @@ public class CcddPatchHandler
             {
                 // Check if the user elects to not apply the patch
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Apply patch to update padding variable names??<br><br></b>"
+                                                              "<html><b>Apply patch to update padding variable names?<br><br></b>"
                                                                                        + "Changes the padding variable format from "
                                                                                        + "'__pad#' to 'pad#__'.<br><b><i>If patch "
                                                                                        + "not applied the affected variables will "
-                                                                                       + "no longer be recognized as padding",
+                                                                                       + "not be recognized as padding",
                                                               "Apply Patch #06212018",
                                                               JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
@@ -235,10 +231,7 @@ public class CcddPatchHandler
                                                            + "'",
                                   "<html><b>Cannot convert project '"
                                                                   + dbControl.getProjectName()
-                                                                  + "' padding variable names to new format "
-                                                                  + "(project database will be closed)");
-
-            throw new CCDDException();
+                                                                  + "' padding variable names to new format");
         }
     }
 

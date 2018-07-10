@@ -27,7 +27,6 @@ import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowFocusListener;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,9 +119,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JButton btnCloseActive;
     private DnDTabbedPane tabbedPane;
 
-    // Listener for table editor dialog focus events; used in conjunction with the search dialog
-    WindowFocusListener editorListener = null;
-
     /**********************************************************************************************
      * Table editor dialog class constructor
      *
@@ -136,9 +132,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            reference to an existing table editor; null if adding new tables to the editor
      *            dialog
      *********************************************************************************************/
-    protected CcddTableEditorDialog(CcddMain ccddMain,
-                                    List<TableInformation> tableInformation,
-                                    CcddTableEditorHandler editor)
+    CcddTableEditorDialog(CcddMain ccddMain,
+                          List<TableInformation> tableInformation,
+                          CcddTableEditorHandler editor)
     {
         this.ccddMain = ccddMain;
 
@@ -160,7 +156,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param tableInformation
      *            list containing the information for each table
      *********************************************************************************************/
-    protected CcddTableEditorDialog(CcddMain ccddMain, List<TableInformation> tableInformation)
+    CcddTableEditorDialog(CcddMain ccddMain, List<TableInformation> tableInformation)
     {
         this(ccddMain, tableInformation, null);
     }
@@ -174,7 +170,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param editor
      *            reference to an existing table editor
      *********************************************************************************************/
-    protected CcddTableEditorDialog(CcddMain ccddMain, CcddTableEditorHandler editor)
+    CcddTableEditorDialog(CcddMain ccddMain, CcddTableEditorHandler editor)
     {
         this(ccddMain, null, editor);
         editor.setEditorDialog(this);

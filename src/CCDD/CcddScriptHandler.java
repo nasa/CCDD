@@ -10,7 +10,6 @@ package CCDD;
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR_CMD_LN;
-import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
@@ -75,6 +74,7 @@ import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.AvailabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -106,6 +106,7 @@ public class CcddScriptHandler
     // Components referenced by multiple methods
     private JCheckBox hideScriptFilePath;
     private JTextField envVarOverrideFld;
+    private static CcddHaltDialog haltDlg;
 
     // List of script engine factories that are available on this platform
     private final List<ScriptEngineFactory> scriptFactories;
@@ -1172,7 +1173,9 @@ public class CcddScriptHandler
                                                        final List<Object[]> associations,
                                                        final Component dialog)
     {
-        final CcddDialogHandler cancelDialog = new CcddDialogHandler();
+        // Create the script execution progress/cancellation dialog
+        haltDlg = new CcddHaltDialog(true);
+        haltDlg.setItemsPerStep(associations.size());
 
         // Create a thread to execute the script in the background
         final Thread scriptThread = new Thread(new Runnable()
@@ -1198,9 +1201,18 @@ public class CcddScriptHandler
                 // separators stored in the program preferences
                 variableHandler.removeUnusedLists();
 
-                // Close the script cancellation dialog. This also logs the association completion
-                // status and re-enables the calling dialog's- controls
-                cancelDialog.closeDialog(CANCEL_BUTTON);
+                // Check if the user didn't cancel script execution
+                if (!haltDlg.isHalted())
+                {
+                    // Close the cancellation dialog
+                    haltDlg.closeDialog();
+                }
+                // Script execution was canceled
+                else
+                {
+                    ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
+                                                           "Script execution terminated by user");
+                }
             }
         });
 
@@ -1214,16 +1226,14 @@ public class CcddScriptHandler
             @Override
             protected void execute()
             {
-                // Display the dialog and wait for the close action (the user selects the Okay
-                // button or the script execution completes and a Cancel button is issued)
-                int option = cancelDialog.showMessageDialog(dialog,
-                                                            "<html><b>Script execution in progress...<br><br>"
-                                                                    + CcddUtilities.colorHTMLText("*** Press </i>Halt<i> "
-                                                                                                  + "to terminate script execution ***",
-                                                                                                  Color.RED),
-                                                            "Script Executing",
-                                                            JOptionPane.ERROR_MESSAGE,
-                                                            DialogOption.HALT_OPTION);
+                // Display the script execution progress/cancellation dialog
+                int option = haltDlg.initialize("Script Executing",
+                                                "Script execution in progress...",
+                                                "script execution",
+                                                100,
+                                                1,
+                                                true,
+                                                dialog);
 
                 // Check if the script execution was terminated by the user and that the script is
                 // still executing
@@ -1290,6 +1300,7 @@ public class CcddScriptHandler
                                                 Component parent)
     {
         int assnIndex = 0;
+        int step = 0;
         CcddTableTreeHandler tableTree = tree;
 
         // Create an array to indicate if an association has a problem that prevents its execution
@@ -1332,6 +1343,12 @@ public class CcddScriptHandler
         // once. Step through each script association definition
         for (Object[] assn : associations)
         {
+            // Check if script execution is canceled
+            if (haltDlg.isHalted())
+            {
+                break;
+            }
+
             try
             {
                 // Get the list of association table paths
@@ -1377,7 +1394,6 @@ public class CcddScriptHandler
                     // Step through each table path+name
                     for (String tablePath : tablePaths)
                     {
-
                         // Initialize the array for each of the tables to load from the database
                         combinedData = new Object[0][0];
 
@@ -1472,6 +1488,12 @@ public class CcddScriptHandler
         // execute it. Step through each script association definition
         for (Object[] assn : associations)
         {
+            // Check if script execution is canceled
+            if (haltDlg.isHalted())
+            {
+                break;
+            }
+
             // Check that an error didn't occur loading the data for this association
             if (!isBad[assnIndex])
             {
@@ -1585,6 +1607,14 @@ public class CcddScriptHandler
 
                 try
                 {
+                    // Update the progress bar. Display the association name in the progress bar;
+                    // if the name is blank then display the script (with full path)
+                    haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty()
+                                                                                                             ? assn[AssociationsColumn.NAME.ordinal()].toString()
+                                                                                                             : scriptFileName),
+                                              haltDlg.getNumDivisionPerStep() * step);
+                    step++;
+
                     // Execute the script using the indicated table data
                     executeScript(scriptFileName,
                                   combinedTableInfo,

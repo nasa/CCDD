@@ -2643,11 +2643,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @return ParameterInformation for the container reference; null if the reference isn't valid
      *********************************************************************************************/
-    protected ParameterInformation processContainerReference(SpaceSystemType system,
-                                                             List<SequenceEntryType> tlmSequenceEntries,
-                                                             List<JAXBElement<? extends SequenceEntryType>> cmdSequenceEntries,
-                                                             SequenceEntryType seqEntry,
-                                                             int seqIndex)
+    private ParameterInformation processContainerReference(SpaceSystemType system,
+                                                           List<SequenceEntryType> tlmSequenceEntries,
+                                                           List<JAXBElement<? extends SequenceEntryType>> cmdSequenceEntries,
+                                                           SequenceEntryType seqEntry,
+                                                           int seqIndex)
     {
         ParameterInformation containerInfo = null;
         boolean isValidReference = false;

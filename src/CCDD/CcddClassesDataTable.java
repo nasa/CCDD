@@ -535,24 +535,6 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the flag indicating if this is a prototype table
-         *
-         * @param path
-         *            table path in the format rootTable[,dataType1.variable1[,dataType2
-         *            .variable2[,...]]]. The table path for a non-structure table is simply the
-         *            root table name. For a structure table the root table is the top level
-         *            structure table from which this table descends. The first data type/variable
-         *            name pair is from the root table, with each succeeding pair coming from the
-         *            next level down in the structure's hierarchy
-         *
-         * @return true if the table is a prototype
-         *****************************************************************************************/
-        protected static boolean isPrototype(String path)
-        {
-            return !path.contains(".");
-        }
-
-        /******************************************************************************************
          * Get the flag indicating if this is a root structure table
          *
          * @return true if this is a top-level (root) table of type 'structure'
@@ -1226,7 +1208,6 @@ public class CcddClassesDataTable
         }
     }
 
-    // TODO MOVE TO CcddConstants OR CcddClassesComponent?
     /**********************************************************************************************
      * Input type class
      *********************************************************************************************/
@@ -1256,7 +1237,7 @@ public class CcddClassesDataTable
          * @param inputItems
          *            string containing the acceptable values for this input type, separated by the
          *            selection item list separator; null or blank if the input type doesn't
-         *            constrain the inputs to items form a list. The list is used to create the
+         *            constrain the inputs to items from a list. The list is used to create the
          *            contents of the combo box in the table column with this input type
          *****************************************************************************************/
         InputType(String inputName,
@@ -1269,10 +1250,7 @@ public class CcddClassesDataTable
             this.inputMatch = inputMatch;
             this.inputFormat = inputFormat;
             this.inputDescription = inputDescription;
-            this.inputItems = inputItems == null
-                              || inputItems.isEmpty()
-                                                      ? null
-                                                      : Arrays.asList(inputItems.split(SELECTION_ITEM_LIST_SEPARATOR));
+            this.inputItems = convertItemList(inputItems);
         }
 
         /******************************************************************************************
@@ -1360,6 +1338,25 @@ public class CcddClassesDataTable
         protected String formatInput(String valueS, boolean preserveZeroes)
         {
             return CcddInputTypeHandler.formatInput(valueS, inputFormat, preserveZeroes);
+        }
+
+        /******************************************************************************************
+         * Convert the input selection items from a single string to a list
+         *
+         * @param inputItemsString
+         *            string containing the acceptable values for this input type, separated by the
+         *            selection item list separator; null or blank if the input type doesn't
+         *            constrain the inputs to items from a list
+         *
+         * @return Input items, converted to a list; null if the input type has no items
+         *****************************************************************************************/
+        protected static List<String> convertItemList(String inputItemsString)
+        {
+            return inputItemsString == null
+                   || inputItemsString.isEmpty()
+                                                 ? null
+                                                 : Arrays.asList((SELECTION_ITEM_LIST_SEPARATOR
+                                                                  + inputItemsString).split(SELECTION_ITEM_LIST_SEPARATOR));
         }
     }
 
@@ -1848,9 +1845,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get a reference to the field's UndoableTextField or UndoableCheckBox (if boolean)
+         * Get a reference to the field's input component
          *
-         * @return Field's UndoableTextField or UndoableCheckBox reference
+         * @return Field's input component reference
          *****************************************************************************************/
         protected Component getInputFld()
         {
@@ -1878,7 +1875,12 @@ public class CcddClassesDataTable
             return inputType;
         }
 
-        // TODO
+        /******************************************************************************************
+         * Set the field input type
+         *
+         * @param inputType
+         *            field input type (InputType)
+         *****************************************************************************************/
         protected void setInputType(InputType inputType)
         {
             this.inputType = inputType;

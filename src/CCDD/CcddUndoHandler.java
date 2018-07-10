@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.DATA_FIELD_IDENTIFIER_SEPARATOR;
 
+import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -40,6 +41,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import CCDD.CcddClassesComponent.CellSelectionHandler;
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 
@@ -559,11 +561,11 @@ public class CcddUndoHandler
          *            specified index from the list; ListEditType.CLEAR if removing all items from
          *            the list
          *****************************************************************************************/
-        protected ListEdit(UndoableArrayList<T> undoableArrayList,
-                           int listIndex,
-                           T listItem,
-                           Collection<T> listItems,
-                           ListEditType type)
+        ListEdit(UndoableArrayList<T> undoableArrayList,
+                 int listIndex,
+                 T listItem,
+                 Collection<T> listItems,
+                 ListEditType type)
         {
             this.arrayList = undoableArrayList;
             this.listIndex = listIndex;
@@ -728,7 +730,7 @@ public class CcddUndoHandler
              * @param undoable
              *            true if the change can be undone
              *************************************************************************************/
-            public void setSelected(boolean select, boolean undoable)
+            protected void setSelected(boolean select, boolean undoable)
             {
                 // Store the current check box selection state
                 boolean oldValue = isSelected();
@@ -888,7 +890,7 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the selected check box. In order for this to select the text area it must be
+         * Set the selected check box. In order for this to select the check box it must be
          * scheduled to execute after other pending events
          *
          * @param selected
@@ -941,6 +943,239 @@ public class CcddUndoHandler
         public String getPresentationName()
         {
             return "CheckBox";
+        }
+    }
+
+    /**********************************************************************************************
+     * Combo box value undo/redo class. This is based on the custom padded combo box so that the
+     * undoable combo box matches the appearance of other combo boxes in the application
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    protected class UndoableComboBox extends PaddedComboBox
+    {
+        private Object oldValue = "";
+
+        /******************************************************************************************
+         * Combo box constructor with an empty list
+         *
+         * @param items
+         *            combo box list items
+         *
+         * @param font
+         *            combo box list item font
+         *****************************************************************************************/
+        UndoableComboBox(String[] items, Font font)
+        {
+            super(items, font);
+
+            // Set the model, and the edit and focus listeners
+            setModelAndListeners();
+        }
+
+        /******************************************************************************************
+         * Add a the undo manager to the edit listener list, set the combo box model to be
+         * undoable, and add a focus change listener to the combo box
+         *****************************************************************************************/
+        private void setModelAndListeners()
+        {
+            // Register the undo manager as an edit listener for this class
+            listenerList.add(UndoableEditListener.class, undoManager);
+
+            // Initialize the combo box's original value
+            oldValue = "";
+
+            // Add a listener for combo box focus changes
+            addFocusListener(new FocusAdapter()
+            {
+                /**********************************************************************************
+                 * Handle a focus gained event
+                 *********************************************************************************/
+                @Override
+                public void focusGained(FocusEvent fe)
+                {
+                    // Check if the flag is set that allows automatically ending the edit sequence
+                    if (isAutoEndEditSequence)
+                    {
+                        // End the editing sequence
+                        undoManager.endEditSequence();
+                    }
+
+                    // Store the current combo box selection
+                    oldValue = getSelectedItem();
+                }
+            });
+        }
+
+        /******************************************************************************************
+         * Override the default method with a method that includes a flag to store the edit in the
+         * undo stack
+         *****************************************************************************************/
+        @Override
+        public void setSelectedItem(Object selection)
+        {
+            setSelectedItem(selection, true);
+        }
+
+        /******************************************************************************************
+         * Change the combo box selected item
+         *
+         * @param selection
+         *            new combo box selection
+         *
+         * @param undoable
+         *            true if the change can be undone
+         *****************************************************************************************/
+        protected void setSelectedItem(Object selection, boolean undoable)
+        {
+            super.setSelectedItem(selection);
+
+            // Check if undoing is enabled, the edit is undoable, and if the text field text
+            // changed
+            if (isAllowUndo && undoable && !selection.equals(oldValue))
+            {
+                // Get the listeners for this event
+                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+
+                // Check if there is an edit listener registered
+                if (listeners.length != 0)
+                {
+                    // Create the edit event to be passed to the listeners
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new ComboBoxEdit(UndoableComboBox.this,
+                                                                                         oldValue,
+                                                                                         selection));
+
+                    // Step through the registered listeners
+                    for (UndoableEditListener listener : listeners)
+                    {
+                        // Inform the listener that an update occurred
+                        listener.undoableEditHappened(editEvent);
+                    }
+                }
+
+                // Check if the flag is set that allows automatically ending the edit sequence
+                if (isAutoEndEditSequence)
+                {
+                    // End the editing sequence
+                    undoManager.endEditSequence();
+                }
+            }
+
+            // Store the value as the old value for the next edit
+            oldValue = selection;
+        }
+    }
+
+    /**********************************************************************************************
+     * Combo box edit event handler class
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    private class ComboBoxEdit extends AbstractUndoableEdit
+    {
+        private UndoableComboBox comboBox;
+        private final Object oldValue;
+        private final Object newValue;
+
+        /******************************************************************************************
+         * Combo box edit event handler constructor
+         *
+         * @param comboBox
+         *            reference to the combo box being edited
+         *
+         * @param oldValue
+         *            previous selected combo box item
+         *
+         * @param newValue
+         *            new selected combo box item
+         *****************************************************************************************/
+        ComboBoxEdit(UndoableComboBox comboBox, Object oldValue, Object newValue)
+        {
+            this.comboBox = comboBox;
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+
+            // Add the combo box edit to the undo stack
+            undoManager.addEditSequence(this);
+        }
+
+        /******************************************************************************************
+         * Replace the current combo box selection state with the old state
+         *****************************************************************************************/
+        @Override
+        public void undo() throws CannotUndoException
+        {
+            super.undo();
+
+            // Set the combo box selection where the change was undone
+            setSelectedComboBox(oldValue);
+        }
+
+        /******************************************************************************************
+         * Replace the current combo box selection state with the new state
+         *****************************************************************************************/
+        @Override
+        public void redo() throws CannotUndoException
+        {
+            super.redo();
+
+            // Set the combo box selection where the change was redone
+            setSelectedComboBox(newValue);
+        }
+
+        /******************************************************************************************
+         * Set the selected combo box. In order for this to select the text area it must be
+         * scheduled to execute after other pending events
+         *
+         * @param selection
+         *            combo box selection item
+         *****************************************************************************************/
+        private void setSelectedComboBox(Object selection)
+        {
+            // Check if a field handler exists and if the combo box's name has been set. A data
+            // field's combo box name is set when the data field is created
+            if (fieldHandler != null && comboBox.getName() != null)
+            {
+                // Divide the combo box's name into the owner and field name
+                String[] ownerAndName = comboBox.getName().split(DATA_FIELD_IDENTIFIER_SEPARATOR);
+
+                // Check if the combo box name has the expected format (two parts: owner name and
+                // field name)
+                if (ownerAndName.length == 2)
+                {
+                    // Search the data fields for the field with the specified owner and field name
+                    FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerAndName[0],
+                                                                                        ownerAndName[1]);
+
+                    // Check if the field with the owner and field name exists
+                    if (fieldInfo != null)
+                    {
+                        // Set the combo box reference to that associated with the specified data
+                        // field. When a data field is altered the entire set of associated fields
+                        // are recreated and therefore the combo box reference stored in this edit
+                        // no longer points to an existing field. Since the owner and field names
+                        // in the data field information do still match, this step directs the
+                        // undo/redo operation to the correct combo box
+                        comboBox = (UndoableComboBox) fieldInfo.getInputFld();
+                    }
+                }
+            }
+
+            // Update the combo box selection item
+            comboBox.getModel().setSelectedItem(selection);
+
+            // Request a focus change to the combo box that was changed
+            setComponentFocus(comboBox);
+        }
+
+        /******************************************************************************************
+         * Get the name of the edit type
+         *
+         * @return Name of the edit type
+         *****************************************************************************************/
+        @Override
+        public String getPresentationName()
+        {
+            return "ComboBox";
         }
     }
 

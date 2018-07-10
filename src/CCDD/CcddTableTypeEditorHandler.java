@@ -53,6 +53,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Class references
     private final CcddMain ccddMain;
     private String tableTypeName;
+    private final CcddDbControlHandler dbControl;
     private final CcddTableTypeEditorDialog editorDialog;
     private final CcddFieldHandler fieldHandler;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -72,7 +73,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private Object[][] committedData;
 
     // Storage for the most recent committed field information
-    private CcddFieldHandler committedInfo;
+    private CcddFieldHandler committedFields;
 
     // Type description
     private String committedDescription;
@@ -122,6 +123,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         this.ccddMain = ccddMain;
         this.tableTypeName = tableTypeName;
         this.editorDialog = editorDialog;
+        dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
@@ -234,8 +236,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private void setCommittedInformation(CcddFieldHandler handler)
     {
         // Create a new field handler and copy the current field information into it
-        committedInfo = new CcddFieldHandler(ccddMain);
-        committedInfo.setFieldInformation(handler.getFieldInformationCopy());
+        committedFields = new CcddFieldHandler(ccddMain);
+        committedFields.setFieldInformation(handler.getFieldInformationCopy());
 
         // Check if the table has been created
         if (table != null)
@@ -325,6 +327,25 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
+     * Update the table type editor data fields following a change to an input type definition
+     *
+     * @param inputTypeNames
+     *            list of the input type names, before and after the changes
+     *********************************************************************************************/
+    protected void updateForInputTypeChange(List<String[]> inputTypeNames)
+    {
+        // Update the input types combo box list
+        setUpInputTypeColumn();
+
+        // Update the input types in the field handlers (committed and active)
+        committedFields.updateFieldInputTypes(inputTypeNames);
+        fieldHandler.updateFieldInputTypes(inputTypeNames);
+
+        // Redraw the data field panel
+        createDataFieldPanel(false);
+    }
+
+    /**********************************************************************************************
      * Create the table type editor
      *********************************************************************************************/
     private void initialize()
@@ -344,7 +365,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Set the flag if the number of fields, field attributes, or field contents have
                 // changed
                 boolean isFieldChanged = CcddFieldHandler.isFieldChanged(fieldHandler.getFieldInformation(),
-                                                                         committedInfo.getFieldInformation(),
+                                                                         committedFields.getFieldInformation(),
                                                                          true,
                                                                          inputTypeHandler);
 
@@ -542,6 +563,19 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the column name has been changed and if the name isn't blank
                     if (column == TableTypeEditorColumnInfo.NAME.ordinal() && !newValueS.isEmpty())
                     {
+                        // Step through the list of reserved words
+                        for (String keyWord : dbControl.getKeyWords())
+                        {
+                            // Check if the column name matches the reserved word
+                            if (newValueS.equalsIgnoreCase(keyWord))
+                            {
+                                // Inform the user that the column name is a reserved word
+                                throw new CCDDException("Column name '"
+                                                        + newValueS
+                                                        + "' matches a reserved word");
+                            }
+                        }
+
                         // Check if the column name matches a default name (case insensitive)
                         if (newValueS.equalsIgnoreCase(DefaultColumn.PRIMARY_KEY.getDbName())
                             || newValueS.equalsIgnoreCase(DefaultColumn.ROW_INDEX.getDbName()))
@@ -1120,7 +1154,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Set up the combo box containing the available table type input types for display in the
      * table's Input Type cells
      *********************************************************************************************/
-    protected void setUpInputTypeColumn()
+    private void setUpInputTypeColumn()
     {
         // Create a combo box for displaying table type input types
         comboBox = new PaddedComboBox(getInputTypeNames(),

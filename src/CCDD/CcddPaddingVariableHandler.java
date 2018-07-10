@@ -43,7 +43,7 @@ public class CcddPaddingVariableHandler
     /**********************************************************************************************
      * Structure padding handler class
      *********************************************************************************************/
-    class StructurePaddingHandler
+    private class StructurePaddingHandler
     {
         // Structure table's information
         private final TableInformation tableInfo;
@@ -643,8 +643,6 @@ public class CcddPaddingVariableHandler
                         }
 
                         // Force the dialog to the front
-                        haltDlg.toFront();
-
                         // Load the table's data
                         StructurePaddingHandler paddingInfo = new StructurePaddingHandler(protoStruct);
 
@@ -769,7 +767,7 @@ public class CcddPaddingVariableHandler
      * @param paddingInformation
      *            list containing the padding variable information for every structure table
      *********************************************************************************************/
-    protected void setStructureSizes(StructurePaddingHandler padInfo)
+    private void setStructureSizes(StructurePaddingHandler padInfo)
     {
         // Check if the sizes for this structure haven't already been calculated
         if (!padInfo.isSizesCalculated)

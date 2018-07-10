@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DatabaseListCommand;
@@ -274,6 +275,45 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
+     * Convert the supplied input selection item string to the corresponding input match regular
+     * expression
+     *
+     * @param itemString
+     *            string containing the acceptable values for this input type, separated by the
+     *            selection item list separator; null or blank if the input type doesn't constrain
+     *            the inputs to items from a list
+     *
+     * @return Regular expression that matches only the items in the selection list
+     *********************************************************************************************/
+    protected String convertItemsToRegEx(String itemString)
+    {
+        String itemRegEx = null;
+
+        // Convert the selection item string to a list
+        List<String> itemList = InputType.convertItemList(itemString.trim());
+
+        // Check if the regular expression was created (null is returned if the item list string is
+        // empty)
+        if (itemList != null)
+        {
+            itemRegEx = "";
+
+            // Step through each selection item
+            for (String item : itemList)
+            {
+                // Append the selection item to the regular expression. Each item is flagged as a
+                // literal string to allow special regular expression characters in the item text
+                itemRegEx += Pattern.quote(item) + "|";
+            }
+
+            // Remove the trailing '|' character
+            itemRegEx = CcddUtilities.removeTrailer(itemRegEx, "|");
+        }
+
+        return itemRegEx;
+    }
+
+    /**********************************************************************************************
      * Get an array of all of the input type names, excluding separators and breaks
      *
      * @param includeSpecialTypes
@@ -371,63 +411,73 @@ public class CcddInputTypeHandler
         // Check that the value is not blank
         if (!valueS.isEmpty())
         {
-            // Check if the value is an integer
-            if (inputFormat.equals(InputTypeFormat.INTEGER))
+            try
             {
-                // Format the string as an integer
-                valueS = Integer.valueOf(valueS).toString();
-            }
-            // Check if the value is a floating point
-            else if (inputFormat.equals(InputTypeFormat.FLOAT))
-            {
-                // Format the string as a floating point
-                valueS = Double.valueOf(valueS).toString();
-            }
-            // Check if the value is in hexadecimal
-            else if (inputFormat.equals(InputTypeFormat.HEXADECIMAL))
-            {
-                // Set the string to append that indicates if this is a protected message ID or
-                // not
-                String protect = valueS.endsWith(PROTECTED_MSG_ID_IDENT)
-                                                                         ? PROTECTED_MSG_ID_IDENT
-                                                                         : "";
-
-                // Remove leading hexadecimal identifier if present and the protection flag if
-                // present, then convert the value to an integer (base 16)
-                valueS = valueS.replaceFirst("^0x|^0X", "").replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
-                int value = Integer.valueOf(valueS, 16);
-
-                // Get the leading zeroes, if any
-                String leadZeroes = valueS.replaceFirst("(^0*)[a-fA-F0-9]*", "$1");
-
-                // Check if the value is zero
-                if (value == 0)
+                // Check if the value is an integer
+                if (inputFormat.equals(InputTypeFormat.INTEGER))
                 {
-                    // Remove the first leading zero so it isn't duplicated, but retain any
-                    // extra zeroes added by the user so these can be restored
-                    leadZeroes = leadZeroes.substring(0, leadZeroes.length() - 1);
+                    // Format the string as an integer
+                    valueS = Integer.valueOf(valueS).toString();
                 }
+                // Check if the value is a floating point
+                else if (inputFormat.equals(InputTypeFormat.FLOAT))
+                {
+                    // Format the string as a floating point
+                    valueS = Double.valueOf(valueS).toString();
+                }
+                // Check if the value is in hexadecimal
+                else if (inputFormat.equals(InputTypeFormat.HEXADECIMAL))
+                {
+                    // Set the string to append that indicates if this is a protected message ID or
+                    // not
+                    String protect = valueS.endsWith(PROTECTED_MSG_ID_IDENT)
+                                                                             ? PROTECTED_MSG_ID_IDENT
+                                                                             : "";
 
-                // Format the string as a hexadecimal, adding the hexadecimal identifier, if
-                // needed, and preserving any leading zeroes
-                valueS = String.format("0x%s%x",
-                                       (preserveZeroes
-                                                       ? leadZeroes
-                                                       : ""),
-                                       value)
-                         + protect;
+                    // Remove leading hexadecimal identifier if present and the protection flag if
+                    // present, then convert the value to an integer (base 16)
+                    String valueSTemp = valueS.replaceFirst("^0x|^0X", "")
+                                              .replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, "");
+                    int value = Integer.valueOf(valueSTemp, 16);
+
+                    // Get the leading zeroes, if any
+                    String leadZeroes = valueSTemp.replaceFirst("(^0*)[a-fA-F0-9]*", "$1");
+
+                    // Check if the value is zero
+                    if (value == 0)
+                    {
+                        // Remove the first leading zero so it isn't duplicated, but retain any
+                        // extra zeroes added by the user so these can be restored
+                        leadZeroes = leadZeroes.substring(0, leadZeroes.length() - 1);
+                    }
+
+                    // Format the string as a hexadecimal, adding the hexadecimal identifier, if
+                    // needed, and preserving any leading zeroes
+                    valueS = String.format("0x%s%x",
+                                           (preserveZeroes
+                                                           ? leadZeroes
+                                                           : ""),
+                                           value)
+                             + protect;
+                }
+                // Check if the value is a boolean
+                else if (inputFormat.equals(InputTypeFormat.BOOLEAN))
+                {
+                    // Format the string as a boolean
+                    valueS = valueS.toLowerCase();
+                }
+                // Check if the values represents array index values
+                else if (inputFormat.equals(InputTypeFormat.ARRAY))
+                {
+                    // Remove all spaces and replace any commas with a comma and space
+                    valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
+                }
             }
-            // Check if the value is a boolean
-            else if (inputFormat.equals(InputTypeFormat.BOOLEAN))
+            catch (Exception e)
             {
-                // Format the string as a boolean
-                valueS = valueS.toLowerCase();
-            }
-            // Check if the values represents array index values
-            else if (inputFormat.equals(InputTypeFormat.ARRAY))
-            {
-                // Remove all spaces and replace any commas with a comma and space
-                valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
+                // An error occurred formatting the supplied value as the specified format type.
+                // This is only possible for the user-defined input types. Ignore the error and
+                // return the input string with the formatting unchanged
             }
         }
 

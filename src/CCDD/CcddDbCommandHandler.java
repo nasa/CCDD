@@ -170,9 +170,9 @@ public class CcddDbCommandHandler
      * @throws SQLException
      *             If no connection exists to the server
      *********************************************************************************************/
-    protected Object executeDbStatement(DbCommandType commandType,
-                                        String command,
-                                        Component component) throws SQLException
+    private Object executeDbStatement(DbCommandType commandType,
+                                      String command,
+                                      Component component) throws SQLException
     {
         Object result = null;
 

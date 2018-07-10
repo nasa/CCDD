@@ -5509,7 +5509,7 @@ public class CcddScriptDataAccessHandler
         return schTable.getNumberOfTimeSlots();
     }
 
-    // TODO
+    // TODO ADDED TO SUPPORT THE XTCE EXPORT CONVERSION OVERRIDE METHODS
     /**********************************************************************************************
      * Get the name of the prototype table for the specified table
      *
@@ -6048,7 +6048,7 @@ public class CcddScriptDataAccessHandler
                                                cmdDescColumn,
                                                isCmdHeader,
                                                cmdHdrSysPath,
-                                               applicationID);;
+                                               applicationID);
         }
     }
 

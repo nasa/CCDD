@@ -113,20 +113,6 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * @param ccddMain
      *            main class
      *
-     * @param isSessionLog
-     *            true if this is the event log for the current session
-     *********************************************************************************************/
-    CcddEventLogDialog(final CcddMain ccddMain, boolean isSessionLog)
-    {
-        this(ccddMain, null, null, isSessionLog);
-    }
-
-    /**********************************************************************************************
-     * Event log class constructor
-     *
-     * @param ccddMain
-     *            main class
-     *
      * @param logFile
      *            event log file; null if creating the session log or if opening a user-selected
      *            log file
@@ -151,6 +137,20 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
         // Create the event log
         initialize(logFile, targetRow);
+    }
+
+    /**********************************************************************************************
+     * Event log class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param isSessionLog
+     *            true if this is the event log for the current session
+     *********************************************************************************************/
+    CcddEventLogDialog(final CcddMain ccddMain, boolean isSessionLog)
+    {
+        this(ccddMain, null, null, isSessionLog);
     }
 
     /**********************************************************************************************

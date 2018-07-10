@@ -214,9 +214,16 @@ public class CcddFieldHandler
                     inputTypeName = oldAndNewName[1];
                     break;
                 }
+            }
 
-                // Set the field's input type based on the input type name
-                fieldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
+            // Set the field's input type based on the input type name
+            fieldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
+
+            // Check if the field value doesn't conform to the input type match regular expression
+            if (!fieldInfo.getValue().matches(fieldInfo.getInputType().getInputMatch()))
+            {
+                // Set the field value to a blank
+                fieldInfo.setValue("");
             }
         }
     }

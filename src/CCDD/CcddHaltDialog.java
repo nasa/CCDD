@@ -35,11 +35,11 @@ public class CcddHaltDialog extends CcddDialogHandler
     private JProgressBar progBar;
     private JLabel textLbl;
 
-    // Flag indicating if table importing/exporting is canceled by user input
-    private boolean haltImport;
+    // Flag indicating if the operation is canceled by user input
+    private boolean isHalted;
 
     // Number of divisions in the halt dialog's progress bar per data file
-    private final int numDivisionPerStep;
+    private int numDivisionPerStep;
 
     // Total number of item for the current step
     private int itemsPerStep;
@@ -48,7 +48,7 @@ public class CcddHaltDialog extends CcddDialogHandler
     private int progCount;
     private int prevProgCount;
     private int progStart;
-    private final int progMaximum;
+    private int progMaximum;
     private int minWidth;
 
     /**********************************************************************************************
@@ -69,6 +69,10 @@ public class CcddHaltDialog extends CcddDialogHandler
      * @param numSteps
      *            total number of steps in the operation
      *
+     * @param modal
+     *            false to allow the other application windows to still be operated while the
+     *            dialog is open
+     *
      * @param parent
      *            component over which to center the dialog
      *********************************************************************************************/
@@ -79,17 +83,44 @@ public class CcddHaltDialog extends CcddDialogHandler
                    int numSteps,
                    Component parent)
     {
-        haltImport = false;
+        isHalted = false;
         minWidth = -1;
 
-        // Set the number of divisions within each step and use it, along with the number of items,
-        // to calculate the total number of steps
-        this.numDivisionPerStep = numDivisionPerStep;
-        itemsPerStep = numDivisionPerStep;
-        progMaximum = numSteps * numDivisionPerStep;
+        // Check if the progress bar should be displayed in the dialog
+        if (numDivisionPerStep != 0 && numSteps != 0)
+        {
+            // Create the progress bar
+            progBar = new JProgressBar(0, progMaximum);
+        }
 
         // Create the cancellation dialog
-        initialize(title, label, operation, numDivisionPerStep != 0 && numSteps != 0, parent);
+        initialize(title,
+                   label,
+                   operation,
+                   numDivisionPerStep,
+                   numSteps,
+                   false,
+                   parent);
+    }
+
+    /**********************************************************************************************
+     * Process cancellation dialog class constructor. Sets up a non-modal dialog
+     *
+     * @param showProgressBar
+     *            true to display a progress bar in the dialog
+     *********************************************************************************************/
+    CcddHaltDialog(boolean showProgressBar)
+    {
+        isHalted = false;
+        minWidth = -1;
+
+        // Check if the progress bar should be displayed
+        if (showProgressBar)
+        {
+            // Create the progress bar
+            progBar = new JProgressBar();
+            progBar.setIndeterminate(true);
+        }
     }
 
     /**********************************************************************************************
@@ -107,7 +138,7 @@ public class CcddHaltDialog extends CcddDialogHandler
      * @param parent
      *            parent component over which to center the dialog
      *********************************************************************************************/
-    CcddHaltDialog(String title, String label, String operation, Component parent)
+    CcddHaltDialog(String title, String label, String operation, boolean modal, Component parent)
     {
         this(title, label, operation, 0, 0, parent);
     }
@@ -163,10 +194,12 @@ public class CcddHaltDialog extends CcddDialogHandler
      *********************************************************************************************/
     protected boolean isHalted()
     {
-        return haltImport;
+        return isHalted;
     }
 
     /**********************************************************************************************
+     * Create the process cancellation dialog
+     *
      * @param title
      *            dialog title
      *
@@ -176,18 +209,33 @@ public class CcddHaltDialog extends CcddDialogHandler
      * @param operation
      *            dialog label describing the termination operation
      *
-     * @param showProgressBar
-     *            true to display a progress bar
+     * @param numDivisionPerStep
+     *            number of divisions per each major step in the operation
+     *
+     * @param numSteps
+     *            total number of steps in the operation
+     *
+     * @param modal
+     *            false to allow the other application windows to still be operated while the
+     *            dialog is open
      *
      * @param parent
      *            parent component over which to center the dialog
      *********************************************************************************************/
-    private void initialize(String title,
-                            String label,
-                            String operation,
-                            boolean showProgressBar,
-                            Component parent)
+    protected int initialize(String title,
+                             String label,
+                             String operation,
+                             int numDivisionPerStep,
+                             int numSteps,
+                             boolean modal,
+                             Component parent)
     {
+        // Set the number of divisions within each step and use it, along with the number of items,
+        // to calculate the total number of steps
+        this.numDivisionPerStep = numDivisionPerStep;
+        itemsPerStep = numDivisionPerStep;
+        progMaximum = numSteps * numDivisionPerStep;
+
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
                                                         0,
@@ -225,11 +273,13 @@ public class CcddHaltDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(textLbl2, gbc);
 
-        // Check if a progress be should be displayed
-        if (showProgressBar)
+        // Check if the progress is displayed
+        if (progBar != null)
         {
-            // Add a progress bar to the dialog
-            progBar = new JProgressBar(0, progMaximum);
+            // Set the progress bar attributes and add it to the dialog
+            progBar.setIndeterminate(false);
+            progBar.setMinimum(0);
+            progBar.setMaximum(progMaximum);
             progBar.setValue(0);
             progBar.setStringPainted(true);
             progBar.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -241,12 +291,12 @@ public class CcddHaltDialog extends CcddDialogHandler
         }
 
         // Display the cancellation dialog
-        showOptionsDialog(parent,
-                          dialogPnl,
-                          title,
-                          DialogOption.HALT_OPTION,
-                          false,
-                          false);
+        return showOptionsDialog(parent,
+                                 dialogPnl,
+                                 title,
+                                 DialogOption.HALT_OPTION,
+                                 false,
+                                 modal);
     }
 
     /**********************************************************************************************
@@ -327,6 +377,9 @@ public class CcddHaltDialog extends CcddDialogHandler
 
                     // Redraw the halt dialog
                     update(getGraphics());
+
+                    // Force the dialog to the front
+                    CcddHaltDialog.this.toFront();
                 }
             }
         });
@@ -339,7 +392,7 @@ public class CcddHaltDialog extends CcddDialogHandler
     protected void closeDialog(int button)
     {
         // Set the flag to cancel verification
-        haltImport = true;
+        isHalted = true;
 
         super.closeDialog(button);
     };

@@ -21,6 +21,7 @@
 # in the United States under Title 17, U.S. Code. All Other Rights Reserved.
 #******************************************************************************
 
+import traceback
 from CCDD import CcddScriptDataAccessHandler
 
 # Get the array of structure names by the order in which they are referenced
@@ -207,6 +208,8 @@ def outputStructure(file, structIndex):
                     # Set the variable byte offset to zero
                     headerOffset = 0
 
+                    garbled
+            
             # Check if this is not an array member (only array definitions are
             # output), and if the variable name hasn't already been processed
             # (the first instance of the structure is used to obtain the
@@ -445,8 +448,8 @@ def makeSwapFile(baseFileName):
         ccdd.writeToFileLn(swapFile, "uint32 *p32, tmp_32;")
         ccdd.writeToFileLn(swapFile, "uint64 *p64, tmp_64;")
         ccdd.writeToFileLn(swapFile, "#define swap_float(pIn, pOut) p32 = (uint32*) pIn; tmp_32 = bswap_32(*p32); memcpy(pOut, &tmp_32, 4)")
-        ccdd.writeToFileLn(swapFile, "#define swap_double(pIn, pOut) p64 = (uint64*) pIn; tmp_64 = bswap_64(*p64); memcpy(pOut, &tmp_32, 8)")
-        ccdd.writeToFileLn(swapFile, "#define swap_pointer_8(pIn, pOut) p64 = (uint64*) pIn; tmp_64 = bswap_64(*p64); memcpy(pOut, &tmp_32, 8)")
+        ccdd.writeToFileLn(swapFile, "#define swap_double(pIn, pOut) p64 = (uint64*) pIn; tmp_64 = bswap_64(*p64); memcpy(pOut, &tmp_64, 8)")
+        ccdd.writeToFileLn(swapFile, "#define swap_pointer_8(pIn, pOut) p64 = (uint64*) pIn; tmp_64 = bswap_64(*p64); memcpy(pOut, &tmp_64, 8)")
         ccdd.writeToFileLn(swapFile, "#define swap_pointer_4(pIn, pOut) p32 = (uint32*) pIn; tmp_32 = bswap_32(*p32); memcpy(pOut, &tmp_32, 4)")
         ccdd.writeToFileLn(swapFile, "")
         ccdd.writeToFileLn(swapFile, "/* Swaps a bit field of value 'val' containing 'num' bits, and returns the resulting 'mirrored' value */")
@@ -855,37 +858,42 @@ def makeSwapFile(baseFileName):
 
 #** Main **********************************************************************
 
-# Check if structure data is supplied
-if numStructRows > 0:
-    # The output file names are based in part on the value of the data field,
-    # 'System', found in the first group or table associated with the script.
-    # If the field can't be found in either then the value is set to a blank
-    systemName = None
+try:
+    # Check if structure data is supplied
+    if numStructRows > 0:
+        # The output file names are based in part on the value of the data field,
+        # 'System', found in the first group or table associated with the script.
+        # If the field can't be found in either then the value is set to a blank
+        systemName = None
+    
+        # Get the group(s) associated with the script (if any)
+        groupNames = ccdd.getAssociatedGroupNames()
+    
+        # Check if a group is associated with the script
+        if len(groupNames) != 0:
+            # Get the value of the first group's 'System' data field, if present
+            systemName = ccdd.getGroupDataFieldValue(groupNames[0], "System")
+    
+        # Check if the system name wasn't found in the group data field
+        if systemName is None or not systemName:
+            # Get the value of the first root structure's 'System' data field
+            systemName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System")
+    
+        # Check if the data field doesn't exist in either a group or table
+        if systemName == None:
+            systemName = ""
+    
+        # Create the base file name
+        baseFileName = systemName + "_types"
+    
+        # Output the types header and byte-/bit-swap files
+        makeHeaders(baseFileName)
+            
+        makeSwapFile(baseFileName)
+    # No structure data is supplied
+    else:
+        # Display an error dialog
+        ccdd.showErrorDialog("<html><b>No structure data supplied for script '</b>" + ccdd.getScriptName() + "<b>'")
 
-    # Get the group(s) associated with the script (if any)
-    groupNames = ccdd.getAssociatedGroupNames()
-
-    # Check if a group is associated with the script
-    if len(groupNames) != 0:
-        # Get the value of the first group's 'System' data field, if present
-        systemName = ccdd.getGroupDataFieldValue(groupNames[0], "System")
-
-    # Check if the system name wasn't found in the group data field
-    if systemName is None or not systemName:
-        # Get the value of the first root structure's 'System' data field
-        systemName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System")
-
-    # Check if the data field doesn't exist in either a group or table
-    if systemName == None:
-        systemName = ""
-
-    # Create the base file name
-    baseFileName = systemName + "_types"
-
-    # Output the types header and byte-/bit-swap files
-    makeHeaders(baseFileName)
-    makeSwapFile(baseFileName)
-# No structure data is supplied
-else:
-    # Display an error dialog
-    ccdd.showErrorDialog("<html><b>No structure data supplied for script '</b>" + ccdd.getScriptName() + "<b>'")
+except:
+    raise Exception(traceback.format_exc())

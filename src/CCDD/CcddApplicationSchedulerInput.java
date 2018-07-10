@@ -22,12 +22,12 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
 
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.ApplicationData;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.Variable;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
@@ -356,7 +356,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     /**********************************************************************************************
      * Get an array of the available rates
      *
-     * @return Array of rates
+     * @return Array of available rates
      *********************************************************************************************/
     @Override
     public String[] getAvailableRates()

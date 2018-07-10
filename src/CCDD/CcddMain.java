@@ -792,7 +792,7 @@ public class CcddMain
      * @param parent
      *            GUI component over which to center the dialog
      *********************************************************************************************/
-    protected void showSearchDialog(SearchDialogType searchType, Component parent)
+    private void showSearchDialog(SearchDialogType searchType, Component parent)
     {
         showSearchDialog(searchType, null, null, parent);
     }

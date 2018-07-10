@@ -762,7 +762,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             for (TreePath path : paths)
             {
                 // Check if the path represents a top-level node or its children
-                if (path.getPathCount() > getGroupNodeLevel()) // TODO
+                if (path.getPathCount() > getGroupNodeLevel())
                 {
                     // Get the top-level path for this node path
                     TreePath topPath = getPathFromNode((ToolTipTreeNode) path.getPathComponent(getGroupNodeLevel()));

@@ -36,6 +36,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.WrapLayout;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.DefaultInputType;
@@ -46,6 +47,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
+import CCDD.CcddUndoHandler.UndoableComboBox;
 import CCDD.CcddUndoHandler.UndoableDataFieldPanel;
 import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
@@ -281,11 +283,13 @@ public abstract class CcddInputFieldPanelHandler
                                                                                           ? "true"
                                                                                           : "false");
                 }
-                // Not a boolean input (check box) data field
+                // Not a boolean input (check box) data field; it's a text field/area or combo box
                 else
                 {
-                    // Update the data field with the text field's contents
-                    fieldInfo.setValue(((JTextComponent) fieldInfo.getInputFld()).getText());
+                    // Update the data field with the current value
+                    fieldInfo.setValue(fieldInfo.getInputFld() instanceof JTextComponent
+                                                                                         ? ((JTextComponent) fieldInfo.getInputFld()).getText()
+                                                                                         : ((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString());
                 }
             }
         }
@@ -608,7 +612,7 @@ public abstract class CcddInputFieldPanelHandler
                             break;
 
                         default:
-                            final JTextComponent inputFld;
+                            final JComponent inputFld;
 
                             // Create a panel for a single label and text field pair. This is
                             // necessary so that the two will stay together if line wrapping occurs
@@ -616,7 +620,7 @@ public abstract class CcddInputFieldPanelHandler
                             JPanel singleFldPnl = new JPanel(new FlowLayout(FlowLayout.LEADING,
                                                                             ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing(),
                                                                             ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 4));
-                            singleFldPnl.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+                            singleFldPnl.setBorder(BorderFactory.createEmptyBorder());
 
                             // Create the data field label
                             JLabel fieldLbl = new JLabel(fieldInfo.getFieldName());
@@ -638,24 +642,38 @@ public abstract class CcddInputFieldPanelHandler
                             // The input type is one other than for multi-line text
                             else
                             {
-                                // Create the data field input field as a text field, which allows
-                                // a single rows
-                                fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
-                                                                                        fieldInfo.getSize()));
-                                inputFld = (UndoableTextField) fieldInfo.getInputFld();
+                                // Check if the data field has no selection items; i.e., it is
+                                // displayed as a text input field and not a combo box
+                                if (fieldInfo.getInputType().getInputItems() == null)
+                                {
+                                    // Create the data field input field as a text field, which
+                                    // allows a single rows
+                                    fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
+                                                                                            fieldInfo.getSize()));
+                                    inputFld = (UndoableTextField) fieldInfo.getInputFld();
+                                }
+                                // The field has list items; display it as a combo box
+                                else
+                                {
+                                    // Create a combo box for displaying selection lists and set
+                                    // the initial selection
+                                    fieldInfo.setInputFld(undoHandler.new UndoableComboBox(fieldInfo.getInputType().getInputItems().toArray(new String[0]),
+                                                                                           ModifiableFontInfo.INPUT_TEXT.getFont()));
+                                    inputFld = (UndoableComboBox) fieldInfo.getInputFld();
+                                    ((UndoableComboBox) inputFld).setSelectedItem(fieldInfo.getValue(),
+                                                                                  false);
+                                }
                             }
 
-                            inputFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                            inputFld.setEditable(true);
-                            inputFld.setBorder(border);
+                            // Set the input field colors
                             inputFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
                             inputFld.setBackground(fieldInfo.getValue().isEmpty()
                                                    && fieldInfo.isRequired()
                                                                              ? ModifiableColorInfo.REQUIRED_BACK.getColor()
                                                                              : ModifiableColorInfo.INPUT_BACK.getColor());
 
-                            // Set the text field's name so that the undo handler can identify the
-                            // text field, even if it's destroyed and recreated
+                            // Set the input field's name so that the undo handler can identify the
+                            // input field, even if it's destroyed and recreated
                             inputFld.setName(fieldInfo.getOwnerName()
                                              + DATA_FIELD_IDENTIFIER_SEPARATOR
                                              + fieldInfo.getFieldName());
@@ -663,7 +681,7 @@ public abstract class CcddInputFieldPanelHandler
                             // Check if a description exists for this field
                             if (!fieldInfo.getDescription().isEmpty())
                             {
-                                // Set the description as the tool tip text for this text field
+                                // Set the description as the tool tip text for this input field
                                 inputFld.setToolTipText(CcddUtilities.wrapText(fieldInfo.getDescription(),
                                                                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                             }
@@ -678,103 +696,113 @@ public abstract class CcddInputFieldPanelHandler
                             maxFieldWidth = Math.max(maxFieldWidth,
                                                      singleFldPnl.getPreferredSize().width);
 
-                            // Create an input field verifier for the data field
-                            inputFld.setInputVerifier(new InputVerifier()
+                            // Check if the input field is a text component
+                            if (inputFld instanceof JTextComponent)
                             {
-                                // Storage for the last valid value entered; used to restore the
-                                // data field value if an invalid value is entered. Initialize to
-                                // the value at the time the field is created
-                                String lastValid = inputFld.getText();
+                                inputFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                                ((JTextComponent) inputFld).setEditable(true);
+                                inputFld.setBorder(border);
 
-                                /******************************************************************
-                                 * Verify the contents of a the data field
-                                 *****************************************************************/
-                                @Override
-                                public boolean verify(JComponent input)
+                                // Create an input field verifier for the data field
+                                inputFld.setInputVerifier(new InputVerifier()
                                 {
-                                    boolean isValid = true;
+                                    // Storage for the last valid value entered; used to restore
+                                    // the data field value if an invalid value is entered.
+                                    // Initialize to the value at the time the field is created
+                                    String lastValid = ((JTextComponent) inputFld).getText();
 
-                                    // Get the data field reference to shorten subsequent calls
-                                    JTextComponent inFld = (JTextComponent) input;
-
-                                    // Get the data field contents
-                                    String inputTxt = inFld.getText();
-
-                                    // Check if the field's input type doesn't allow leading and
-                                    // trailing white space characters
-                                    if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
-                                        && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
+                                    /**************************************************************
+                                     * Verify the contents of a the data field
+                                     *************************************************************/
+                                    @Override
+                                    public boolean verify(JComponent input)
                                     {
-                                        // Remove leading and trailing white space characters
-                                        inputTxt = inputTxt.trim();
+                                        boolean isValid = true;
+
+                                        // Get the data field reference to shorten subsequent calls
+                                        JTextComponent inFld = (JTextComponent) input;
+
+                                        // Get the data field contents
+                                        String inputTxt = inFld.getText();
+
+                                        // Check if the field's input type doesn't allow leading
+                                        // and trailing white space characters
+                                        if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
+                                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
+                                        {
+                                            // Remove leading and trailing white space characters
+                                            inputTxt = inputTxt.trim();
+                                        }
+
+                                        // Check if the field contains an illegal character
+                                        if (!fieldInfo.getInputType().getInputMatch().isEmpty()
+                                            && !inputTxt.isEmpty()
+                                            && !inputTxt.matches(fieldInfo.getInputType().getInputMatch()))
+                                        {
+                                            // Inform the user that the data field contents is
+                                            // invalid
+                                            new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
+                                                                                      "<html><b>Invalid characters in field '</b>"
+                                                                                                          + fieldInfo.getFieldName()
+                                                                                                          + "<b>'; characters consistent with input type '"
+                                                                                                          + fieldInfo.getInputType().getInputName()
+                                                                                                          + "' expected",
+                                                                                      "Invalid "
+                                                                                                                          + fieldInfo.getInputType().getInputName(),
+                                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                                      DialogOption.OK_OPTION);
+
+                                            // Toggle the controls enable status so that the
+                                            // buttons are redrawn correctly
+                                            if (fieldPnlHndlrOwner instanceof CcddFrameHandler)
+                                            {
+                                                ((CcddFrameHandler) fieldPnlHndlrOwner).setControlsEnabled(false);
+                                                ((CcddFrameHandler) fieldPnlHndlrOwner).setControlsEnabled(true);
+                                            }
+                                            else if (fieldPnlHndlrOwner instanceof CcddDialogHandler)
+                                            {
+                                                ((CcddDialogHandler) fieldPnlHndlrOwner).setControlsEnabled(false);
+                                                ((CcddDialogHandler) fieldPnlHndlrOwner).setControlsEnabled(true);
+                                            }
+
+                                            // Check if the data field is a text field
+                                            if (input instanceof UndoableTextField)
+                                            {
+                                                // Restore the previous value in the data field
+                                                ((UndoableTextField) inFld).setText(lastValid, false);
+                                            }
+                                            // Check if the data field is a text area (multi-line)
+                                            else if (input instanceof UndoableTextArea)
+                                            {
+                                                // Restore the previous value in the data field
+                                                ((UndoableTextArea) inFld).setText(lastValid);
+                                            }
+
+                                            // Set the flag to indicate an invalid value was
+                                            // entered
+                                            isValid = false;
+                                        }
+                                        // The input is valid
+                                        else
+                                        {
+                                            // Store the 'cleaned' text back into the text field.
+                                            // For numeric types, reformat the input value
+                                            inFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
+                                            fieldInfo.setValue(inFld.getText());
+
+                                            // Store the new value as the last valid value
+                                            lastValid = inFld.getText();
+
+                                            // Set the text field background color. If the field is
+                                            // empty and is flagged as required then set the
+                                            // background to indicate a value should be supplied
+                                            setFieldBackground(fieldInfo);
+                                        }
+
+                                        return isValid;
                                     }
-
-                                    // Check if the field contains an illegal character
-                                    if (!fieldInfo.getInputType().getInputMatch().isEmpty()
-                                        && !inputTxt.isEmpty()
-                                        && !inputTxt.matches(fieldInfo.getInputType().getInputMatch()))
-                                    {
-                                        // Inform the user that the data field contents is invalid
-                                        new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
-                                                                                  "<html><b>Invalid characters in field '</b>"
-                                                                                                      + fieldInfo.getFieldName()
-                                                                                                      + "<b>'; characters consistent with input type '"
-                                                                                                      + fieldInfo.getInputType().getInputName()
-                                                                                                      + "' expected",
-                                                                                  "Invalid "
-                                                                                                                      + fieldInfo.getInputType().getInputName(),
-                                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                                  DialogOption.OK_OPTION);
-
-                                        // Toggle the controls enable status so that the buttons
-                                        // are redrawn correctly
-                                        if (fieldPnlHndlrOwner instanceof CcddFrameHandler)
-                                        {
-                                            ((CcddFrameHandler) fieldPnlHndlrOwner).setControlsEnabled(false);
-                                            ((CcddFrameHandler) fieldPnlHndlrOwner).setControlsEnabled(true);
-                                        }
-                                        else if (fieldPnlHndlrOwner instanceof CcddDialogHandler)
-                                        {
-                                            ((CcddDialogHandler) fieldPnlHndlrOwner).setControlsEnabled(false);
-                                            ((CcddDialogHandler) fieldPnlHndlrOwner).setControlsEnabled(true);
-                                        }
-
-                                        // Check if the data field is a text field
-                                        if (input instanceof UndoableTextField)
-                                        {
-                                            // Restore the previous value in the data field
-                                            ((UndoableTextField) inFld).setText(lastValid, false);
-                                        }
-                                        // Check if the data field is a text area (multi-line)
-                                        else if (input instanceof UndoableTextArea)
-                                        {
-                                            // Restore the previous value in the data field
-                                            ((UndoableTextArea) inFld).setText(lastValid);
-                                        }
-
-                                        // Set the flag to indicate an invalid value was entered
-                                        isValid = false;
-                                    }
-                                    // The input is valid
-                                    else
-                                    {
-                                        // Store the 'cleaned' text back into the text field. For
-                                        // numeric types, reformat the input value
-                                        inFld.setText(fieldInfo.getInputType().formatInput(inputTxt));
-                                        fieldInfo.setValue(inFld.getText());
-
-                                        // Store the new value as the last valid value
-                                        lastValid = inFld.getText();
-
-                                        // Set the text field background color. If the field is
-                                        // empty and is flagged as required then set the background
-                                        // to indicate a value should be supplied
-                                        setFieldBackground(fieldInfo);
-                                    }
-
-                                    return isValid;
-                                }
-                            });
+                                });
+                            }
 
                             break;
                     }
@@ -812,6 +840,7 @@ public abstract class CcddInputFieldPanelHandler
         // be grouped into a single sequence so that if undone, all fields are restored
         undoHandler.setAutoEndEditSequence(false);
 
+        // Step through each data field
         for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
         {
             // Check if this is a boolean input (check box) data field
@@ -826,16 +855,31 @@ public abstract class CcddInputFieldPanelHandler
             // Not a boolean input (check box) data field
             else
             {
-                // Get the reference to the data field
-                JTextComponent inputFld = (JTextComponent) fieldInfo.getInputFld();
-
                 // Clear the field value
                 fieldInfo.setValue("");
-                inputFld.setText("");
 
-                // Set the text field background color. If the field is flagged as required then
-                // set the background to indicate a value should be supplied
-                setFieldBackground(fieldInfo);
+                // Check if the field is applicable (i.e., displayed). A field that isn't
+                // applicable has a null input field
+                if (fieldInfo.getInputFld() != null)
+                {
+                    // Check if the input field is a text component
+                    if (fieldInfo.getInputFld() instanceof JTextComponent)
+                    {
+                        // Blank the text field
+                        ((JTextComponent) fieldInfo.getInputFld()).setText("");
+                    }
+                    // Check if the input field is a combo box
+                    else if (fieldInfo.getInputFld() instanceof PaddedComboBox)
+                    {
+                        // Blank the combo box by selecting the blank item (which is always defined
+                        // as the first item in the list)
+                        ((PaddedComboBox) fieldInfo.getInputFld()).setSelectedItem("");
+                    }
+
+                    // Set the text field background color. If the field is flagged as required
+                    // then set the background to indicate a value should be supplied
+                    setFieldBackground(fieldInfo);
+                }
             }
         }
 
@@ -868,8 +912,10 @@ public abstract class CcddInputFieldPanelHandler
                     // Step through each field
                     for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
                     {
-                        // Check if this isn't a boolean input (check box) data field
-                        if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
+                        // Check if the field is applicable and isn't a boolean input (check box)
+                        // data field
+                        if (fieldInfo.getInputFld() != null
+                            && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
                         {
                             // Set the text field background color. If the field is empty and is
                             // flagged as required then set the background to indicate a value
@@ -892,9 +938,9 @@ public abstract class CcddInputFieldPanelHandler
     {
         // Set the text field background color. If the field is empty and is flagged as required
         // then set the background to indicate a value should be supplied
-        ((JTextComponent) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
-                                                                 && fieldInfo.isRequired()
-                                                                                           ? ModifiableColorInfo.REQUIRED_BACK.getColor()
-                                                                                           : ModifiableColorInfo.INPUT_BACK.getColor());
+        ((JComponent) fieldInfo.getInputFld()).setBackground(fieldInfo.getValue().isEmpty()
+                                                             && fieldInfo.isRequired()
+                                                                                       ? ModifiableColorInfo.REQUIRED_BACK.getColor()
+                                                                                       : ModifiableColorInfo.INPUT_BACK.getColor());
     }
 }

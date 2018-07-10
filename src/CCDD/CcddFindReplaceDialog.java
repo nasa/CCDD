@@ -144,7 +144,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create and display the table find/replace dialog
      *********************************************************************************************/
-    protected void initialize()
+    private void initialize()
     {
         prevSearchText = null;
 
