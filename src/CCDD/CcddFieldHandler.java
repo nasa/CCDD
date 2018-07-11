@@ -436,6 +436,7 @@ public class CcddFieldHandler
                                             boolean isIgnoreOwnerName,
                                             CcddInputTypeHandler inpTypeHndlr)
     {
+
         // Set the change flag if the number of fields in the two field handlers differ
         boolean isFieldChanged = compFieldInfoA.size() != compFieldInfoB.size();
 

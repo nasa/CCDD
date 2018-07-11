@@ -289,7 +289,9 @@ public abstract class CcddInputFieldPanelHandler
                     // Update the data field with the current value
                     fieldInfo.setValue(fieldInfo.getInputFld() instanceof JTextComponent
                                                                                          ? ((JTextComponent) fieldInfo.getInputFld()).getText()
-                                                                                         : ((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString());
+                                                                                         : (fieldInfo.getInputFld() instanceof PaddedComboBox
+                                                                                                                                              ? ((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString()
+                                                                                                                                              : ""));
                 }
             }
         }

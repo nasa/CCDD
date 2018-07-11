@@ -914,7 +914,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the input type combo box lists
         setUpSelectionColumns();
 
-        // TODO NEED TO CHECK IF THIS ISNECESSARY
+        // TODO NEED TO CHECK IF THIS IS NECESSARY
         // Update the table editor contents
         table.loadAndFormatData();
 

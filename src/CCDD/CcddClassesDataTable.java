@@ -1214,10 +1214,10 @@ public class CcddClassesDataTable
     protected static class InputType
     {
         private final String inputName;
-        private final String inputMatch;
-        private final InputTypeFormat inputFormat;
         private final String inputDescription;
+        private final String inputMatch;
         private final List<String> inputItems;
+        private final InputTypeFormat inputFormat;
 
         /******************************************************************************************
          * Input type class constructor
@@ -1225,32 +1225,32 @@ public class CcddClassesDataTable
          * @param inputName
          *            input type name
          *
-         * @param inputMatch
-         *            regular expression match for the input type
-         *
-         * @param inputFormat
-         *            input type format
-         *
          * @param inputDescription
          *            input type description
+         *
+         * @param inputMatch
+         *            regular expression match for the input type
          *
          * @param inputItems
          *            string containing the acceptable values for this input type, separated by the
          *            selection item list separator; null or blank if the input type doesn't
          *            constrain the inputs to items from a list. The list is used to create the
          *            contents of the combo box in the table column with this input type
+         *
+         * @param inputFormat
+         *            input type format
          *****************************************************************************************/
         InputType(String inputName,
-                  String inputMatch,
-                  InputTypeFormat inputFormat,
                   String inputDescription,
-                  String inputItems)
+                  String inputMatch,
+                  String inputItems,
+                  InputTypeFormat inputFormat)
         {
             this.inputName = inputName;
-            this.inputMatch = inputMatch;
-            this.inputFormat = inputFormat;
             this.inputDescription = inputDescription;
+            this.inputMatch = inputMatch;
             this.inputItems = convertItemList(inputItems);
+            this.inputFormat = inputFormat;
         }
 
         /******************************************************************************************
@@ -1264,6 +1264,16 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
+         * Get the input type description
+         *
+         * @return Input type description
+         *****************************************************************************************/
+        protected String getInputDescription()
+        {
+            return inputDescription;
+        }
+
+        /******************************************************************************************
          * Get the input type matching regular expression
          *
          * @return Input type matching regular expression
@@ -1271,6 +1281,17 @@ public class CcddClassesDataTable
         protected String getInputMatch()
         {
             return inputMatch;
+        }
+
+        /******************************************************************************************
+         * Get the input type selection items
+         *
+         * @return List of input type selection items; null if the input type has no selection
+         *         items
+         *****************************************************************************************/
+        protected List<String> getInputItems()
+        {
+            return inputItems;
         }
 
         /******************************************************************************************
@@ -1284,24 +1305,32 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the input type description
+         * Get the input type format associated with the supplied input format name
          *
-         * @return Input type description
+         * @param formatName
+         *            input format name
+         *
+         * @return Input type format associated with the supplied input format name; 'Text' format
+         *         if the name supplied is invalid
          *****************************************************************************************/
-        protected String getInputDescription()
+        protected static InputTypeFormat getInputFormatByName(String formatName)
         {
-            return inputDescription;
-        }
+            // Set the default input type format
+            InputTypeFormat inputFormat = InputTypeFormat.TEXT;
 
-        /******************************************************************************************
-         * Get the input type selection items
-         *
-         * @return List of input type selection items; null if the input type has no selection
-         *         items
-         *****************************************************************************************/
-        protected List<String> getInputItems()
-        {
-            return inputItems;
+            // Step through each input type format
+            for (InputTypeFormat format : InputTypeFormat.values())
+            {
+                // Check if the format names match (case insensitive)
+                if (formatName.equals(format.getFormatName()))
+                {
+                    // Store the input type format and stop searching
+                    inputFormat = format;
+                    break;
+                }
+            }
+
+            return inputFormat;
         }
 
         /******************************************************************************************

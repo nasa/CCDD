@@ -2047,11 +2047,11 @@ public class CcddConstants
     {
         TEXT(true),
         ARRAY(true),
-        INTEGER(true),
-        FLOAT(true),
-        RATE(false),
-        HEXADECIMAL(true),
         BOOLEAN(true),
+        FLOAT(true),
+        HEXADECIMAL(true),
+        INTEGER(true),
+        RATE(false),
         ENUMERATION(false),
         DATA_TYPE(false),
         MINIMUM(false),
@@ -3386,10 +3386,10 @@ public class CcddConstants
                                      InputTypesColumn.DESCRIPTION.dataType},
                                     {InputTypesColumn.MATCH.columnName,
                                      InputTypesColumn.MATCH.dataType},
-                                    {InputTypesColumn.FORMAT.columnName,
-                                     InputTypesColumn.FORMAT.dataType},
                                     {InputTypesColumn.ITEMS.columnName,
-                                     InputTypesColumn.ITEMS.dataType}},
+                                     InputTypesColumn.ITEMS.dataType},
+                                    {InputTypesColumn.FORMAT.columnName,
+                                     InputTypesColumn.FORMAT.dataType}},
                     "WITH OIDS",
                     ""),
 
@@ -3877,8 +3877,8 @@ public class CcddConstants
             NAME("name", "text"),
             DESCRIPTION("description", "text"),
             MATCH("match", "text"),
-            FORMAT("format", "text"),
             ITEMS("items", "text"),
+            FORMAT("format", "text"),
             OID("index", "text");
 
             private final String columnName;
@@ -4810,7 +4810,7 @@ public class CcddConstants
         DESCRIPTION("Description", "Input type description", "", false),
         MATCH("RegEx Match", "Regular expression for constraining values of this input type", ".*", true),
         ITEMS("Selection Items", "Text strings, separated by line feeds, by which the input value is constrained", "", false),
-        FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.toString().toLowerCase(), false),
+        FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.getFormatName(), false),
         OID("OID", "Input type index", "", false);
 
         private final String columnName;

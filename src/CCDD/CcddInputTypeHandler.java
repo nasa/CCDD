@@ -156,36 +156,21 @@ public class CcddInputTypeHandler
         {
             // Add the default input type to the list of input types
             inputTypes.add(new InputType(inputType.getInputName(),
-                                         inputType.getInputMatch(),
-                                         inputType.getInputFormat(),
                                          inputType.getInputDescription(),
-                                         null));
+                                         inputType.getInputMatch(),
+                                         null,
+                                         inputType.getInputFormat()));
         }
 
         // Set through any custom input types defined for the project
         for (String[] customType : customInputTypes)
         {
-            // Set the default input type format
-            InputTypeFormat inputFormat = InputTypeFormat.TEXT;
-
-            // Step through each input type format
-            for (InputTypeFormat format : InputTypeFormat.values())
-            {
-                // Check if the format names match (case insensitive)
-                if (customType[InputTypesColumn.FORMAT.ordinal()].equals(format.name().toLowerCase()))
-                {
-                    // Store the input type format and stop searching
-                    inputFormat = format;
-                    break;
-                }
-            }
-
             // Add the custom input type to the list of input types
             inputTypes.add(new InputType(customType[InputTypesColumn.NAME.ordinal()],
-                                         customType[InputTypesColumn.MATCH.ordinal()],
-                                         inputFormat,
                                          customType[InputTypesColumn.DESCRIPTION.ordinal()],
-                                         customType[InputTypesColumn.ITEMS.ordinal()]));
+                                         customType[InputTypesColumn.MATCH.ordinal()],
+                                         customType[InputTypesColumn.ITEMS.ordinal()],
+                                         InputType.getInputFormatByName(customType[InputTypesColumn.FORMAT.ordinal()])));
         }
 
         // Step through each input type (default and custom)
@@ -464,7 +449,7 @@ public class CcddInputTypeHandler
                 else if (inputFormat.equals(InputTypeFormat.BOOLEAN))
                 {
                     // Format the string as a boolean
-                    valueS = valueS.toLowerCase();
+                    valueS = Boolean.valueOf(valueS).toString();
                 }
                 // Check if the values represents array index values
                 else if (inputFormat.equals(InputTypeFormat.ARRAY))
