@@ -215,7 +215,7 @@ public class CcddDataTypeHandler
      * @return Data type information associated with the specified data type name; returns null if
      *         the data type doesn't exist
      *********************************************************************************************/
-    protected String[] getDataTypeInfo(String dataTypeName)
+    protected String[] getDataTypeByName(String dataTypeName)
     {
         String[] dataType = null;
 
@@ -248,7 +248,7 @@ public class CcddDataTypeHandler
         BaseDataTypeInfo baseDataType = null;
 
         // Get the data type information based on the type name
-        String[] dataType = getDataTypeInfo(dataTypeName);
+        String[] dataType = getDataTypeByName(dataTypeName);
 
         // Check if the data type exists
         if (dataType != null)
@@ -273,7 +273,7 @@ public class CcddDataTypeHandler
         int dataTypeSize = 0;
 
         // Get the data type information based on the type name
-        String[] dataType = getDataTypeInfo(dataTypeName);
+        String[] dataType = getDataTypeByName(dataTypeName);
 
         // Check if the data type exists
         if (dataType != null)
@@ -338,7 +338,7 @@ public class CcddDataTypeHandler
         boolean isPrimitive = false;
 
         // Get the data type information based on the type name
-        String[] dataType = getDataTypeInfo(dataTypeName);
+        String[] dataType = getDataTypeByName(dataTypeName);
 
         // Check if the data type exists
         if (dataType != null)
@@ -589,8 +589,8 @@ public class CcddDataTypeHandler
      *            list of data type definitions
      *
      * @throws CCDDException
-     *             If the data field with the same same already exists and the imported field
-     *             doesn't match
+     *             If an data type with the same same already exists and the imported type doesn't
+     *             match
      *********************************************************************************************/
     protected void updateDataTypes(List<String[]> dataTypeDefinitions) throws CCDDException
     {
@@ -598,7 +598,7 @@ public class CcddDataTypeHandler
         for (String[] typeDefn : dataTypeDefinitions)
         {
             // Get the data type information associated with this data type name
-            String[] dataType = getDataTypeInfo(CcddDataTypeHandler.getDataTypeName(typeDefn));
+            String[] dataType = getDataTypeByName(CcddDataTypeHandler.getDataTypeName(typeDefn));
 
             // Check if the data type doesn't already exist
             if (dataType == null)
@@ -613,9 +613,9 @@ public class CcddDataTypeHandler
                        && dataType[DataTypesColumn.SIZE.ordinal()].equals(typeDefn[DataTypesColumn.SIZE.ordinal()])
                        && dataType[DataTypesColumn.BASE_TYPE.ordinal()].equals(typeDefn[DataTypesColumn.BASE_TYPE.ordinal()])))
             {
-                throw new CCDDException("Imported data type '"
+                throw new CCDDException("Imported data type '</b>"
                                         + CcddDataTypeHandler.getDataTypeName(typeDefn)
-                                        + "' doesn't match the existing definition");
+                                        + "<b>' doesn't match the existing definition");
             }
         }
     }

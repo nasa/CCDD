@@ -54,6 +54,7 @@ import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -2110,7 +2111,7 @@ public class CcddDbTableCommandHandler
                         columnValues[column] = "";
                     }
                     // Check if the input type for this column is a boolean
-                    else if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN)))
+                    else if (typeDefn.getInputTypes()[column].getInputFormat() == InputTypeFormat.BOOLEAN)
                     {
                         // Store the column value as a boolean
                         columnValues[column] = columnValues[column].toString().equalsIgnoreCase("true")
@@ -5875,9 +5876,9 @@ public class CcddDbTableCommandHandler
                                                   + "; cause '"
                                                   + se.getMessage()
                                                   + "'",
-                                          "<html><b>Cannot delete table type '"
+                                          "<html><b>Cannot delete table type '</b>"
                                                          + typeName
-                                                         + "'</b>"
+                                                         + "<b>'</b>"
                                                          + names
                                                          + "<b>'");
                     errorFlag = true;
@@ -6804,7 +6805,8 @@ public class CcddDbTableCommandHandler
      * Update the input type columns in the open table editors
      *
      * @param inputTypeNamess
-     *            list of the input type names, before and after the changes
+     *            list of the input type names, before and after the changes; null if none of the
+     *            input type names changed
      *
      * @param parent
      *            GUI component calling this method

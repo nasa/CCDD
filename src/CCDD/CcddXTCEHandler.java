@@ -706,9 +706,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot import XTCE XML from file<br>'</b>"
                                                               + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '"
+                                                              + "<b>'; cause '</b>"
                                                               + je.getMessage()
-                                                              + "'",
+                                                              + "<b>'",
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -5830,11 +5830,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Inform the user that the enumeration format is invalid
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Enumeration '"
+                                                      "<html><b>Enumeration '</b>"
                                                               + enumeration
-                                                              + "' format invalid in table '"
+                                                              + "<b>' format invalid in table '</b>"
                                                               + spaceSystem.getName()
-                                                              + "'; "
+                                                              + "<b>'; "
                                                               + ce.getMessage(),
                                                       "Enumeration Error",
                                                       JOptionPane.WARNING_MESSAGE,

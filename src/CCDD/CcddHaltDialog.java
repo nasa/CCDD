@@ -164,14 +164,16 @@ public class CcddHaltDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Set the total number of items for the current step
+     * Set the total number of items for the current step. If the number less than 1 then 1 is used
      *
      * @param itemsPerStep
      *            Total number of items for the current step
      *********************************************************************************************/
     protected void setItemsPerStep(int itemsPerStep)
     {
-        this.itemsPerStep = itemsPerStep;
+        this.itemsPerStep = itemsPerStep > 0
+                                             ? itemsPerStep
+                                             : 1;
     }
 
     /**********************************************************************************************

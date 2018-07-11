@@ -14,6 +14,7 @@ import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -755,7 +756,7 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Concatenate the contents of two one-dimensional arrays to produce a third array
+     * Concatenate the contents of two one-dimensional string arrays to produce a third array
      *
      * @param array1
      *            first array to combine (can be null)
@@ -763,8 +764,8 @@ public class CcddUtilities
      * @param array2
      *            second array to combine
      *
-     * @return One-dimensional array with the contents of the second array appended to the first
-     *         array
+     * @return One-dimensional string array with the contents of the second array appended to the
+     *         first array
      *********************************************************************************************/
     protected static String[] concatenateArrays(String[] array1, String[] array2)
     {
@@ -806,9 +807,10 @@ public class CcddUtilities
      * @return Two-dimensional array with the contents of the second array appended to the first
      *         array
      *********************************************************************************************/
-    protected static Object[][] concatenateArrays(Object[][] array1, Object[][] array2)
+    @SuppressWarnings("unchecked")
+    protected static <T> T[][] concatenateArrays(T[][] array1, T[][] array2)
     {
-        Object[][] concatArray;
+        T[][] concatArray;
 
         // Check if the first array is empty
         if (array1 == null || array1.length == 0)
@@ -824,7 +826,8 @@ public class CcddUtilities
             int numRows2 = array2.length;
 
             // Create storage for the combined array
-            concatArray = new String[numRows1 + numRows2][];
+            concatArray = (T[][]) Array.newInstance(array1.getClass().getComponentType(),
+                                                    numRows1 + numRows2);
 
             // Copy the input arrays into the proper locations in the combined array
             System.arraycopy(array1, 0, concatArray, 0, numRows1);

@@ -60,8 +60,8 @@ import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.AvailabilityType;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -854,9 +854,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         {
             // Inform the user that no table exists in this database
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Project '"
+                                                      "<html><b>Project '</b>"
                                                                                + dbControl.getDatabaseName()
-                                                                               + "' has no tables",
+                                                                               + "<b>' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

@@ -570,9 +570,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                             if (newValueS.equalsIgnoreCase(keyWord))
                             {
                                 // Inform the user that the column name is a reserved word
-                                throw new CCDDException("Column name '"
+                                throw new CCDDException("Column name '</b>"
                                                         + newValueS
-                                                        + "' matches a reserved word");
+                                                        + "<b>' matches a reserved word");
                             }
                         }
 
@@ -580,9 +580,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         if (newValueS.equalsIgnoreCase(DefaultColumn.PRIMARY_KEY.getDbName())
                             || newValueS.equalsIgnoreCase(DefaultColumn.ROW_INDEX.getDbName()))
                         {
-                            throw new CCDDException("Column name '"
+                            throw new CCDDException("Column name '</b>"
                                                     + newValueS
-                                                    + "' already in use (hidden)");
+                                                    + "<b>' already in use (hidden)");
                         }
 
                         // Set the flag to true if the table type represents a structure
@@ -604,9 +604,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                 // insensitive)
                                 if (newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString()))
                                 {
-                                    throw new CCDDException("Column name '"
+                                    throw new CCDDException("Column name '</b>"
                                                             + newValueS
-                                                            + "' already in use");
+                                                            + "<b>' already in use");
                                 }
 
                                 // Check if the database form of the column name matches matches
@@ -615,9 +615,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                                                                    tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
                                                                                                    isStructure)))
                                 {
-                                    throw new CCDDException("Column name '"
+                                    throw new CCDDException("Column name '</b>"
                                                             + newValueS
-                                                            + "' already in use (database)");
+                                                            + "<b>' already in use (database)");
                                 }
                             }
                         }
@@ -629,9 +629,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                              && !newValue.equals(true)
                              && !newValue.equals(false))
                     {
-                        throw new CCDDException("Column '"
+                        throw new CCDDException("Column '</b>"
                                                 + TableTypeEditorColumnInfo.getColumnNames()[column]
-                                                + "' expects a boolean value");
+                                                + "<b>' expects a boolean value");
                     }
                     // Check if this is the input type column
                     else if (column == TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
@@ -645,7 +645,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         // Check if the input type is invalid
                         if (inputTypeHandler.getInputTypeByName(newValueS) == null)
                         {
-                            throw new CCDDException("Unknown input type '" + newValueS + "'");
+                            throw new CCDDException("Unknown input type '</b>"
+                                                    + newValueS
+                                                    + "<b>'");
                         }
 
                         // Get the table type (structure, command, or other) based on the column
@@ -679,8 +681,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(editorDialog,
-                                                                  "<html><b>"
-                                                                                + ce.getMessage(),
+                                                                  "<html><b>" + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
@@ -1364,11 +1365,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(editorDialog,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                     + table.getColumnName(column)
-                                                                                    + "' [row "
+                                                                                    + "<b>' [row </b>"
                                                                                     + (row + 1)
-                                                                                    + "]",
+                                                                                    + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

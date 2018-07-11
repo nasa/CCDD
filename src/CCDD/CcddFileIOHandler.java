@@ -66,6 +66,7 @@ import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
+import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -165,11 +166,11 @@ public class CcddFileIOHandler
                 {
                     // Inform the user that an error occurred opening the user's guide
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>User's guide '"
+                                                              "<html><b>User's guide '</b>"
                                                                                        + USERS_GUIDE
-                                                                                       + "' cannot be opened; cause<br>'"
+                                                                                       + "<b>' cannot be opened; cause<br>'</b>"
                                                                                        + e.getMessage()
-                                                                                       + "'",
+                                                                                       + "<b>'",
                                                               "File Error",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -517,9 +518,9 @@ public class CcddFileIOHandler
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Cannot read backup file<br>'</b>"
                                                                                        + dataFile[0].getAbsolutePath()
-                                                                                       + "<b>'; cause '"
+                                                                                       + "<b>'; cause '</b>"
                                                                                        + e.getMessage()
-                                                                                       + "'",
+                                                                                       + "<b>'",
                                                               "File Error",
                                                               JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -715,6 +716,7 @@ public class CcddFileIOHandler
         // information in case it needs to be restored
         List<TypeDefinition> originalTableTypes = new ArrayList<TypeDefinition>(tableTypeHandler.getTypeDefinitions());
         List<String[]> originalDataTypes = new ArrayList<String[]>(dataTypeHandler.getDataTypeData());
+        String[][] originalInputTypes = inputTypeHandler.getCustomInputTypeData();
         List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
         List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = new ArrayList<String[]>(fieldHandler.getFieldDefinitions());
@@ -891,6 +893,13 @@ public class CcddFileIOHandler
             // applicable
             dbTable.updateDataTypeColumns(parent);
 
+            // Update the table type handler with the input type changes
+            tableTypeHandler.updateInputTypes(null);
+
+            // If open, update the table type editor's input type column combo box lists to include
+            // the new input type(s), if applicable
+            dbTable.updateInputTypeColumns(null, parent);
+
             // Update any open editor's message ID names columns to include any new message ID
             // names, if applicable
             dbTable.updateMessageIDNamesColumns(parent);
@@ -965,9 +974,9 @@ public class CcddFileIOHandler
             {
                 // Inform the user that an error occurred reverting changes to the database
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot revert changes to database; cause '"
+                                                          "<html><b>Cannot revert changes to database; cause '</b>"
                                                                   + se.getMessage()
-                                                                  + "'",
+                                                                  + "<b>'",
                                                           "Import Error",
                                                           JOptionPane.ERROR_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -993,6 +1002,7 @@ public class CcddFileIOHandler
             }
 
             dataTypeHandler.setDataTypeData(originalDataTypes);
+            inputTypeHandler.setInputTypeData(originalInputTypes);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
             dbTable.storeInformationTable(InternalTable.FIELDS,
@@ -1320,6 +1330,13 @@ public class CcddFileIOHandler
                                       null,
                                       parent);
 
+        // Store the input types
+        dbTable.storeInformationTable(InternalTable.INPUT_TYPES,
+                                      CcddUtilities.removeArrayListColumn(Arrays.asList(inputTypeHandler.getCustomInputTypeData()),
+                                                                          InputTypesColumn.OID.ordinal()),
+                                      null,
+                                      parent);
+
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())
         {
@@ -1382,7 +1399,7 @@ public class CcddFileIOHandler
                                         int numColumns,
                                         boolean replaceExisting,
                                         boolean openEditor,
-                                        String errorMsg,
+                                        String errorMsg, // TODO NOT USED
                                         List<String> allTables,
                                         Component parent) throws CCDDException
     {
@@ -2127,9 +2144,9 @@ public class CcddFileIOHandler
                 // Inform the user that an error occurred accessing the script file
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot use external methods - using "
-                                                                  + "internal methods instead; cause '"
+                                                                  + "internal methods instead; cause '</b>"
                                                                   + ce.getMessage()
-                                                                  + "'",
+                                                                  + "<b>'",
                                                           "Export Error",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -2311,9 +2328,9 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot export to file<br>'</b>"
                                                               + file.getAbsolutePath()
-                                                              + "<b>'; cause '"
+                                                              + "<b>'; cause '</b>"
                                                               + jce.getMessage()
-                                                              + "'",
+                                                              + "<b>'",
                                                       "Export Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);

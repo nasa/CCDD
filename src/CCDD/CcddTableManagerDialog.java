@@ -51,10 +51,10 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -315,9 +315,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         {
                             // Inform the user that no table type exists in the database
                             new CcddDialogHandler().showMessageDialog(caller,
-                                                                      "<html><b>Project '"
+                                                                      "<html><b>Project '</b>"
                                                                               + dbControl.getDatabaseName()
-                                                                              + "' has no table type defined",
+                                                                              + "<b>' has no table type defined",
                                                                       "New Table",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
@@ -885,9 +885,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         {
             // Inform the user that no table exists for this database
             new CcddDialogHandler().showMessageDialog(caller,
-                                                      "<html><b>Project '"
+                                                      "<html><b>Project '</b>"
                                                               + dbControl.getDatabaseName()
-                                                              + "' has no tables",
+                                                              + "<b>' has no tables",
                                                       "No Tables",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -977,7 +977,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         openEditorCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         openEditorCb.setBorder(emptyBorder);
         openEditorCb.setToolTipText(CcddUtilities.wrapText("Open a table editor for each imported table",
-                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);

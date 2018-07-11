@@ -914,10 +914,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the input type combo box lists
         setUpSelectionColumns();
 
-        // TODO NEED TO CHECK IF THIS IS NECESSARY
-        // Update the table editor contents
-        table.loadAndFormatData();
-
         // Check that the table is open in a table editor
         if (editorDialog != null)
         {
@@ -1426,7 +1422,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected boolean isColumnMultiLine(int column)
             {
-                return !typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
+                return !isColumnBoolean(column);
             }
 
             /**************************************************************************************
@@ -1444,7 +1440,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected boolean isColumnBoolean(int column)
             {
-                return typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
+                return typeDefn.getInputTypes()[column].getInputFormat() == InputTypeFormat.BOOLEAN;
             }
 
             /**************************************************************************************
@@ -1453,7 +1449,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected boolean isColumnResizable(int column)
             {
-                return !typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN));
+                return !isColumnBoolean(column);
             }
 
             /**************************************************************************************
@@ -1886,9 +1882,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                     + tableInfo.getTablePath()
                                                     + "<b>' for column '</b>"
                                                     + typeDefn.getColumnNamesUser()[column]
-                                                    + "<b>'; characters consistent with input type '"
+                                                    + "<b>'; characters consistent with input type '</b>"
                                                     + typeDefn.getInputTypes()[column].getInputName()
-                                                    + "' expected");
+                                                    + "<b>' expected");
                         }
 
                         // Check if this is a message ID name column
@@ -1903,7 +1899,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                     // Check if the cell's input type isn't a boolean. Boolean values are
                     // represented by a check box and can't contain a macro
-                    if (!typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BOOLEAN)))
+                    if (typeDefn.getInputTypes()[column].getInputFormat() != InputTypeFormat.BOOLEAN)
                     {
                         // Flag that indicates that the new cell value contains a macro and/or a
                         // sizeof() call
@@ -4467,9 +4463,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input type in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; input type '"
+                                            + "<b>'; input type '"
                                             + DefaultInputType.INT_NON_NEGATIVE.getInputName().toLowerCase()
                                             + "' expected");
                 }
@@ -4484,11 +4480,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Input value out of range in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; must be greater than "
+                                            + "<b>'; must be greater than </b>"
                                             + newDataTypeHandler.getMinimum(dataType)
-                                            + " and less than "
+                                            + "<b> and less than </b>"
                                             + newDataTypeHandler.getMaximum(dataType));
                 }
 
@@ -4500,9 +4496,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input value in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; the minimum must be less than or equal to the maximum");
+                                            + "<b>'; the minimum must be less than or equal to the maximum");
                 }
             }
             // Check if the data type is a signed integer (an unsigned integer was already
@@ -4514,11 +4510,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input type in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; input type '"
+                                            + "<b>'; input type '</b>"
                                             + DefaultInputType.INTEGER.getInputName().toLowerCase()
-                                            + "' expected");
+                                            + "<b>' expected");
                 }
 
                 // Convert the cell value to an integer
@@ -4531,11 +4527,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Input value out of range in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; must be greater than "
+                                            + "<b>'; must be greater than </b>"
                                             + newDataTypeHandler.getMinimum(dataType)
-                                            + " and less than "
+                                            + "<b> and less than </b>"
                                             + newDataTypeHandler.getMaximum(dataType));
                 }
 
@@ -4547,9 +4543,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input value in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; the minimum must be less than or equal to the maximum");
+                                            + "<b>'; the minimum must be less than or equal to the maximum");
                 }
             }
             // Check if the data type is a floating point
@@ -4560,11 +4556,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input type in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; input type '"
+                                            + "<b>'; input type '</b>"
                                             + DefaultInputType.FLOAT.getInputName().toLowerCase()
-                                            + "' expected");
+                                            + "<b>' expected");
                 }
 
                 // Convert the cell value to a floating point
@@ -4577,11 +4573,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Input value out of range in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; must be greater than "
+                                            + "<b>'; must be greater than </b>"
                                             + newDataTypeHandler.getMinimum(dataType)
-                                            + " and less than "
+                                            + "<b> and less than </b>"
                                             + newDataTypeHandler.getMaximum(dataType));
                 }
 
@@ -4593,9 +4589,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     throw new CCDDException("Invalid input value in table '</b>"
                                             + tableInfo.getTablePath()
-                                            + "<b>' for column '"
+                                            + "<b>' for column '</b>"
                                             + typeDefn.getColumnNamesUser()[column]
-                                            + "'; the minimum must be less than or equal to the maximum");
+                                            + "<b>'; the minimum must be less than or equal to the maximum");
                 }
             }
         }
@@ -5508,11 +5504,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             // Inform the user that a row is missing required data. If Cancel is
                             // selected then do not perform checks on other columns and rows
                             if (new CcddDialogHandler().showMessageDialog(parent,
-                                                                          "<html><b>Data must be provided for column '"
+                                                                          "<html><b>Data must be provided for column '</b>"
                                                                                   + tableModel.getColumnName(column)
-                                                                                  + "' [row "
+                                                                                  + "<b>' [row </b>"
                                                                                   + (row + 1)
-                                                                                  + "]",
+                                                                                  + "<b>]",
                                                                           "Missing Data",
                                                                           JOptionPane.WARNING_MESSAGE,
                                                                           DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

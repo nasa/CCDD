@@ -3828,7 +3828,6 @@ public class CcddClassesComponent
         @Override
         public void paintComponent(final Graphics g)
         {
-
             // TODO ADDED TRY-CATCH DUE TO ARRAY OUT OF BOUNDS EXCEPTIONS WHEN IMPORTING A LARGE
             // NUMBER OF TABLES (WHICH CREATE A LARGE NUMBER OF TABLE EDITORS)
             try

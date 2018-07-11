@@ -118,9 +118,9 @@ public class CcddImportSupportHandler
         if (columnDefn[TableTypeEditorColumnInfo.NAME.ordinal()].isEmpty())
         {
             // Inform the user that the column name is missing
-            throw new CCDDException("Table type '"
+            throw new CCDDException("Table type '</b>"
                                     + tableTypeDefn.getTypeName()
-                                    + "' definition column name missing in import file '</b>"
+                                    + "<b>' definition column name missing in import file '</b>"
                                     + fileName
                                     + "<b>'");
         }
@@ -136,11 +136,11 @@ public class CcddImportSupportHandler
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
-                                               "<html><b>Table type '"
+                                               "<html><b>Table type '</b>"
                                                                 + tableTypeDefn.getTypeName()
-                                                                + "' definition input type '"
+                                                                + "<b>' definition input type '</b>"
                                                                 + columnDefn[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()]
-                                                                + "' unrecognized in import file '</b>"
+                                                                + "<b>' unrecognized in import file '</b>"
                                                                 + fileName
                                                                 + "<b>'; continue?",
                                                "Table Type Error",
@@ -230,11 +230,11 @@ public class CcddImportSupportHandler
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
-                                               "<html><b>Data field '"
+                                               "<html><b>Data field '</b>"
                                                                 + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                                + "' definition input type '"
+                                                                + "<b>' definition input type '</b>"
                                                                 + fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]
-                                                                + "' for owner '</b>"
+                                                                + "<b>' for owner '</b>"
                                                                 + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
                                                                 + "<b>' unrecognized in import file '</b>"
                                                                 + fileName
@@ -261,11 +261,11 @@ public class CcddImportSupportHandler
         {
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
-                                               "<html><b>Data field '"
+                                               "<html><b>Data field '</b>"
                                                                 + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                                + "' definition applicability type '"
+                                                                + "<b>' definition applicability type '</b>"
                                                                 + fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                                                                + "' for owner '</b>"
+                                                                + "<b>' for owner '</b>"
                                                                 + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
                                                                 + "<b>' unrecognized in import file '</b>"
                                                                 + fileName

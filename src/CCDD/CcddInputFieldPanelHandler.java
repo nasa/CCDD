@@ -746,11 +746,11 @@ public abstract class CcddInputFieldPanelHandler
                                             new CcddDialogHandler().showMessageDialog(fieldPnlHndlrOwner,
                                                                                       "<html><b>Invalid characters in field '</b>"
                                                                                                           + fieldInfo.getFieldName()
-                                                                                                          + "<b>'; characters consistent with input type '"
+                                                                                                          + "<b>'; characters consistent with input type '</b>"
                                                                                                           + fieldInfo.getInputType().getInputName()
-                                                                                                          + "' expected",
+                                                                                                          + "<b>' expected",
                                                                                       "Invalid "
-                                                                                                                          + fieldInfo.getInputType().getInputName(),
+                                                                                                                             + fieldInfo.getInputType().getInputName(),
                                                                                       JOptionPane.WARNING_MESSAGE,
                                                                                       DialogOption.OK_OPTION);
 

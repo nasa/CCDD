@@ -1053,9 +1053,9 @@ public class CcddScriptHandler
                     // Inform the user that script association execution can't continue due to an
                     // invalid input
                     new CcddDialogHandler().showMessageDialog(parent,
-                                                              "<html><b>Environment variable override key '"
+                                                              "<html><b>Environment variable override key '</b>"
                                                                       + keyAndValue[0]
-                                                                      + "' has no corresponding value",
+                                                                      + "<b>' has no corresponding value",
                                                               "Invalid Input",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);

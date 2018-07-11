@@ -41,8 +41,8 @@ import javax.swing.table.TableCellRenderer;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.ReservedMsgIDsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -744,11 +744,11 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddReservedMsgIDEditorDialog.this,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                                           + msgIDTable.getColumnName(column)
-                                                                                                          + "' [row "
+                                                                                                          + "<b>' [row </b>"
                                                                                                           + (row + 1)
-                                                                                                          + "]",
+                                                                                                          + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

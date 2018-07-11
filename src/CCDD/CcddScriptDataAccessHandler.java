@@ -504,7 +504,7 @@ public class CcddScriptDataAccessHandler
         String cType = null;
 
         // Get the base data type information based on the data type
-        String[] dataTypeInfo = dataTypeHandler.getDataTypeInfo(dataType);
+        String[] dataTypeInfo = dataTypeHandler.getDataTypeByName(dataType);
 
         // Check if the data type exists
         if (dataTypeInfo != null)

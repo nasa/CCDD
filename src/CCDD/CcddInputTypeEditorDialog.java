@@ -49,6 +49,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
@@ -366,9 +367,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
 
                                 // Inform the user that the input type can't be deleted
                                 new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                                          "<html><b>Cannot delete input type '"
+                                                                          "<html><b>Cannot delete input type '</b>"
                                                                                                           + inputTypeName
-                                                                                                          + "'; input type is referenced by "
+                                                                                                          + "<b>'; input type is referenced by "
                                                                                                           + inputTypeUsers,
                                                                           "Delete Input Type",
                                                                           JOptionPane.ERROR_MESSAGE,
@@ -645,10 +646,17 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // Check if the table data has at least one row
                 if (rowData != null && rowData.length != 0)
                 {
-                    // Disable editing the regular expression match column if the selection items
-                    // column isn't blank
-                    isAlterable = !(column == InputTypeEditorColumnInfo.MATCH.ordinal()
-                                    && !rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty());
+                    // Disable editing ...
+                    isAlterable = // ... the regular expression match column if the selection items
+                                  // column isn't blank or the input format type is boolean
+                                    (column != InputTypeEditorColumnInfo.MATCH.ordinal()
+                                     || (rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty()
+                                         && !InputType.getInputFormatByName(rowData[InputTypeEditorColumnInfo.FORMAT.ordinal()].toString()).equals(InputTypeFormat.BOOLEAN)))
+
+                                  // ... the format column if the selection items column isn't
+                                  // blank
+                                  && (column != InputTypeEditorColumnInfo.FORMAT.ordinal()
+                                      || rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty());
                 }
 
                 return isAlterable;
@@ -788,9 +796,18 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                             if (itemRegEx != null)
                             {
                                 // Set the input match regular expression to mirror the selection
-                                // items
+                                // items and the format to be text
                                 tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = itemRegEx;
+                                tableData.get(row)[InputTypeEditorColumnInfo.FORMAT.ordinal()] = InputTypeFormat.TEXT.getFormatName();
                             }
+                        }
+                        // Check if the input type format has been changed to represent a boolean
+                        // value
+                        else if (column == InputTypeEditorColumnInfo.FORMAT.ordinal()
+                                 && InputType.getInputFormatByName(tableData.get(row)[column].toString()).equals(InputTypeFormat.BOOLEAN))
+                        {
+                            // Set the regular expression to that for a boolean value
+                            tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = DefaultInputType.BOOLEAN.getInputMatch();
                         }
                     }
                 }
@@ -1051,11 +1068,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                     // Inform the user that a row is missing required data. If Cancel is selected
                     // then do not perform checks on other columns and rows
                     if (new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                                  "<html><b>Data must be provided for column '"
+                                                                  "<html><b>Data must be provided for column '</b>"
                                                                                                   + inputTypeTable.getColumnName(InputTypeEditorColumnInfo.NAME.ordinal())
-                                                                                                  + "' [row "
+                                                                                                  + "<b>' [row </b>"
                                                                                                   + (row + 1)
-                                                                                                  + "]",
+                                                                                                  + "<b>]",
                                                                   "Missing Data",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
@@ -1078,11 +1095,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                                       + inputTypeTable.getColumnName(column)
-                                                                                                      + "' [row "
+                                                                                                      + "<b>' [row </b>"
                                                                                                       + (row + 1)
-                                                                                                      + "]",
+                                                                                                      + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

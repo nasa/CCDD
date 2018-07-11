@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DefaultInputType;
@@ -159,7 +160,8 @@ public class CcddInputTypeHandler
                                          inputType.getInputDescription(),
                                          inputType.getInputMatch(),
                                          null,
-                                         inputType.getInputFormat()));
+                                         inputType.getInputFormat(),
+                                         false));
         }
 
         // Set through any custom input types defined for the project
@@ -170,7 +172,8 @@ public class CcddInputTypeHandler
                                          customType[InputTypesColumn.DESCRIPTION.ordinal()],
                                          customType[InputTypesColumn.MATCH.ordinal()],
                                          customType[InputTypesColumn.ITEMS.ordinal()],
-                                         InputType.getInputFormatByName(customType[InputTypesColumn.FORMAT.ordinal()])));
+                                         InputType.getInputFormatByName(customType[InputTypesColumn.FORMAT.ordinal()]),
+                                         true));
         }
 
         // Step through each input type (default and custom)
@@ -275,7 +278,7 @@ public class CcddInputTypeHandler
         String itemRegEx = null;
 
         // Convert the selection item string to a list
-        List<String> itemList = InputType.convertItemList(itemString.trim());
+        List<String> itemList = InputType.convertItemStringToList(itemString.trim());
 
         // Check if the regular expression was created (null is returned if the item list string is
         // empty)
@@ -451,8 +454,9 @@ public class CcddInputTypeHandler
                     // Format the string as a boolean
                     valueS = Boolean.valueOf(valueS).toString();
                 }
-                // Check if the values represents array index values
-                else if (inputFormat.equals(InputTypeFormat.ARRAY))
+                // Check if the value represents array indices
+                else if (inputFormat.equals(InputTypeFormat.ARRAY)
+                         && valueS.matches("(?:[0-9]*\\s*,\\s*)*[0-9]*"))
                 {
                     // Remove all spaces and replace any commas with a comma and space
                     valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
@@ -505,5 +509,46 @@ public class CcddInputTypeHandler
                                                                                      parent)));
 
         return matches.toArray(new String[0]);
+    }
+
+    /**********************************************************************************************
+     * Add new input types and check for matches with existing ones
+     *
+     * @param inputTypeDefinitions
+     *            list of input type definitions
+     *
+     * @throws CCDDException
+     *             If an input type with the same same already exists and the imported type doesn't
+     *             match
+     *********************************************************************************************/
+    protected void updateInputTypes(List<String[]> inputTypeDefinitions) throws CCDDException
+    {
+        // Step through each imported input type definition
+        for (String[] typeDefn : inputTypeDefinitions)
+        {
+            // Locate the input type in the map using its name as the key
+            InputType inputType = inputTypeMap.get(typeDefn[InputTypesColumn.NAME.ordinal()].toLowerCase());
+
+            // Check if the input type doesn't already exist
+            if (inputType == null)
+            {
+                // Add the input type
+                customInputTypes = CcddUtilities.concatenateArrays(customInputTypes,
+                                                                   inputTypeDefinitions.toArray(new String[0][0]));
+                setInputTypeData(customInputTypes);
+            }
+            // The input type exists; check if the type information provided matches the existing
+            // type information
+            else if (!(inputType.getInputName().equals(typeDefn[InputTypesColumn.NAME.ordinal()])
+                       && inputType.getInputDescription().equals(typeDefn[InputTypesColumn.DESCRIPTION.ordinal()])
+                       && inputType.getInputMatch().equals(typeDefn[InputTypesColumn.MATCH.ordinal()])
+                       && InputType.convertItemListToString(inputType.getInputItems()).equals(typeDefn[InputTypesColumn.ITEMS.ordinal()])
+                       && inputType.getInputFormat().getFormatName().equals(typeDefn[InputTypesColumn.FORMAT.ordinal()])))
+            {
+                throw new CCDDException("Imported input type '"
+                                        + typeDefn[InputTypesColumn.NAME.ordinal()]
+                                        + "' doesn't match the existing definition");
+            }
+        }
     }
 }

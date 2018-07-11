@@ -3162,9 +3162,9 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Inform the user that an error occurred retrieving the clipboard values
             new CcddDialogHandler().showMessageDialog(table,
-                                                      "<html><b>Cannot retrieve clipboard values; cause '"
+                                                      "<html><b>Cannot retrieve clipboard values; cause '</b>"
                                                              + e.getMessage()
-                                                             + "'",
+                                                             + "<b>'",
                                                       "Clipboard Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -4594,11 +4594,11 @@ public abstract class CcddJTableHandler extends JTable
         {
             // Inform the user that printing failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Table '"
+                                                      "<html><b>Table '</b>"
                                                               + tableName
-                                                              + "' printing failed; cause '"
+                                                              + "<b>' printing failed; cause '</b>"
                                                               + pe.getMessage()
-                                                              + "'",
+                                                              + "<b>'",
                                                       "Print Fail",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

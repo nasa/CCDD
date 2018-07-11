@@ -1148,11 +1148,11 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddMacroEditorDialog.this,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                                   + macroTable.getColumnName(column)
-                                                                                                  + "' [row "
+                                                                                                  + "<b>' [row </b>"
                                                                                                   + (row + 1)
-                                                                                                  + "]",
+                                                                                                  + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

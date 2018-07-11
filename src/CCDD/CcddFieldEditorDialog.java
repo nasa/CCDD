@@ -308,9 +308,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                             if (otherRow != row
                                 && newValueS.equalsIgnoreCase(tableData.get(otherRow)[column].toString()))
                             {
-                                throw new CCDDException("Field name '"
+                                throw new CCDDException("Field name '</b>"
                                                         + newValueS
-                                                        + "' already in use");
+                                                        + "<b>' already in use");
                             }
                         }
                     }
@@ -328,7 +328,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // the interface unusable
                         if (Integer.valueOf(newValueS) > ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize())
                         {
-                            throw new CCDDException("Field size must be less than or equal to "
+                            throw new CCDDException("Field size must be less than or equal to </b>"
                                                     + ModifiableSizeInfo.MAX_DATA_FIELD_CHAR_WIDTH.getSize());
                         }
 
@@ -962,11 +962,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddFieldEditorDialog.this,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                                   + fieldTable.getColumnName(column)
-                                                                                                  + "' [row "
+                                                                                                  + "<b>' [row </b>"
                                                                                                   + (row + 1)
-                                                                                                  + "]",
+                                                                                                  + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

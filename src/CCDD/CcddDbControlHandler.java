@@ -2179,9 +2179,9 @@ public class CcddDbControlHandler
                     {
                         // Inform the user that there the program preferences can't be stored
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot store program preference values; cause '"
+                                                                  "<html><b>Cannot store program preference values; cause '</b>"
                                                                                            + e.getMessage()
-                                                                                           + "'",
+                                                                                           + "<b>'",
                                                                   "File Warning",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

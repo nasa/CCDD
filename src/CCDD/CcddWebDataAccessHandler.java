@@ -37,8 +37,8 @@ import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.CopyTableEntry;
-import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
@@ -531,6 +531,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 // Get the data type definitions
                 response = getDataTypeDefinitions();
+            }
+            // Check if this is a input type definition request
+            else if (component.equals("input_type"))
+            {
+                // Get the input type definitions
+                response = getInputTypeDefinitions();
             }
             // Check if this is a macro definition request
             else if (component.equals("macro"))
@@ -2595,6 +2601,18 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     {
         // Add the data type definitions to the output
         return jsonHandler.getDataTypeDefinitions(null, new JSONObject()).toJSONString();
+    }
+
+    /**********************************************************************************************
+     * Get the input type definitions
+     *
+     * @return JSON encoded string containing the input type definitions; an empty object if no
+     *         input type definition exists
+     *********************************************************************************************/
+    private String getInputTypeDefinitions()
+    {
+        // Add the input type definitions to the output
+        return jsonHandler.getInputTypeDefinitions(null, new JSONObject()).toJSONString();
     }
 
     /**********************************************************************************************

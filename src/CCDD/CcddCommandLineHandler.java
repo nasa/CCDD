@@ -939,9 +939,9 @@ public class CcddCommandLineHandler
                                                                        "Unrecognized association name '"
                                                                              + name
                                                                              + "'",
-                                                                       "<html><b>Unrecognized association name '"
+                                                                       "<html><b>Unrecognized association name '</b>"
                                                                                     + name
-                                                                                    + "'");
+                                                                                    + "<b>'");
                         }
                     }
                 }

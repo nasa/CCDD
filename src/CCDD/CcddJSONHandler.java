@@ -36,6 +36,7 @@ import org.json.simple.parser.ParseException;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableInformation;
@@ -45,7 +46,9 @@ import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.InputTypeEditorColumnInfo;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
+import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
@@ -292,10 +295,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             ProjectDefinition projectDefn = new ProjectDefinition();
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             tableDefinitions = new ArrayList<TableDefinition>();
+            List<String[]> inputTypeDefns = new ArrayList<String[]>();
 
             // Flags indicating if importing should continue after an input error is detected
             boolean continueOnTableTypeError = false;
             boolean continueOnDataTypeError = false;
+            boolean continueOnInputTypeError = false;
             boolean continueOnMacroError = false;
             boolean continueOnReservedMsgIDError = false;
             boolean continueOnProjectFieldError = false;
@@ -307,8 +312,64 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
 
+            // Get the input type definitions JSON object
+            Object defn = jsonObject.get(JSONTags.INPUT_TYPE_DEFN.getTag());
+
+            // Check if the input type definitions exist
+            if (defn != null && defn instanceof JSONArray)
+            {
+                // Step through each input type definition
+                for (JSONObject typeJO : parseJSONArray(defn))
+                {
+                    // Get the input type definition components
+                    String name = getString(typeJO,
+                                            InputTypeEditorColumnInfo.NAME.getColumnName());
+                    String description = getString(typeJO,
+                                                   InputTypeEditorColumnInfo.DESCRIPTION.getColumnName());
+                    String match = getString(typeJO,
+                                             InputTypeEditorColumnInfo.MATCH.getColumnName());
+                    String items = getString(typeJO,
+                                             InputTypeEditorColumnInfo.ITEMS.getColumnName());
+                    String format = getString(typeJO,
+                                              InputTypeEditorColumnInfo.FORMAT.getColumnName());
+
+                    // Check if the expected inputs are present
+                    if (!name.isEmpty()
+                        && !match.isEmpty()
+                        && typeJO.keySet().size() < InputTypeEditorColumnInfo.values().length)
+                    {
+                        // Add the input type definition (add a blank to represent the OID)
+                        inputTypeDefns.add(new String[] {name,
+                                                         description,
+                                                         match,
+                                                         items,
+                                                         format,
+                                                         ""});
+                    }
+                    // The number of inputs is incorrect
+                    else
+                    {
+                        // Check if the error should be ignored or the import canceled
+                        continueOnInputTypeError = getErrorResponse(continueOnInputTypeError,
+                                                                    "<html><b>Missing or extra input type definition "
+                                                                                              + "input(s) in import file '</b>"
+                                                                                              + importFile.getAbsolutePath()
+                                                                                              + "<b>'; continue?",
+                                                                    "Input Type Error",
+                                                                    "Ignore this data type",
+                                                                    "Ignore this and any remaining invalid input types",
+                                                                    "Stop importing",
+                                                                    parent);
+                    }
+                }
+            }
+
+            // Add the input type if it's new or match it to an existing one with the same name if
+            // the type definitions are the same
+            inputTypeHandler.updateInputTypes(inputTypeDefns);
+
             // Get the table type definitions JSON object
-            Object defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
+            defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
 
             // Check if the table type definitions exist
             if (defn != null && defn instanceof JSONArray)
@@ -371,9 +432,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             {
                                 // Check if the error should be ignored or the import canceled
                                 continueOnTableTypeError = getErrorResponse(continueOnTableTypeError,
-                                                                            "<html><b>Table type '"
+                                                                            "<html><b>Table type '</b>"
                                                                                                       + typeName
-                                                                                                      + "' definition has missing or extra "
+                                                                                                      + "<b>' definition has missing or extra "
                                                                                                       + "input(s) in import file '</b>"
                                                                                                       + importFile.getAbsolutePath()
                                                                                                       + "<b>'; continue?",
@@ -762,9 +823,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot parse import file<br>'</b>"
                                                               + importFile.getAbsolutePath()
-                                                              + "<b>'; cause '"
+                                                              + "<b>'; cause '</b>"
                                                               + pe.getMessage()
-                                                              + "'",
+                                                              + "<b>'",
                                                       "File Warning",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
@@ -853,6 +914,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         {
             List<String> referencedTableTypes = new ArrayList<String>();
             List<String> referencedDataTypes = new ArrayList<String>();
+            List<String> referencedInputTypes = new ArrayList<String>();
             List<String> referencedMacros = new ArrayList<String>();
             List<String[]> variablePaths = new ArrayList<String[]>();
 
@@ -903,6 +965,35 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         {
                             // Add the table type to the list of those referenced
                             referencedTableTypes.add(tableInfo.getType());
+                        }
+
+                        // Step through each table type column input type
+                        for (InputType inputType : typeDefn.getInputTypes())
+                        {
+                            // Check if the input type is user-defined and this input type is not
+                            // already output
+                            if (inputType.isCustomInput()
+                                && !referencedInputTypes.contains(inputType.getInputName()))
+                            {
+                                // Add the input type to the list of those referenced
+                                referencedInputTypes.add(inputType.getInputName());
+                            }
+                        }
+
+                        // Build the data field information for the table
+                        fieldHandler.buildFieldInformation(tblName);
+
+                        // Step through each data field belonging to the table
+                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                        {
+                            // Check if if the input type is user-defined and this input type is
+                            // not already output
+                            if (fieldInfo.getInputType().isCustomInput()
+                                && !referencedInputTypes.contains(fieldInfo.getInputType().getInputName()))
+                            {
+                                // Add the input type to the list of those referenced
+                                referencedInputTypes.add(fieldInfo.getInputType().getInputName());
+                            }
                         }
 
                         // Get the visible column names based on the table's type
@@ -984,6 +1075,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             // Add the referenced data type definition(s), if any, to the output
             outputJO = getDataTypeDefinitions(referencedDataTypes, outputJO);
+
+            // Add the referenced input type definition(s), if any, to the output
+            outputJO = getInputTypeDefinitions(referencedInputTypes, outputJO);
 
             // Add the referenced macro definition(s), if any, to the output
             outputJO = getMacroDefinitions(referencedMacros, outputJO);
@@ -1466,7 +1560,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             for (String refDataType : dataTypeNames)
             {
                 // Get the data type information
-                String[] dataType = dataTypeHandler.getDataTypeInfo(refDataType);
+                String[] dataType = dataTypeHandler.getDataTypeByName(refDataType);
 
                 // Check if the data type exists
                 if (dataType != null)
@@ -1492,6 +1586,79 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Add the data type definition(s) to the JSON output
                 outputJO.put(JSONTags.DATA_TYPE_DEFN.getTag(), dataTypeJA);
+            }
+        }
+
+        return outputJO;
+    }
+
+    /**********************************************************************************************
+     * Add the custom input type definition(s) corresponding to the supplied input type name(s) to
+     * the specified JSON object. If no input type is provided, or if none are recognized, then
+     * nothing is added to the JSON object
+     *
+     * @param inputTypeNames
+     *            names of the custom input types to add; null to include all defined custom input
+     *            types
+     *
+     * @param outputJO
+     *            JSON object to which the input types are added
+     *
+     * @return The supplied JSON object, with the custom input type definitions added (if any)
+     *********************************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected JSONObject getInputTypeDefinitions(List<String> inputTypeNames, JSONObject outputJO)
+    {
+        // Check if the input type name list is null, in which case all defined input types are
+        // included
+        if (inputTypeNames == null)
+        {
+            inputTypeNames = new ArrayList<String>();
+
+            // Step through each input type definition
+            for (String[] inputType : inputTypeHandler.getCustomInputTypeData())
+            {
+                // Add the input type name to the list
+                inputTypeNames.add(inputType[InputTypesColumn.NAME.ordinal()]);
+            }
+        }
+
+        // Check if there are any input types to process
+        if (!inputTypeNames.isEmpty())
+        {
+            JSONArray inputTypeJA = new JSONArray();
+
+            // Step through each referenced input type
+            for (String inputTypeName : inputTypeNames)
+            {
+                // Get the input type value
+                InputType inputType = inputTypeHandler.getInputTypeByName(inputTypeName);
+
+                // Check if the input type exists
+                if (inputType != null)
+                {
+                    // Store the input type name and value
+                    JSONObject inputTypeJO = new JSONObject();
+                    inputTypeJO.put(InputTypeEditorColumnInfo.NAME.getColumnName(), inputTypeName);
+                    inputTypeJO.put(InputTypeEditorColumnInfo.DESCRIPTION.getColumnName(),
+                                    inputType.getInputDescription());
+                    inputTypeJO.put(InputTypeEditorColumnInfo.MATCH.getColumnName(),
+                                    inputType.getInputMatch());
+                    inputTypeJO.put(InputTypeEditorColumnInfo.ITEMS.getColumnName(),
+                                    InputType.convertItemListToString(inputType.getInputItems()));
+                    inputTypeJO.put(InputTypeEditorColumnInfo.FORMAT.getColumnName(),
+                                    inputType.getInputFormat().getFormatName());
+
+                    // Add the input type definition to the array
+                    inputTypeJA.add(inputTypeJO);
+                }
+            }
+
+            // Check if a input type was recognized
+            if (!inputTypeJA.isEmpty())
+            {
+                // Add the input type definition(s) to the JSON output
+                outputJO.put(JSONTags.INPUT_TYPE_DEFN.getTag(), inputTypeJA);
             }
         }
 

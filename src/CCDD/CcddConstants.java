@@ -4810,7 +4810,7 @@ public class CcddConstants
         DESCRIPTION("Description", "Input type description", "", false),
         MATCH("RegEx Match", "Regular expression for constraining values of this input type", ".*", true),
         ITEMS("Selection Items", "Text strings, separated by line feeds, by which the input value is constrained", "", false),
-        FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.getFormatName(), false),
+        FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.getFormatName(), true),
         OID("OID", "Input type index", "", false);
 
         private final String columnName;
@@ -4842,6 +4842,16 @@ public class CcddConstants
             this.toolTip = toolTip;
             this.initialValue = initialValue;
             this.isRequired = isRequired;
+        }
+
+        /******************************************************************************************
+         * Get the input type editor column name
+         *
+         * @return Input type editor column name
+         *****************************************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
         }
 
         /******************************************************************************************
@@ -5892,7 +5902,8 @@ public class CcddConstants
         COPY_TABLE_HDR_SIZE("Header Size"),
         COPY_TABLE_OPTIMIZE("Optimized"),
         COPY_TABLE_DATA("Copy Table"),
-        PROJECT_FIELD("Project Data Field");
+        PROJECT_FIELD("Project Data Field"),
+        INPUT_TYPE_DEFN("Input Type Definition");
 
         private final String tag;
 

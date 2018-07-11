@@ -487,8 +487,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                             // Update the tables affected by the changes to the data type(s)
                             dbTable.modifyTablesPerDataTypeOrMacroChanges(modifications,
-                                                                         getUpdatedData(),
-                                                                         CcddDataTypeEditorDialog.this);
+                                                                          getUpdatedData(),
+                                                                          CcddDataTypeEditorDialog.this);
                         }
                     }
                 });
@@ -1193,13 +1193,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     // Inform the user that a row is missing required data. If Cancel is selected
                     // then do not perform checks on other columns and rows
                     if (new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                  "<html><b>Data must be provided for column '"
+                                                                  "<html><b>Data must be provided for column '</b>"
                                                                                                  + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.USER_NAME.ordinal())
-                                                                                                 + "' or '"
+                                                                                                 + "<b>' or '</b>"
                                                                                                  + dataTypeTable.getColumnName(DataTypeEditorColumnInfo.C_NAME.ordinal())
-                                                                                                 + "' [row "
+                                                                                                 + "<b>' [row </b>"
                                                                                                  + (row + 1)
-                                                                                                 + "]",
+                                                                                                 + "<b>]",
                                                                   "Missing Data",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
@@ -1222,11 +1222,11 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                         // Inform the user that a row is missing required data. If Cancel is
                         // selected then do not perform checks on other columns and rows
                         if (new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                      "<html><b>Data must be provided for column '"
+                                                                      "<html><b>Data must be provided for column '</b>"
                                                                                                      + dataTypeTable.getColumnName(column)
-                                                                                                     + "' [row "
+                                                                                                     + "<b>' [row </b>"
                                                                                                      + (row + 1)
-                                                                                                     + "]",
+                                                                                                     + "<b>]",
                                                                       "Missing Data",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)

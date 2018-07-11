@@ -1094,9 +1094,9 @@ public class CcddClassesDataTable
                                                                + "(?:\\[[0-9]+\\])?"))))
                 {
                     // Indicate that the table name/path doesn't match the valid pattern
-                    throw new CCDDException("Invalid table path '"
+                    throw new CCDDException("Invalid table path '</b>"
                                             + tableName
-                                            + "'");
+                                            + "<b>'");
                 }
 
                 isChild = true;
@@ -1218,6 +1218,7 @@ public class CcddClassesDataTable
         private final String inputMatch;
         private final List<String> inputItems;
         private final InputTypeFormat inputFormat;
+        private final boolean isInputCustom;
 
         /******************************************************************************************
          * Input type class constructor
@@ -1239,18 +1240,23 @@ public class CcddClassesDataTable
          *
          * @param inputFormat
          *            input type format
+         *
+         * @param isInputCustom
+         *            true if the input type is user-defined
          *****************************************************************************************/
         InputType(String inputName,
                   String inputDescription,
                   String inputMatch,
                   String inputItems,
-                  InputTypeFormat inputFormat)
+                  InputTypeFormat inputFormat,
+                  boolean isInputCustom)
         {
             this.inputName = inputName;
             this.inputDescription = inputDescription;
             this.inputMatch = inputMatch;
-            this.inputItems = convertItemList(inputItems);
+            this.inputItems = convertItemStringToList(inputItems);
             this.inputFormat = inputFormat;
+            this.isInputCustom = isInputCustom;
         }
 
         /******************************************************************************************
@@ -1302,6 +1308,16 @@ public class CcddClassesDataTable
         protected InputTypeFormat getInputFormat()
         {
             return inputFormat;
+        }
+
+        /******************************************************************************************
+         * Check if the input type is user-defined
+         *
+         * @return true if the input type is defined by the user
+         *****************************************************************************************/
+        protected boolean isCustomInput()
+        {
+            return isInputCustom;
         }
 
         /******************************************************************************************
@@ -1379,13 +1395,48 @@ public class CcddClassesDataTable
          *
          * @return Input items, converted to a list; null if the input type has no items
          *****************************************************************************************/
-        protected static List<String> convertItemList(String inputItemsString)
+        protected static List<String> convertItemStringToList(String inputItemsString)
         {
             return inputItemsString == null
                    || inputItemsString.isEmpty()
                                                  ? null
                                                  : Arrays.asList((SELECTION_ITEM_LIST_SEPARATOR
                                                                   + inputItemsString).split(SELECTION_ITEM_LIST_SEPARATOR));
+        }
+
+        /******************************************************************************************
+         * Convert the input selection items from a list to a single string
+         *
+         * @param inputItemsList
+         *            list containing the acceptable values for this input type; null or blank if
+         *            the input type doesn't constrain the inputs to items from a list
+         *
+         * @return Input items, converted to a string, separated by the selection item list
+         *         separator; blank if the input type has no items
+         *****************************************************************************************/
+        protected static String convertItemListToString(List<String> inputItemsList)
+        {
+            String inputItemsString = "";
+
+            // Check if any items are supplied
+            if (inputItemsList != null && !inputItemsList.isEmpty())
+            {
+                inputItemsString = "";
+
+                // Step through each item. Skip the first, empty item that's automatically
+                // prepended to every non-empty list
+                for (int index = 1; index < inputItemsList.size(); index++)
+                {
+                    // Add the item to the string, followed by the separator
+                    inputItemsString += inputItemsList.get(index) + SELECTION_ITEM_LIST_SEPARATOR;
+                }
+
+                // Remove the trailing separator
+                inputItemsString = CcddUtilities.removeTrailer(inputItemsString,
+                                                               SELECTION_ITEM_LIST_SEPARATOR);
+            }
+
+            return inputItemsString;
         }
     }
 

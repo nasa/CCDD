@@ -647,9 +647,9 @@ public class CcddDbVerificationHandler
                                                                    + "' metadata; cause '"
                                                                    + se.getMessage()
                                                                    + "'",
-                                          "<html><b>Error obtaining project database '"
+                                          "<html><b>Error obtaining project database '</b>"
                                                                           + dbControl.getDatabaseName()
-                                                                          + "'metadata");
+                                                                          + "<b>' metadata");
                 }
                 catch (Exception e)
                 {
@@ -826,9 +826,9 @@ public class CcddDbVerificationHandler
                                                            + "'consistency; cause '"
                                                            + se.getMessage()
                                                            + "'",
-                                  "<html><b>Error verifying project database '"
+                                  "<html><b>Error verifying project database '</b>"
                                                                   + dbControl.getDatabaseName()
-                                                                  + "'consistency");
+                                                                  + "<b>' consistency");
         }
     }
 
@@ -3015,9 +3015,9 @@ public class CcddDbVerificationHandler
                                                                    + "' consistency; cause '"
                                                                    + se.getMessage()
                                                                    + "'",
-                                          "<html><b>Error verifying project database '"
+                                          "<html><b>Error verifying project database '</b>"
                                                                           + dbControl.getDatabaseName()
-                                                                          + "' consistency");
+                                                                          + "<b>' consistency");
 
                     // Log that the table update(s) did not succeed
                     message = "One or more project database inconsistencies were "

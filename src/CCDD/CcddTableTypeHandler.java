@@ -1348,7 +1348,8 @@ public class CcddTableTypeHandler
      * type definitions
      *
      * @param inputTypeNames
-     *            list of the input type names, before and after the changes
+     *            list of the input type names, before and after the changes; null if none of the
+     *            input type names changed
      *********************************************************************************************/
     protected void updateInputTypes(List<String[]> inputTypeNames)
     {
@@ -1361,16 +1362,21 @@ public class CcddTableTypeHandler
                 // Get the column's input type name before the change
                 String inputTypeName = typeDefn.getInputTypesList().get(index).getInputName();
 
-                // Step through each input type that changed
-                for (String[] oldAndNewName : inputTypeNames)
+                // Check if a list of input type names is provided. If not, assume the names are
+                // unchanged
+                if (inputTypeNames != null)
                 {
-                    // Check if the input type name changed
-                    if (oldAndNewName[0].equals(inputTypeName))
+                    // Step through each input type that changed
+                    for (String[] oldAndNewName : inputTypeNames)
                     {
-                        // Set the column's input type name to the (possibly) new input type name
-                        // and stop searching
-                        inputTypeName = oldAndNewName[1];
-                        break;
+                        // Check if the input type name changed
+                        if (oldAndNewName[0].equals(inputTypeName))
+                        {
+                            // Set the column's input type name to the (possibly) new input type
+                            // name and stop searching
+                            inputTypeName = oldAndNewName[1];
+                            break;
+                        }
                     }
                 }
 

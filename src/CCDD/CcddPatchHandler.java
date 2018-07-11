@@ -229,9 +229,9 @@ public class CcddPatchHandler
                                                            + "' padding variable names to new format; cause '"
                                                            + e.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot convert project '"
+                                  "<html><b>Cannot convert project '</b>"
                                                                   + dbControl.getProjectName()
-                                                                  + "' padding variable names to new format");
+                                                                  + "<b>' padding variable names to new format");
         }
     }
 
@@ -350,9 +350,9 @@ public class CcddPatchHandler
                                                            + "' associations table to new format; cause '"
                                                            + e.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot convert project '"
+                                  "<html><b>Cannot convert project '</b>"
                                                                   + dbControl.getProjectName()
-                                                                  + "' associations table to new format "
+                                                                  + "<b>' associations table to new format "
                                                                   + "(project database will be closed)");
 
             throw new CCDDException();
@@ -444,9 +444,9 @@ public class CcddPatchHandler
                                                            + "' data fields table to new format; cause '"
                                                            + e.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot convert project '"
+                                  "<html><b>Cannot convert project '</b>"
                                                                   + dbControl.getProjectName()
-                                                                  + "' data fields table to new format "
+                                                                  + "<b>' data fields table to new format "
                                                                   + "(project database will be closed)");
 
             throw new CCDDException();
@@ -580,9 +580,9 @@ public class CcddPatchHandler
                                                            + "' associations table to new format; cause '"
                                                            + e.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot convert project '"
+                                  "<html><b>Cannot convert project '</b>"
                                                                   + dbControl.getProjectName()
-                                                                  + "' associations table to new format "
+                                                                  + "<b>' associations table to new format "
                                                                   + "(project database will be closed)");
 
             throw new CCDDException();
@@ -657,9 +657,9 @@ public class CcddPatchHandler
                                                            + "' comment to new format; cause '"
                                                            + e.getMessage()
                                                            + "'",
-                                  "<html><b>Cannot convert project '"
+                                  "<html><b>Cannot convert project '</b>"
                                                                   + dbControl.getProjectName()
-                                                                  + "' comment to new format");
+                                                                  + "<b>' comment to new format");
         }
     }
 
