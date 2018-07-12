@@ -46,7 +46,6 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
@@ -1410,7 +1409,7 @@ public class CcddScriptHandler
                             // Check if an error occurred loading the table data
                             if (tableInfo.isErrorFlag())
                             {
-                                throw new CCDDException("table '"
+                                throw new CCDDException("Table '"
                                                         + tableInfo.getProtoVariableName()
                                                         + "' (or one of its children) failed to load");
                             }
@@ -1450,7 +1449,7 @@ public class CcddScriptHandler
                                 // The table's type is invalid
                                 else
                                 {
-                                    throw new CCDDException("table '"
+                                    throw new CCDDException("Table '"
                                                             + tableInfo.getProtoVariableName()
                                                             + "' has unknown type '"
                                                             + tableInfo.getType()
@@ -1836,14 +1835,14 @@ public class CcddScriptHandler
         if (!scriptFile.isFile())
         {
             // Inform the user that the selected file is missing
-            throw new CCDDException("cannot locate script file '" + scriptFileName + "'");
+            throw new CCDDException("Cannot locate script file '" + scriptFileName + "'");
         }
 
         // Check if the script file can't be read
         if (!scriptFile.canRead())
         {
             // Inform the user that the selected file can't be read
-            throw new CCDDException("cannot read script file '" + scriptFileName + "'");
+            throw new CCDDException("Cannot read script file '" + scriptFileName + "'");
         }
 
         // Get the location of the file extension indicator
@@ -1853,7 +1852,7 @@ public class CcddScriptHandler
         if (!(extensionStart > 0 && extensionStart != scriptFileName.length() - 1))
         {
             // Inform the user that the selected file is missing the file extension
-            throw new CCDDException("script file '" + scriptFileName + "' has no file extension");
+            throw new CCDDException("Script file '" + scriptFileName + "' has no file extension");
         }
 
         // Extract the file extension from the file name
@@ -1909,7 +1908,7 @@ public class CcddScriptHandler
         if (!isValidExt)
         {
             // Inform the user that the selected file's extension isn't recognized
-            throw new CCDDException("script file '"
+            throw new CCDDException("Script file '"
                                     + scriptFileName
                                     + "' extension is unsupported");
         }
@@ -1969,19 +1968,14 @@ public class CcddScriptHandler
             // Execute the script
             scriptEngine.eval(new FileReader(scriptFileName));
         }
-        catch (ScriptException se)
-        {
-            // Inform the user that the script encountered an error
-            throw new CCDDException("script file '"
-                                    + scriptFileName
-                                    + "' error '"
-                                    + se.getMessage()
-                                    + "'");
-        }
         catch (Exception e)
         {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, ccddMain.getMainFrame());
+            // Inform the user that the script encountered an error
+            throw new CCDDException("Script file '"
+                                    + scriptFileName
+                                    + "' error '"
+                                    + e.getMessage()
+                                    + "'");
         }
     }
 

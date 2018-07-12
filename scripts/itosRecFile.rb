@@ -745,18 +745,19 @@ end
 def outputDiscreteConversion(file, discreteConversion, conversionName)
     # Discrete conversion array indices
     value = 0
-    disp_name = 2
-    text_color = 3
-    back_color = 4
+    disp_name = 1
+    text_color = 2
+    back_color = 3
 
     # Separate the enumerated parameters into an array. The expected format for
     # the enumerated values is
-    # <discrete value> | <Name> | <Display Name> | <Text Color> |
-    # <Background Color> [, repeat for each discrete value...]
+    # <Discrete Value> | <Display Name> | <Text Color> |
+    # <Background Color> ... [, repeat for each discrete value...]
     enumerations = $ccdd.getArrayFromString(discreteConversion, "|", ",")
 
-    # Check if the variable has enumerations
-    if enumerations != nil
+    # Check if the variable has enumerations and the required number of
+    # parameters is provided
+    if enumerations != nil && enumerations[0].length > 3
         # Output the discrete conversion header
         $ccdd.writeToFileLn(file, "DiscreteConversion " + $ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION")
         $ccdd.writeToFileLn(file, "{")
@@ -877,16 +878,17 @@ end
 def outputCommandEnumeration(enumeration, enumerationName)
     # Enumeration array indices
     value = 0
-    disp_name = 2
+    disp_name = 1
 
     # Separate the enumerated parameters into an array. The expected
     # format for the enumerated values is
-    # <discrete value> | <Name> | <Display Name> | <Text Color> |
-    # <Background Color> [, repeat for each discrete value...]
+    # <Discrete Value> | <Display Name> | <Text Color> |
+    # <Background Color> ... [, repeat for each discrete value...]
     enumerations = $ccdd.getArrayFromString(enumeration, "|", ",")
 
-    # Check if the variable has enumerations
-    if enumerations != nil
+    # Check if the variable has enumerations and the required number of
+    # parameters is provided
+    if enumerations != nil && enumerations[0].length > 1
         # Output the enumeration header
         $ccdd.writeToFileLn($cmdFile, "Enumeration " + enumerationName)
         $ccdd.writeToFileLn($cmdFile, "{")

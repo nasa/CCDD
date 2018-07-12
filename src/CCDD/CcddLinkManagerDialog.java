@@ -1280,8 +1280,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddLinkManagerDialog.this,
-                                                      "<html><b>"
-                                                                                  + ce.getMessage(),
+                                                      "<html><b>" + ce.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

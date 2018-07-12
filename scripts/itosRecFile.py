@@ -675,18 +675,19 @@ def outputMnemonicDefinitions():
 def outputDiscreteConversion(file, discreteConversion, conversionName):
     # Discrete conversion array indices
     VALUE = 0
-    DISP_NAME = 2
-    TEXT_COLOR = 3
-    BACK_COLOR = 4
+    DISP_NAME = 1
+    TEXT_COLOR = 2
+    BACK_COLOR = 3
 
     # Separate the enumerated parameters into an array. The expected format for
     # the enumerated values is:
-    # <discrete value> | <Name> | <Display Name> | <Text Color> |
+    # <Discrete Value> | <Display Name> | <Text Color> |
     # <Background Color> [, repeat for each discrete value...]
     enumerations = ccdd.getArrayFromString(discreteConversion, "|", ",")
 
-    # Check if the variable has enumerations
-    if enumerations is not None:
+    # Check if the variable has enumerations and the required number of
+    # parameters is provided
+    if enumerations is not None and len(enumerations[0]) > 3:
         # Output the discrete conversion header
         ccdd.writeToFileLn(file, "DiscreteConversion " + ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION")
         ccdd.writeToFileLn(file, "{")
@@ -791,16 +792,17 @@ def outputCommandDiscreteConversions():
 def outputCommandEnumeration(enumeration, enumerationName):
     # Enumeration array indices
     VALUE = 0
-    DISP_NAME = 2
+    DISP_NAME = 1
 
     # Separate the enumerated parameters into an array. The expected
     # format for the enumerated values is:
-    # <discrete value> | <Name> | <Display Name> | <Text Color> |
-    # <Background Color> [, repeat for each discrete value...]
+    # <Discrete Value> | <Display Name> | <Text Color> |
+    # <Background Color> ... [, repeat for each discrete value...]
     enumerations = ccdd.getArrayFromString(enumeration, "|", ",")
 
-    # Check if the variable has enumerations
-    if enumerations is not None:
+    # Check if the variable has enumerations and the required number of
+    # parameters is provided
+    if enumerations is not None and len(enumerations[0]) > 1:
         # Output the enumeration header
         ccdd.writeToFileLn(cmdFile, "Enumeration " + enumerationName)
         ccdd.writeToFileLn(cmdFile, "{")

@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -484,11 +483,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Inform the user that the scripting language doesn't support the Invocable
                 // interface
-                throw new CCDDException("XTCE conversion failed; cause '"
+                throw new CCDDException("XTCE conversion failed; cause '</b>"
                                         + "The scripting language '"
                                         + scriptEngine.getFactory().getLanguageName()
                                         + "' does not implement the Invocable interface"
-                                        + "'");
+                                        + "<b>'");
             }
 
             // Store the reference to the script engine as an Invocable interface
@@ -518,9 +517,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         catch (JAXBException je)
         {
             // Inform the user that the XTCE/JAXB set up failed
-            throw new CCDDException("XTCE conversion setup failed; cause '"
+            throw new CCDDException("XTCE conversion setup failed; cause '</b>"
                                     + je.getMessage()
-                                    + "'");
+                                    + "<b>'");
         }
     }
 
@@ -3745,9 +3744,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addSpaceSystemHeader'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addSpaceSystemHeader<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -3887,11 +3888,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addSpaceSystemParameters'; cause '"
-                                        + se.getMessage()
-                                        + "'");
+                throw new CCDDException("Error in script function '</b>addSpaceSystemParameters<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -4097,9 +4098,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addParameterAndType'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addParameterAndType<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -4221,9 +4224,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addParameterAndType'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addParameterAndType<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -4403,9 +4408,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("setParameterDataType'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>setParameterDataType<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -4690,9 +4697,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("createCommandMetadata'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>createCommandMetadata<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -4778,9 +4787,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addSpaceSystemCommands'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addSpaceSystemCommands<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -5067,9 +5078,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addCommand'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addCommand<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -5340,9 +5353,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("setArgumentDataType'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>setArgumentDataType<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -5630,9 +5645,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                 // The script method couldn't be located in the script; use the internal method
                 // instead
             }
-            catch (ScriptException se)
+            catch (Exception e)
             {
-                throw new CCDDException("addContainerReference'; cause '" + se.getMessage() + "'");
+                throw new CCDDException("Error in script function '</b>addContainerReference<b>'; cause '</b>"
+                                        + e.getMessage()
+                                        + "<b>'");
             }
         }
 
@@ -5795,7 +5812,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the value separator couldn't be located
             if (enumValSep == null)
             {
-                throw new CCDDException("initial non-negative integer or "
+                throw new CCDDException("Initial non-negative integer or "
                                         + "separator character between "
                                         + "enumeration value and text missing");
             }
@@ -5806,7 +5823,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the enumerated pair separator couldn't be located
             if (enumPairSep == null)
             {
-                throw new CCDDException("separator character between enumerated pairs missing");
+                throw new CCDDException("Separator character between enumerated pairs missing");
             }
 
             // Divide the enumeration string into the separate enumeration definitions

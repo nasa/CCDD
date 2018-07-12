@@ -1842,9 +1842,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         if (tableName.length() >= MAX_SQL_NAME_LENGTH)
         {
             // Inform the user that the name is too long
-            throw new CCDDException("Table name '"
+            throw new CCDDException("Table name '</b>"
                                     + tableName
-                                    + "' too long ("
+                                    + "<b>' too long ("
                                     + (MAX_SQL_NAME_LENGTH - 1)
                                     + " characters maximum)");
         }
@@ -1853,16 +1853,18 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         if (!tableName.matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
         {
             // Inform the user that the name is invalid
-            throw new CCDDException("Illegal character(s) in table name '" + tableName + "'");
+            throw new CCDDException("Illegal character(s) in table name '</b>"
+                                    + tableName
+                                    + "<b>'");
         }
 
         // Check if the name matches that of a primitive data type
         if (dataTypeHandler.isPrimitive(tableName))
         {
             // Inform the user that the name matches a primitive type
-            throw new CCDDException("Table name '"
+            throw new CCDDException("Table name '</b>"
                                     + tableName
-                                    + "'matches a primitive data type");
+                                    + "<b>' matches a primitive data type");
         }
 
         // Step through the list of reserved words
@@ -1872,7 +1874,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             if (tableName.equalsIgnoreCase(keyWord))
             {
                 // Inform the user that the table name is a reserved word
-                throw new CCDDException("Table name '" + tableName + "' matches a reserved word");
+                throw new CCDDException("Table name '</b>"
+                                        + tableName
+                                        + "<b>' matches a reserved word");
             }
         }
 
@@ -1880,11 +1884,11 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         if (tableName.startsWith(INTERNAL_TABLE_PREFIX))
         {
             // Inform the user that the table name can't begin with the internal table prefix
-            throw new CCDDException("Table name '"
+            throw new CCDDException("Table name '</b>"
                                     + tableName
-                                    + "' cannot begin with '"
+                                    + "<b>' cannot begin with '</b>"
                                     + INTERNAL_TABLE_PREFIX
-                                    + "'");
+                                    + "<b>'");
         }
 
         // Get the list of available tables
@@ -1901,7 +1905,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     && nameInUse.equalsIgnoreCase(tableName)))
             {
                 // Inform the user that the name is already in use
-                throw new CCDDException("Table name '" + tableName + "' is already in use");
+                throw new CCDDException("Table name '</b>" + tableName + "<b>' is already in use");
             }
         }
     }
@@ -1954,9 +1958,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         if (newNames.contains(tableName.toLowerCase()))
                         {
                             // Inform the user that a table name is a duplicate
-                            throw new CCDDException("Table name '"
+                            throw new CCDDException("Table name '</b>"
                                                     + tableName
-                                                    + "' is a duplicate");
+                                                    + "<b>' is a duplicate");
                         }
 
                         // Check if the name is valid

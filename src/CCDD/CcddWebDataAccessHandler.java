@@ -400,7 +400,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         break;
 
                     default:
-                        throw new CCDDException("unrecognized table attribute '"
+                        throw new CCDDException("Unrecognized table attribute '"
                                                 + attributeAndName[0]
                                                 + "'");
                 }
@@ -473,7 +473,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         break;
 
                     default:
-                        throw new CCDDException("unrecognized "
+                        throw new CCDDException("Unrecognized "
                                                 + name
                                                 + " attribute '"
                                                 + attributeAndName[0]
@@ -497,7 +497,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                         break;
 
                     default:
-                        throw new CCDDException("unrecognized scheduler attribute '"
+                        throw new CCDDException("Unrecognized scheduler attribute '"
                                                 + attributeAndName[0]
                                                 + "'");
                 }
@@ -582,7 +582,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // The request type is unrecognized
             else
             {
-                throw new CCDDException("unrecognized request component '" + component + "'");
+                throw new CCDDException("Unrecognized request component '" + component + "'");
             }
         }
         catch (CCDDException ce)
@@ -874,7 +874,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing table data");
+                        throw new CCDDException("Error parsing table data");
                     }
                 }
 
@@ -1043,7 +1043,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing table data fields");
+                        throw new CCDDException("Error parsing table data fields");
                     }
                 }
 
@@ -1300,7 +1300,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing table information");
+                        throw new CCDDException("Error parsing table information");
                     }
                 }
 
@@ -1387,7 +1387,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing "
+                        throw new CCDDException("Error parsing "
                                                 + (applicationOnly
                                                                    ? "application"
                                                                    : "group")
@@ -1514,7 +1514,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing "
+                        throw new CCDDException("Error parsing "
                                                 + (applicationOnly
                                                                    ? "application"
                                                                    : "group")
@@ -1624,7 +1624,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing "
+                        throw new CCDDException("Error parsing "
                                                 + (applicationOnly
                                                                    ? "application"
                                                                    : "group")
@@ -1812,7 +1812,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     }
                     catch (ParseException pe)
                     {
-                        throw new CCDDException("error parsing " + groupType + " information");
+                        throw new CCDDException("Error parsing " + groupType + " information");
                     }
                 }
 
@@ -1859,7 +1859,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 catch (ParseException pe)
                 {
                     pe.printStackTrace();
-                    throw new CCDDException("error parsing " + groupType + " information");
+                    throw new CCDDException("Error parsing " + groupType + " information");
                 }
             }
         }
@@ -1905,7 +1905,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if the rate information doesn't exist with this stream name
             if (rateInfo == null)
             {
-                throw new CCDDException("unknown data stream name");
+                throw new CCDDException("Unknown data stream name");
             }
 
             // Create an instance of the copy table handler in order to read the information from
@@ -1957,7 +1957,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Invalid parameter format
         else
         {
-            throw new CCDDException("parameter type mismatch");
+            throw new CCDDException("Parameter type mismatch");
         }
 
         return response;
@@ -2048,7 +2048,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Illegal separator character(s) or invalid show/hide data type flag value
         else
         {
-            throw new CCDDException("illegal separator character(s) or invalid show/hide data type flag value");
+            throw new CCDDException("Illegal separator character(s) or invalid show/hide data type flag value");
         }
 
         return response;
@@ -2128,7 +2128,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Check if the group doesn't exist
                     if (groupInfo == null)
                     {
-                        throw new CCDDException("unrecognized group name");
+                        throw new CCDDException("Unrecognized group name");
                     }
 
                     // Get the tables associated with the group
@@ -2138,7 +2138,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Unrecognized data stream name or invalid rate value format
             else
             {
-                throw new CCDDException("unrecognized stream name or invalid rate value format");
+                throw new CCDDException("Unrecognized stream name or invalid rate value format");
             }
         }
 
@@ -2380,7 +2380,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Check if the group doesn't exist
             if (groupInfo == null)
             {
-                throw new CCDDException("unrecognized group name");
+                throw new CCDDException("Unrecognized group name");
             }
 
             // Get the tables associated with the group

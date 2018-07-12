@@ -2059,7 +2059,7 @@ public class CcddDbTableCommandHandler
             // Check if the table doesn't exist in the database
             if (!isTableExists(dbTableName, parent))
             {
-                throw new CCDDException("table doesn't exist");
+                throw new CCDDException("Table doesn't exist");
             }
 
             // Get the table comment
@@ -2071,7 +2071,7 @@ public class CcddDbTableCommandHandler
             // Check if the table type definition is valid
             if (typeDefn == null)
             {
-                throw new CCDDException("invalid table type");
+                throw new CCDDException("Invalid table type");
             }
 
             // Get a comma-separated list of the columns for this table's type
@@ -5854,6 +5854,9 @@ public class CcddDbTableCommandHandler
                         {
                             // Update the list of root structure tables
                             rootStructures = getRootStructures(parent);
+
+                            // Rebuild the variable paths and offsets lists
+                            variableHandler.buildPathAndOffsetLists();
                         }
 
                         // Log that table deletion succeeded
@@ -6569,6 +6572,9 @@ public class CcddDbTableCommandHandler
                 {
                     // Update the list of root structure tables
                     rootStructures = getRootStructures(editorDialog);
+
+                    // Rebuild the variable paths and offsets lists
+                    variableHandler.buildPathAndOffsetLists();
                 }
 
                 // Log that updating the table type succeeded

@@ -1551,8 +1551,7 @@ public class CcddDialogHandler extends JDialog
             // Create radio buttons for each available item
             for (int index = 0; index < itemInformation.length; index++)
             {
-                radioButton[index] = new JRadioButton(itemInformation[index][0],
-                                                      false);
+                radioButton[index] = new JRadioButton(itemInformation[index][0], false);
                 radioButton[index].setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 radioButton[index].setBorder(emptyBorder);
                 radioButton[index].addActionListener(listener);
@@ -1636,18 +1635,17 @@ public class CcddDialogHandler extends JDialog
                                / radioButton.length
                                * gridWidth;
 
-            // Check if the scrollable list exceeds the maximum desirable height
-            if (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight)
-            {
-                // Set the size of the scrollable list; the vertical scroll bar is displayed
-                scrollPane.setPreferredSize(new Dimension(rbtnGridPnl.getPreferredSize().width
-                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
-                                                            * 2
-                                                          + (isDescriptions
-                                                                            ? rbtnGridPnl.getPreferredSize().width / 2
-                                                                            : 0),
-                                                          maxRowHeight));
-            }
+            // Set the size of the scrollable list based of if the scrollable list height exceeds
+            // the maximum desirable height (the vertical scroll bar is displayed)
+            scrollPane.setPreferredSize(new Dimension(rbtnGridPnl.getPreferredSize().width
+                                                      + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
+                                                        * 2
+                                                      + (isDescriptions
+                                                                        ? rbtnGridPnl.getPreferredSize().width / 2
+                                                                        : 0),
+                                                      (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight
+                                                                                                                 ? maxRowHeight
+                                                                                                                 : rbtnGridPnl.getPreferredSize().height)));
 
             // Add a listener for changes in the scroll pane's size
             scrollPane.addComponentListener(new ComponentAdapter()
@@ -1894,18 +1892,17 @@ public class CcddDialogHandler extends JDialog
                                       / checkBox.length
                                       * gridWidth);
 
-            // Check if the scrollable list exceeds the maximum desirable height
-            if (cboxGridPnl.getPreferredSize().getHeight() > maxRowHeight)
-            {
-                // Set the size of the scrollable list; the vertical scroll bar is displayed
-                scrollPane.setPreferredSize(new Dimension((int) cboxGridPnl.getPreferredSize().getWidth()
-                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
-                                                            * 2
-                                                          + (isDescriptions
-                                                                            ? cboxGridPnl.getPreferredSize().width / 2
-                                                                            : 0),
-                                                          maxRowHeight));
-            }
+            // Set the size of the scrollable list based of if the scrollable list height exceeds
+            // the maximum desirable height (the vertical scroll bar is displayed)
+            scrollPane.setPreferredSize(new Dimension(cboxGridPnl.getPreferredSize().width
+                                                      + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
+                                                        * 2
+                                                      + (isDescriptions
+                                                                        ? cboxGridPnl.getPreferredSize().width / 2
+                                                                        : 0),
+                                                      (cboxGridPnl.getPreferredSize().getHeight() > maxRowHeight
+                                                                                                                 ? maxRowHeight
+                                                                                                                 : cboxGridPnl.getPreferredSize().height)));
 
             // Add a listener for changes in the scroll pane's size
             scrollPane.addComponentListener(new ComponentAdapter()
@@ -2009,7 +2006,7 @@ public class CcddDialogHandler extends JDialog
      * @param modal
      *            false to allow the other application windows to still be operated while the
      *            dialog is open
-     * 
+     *
      * @return Selected button type
      *********************************************************************************************/
     protected int createDialog(Component parent,

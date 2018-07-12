@@ -954,8 +954,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     {
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddDataTypeEditorDialog.this,
-                                                                  "<html><b>"
-                                                                                                 + ce.getMessage(),
+                                                                  "<html><b>" + ce.getMessage(),
                                                                   "Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

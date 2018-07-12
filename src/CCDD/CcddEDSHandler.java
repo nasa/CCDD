@@ -234,9 +234,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         catch (JAXBException je)
         {
             // Inform the user that the EDS/JAXB set up failed
-            throw new CCDDException("EDS conversion setup failed; cause '"
+            throw new CCDDException("EDS conversion setup failed; cause '</b>"
                                     + je.getMessage()
-                                    + "'");
+                                    + "<b>'");
         }
     }
 
@@ -3763,7 +3763,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the value separator couldn't be located
             if (enumValSep == null)
             {
-                throw new CCDDException("separator character between enumeration value and label missing");
+                throw new CCDDException("Separator character between enumeration value and label missing");
             }
 
             // Get the character that separates the enumerated pairs
@@ -3772,7 +3772,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the enumerated pair separator couldn't be located
             if (enumPairSep == null)
             {
-                throw new CCDDException("separator character between enumerated pairs missing");
+                throw new CCDDException("Separator character between enumerated pairs missing");
             }
 
             // Divide the enumeration string into the separate enumeration definitions

@@ -852,18 +852,19 @@ def outputDiscreteConversion(file, discreteConversion, conversionName)
 {
     // Discrete conversion array indices
     def VALUE = 0
-    def DISP_NAME = 2
-    def TEXT_COLOR = 3
-    def BACK_COLOR = 4
+    def DISP_NAME = 1
+    def TEXT_COLOR = 2
+    def BACK_COLOR = 3
 
     // Separate the enumerated parameters into an array. The expected format for
     // the enumerated values is:
-    // <discrete value> | <Name> | <Display Name> | <Text Color> |
-    // <Background Color> [, repeat for each discrete value...]
+    // <Discrete Value> | <Display Name> | <Text Color> |
+    // <Background Color> ... [, repeat for each discrete value...]
     def enumerations = ccdd.getArrayFromString(discreteConversion, "|", ",")
 
-    // Check if the variable has enumerations
-    if (enumerations != null)
+    // Check if the variable has enumerations and the required number of
+    // parameters is provided
+    if (enumerations != null && enumerations[0].length > 3)
     {
         // Output the discrete conversion header
         ccdd.writeToFileLn(file, "DiscreteConversion " + ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION")
@@ -1000,16 +1001,17 @@ def outputCommandEnumeration(enumeration, enumerationName)
 {
     // Enumeration array indices
     def VALUE = 0
-    def DISP_NAME = 2
+    def DISP_NAME = 1
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:
-    // <discrete value> | <Name> | <Display Name> | <Text Color> |
-    // <Background Color> [, repeat for each discrete value...]
+    // <Discrete Value> | <Display Name> | <Text Color> |
+    // <Background Color> ... [, repeat for each discrete value...]
     def enumerations = ccdd.getArrayFromString(enumeration, "|", ",")
 
-    // Check if the variable has enumerations
-    if (enumerations != null)
+    // Check if the variable has enumerations and the required number of
+    // parameters is provided
+    if (enumerations != null && enumerations[0].length > 1)
     {
         // Output the enumeration header
         ccdd.writeToFileLn(cmdFile, "Enumeration " + enumerationName)

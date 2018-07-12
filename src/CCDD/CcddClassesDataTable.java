@@ -1216,7 +1216,7 @@ public class CcddClassesDataTable
         private final String inputName;
         private final String inputDescription;
         private final String inputMatch;
-        private final List<String> inputItems;
+        private List<String> inputItems;
         private final InputTypeFormat inputFormat;
         private final boolean isInputCustom;
 
@@ -1298,6 +1298,12 @@ public class CcddClassesDataTable
         protected List<String> getInputItems()
         {
             return inputItems;
+        }
+
+        // TODO
+        protected void setInputItems(List<String> inputItems)
+        {
+            this.inputItems = inputItems;
         }
 
         /******************************************************************************************

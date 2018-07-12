@@ -72,7 +72,7 @@ function outputFileCreationInfo(file)
  ******************************************************************************/
 function isVariable(variableName, arraySize)
 {
-    return variableName != null && arraySize != null && (arraySize.isEmpty() || variableName.endsWith("]"));
+    return variableName && arraySize != null && (arraySize.isEmpty() || variableName.endsWith("]"));
 }
 
 /*******************************************************************************
@@ -357,7 +357,7 @@ function outputStructureDefinition(structureName, isPacket, outFile)
 
                         // Check if variable is a primitive data type or a
                         // structure
-                        if (itosEncode2Char != null)
+                        if (itosEncode2Char)
                         {
                             // Check if other parameters have been defined
                             if (otherParameters)
@@ -499,7 +499,7 @@ function outputStructures(structureNames)
         var msgID = ccdd.getTableDataFieldValue(structureName, "Message ID");
 
         // Check if the structure doesn't have a message ID
-        if (!msgID || msgID == "")
+        if (!msgID)
         {
             // Check if the structure is referenced by more than one structure
             if (ccdd.isStructureShared(structureName))
@@ -567,15 +567,21 @@ function outputCommands(prefix, msgIDOffset, system)
         var commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System");
 
         // Check if the this command table's system matches the target system
-        if (!system || (commandSystem != null && system.equals(commandSystem)))
+        if (!system || (commandSystem && system.equals(commandSystem)))
         {
             // Get the command name and code, and the message ID for the command
             // table
             var commandName = ccdd.getCommandName(row);
             var cmdCode = ccdd.getCommandCode(row);
             var msgID = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "Message ID");
-            var msgIDWithOffset = parseInt(msgIDOffset, 16) + parseInt(msgID, 16);
-
+            var msgIDWithOffset = parseInt(msgIDOffset, 16);
+            
+            // Check if the message ID exists
+            if (msgID)
+            {
+                msgIDWithOffset += parseInt(msgID, 16);
+            }
+            
             // Begin the command definition
             ccdd.writeToFileLn(cmdFile, "");
             ccdd.writeToFileLn(cmdFile, "CfeSoftwareCommand " + prefix + commandName);
@@ -602,6 +608,13 @@ function outputCommands(prefix, msgIDOffset, system)
                     // type
                     var itosEncode1Char = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR");
 
+                    // Check if the data type isn't recognized
+                    if (!itosEncode1Char)
+                    {
+                        // Set the encoding character to a blank
+                        itosEncode1Char = "";
+                    }
+                    
                     // Check if the parameter is an integer (signed or unsigned)
                     if (itosEncode1Char.equals("I") || itosEncode1Char.equals("U"))
                     {
@@ -712,7 +725,7 @@ function outputMnemonicDefinition(row)
     var itosEncode = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR");
 
     // Check if this data type is a recognized base type, and not a structure
-    if (itosEncode != null && !itosEncode.equals(dataType))
+    if (itosEncode && !itosEncode.equals(dataType))
     {
         // Check if the encoding is 'raw' (unrecognized)
         if (itosEncode.equals("R"))
@@ -860,18 +873,19 @@ function outputDiscreteConversion(file, discreteConversion, conversionName)
 {
     // Discrete conversion array indices
     var VALUE = 0;
-    var DISP_NAME = 2;
-    var TEXT_COLOR = 3;
-    var BACK_COLOR = 4;
+    var DISP_NAME = 1;
+    var TEXT_COLOR = 2;
+    var BACK_COLOR = 3;
 
     // Separate the enumerated parameters into an array. The expected format for
     // the enumerated values is:
-    // <discrete value> | <Name> | <Display Name> | <Text Color> |
-    // <Background Color> [, repeat for each discrete value...]
+    // <Discrete Value> | <Display Name> | <Text Color> |
+    // <Background Color> ... [, repeat for each discrete value...]
     var enumerations = ccdd.getArrayFromString(discreteConversion, "|", ",");
 
-    // Check if the variable has enumerations
-    if (enumerations != null)
+    // Check if the variable has enumerations and the required number of
+    // parameters is provided
+    if (enumerations && enumerations[0].length > 3)
     {
         // Output the discrete conversion header
         ccdd.writeToFileLn(file, "DiscreteConversion " + ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION");
@@ -1008,16 +1022,17 @@ function outputCommandEnumeration(enumeration, enumerationName)
 {
     // Enumeration array indices
     var VALUE = 0;
-    var DISP_NAME = 2;
+    var DISP_NAME = 1;
 
     // Separate the enumerated parameters into an array. The expected
     // format for the enumerated values is:
-    // <discrete value> | <Name> | <Display Name> | <Text Color> |
-    // <Background Color> [, repeat for each discrete value...]
+    // <Discrete Value> | <Display Name> | ... 
+    // [, repeat for each discrete value...]
     var enumerations = ccdd.getArrayFromString(enumeration, "|", ",");
 
-    // Check if the variable has enumerations
-    if (enumerations != null)
+    // Check if the variable has enumerations and the required number of
+    // parameters is provided
+    if (enumerations && enumerations[0].length > 1)
     {
         // Output the enumeration header
         ccdd.writeToFileLn(cmdFile, "Enumeration " + enumerationName);
@@ -1050,7 +1065,7 @@ function outputCommandEnumerations(systemName)
         var commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System");
 
         // Check if the this command table's system matches the target system
-        if (!systemName || (commandSystem != null && systemName.equals(commandSystem)))
+        if (!systemName || (commandSystem && systemName.equals(commandSystem)))
         {
             // Step through each of the commands arguments
             for (var argumentNum = 0; argumentNum < ccdd.getNumCommandArguments(row); argumentNum++)
@@ -1105,7 +1120,7 @@ function outputLimitDefinition(row, limitSets, isFirst)
         var limits = ccdd.getArrayFromString(limitSets, "|", ",");
 
         // Check if the variable has limits
-        if (limits != null)
+        if (limits)
         {
             // Check if this is the first limit definition
             if (isFirst)
@@ -1421,7 +1436,7 @@ else
     numFC = ccdd.getGroupDataFieldValue("globals", "NumComputers");
 
     // Check if the data field exists, is empty, or isn't an integer value
-    if (numFC == null || !numFC.match(/[0-9]+/g))
+    if (!numFC || !numFC.match(/[0-9]+/g))
     {
         // Use the default number of flight computers (based on the number of
         // offset
@@ -1466,7 +1481,7 @@ else
     var selected = ccdd.getRadioButtonDialog("Select endianess", buttons);
 
     // Check that an endianess was selected
-    if (selected != null)
+    if (selected)
     {
         // Check if the output should be big endian
         if (selected.equals("Big"))
@@ -1521,7 +1536,7 @@ else
             }
 
             // Check if the system name wasn't found in the group data field
-            if (!systemName || systemName == "")
+            if (!systemName)
             {
                 // Get the value of the first root structure's 'System' data
                 // field
@@ -1529,7 +1544,7 @@ else
             }
 
             // Check if the data field doesn't exist in either a group or table
-            if (systemName == null)
+            if (!systemName)
             {
                 systemName = "";
             }
@@ -1542,7 +1557,7 @@ else
             var combFile = ccdd.openOutputFile(ccdd.getOutputPath() + "common.rec");
 
             // Check if the telemetry output file successfully opened
-            if (tlmFile != null || combFile != null)
+            if (tlmFile || combFile)
             {
                 // Get the names of all structures/sub-structures referenced in
                 // tables
@@ -1587,7 +1602,7 @@ else
             var firstSystemName = ccdd.getTableDataFieldValue(ccdd.getCommandTableNames()[0], "System");
 
             // If the system name doesn't exist then substitute a blank
-            if (firstSystemName == null)
+            if (!firstSystemName)
             {
                 firstSystemName = "";
             }
@@ -1604,7 +1619,7 @@ else
                 var cmdFile = ccdd.openOutputFile(cmdFileName);
 
                 // Check if the command output file successfully opened
-                if (cmdFile != null)
+                if (cmdFile)
                 {
                     // Add a header to the output file
                     outputFileCreationInfo(cmdFile);

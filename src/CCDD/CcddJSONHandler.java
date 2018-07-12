@@ -494,9 +494,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // Check if a table type isn't new and doesn't match an existing one with the same name
             if (badDefn != null)
             {
-                throw new CCDDException("Imported table type '"
+                throw new CCDDException("Imported table type '</b>"
                                         + badDefn
-                                        + "' doesn't match the existing definition");
+                                        + "<b>' doesn't match the existing definition");
             }
 
             // Check if all definitions are to be loaded
@@ -715,7 +715,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // Check if the table type doesn't exist
                         if (typeDefn == null)
                         {
-                            throw new CCDDException("Unknown table type '" + tableType + "'");
+                            throw new CCDDException("Unknown table type '</b>"
+                                                    + tableType
+                                                    + "<b>'");
                         }
 
                         // Store the table's type name

@@ -580,6 +580,14 @@ public class CcddVariableSizeAndConversionHandler
             // Store the offset as the size for this structure
             structureAndVariableOffsets.set(structIndex, offset);
         }
+
+        // TODO
+        // Update the variable reference input type selection item list and any open table editors
+        ccddMain.getInputTypeHandler()
+                .getInputTypeByDefaultType(DefaultInputType.VARIABLE_REFERENCE)
+                .setInputItems(structureAndVariablePaths);
+        ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null,
+                                                                   ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -887,7 +895,7 @@ public class CcddVariableSizeAndConversionHandler
             conversionLists = new ArrayList<ConversionListStorage>();
 
             // Step through each table type definition
-            for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
+            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
             {
                 // Check if the table type represents a structure
                 if (typeDefn.isStructure())

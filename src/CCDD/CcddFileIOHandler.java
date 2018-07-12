@@ -763,31 +763,29 @@ public class CcddFileIOHandler
                 // Check if the file doesn't exist
                 if (!file.exists())
                 {
-                    throw new CCDDException("Cannot locate import file<br>'</b>"
-                                            + file.getAbsolutePath()
-                                            + "<b>'");
+                    throw new CCDDException("Cannot locate file");
                 }
 
                 // Check if the file to import is in CSV format based on the extension
-                if (file.getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
+                if (filePath.endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
                     ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
                 }
                 // Check if the file to import is in EDS format based on the extension
-                else if (file.getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
+                else if (filePath.endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create a EDS handler
                     ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
                 }
                 // Check if the file to import is in JSON format based on the extension
-                else if (file.getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
+                else if (filePath.endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
                     ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
                 }
                 // Check if the file to import is in XTCE format based on the extension
-                else if (file.getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
+                else if (filePath.endsWith(FileExtension.XTCE.getExtension()))
                 {
                     // Create a XTCE handler
                     ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, parent);
@@ -795,9 +793,7 @@ public class CcddFileIOHandler
                 // The file extension isn't recognized
                 else
                 {
-                    throw new CCDDException("Cannot import file '"
-                                            + file.getAbsolutePath()
-                                            + "'; unrecognized file type");
+                    throw new CCDDException("Unrecognized file type");
                 }
 
                 // Import the table definition(s) from the file
@@ -946,7 +942,9 @@ public class CcddFileIOHandler
             {
                 // Inform the user that an error occurred importing the table(s)
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>"
+                                                          "<html><b>Cannot import from file<br>'</b>"
+                                                                  + filePath
+                                                                  + "<b>': "
                                                                   + cse.getMessage(),
                                                           "Import Error",
                                                           ((CCDDException) cse).getMessageType(),
@@ -1685,9 +1683,9 @@ public class CcddFileIOHandler
                 // The file extension isn't recognized
                 else
                 {
-                    throw new IOException("Cannot import file '"
+                    throw new IOException("Cannot import file '</b>"
                                           + dataFile[0].getAbsolutePath()
-                                          + "' into table; unrecognized file type");
+                                          + "<b>' into table; unrecognized file type");
                 }
 
                 // Store the current table type information so that it can be restored
@@ -2328,9 +2326,8 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>Cannot export to file<br>'</b>"
                                                               + file.getAbsolutePath()
-                                                              + "<b>'; cause '</b>"
-                                                              + jce.getMessage()
-                                                              + "<b>'",
+                                                              + "<b>': "
+                                                              + jce.getMessage(),
                                                       "Export Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);

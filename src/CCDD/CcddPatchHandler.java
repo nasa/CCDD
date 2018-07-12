@@ -144,7 +144,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     padData.close();
-                    throw new CCDDException("user elected to not install patch (#06212018)");
+                    throw new CCDDException("User elected to not install patch (#06212018)");
                 }
 
                 // Back up the project database before applying the patch
@@ -279,7 +279,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     assnsData.close();
-                    throw new CCDDException("user elected to not install patch (#11132017)");
+                    throw new CCDDException("User elected to not install patch (#11132017)");
                 }
 
                 // Step through each of the query results
@@ -402,7 +402,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     fieldData.close();
-                    throw new CCDDException("user elected to not install patch (#09272017)");
+                    throw new CCDDException("User elected to not install patch (#09272017)");
                 }
 
                 fieldData.close();
@@ -498,7 +498,7 @@ public class CcddPatchHandler
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
                     assnsData.close();
-                    throw new CCDDException("user elected to not install patch (#0712017)");
+                    throw new CCDDException("User elected to not install patch (#0712017)");
                 }
 
                 // Step through each of the query results
@@ -694,7 +694,7 @@ public class CcddPatchHandler
                                                           JOptionPane.QUESTION_MESSAGE,
                                                           DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
             {
-                throw new CCDDException("user elected to not install patch (#01262017)");
+                throw new CCDDException("User elected to not install patch (#01262017)");
             }
 
             CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();

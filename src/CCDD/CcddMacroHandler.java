@@ -1207,9 +1207,9 @@ public class CcddMacroHandler
             // existing macro's expanded value
             else if (!macroValue.equals(getMacroExpansion(macroDefn[MacrosColumn.VALUE.ordinal()])))
             {
-                throw new CCDDException("Imported macro '"
+                throw new CCDDException("Imported macro '>/b>"
                                         + macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
-                                        + "' doesn't match the existing definition");
+                                        + "<b>' doesn't match the existing definition");
             }
         }
 

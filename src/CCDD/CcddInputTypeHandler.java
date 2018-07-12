@@ -180,7 +180,8 @@ public class CcddInputTypeHandler
         for (InputType inputType : inputTypes)
         {
             // Check if the input type has an item array
-            if (inputType.getInputItems() != null)
+            if (inputType.getInputItems() != null
+                || inputType.getInputName().equals(DefaultInputType.VARIABLE_REFERENCE.getInputName()))// TODO
             {
                 // Add the input type to the list
                 selectionInputTypes.add(inputType);
@@ -545,9 +546,9 @@ public class CcddInputTypeHandler
                        && InputType.convertItemListToString(inputType.getInputItems()).equals(typeDefn[InputTypesColumn.ITEMS.ordinal()])
                        && inputType.getInputFormat().getFormatName().equals(typeDefn[InputTypesColumn.FORMAT.ordinal()])))
             {
-                throw new CCDDException("Imported input type '"
+                throw new CCDDException("Imported input type '</b>"
                                         + typeDefn[InputTypesColumn.NAME.ordinal()]
-                                        + "' doesn't match the existing definition");
+                                        + "<b>' doesn't match the existing definition");
             }
         }
     }

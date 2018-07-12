@@ -2322,6 +2322,12 @@ public class CcddConstants
                  InputTypeFormat.TEXT,
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
+        // TODO
+        VARIABLE_REFERENCE("Variable reference",
+                           ".*",
+                           InputTypeFormat.TEXT,
+                           "Display a menu of all defined variables"),
+
         VARIABLE_PATH("Variable path",
                       ".*",
                       InputTypeFormat.VARIABLE_PATH,

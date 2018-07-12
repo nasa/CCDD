@@ -765,9 +765,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         default:
                                             // Inform the user that no tag appears in the file
                                             // before other data
-                                            throw new CCDDException("Import file '</b>"
-                                                                    + importFile.getAbsolutePath()
-                                                                    + "<b>' information missing");
+                                            throw new CCDDException("Tag information missing from file");
                                     }
                                 }
                                 // This is the second pass
@@ -871,18 +869,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                 // in the table
                                                 if (numValidColumns == 0)
                                                 {
-                                                    throw new CCDDException("No columns in import file '</b>"
-                                                                            + importFile.getAbsolutePath()
-                                                                            + "<b>' match those in the target table",
+                                                    throw new CCDDException("No columns match those in the target table",
                                                                             JOptionPane.WARNING_MESSAGE);
                                                 }
                                             }
                                             // The file contains no column data
                                             else
                                             {
-                                                throw new CCDDException("Format invalid for import file '</b>"
-                                                                        + importFile.getAbsolutePath()
-                                                                        + "<b>'");
+                                                throw new CCDDException("File format invalid");
                                             }
 
                                             // Set the import tag to look for cell data
@@ -977,9 +971,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         default:
                                             // Inform the user that no tag appears in the file
                                             // before other data
-                                            throw new CCDDException("Import file '</b>"
-                                                                    + importFile.getAbsolutePath()
-                                                                    + "<b>' information missing");
+                                            throw new CCDDException("Tag information missing");
                                     }
                                 }
                             }
