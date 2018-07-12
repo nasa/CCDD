@@ -1344,7 +1344,7 @@ public class CcddScriptHandler
         for (Object[] assn : associations)
         {
             // Check if script execution is canceled
-            if (haltDlg.isHalted())
+            if (haltDlg != null && haltDlg.isHalted())
             {
                 break;
             }
@@ -1489,7 +1489,7 @@ public class CcddScriptHandler
         for (Object[] assn : associations)
         {
             // Check if script execution is canceled
-            if (haltDlg.isHalted())
+            if (haltDlg != null && haltDlg.isHalted())
             {
                 break;
             }
@@ -1607,13 +1607,17 @@ public class CcddScriptHandler
 
                 try
                 {
-                    // Update the progress bar. Display the association name in the progress bar;
-                    // if the name is blank then display the script (with full path)
-                    haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty()
-                                                                                                             ? assn[AssociationsColumn.NAME.ordinal()].toString()
-                                                                                                             : scriptFileName),
-                                              haltDlg.getNumDivisionPerStep() * step);
-                    step++;
+                    // Check if the cancellation dialog is displayed
+                    if (haltDlg != null)
+                    {
+                        // Update the progress bar. Display the association name in the progress
+                        // bar; if the name is blank then display the script (with full path)
+                        haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty()
+                                                                                                                 ? assn[AssociationsColumn.NAME.ordinal()].toString()
+                                                                                                                 : scriptFileName),
+                                                  haltDlg.getNumDivisionPerStep() * step);
+                        step++;
+                    }
 
                     // Execute the script using the indicated table data
                     executeScript(scriptFileName,
