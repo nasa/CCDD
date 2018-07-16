@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -1254,7 +1255,7 @@ public class CcddClassesDataTable
             this.inputName = inputName;
             this.inputDescription = inputDescription;
             this.inputMatch = inputMatch;
-            this.inputItems = convertItemStringToList(inputItems);
+            setInputItems(convertItemStringToList(inputItems), false);
             this.inputFormat = inputFormat;
             this.isInputCustom = isInputCustom;
         }
@@ -1300,10 +1301,53 @@ public class CcddClassesDataTable
             return inputItems;
         }
 
-        // TODO
-        protected void setInputItems(List<String> inputItems)
+        /******************************************************************************************
+         * Set the input type selection items
+         *
+         * @param inputItems
+         *            list of input type selection items (an empty item is automatically prepended
+         *            to the list to allow blanking the selection); null if the input type has no
+         *            selection items
+         *
+         * @param isVariable
+         *            true if the supplied list represents the structure paths and variables
+         *****************************************************************************************/
+        protected void setInputItems(List<String> inputItems, boolean isVariable)
         {
-            this.inputItems = inputItems;
+            // Check if any items are in the list
+            if (inputItems != null)
+            {
+                this.inputItems = new ArrayList<String>();
+
+                // Add a blank item as the first in the list
+                this.inputItems.add("");
+
+                // Check if the list represents structure paths and variables
+                if (isVariable)
+                {
+                    // Step through each item
+                    for (String item : inputItems)
+                    {
+                        // Remove the data types from the variable path + name and add the
+                        // resulting path/variable to the list
+                        this.inputItems.add(item.replaceAll(",[^\\.]*\\.", ","));
+                    }
+
+                    // Sort the list alphabetically (case insensitive)
+                    Collections.sort(this.inputItems, String.CASE_INSENSITIVE_ORDER);
+                }
+                // The list isn't the structure paths and variables list
+                else
+                {
+                    // Add the items to the selection list as is
+                    this.inputItems.addAll(inputItems);
+                }
+            }
+            // The list is null or empty
+            else
+            {
+                this.inputItems = null;
+            }
         }
 
         /******************************************************************************************
@@ -1396,8 +1440,9 @@ public class CcddClassesDataTable
          *
          * @param inputItemsString
          *            string containing the acceptable values for this input type, separated by the
-         *            selection item list separator; null or blank if the input type doesn't
-         *            constrain the inputs to items from a list
+         *            selection item list separator (a blank item is automatically prepended to the
+         *            list); null or blank if the input type doesn't constrain the inputs to items
+         *            from a list
          *
          * @return Input items, converted to a list; null if the input type has no items
          *****************************************************************************************/
@@ -1406,8 +1451,7 @@ public class CcddClassesDataTable
             return inputItemsString == null
                    || inputItemsString.isEmpty()
                                                  ? null
-                                                 : Arrays.asList((SELECTION_ITEM_LIST_SEPARATOR
-                                                                  + inputItemsString).split(SELECTION_ITEM_LIST_SEPARATOR));
+                                                 : Arrays.asList(inputItemsString.split(SELECTION_ITEM_LIST_SEPARATOR));
         }
 
         /******************************************************************************************
@@ -1941,10 +1985,10 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set the field's UndoableTextField or UndoableCheckBox
+         * Set the field's UndoableTextField, UndoableComboBox, or UndoableCheckBox
          *
          * @param inputFld
-         *            field's UndoableTextField or UndoableCheckBox
+         *            field's UndoableTextField, UndoableComboBox, or UndoableCheckBox
          ****************************************************************************************/
         protected void setInputFld(Component inputFld)
         {

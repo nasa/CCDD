@@ -232,8 +232,6 @@ public class CcddScriptHandler
         for (String[] assn : committedAssociations)
         {
             AvailabilityType availableStatus = AvailabilityType.AVAILABLE;
-            int numVerifications = 0;
-            StringBuilder verifications = new StringBuilder("");
 
             try
             {
@@ -242,90 +240,25 @@ public class CcddScriptHandler
                                                                    groupHandler,
                                                                    parent);
 
-                // Check if at least one table is assigned to this script association
-                if (!tablePaths.isEmpty())
+                // Step through each table referenced in this association
+                for (String tablePath : tablePaths)
                 {
-                    // Step through each table referenced in this association
-                    for (String tablePath : tablePaths)
+                    // Check if the table hasn't already been verified to exist. Structure tables
+                    // and their children are found in the structure and variable paths list.
+                    // Command and other table types must be checked individually
+                    if (!variableHandler.getStructureAndVariablePaths().contains(tablePath)
+                        && !verifiedVars.contains(tablePath))
                     {
-                        String parentTable = "";
-
-                        // Step through each data type and variable name pair
-                        for (String variable : tablePath.split(","))
-                        {
-                            // Split the variable reference into the data type and variable name
-                            String[] typeAndVar = variable.split(Pattern.quote("."));
-
-                            // Check if the variable hasn't already been verified to exist
-                            if (!verifiedVars.contains(variable))
-                            {
-                                // Locate the table's prototype in the list
-                                int index = protoNamesAndTableTypes.indexOf(typeAndVar[0]);
-
-                                // Check if the prototype table doesn't exist
-                                if (index == -1)
-                                {
-                                    throw new CCDDException();
-                                }
-
-                                // Check if a variable name is present (the first pass is for the
-                                // root table, so there is no variable name)
-                                if (typeAndVar.length == 2)
-                                {
-                                    // Get the table's type definition
-                                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(protoNamesAndTableTypes.get(index)[2]);
-
-                                    // Check if the table doesn't represent a structure
-                                    if (!typeDefn.isStructure())
-                                    {
-                                        throw new CCDDException();
-                                    }
-
-                                    // Get the name of the column that represents the variable name
-                                    String varColumn = typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE);
-
-                                    // Add the command to verify the existence of the variable in
-                                    // the parent table to the overall verification command for
-                                    // this association
-                                    verifications.append("SELECT "
-                                                         + varColumn
-                                                         + " FROM "
-                                                         + parentTable
-                                                         + " WHERE "
-                                                         + varColumn
-                                                         + " = '"
-                                                         + typeAndVar[1]
-                                                         + "' UNION ALL ");
-                                    numVerifications++;
-
-                                    // Add the variable to the list of those verified to exist
-                                    verifiedVars.add(variable);
-                                }
-                            }
-
-                            // Store the data type, which is the parent for the next variable (if
-                            // any)
-                            parentTable = typeAndVar[0];
-                        }
-                    }
-
-                    // Check if there are any variables to verify
-                    if (numVerifications != 0)
-                    {
-                        // Complete the verification command
-                        verifications = CcddUtilities.removeTrailer(verifications, "UNION ALL ")
-                                                     .append(";");
-
-                        // Query the tables for the variables to be checked
-                        List<String[]> result = dbTable.queryDatabase(verifications.toString(),
-                                                                      parent);
-
-                        // Check if the number of variables to verify doesn't match the number that
-                        // were found
-                        if (result == null || result.size() != numVerifications)
+                        // Check if the table is a child table (which would have been found in the
+                        // structure and variable paths list) or if it doesn't exist in the project
+                        // database
+                        if (tablePath.contains(",") || !dbTable.isTableExists(tablePath, parent))
                         {
                             throw new CCDDException();
                         }
+
+                        // Add the table to the list of those verified
+                        verifiedVars.add(tablePath);
                     }
                 }
             }
@@ -345,6 +278,7 @@ public class CcddScriptHandler
         }
 
         return associationsData.toArray(new Object[0][0]);
+
     }
 
     /**********************************************************************************************
@@ -1075,8 +1009,8 @@ public class CcddScriptHandler
             for (int row = 0; row < assnsTable.getRowCount(); row++)
             {
                 // Check if the association isn't unavailable due to a missing table
-                if (assnsTable.getValueAt(row,
-                                          AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()) != AvailabilityType.TABLE_MISSING)
+                if (assnsTable.getModel().getValueAt(row,
+                                                     AssociationsTableColumnInfo.AVAILABLE.ordinal()) != AvailabilityType.TABLE_MISSING)
                 {
                     // Get the reference to the association's script file
                     FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,

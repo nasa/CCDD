@@ -180,8 +180,7 @@ public class CcddInputTypeHandler
         for (InputType inputType : inputTypes)
         {
             // Check if the input type has an item array
-            if (inputType.getInputItems() != null
-                || inputType.getInputName().equals(DefaultInputType.VARIABLE_REFERENCE.getInputName()))// TODO
+            if (inputType.getInputItems() != null)
             {
                 // Add the input type to the list
                 selectionInputTypes.add(inputType);
@@ -190,6 +189,38 @@ public class CcddInputTypeHandler
             // Add the input type to the map, using the name as the key (converted to lower case to
             // eliminate case sensitivity)
             inputTypeMap.put(inputType.getInputName().toLowerCase(), inputType);
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the variable references input type selection item list with the supplied structure
+     * path and variables list. Based on whether or not the variable list is empty, add or remove
+     * the input type from the list of those having selection items
+     *
+     * @param structureAndVariablePaths
+     *            structure path and variables list
+     *********************************************************************************************/
+    protected void updateVariableReferences(List<String> structureAndVariablePaths)
+    {
+        // Get the reference to the variable references input type
+        InputType inputType = getInputTypeByDefaultType(DefaultInputType.VARIABLE_REFERENCE);
+
+        // Set the variable item list
+        inputType.setInputItems(structureAndVariablePaths, true);
+
+        // Check if the list is empty (no variable references)
+        if (structureAndVariablePaths.isEmpty())
+        {
+            // Remove the variable reference input type from the list of those having selection
+            // items
+            selectionInputTypes.remove(inputType);
+        }
+        // Check if the list of types having selection items doesn't already contain the variable
+        // references input type
+        else if (!selectionInputTypes.contains(inputType))
+        {
+            // Add the variable references input type to the list
+            selectionInputTypes.add(inputType);
         }
     }
 

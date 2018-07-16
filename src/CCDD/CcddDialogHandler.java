@@ -1630,7 +1630,7 @@ public class CcddDialogHandler extends JDialog
 
             // Calculate the maximum desirable height of the panel containing the radio buttons (=
             // # of rows * row height)
-            int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
+            int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()
                                * rbtnGridPnl.getPreferredSize().height
                                / radioButton.length
                                * gridWidth;
@@ -1887,7 +1887,7 @@ public class CcddDialogHandler extends JDialog
 
             // Calculate the maximum desirable height of the panel containing the check boxes (= #
             // of rows * row height)
-            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize()
+            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()
                                       * cboxGridPnl.getPreferredSize().getHeight()
                                       / checkBox.length
                                       * gridWidth);

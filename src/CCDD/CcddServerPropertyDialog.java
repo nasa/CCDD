@@ -415,7 +415,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
             // Allow resizing the dialog if the number of users to choose from exceeds the
             // initial number of viewable rows (i.e., the scroll bar is displayed)
-            allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_LIST_ROWS.getSize();
+            allowResize = users.length > ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize();
 
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
         }

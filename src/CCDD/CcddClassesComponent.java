@@ -370,7 +370,7 @@ public class CcddClassesComponent
             setForeground(Color.BLACK);
             setBackground(Color.WHITE);
             setFont(font);
-            setMaximumRowCount(15);
+            setMaximumRowCount(ModifiableSizeInfo.MAX_VIEWABLE_LIST_ROWS.getSize());
 
             // Set the renderer
             setRenderer(new DefaultListCellRenderer()
@@ -386,6 +386,15 @@ public class CcddClassesComponent
                                                               boolean isSelected,
                                                               boolean cellHasFocus)
                 {
+                    // Check if the combo box list item is null or a blank
+                    if (value == null || value.toString().isEmpty())
+                    {
+                        // Set the value to a space so that the combo box list row height is set to
+                        // match the other list items. Without this the row height is based on the
+                        // padding only
+                        value = " ";
+                    }
+
                     JLabel lbl = (JLabel) super.getListCellRendererComponent(list,
                                                                              value,
                                                                              index,
@@ -1683,6 +1692,7 @@ public class CcddClassesComponent
                 @Override
                 public void keyPressed(KeyEvent ke)
                 {
+                    System.out.println("autoComp: keyPressed"); // TODO
                     // Check if the backspace or delete key was pressed
                     if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE
                         || ke.getKeyCode() == KeyEvent.VK_DELETE)
@@ -1696,10 +1706,8 @@ public class CcddClassesComponent
                             if (getSelectedText() != null)
                             {
                                 // Delete the selected characters
-                                startIndex = Math.min(getCaret().getDot(),
-                                                      getCaret().getMark());
-                                length = Math.max(getCaret().getDot(),
-                                                  getCaret().getMark())
+                                startIndex = Math.min(getCaret().getDot(), getCaret().getMark());
+                                length = Math.max(getCaret().getDot(), getCaret().getMark())
                                          - startIndex;
                             }
                             // Check if the backspace key was pressed and the text cursor isn't at
@@ -1736,8 +1744,12 @@ public class CcddClassesComponent
                         {
                         }
 
-                        // Remove the key press so that further handling isn't performed
-                        ke.consume();
+                        if (!isOnlyFromList) // TODO NEED THIS OFF FOR IT TO HIGHLIGHT ON
+                        // BACKSPACE/DELETE
+                        {
+                            // Remove the key press so that further handling isn't performed
+                            ke.consume();
+                        }
                     }
                 }
             });
@@ -1794,7 +1806,7 @@ public class CcddClassesComponent
          * @return First auto-completion list string that matches the input text; null if no match
          *         is found
          *****************************************************************************************/
-        private String getMatch(String inputTxt)
+        protected String getMatch(String inputTxt) // TODO was private
         {
             String match = null;
 

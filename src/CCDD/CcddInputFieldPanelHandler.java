@@ -662,6 +662,137 @@ public abstract class CcddInputFieldPanelHandler
                                     fieldInfo.setInputFld(undoHandler.new UndoableComboBox(fieldInfo.getInputType().getInputItems().toArray(new String[0]),
                                                                                            ModifiableFontInfo.INPUT_TEXT.getFont()));
                                     inputFld = (UndoableComboBox) fieldInfo.getInputFld();
+
+                                    // TODO
+                                    // final UndoableComboBox cBox = (UndoableComboBox)
+                                    // fieldInfo.getInputFld();
+                                    // cBox.setEditable(true);
+                                    //
+                                    // final AutoCompleteTextField actf = new
+                                    // AutoCompleteTextField(fieldInfo.getInputType().getInputItems());
+                                    // actf.setOnlyFromList(true);
+                                    //
+                                    // cBox.setEditor(new ComboBoxEditor()
+                                    // {
+                                    // @Override
+                                    // public Component getEditorComponent()
+                                    // {
+                                    // return actf;
+                                    // }
+                                    //
+                                    // @Override
+                                    // public void setItem(Object text)
+                                    // {
+                                    // if (text != null && !text.toString().isEmpty())
+                                    // System.out.println("setItem: ." + text + "."); // TODO
+                                    // // TODO IF ENABLED, THIS ALLOWS SELECTING FROM THE
+                                    // // COMBO BOX LIST, BUT FOULS UP THE AUTO-COMPLETE
+                                    // // DISPLAY
+                                    // // if (text != null)
+                                    // // {
+                                    // // actf.setText(actf.getMatch(text.toString()));
+                                    // // }
+                                    // }
+                                    //
+                                    // @Override
+                                    // public Object getItem()
+                                    // {
+                                    // return actf.getText();
+                                    // }
+                                    //
+                                    // @Override
+                                    // public void selectAll()
+                                    // {
+                                    // }
+                                    //
+                                    // @Override
+                                    // public void addActionListener(ActionListener l)
+                                    // {
+                                    // }
+                                    //
+                                    // @Override
+                                    // public void removeActionListener(ActionListener l)
+                                    // {
+                                    // }
+                                    // });
+                                    //
+                                    // // cBox.addActionListener(new ActionListener()
+                                    // // {
+                                    // //
+                                    // // @Override
+                                    // // public void actionPerformed(ActionEvent ae)
+                                    // // {
+                                    // // System.out.println("action: "); // TODO
+                                    // // if (cBox.getSelectedItem() != null)
+                                    // // {
+                                    // // actf.setText(cBox.getSelectedItem().toString());
+                                    // // System.out.println(" set to: ." + cBox.getSelectedItem()
+                                    // +
+                                    // // "."); // TODO
+                                    // // }
+                                    // // }
+                                    // // });
+                                    //
+                                    // cBox.getEditor().getEditorComponent().addKeyListener(new
+                                    // KeyAdapter()
+                                    // {
+                                    // String prefix = "";
+                                    //
+                                    // @Override
+                                    // public void keyPressed(KeyEvent ke)
+                                    // {
+                                    // // Create a runnable object to be executed
+                                    // SwingUtilities.invokeLater(new Runnable()
+                                    // {
+                                    // @Override
+                                    // public void run()
+                                    // {
+                                    // prefix = cBox.getEditor().getItem().toString().trim();
+                                    //
+                                    // String selected = actf.getSelectedText();
+                                    //
+                                    // if (selected != null
+                                    // && !selected.isEmpty())
+                                    // {
+                                    // prefix = prefix.substring(0,
+                                    // prefix.lastIndexOf(selected));
+                                    // }
+                                    //
+                                    // cBox.removeAllItems();
+                                    //
+                                    // for (String item :
+                                    // fieldInfo.getInputType().getInputItems().toArray(new
+                                    // String[0]))
+                                    // {
+                                    // if (item.startsWith(prefix)
+                                    // || item.isEmpty())
+                                    // {
+                                    // cBox.addItem(item);
+                                    // }
+                                    // }
+                                    //
+                                    // System.out.println("prefix: ." + prefix + "."); // TODO
+                                    // cBox.getEditor().setItem(prefix);
+                                    // }
+                                    // });
+                                    // }
+                                    // });
+                                    //
+                                    // actf.addFocusListener(new FocusAdapter()
+                                    // {
+                                    // @Override
+                                    // public void focusLost(FocusEvent fe)
+                                    // {
+                                    // actf.setText(cBox.getEditor().getItem().toString());
+                                    // fieldInfo.setValue(actf.getText());
+                                    // cBox.setSelectedItem(actf.getText());
+                                    // updateOwnerChangeIndicator();
+                                    // }
+                                    // });
+                                    //
+                                    // actf.setText(fieldInfo.getValue());
+                                    // end TODO
+
                                     ((UndoableComboBox) inputFld).setSelectedItem(fieldInfo.getValue(),
                                                                                   false);
                                 }
@@ -803,6 +934,7 @@ public abstract class CcddInputFieldPanelHandler
 
                                         return isValid;
                                     }
+
                                 });
                             }
 

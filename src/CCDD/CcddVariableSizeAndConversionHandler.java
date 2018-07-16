@@ -582,12 +582,10 @@ public class CcddVariableSizeAndConversionHandler
         }
 
         // TODO
-        // Update the variable reference input type selection item list and any open table editors
-        ccddMain.getInputTypeHandler()
-                .getInputTypeByDefaultType(DefaultInputType.VARIABLE_REFERENCE)
-                .setInputItems(structureAndVariablePaths);
-        ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null,
-                                                                   ccddMain.getMainFrame());
+        // Add the structure paths and variables to the variable references input type and refresh
+        // any open editors
+        ccddMain.getInputTypeHandler().updateVariableReferences(structureAndVariablePaths);
+        ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
