@@ -380,7 +380,8 @@ public class CcddFieldHandler
      *            applicable for all tables
      *
      * @param isRootStruct
-     *            true if the owner is a root structure table
+     *            true if the owner is a root structure table; null to obtain the root structure
+     *            status from the list maintained in the database table handler
      *
      * @return true if the field is applicable to the owner
      *********************************************************************************************/

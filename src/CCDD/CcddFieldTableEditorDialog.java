@@ -1478,8 +1478,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             String ownerName = fieldInfo.getOwnerName();
 
             // Check if the field is in a table selected by the user (if no table is selected then
-            // all tables are considered to match)
-            if (filterTables.isEmpty() || filterTables.contains(ownerName))
+            // all tables are considered to match) and is currently applicable
+            if ((filterTables.isEmpty() || filterTables.contains(ownerName))
+                && fieldHandler.isFieldApplicable(ownerName,
+                                                  fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                  null))
             {
                 String pathName = "";
 

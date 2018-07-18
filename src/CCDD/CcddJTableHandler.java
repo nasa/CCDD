@@ -1898,13 +1898,16 @@ public abstract class CcddJTableHandler extends JTable
                                                        int row,
                                                        int column)
         {
-            // Check if this is the first row in the table and the cell is not formatted for HTML
-            if (row == 0 && !value.toString().startsWith("<html>"))
+            // Check if this is the first row and column in the table and the cell is not already
+            // formatted for HTML
+            if (row == 0 && column == 0 && !value.toString().startsWith("<html>"))
             {
                 // Convert the cell's content to HTML. If the first row in the table formatted for
                 // HTML is beyond row 13 and a previous row contains a line feed then the row with
                 // the line feed isn't displayed correctly (unless the table is scrolled to the row
-                // containing the HTML text). Forcing the first row to be HTML avoids the condition
+                // containing the HTML text). If more than one column is 'forced' to be HTML then
+                // the initial rows aren't displayed correctly. Forcing the first row's column to
+                // be HTML avoids the condition
                 value = CcddUtilities.convertToHTML(value.toString());
             }
 

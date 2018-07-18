@@ -53,6 +53,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClassesComponent.AutoCompleteComboBox;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
@@ -5104,8 +5105,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Create a combo box for displaying selection lists
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
+            // Get the column's input type
+            InputType inputType = typeDefn.getInputTypes()[column];
+
+            // Add auto-completion capability to the combo box
+            new AutoCompleteComboBox(comboBox, inputType, "", table);
+
             // Step through each item in the selection
-            for (String item : inputTypeHandler.getSelectionInputTypeItems(typeDefn.getInputTypes()[column].getInputName()))
+            for (String item : inputType.getInputItems())
             {
                 // Add the selection item to the combo box list
                 comboBox.addItem(item);

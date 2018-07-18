@@ -1310,7 +1310,8 @@ public class CcddClassesDataTable
          *            selection items
          *
          * @param isVariable
-         *            true if the supplied list represents the structure paths and variables
+         *            true if the supplied list represents the structure paths and variables. The
+         *            data types in the table path are removed
          *****************************************************************************************/
         protected void setInputItems(List<String> inputItems, boolean isVariable)
         {

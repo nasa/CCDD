@@ -273,28 +273,6 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Get the item array for the specified input type
-     *
-     * @return Item list for the specified input type
-     *********************************************************************************************/
-    protected List<String> getSelectionInputTypeItems(String inputTypeName)
-    {
-        List<String> selectionTypeItems = new ArrayList<String>(0);
-
-        // Get the input type based on the supplied name
-        InputType inputType = getInputTypeByName(inputTypeName);
-
-        // Check if the input type exists and has an item array
-        if (inputType != null)
-        {
-            // Store the reference to the input type's item array
-            selectionTypeItems = inputType.getInputItems();
-        }
-
-        return selectionTypeItems;
-    }
-
-    /**********************************************************************************************
      * Convert the supplied input selection item string to the corresponding input match regular
      * expression
      *

@@ -61,6 +61,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxEditor;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -96,6 +97,7 @@ import javax.swing.text.PlainDocument;
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -446,6 +448,253 @@ public class CcddClassesComponent
             }
 
             return itemIndex;
+        }
+    }
+
+    /**********************************************************************************************
+     * Modify a custom padded combo box with auto-completion capability. The combo box has a list
+     * of selection items defined by an input type. One or more characters may be typed into the
+     * combo box's data table cell or data field; the combo box list is pruned so that only items
+     * than begin with the character(s) are displayed. Additionally, the auto-completion feature
+     * populates the entered text to display the first matching item from the list
+     *********************************************************************************************/
+    protected static class AutoCompleteComboBox
+    {
+        // Flag that indicates that the auto-completion characters are being entered by the user
+        private boolean isPrefixChanging;
+
+        /******************************************************************************************
+         * Modify a custom padded combo box with auto-completion capability constructor
+         *
+         * @param comboBox
+         *            reference to the combo box to which the auto-completion applies
+         *
+         * @param inputType
+         *            reference to the combo box's input type, which defines the list of selection
+         *            items
+         *
+         * @param initialValue
+         *            the value to display initially as the selected combo box item
+         *
+         * @param table
+         *            reference to the table in which the combo box is a cell editor; null if the
+         *            combo box isn't in a table cell
+         *****************************************************************************************/
+        AutoCompleteComboBox(final JComboBox<String> comboBox,
+                             final InputType inputType,
+                             String initialValue,
+                             final CcddJTableHandler table)
+        {
+            isPrefixChanging = false;
+
+            // Set the combo box to be editable so that characters can be typed for auto-completion
+            // purposes
+            comboBox.setEditable(true);
+
+            // Create an auto-completion text field for use as the combo box's editor. only the
+            // last item needs to be memorized for this type of auto-completion field, so the
+            // maximum items to remember is set to one
+            final AutoCompleteTextField autoCompFld = new AutoCompleteTextField(inputType.getInputItems(),
+                                                                                1);
+
+            // Set the flag so that only items from the input type's selection item list can be
+            // entered
+            autoCompFld.setOnlyFromList(true);
+
+            // Initialize the auto-completion text field contents
+            autoCompFld.setText(initialValue);
+
+            // Set the combo box's editor, using the auto-completion text field as the editor
+            comboBox.setEditor(new ComboBoxEditor()
+            {
+                /**********************************************************************************
+                 * Override so that the auto-completion text field can be returned as the editor
+                 * component
+                 *********************************************************************************/
+                @Override
+                public Component getEditorComponent()
+                {
+                    return autoCompFld;
+                }
+
+                /**********************************************************************************
+                 * Override so that the auto-completion text field's contents can be set
+                 *********************************************************************************/
+                @Override
+                public void setItem(Object text)
+                {
+                    // Check if a prefix change isn't in effect and that the editor contents isn't
+                    // null
+                    if (!isPrefixChanging && text != null)
+                    {
+                        autoCompFld.setText(text.toString());
+                    }
+                }
+
+                /**********************************************************************************
+                 * Override to retrieve the auto-completion text field's contents
+                 *********************************************************************************/
+                @Override
+                public Object getItem()
+                {
+                    return autoCompFld.getText();
+                }
+
+                /**********************************************************************************
+                 * Override to select all of the auto-completion text field's contents
+                 *********************************************************************************/
+                @Override
+                public void selectAll()
+                {
+                    autoCompFld.selectAll();
+                }
+
+                /**********************************************************************************
+                 * Override to add an action listener to the auto-completion text field
+                 *********************************************************************************/
+                @Override
+                public void addActionListener(ActionListener al)
+                {
+                    autoCompFld.addActionListener(al);
+                }
+
+                /**********************************************************************************
+                 * Override to remove an action listener to the auto-completion text field
+                 *********************************************************************************/
+                @Override
+                public void removeActionListener(ActionListener al)
+                {
+                    autoCompFld.removeActionListener(al);
+                }
+            });
+
+            // Add a key listener to the combo box editor (auto-completion text field) to capture
+            // the match text entered by the user
+            comboBox.getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
+            {
+                // Storage for the previous contents of the auto-completion text field. This is
+                // used to skip further processing if no change in the displayed text occurs
+                String previousItem = "";
+
+                // Table cell row and column, and combo box drop down menu status (only used if the
+                // combo box is in a table cell)
+                int row = 0;
+                int column = 0;
+                boolean isMenuShowing = false;
+
+                /**********************************************************************************
+                 * Override to capture key press events. Only those keys that alter the prefix need
+                 * be processed
+                 *********************************************************************************/
+                @Override
+                public void keyPressed(KeyEvent ke)
+                {
+                    // Check if a prefix change is not already in progress
+                    if (!isPrefixChanging)
+                    {
+                        // Create a runnable object to be executed
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            /**********************************************************************
+                             * Modifying the combo box list causes an illegal state exception if
+                             * the listener is still active; use invokeLater to allow the listener
+                             * to complete prior to making the list changes
+                             *********************************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Get the current auto-completion text
+                                final String item = autoCompFld.getText();
+
+                                // Check if the contents of the text field changed due to the key
+                                // press (auto-completion may keep the text the same)
+                                if (!item.equals(previousItem))
+                                {
+                                    previousItem = item;
+
+                                    // Set the flag to indicate a prefix change is active. This is
+                                    // needed to prevent the auto-completion text field contents
+                                    // from being overridden
+                                    isPrefixChanging = true;
+
+                                    // Check if the combo box is in a table cell
+                                    if (table != null)
+                                    {
+                                        // Store the cell's row and column, and if the combo box
+                                        // drop down menu is showing
+                                        row = table.getEditingRow();
+                                        column = table.getEditingColumn();
+                                        isMenuShowing = comboBox.isPopupVisible();
+                                    }
+
+                                    // Force the combo box item list to scroll to the first
+                                    // matching item. Selecting the last item, then the matching
+                                    // item causes the matching item to appear at the top of the
+                                    // displayed list. The first item in the displayed list is a
+                                    // space
+                                    // (representing no selection; a blank would be used but causes
+                                    // height issues when displaying the item). A space is
+                                    // substituted to match an empty match prefix
+                                    comboBox.setSelectedIndex(comboBox.getItemCount() - 1);
+                                    comboBox.setSelectedItem(item == ""
+                                                                        ? " "
+                                                                        : item);
+
+                                    // Check if the combo box resides in a table cell
+                                    if (table != null)
+                                    {
+                                        // Create a runnable object to be executed
+                                        SwingUtilities.invokeLater(new Runnable()
+                                        {
+                                            /**************************************************
+                                             * Selecting an item from the combo box list causes
+                                             * table cell editing to cease. Editing must be
+                                             * reestablished, but only after other pending GUI
+                                             * events are completed
+                                             *************************************************/
+                                            @Override
+                                            public void run()
+                                            {
+                                                // Re-initiate editing in the table cell
+                                                table.editCellAt(row, column);
+                                                comboBox.getEditor()
+                                                        .getEditorComponent()
+                                                        .requestFocusInWindow();
+
+                                                // Check if the drop down menu had been displayed
+                                                if (isMenuShowing)
+                                                {
+                                                    // Redisplay the drop down menu
+                                                    comboBox.showPopup();
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // Reset the flag so that normal updates to the auto-completion
+                                    // check box, such as directly selecting an item from the combo
+                                    // box list, are handled
+                                    isPrefixChanging = false;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Add a focus listener to the combo box editor (auto-completion text field) to update
+            // the combo box's contents with the currently matched item from the combo box list
+            autoCompFld.addFocusListener(new FocusAdapter()
+            {
+                /**********************************************************************************
+                 * Override to capture focus loss events
+                 *********************************************************************************/
+                @Override
+                public void focusLost(FocusEvent fe)
+                {
+                    comboBox.setSelectedItem(autoCompFld.getText());
+                }
+            });
         }
     }
 
@@ -1670,7 +1919,7 @@ public class CcddClassesComponent
          * @param maxItems
          *            maximum number of items to maintain in the auto-complete list
          *****************************************************************************************/
-        AutoCompleteTextField(List<String> autoCompList, int maxItems)
+        AutoCompleteTextField(final List<String> autoCompList, int maxItems)
         {
             this.autoCompList = autoCompList;
             this.maxItems = maxItems;
@@ -1692,7 +1941,6 @@ public class CcddClassesComponent
                 @Override
                 public void keyPressed(KeyEvent ke)
                 {
-                    System.out.println("autoComp: keyPressed"); // TODO
                     // Check if the backspace or delete key was pressed
                     if (ke.getKeyCode() == KeyEvent.VK_BACK_SPACE
                         || ke.getKeyCode() == KeyEvent.VK_DELETE)
@@ -1729,8 +1977,12 @@ public class CcddClassesComponent
                                 length = 1;
                             }
 
-                            // Check if one or more characters is to be deleted
-                            if (length != 0)
+                            // Check if one or more characters is to be deleted, and, if only items
+                            // from the list are valid, that the entered text is in the list
+                            // (otherwise the backspace/delete is ignored)
+                            if (length != 0
+                                && !(isOnlyFromList
+                                     && getMatch(autoCompList.get(0).toString()) == null))
                             {
                                 // Remove the character(s) from the text string without invoking
                                 // auto-completion
@@ -1744,8 +1996,9 @@ public class CcddClassesComponent
                         {
                         }
 
-                        if (!isOnlyFromList) // TODO NEED THIS OFF FOR IT TO HIGHLIGHT ON
-                        // BACKSPACE/DELETE
+                        // Check if text not in the list is allowed (this is required for correct
+                        // highlighting when backspacing or deleting)
+                        if (!isOnlyFromList)
                         {
                             // Remove the key press so that further handling isn't performed
                             ke.consume();
@@ -1806,7 +2059,7 @@ public class CcddClassesComponent
          * @return First auto-completion list string that matches the input text; null if no match
          *         is found
          *****************************************************************************************/
-        protected String getMatch(String inputTxt) // TODO was private
+        private String getMatch(String inputTxt)
         {
             String match = null;
 
