@@ -949,7 +949,7 @@ public class CcddClassesDataTable
             this.description = description;
 
             // Validate the table name/path
-            validatePathFormat();
+            validatePathFormat(tableName);
         }
 
         /******************************************************************************************
@@ -976,7 +976,7 @@ public class CcddClassesDataTable
             this.tableName = tableName;
 
             // Validate the table name/path
-            validatePathFormat();
+            validatePathFormat(tableName);
         }
 
         /******************************************************************************************
@@ -1064,18 +1064,21 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Check if the table name/path is in the expected format:
-         * rootName<,childStructure.childName<,...>>
+         * Check if the table name/path is in the expected format. Macros aren't expanded; the
+         * delimiters are simply removed
          *
-         * @throws CCDDException
-         *             If the table name/path is not in the expected format
+         * @param tablePath
+         *            table path in the format rootName<,childStructure.childName<,...>>
+         *
+         * @return true if the table name/path is not in the expected format
          *****************************************************************************************/
-        protected void validatePathFormat() throws CCDDException
+        protected static boolean isPathFormatValid(String tablePath)
         {
+            boolean isValid = true;
             boolean isChild = false;
 
             // Split the path into the root and children (if present) and step through each
-            for (String child : tableName.split(","))
+            for (String child : tablePath.split(","))
             {
                 // Split the table into the data type and variable name. The root table only has
                 // the data type portion
@@ -1094,13 +1097,33 @@ public class CcddClassesDataTable
                                                       .matches(DefaultInputType.VARIABLE.getInputMatch()
                                                                + "(?:\\[[0-9]+\\])?"))))
                 {
-                    // Indicate that the table name/path doesn't match the valid pattern
-                    throw new CCDDException("Invalid table path '</b>"
-                                            + tableName
-                                            + "<b>'");
+                    // Set the flag to indicate the path isn't valid and stop searching
+                    isValid = false;
+                    break;
                 }
 
                 isChild = true;
+            }
+
+            return isValid;
+        }
+
+        /******************************************************************************************
+         * Check if the table name/path is in the expected format
+         *
+         * @param tablePath
+         *            table path in the format rootName<,childStructure.childName<,...>>
+         *
+         * @throws CCDDException
+         *             If the table name/path is not in the expected format
+         *****************************************************************************************/
+        protected static void validatePathFormat(String tablePath) throws CCDDException
+        {
+            // Check if the table path is valid
+            if (!isPathFormatValid(tablePath))
+            {
+                // Indicate that the table name/path doesn't match the valid pattern
+                throw new CCDDException("Invalid table path '</b>" + tablePath + "<b>' format");
             }
         }
     }

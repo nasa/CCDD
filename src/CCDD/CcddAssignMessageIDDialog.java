@@ -802,7 +802,8 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         // Inform the user that the input value is invalid
                         new CcddDialogHandler().showMessageDialog(CcddAssignMessageIDDialog.this,
                                                                   "<html><b>Starting ID must be in the format<br>&#160;&#160;<i>&lt;</i>"
-                                                                                                  + "0x<i>&gt;</i>#<br>where # is one or more hexadecimal digits",
+                                                                                                  + "0x<i>&gt;</i>#<br>where # is one or "
+                                                                                                  + "more hexadecimal digits",
                                                                   "Missing/Invalid Input",
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);

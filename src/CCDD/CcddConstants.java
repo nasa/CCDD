@@ -163,9 +163,6 @@ public class CcddConstants
     // characters between double quotes are ignored so that an erroneous separation doesn't occur
     protected static final String SPLIT_IGNORE_QUOTES = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
-    // Regular expression for matching a valid table path
-    protected static final String TABLE_PATH = "[a-zA-Z_][a-zA-Z0-9_]*(?:,[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*(?:\\[[0-9]+\\])?)*";
-
     // Regular expression for identifying part or all of a table and its path
     protected static final String PATH_IDENT = "[a-zA-Z0-9_,\\\\.\\\\[\\\\]]+";
 
@@ -2052,6 +2049,7 @@ public class CcddConstants
         FLOAT(true),
         HEXADECIMAL(true),
         INTEGER(true),
+        NUMBER(true),
         RATE(false),
         ENUMERATION(false),
         DATA_TYPE(false),
@@ -2267,6 +2265,13 @@ public class CcddConstants
                                          + "greater than or equal to the corresponding minimum value "
                                          + "(see Minimum)"),
 
+        NUMBER("Number",
+               FLOAT.getInputMatch(),
+               InputTypeFormat.NUMBER,
+               "Integer or floating point value consisting of one or more of the numerals "
+                                       + "0 - 9 and a single optional decimal point (leading '+' or "
+                                       + "'-' is optional"),
+
         PRIMITIVE("Primitive",
                   ".*",
                   InputTypeFormat.DATA_TYPE,
@@ -2323,7 +2328,6 @@ public class CcddConstants
                  InputTypeFormat.TEXT,
                  "Variable name; same constraints as for an alphanumeric (see Alphanumeric)"),
 
-        // TODO
         VARIABLE_REFERENCE("Variable reference",
                            ".*",
                            InputTypeFormat.TEXT,

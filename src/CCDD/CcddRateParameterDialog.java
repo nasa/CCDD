@@ -39,8 +39,8 @@ import javax.swing.event.ChangeListener;
 
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesDataTable.RateInformation;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -171,7 +171,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         {
             // Inform the user that a rate is invalid
             new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,
-                                                      "<html><b>Rate parameter values must be positive integer values",
+                                                      "<html><b>Rate parameter values must be positive integers",
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

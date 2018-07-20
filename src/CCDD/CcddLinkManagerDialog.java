@@ -1272,7 +1272,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 // Check if no data stream is selected during a copy operation
                 if (selectedStreams.isEmpty())
                 {
-                    throw new CCDDException("At least one data stream(s) must be selected");
+                    throw new CCDDException("At least one data stream must be selected");
                 }
             }
         }

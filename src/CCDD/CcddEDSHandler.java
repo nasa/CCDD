@@ -9,7 +9,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.COL_MAXIMUM;
 import static CCDD.CcddConstants.COL_MINIMUM;
-import static CCDD.CcddConstants.TABLE_PATH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -27,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.OutputKeys;
@@ -397,7 +397,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         {
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import EDS XML from file<br>'</b>"
+                                                      "<html><b>Cannot import EDS XML from file '</b>"
                                                               + importFile.getAbsolutePath()
                                                               + "<b>'; cause '</b>"
                                                               + je.getMessage()
@@ -773,9 +773,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // extracted from the name space name; however, this creates a 'flat' table reference,
             // making it a prototype
             String tableName = namespace.getShortDescription() != null
-                               && namespace.getShortDescription().matches(TABLE_PATH)
-                                                                                      ? namespace.getShortDescription()
-                                                                                      : namespace.getName();
+                               && TableDefinition.isPathFormatValid(namespace.getShortDescription())
+                                                                                                     ? namespace.getShortDescription()
+                                                                                                     : namespace.getName();
 
             // Get the end of the system path
             int index = namespace.getName().lastIndexOf("/");
@@ -2134,7 +2134,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeVariablePaths,
                              CcddVariableSizeAndConversionHandler variableHandler,
                              String[] separators,
-                             Object... extraInfo) throws JAXBException, Exception
+                             Object... extraInfo) throws JAXBException, MarshalException, Exception
     {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames,
@@ -3763,7 +3763,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the value separator couldn't be located
             if (enumValSep == null)
             {
-                throw new CCDDException("Separator character between enumeration value and label missing");
+                throw new CCDDException("separator character between enumeration value and label missing");
             }
 
             // Get the character that separates the enumerated pairs
@@ -3772,7 +3772,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Check if the enumerated pair separator couldn't be located
             if (enumPairSep == null)
             {
-                throw new CCDDException("Separator character between enumerated pairs missing");
+                throw new CCDDException("separator character between enumerated pairs missing");
             }
 
             // Divide the enumeration string into the separate enumeration definitions

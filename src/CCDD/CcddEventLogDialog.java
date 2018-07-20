@@ -828,7 +828,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
                 {
                     // Inform the user that the event log file cannot be located
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot locate event log file<br>'</b>"
+                                                              "<html><b>Cannot locate event log file '</b>"
                                                                                        + file[0].getAbsolutePath()
                                                                                        + "<b>'",
                                                               "File Error",

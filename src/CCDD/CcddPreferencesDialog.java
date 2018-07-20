@@ -48,9 +48,9 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesComponent.JFontChooser;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.GUIUpdateType;
-import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
@@ -983,7 +983,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         if (!size.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException(modSize.getName()
-                                                    + "<b>' must be a positive integer value");
+                                                    + "<b>' must be a positive integer");
                         }
 
                         // Convert the text to an integer
@@ -1206,7 +1206,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                         if (!spacing.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
                         {
                             throw new CCDDException(modSpacing.getName()
-                                                    + "<b>' must be a positive integer value");
+                                                    + "<b>' must be a positive integer");
                         }
 
                         // Convert the text to an integer

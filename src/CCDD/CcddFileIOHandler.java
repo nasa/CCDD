@@ -11,7 +11,6 @@ import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
-import static CCDD.CcddConstants.TABLE_PATH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -168,7 +167,7 @@ public class CcddFileIOHandler
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>User's guide '</b>"
                                                                                        + USERS_GUIDE
-                                                                                       + "<b>' cannot be opened; cause<br>'</b>"
+                                                                                       + "<b>' cannot be opened; cause '</b>"
                                                                                        + e.getMessage()
                                                                                        + "<b>'",
                                                               "File Error",
@@ -307,7 +306,7 @@ public class CcddFileIOHandler
                         {
                             // Inform the user that the existing backup file cannot be replaced
                             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>Cannot replace existing backup file<br>'</b>"
+                                                                      "<html><b>Cannot replace existing backup file '</b>"
                                                                                                + dataFile[0].getAbsolutePath()
                                                                                                + "<b>'",
                                                                       "File Error",
@@ -396,7 +395,7 @@ public class CcddFileIOHandler
                     // Check if the file doesn't exist
                     if (!dataFile[0].exists())
                     {
-                        throw new CCDDException("Cannot locate backup file<br>'</b>"
+                        throw new CCDDException("Cannot locate backup file '</b>"
                                                 + dataFile[0].getAbsolutePath()
                                                 + "'");
                     }
@@ -498,9 +497,9 @@ public class CcddFileIOHandler
                     // The project owner, name, and description don't exist
                     else
                     {
-                        throw new CCDDException("File<br>'</b>"
+                        throw new CCDDException("File '</b>"
                                                 + dataFile[0].getAbsolutePath()
-                                                + "'<br><b> is not a backup file");
+                                                + "'<b> is not a backup file");
                     }
                 }
                 catch (CCDDException ce)
@@ -516,7 +515,7 @@ public class CcddFileIOHandler
                 {
                     // Inform the user that the backup file cannot be read
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot read backup file<br>'</b>"
+                                                              "<html><b>Cannot read backup file '</b>"
                                                                                        + dataFile[0].getAbsolutePath()
                                                                                        + "<b>'; cause '</b>"
                                                                                        + e.getMessage()
@@ -540,7 +539,7 @@ public class CcddFileIOHandler
                     {
                         // Inform the user that the input file cannot be closed
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot close backup file<br>'</b>"
+                                                                  "<html><b>Cannot close backup file '</b>"
                                                                                            + dataFile[0].getAbsolutePath()
                                                                                            + "<b>'",
                                                                   "File Warning",
@@ -562,7 +561,7 @@ public class CcddFileIOHandler
                         {
                             // Inform the user that the output file cannot be closed
                             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>Cannot close backup file<br>'</b>"
+                                                                      "<html><b>Cannot close backup file '</b>"
                                                                                                + tempFile.getAbsolutePath()
                                                                                                + "<b>'",
                                                                       "File Warning",
@@ -889,6 +888,11 @@ public class CcddFileIOHandler
             // applicable
             dbTable.updateDataTypeColumns(parent);
 
+            // Restore the structure path and variables list in case any input types were added
+            // (only applied to CSV and JSON imports)
+            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
+                                                              .getStructureAndVariablePaths());
+
             // Update the table type handler with the input type changes
             tableTypeHandler.updateInputTypes(null);
 
@@ -926,7 +930,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the data file cannot be read
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot read import file<br>'</b>"
+                                                      "<html><b>Cannot read import file '</b>"
                                                               + filePath
                                                               + "<b>'",
                                                       "File Error",
@@ -942,7 +946,7 @@ public class CcddFileIOHandler
             {
                 // Inform the user that an error occurred importing the table(s)
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot import from file<br>'</b>"
+                                                          "<html><b>Cannot import from file '</b>"
                                                                   + filePath
                                                                   + "<b>': "
                                                                   + cse.getMessage(),
@@ -1001,6 +1005,8 @@ public class CcddFileIOHandler
 
             dataTypeHandler.setDataTypeData(originalDataTypes);
             inputTypeHandler.setInputTypeData(originalInputTypes);
+            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
+                                                              .getStructureAndVariablePaths());
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
             dbTable.storeInformationTable(InternalTable.FIELDS,
@@ -1059,15 +1065,6 @@ public class CcddFileIOHandler
             // Step through each table definition
             for (TableDefinition tableDefn : tableDefinitions)
             {
-                // Check if the table path/name format is valid
-                if (!tableDefn.getName().matches(TABLE_PATH))
-                {
-                    // Inform the user the table path/name isn't in the correct format
-                    throw new CCDDException("Invalid table path/name '</b>"
-                                            + tableDefn.getName()
-                                            + "<b>' format");
-                }
-
                 // Check if the table import was canceled by the user
                 if (haltDlg.isHalted())
                 {
@@ -1215,9 +1212,6 @@ public class CcddFileIOHandler
                                                              numColumns,
                                                              replaceExisting,
                                                              openEditor,
-                                                             "Cannot create prototype '"
-                                                                         + ancestorInfo.getPrototypeName()
-                                                                         + "' of child table",
                                                              allTables,
                                                              parent))
                                     {
@@ -1245,9 +1239,6 @@ public class CcddFileIOHandler
                                                              numColumns,
                                                              replaceExisting,
                                                              openEditor,
-                                                             "Cannot create prototype '"
-                                                                         + ancestorInfo.getPrototypeName()
-                                                                         + "' of child table's ancestor",
                                                              allTables,
                                                              parent))
                                     {
@@ -1286,9 +1277,6 @@ public class CcddFileIOHandler
                                                  numColumns,
                                                  replaceExisting,
                                                  openEditor,
-                                                 "Cannot create table '"
-                                                             + tableInfo.getPrototypeName()
-                                                             + "'",
                                                  allTables,
                                                  parent))
                         {
@@ -1310,7 +1298,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that one or more tables were not imported
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Table(s) not imported<br>'</b>"
+                                                      "<html><b>Table(s) not imported '</b>"
                                                               + CcddUtilities.convertArrayToStringTruncate(skippedTables.toArray(new String[0]))
                                                               + "<b>';<br>table already exists",
                                                       "Import Warning",
@@ -1376,9 +1364,6 @@ public class CcddFileIOHandler
      * @param openEditor
      *            true to open a table editor for each imported table
      *
-     * @param errorMsg
-     *            error message prefix used in the event an error occurs
-     *
      * @param allTables
      *            list containing the paths and names of all tables
      *
@@ -1397,7 +1382,6 @@ public class CcddFileIOHandler
                                         int numColumns,
                                         boolean replaceExisting,
                                         boolean openEditor,
-                                        String errorMsg, // TODO NOT USED
                                         List<String> allTables,
                                         Component parent) throws CCDDException
     {
@@ -1771,7 +1755,7 @@ public class CcddFileIOHandler
             {
                 // Inform the user that the data file cannot be read
                 new CcddDialogHandler().showMessageDialog(tableHandler.getOwner(),
-                                                          "<html><b>Cannot read import file<br>'</b>"
+                                                          "<html><b>Cannot read import file '</b>"
                                                                                    + dataFile[0].getAbsolutePath()
                                                                                    + "<b>'",
                                                           "File Error",
@@ -2291,7 +2275,7 @@ public class CcddFileIOHandler
             {
                 // Inform the user that one or more tables were not exported
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Table(s) not exported<br>'</b>"
+                                                          "<html><b>Table(s) not exported '</b>"
                                                                   + CcddUtilities.convertArrayToStringTruncate(skippedTables.toArray(new String[0]))
                                                                   + "<b>';<br>output file already exists or file I/O error",
                                                           "Export Error",
@@ -2324,7 +2308,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the export operation failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot export to file<br>'</b>"
+                                                      "<html><b>Cannot export to file '</b>"
                                                               + file.getAbsolutePath()
                                                               + "<b>': "
                                                               + jce.getMessage(),
@@ -2375,7 +2359,7 @@ public class CcddFileIOHandler
                 // Check if the user elects to overwrite existing files
                 if (overwriteFile
                     || new CcddDialogHandler().showMessageDialog(parent,
-                                                                 "<html><b>Overwrite existing file<br>'</b>\n"
+                                                                 "<html><b>Overwrite existing file '</b>\n"
                                                                          + exportFile.getAbsolutePath()
                                                                          + "<b>'?",
                                                                  "Overwrite File",
@@ -2405,7 +2389,7 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(parent,
                                                       "<html><b>"
                                                               + ce.getMessage()
-                                                              + " export file<br>'</b>"
+                                                              + " export file '</b>"
                                                               + exportFile.getAbsolutePath()
                                                               + "<b>'",
                                                       "File Error",
@@ -2416,7 +2400,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the data file cannot be written to
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot write to export file<br>'</b>"
+                                                      "<html><b>Cannot write to export file '</b>"
                                                               + exportFile.getAbsolutePath()
                                                               + "<b>'",
                                                       "File Error",
@@ -2488,7 +2472,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the data file cannot be read
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot read script file<br>'</b>"
+                                                      "<html><b>Cannot read script file '</b>"
                                                                                + file.getAbsolutePath()
                                                                                + "<b>'",
                                                       "File Error",
@@ -2510,7 +2494,7 @@ public class CcddFileIOHandler
             {
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                          "<html><b>Cannot close script file<br>'</b>"
+                                                          "<html><b>Cannot close script file '</b>"
                                                                                    + file.getAbsolutePath()
                                                                                    + "<b>'",
                                                           "File Warning",
@@ -2548,7 +2532,7 @@ public class CcddFileIOHandler
             {
                 // Check if the existing file should be overwritten
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Overwrite existing script file<br>'</b>"
+                                                              "<html><b>Overwrite existing script file '</b>"
                                                                                        + file.getAbsolutePath()
                                                                                        + "<b>'?",
                                                               "Overwrite File",
@@ -2595,7 +2579,7 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>"
                                                                                + ce.getMessage()
-                                                                               + " script file<br>'</b>"
+                                                                               + " script file '</b>"
                                                                                + file.getAbsolutePath()
                                                                                + "<b>'",
                                                       "File Error",
@@ -2606,7 +2590,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the script file cannot be written to
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot write to script file<br>'</b>"
+                                                      "<html><b>Cannot write to script file '</b>"
                                                                                + file.getAbsolutePath()
                                                                                + "<b>'",
                                                       "File Error",
@@ -2703,7 +2687,7 @@ public class CcddFileIOHandler
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                       "<html><b>"
                                                                                + ce.getMessage()
-                                                                               + " output file<br>'</b>"
+                                                                               + " output file '</b>"
                                                                                + outputFileName
                                                                                + "<b>'",
                                                       "File Error",
@@ -2714,7 +2698,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that the output file cannot be opened
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot open output file<br>'</b>"
+                                                      "<html><b>Cannot open output file '</b>"
                                                                                + outputFileName
                                                                                + "<b>'",
                                                       "File Error",

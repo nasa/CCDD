@@ -821,9 +821,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         }
         catch (ParseException pe)
         {
-            // Inform the user that the file cannot be closed
+            // Inform the user that the file cannot be parsed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot parse import file<br>'</b>"
+                                                      "<html><b>Cannot parse import file '</b>"
                                                               + importFile.getAbsolutePath()
                                                               + "<b>'; cause '</b>"
                                                               + pe.getMessage()
@@ -847,7 +847,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close import file<br>'</b>"
+                                                          "<html><b>Cannot close import file '</b>"
                                                                   + importFile.getAbsolutePath()
                                                                   + "<b>'",
                                                           "File Warning",
@@ -1153,7 +1153,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot close export file<br>'</b>"
+                                                          "<html><b>Cannot close export file '</b>"
                                                                   + exportFile.getAbsolutePath()
                                                                   + "<b>'",
                                                           "File Warning",

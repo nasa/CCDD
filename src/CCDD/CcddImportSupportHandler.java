@@ -120,9 +120,7 @@ public class CcddImportSupportHandler
             // Inform the user that the column name is missing
             throw new CCDDException("Table type '</b>"
                                     + tableTypeDefn.getTypeName()
-                                    + "<b>' definition column name missing in import file '</b>"
-                                    + fileName
-                                    + "<b>'");
+                                    + "<b>' definition column name missing");
         }
 
         // Check if the input type is empty
@@ -207,7 +205,7 @@ public class CcddImportSupportHandler
         if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].isEmpty())
         {
             // Inform the user that the field name is missing
-            throw new CCDDException("Data field name missing in import file <br>'</b>"
+            throw new CCDDException("Data field name missing in import file '</b>"
                                     + fileName
                                     + "<b>'");
         }
@@ -348,9 +346,9 @@ public class CcddImportSupportHandler
                          || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
                          || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
                 {
-                    throw new CCDDException("Imported project data field '"
+                    throw new CCDDException("Imported project data field '<b>"
                                             + dataField[FieldsColumn.FIELD_NAME.ordinal()]
-                                            + "' doesn't match the existing definition");
+                                            + "</b>' doesn't match the existing definition");
                 }
             }
 

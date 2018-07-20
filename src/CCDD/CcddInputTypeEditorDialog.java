@@ -175,8 +175,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Update the input type handler with the changes
+            // Update the input type handler with the changes. The variable paths input type must
+            // be re-added since it gets removed when the input types are built
             inputTypeHandler.setInputTypeData(getUpdatedData());
+            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
+                                                              .getStructureAndVariablePaths());
 
             // Update the table type handler with the input type changes
             ccddMain.getTableTypeHandler().updateInputTypes(inputTypeNames);

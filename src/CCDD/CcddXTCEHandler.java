@@ -9,7 +9,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.COL_MAXIMUM;
 import static CCDD.CcddConstants.COL_MINIMUM;
-import static CCDD.CcddConstants.TABLE_PATH;
 import static CCDD.CcddConstants.TYPE_COMMAND;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -28,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.OutputKeys;
@@ -703,7 +703,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         {
             // Inform the user that the database import failed
             new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>Cannot import XTCE XML from file<br>'</b>"
+                                                      "<html><b>Cannot import XTCE XML from file '</b>"
                                                               + importFile.getAbsolutePath()
                                                               + "<b>'; cause '</b>"
                                                               + je.getMessage()
@@ -1135,9 +1135,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         // exist, or isn't in the correct format, then the table name is extracted from the space
         // system name; however, this creates a 'flat' table reference, making it a prototype
         String tableName = system.getShortDescription() != null
-                           && system.getShortDescription().matches(TABLE_PATH)
-                                                                               ? system.getShortDescription()
-                                                                               : system.getName();
+                           && TableDefinition.isPathFormatValid(system.getShortDescription())
+                                                                                              ? system.getShortDescription()
+                                                                                              : system.getName();
 
         // Get the child system's telemetry metadata information
         TelemetryMetaDataType tlmMetaData = system.getTelemetryMetaData();
@@ -2679,7 +2679,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // these criteria aren't met
             if (childSystem != null
                 && childSystem.getShortDescription() != null
-                && childSystem.getShortDescription().matches(TABLE_PATH))
+                && TableDefinition.isPathFormatValid(childSystem.getShortDescription()))
             {
                 // Store the table's description
                 description = childSystem.getLongDescription();
@@ -2896,6 +2896,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                              CcddVariableSizeAndConversionHandler variableHandler,
                              String[] separators,
                              Object... extraInfo) throws JAXBException,
+                                                  MarshalException,
                                                   CCDDException,
                                                   Exception
     {

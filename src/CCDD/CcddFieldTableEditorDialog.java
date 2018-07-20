@@ -1157,11 +1157,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             new CcddDialogHandler().showMessageDialog(CcddFieldTableEditorDialog.this,
                                                                       "<html><b>Invalid characters in field '</b>"
                                                                                                        + fieldInfo.getFieldName()
-                                                                                                       + "<b>'; "
-                                                                                                       + fieldInfo.getInputType().getInputName().toLowerCase()
-                                                                                                       + " expected",
+                                                                                                       + "<b>'; characters consistent with input type '</b>"
+                                                                                                       + fieldInfo.getInputType().getInputName()
+                                                                                                       + "<b>' expected",
                                                                       "Invalid "
-                                                                                                                      + fieldInfo.getInputType().getInputName(),
+                                                                                                                          + fieldInfo.getInputType().getInputName(),
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
 
