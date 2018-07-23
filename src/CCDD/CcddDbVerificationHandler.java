@@ -981,7 +981,7 @@ public class CcddDbVerificationHandler
                                                                   + tableNameDb
                                                                   + "' column '"
                                                                   + columnName
-                                                                  + "' type mismatch (expected: '"
+                                                                  + "' data type mismatch (expected: '"
                                                                   + expectedType
                                                                   + "', actual: '"
                                                                   + columnType
@@ -2107,7 +2107,7 @@ public class CcddDbVerificationHandler
                                       + row
                                       + " column '"
                                       + typeDefn.getColumnNamesUser()[column]
-                                      + "' type mismatch",
+                                      + "' input type mismatch",
                                       "Replace with a blank",
                                       row,
                                       column,

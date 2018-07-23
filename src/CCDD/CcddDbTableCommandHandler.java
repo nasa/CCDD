@@ -504,9 +504,7 @@ public class CcddDbTableCommandHandler
         {
             // Inform the user that the query failed
             eventLog.logFailEvent(parent,
-                                  "Database query failed; cause '"
-                                          + se.getMessage()
-                                          + "'",
+                                  "Database query failed; cause '" + se.getMessage() + "'",
                                   "<html><b>Database query failed");
         }
 
@@ -1548,9 +1546,9 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            /**********************************************************************************
+            /**************************************************************************************
              * Copy database table command complete
-             *********************************************************************************/
+             *************************************************************************************/
             @Override
             protected void complete()
             {
@@ -5468,12 +5466,12 @@ public class CcddDbTableCommandHandler
         }
         catch (SQLException se)
         {
-            // Inform the user that updating the table failed
+            // Inform the user that updating the project data fields failed
             eventLog.logFailEvent(parent,
-                                  "Cannot modify project data fields; cause '"
+                                  "Cannot modify project data field(s); cause '"
                                           + se.getMessage()
                                           + "'",
-                                  "<html><b>Cannot modify project data fields");
+                                  "<html><b>Cannot modify project data field(s)");
         }
     }
 
@@ -5617,12 +5615,12 @@ public class CcddDbTableCommandHandler
                 {
                     // Inform the user that renaming the table type failed
                     eventLog.logFailEvent(typeDialog,
-                                          "Cannot rename type for table '"
+                                          "Cannot rename table type for table '"
                                                       + tableName
                                                       + "'; cause '"
                                                       + se.getMessage()
                                                       + "'",
-                                          "<html><b>Cannot rename type for table '</b>"
+                                          "<html><b>Cannot rename table type for table '</b>"
                                                              + tableName
                                                              + "<b>'");
                     errorFlag = true;

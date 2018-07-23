@@ -5810,12 +5810,11 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Get the character that separates the enumeration value from the associated label
             String enumValSep = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
-            // Check if the value separator couldn't be located
+            // Check if the enumeration value is missing or the value separator couldn't be located
             if (enumValSep == null)
             {
-                throw new CCDDException("Initial non-negative integer or "
-                                        + "separator character between "
-                                        + "enumeration value and text missing");
+                throw new CCDDException("initial non-negative integer or separator character "
+                                        + "between enumeration value and label missing");
             }
 
             // Get the character that separates the enumerated pairs
@@ -5824,7 +5823,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Check if the enumerated pair separator couldn't be located
             if (enumPairSep == null)
             {
-                throw new CCDDException("Separator character between enumerated pairs missing");
+                throw new CCDDException("separator character between enumerated pairs missing");
             }
 
             // Divide the enumeration string into the separate enumeration definitions

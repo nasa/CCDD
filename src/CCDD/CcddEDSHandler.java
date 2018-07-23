@@ -3760,10 +3760,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Get the character that separates the enumeration value from the associated label
             String enumValSep = CcddUtilities.getEnumeratedValueSeparator(enumeration);
 
-            // Check if the value separator couldn't be located
+            // Check if the enumeration value is missing or the value separator couldn't be located
             if (enumValSep == null)
             {
-                throw new CCDDException("separator character between enumeration value and label missing");
+                throw new CCDDException("initial non-negative integer or separator character "
+                                        + "between enumeration value and label missing");
             }
 
             // Get the character that separates the enumerated pairs

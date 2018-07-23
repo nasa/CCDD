@@ -765,7 +765,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         default:
                                             // Inform the user that no tag appears in the file
                                             // before other data
-                                            throw new CCDDException("Tag information missing from file");
+                                            throw new CCDDException("Tag information missing");
                                     }
                                 }
                                 // This is the second pass

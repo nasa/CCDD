@@ -426,7 +426,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     if (typeNameFld.getText().isEmpty())
                     {
                         // Inform the user that the name is invalid
-                        throw new CCDDException("Type name must be entered");
+                        throw new CCDDException("Table type name must be entered");
                     }
 
                     // Get the list of available tables
@@ -440,7 +440,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                         if (type.equalsIgnoreCase(typeNameFld.getText()))
                         {
                             // Inform the user that the name is already in use
-                            throw new CCDDException("Type name is already in use");
+                            throw new CCDDException("Table type name is already in use");
                         }
                     }
 

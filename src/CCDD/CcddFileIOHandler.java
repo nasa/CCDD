@@ -974,14 +974,12 @@ public class CcddFileIOHandler
             }
             catch (SQLException se)
             {
-                // Inform the user that an error occurred reverting changes to the database
-                new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot revert changes to database; cause '</b>"
-                                                                  + se.getMessage()
-                                                                  + "<b>'",
-                                                          "Import Error",
-                                                          JOptionPane.ERROR_MESSAGE,
-                                                          DialogOption.OK_OPTION);
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(parent,
+                                      "Cannot revert changes to project; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                      "<html><b>Cannot revert changes to project");
             }
 
             // Step through each table editor dialog created during the import operation
