@@ -2757,6 +2757,7 @@ public class CcddDbVerificationHandler
                                                                 OK_ICON,
                                                                 KeyEvent.VK_O,
                                                                 "Correct the inconsistencies");
+            btnOk.setEnabled(dbControl.isAccessAdmin());
 
             // Add a listener for the Okay button
             btnOk.addActionListener(new ActionListener()

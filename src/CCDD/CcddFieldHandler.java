@@ -79,7 +79,7 @@ public class CcddFieldHandler
      *            name of the data field owner; null to build the information for all data fields
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
     {

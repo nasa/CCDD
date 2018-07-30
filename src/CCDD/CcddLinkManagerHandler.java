@@ -640,7 +640,7 @@ public class CcddLinkManagerHandler
                 // the links tree. This is used to maintain the correct variable order in the links
                 // tree
                 linkTree.setTreePathOrder(variableTree.getTableTreePathList(null,
-                                                                            (ToolTipTreeNode) variableTree.getRootNode(),
+                                                                            variableTree.getRootNode(),
                                                                             -1));
 
                 // Check if this is the first time the rate selection occurs
@@ -668,6 +668,9 @@ public class CcddLinkManagerHandler
         // Set the flag so that the rate change executed below triggers a rebuilding of the links
         // tree using the tree path order in the variables tree
         firstRateChange = true;
+
+        // Enable auto-completion for the combo box
+        rateFilter.setAutoComplete(null);
 
         // Set the rate filter to the selected rate. This initial setting updates the link tree,
         // but skips rebuilding the variable tree unnecessarily

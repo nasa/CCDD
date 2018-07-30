@@ -266,14 +266,15 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     @Override
     protected void setControlsEnabled(boolean enable)
     {
-        // Set the flags based on the show macros, can have arrays, and table is prototype or child
-        // statuses
+        // Set the flags based on the show macros, can have arrays, table is prototype or child,
+        // and user access level statuses
         boolean enableIfNotMacro = enable && !mntmShowMacros.isSelected();
         boolean enableIfArray = enableIfNotMacro && activeEditor.isCanHaveArrays();
         boolean enableIfPrototype = enableIfNotMacro
                                     && activeEditor.getTableInformation().isPrototype();
         boolean enableIfChild = enableIfNotMacro
                                 && !activeEditor.getTableInformation().isPrototype();
+        boolean enableIfReadWrite = enable && ccddMain.getDbControlHandler().isAccessReadWrite();
 
         // Step through the menu bar items
         for (int index = 0; index < getJMenuBar().getComponentCount(); index++)
@@ -285,8 +286,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Set the menu item enable status
         mntmEdit.setEnabled(enableIfNotMacro);
         mntmEditPrototype.setEnabled(enableIfChild);
-        mntmStore.setEnabled(enableIfNotMacro);
-        mntmStoreAll.setEnabled(enableIfNotMacro);
+        mntmStore.setEnabled(enableIfNotMacro && enableIfReadWrite);
+        mntmStoreAll.setEnabled(enableIfNotMacro && enableIfReadWrite);
         mntmImport.setEnabled(enableIfNotMacro);
         mntmExportCSV.setEnabled(enableIfNotMacro);
         mntmExportEDS.setEnabled(enableIfNotMacro);
@@ -339,7 +340,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         btnMoveRight.setEnabled(enable);
         btnUndo.setEnabled(enableIfNotMacro);
         btnRedo.setEnabled(enableIfNotMacro);
-        btnStore.setEnabled(enableIfNotMacro);
+        btnStore.setEnabled(enableIfNotMacro && enableIfReadWrite);
         btnCloseActive.setEnabled(enable);
     }
 
@@ -425,7 +426,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
 
         // Update the tables with message names & IDs columns
-        dbTblCmdHndlr.updateMessageIDNamesColumns(main.getMainFrame());
+        dbTblCmdHndlr.updateInputTypeColumns(null, main.getMainFrame());
 
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
@@ -442,10 +443,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // editor is for an instance table of the updated table
                     boolean applyToChild = forceUpdate
                                            || (tableInfo.isPrototype()
-                                               && !tableInfo.getTablePath().equals(editor.getTableInformation().getTablePath()));
+                                               && !tableInfo.getTablePath().equals(editor.getTableInformation()
+                                                                                         .getTablePath()));
 
                     // Load the table from the database
-                    TableInformation updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation().getTablePath(),
+                    TableInformation updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation()
+                                                                                                      .getTablePath(),
                                                                                                 true,
                                                                                                 true,
                                                                                                 true,
@@ -457,7 +460,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 }
 
                 // Check if the table's root structure status changed
-                if (editor.getTableInformation().isRootStructure() != dbTblCmdHndlr.getRootStructures().contains(editor.getTableInformation().getTablePath()))
+                if (editor.getTableInformation().isRootStructure() != dbTblCmdHndlr.getRootStructures()
+                                                                                   .contains(editor.getTableInformation()
+                                                                                                   .getTablePath()))
                 {
                     // Update the table's root structure status
                     editor.getTableInformation().setRootStructure(!editor.getTableInformation().isRootStructure());

@@ -878,6 +878,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Set the column table editor to the combo box
         fieldTable.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new DefaultCellEditor(inputTypeCbox));
 
+        // Enable auto-completion for the combo box
+        inputTypeCbox.setAutoComplete(fieldTable);
+
         // Set the default selected type
         inputTypeCbox.setSelectedItem(DefaultInputType.TEXT.getInputName());
     }

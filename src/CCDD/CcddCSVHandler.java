@@ -57,7 +57,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddInputTypeHandler inputTypeHandler;
     private final CcddFieldHandler fieldHandler;
 
-    // GUI component instantiating this class
+    // GUI component over which to center any error dialog
     private final Component parent;
 
     // List containing the imported table, table type, data type, and macro definitions
@@ -116,7 +116,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *            reference to a data field handler
      *
      * @param parent
-     *            GUI component instantiating this class
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddCSVHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
     {

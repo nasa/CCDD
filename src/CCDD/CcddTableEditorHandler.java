@@ -34,7 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -53,7 +52,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClassesComponent.AutoCompleteComboBox;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
@@ -69,11 +67,9 @@ import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputTypeFormat;
-import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
-import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -206,7 +202,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *            editor dialog from which this editor was created
      *
      * @param parent
-     *            GUI component over which to center any error dialogs
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableEditorHandler(CcddMain ccddMain,
                            TableInformation tableInfo,
@@ -334,7 +330,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *            input type handler reference reflecting updates to the input type definitions
      *
      * @param parent
-     *            GUI component over which to center any error dialogs
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected CcddTableEditorHandler(CcddMain ccddMain,
                                      TableInformation tableInfo,
@@ -2348,10 +2344,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // "Rate" column
                 setUpSampleRateColumn();
 
-                // Create drop-down combo boxes that display the available message ID names and
-                // values
-                setUpMsgNamesAndIDsColumn(null);
-
                 // Create drop-down combo boxes that display a list of selection items
                 setUpSelectionColumns();
 
@@ -4064,11 +4056,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Add the primitive data types to the combo box list
             addPrimitivesToComboBox(comboBox);
 
+            // Enable auto-completion for the combo box
+            comboBox.setAutoComplete(table);
+
             // Step through each primitive column defined for this table's type
             for (int index : primColumns)
             {
                 // Get the column reference for this data type column
-                TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(index));
+                TableColumn dataTypeColumn = table.getColumnModel()
+                                                  .getColumn(table.convertColumnIndexToView(index));
 
                 // Set the column table editor to the combo box
                 dataTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
@@ -4081,13 +4077,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if any columns displaying both primitive & structure data types exist
         if (!primAndStructColumns.isEmpty())
         {
+            invalidDataTypes = new ArrayList<String>();
+
             // Check if the list of valid data types wasn't already created above
             if (validDataTypes == null)
             {
                 validDataTypes = new ArrayList<String>();
             }
-
-            invalidDataTypes = new ArrayList<String>();
 
             // Create a combo box for displaying data types
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
@@ -4109,6 +4105,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
             // Add the structure data types to the combo box list
             addStructuresToComboBox(comboBox);
+
+            // Enable auto-completion for the combo box
+            comboBox.setAutoComplete(table);
 
             // Step through each primitive & structure column defined for this table's type
             for (int index : primAndStructColumns)
@@ -4222,72 +4221,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Set up or update the combo box containing the available message ID names and corresponding
-     * message IDs for display in table column cells
-     *
-     * @param msgIDs
-     *            list of message ID names and the associated ID values
-     *********************************************************************************************/
-    protected void setUpMsgNamesAndIDsColumn(List<String[]> msgIDs)
-    {
-        // Check if a cell is currently being edited
-        if (table.getCellEditor() != null)
-        {
-            // Incorporate any cell changes and terminate editing
-            table.getCellEditor().stopCellEditing();
-        }
-
-        // Check if the table has a message name & ID column
-        if (!msgIDNameIndex.isEmpty())
-        {
-            // Check if no message name & ID list is provided
-            if (msgIDs == null)
-            {
-                // Create a message ID handler and get the list of message ID names and associated
-                // ID values
-                CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-                msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
-                                                            true,
-                                                            editorDialog);
-            }
-
-            // Create a combo box for displaying message ID names & IDs
-            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
-
-            // Step through each message ID name & ID pair
-            for (String[] msgID : msgIDs)
-            {
-                // Check if the message ID name isn't blank
-                if (!msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].isEmpty())
-                {
-                    // Get the message name & ID to display in the list
-                    String item = msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]
-                                  + " ("
-                                  + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
-                                  + ")";
-
-                    // Check if the message name & ID isn't already in the list
-                    if (((DefaultComboBoxModel<String>) comboBox.getModel()).getIndexOf(item) == -1)
-                    {
-                        // Add the message ID name & ID to the combo box list
-                        comboBox.addItem(item);
-                    }
-                }
-            }
-
-            // Step through each message ID names column
-            for (Integer column : msgIDNameIndex)
-            {
-                // Get the column reference for the message ID names & IDs column
-                TableColumn msgNameIDColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(column));
-
-                // Set the table column editor to the combo box
-                msgNameIDColumn.setCellEditor(new DefaultCellEditor(comboBox));
-            }
-        }
-    }
-
-    /**********************************************************************************************
      * Set up the minimum/maximum value groups and associate these columns with the data type
      * column. Only those minimum and maximum columns not already associated with a command
      * argument group are included in these pairings
@@ -4395,6 +4328,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     enumComboBox.addItem(CcddDataTypeHandler.getDataTypeName(dataType));
                 }
             }
+
+            // Enable auto-completion for the combo box
+            enumComboBox.setAutoComplete(table);
 
             // Create the data type cell editor for enumerations
             enumDataTypeCellEditor = new DefaultCellEditor(enumComboBox);
@@ -4922,6 +4858,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
             }
 
+            // Enable auto-completion for the combo box
+            comboBox.setAutoComplete(table);
+
             // Check if this is a combo box content update
             if (isUpdate)
             {
@@ -5102,14 +5041,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Step through each selection column
         for (Integer column : selectionIndex)
         {
-            // Create a combo box for displaying selection lists
-            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
-
             // Get the column's input type
             InputType inputType = typeDefn.getInputTypes()[column];
 
-            // Add auto-completion capability to the combo box
-            new AutoCompleteComboBox(comboBox, inputType, "", table);
+            // Create a combo box for displaying selection lists
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
             // Step through each item in the selection
             for (String item : inputType.getInputItems())
@@ -5118,8 +5054,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 comboBox.addItem(item);
             }
 
+            // Enable auto-completion for the combo box
+            comboBox.setAutoComplete(table);
+
             // Get the column reference for the selection column
-            TableColumn selectionColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(column));
+            TableColumn selectionColumn = table.getColumnModel()
+                                               .getColumn(table.convertColumnIndexToView(column));
 
             // Set the table column editor to the combo box
             selectionColumn.setCellEditor(new DefaultCellEditor(comboBox));

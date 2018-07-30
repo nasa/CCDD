@@ -97,7 +97,6 @@ import javax.swing.text.PlainDocument;
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -251,12 +250,20 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Custom combo box with padding for the list items and tool tip text
+     * Custom combo box with auto-completion, padding for the list items, and tool tip text. The
+     * combo box may have a list of selection items defined by an input type. One or more
+     * characters may be typed into the combo box's data table cell or data field; the combo box
+     * list is pruned so that only items than begin with the character(s) are displayed.
+     * Additionally, the auto-completion feature populates the entered text to display the first
+     * matching item from the list
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class PaddedComboBox extends JComboBox<String>
     {
         private boolean inLayOut = false;
+
+        // Flag that indicates that the auto-completion characters are being entered by the user
+        private boolean isPrefixChanging;
 
         /******************************************************************************************
          * Padded combo box constructor with an empty list
@@ -449,63 +456,41 @@ public class CcddClassesComponent
 
             return itemIndex;
         }
-    }
-
-    /**********************************************************************************************
-     * Modify a custom padded combo box with auto-completion capability. The combo box has a list
-     * of selection items defined by an input type. One or more characters may be typed into the
-     * combo box's data table cell or data field; the combo box list is pruned so that only items
-     * than begin with the character(s) are displayed. Additionally, the auto-completion feature
-     * populates the entered text to display the first matching item from the list
-     *********************************************************************************************/
-    protected static class AutoCompleteComboBox
-    {
-        // Flag that indicates that the auto-completion characters are being entered by the user
-        private boolean isPrefixChanging;
 
         /******************************************************************************************
-         * Modify a custom padded combo box with auto-completion capability constructor
-         *
-         * @param comboBox
-         *            reference to the combo box to which the auto-completion applies
-         *
-         * @param inputType
-         *            reference to the combo box's input type, which defines the list of selection
-         *            items
-         *
-         * @param initialValue
-         *            the value to display initially as the selected combo box item
+         * Set up auto-completion
          *
          * @param table
          *            reference to the table in which the combo box is a cell editor; null if the
          *            combo box isn't in a table cell
          *****************************************************************************************/
-        AutoCompleteComboBox(final JComboBox<String> comboBox,
-                             final InputType inputType,
-                             String initialValue,
-                             final CcddJTableHandler table)
+        protected void setAutoComplete(final CcddJTableHandler table)
         {
             isPrefixChanging = false;
+            List<String> inputItems = new ArrayList<String>();
+
+            // Step through each combo box item
+            for (int index = 0; index < getItemCount(); index++)
+            {
+                // Add the item to the list
+                inputItems.add(getItemAt(index));
+            }
 
             // Set the combo box to be editable so that characters can be typed for auto-completion
             // purposes
-            comboBox.setEditable(true);
+            setEditable(true);
 
             // Create an auto-completion text field for use as the combo box's editor. only the
             // last item needs to be memorized for this type of auto-completion field, so the
             // maximum items to remember is set to one
-            final AutoCompleteTextField autoCompFld = new AutoCompleteTextField(inputType.getInputItems(),
-                                                                                1);
+            final AutoCompleteTextField autoCompFld = new AutoCompleteTextField(inputItems, 1);
 
             // Set the flag so that only items from the input type's selection item list can be
             // entered
             autoCompFld.setOnlyFromList(true);
 
-            // Initialize the auto-completion text field contents
-            autoCompFld.setText(initialValue);
-
             // Set the combo box's editor, using the auto-completion text field as the editor
-            comboBox.setEditor(new ComboBoxEditor()
+            setEditor(new ComboBoxEditor()
             {
                 /**********************************************************************************
                  * Override so that the auto-completion text field can be returned as the editor
@@ -570,7 +555,7 @@ public class CcddClassesComponent
 
             // Add a key listener to the combo box editor (auto-completion text field) to capture
             // the match text entered by the user
-            comboBox.getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
+            getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
             {
                 // Storage for the previous contents of the auto-completion text field. This is
                 // used to skip further processing if no change in the displayed text occurs
@@ -624,21 +609,20 @@ public class CcddClassesComponent
                                         // drop down menu is showing
                                         row = table.getEditingRow();
                                         column = table.getEditingColumn();
-                                        isMenuShowing = comboBox.isPopupVisible();
+                                        isMenuShowing = isPopupVisible();
                                     }
 
                                     // Force the combo box item list to scroll to the first
                                     // matching item. Selecting the last item, then the matching
                                     // item causes the matching item to appear at the top of the
                                     // displayed list. The first item in the displayed list is a
-                                    // space
-                                    // (representing no selection; a blank would be used but causes
-                                    // height issues when displaying the item). A space is
+                                    // space (representing no selection; a blank would be used but
+                                    // causes height issues when displaying the item). A space is
                                     // substituted to match an empty match prefix
-                                    comboBox.setSelectedIndex(comboBox.getItemCount() - 1);
-                                    comboBox.setSelectedItem(item == ""
-                                                                        ? " "
-                                                                        : item);
+                                    setSelectedIndex(getItemCount() - 1);
+                                    setSelectedItem(item == ""
+                                                               ? " "
+                                                               : item);
 
                                     // Check if the combo box resides in a table cell
                                     if (table != null)
@@ -646,35 +630,34 @@ public class CcddClassesComponent
                                         // Create a runnable object to be executed
                                         SwingUtilities.invokeLater(new Runnable()
                                         {
-                                            /**************************************************
+                                            /******************************************************
                                              * Selecting an item from the combo box list causes
                                              * table cell editing to cease. Editing must be
                                              * reestablished, but only after other pending GUI
                                              * events are completed
-                                             *************************************************/
+                                             *****************************************************/
                                             @Override
                                             public void run()
                                             {
                                                 // Re-initiate editing in the table cell
                                                 table.editCellAt(row, column);
-                                                comboBox.getEditor()
-                                                        .getEditorComponent()
-                                                        .requestFocusInWindow();
+                                                getEditor().getEditorComponent().requestFocusInWindow();
 
                                                 // Check if the drop down menu had been displayed
                                                 if (isMenuShowing)
                                                 {
                                                     // Redisplay the drop down menu
-                                                    comboBox.showPopup();
+                                                    showPopup();
                                                 }
+
+                                                // Reset the flag so that normal updates to the
+                                                // auto-completion check box, such as directly
+                                                // selecting an item from the combo box list, are
+                                                // handled
+                                                isPrefixChanging = false;
                                             }
                                         });
                                     }
-
-                                    // Reset the flag so that normal updates to the auto-completion
-                                    // check box, such as directly selecting an item from the combo
-                                    // box list, are handled
-                                    isPrefixChanging = false;
                                 }
                             }
                         });
@@ -692,7 +675,7 @@ public class CcddClassesComponent
                 @Override
                 public void focusLost(FocusEvent fe)
                 {
-                    comboBox.setSelectedItem(autoCompFld.getText());
+                    setSelectedItem(autoCompFld.getText());
                 }
             });
         }

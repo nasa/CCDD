@@ -396,6 +396,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                                                             STORE_ICON,
                                                                             KeyEvent.VK_S,
                                                                             "Store the link updates in the database");
+                btnStoreLinks.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStoreLinks.addActionListener(new ActionListener()

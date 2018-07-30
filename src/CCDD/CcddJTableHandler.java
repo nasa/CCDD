@@ -3100,65 +3100,75 @@ public abstract class CcddJTableHandler extends JTable
                 // indicating the end of the row
                 String data = (String) clipboard.getData(DataFlavor.stringFlavor);
 
-                // Check if the pasted text ends with a new line character
-                if (data.endsWith("\n"))
+                try
                 {
-                    // Remove the trailing new line. This prevents pasting rows from, for example,
-                    // a spreadsheet from adding an extra row since each pasted row, including the
-                    // final one, is automatically terminated by a new line
-                    data = data.substring(0, data.length() - 1);
-                }
-
-                // Replace all pairs of consecutive double quotes with a place holder string
-                String embeddedQuote = "@~quote~@";
-                data = data.replaceAll("\"\"", embeddedQuote);
-
-                // Embedded new lines are indicated by being in a cell bounded by double quotes.
-                // Replace all embedded new line characters with a place holder string
-                String embeddedNewline = "@~newline~@";
-                data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)", embeddedNewline);
-
-                // Replace the tabs with a tab+space so that empty cells at the end of a line
-                // aren't discarded by the split commands. The extra space is removed later
-                data = data.replaceAll("\t", "\t ");
-
-                // Count the number of rows and columns in the pasted data. The remaining new line
-                // characters indicate the end of a row of cells, so the number of new lines equals
-                // the number of rows. A space must be appended when counting the rows this way in
-                // case the string ends with a new line character. The number of columns is
-                // determined by counting the number of tab characters (which separate the cells in
-                // a row) for the first row of the data
-                int numRows = (data + " ").split("\n").length;
-                int numColumns = data.split("\n")[0].split("\t").length;
-
-                // Replace the new line characters that terminate each row with a tab character;
-                // the string can be split into cell values based on the tabs (cells in a row are
-                // already tab-separated)
-                data = data.replaceAll("\n", "\t ");
-
-                // Restore the double quotes that are part of the cell contents by replacing each
-                // place holder with a double quote
-                data = data.replaceAll(embeddedQuote, "\"");
-
-                // Break the data string into the individual cells. The size of the array is
-                // specified to prevent the split command from discarding any empty trailing cells
-                String[] cellData = data.split("\t ", numRows * numColumns);
-
-                // Step through each cell
-                for (int index = 0; index < cellData.length; index++)
-                {
-                    // Check if the cell contains an embedded new line character place holder
-                    if (cellData[index].contains(embeddedNewline))
+                    // Check if the pasted text ends with a new line character
+                    if (data.endsWith("\n"))
                     {
-                        // Replace the place holder with a new line character, then remove the
-                        // leading and trailing double quote characters
-                        cellData[index] = cellData[index].replaceAll(embeddedNewline, " ");
-                        cellData[index] = cellData[index].substring(1, cellData[index].length() - 1);
+                        // Remove the trailing new line. This prevents pasting rows from, for
+                        // example, a spreadsheet from adding an extra row since each pasted row,
+                        // including the final one, is automatically terminated by a new line
+                        data = data.substring(0, data.length() - 1);
                     }
-                }
 
-                // Paste the data from the clipboard into the table
-                pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true);
+                    // Replace all pairs of consecutive double quotes with a place holder string
+                    String embeddedQuote = "@~quote~@";
+                    data = data.replaceAll("\"\"", embeddedQuote);
+
+                    // Embedded new lines are indicated by being in a cell bounded by double
+                    // quotes. Replace all embedded new line characters with a place holder string
+                    String embeddedNewline = "@~newline~@";
+                    data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)", embeddedNewline);
+
+                    // Replace the tabs with a tab+space so that empty cells at the end of a line
+                    // aren't discarded by the split commands. The extra space is removed later
+                    data = data.replaceAll("\t", "\t ");
+
+                    // Count the number of rows and columns in the pasted data. The remaining new
+                    // line characters indicate the end of a row of cells, so the number of new
+                    // lines equals the number of rows. A space must be appended when counting the
+                    // rows this way in case the string ends with a new line character. The number
+                    // of columns is determined by counting the number of tab characters (which
+                    // separate the cells in a row) for the first row of the data
+                    int numRows = (data + " ").split("\n").length;
+                    int numColumns = data.split("\n")[0].split("\t").length;
+
+                    // Replace the new line characters that terminate each row with a tab
+                    // character; the string can be split into cell values based on the tabs (cells
+                    // in a row are already tab-separated)
+                    data = data.replaceAll("\n", "\t ");
+
+                    // Restore the double quotes that are part of the cell contents by replacing
+                    // each place holder with a double quote
+                    data = data.replaceAll(embeddedQuote, "\"");
+
+                    // Break the data string into the individual cells. The size of the array is
+                    // specified to prevent the split command from discarding any empty trailing
+                    // cells
+                    String[] cellData = data.split("\t ", numRows * numColumns);
+
+                    // Step through each cell
+                    for (int index = 0; index < cellData.length; index++)
+                    {
+                        // Check if the cell contains an embedded new line character place holder
+                        if (cellData[index].contains(embeddedNewline))
+                        {
+                            // Replace the place holder with a new line character, then remove the
+                            // leading and trailing double quote characters
+                            cellData[index] = cellData[index].replaceAll(embeddedNewline, " ");
+                            cellData[index] = cellData[index].substring(1,
+                                                                        cellData[index].length()
+                                                                           - 1);
+                        }
+                    }
+
+                    // Paste the data from the clipboard into the table
+                    pasteData(cellData, numColumns, isInsert, isAddIfNeeded, false, true, true);
+                }
+                catch (Exception e)
+                {
+                    CcddUtilities.displayException(e, table);
+                }
             }
         }
         catch (Exception e)

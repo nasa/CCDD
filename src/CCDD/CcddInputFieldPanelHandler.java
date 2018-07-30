@@ -36,7 +36,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClassesComponent.AutoCompleteComboBox;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.WrapLayout;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -663,14 +662,9 @@ public abstract class CcddInputFieldPanelHandler
                                     fieldInfo.setInputFld(undoHandler.new UndoableComboBox(fieldInfo.getInputType().getInputItems().toArray(new String[0]),
                                                                                            ModifiableFontInfo.INPUT_TEXT.getFont()));
                                     inputFld = (UndoableComboBox) fieldInfo.getInputFld();
+                                    ((UndoableComboBox) inputFld).setAutoComplete(null);
                                     ((UndoableComboBox) inputFld).setSelectedItem(fieldInfo.getValue(),
                                                                                   false);
-
-                                    // Add auto-completion capability to the combo box
-                                    new AutoCompleteComboBox((UndoableComboBox) fieldInfo.getInputFld(),
-                                                             fieldInfo.getInputType(),
-                                                             fieldInfo.getValue(),
-                                                             null);
                                 }
                             }
 

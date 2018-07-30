@@ -137,6 +137,8 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
                                                                STORE_ICON,
                                                                KeyEvent.VK_S,
                                                                "Store the application updates in the project database");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
+
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(schedulerHndlr.getSchedulerEditor().getTable())
                 {

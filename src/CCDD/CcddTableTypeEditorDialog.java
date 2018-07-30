@@ -91,6 +91,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmManageFields;
     private JMenuItem mntmClearValues;
     private JCheckBoxMenuItem mntmOverwrite;
+    private JButton btnStore;
     private JButton btnClose;
     private DnDTabbedPane tabbedPane;
 
@@ -215,6 +216,9 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Set the flag based on the input flag and if a table type exists
         boolean enableIfType = enable && !typeEditors.isEmpty();
 
+        // Set the flag based on the user's access level
+        boolean enableIfReadWrite = enable && ccddMain.getDbControlHandler().isAccessReadWrite();
+
         // Enable/disable the buttons based on the input flag and if a table type exists
         super.setControlsEnabled(enableIfType);
 
@@ -228,13 +232,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Set the menu item/button based on the input flag for these items since these are valid
         // even when no table type exists
         mnFile.setEnabled(enable);
-        mntmCopyType.setEnabled(enableIfType);
-        mntmRenameType.setEnabled(enableIfType);
-        mntmDeleteType.setEnabled(enableIfType);
-        mntmStore.setEnabled(enableIfType);
-        mntmStoreAll.setEnabled(enableIfType);
+        mntmNewType.setEnabled(enableIfReadWrite);
+        mntmCopyType.setEnabled(enableIfType && enableIfReadWrite);
+        mntmRenameType.setEnabled(enableIfType && enableIfReadWrite);
+        mntmDeleteType.setEnabled(enableIfType && enableIfReadWrite);
+        mntmStore.setEnabled(enableIfType && enableIfReadWrite);
+        mntmStoreAll.setEnabled(enableIfType && enableIfReadWrite);
         mntmPrint.setEnabled(enableIfType);
         mntmFindReplace.setEnabled(enableIfType);
+        btnStore.setEnabled(enableIfReadWrite);
         btnClose.setEnabled(enable);
 
         // Set the menu item based on the input flag and if there are any data fields assigned to
@@ -1029,10 +1035,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 btnRedo.addActionListener(redoAction);
 
                 // Store button
-                JButton btnStore = CcddButtonPanelHandler.createButton("Store",
-                                                                       STORE_ICON,
-                                                                       KeyEvent.VK_S,
-                                                                       "Store the table type updates in the database");
+                btnStore = CcddButtonPanelHandler.createButton("Store",
+                                                               STORE_ICON,
+                                                               KeyEvent.VK_S,
+                                                               "Store the table type updates in the database");
 
                 // Create a listener for the Store command
                 ActionListener storeAction = new ValidateCellActionListener()

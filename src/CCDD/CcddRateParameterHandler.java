@@ -778,7 +778,7 @@ public class CcddRateParameterHandler
      *            rate column name
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Array of the sample rate values for the specified rate column name with those rates
      *         not assigned to any telemetry parameter in the structure tables grayed out; an empty

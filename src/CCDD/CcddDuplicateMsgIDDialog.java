@@ -45,30 +45,27 @@ public class CcddDuplicateMsgIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     CcddDuplicateMsgIDDialog(CcddMain ccddMain)
     {
-        // Create a message ID handler
-        CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, true);
-
         // Create the message ID dialog
-        initialize(msgIDHandler, ccddMain.getMainFrame());
+        initialize(ccddMain.getMessageIDHandler(), ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
      * Display the duplicate message ID dialog
      *
-     * @param msgIDHandler
+     * @param messageHandler
      *            message ID handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    private void initialize(CcddMessageIDHandler msgIDHandler, Component parent)
+    private void initialize(CcddMessageIDHandler messageHandler, Component parent)
     {
         // Get the list of message IDs in use - this creates the duplicates list
-        msgIDHandler.getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
+        messageHandler.getMessageIDsInUse(true, true, true, true, true, false, null, true, parent);
 
         // Get the list of duplicate message IDs
         duplicates = new ArrayListMultiple(1);
-        duplicates.addAll(msgIDHandler.getDuplicates());
+        duplicates.addAll(messageHandler.getDuplicates());
 
         // Sort the list based on the message ID values
         duplicates.sort(ArrayListMultipleSortType.HEXADECIMAL);

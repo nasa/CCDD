@@ -75,7 +75,7 @@ public class CcddGroupHandler
      *            reference to the undo handler
      *
      * @param component
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddGroupHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component component)
     {

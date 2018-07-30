@@ -67,7 +67,6 @@ import CCDD.CcddConstants.InternalTable.OrdersColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
-import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableCommentIndex;
@@ -233,7 +232,7 @@ public class CcddDbTableCommandHandler
      *            name of the table to check for in the database
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the specified table exists in the database
      *********************************************************************************************/
@@ -248,7 +247,7 @@ public class CcddDbTableCommandHandler
      * Get the list of root (top level) structure tables from the project database
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List of root structure tables; empty list if there are no root tables
      *********************************************************************************************/
@@ -274,7 +273,7 @@ public class CcddDbTableCommandHandler
      *            true to only include structure tables; false to include tables of all types
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List of root tables; empty list if there are no root tables
      *********************************************************************************************/
@@ -459,7 +458,7 @@ public class CcddDbTableCommandHandler
      *            PostgreSQL-compatible database query statement
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Two-dimensional array representing the rows and columns of data returned by the
      *         database query; returns null if the query produces an error, or an empty array if
@@ -524,7 +523,7 @@ public class CcddDbTableCommandHandler
      *            name of the column from which to extract the cell value
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Value of the cell in the table specified; blank if the query fails
      *********************************************************************************************/
@@ -560,7 +559,7 @@ public class CcddDbTableCommandHandler
      * Retrieve a list of all data tables in the database. Any non-data tables are ignored
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the table names with their original capitalization
      *********************************************************************************************/
@@ -574,7 +573,7 @@ public class CcddDbTableCommandHandler
      * tables are ignored
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List array containing the table names and table types. The table names are provided
      *         in both the user-viewable form, which preserves capitalization, and the database
@@ -605,7 +604,7 @@ public class CcddDbTableCommandHandler
      * Retrieve a list of all table types in the database. Any non-data tables are ignored
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the table types in alphabetical order
      *********************************************************************************************/
@@ -622,7 +621,7 @@ public class CcddDbTableCommandHandler
      *            table type by which to filter the table names. The table type is case insensitive
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the table names of the specified type
      *********************************************************************************************/
@@ -637,7 +636,7 @@ public class CcddDbTableCommandHandler
      * Retrieve a list of all tables that represent script files
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the script table names
      *********************************************************************************************/
@@ -651,7 +650,7 @@ public class CcddDbTableCommandHandler
      * ignored
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the table comment parameters and the table name as used in
      *         the database
@@ -684,7 +683,7 @@ public class CcddDbTableCommandHandler
      *            table name
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Array containing the separate elements of the table comment
      *********************************************************************************************/
@@ -767,7 +766,7 @@ public class CcddDbTableCommandHandler
      * ignored
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the table names and their variable paths, if any, for those
      *         tables with descriptions
@@ -819,7 +818,7 @@ public class CcddDbTableCommandHandler
      *            name of the queried table's prototype table; blank if none
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Table description; blank if the table has no description
      *********************************************************************************************/
@@ -893,7 +892,7 @@ public class CcddDbTableCommandHandler
      *            type of table being queried
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Table column order
      *********************************************************************************************/
@@ -989,7 +988,7 @@ public class CcddDbTableCommandHandler
      *            table comment
      *
      * @param parent
-     *            reference to the GUI component over which any error dialogs should be centered
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void setTableComment(String tableName, String comment, Component parent)
     {
@@ -1027,7 +1026,7 @@ public class CcddDbTableCommandHandler
      *            name of the table receiving the data fields
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Command to copy the data fields for one table to another
      *********************************************************************************************/
@@ -1577,7 +1576,7 @@ public class CcddDbTableCommandHandler
      *            the table manager
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void deleteTableInBackground(final String[] tableNames,
                                            final CcddTableManagerDialog dialog,
@@ -1640,7 +1639,7 @@ public class CcddDbTableCommandHandler
      *            the table manager
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if an error occurred when deleting a table
      *********************************************************************************************/
@@ -2031,7 +2030,7 @@ public class CcddDbTableCommandHandler
      *            information; false to not load the field information
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return TableInformation class containing the table data from the database. If the error
      *         flag is set the an error occurred and the data is invalid
@@ -2263,7 +2262,7 @@ public class CcddDbTableCommandHandler
      *            any value
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing arrays with the row data (table path, column name, and value) from
      *         the custom values table for those rows that match the specified column name and
@@ -2372,7 +2371,7 @@ public class CcddDbTableCommandHandler
      *            variable offsets in the structure)
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing the table member information. For structure tables the member tables
      *         are included, along with primitive variables (if specified), sorted by variable name
@@ -2655,7 +2654,7 @@ public class CcddDbTableCommandHandler
      *            editor
      *
      * @param parent
-     *            reference to the GUI component over which any error dialogs should be centered
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void modifyTableDataInBackground(final TableInformation tableInfo,
                                                final List<TableModification> additions,
@@ -2737,7 +2736,7 @@ public class CcddDbTableCommandHandler
      *            editor
      *
      * @param parent
-     *            reference to the GUI component over which any error dialogs should be centered
+     *            GUI component over which to center any error dialog
      *
      * @return true if an error occurs while updating the table
      *********************************************************************************************/
@@ -4364,7 +4363,7 @@ public class CcddDbTableCommandHandler
      * that are no longer valid due to changes in bit-packing
      *
      * @param parent
-     *            reference to the GUI component over which any error dialogs should be centered
+     *            GUI component over which to center any error dialog
      *
      * @return Commands to delete variable references in the links and telemetry scheduler tables
      *         that are no longer valid due to changes in bit-packing
@@ -4825,7 +4824,7 @@ public class CcddDbTableCommandHandler
      *            type of internal table to retrieve
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
@@ -4845,7 +4844,7 @@ public class CcddDbTableCommandHandler
      *            true to read in the OID column in addition to the information table columns
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
@@ -4870,7 +4869,7 @@ public class CcddDbTableCommandHandler
      *            script file name; ignored for non-script file information tables
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List of the items in the internal table. An empty list is returned if the specified
      *         table is empty or doesn't exist
@@ -4962,7 +4961,7 @@ public class CcddDbTableCommandHandler
      *            table comment; null if unchanged
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void storeInformationTableInBackground(final InternalTable intTable,
                                                      final List<String[]> tableData,
@@ -5006,7 +5005,7 @@ public class CcddDbTableCommandHandler
      *            table comment; null if unchanged
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void storeInformationTableInBackground(final InternalTable intTable,
                                                      final List<String[]> tableData,
@@ -5049,7 +5048,7 @@ public class CcddDbTableCommandHandler
      *            table comment; null if unchanged
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void storeInformationTable(InternalTable intTable,
                                          List<String[]> tableData,
@@ -5085,7 +5084,7 @@ public class CcddDbTableCommandHandler
      *            table comment; null if unchanged
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void storeInformationTable(InternalTable intTable,
                                          List<String[]> tableData,
@@ -5133,6 +5132,7 @@ public class CcddDbTableCommandHandler
                 case RESERVED_MSG_IDS:
                 case SCRIPT:
                 case TLM_SCHEDULER:
+                case USERS:
                     // Build the command for storing the script configurations, groups, links, etc.
                     // table
                     command += storeNonTableTypesInfoTableCommand(intTable,
@@ -5236,6 +5236,16 @@ public class CcddDbTableCommandHandler
 
                 break;
 
+            case USERS:
+                // Check if the store request originated from the user access level editor dialog
+                if (parent instanceof CcddDbManagerDialog)
+                {
+                    // Perform the user access level store command completion steps
+                    ((CcddDbManagerDialog) parent).doAccessUpdatesComplete(errorFlag);
+                }
+
+                break;
+
             case DATA_TYPES:
             case FIELDS:
             case INPUT_TYPES:
@@ -5262,7 +5272,7 @@ public class CcddDbTableCommandHandler
      *            table comment; null if unchanged
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Command for building the specified table
      *********************************************************************************************/
@@ -5445,7 +5455,7 @@ public class CcddDbTableCommandHandler
      *            project
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void modifyProjectFields(String description,
                                        List<FieldInformation> fieldInformation,
@@ -5455,6 +5465,7 @@ public class CcddDbTableCommandHandler
         {
             // Update the project's description
             dbCommand.executeDbUpdate(dbControl.buildDatabaseCommentCommand(dbControl.getProjectName(),
+                                                                            dbControl.getDatabaseAdmins(dbControl.getDatabaseName()),
                                                                             true,
                                                                             description),
                                       parent);
@@ -5755,7 +5766,7 @@ public class CcddDbTableCommandHandler
      *            reference to the type manager dialog
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void deleteTableType(final String typeName,
                                    final boolean isStructure,
@@ -6684,7 +6695,7 @@ public class CcddDbTableCommandHandler
      *            structure table name) of the variable
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void closeDeletedTableEditors(List<String[]> tableNames, Component parent)
     {
@@ -6772,7 +6783,7 @@ public class CcddDbTableCommandHandler
      * Update the data type columns in the open table editors
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void updateDataTypeColumns(Component parent)
     {
@@ -6813,7 +6824,7 @@ public class CcddDbTableCommandHandler
      *            input type names changed
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void updateInputTypeColumns(List<String[]> inputTypeNames, Component parent)
     {
@@ -6839,41 +6850,6 @@ public class CcddDbTableCommandHandler
             {
                 // Update the table type editor for the input type change
                 editor.updateForInputTypeChange(inputTypeNames);
-            }
-        }
-    }
-
-    /**********************************************************************************************
-     * Update the message names & IDs columns in the open table editors
-     *
-     * @param parent
-     *            GUI component calling this method
-     *********************************************************************************************/
-    protected void updateMessageIDNamesColumns(Component parent)
-    {
-        // Check if any editor dialogs are open
-        if (!ccddMain.getTableEditorDialogs().isEmpty())
-        {
-            // Create a message ID handler and get the list of message ID names and associated ID
-            // values
-            CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-            List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
-                                                                       true,
-                                                                       parent);
-
-            // Step through each open table editor dialog
-            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
-            {
-                // Step through each individual editor
-                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
-                {
-                    // Update the message ID names combo box list if the table contains one
-                    editor.setUpMsgNamesAndIDsColumn(msgIDs);
-
-                    // Force the table to repaint to update the highlighting of the changed message
-                    // ID names
-                    editor.getTable().repaint();
-                }
             }
         }
     }

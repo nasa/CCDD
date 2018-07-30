@@ -128,7 +128,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddRateParameterHandler rateHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
-    // GUI component instantiating this class
+    // GUI component over which to center any error dialog
     private final Component parent;
 
     // Export endian type
@@ -449,7 +449,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            the script methods; null if the internal methods are to be used
      *
      * @param parent
-     *            GUI component instantiating this class
+     *            GUI component over which to center any error dialog
      *
      * @throws CCDDException
      *             If an error occurs creating the handler

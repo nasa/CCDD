@@ -307,6 +307,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
                                                                STORE_ICON,
                                                                KeyEvent.VK_S,
                                                                "Store the message updates in the project database");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener()
@@ -655,7 +656,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         {
             // Update the message ID names combo boxes in any open table editors in case the group
             // has a message ID name or message ID data field that may have changed
-            ccddMain.getDbTableCommandHandler().updateMessageIDNamesColumns(CcddTelemetrySchedulerDialog.this);
+            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null,
+                                                                       CcddTelemetrySchedulerDialog.this);
 
             // Step through each data stream tab
             for (int index = 0; index < tabbedPane.getTabCount(); index++)

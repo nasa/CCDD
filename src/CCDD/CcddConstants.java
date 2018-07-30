@@ -120,6 +120,9 @@ public class CcddConstants
     // Separator for the project database comment
     protected static final String DATABASE_COMMENT_SEPARATOR = ";";
 
+    // Separator for the project database administrators in the database comment
+    protected static final String DATABASE_ADMIN_SEPARATOR = ",";
+
     // Separator for the table description list database query
     protected static final String TABLE_DESCRIPTION_SEPARATOR = "\\\\";
 
@@ -332,7 +335,8 @@ public class CcddConstants
         RENAME,
         COPY,
         DELETE,
-        UNLOCK
+        UNLOCK,
+        ACCESS
     }
 
     // Server properties dialog types
@@ -358,6 +362,7 @@ public class CcddConstants
     {
         LOCK_STATUS,
         PROJECT_NAME,
+        ADMINS,
         DESCRIPTION
     }
 
@@ -1792,6 +1797,39 @@ public class CcddConstants
                                                    modSetting.getDefault());
                 modSetting.value = settingInfo;
             }
+        }
+    }
+
+    /**********************************************************************************************
+     * User access levels
+     *********************************************************************************************/
+    protected static enum AccessLevel
+    {
+        ADMIN("Admin"),
+        READ_WRITE("Read/Write"),
+        READ_ONLY("Read Only");
+
+        private final String displayName;
+
+        /******************************************************************************************
+         * User access levels constructor
+         *
+         * @param displayName
+         *            name used in the drop down menu in the user access level manager
+         *****************************************************************************************/
+        AccessLevel(String displayName)
+        {
+            this.displayName = displayName;
+        }
+
+        /******************************************************************************************
+         * Get the access level display name
+         *
+         * @return Access level display name
+         *****************************************************************************************/
+        protected String getDisplayName()
+        {
+            return displayName;
         }
     }
 
@@ -3485,11 +3523,18 @@ public class CcddConstants
                     "WITH OIDS",
 
                     // Enforce that (type, index) must be unique
-                    "CREATE UNIQUE INDEX " + INTERNAL_TABLE_PREFIX + "table_types_idx ON " + INTERNAL_TABLE_PREFIX + "table_types (type, index); "
+                    "CREATE UNIQUE INDEX "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types_idx ON "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types (type, index); "
 
-                    // Create default table definition for the telemetry and command
-                    // table types
-                                 + "INSERT INTO " + INTERNAL_TABLE_PREFIX + "table_types VALUES " + DefaultColumn.getColumnDefinitions()),
+                                 // Create default table definition for the telemetry and command
+                                 // table types
+                                 + "INSERT INTO "
+                                 + INTERNAL_TABLE_PREFIX
+                                 + "table_types VALUES "
+                                 + DefaultColumn.getColumnDefinitions()),
 
         // Telemetry scheduler
         TLM_SCHEDULER("tlm_scheduler",
@@ -3502,7 +3547,30 @@ public class CcddConstants
                                       {TlmSchedulerColumn.MEMBER.columnName,
                                        TlmSchedulerColumn.MEMBER.dataType}},
                       "WITH OIDS",
-                      "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\"" + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
+                      "COMMENT ON TABLE "
+                                   + INTERNAL_TABLE_PREFIX
+                                   + "tlm_scheduler IS '1,1,false,\""
+                                   + DefaultColumn.RATE.getName()
+                                   + "\",\""
+                                   + DefaultColumn.RATE.getName()
+                                   + "\",1,56000'"),
+
+        // User authorization
+        USERS("users",
+              new String[][] {{UsersColumn.USER_NAME.columnName,
+                               UsersColumn.USER_NAME.dataType},
+                              {UsersColumn.ACCESS_LEVEL.columnName,
+                               UsersColumn.ACCESS_LEVEL.dataType}},
+              "WITH OIDS",
+              "INSERT INTO "
+                           + INTERNAL_TABLE_PREFIX
+                           + "users ("
+                           + UsersColumn.USER_NAME.columnName
+                           + ", "
+                           + UsersColumn.ACCESS_LEVEL.columnName
+                           + ") VALUES ('_admin_user_', '"
+                           + AccessLevel.ADMIN.getDisplayName()
+                           + "')"),
 
         // Data table values for non-prototype tables
         VALUES("values",
@@ -3988,6 +4056,44 @@ public class CcddConstants
              * Get the messages table column name
              *
              * @return Messages table column name
+             *************************************************************************************/
+            protected String getColumnName()
+            {
+                return columnName;
+            }
+        }
+
+        /******************************************************************************************
+         * User authorization table columns
+         *****************************************************************************************/
+        protected static enum UsersColumn
+        {
+            USER_NAME("user_name", "text"),
+            ACCESS_LEVEL("access_level", "text"),
+            OID("index", "text");
+
+            private final String columnName;
+            private final String dataType;
+
+            /**************************************************************************************
+             * User authorization table columns constructor
+             *
+             * @param columnName
+             *            user authorization table column name
+             *
+             * @param dataType
+             *            user authorization table column data type
+             *************************************************************************************/
+            UsersColumn(String columnName, String dataType)
+            {
+                this.columnName = columnName;
+                this.dataType = dataType;
+            }
+
+            /**************************************************************************************
+             * Get the user authorization table column name
+             *
+             * @return User authorization table column name
              *************************************************************************************/
             protected String getColumnName()
             {
@@ -5317,6 +5423,133 @@ public class CcddConstants
     }
 
     /**********************************************************************************************
+     * User access level editor column information
+     *********************************************************************************************/
+    protected static enum AccessLevelEditorColumnInfo
+    {
+        USER_NAME("User Name", "PostgreSQL server user name", "", true),
+        ACCESS_LEVEL("Access Level",
+                     "User's project database access level",
+                     AccessLevel.READ_WRITE.getDisplayName(),
+                     true),
+        OID("OID", "Access level index", "", false);
+
+        private final String columnName;
+        private final String toolTip;
+        private final String initialValue;
+        private final boolean isRequired;
+
+        /******************************************************************************************
+         * User access level editor column information constructor
+         *
+         * @param columnName
+         *            text to display for the user access level editor column header
+         *
+         * @param toolTip
+         *            tool tip text to display for the column
+         *
+         * @param initialValue
+         *            initial column value
+         *
+         * @param isRequired
+         *            true if a value is required in this column
+         *****************************************************************************************/
+        AccessLevelEditorColumnInfo(String columnName,
+                                    String toolTip,
+                                    String initialValue,
+                                    boolean isRequired)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+            this.initialValue = initialValue;
+            this.isRequired = isRequired;
+        }
+
+        /******************************************************************************************
+         * Get the user access level editor column name
+         *
+         * @return User access level editor column name
+         *****************************************************************************************/
+        protected String getColumnName()
+        {
+            return columnName;
+        }
+
+        /******************************************************************************************
+         * Get the user access level editor column required flag
+         *
+         * @return User access level editor column required flag
+         *****************************************************************************************/
+        protected boolean isRequired()
+        {
+            return isRequired;
+        }
+
+        /******************************************************************************************
+         * Get the user access level editor column names
+         *
+         * @return Array containing the user access level editor column names
+         *****************************************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[AccessLevelEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (AccessLevelEditorColumnInfo type : AccessLevelEditorColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /******************************************************************************************
+         * Get the user access level editor column tool tips
+         *
+         * @return Array containing the user access level editor column tool tips
+         *****************************************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[AccessLevelEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (AccessLevelEditorColumnInfo type : AccessLevelEditorColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+
+        /******************************************************************************************
+         * Get a row with initialized values for the user access level editor
+         *
+         * @return Array containing initial values for a row in the user access level editor
+         *****************************************************************************************/
+        protected static String[] getEmptyRow()
+        {
+            String[] emptyRow = new String[AccessLevelEditorColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (AccessLevelEditorColumnInfo type : AccessLevelEditorColumnInfo.values())
+            {
+                // Initialize the column value
+                emptyRow[index] = type.initialValue;
+                index++;
+            }
+
+            return emptyRow;
+        }
+    }
+
+    /**********************************************************************************************
      * Search results table column information
      *********************************************************************************************/
     protected static enum SearchResultsColumnInfo
@@ -5996,26 +6229,16 @@ public class CcddConstants
                   + CCDD_PROJECT_IDENTIFIER
                   + "%' ORDER BY datname ASC;"),
 
-        // Get the list of CCDD databases (in the form 'database name,lock status,visible
-        // name,description'), sorted alphabetically, for which the user has access. '_user_' must
-        // be replaced by the user name
+        // Get the list of CCDD databases (in the form 'database name;lock status;visible
+        // name;project creator;description'), sorted alphabetically, for which the user has
+        // access. '_user_' must be replaced by the user name
         DATABASES_BY_USER("SELECT datname || E'"
                           + DATABASE_COMMENT_SEPARATOR
-                          + "' || split_part(description, '"
-                          + DATABASE_COMMENT_SEPARATOR
-                          + "', 2) || E'"
-                          + DATABASE_COMMENT_SEPARATOR
-                          + "' || split_part(split_part(description, '"
-                          + DATABASE_COMMENT_SEPARATOR
-                          + "', 1), '"
+                          + "' || substr(description, length('"
                           + CCDD_PROJECT_IDENTIFIER
-                          + "', 2) || E'"
-                          + DATABASE_COMMENT_SEPARATOR
-                          + "' || substr(description, length(datName || '"
-                          + CCDD_PROJECT_IDENTIFIER
-                          + "') + 4) AS dbname_viewname_lock_desc FROM pg_database d LEFT JOIN "
-                          + "pg_shdescription ON pg_shdescription.objoid = d.oid "
-                          + "WHERE d.datistemplate = false AND description LIKE '"
+                          + "') + 1) AS dbname_viewname_lock_creator_desc FROM pg_database "
+                          + "d LEFT JOIN pg_shdescription ON pg_shdescription.objoid = "
+                          + "d.oid WHERE d.datistemplate = false AND description LIKE '"
                           + CCDD_PROJECT_IDENTIFIER
                           + "%' AND pg_has_role('_user_', pg_catalog.pg_get_userbyid("
                           + "d.datdba), 'member') = 't' ORDER BY datname ASC;"),
@@ -6488,7 +6711,6 @@ public class CcddConstants
         {
             return defaultButton;
         }
-
     }
 
     /**********************************************************************************************

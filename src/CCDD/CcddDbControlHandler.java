@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE;
+import static CCDD.CcddConstants.DATABASE_ADMIN_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
@@ -56,6 +57,7 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.RateInformation;
+import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.ConnectionType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DatabaseListCommand;
@@ -68,6 +70,7 @@ import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
+import CCDD.CcddConstants.InternalTable.UsersColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -95,6 +98,7 @@ public class CcddDbControlHandler
     private String activeOwner;
     private String activeUser;
     private String activePassword;
+    private AccessLevel accessLevel;
 
     // Flag indicating if the database connection attempt failed due to a missing password
     private boolean isMissingPassword;
@@ -221,6 +225,7 @@ public class CcddDbControlHandler
         activeOwner = "";
         activeUser = "";
         activePassword = "";
+        accessLevel = AccessLevel.READ_ONLY;
         backupFileName = "";
         isSSL = false;
 
@@ -337,13 +342,13 @@ public class CcddDbControlHandler
         String projectName = databaseName;
 
         // Get the database comment
-        String comment = getDatabaseComment(databaseName);
+        String[] comment = getDatabaseComment(databaseName);
 
-        // Check if a comment was successfully retrieved and contains the expected components
-        if (comment != null && comment.split(DATABASE_COMMENT_SEPARATOR, 3).length == 3)
+        // Check if a comment was successfully retrieved
+        if (comment != null)
         {
             // Get the project name
-            projectName = comment.split(DATABASE_COMMENT_SEPARATOR, 3)[DatabaseComment.PROJECT_NAME.ordinal()];
+            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
         }
 
         return projectName;
@@ -456,6 +461,104 @@ public class CcddDbControlHandler
     protected void setUser(String user)
     {
         activeUser = user;
+    }
+
+    /**********************************************************************************************
+     * Set the user access level from the user authorization table. If the user isn't found in the
+     * table then the access level is set to read only
+     *********************************************************************************************/
+    private void setAccessLevel()
+    {
+        boolean isFound = false;
+        accessLevel = AccessLevel.READ_ONLY;
+
+        // Step through the user authorization table
+        for (String[] userAccess : ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.USERS,
+                                                                                                ccddMain.getMainFrame()))
+        {
+            // Check if the user is found in the table
+            if (activeUser.equals(userAccess[UsersColumn.USER_NAME.ordinal()]))
+            {
+                // Step through each access level
+                for (AccessLevel level : AccessLevel.values())
+                {
+                    // Check if the access level matches that of the user
+                    if (level.getDisplayName().equals(userAccess[UsersColumn.ACCESS_LEVEL.ordinal()]))
+                    {
+                        // Set the user's access level and stop searching
+                        accessLevel = level;
+                        isFound = true;
+                        break;
+                    }
+                }
+
+                // The user was found in the table; stop searching
+                if (isFound)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Check if the user has administrative access
+     *
+     * @return true if the user has administrative access
+     *********************************************************************************************/
+    protected boolean isAccessAdmin()
+    {
+        return accessLevel == AccessLevel.ADMIN;
+    }
+
+    /**********************************************************************************************
+     * Get the list of databases for which the user has administrative access
+     *
+     * @return List of databases for which the user has administrative access; empty list if the
+     *         user has no administrative access
+     *********************************************************************************************/
+    protected List<String> getUserAdminAccess()
+    {
+        List<String> adminAccess = new ArrayList<String>();
+
+        // Step through the array containing the database name, lock status, visible (project)
+        // name, project administrator(s), and description for each project to which the current
+        // user has access
+        for (String userDbInfo : queryDatabaseByUserList(ccddMain.getMainFrame(), activeUser))
+        {
+            // Separate the information retrieved into the database name and its comment, then
+            // parse the comment into its separate fields
+            String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
+            String commentFields[] = parseDatabaseComment(nameAndComment[0], nameAndComment[1]);
+
+            // Check if a comment was successfully retrieved
+            if (commentFields != null)
+            {
+                // Step through each administrator for the project
+                for (String admin : commentFields[DatabaseComment.ADMINS.ordinal()].split(DATABASE_ADMIN_SEPARATOR))
+                {
+                    // Check if the current user's name matches the administrator name
+                    if (activeUser.equals(admin))
+                    {
+                        // Add the database name to the list and stop searching
+                        adminAccess.add(nameAndComment[0]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return adminAccess;
+    }
+
+    /**********************************************************************************************
+     * Check if the user has read-write access
+     *
+     * @return true if the user has read-write access
+     *********************************************************************************************/
+    protected boolean isAccessReadWrite()
+    {
+        return accessLevel == AccessLevel.ADMIN || accessLevel == AccessLevel.READ_WRITE;
     }
 
     /**********************************************************************************************
@@ -623,7 +726,7 @@ public class CcddDbControlHandler
      * Retrieve a list of all users registered on the server
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the user names
      *********************************************************************************************/
@@ -636,7 +739,7 @@ public class CcddDbControlHandler
      * Retrieve a list of databases with active connections by user
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the database names and connected user names
      *********************************************************************************************/
@@ -649,7 +752,7 @@ public class CcddDbControlHandler
      * Retrieve a list of all roles registered on the server
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the role names
      *********************************************************************************************/
@@ -665,7 +768,7 @@ public class CcddDbControlHandler
      *            name of the database for which the owner is requested
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the name of the specified database's owner
      *********************************************************************************************/
@@ -680,7 +783,7 @@ public class CcddDbControlHandler
      * Retrieve a list of all databases registered on the server
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Array containing the database names and descriptions
      *********************************************************************************************/
@@ -694,7 +797,7 @@ public class CcddDbControlHandler
      * access
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @param userName
      *            user name
@@ -741,18 +844,18 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Get the database comment without the CFS project identifier
+     * Get the array containing the database comment fields (without the CFS project identifier)
      *
      * @param databaseName
      *            database name
      *
-     * @return Database comment in the format <lock status (0 or 1)>,<visible project database name
-     *         (with capitalization and special characters intact)>,<project description>; null if
-     *         the comment cannot be retrieved
+     * @return Array containing the database comment in the format <lock status (0 or 1)>,<visible
+     *         project database name (with capitalization and special characters intact)>,<project
+     *         description>; null if the comment cannot be retrieved
      *********************************************************************************************/
-    protected String getDatabaseComment(String databaseName)
+    protected String[] getDatabaseComment(String databaseName)
     {
-        String comment = null;
+        String[] commentFields = null;
 
         try
         {
@@ -765,9 +868,9 @@ public class CcddDbControlHandler
                                                            ccddMain.getMainFrame());
             resultSet.next();
 
-            // Remove the CFS project identifier, leaving the lock status, project name, and
-            // description
-            comment = resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length());
+            // Parse the comment, with the CFS project identifier removed, into its separate fields
+            commentFields = parseDatabaseComment(databaseName,
+                                                 resultSet.getString(1).substring(CCDD_PROJECT_IDENTIFIER.length()));
 
             resultSet.close();
         }
@@ -785,7 +888,78 @@ public class CcddDbControlHandler
                                                                   + "<b>'");
         }
 
-        return comment;
+        return commentFields;
+    }
+
+    /**********************************************************************************************
+     * Parse the supplied database comment string into an array of the comment's separate fields
+     *
+     * @param databaseName
+     *            database name
+     *
+     * @param comment
+     *            database comment
+     *
+     * @return Array containing the database comment in the format <lock status (0 or 1)>,<visible
+     *         project database name (with capitalization and special characters intact)>,<project
+     *         description>; null if the comment cannot be retrieved
+     *********************************************************************************************/
+    protected String[] parseDatabaseComment(String databaseName, String comment)
+    {
+        // Create storage for the comment fields
+        String[] commentFields = new String[DatabaseComment.values().length];
+
+        // Separate the comment into the individual fields
+        String[] commentParts = comment.split(DATABASE_COMMENT_SEPARATOR,
+                                              DatabaseComment.values().length);
+
+        // Check if at least 3 fields exist, the first field is either '0' or '1', and the second
+        // field is the project name
+        if (commentParts.length >= 2
+            && commentParts[0].matches("[01]")
+            && databaseName.equals(convertProjectNameToDatabase(commentParts[1])))
+        {
+            // Check if all the expected fields exist and the third field meets the constraints for
+            // one or more user names
+            if (commentParts.length >= DatabaseComment.values().length - 1
+                && commentParts[2].matches("(?:"
+                                           + DefaultInputType.ALPHANUMERIC.getInputMatch()
+                                           + DATABASE_ADMIN_SEPARATOR
+                                           + "?)+"))
+            {
+                // Comment is in the post patch #07242018 format (lock status;project name;project
+                // creator;description). This check can be fooled if the description contains a
+                // semi-colon and the text prior to the semi-colon matches an alphanumeric. Store
+                // the comment fields
+                commentFields = commentParts;
+            }
+            // The comment is in the post patch #07112017 format (lock status;project
+            // name;description)
+            else
+            {
+                // Get the lock status, project name, and description from the comment
+                commentFields[DatabaseComment.LOCK_STATUS.ordinal()] = commentParts[DatabaseComment.LOCK_STATUS.ordinal()];
+                commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = commentParts[DatabaseComment.PROJECT_NAME.ordinal()];
+                commentFields[DatabaseComment.DESCRIPTION.ordinal()] = commentParts[DatabaseComment.ADMINS.ordinal()];
+
+                // Set the project creator to a blank to indicate it's unknown
+                commentFields[DatabaseComment.ADMINS.ordinal()] = "";
+            }
+        }
+        // Comment is in the original format (lock status;description)
+        else
+        {
+            // Get the lock status and description from the comment
+            commentFields[DatabaseComment.LOCK_STATUS.ordinal()] = commentParts[0].substring(0, 1);
+            commentFields[DatabaseComment.DESCRIPTION.ordinal()] = comment.substring(1);
+
+            // Set the project name to the database name and set the project creator to a blank to
+            // indicate it's unknown
+            commentFields[DatabaseComment.PROJECT_NAME.ordinal()] = databaseName;
+            commentFields[DatabaseComment.ADMINS.ordinal()] = "";
+        }
+
+        return commentFields;
     }
 
     /**********************************************************************************************
@@ -802,13 +976,13 @@ public class CcddDbControlHandler
         Boolean lockStatus = null;
 
         // Get the database comment
-        String comment = getDatabaseComment(databaseName);
+        String[] comment = getDatabaseComment(databaseName);
 
         // Check if a comment was successfully retrieved
         if (comment != null)
         {
             // Determine the database lock status
-            lockStatus = comment.startsWith("1");
+            lockStatus = comment[DatabaseComment.LOCK_STATUS.ordinal()].equals("1");
         }
 
         return lockStatus;
@@ -828,18 +1002,19 @@ public class CcddDbControlHandler
         // Convert the project name into its database form
         String databaseName = convertProjectNameToDatabase(projectName);
 
-        // Get the database description
-        String description = getDatabaseDescription(databaseName);
+        // Get the database comment
+        String[] comment = getDatabaseComment(databaseName);
 
         // Check if a comment was successfully retrieved
-        if (description != null)
+        if (comment != null)
         {
             try
             {
                 // Set the database comment with the specified lock status
                 dbCommand.executeDbUpdate(buildDatabaseCommentCommand(projectName,
+                                                                      comment[DatabaseComment.ADMINS.ordinal()],
                                                                       lockStatus,
-                                                                      description),
+                                                                      comment[DatabaseComment.DESCRIPTION.ordinal()]),
                                           ccddMain.getMainFrame());
 
                 // Inform the user that the lock status update succeeded
@@ -868,6 +1043,81 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
+     * Get the project database administrator user name(s)
+     *
+     * @param databaseName
+     *            database name
+     *
+     * @return The project database administrator user name(s), separated by a comma if more than
+     *         one; null if no administrator name is present in the database comment
+     *********************************************************************************************/
+    protected String getDatabaseAdmins(String databaseName)
+    {
+        String admins = null;
+
+        // Get the database comment
+        String[] comment = getDatabaseComment(databaseName);
+
+        // Check if a comment was successfully retrieved and that the project administrator is
+        // present
+        if (comment != null && !comment[DatabaseComment.ADMINS.ordinal()].isEmpty())
+        {
+            // Add the user to the string of database administrators
+            admins = comment[DatabaseComment.ADMINS.ordinal()];
+        }
+
+        return admins;
+    }
+
+    /**********************************************************************************************
+     * Set the project database administrator user name(s)
+     *
+     * @param admins
+     *            string containing the names of the user(s) with administrative access, separated
+     *            by a comma
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void setDatabaseAdmins(String admins, Component parent)
+    {
+        try
+        {
+            // Enable auto-commit for database changes
+            connection.setAutoCommit(true);
+
+            // Update the database administrator(s) in the database comment
+            dbCommand.executeDbCommand(buildDatabaseCommentCommand(activeProject,
+                                                                   admins,
+                                                                   true,
+                                                                   getDatabaseDescription(activeDatabase)),
+                                       parent);
+
+            // Log that updating the database administrator(s) succeeded
+            eventLog.logEvent(SUCCESS_MSG,
+                              "Project '" + activeProject + "' administrators updated");
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that the database administrator(s) cannot be updated
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot update project database '"
+                                                           + getServerAndDatabase(activeDatabase)
+                                                           + "' administrator(s); cause '"
+                                                           + se.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot update project '</b>"
+                                                                  + activeProject
+                                                                  + "<b>' administrator(s)");
+        }
+        finally
+        {
+            // Disable auto-commit for database changes
+            resetAutoCommit();
+        }
+    }
+
+    /**********************************************************************************************
      * Get the database description
      *
      * @param databaseName
@@ -880,13 +1130,13 @@ public class CcddDbControlHandler
         String description = null;
 
         // Get the database comment
-        String comment = getDatabaseComment(databaseName);
+        String[] comment = getDatabaseComment(databaseName);
 
         // Check if a comment was successfully retrieved
         if (comment != null)
         {
             // Get the database description
-            description = comment.split(DATABASE_COMMENT_SEPARATOR, 3)[DatabaseComment.DESCRIPTION.ordinal()];
+            description = comment[DatabaseComment.DESCRIPTION.ordinal()];
         }
 
         return description;
@@ -899,6 +1149,9 @@ public class CcddDbControlHandler
      * @param projectName
      *            project name (with case and special characters preserved)
      *
+     * @param administrator
+     *            name of the user(s) with administrative access to the project database
+     *
      * @param lockStatus
      *            true if the database is locked; false if unlocked
      *
@@ -908,6 +1161,7 @@ public class CcddDbControlHandler
      * @return Command to create the database comment
      *********************************************************************************************/
     protected String buildDatabaseCommentCommand(String projectName,
+                                                 String administrator,
                                                  boolean lockStatus,
                                                  String description)
     {
@@ -918,6 +1172,8 @@ public class CcddDbControlHandler
                                                        + (lockStatus ? "1" : "0")
                                                        + DATABASE_COMMENT_SEPARATOR
                                                        + projectName
+                                                       + DATABASE_COMMENT_SEPARATOR
+                                                       + administrator
                                                        + DATABASE_COMMENT_SEPARATOR
                                                        + description)
                + "; ";
@@ -1019,11 +1275,12 @@ public class CcddDbControlHandler
             // Enable auto-commit for database changes
             connection.setAutoCommit(true);
 
-            // Execute the database update
+            // Execute the command to create the project database
             dbCommand.executeDbUpdate("CREATE DATABASE "
                                       + databaseName
                                       + " ENCODING 'UTF8'; "
                                       + buildDatabaseCommentCommand(projectName,
+                                                                    activeUser,
                                                                     false,
                                                                     description)
                                       + buildOwnerCommand(ownerName,
@@ -1728,10 +1985,27 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected String buildInformationTableCommand(InternalTable intTable)
     {
+        // Get the internal table's column build command
+        String columnCommand = intTable.getColumnCommand(true);
+
+        // Check if this is the user authorization table
+        if (intTable == InternalTable.USERS)
+        {
+            // Get the project creator's user name
+            String creator = getDatabaseAdmins(activeDatabase);
+
+            // Check if the creator name is present in the database comment
+            if (creator != null)
+            {
+                // Update the column build command with the creator name
+                columnCommand = columnCommand.replaceFirst("_admin_user_", creator);
+            }
+        }
+
         return "CREATE TABLE "
                + intTable.getTableName()
                + " "
-               + intTable.getColumnCommand(true)
+               + columnCommand
                + buildOwnerCommand(DatabaseObject.TABLE, intTable.getTableName());
     }
 
@@ -1867,7 +2141,7 @@ public class CcddDbControlHandler
 
                 boolean isAllowed = false;
 
-                // Step through each database
+                // Step through each database for which the user has access
                 for (String database : queryDatabaseByUserList(ccddMain.getMainFrame(),
                                                                activeUser))
                 {
@@ -2099,18 +2373,17 @@ public class CcddDbControlHandler
                         // Perform any patches to update this project database to the latest schema
                         new CcddPatchHandler(ccddMain);
 
-                        // Check if the GUI is visible. If the application is started with the GUI
-                        // hidden (for command line script execution or as a web server) then the
-                        // project database is left unlocked
-                        if (!ccddMain.isGUIHidden())
-                        {
-                            // Lock the database
-                            setDatabaseLockStatus(activeProject, true);
-                        }
+                        // Set the user's access level
+                        setAccessLevel();
 
                         // Check if the GUI is visible
                         if (!ccddMain.isGUIHidden())
                         {
+                            // Lock the database. If the application is started with the GUI hidden
+                            // (for command line script execution or as a web server) then the
+                            // project database is left unlocked
+                            setDatabaseLockStatus(activeProject, true);
+
                             // Update the recently opened projects list and store it in the program
                             // preferences, then update the command menu items
                             CcddUtilities.updateRememberedItemList(projectName,
@@ -2321,12 +2594,16 @@ public class CcddDbControlHandler
 
                 try
                 {
+                    // Get the database's creator
+                    String creator = getDatabaseAdmins(currentDatabase);
+
                     // Check if the old and new database names are identical; this implies only the
                     // project name and/or description changed
                     if (oldDatabase.equals(newDatabase))
                     {
                         // Update the database's description
                         dbCommand.executeDbUpdate(buildDatabaseCommentCommand(newProject,
+                                                                              creator,
                                                                               false,
                                                                               description),
                                                   ccddMain.getMainFrame());
@@ -2344,6 +2621,7 @@ public class CcddDbControlHandler
                                                   + newDatabase
                                                   + "; "
                                                   + buildDatabaseCommentCommand(newProject,
+                                                                                creator,
                                                                                 false,
                                                                                 description),
                                                   ccddMain.getMainFrame());
@@ -2431,8 +2709,9 @@ public class CcddDbControlHandler
                     if (!targetDatabase.equals(currentDatabase)
                         || !openDatabase(DEFAULT_DATABASE))
                     {
-                        // Get the owner of the database being copied; the copy will have the same
-                        // owner
+                        // Get the creator and owner of the database being copied; the copy will
+                        // have the same creator and owner
+                        String creator = getDatabaseAdmins(currentDatabase);
                         String ownerName = targetDatabase.equals(currentDatabase)
                                                                                   ? activeOwner
                                                                                   : queryDatabaseOwner(targetDatabase,
@@ -2448,6 +2727,7 @@ public class CcddDbControlHandler
                                                    + targetDatabase
                                                    + "; "
                                                    + buildDatabaseCommentCommand(copyProject,
+                                                                                 creator,
                                                                                  false,
                                                                                  description)
                                                    + buildOwnerCommand(ownerName,
@@ -2914,7 +3194,7 @@ public class CcddDbControlHandler
      * @return Error message text if an error occurs; empty string is the command completed
      *         successfully
      *********************************************************************************************/
-    private String executeProcess(String command, int numArgs)
+    protected String executeProcess(String command, int numArgs)
     {
         String errorType = "";
 

@@ -64,7 +64,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
     // Table instance model data. Current copy is the table information as it exists in the table
     // editor and is used to determine what changes have been made to the table since the previous
-    // field editor update
+    // editor update
     private String[][] committedData;
 
     // Dialog title
@@ -302,6 +302,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store the reserved message ID(s)");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Create a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(msgIDTable)

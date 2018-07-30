@@ -993,50 +993,59 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                // Parse the import sub-commands
-                parseCommand(-1,
-                             -1,
-                             CcddUtilities.parseCommandLine(parmVal.toString()),
-                             getSubArgument());
-
-                // Check if a required sub-command is missing
-                if (dataFile == null)
+                // Check if the user has write access for the project
+                if (ccddMain.getDbControlHandler().isAccessReadWrite())
                 {
-                    // Display the error message
-                    System.err.println("Error: Missing import file name\n");
+                    // Parse the import sub-commands
+                    parseCommand(-1,
+                                 -1,
+                                 CcddUtilities.parseCommandLine(parmVal.toString()),
+                                 getSubArgument());
 
-                    // Display the command usage information and exit the application
-                    displayUsageInformation();
-                }
+                    // Check if a required sub-command is missing
+                    if (dataFile == null)
+                    {
+                        // Display the error message
+                        System.err.println("Error: Missing import file name\n");
 
-                // Check if the GUI isn't displayed
-                if (ccddMain.isGUIHidden())
-                {
-                    // Import the table(s) from the specified file; check if the import operation
-                    // fails
-                    if (ccddMain.getFileIOHandler().importFile(dataFile,
+                        // Display the command usage information and exit the application
+                        displayUsageInformation();
+                    }
+
+                    // Check if the GUI isn't displayed
+                    if (ccddMain.isGUIHidden())
+                    {
+                        // Import the table(s) from the specified file; check if the import
+                        // operation fails
+                        if (ccddMain.getFileIOHandler().importFile(dataFile,
+                                                                   false,
+                                                                   replaceExisting,
+                                                                   appendExistingFields,
+                                                                   useExistingFields,
+                                                                   false,
+                                                                   null))
+                        {
+                            // Set the application return value to indicate a failure
+                            exitStatus = 1;
+                        }
+                    }
+                    // The GUI is displayed
+                    else
+                    {
+                        // Import the table(s) from the specified file in a background thread
+                        ccddMain.getFileIOHandler().importFile(dataFile,
                                                                false,
                                                                replaceExisting,
                                                                appendExistingFields,
                                                                useExistingFields,
-                                                               false,
-                                                               null))
-                    {
-                        // Set the application return value to indicate a failure
-                        exitStatus = 1;
+                                                               openEditor,
+                                                               ccddMain.getMainFrame());
                     }
                 }
-                // The GUI is displayed
-                else
+                // The user doesn't have write access
                 {
-                    // Import the table(s) from the specified file in a background thread
-                    ccddMain.getFileIOHandler().importFile(dataFile,
-                                                           false,
-                                                           replaceExisting,
-                                                           appendExistingFields,
-                                                           useExistingFields,
-                                                           openEditor,
-                                                           ccddMain.getMainFrame());
+                    // Display the error message
+                    System.err.println("Error: Import disabled; user lacks write access\n");
                 }
             }
         });

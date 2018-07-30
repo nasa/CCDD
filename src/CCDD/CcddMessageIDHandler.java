@@ -40,10 +40,10 @@ public class CcddMessageIDHandler
 {
     // Class references
     private final CcddDbTableCommandHandler dbTable;
-    private CcddReservedMsgIDHandler rsvMsgIDHandler;
+    private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddMacroHandler macroHandler;
-    private CcddRateParameterHandler rateHandler;
+    private final CcddRateParameterHandler rateHandler;
 
     // Lists of the names (with paths) of tables that represent structures, commands, and other
     // table types
@@ -55,55 +55,33 @@ public class CcddMessageIDHandler
     private List<Integer> idsInUse;
 
     // List of message IDs that are used by multiple owners, and their owner
-    private ArrayListMultiple duplicates;
+    private final ArrayListMultiple duplicates;
 
     // List of message IDs and their owners that are potential duplicates
-    private ArrayListMultiple potentialDuplicates;
+    private final ArrayListMultiple potentialDuplicates;
 
     /**********************************************************************************************
      * Message ID handler class constructor
      *
      * @param ccddMain
      *            main class
-     *
-     * @param initializeAll
-     *            true to initialize the class for ID use and duplicate detection; false to only
-     *            initialize the class for collecting ID names and IDs
      *********************************************************************************************/
-    CcddMessageIDHandler(CcddMain ccddMain, boolean initializeAll)
+    CcddMessageIDHandler(CcddMain ccddMain)
     {
         // Create references to classes to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
+        rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
+        rateHandler = ccddMain.getRateParameterHandler();
 
-        // Check if the handler should be fully initialized
-        if (initializeAll)
-        {
-            // Create references to classes to shorten subsequent calls
-            rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
-            rateHandler = ccddMain.getRateParameterHandler();
-
-            // Create the lists
-            idsInUse = new ArrayList<Integer>();
-            duplicates = new ArrayListMultiple(1);
-            potentialDuplicates = new ArrayListMultiple(1);
-            structureTables = new ArrayList<String>();
-            commandTables = new ArrayList<String>();
-            otherTables = new ArrayList<String>();
-        }
-    }
-
-    /**********************************************************************************************
-     * Message ID handler class constructor. Fully initializes the class for ID use and duplicate
-     * detection
-     *
-     * @param ccddMain
-     *            main class
-     *********************************************************************************************/
-    CcddMessageIDHandler(CcddMain ccddMain)
-    {
-        this(ccddMain, true);
+        // Create the lists
+        idsInUse = new ArrayList<Integer>();
+        duplicates = new ArrayListMultiple(1);
+        potentialDuplicates = new ArrayListMultiple(1);
+        structureTables = new ArrayList<String>();
+        commandTables = new ArrayList<String>();
+        otherTables = new ArrayList<String>();
     }
 
     /**********************************************************************************************
@@ -181,7 +159,7 @@ public class CcddMessageIDHandler
      *            getting the list of duplicates
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected List<Integer> getMessageIDsInUse(boolean includeStructures,
                                                boolean includeCommands,
@@ -390,7 +368,7 @@ public class CcddMessageIDHandler
      *            changed by the auto-update methods; false to allow the flag to remain
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing every message ID name and its corresponding message ID, and the
      *         owning entity

@@ -1153,6 +1153,7 @@ public class CcddSchedulerHandler
         };
 
         rateFilter.setBorder(emptyBorder);
+        rateFilter.setAutoComplete(null);
         rateFilter.setSelectedItem(schedulerInput.getSelectedRate());
 
         // Add a listener for rate filter selection changes

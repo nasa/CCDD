@@ -190,6 +190,10 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                           fieldHandler,
                                                           ccddMain.getInputTypeHandler());
 
+                // Enable the project description only if the user has administrative access
+                fieldPnlHndlr.enableDescriptionField(dbControl.isAccessAdmin(),
+                                                     committedDescription);
+
                 // Set the modal undo manager in the keyboard handler while the project data
                 // field manager is active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
@@ -324,6 +328,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                                              STORE_ICON,
                                                                              KeyEvent.VK_S,
                                                                              "Store project data field updates in the database");
+                btnStoreFields.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStoreFields.addActionListener(new ActionListener()

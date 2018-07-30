@@ -2859,16 +2859,16 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get a variable's full name in the application’s native format, which includes the variables
-     * in the structure path separated by commas, and with the data type and variable names
-     * separated by periods
+     * Get the full name of the variable in the specified row of the structure data in the
+     * application’s native format, which includes the variables in the structure path separated by
+     * commas, and with the data type and variable names separated by periods
      *
      * @param row
      *            table data row index
      *
      * @return The variable's full path and name with each variable in the path separated by a
      *         comma, and with each data type and variable name separated by a period; returns a
-     *         blank is the row is invalid
+     *         blank if the row is invalid
      *********************************************************************************************/
     public String getFullVariableNameRaw(int row)
     {
@@ -2905,7 +2905,7 @@ public class CcddScriptDataAccessHandler
      *            table data row index
      *
      * @return The variable's full path and name with each variable in the path separated by an
-     *         underscore, and with the data types removed; returns a blank is the row is invalid
+     *         underscore, and with the data types removed; returns a blank if the row is invalid
      *********************************************************************************************/
     public String getFullVariableName(int row)
     {
@@ -2926,7 +2926,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s), and with the data types removed; returns a blank
-     *         is the row is invalid
+     *         if the row is invalid
      *********************************************************************************************/
     public String getFullVariableName(int row, String varPathSeparator)
     {
@@ -2953,7 +2953,7 @@ public class CcddScriptDataAccessHandler
      *            character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
-     *         specified separator character(s); returns a blank is the row is invalid
+     *         specified separator character(s); returns a blank if the row is invalid
      *********************************************************************************************/
     public String getFullVariableName(int row,
                                       String varPathSeparator,
@@ -3003,8 +3003,8 @@ public class CcddScriptDataAccessHandler
      *            character(s) to place between variable path members
      *
      * @return The variable's full path and name with each variable in the path separated by the
-     *         specified separator character(s) and with the data types removed; returns a blank is
-     *         the row is invalid
+     *         specified separator character(s) and with the data types removed; returns a blank if
+     *         the variable path + name doesn't exist in the project database
      *********************************************************************************************/
     public String getFullVariableName(String variablePath,
                                       String variableName,
@@ -3028,7 +3028,7 @@ public class CcddScriptDataAccessHandler
      *
      * @return The variable's full path and name with each variable in the path separated by the
      *         specified separator character(s), and with the data types removed; returns a blank
-     *         is the row is invalid
+     *         if the variable path + name doesn't exist in the project database
      *********************************************************************************************/
     public String getFullVariableName(String fullName, String varPathSeparator)
     {
@@ -3059,7 +3059,8 @@ public class CcddScriptDataAccessHandler
      *            character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
-     *         specified separator character(s); returns a blank is the row is invalid
+     *         specified separator character(s); returns a blank if the variable path + name
+     *         doesn't exist in the project database
      *********************************************************************************************/
     public String getFullVariableName(String variablePath,
                                       String variableName,
@@ -3103,8 +3104,9 @@ public class CcddScriptDataAccessHandler
      *            character(s) to place between data types and variable names
      *
      * @return The variable's full path and name with each variable in the path separated by the
-     *         specified separator character(s); returns a blank is the row is invalid. Any macro
-     *         embedded in the variable name is expanded
+     *         specified separator character(s); returns a blank if the variable path + name
+     *         doesn't exist in the project database. Any macro embedded in the variable name is
+     *         expanded
      *********************************************************************************************/
     public String getFullVariableName(String fullName,
                                       String varPathSeparator,
@@ -3389,7 +3391,7 @@ public class CcddScriptDataAccessHandler
      * structure of the entry on the specified row of the structure data
      *
      * @param row
-     *            structure table data row index
+     *            table data row index
      *
      * @return The row index in the structure data for the first entry associated with the parent
      *         structure of the entry on the specified row of the structure data; -1 if there is no
@@ -5405,10 +5407,10 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public String[][] getMessageIDOwnersIDsAndNames()
     {
-        return new CcddMessageIDHandler(ccddMain, false).getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
-                                                                               true,
-                                                                               parent)
-                                                        .toArray(new String[0][0]);
+        return ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
+                                                                    true,
+                                                                    parent)
+                       .toArray(new String[0][0]);
     }
 
     /**********************************************************************************************

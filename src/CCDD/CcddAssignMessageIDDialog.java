@@ -366,8 +366,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         // Build the message ID assignment dialog in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
-            CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain);
-
             // Create a panel to contain the dialog components
             JPanel dialogPnl = new JPanel(new GridBagLayout());
 
@@ -461,6 +459,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
+                // Get a reference to the message ID handler to shorten subsequent calls
+                CcddMessageIDHandler messageIDHandler = ccddMain.getMessageIDHandler();
+
                 // Check if this is the table and group message ID assignment dialog
                 if (msgIDDialogType == MessageIDType.TABLE_DATA_FIELD)
                 {
@@ -473,15 +474,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         && isAssignTypeSelected())
                     {
                         // Get the list of message IDs that are reserved or already in use
-                        idsInUse = msgIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
-                                                                   !msgTabs[1].getOverwriteCbx().isSelected(),
-                                                                   !msgTabs[2].getOverwriteCbx().isSelected(),
-                                                                   !msgTabs[3].getOverwriteCbx().isSelected(),
-                                                                   true,
-                                                                   false,
-                                                                   null,
-                                                                   false,
-                                                                   CcddAssignMessageIDDialog.this);
+                        idsInUse = messageIDHandler.getMessageIDsInUse(!msgTabs[0].getOverwriteCbx().isSelected(),
+                                                                       !msgTabs[1].getOverwriteCbx().isSelected(),
+                                                                       !msgTabs[2].getOverwriteCbx().isSelected(),
+                                                                       !msgTabs[3].getOverwriteCbx().isSelected(),
+                                                                       true,
+                                                                       false,
+                                                                       null,
+                                                                       false,
+                                                                       CcddAssignMessageIDDialog.this);
 
                         // Create a field handler and populate it with the field definitions for
                         // all of the tables in the database
@@ -515,7 +516,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         {
                             // TABLE WITH ROOT-ONLY FIELD)
                             structMsgChanged = assignTableMessageIDs(msgTabs[0],
-                                                                     msgIDHandler.getStructureTables(),
+                                                                     messageIDHandler.getStructureTables(),
                                                                      fieldInformation);
                         }
 
@@ -523,7 +524,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         if (msgTabs[1].getAssignCbx().isSelected())
                         {
                             structMsgChanged = assignTableMessageIDs(msgTabs[1],
-                                                                     msgIDHandler.getCommandTables(),
+                                                                     messageIDHandler.getCommandTables(),
                                                                      fieldInformation);
                         }
 
@@ -531,7 +532,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         if (msgTabs[2].getAssignCbx().isSelected())
                         {
                             structMsgChanged = assignTableMessageIDs(msgTabs[2],
-                                                                     msgIDHandler.getOtherTables(),
+                                                                     messageIDHandler.getOtherTables(),
                                                                      fieldInformation);
                         }
 
@@ -570,15 +571,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         && isAssignTypeSelected())
                     {
                         // Get the list of message IDs that are reserved or already in use
-                        idsInUse = msgIDHandler.getMessageIDsInUse(true,
-                                                                   true,
-                                                                   true,
-                                                                   true,
-                                                                   false,
-                                                                   msgTabs[1].getOverwriteCbx().isSelected(),
-                                                                   schedulerDlg,
-                                                                   false,
-                                                                   CcddAssignMessageIDDialog.this);
+                        idsInUse = messageIDHandler.getMessageIDsInUse(true,
+                                                                       true,
+                                                                       true,
+                                                                       true,
+                                                                       false,
+                                                                       msgTabs[1].getOverwriteCbx().isSelected(),
+                                                                       schedulerDlg,
+                                                                       false,
+                                                                       CcddAssignMessageIDDialog.this);
 
                         // Check if the message names should be assigned
                         if (msgTabs[0].getAssignCbx().isSelected())

@@ -27,6 +27,8 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
+import CCDD.CcddConstants.MessageIDSortOrder;
+import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.SearchType;
 
 /**************************************************************************************************
@@ -220,6 +222,69 @@ public class CcddInputTypeHandler
         else if (!selectionInputTypes.contains(inputType))
         {
             // Add the variable references input type to the list
+            selectionInputTypes.add(inputType);
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the variable references input type selection item list with the supplied structure
+     * path and variables list. Based on whether or not the variable list is empty, add or remove
+     * the input type from the list of those having selection items
+     *
+     * @param ccddMain
+     *            main class reference
+     * 
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void updateMsgNameAndIDReferences(CcddMain ccddMain, Component parent)
+    {
+        List<String> msgIDs = new ArrayList<String>();
+
+        // Get the reference to the message names & IDs input type
+        InputType inputType = getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID_NAMES_AND_IDS);
+
+        // Step through each message ID name & ID pair
+        for (String[] msgID : ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
+                                                                                   true,
+                                                                                   parent))
+        {
+            // Check if the message ID name isn't blank
+            if (!msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].isEmpty())
+            {
+                // Get the message name & ID to display in the list
+                String item = msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]
+                              + " ("
+                              + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
+                              + ")";
+
+                // Check if the message name & ID isn't already in the list
+                if (!msgIDs.contains(item))
+                {
+                    // Add the message ID name & ID to the list
+                    msgIDs.add(item);
+                }
+            }
+        }
+
+        // Sort the message names & IDs
+        Collections.sort(msgIDs, String.CASE_INSENSITIVE_ORDER);
+
+        // Set the message names & IDs item list
+        inputType.setInputItems(msgIDs, true);
+
+        // Check if the list is empty (no message names & IDs)
+        if (msgIDs.isEmpty())
+        {
+            // Remove the message names & IDs input type from the list of those having selection
+            // items
+            selectionInputTypes.remove(inputType);
+        }
+        // Check if the list of types having selection items doesn't already contain the message
+        // names & IDs input type
+        else if (!selectionInputTypes.contains(inputType))
+        {
+            // Add the message names & IDs input type to the list
             selectionInputTypes.add(inputType);
         }
     }
@@ -500,7 +565,7 @@ public class CcddInputTypeHandler
      *            input type name for which to search
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing the tables in the database that reference the specified input type
      *         name; an empty array if no matches are found

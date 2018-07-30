@@ -119,6 +119,7 @@ public class CcddMain
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddVariableSizeAndConversionHandler variableHandler;
     private CcddInputTypeHandler inputTypeHandler;
+    private CcddMessageIDHandler messageIDHandler;
     private CcddWebServer webServer;
 
     // References to the various search dialogs
@@ -152,6 +153,7 @@ public class CcddMain
     private JMenuItem mntmRestoreDb;
     private JMenuItem mntmUnlock;
     private JMenuItem mntmVerifyDatabase;
+    private JMenuItem mntmManageUsers;
     private JMenuItem[] mntmRecentProjects;
     private JMenu mnData;
     private JMenuItem mntmNewTable;
@@ -634,6 +636,16 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Get the message ID handler
+     *
+     * @return Message ID handler reference
+     *********************************************************************************************/
+    protected CcddMessageIDHandler getMessageIDHandler()
+    {
+        return messageIDHandler;
+    }
+
+    /**********************************************************************************************
      * Get the input type handler
      *
      * @return Input type handler reference
@@ -747,16 +759,24 @@ public class CcddMain
         // Create a variable size and conversion handler for the project database
         variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
 
+        // Create a message ID handler for the project database
+        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
+
         // Now that the variable handler exists, store its reference in the table command and macro
         // handlers
         dbTable.setHandlers();
         macroHandler.setHandlers(variableHandler);
         scriptHandler.setHandlers();
 
-        // Determine the variable offsets (note that the variable size class must be fully
-        // instantiated and the macro handler updated with the variable handler reference before
-        // calling the path and offset list build method)
+        // Determine the variable offsets (note that the variable size and conversion class must be
+        // fully instantiated and the macro handler updated with the variable handler reference
+        // before calling the path and offset list build method)
         variableHandler.buildPathAndOffsetLists();
+
+        // Create the list for the message ID name and ID selection input type (note that the
+        // message ID class must be fully instantiated before calling the name and ID list build
+        // method)
+        inputTypeHandler.updateMsgNameAndIDReferences(CcddMain.this, getMainFrame());
 
         // Check if the web server is enabled
         if (isWebServer())
@@ -925,6 +945,8 @@ public class CcddMain
         boolean activateIfServer = activate && dbControl.isServerConnected();
         boolean activateIfDatabase = activate && dbControl.isDatabaseConnected();
         boolean activateIfRate = activateIfDatabase && rateHandler.getNumRateColumns() != 0;
+        boolean activateIfAdmin = activate && dbControl.isAccessAdmin();
+        boolean activateIfReadWrite = activate && dbControl.isAccessReadWrite();
 
         // Step through the menu bar items
         for (int index = 0; index < frameCCDD.getJMenuBar().getComponentCount(); index++)
@@ -936,37 +958,39 @@ public class CcddMain
         // Update the current database label
         setCurrentProjectLabel();
 
-        // Enable/disable the menu items based on the server, database, type, rate, and file
-        // definition statuses
+        // Enable/disable the menu items based on the server, user access level, database, type,
+        // rate, and file definition statuses
         mntmOpenDb.setEnabled(activateIfServer);
         mntmCloseDb.setEnabled(activateIfDatabase);
         mntmNewDb.setEnabled(activateIfServer);
         mntmRenameDb.setEnabled(activateIfServer);
         mntmCopyDb.setEnabled(activateIfServer);
         mntmDeleteDb.setEnabled(activateIfServer);
-        mntmBackupDb.setEnabled(activateIfDatabase);
-        mntmRestoreDb.setEnabled(activateIfServer);
+        mntmBackupDb.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmRestoreDb.setEnabled(activateIfServer && activateIfReadWrite);
+        mntmUnlock.setEnabled(activateIfServer);
+        mntmVerifyDatabase.setEnabled(activateIfDatabase);
+        mntmManageUsers.setEnabled(activateIfDatabase && activateIfAdmin);
         mntmNewTable.setEnabled(activateIfDatabase
                                 && tableTypeHandler != null
-                                && tableTypeHandler.getTypes() != null);
+                                && tableTypeHandler.getTypes() != null
+                                && activateIfReadWrite);
         mntmEditTable.setEnabled(activateIfDatabase);
-        mntmRenameTable.setEnabled(activateIfDatabase);
-        mntmCopyTable.setEnabled(activateIfDatabase);
-        mntmDeleteTable.setEnabled(activateIfDatabase);
-        mntmPadding.setEnabled(activateIfDatabase);
-        mntmImportTable.setEnabled(activateIfDatabase);
+        mntmRenameTable.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmCopyTable.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmDeleteTable.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmPadding.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmImportTable.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExportCSV.setEnabled(activateIfDatabase);
         mntmExportEDS.setEnabled(activateIfDatabase);
         mntmExportJSON.setEnabled(activateIfDatabase);
         mntmExportXTCE.setEnabled(activateIfDatabase);
-        mntmUnlock.setEnabled(activateIfServer);
-        mntmVerifyDatabase.setEnabled(activateIfDatabase);
         mntmManageGroups.setEnabled(activateIfDatabase);
         mntmManageTableTypes.setEnabled(activateIfDatabase);
         mntmManageDataTypes.setEnabled(activateIfDatabase);
         mntmManageInputTypes.setEnabled(activateIfDatabase);
         mntmManageMacros.setEnabled(activateIfDatabase);
-        mntmAssignMsgID.setEnabled(activateIfDatabase);
+        mntmAssignMsgID.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmReserveMsgID.setEnabled(activateIfDatabase);
         mntmShowAllMsgID.setEnabled(activateIfDatabase);
         mntmDuplicateMsgID.setEnabled(activateIfDatabase);
@@ -979,11 +1003,11 @@ public class CcddMain
         mntmManageApps.setEnabled(activateIfDatabase);
         mntmRateParameters.setEnabled(activateIfRate);
         mntmAppParameters.setEnabled(activateIfDatabase);
-        mntmManageScripts.setEnabled(activateIfDatabase);
+        mntmManageScripts.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmExecuteScripts.setEnabled(activateIfDatabase);
-        mntmStoreScripts.setEnabled(activateIfDatabase);
+        mntmStoreScripts.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmRetrieveScripts.setEnabled(activateIfDatabase);
-        mntmDeleteScripts.setEnabled(activateIfDatabase);
+        mntmDeleteScripts.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmSearchScripts.setEnabled(activateIfDatabase);
 
         // Check if a recent projects menu item exists
@@ -1730,6 +1754,7 @@ public class CcddMain
         mntmUnlock = createMenuItem(mnProject, "Unlock", KeyEvent.VK_U, 1, "Unlock project database(s)");
         mnProject.addSeparator();
         mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, 1, "Perform a project database consistency check");
+        mntmManageUsers = createMenuItem(mnProject, "Manage users", KeyEvent.VK_M, 1, "Open the user access level manager");
 
         // Update the recently opened projects command menu items
         updateRecentProjectsMenu();
@@ -1752,8 +1777,8 @@ public class CcddMain
         mntmManageGroups = createMenuItem(mnData, "Manage groups", KeyEvent.VK_G, 2, "Open the table group manager");
         mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_Y, 1, "Open the table type manager");
         mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
-        mntmManageInputTypes = createMenuItem(mnData, "Manage input types", KeyEvent.VK_U, 1, "Open the input type editor");
-        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro editor");
+        mntmManageInputTypes = createMenuItem(mnData, "Manage input types", KeyEvent.VK_U, 1, "Open the input type manager");
+        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro manager");
         mnData.addSeparator();
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
         mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
@@ -1936,6 +1961,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 new CcddServerPropertyDialog(CcddMain.this, ServerPropertyDialogType.WEB_SERVER);
+            }
+        });
+
+        // Add a listener for the Manage users menu item
+        mntmManageUsers.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Display the user access level editor dialog
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddDbManagerDialog(CcddMain.this, DbManagerDialogType.ACCESS);
             }
         });
 

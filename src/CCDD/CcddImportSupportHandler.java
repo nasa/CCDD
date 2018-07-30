@@ -99,7 +99,7 @@ public class CcddImportSupportHandler
      *            input type handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the user elected to ignore the column error
      *
@@ -186,7 +186,7 @@ public class CcddImportSupportHandler
      *            input type handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the user elected to ignore the data field error
      *
@@ -558,7 +558,7 @@ public class CcddImportSupportHandler
      *            Cancel button tool tip text; null if no tool tip is to be displayed
      *
      * @param parent
-     *            GUID component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the user elected to ignore errors of this type
      *

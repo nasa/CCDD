@@ -833,6 +833,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store data field changes");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(dataFieldTable)

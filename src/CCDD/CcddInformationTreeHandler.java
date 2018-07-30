@@ -87,7 +87,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            (the order can be specified later, if needed)
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddInformationTreeHandler(CcddMain ccddMain,
                                CcddUndoHandler undoHandler,
@@ -223,7 +223,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *            flag used to filter the tree content
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void buildTree(boolean isFilterByType,
                              boolean isFilterByApp,

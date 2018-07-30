@@ -32,9 +32,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.Variable;
-import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -81,7 +81,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *            assignment tree; null to not force the order
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddAssignmentTreeHandler(CcddMain ccddMain,
                               String rateMsgFilter,
@@ -164,7 +164,7 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *            flag used to filter the tree content. Not used for the assignment tree
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
     protected void buildTree(boolean filterByType,

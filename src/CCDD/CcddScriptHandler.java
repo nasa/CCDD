@@ -169,7 +169,7 @@ public class CcddScriptHandler
      *            script association name
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Array containing the script association having the same name; null if no association
      *         has the specified name
@@ -204,7 +204,7 @@ public class CcddScriptHandler
      *            scripts
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Object array containing the script associations
      *********************************************************************************************/
@@ -303,7 +303,7 @@ public class CcddScriptHandler
      *            scripts
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Reference to the JPanel containing the script associations table
      *********************************************************************************************/
@@ -769,7 +769,7 @@ public class CcddScriptHandler
      *            group handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing the tables (path+name) from the association member string
      *********************************************************************************************/
@@ -949,7 +949,7 @@ public class CcddScriptHandler
      * variables to expand its path
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the each key has a corresponding value; false if a value is missing
      *********************************************************************************************/
@@ -1222,7 +1222,7 @@ public class CcddScriptHandler
      *            list of script associations to execute
      *
      * @param parent
-     *            GUI component calling this method; null if none (e.g., if called via the command
+     *            GUI component over which to center any error dialog; null if none (e.g., if called via the command
      *            line)
      *
      * @return Array containing flags that indicate, for each association, if the association did
@@ -1693,7 +1693,7 @@ public class CcddScriptHandler
      *            cause of the execution error
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void logScriptError(String scriptFileName,
                                 String members,
@@ -1745,7 +1745,7 @@ public class CcddScriptHandler
      *            group handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return Reference to the script engine; null if an error occurs
      *
@@ -1873,7 +1873,7 @@ public class CcddScriptHandler
      *            group handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if an error occurs during script execution
      *
@@ -1921,7 +1921,7 @@ public class CcddScriptHandler
      *            table path
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return A reference to the TableInformation for the parent table; null if the table has
      *         already been loaded. The error flag for the table data handler is set if an error

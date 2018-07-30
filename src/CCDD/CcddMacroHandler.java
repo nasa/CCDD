@@ -384,6 +384,9 @@ public class CcddMacroHandler
                                                ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                 macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
+                // Enable auto-completion for the combo box
+                macroCbox.setAutoComplete(null);
+
                 // Set the first macro as initially selected
                 macroCbox.setSelectedIndex(0);
 
@@ -1070,7 +1073,7 @@ public class CcddMacroHandler
      *            macro name for which to search
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing the tables in the database that reference the specified macro name
      *********************************************************************************************/

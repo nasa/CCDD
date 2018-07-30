@@ -119,7 +119,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddRateParameterHandler rateHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
-    // GUI component instantiating this class
+    // GUI component over which to center any error dialog
     private final Component parent;
 
     // Export endian type
@@ -193,7 +193,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            reference to a data field handler
      *
      * @param parent
-     *            GUI component instantiating this class
+     *            GUI component over which to center any error dialog
      *
      * @throws CCDDException
      *             If an error occurs creating the handler

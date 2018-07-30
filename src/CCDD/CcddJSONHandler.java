@@ -76,7 +76,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private TableInformation tableInfo;
     private final CcddFieldHandler fieldHandler;
 
-    // GUI component instantiating this class
+    // GUI component over which to center any error dialog
     private final Component parent;
 
     // List containing the imported table, table type, data type, and macro definitions
@@ -92,7 +92,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *            reference to a data field handler
      *
      * @param parent
-     *            GUI component instantiating this class
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddJSONHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
     {
@@ -1825,12 +1825,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     {
         JSONObject outputJO = new JSONObject();
 
-        // Create a message ID handler and get the list of message ID names and associated ID
-        // values
-        CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-        List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
-                                                                   true,
-                                                                   parent);
+        // Get the list of message ID names and associated ID values
+        List<String[]> msgIDs = ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
+                                                                                     true,
+                                                                                     parent);
 
         // Check if there are any message IDs or names to output
         if (!msgIDs.isEmpty())

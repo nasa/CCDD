@@ -461,6 +461,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store the data type(s)");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Create a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(dataTypeTable)
@@ -1130,6 +1131,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             // Add the data type to the list
             baseComboBox.addItem(type.getName().toLowerCase());
         }
+
+        // Enable auto-completion for the combo box
+        baseComboBox.setAutoComplete(dataTypeTable);
 
         // Add a listener to the combo box for focus changes
         baseComboBox.addFocusListener(new FocusAdapter()

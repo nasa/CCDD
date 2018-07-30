@@ -180,6 +180,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             inputTypeHandler.setInputTypeData(getUpdatedData());
             inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
                                                               .getStructureAndVariablePaths());
+            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain,
+                                                          CcddInputTypeEditorDialog.this);
 
             // Update the table type handler with the input type changes
             ccddMain.getTableTypeHandler().updateInputTypes(inputTypeNames);
@@ -466,6 +468,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store the input type(s)");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Create a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(inputTypeTable)
@@ -1011,6 +1014,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 formatComboBox.addItem(type.getFormatName());
             }
         }
+
+        // Enable auto-completion for the combo box
+        formatComboBox.setAutoComplete(inputTypeTable);
 
         // Add a listener to the combo box for focus changes
         formatComboBox.addFocusListener(new FocusAdapter()

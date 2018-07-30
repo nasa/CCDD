@@ -61,27 +61,24 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     {
         dbTable = ccddMain.getDbTableCommandHandler();
 
-        // Create a message ID handler
-        CcddMessageIDHandler msgIDHandler = new CcddMessageIDHandler(ccddMain, false);
-
         // Create the message ID dialog
-        initialize(msgIDHandler, ccddMain.getMainFrame());
+        initialize(ccddMain.getMessageIDHandler(), ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
      * Display the owner, message ID name, and message ID dialog
      *
-     * @param msgIDHandler
+     * @param messageIDHandler
      *            message ID handler reference
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    private void initialize(CcddMessageIDHandler msgIDHandler, Component parent)
+    private void initialize(CcddMessageIDHandler messageIDHandler, Component parent)
     {
-        final List<String[]> msgIDs = msgIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
-                                                                         false,
-                                                                         parent);
+        final List<String[]> msgIDs = messageIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
+                                                                             false,
+                                                                             parent);
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,

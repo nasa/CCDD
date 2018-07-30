@@ -581,7 +581,6 @@ public class CcddVariableSizeAndConversionHandler
             structureAndVariableOffsets.set(structIndex, offset);
         }
 
-        // TODO
         // Add the structure paths and variables to the variable references input type and refresh
         // any open editors
         ccddMain.getInputTypeHandler().updateVariableReferences(structureAndVariablePaths);

@@ -94,7 +94,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            added to the link tree
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddLinkTreeHandler(CcddMain ccddMain,
                         CcddUndoHandler undoHandler,
@@ -335,7 +335,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *            flag used to filter the tree content. Not used for the link tree
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
     protected void buildTree(boolean filterByType,

@@ -205,7 +205,7 @@ public class CcddFileIOHandler
         }
 
         // Check if the user's database password is set (either non-blank or explicitly set to
-        // blank )
+        // blank)
         if (isPasswordSet)
         {
             // Get the name of the currently open database
@@ -602,7 +602,7 @@ public class CcddFileIOHandler
      *            true to open a table editor for each imported table
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void importFileInBackground(final FileEnvVar[] dataFile,
                                           final boolean backupFirst,
@@ -690,7 +690,7 @@ public class CcddFileIOHandler
      *            true to open a table editor for each imported table
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true is the import operation completes successfully
      *********************************************************************************************/
@@ -892,6 +892,7 @@ public class CcddFileIOHandler
             // (only applied to CSV and JSON imports)
             inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
                                                               .getStructureAndVariablePaths());
+            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain, parent);
 
             // Update the table type handler with the input type changes
             tableTypeHandler.updateInputTypes(null);
@@ -900,9 +901,9 @@ public class CcddFileIOHandler
             // the new input type(s), if applicable
             dbTable.updateInputTypeColumns(null, parent);
 
-            // Update any open editor's message ID names columns to include any new message ID
-            // names, if applicable
-            dbTable.updateMessageIDNamesColumns(parent);
+            // // Update any open editor's message ID names columns to include any new message ID
+            // // names, if applicable
+            // dbTable.updateMessageIDNamesColumns(parent); TODO
 
             eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                               "Table import completed successfully");
@@ -1005,6 +1006,7 @@ public class CcddFileIOHandler
             inputTypeHandler.setInputTypeData(originalInputTypes);
             inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
                                                               .getStructureAndVariablePaths());
+            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain, parent);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
             dbTable.storeInformationTable(InternalTable.FIELDS,
@@ -1029,7 +1031,7 @@ public class CcddFileIOHandler
      *            true to open a table editor for each imported table
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @throws CCDDException
      *             If the table path name is invalid or the table cannot be created from the table
@@ -1366,7 +1368,7 @@ public class CcddFileIOHandler
      *            list containing the paths and names of all tables
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the table is successfully imported; false if the table is exists and the
      *         replaceExisting flag is not true
@@ -1921,7 +1923,7 @@ public class CcddFileIOHandler
      *            ignored if useExternal is false
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected void exportSelectedTablesInBackground(final String filePath,
                                                     final String[] tablePaths,
@@ -2056,7 +2058,7 @@ public class CcddFileIOHandler
      *            ignored if useExternal is false
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the export completes successfully
      *********************************************************************************************/
@@ -2336,7 +2338,7 @@ public class CcddFileIOHandler
      *            true to overwrite an existing file
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return true if the file doesn't exist, or if it does exist and the user elects to overwrite
      *         it; false if the file exists and the user elects not to overwrite it, or if an error

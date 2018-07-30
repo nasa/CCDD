@@ -194,7 +194,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
             // Update the message ID names combo boxes in any open table editors in case the group
             // has a message ID name or message ID data field that may have changed
-            dbTable.updateMessageIDNamesColumns(groupMgr);
+            dbTable.updateInputTypeColumns(null, groupMgr);
         }
 
         // Discard any store edits
@@ -753,6 +753,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                              STORE_ICON,
                                                                              KeyEvent.VK_S,
                                                                              "Store group updates in the database");
+                btnStoreGroups.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStoreGroups.addActionListener(new ActionListener()

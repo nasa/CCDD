@@ -22,7 +22,9 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.ApplicabilityType;
+import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -91,6 +93,9 @@ public class CcddPatchHandler
 
         // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
         updatePaddingVariables();
+
+        // Patch #07242018: Update the database to support user access levels
+        updateUserAccess();
     }
 
     /**********************************************************************************************
@@ -110,6 +115,88 @@ public class CcddPatchHandler
                                                 + "_"
                                                 + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                 + FileExtension.DBU.getExtension()));
+    }
+
+    /**********************************************************************************************
+     * Update the project database so that user access levels are supported
+     *********************************************************************************************/
+    private void updateUserAccess() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            // Check if the project administrator isn't in the database comment; this indicates the
+            // project hasn't been updated to support user access levels
+            if (dbControl.getDatabaseAdmins(dbControl.getDatabaseName()) == null)
+            {
+                CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the database to support user access "
+                                                                                       + "support user access levels?<br><br></b>"
+                                                                                       + "Changes the database to support user "
+                                                                                       + "access levels. <b>The current user is set "
+                                                                                       + "as the creator/administrator of "
+                                                                                       + "the database!</b> Older versions of CCDD "
+                                                                                       + "will remain compatible with this project "
+                                                                                       + "database after applying the patch",
+                                                              "Apply Patch #07242018",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    throw new CCDDException("User elected to not install patch (#07242018)");
+                }
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Get the database comment, separated into its individual parts
+                String[] comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
+
+                // Update the database's comment, adding the current user as the project creator
+                dbCommand.executeDbUpdate(dbControl.buildDatabaseCommentCommand(dbControl.getProjectName(),
+                                                                                dbControl.getUser(),
+                                                                                false,
+                                                                                comment[DatabaseComment.DESCRIPTION.ordinal()]),
+                                          ccddMain.getMainFrame());
+
+                // Update the user access level table, setting the current user as the
+                // administrator
+                List<String[]> userData = new ArrayList<String[]>(1);
+                userData.add(new String[] {dbControl.getUser(),
+                                           AccessLevel.ADMIN.getDisplayName()});
+                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.USERS,
+                                                                          userData,
+                                                                          null,
+                                                                          ccddMain.getMainFrame());
+
+                // Inform the user that updating the database to support user access levels
+                // completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' user access level conversion complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that adding access level support failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot update project '"
+                                                           + dbControl.getProjectName()
+                                                           + "' to support user access levels; cause '"
+                                                           + e.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot update project '</b>"
+                                                                  + dbControl.getProjectName()
+                                                                  + "<b>' to support user access levels "
+                                                                  + "(project database will be closed)");
+
+            throw new CCDDException();
+        }
     }
 
     /**********************************************************************************************

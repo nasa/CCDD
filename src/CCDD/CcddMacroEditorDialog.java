@@ -459,6 +459,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store the macro(s)");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Create a listener for the Store button
                 btnStore.addActionListener(new ValidateCellActionListener(macroTable)

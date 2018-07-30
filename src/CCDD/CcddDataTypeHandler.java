@@ -545,7 +545,7 @@ public class CcddDataTypeHandler
      *            data type name for which to search
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return List containing the tables in the database that reference the specified data type
      *         name
@@ -723,6 +723,9 @@ public class CcddDataTypeHandler
             // Create the pop-up combo box
             structureCbox = new PaddedComboBox(structures,
                                                ModifiableFontInfo.DATA_TABLE_CELL.getFont());
+
+            // Enable auto-completion for the combo box
+            structureCbox.setAutoComplete(null);
 
             // Set the first structure as initially selected
             structureCbox.setSelectedIndex(0);

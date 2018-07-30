@@ -351,8 +351,8 @@ public class CcddDbCommandHandler
      * @param listOption
      *            array containing replacement text within a command; null if none is needed
      *
-     * @param dialog
-     *            GUI component calling this method
+     * @param parent
+     *            GUI component over which to center any error dialog
      *
      * @return String array containing the requested list items in alphabetical order; an empty
      *         array if no items exist

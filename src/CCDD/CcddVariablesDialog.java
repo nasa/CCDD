@@ -419,6 +419,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
                                                                        STORE_ICON,
                                                                        KeyEvent.VK_S,
                                                                        "Store the variable path separators and hide data types flag");
+                btnStore.setEnabled(ccddMain.getDbControlHandler().isAccessReadWrite());
 
                 // Add a listener for the Store button
                 btnStore.addActionListener(new ActionListener()

@@ -223,7 +223,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            normally belong as the instance node
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain,
                          CcddGroupHandler groupHandler,
@@ -300,7 +300,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            purposes
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain,
                          CcddGroupHandler groupHandler,
@@ -368,7 +368,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            normally belong as the instance node
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain,
                          CcddGroupHandler groupHandler,
@@ -424,7 +424,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            dialog
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain,
                          TableTreeType treeType,
@@ -471,7 +471,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            primitive variables
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain, TableTreeType treeType, Component parent)
     {
@@ -924,7 +924,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * Add the pseudo-group containing all tables to the specified prototype and instance nodes
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void addAllTablesGroup(Component parent)
     {
@@ -994,7 +994,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            filtering by group
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void addByType(ToolTipTreeNode groupNode,
                            GroupInformation groupInfo,
@@ -1100,7 +1100,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            parent node for the prototype nodes
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void buildTopLevelNodes(List<String> nameList,
                                     ToolTipTreeNode instNode,
@@ -2189,7 +2189,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            tree item selection mode (single versus multiple)
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return JPanel containing the table tree components
      *********************************************************************************************/

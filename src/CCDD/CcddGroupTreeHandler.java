@@ -108,7 +108,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            true if only groups that represent CFS applications should be displayed
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddGroupTreeHandler(CcddMain ccddMain,
                          CcddUndoHandler undoHandler,
@@ -137,7 +137,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            reference to the undo handler
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddGroupTreeHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component parent)
     {
@@ -250,7 +250,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            true to only display groups that represent a CFS application
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     @Override
     protected void buildTree(boolean filterByType,
@@ -433,7 +433,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      * Build the group data field information
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void buildFieldInformation(Component parent)
     {
@@ -587,7 +587,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *            true to not display the filter check boxes
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *
      * @return JPanel containing the group tree components
      *********************************************************************************************/

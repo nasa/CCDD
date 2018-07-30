@@ -63,7 +63,7 @@ public class CcddLinkHandler
      *            main class
      *
      * @param parent
-     *            GUI component calling this method
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddLinkHandler(CcddMain ccddMain, Component parent)
     {
