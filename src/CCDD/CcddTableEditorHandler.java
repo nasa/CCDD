@@ -678,7 +678,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (!variableName.isEmpty()
                     && !dataType.isEmpty()
                     && (committedInfo.getData().length == 0
-                        || committedInfo.getData()[row][variablePathIndex].toString().isEmpty())
+                        || (row < committedInfo.getData().length // TODO ADDED THIS CHECK AFTER
+                                                                 // HAVING AN INDEX OF OUT BOUNDS
+                                                                 // WHEN ADDING A ROW TO A TABLE
+                                                                 // WITH A VARIABLE PATH COLUMN
+                            && committedInfo.getData()[row][variablePathIndex].toString().isEmpty()))
                     && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
                         || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex))))
                 {
@@ -1221,6 +1225,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Restore the original array member visibility
                 showHideArrayMembers();
             }
+        }
+        // Not applying changes to an instance of the table - this is the table where the edits
+        // took place. Check if the data fields don't match those stored in the database
+        else if (CcddFieldHandler.isFieldChanged(getFieldHandler().getFieldInformation(),
+                                                 dbTableInfo.getFieldHandler().getFieldInformation(),
+                                                 false,
+                                                 inputTypeHandler))
+        {
+            // Set the data fields so that when these are restored it's flagged as an undoable
+            // change
+            getFieldHandler().setFieldInformation(dbTableInfo.getFieldHandler().getFieldInformation());
+            createDataFieldPanel(false);
+            storeCurrentFieldInformation();
         }
 
         // Update the change indicator in the editor tab
@@ -5045,7 +5062,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             InputType inputType = typeDefn.getInputTypes()[column];
 
             // Create a combo box for displaying selection lists
-            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+            // TODO
+            // PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+            PaddedComboBox comboBox = table.getUndoHandler().new UndoableComboBox(table.getFont());
 
             // Step through each item in the selection
             for (String item : inputType.getInputItems())

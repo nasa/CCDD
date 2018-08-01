@@ -374,6 +374,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate)
     {
+        // Get references to shorten subsequent calls. Can't use global references since this is a
+        // static method
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
         CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
 
@@ -459,17 +461,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     editor.doTableUpdatesComplete(updateInfo, applyToChild);
                 }
 
-                // Check if the table's root structure status changed
-                if (editor.getTableInformation().isRootStructure() != dbTblCmdHndlr.getRootStructures()
-                                                                                   .contains(editor.getTableInformation()
-                                                                                                   .getTablePath()))
-                {
-                    // Update the table's root structure status
-                    editor.getTableInformation().setRootStructure(!editor.getTableInformation().isRootStructure());
-
-                    // Rebuild the table's data fields based on the updated field information
-                    editor.createDataFieldPanel(false);
-                }
+                // Update the table's root structure status in case it changed
+                editor.getTableInformation().setRootStructure(dbTblCmdHndlr.getRootStructures()
+                                                                           .contains(editor.getTableInformation()
+                                                                                           .getTablePath()));
 
                 // Step through each row modification
                 for (TableModification mod : modifications)

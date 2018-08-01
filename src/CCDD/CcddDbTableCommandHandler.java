@@ -2761,6 +2761,8 @@ public class CcddDbTableCommandHandler
             updateLinks = false;
             addLinkHandler = null;
             isPathUpdate = false;
+            String[] varRefReferences = null;
+            String[] tablesOfType = new String[0];
 
             // Get the name of the table to modify and convert the table name to lower case.
             // PostgreSQL automatically does this, so it's done here just to differentiate the
@@ -2790,25 +2792,32 @@ public class CcddDbTableCommandHandler
                     orgTableNode = copyPrototypeTableTreeNode(tableInfo.getPrototypeName(),
                                                               tableTree);
                 }
-            }
 
-            // Build the commands to add, modify, and delete table rows
-            String command = buildAdditionCommand(tableInfo,
-                                                  additions,
-                                                  dbTableName,
-                                                  typeDefinition,
-                                                  skipInternalTables)
-                             + buildModificationCommand(tableInfo,
-                                                        modifications,
-                                                        typeDefinition,
-                                                        newDataTypeHandler,
-                                                        tableTree,
-                                                        skipInternalTables)
-                             + buildDeletionCommand(tableInfo,
-                                                    deletions,
-                                                    dbTableName,
-                                                    typeDefinition,
-                                                    skipInternalTables);
+                // TODO
+                // Get the references in the table type and data field internal tables that match
+                // the specified variable reference input type name
+                varRefReferences = inputTypeHandler.getInputTypeReferences(DefaultInputType.VARIABLE_REFERENCE.getInputName(),
+                                                                           parent);
+
+                // Step through each variable reference input type reference
+                for (String varRef : varRefReferences)
+                {
+                    // Split the reference into table name, column name, comment, and context
+                    String[] tblColCmtAndCntxt = varRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                    // Check if the context is in a table type definition
+                    if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
+                    {
+                        // Get the array of prototype tables of the the type having a variable
+                        // reference input type. Combine these with previous tables from other
+                        // types having a variable reference
+                        tablesOfType = CcddUtilities.concatenateArrays(tablesOfType,
+                                                                       queryTablesOfTypeList(typeDefinition.getName(),
+                                                                                             parent));
+                    }
+                }
+                // end TODO
+            }
 
             // Get the table's description
             String description = tableInfo.getDescription();
@@ -2823,19 +2832,43 @@ public class CcddDbTableCommandHandler
             }
 
             // Combine the table, data fields table, table description, and column order update
-            // commands
-            command += (updateFieldInfo
-                                        ? modifyFieldsCommand(tableInfo.getTablePath(),
-                                                              tableInfo.getFieldHandler().getFieldInformation())
-                                        : "")
-                       + (updateDescription
-                                            ? buildTableDescription(tableInfo.getTablePath(),
-                                                                    description)
-                                            : "")
-                       + (updateColumnOrder
-                                            ? buildColumnOrder(tableInfo.getTablePath(),
-                                                               tableInfo.getColumnOrder())
-                                            : "");
+            // commands. If the flag is set to update the data fields then the entire fields table
+            // is rewritten. This must precede applying the table updates since these makes further
+            // changes to the fields table
+            String command = (updateFieldInfo
+                                              ? modifyFieldsCommand(tableInfo.getTablePath(),
+                                                                    tableInfo.getFieldHandler().getFieldInformation())
+                                              : "")
+                             + (updateDescription
+                                                  ? buildTableDescription(tableInfo.getTablePath(),
+                                                                          description)
+                                                  : "")
+                             + (updateColumnOrder
+                                                  ? buildColumnOrder(tableInfo.getTablePath(),
+                                                                     tableInfo.getColumnOrder())
+                                                  : "");
+
+            // Build the commands to add, modify, and delete table rows
+            command += buildAdditionCommand(tableInfo,
+                                            additions,
+                                            dbTableName,
+                                            typeDefinition,
+                                            skipInternalTables)
+                       + buildModificationCommand(tableInfo,
+                                                  modifications,
+                                                  typeDefinition,
+                                                  newDataTypeHandler,
+                                                  tableTree,
+                                                  skipInternalTables,
+                                                  varRefReferences, // TODO
+                                                  tablesOfType) // TODO
+                       + buildDeletionCommand(tableInfo,
+                                              deletions,
+                                              dbTableName,
+                                              typeDefinition,
+                                              skipInternalTables,
+                                              varRefReferences, // TODO
+                                              tablesOfType); // TODO
 
             // Check if no command was generated (e.g., the additions, modifications, and deletions
             // lists are empty)
@@ -3234,7 +3267,9 @@ public class CcddDbTableCommandHandler
                                             TypeDefinition typeDefn,
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddTableTreeHandler tableTree,
-                                            boolean skipInternalTables)
+                                            boolean skipInternalTables,
+                                            String[] matches, // TODO
+                                            String[] tablesOfType) // TODO
     {
         StringBuilder modCmd = new StringBuilder("");
         List<Object[]> tablePathList = null;
@@ -4013,7 +4048,9 @@ public class CcddDbTableCommandHandler
                                         List<TableModification> deletions,
                                         String dbTableName,
                                         TypeDefinition typeDefn,
-                                        boolean skipInternalTables)
+                                        boolean skipInternalTables,
+                                        String[] matches, // TODO
+                                        String[] tablesOfType) // TODO
     {
         StringBuilder delCmd = new StringBuilder("");
 
@@ -4164,6 +4201,90 @@ public class CcddDbTableCommandHandler
                                            + instancePathWithChildren
                                            + "', E'', 'ng'); ");
                     }
+
+                    // TODO matches WON'T BE NULL AT THIS POINT
+                    // Get the path without the data type(s)
+                    String instanceVarPathEscNoDt = "(?:^|.+,)"
+                                                    + tableInfo.getPrototypeName()
+                                                    + ","
+                                                    + CcddUtilities.escapePostgreSQLReservedChars(variableName)
+                                                    + "(?:,|$)";
+
+                    // Step through each table type or data field where the variable reference
+                    // input type is used
+                    for (String match : matches)
+                    {
+                        // Split the reference into table name, column name, comment, and context
+                        String[] tblColCmtAndCntxt = match.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                        // Extract the context from the reference
+                        String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                        // Check if the context is in a table type definition and the current
+                        // table's type is the same as the match
+                        if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName())
+                            && typeDefn.getName().equals(refColumns[TableTypesColumn.TYPE_NAME.ordinal()]))
+                        {
+                            // Step through each prototype table of this type
+                            for (String table : tablesOfType)
+                            {
+                                // Remove references to the variable reference from the prototype
+                                // table
+                                delCmd.append("UPDATE "
+                                              + table
+                                              + " SET "
+                                              + refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()]
+                                              + " = '' WHERE "
+                                              + refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()]
+                                              + " ~ E'"
+                                              + instanceVarPathEscNoDt
+                                              + "'; ");
+
+                                // Check if the table isn't a root structure
+                                if (!rootStructures.contains(table))
+                                {
+                                    // Remove references to the variable reference from the
+                                    // instances
+                                    valuesDelCmd.append("UPDATE "
+                                                        + InternalTable.VALUES.getTableName()
+                                                        + " SET "
+                                                        + ValuesColumn.VALUE.getColumnName()
+                                                        + " = '' WHERE "
+                                                        + ValuesColumn.TABLE_PATH.getColumnName()
+                                                        + " ~ E'^.+,"
+                                                        + table
+                                                        + "\\\\..*$' AND "
+                                                        + ValuesColumn.COLUMN_NAME.getColumnName()
+                                                        + " = '"
+                                                        + refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()]
+                                                        + "' AND "
+                                                        + ValuesColumn.VALUE.getColumnName()
+                                                        + " ~ E'"
+                                                        + instanceVarPathEscNoDt
+                                                        + "'; ");
+                                }
+                            }
+                        }
+                        // Check if the context is in a data field definition
+                        else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
+                        {
+                            // Blank the data field value if the variable path matches
+                            fieldsDelCmd.append("UPDATE "
+                                                + InternalTable.FIELDS.getTableName()
+                                                + " SET "
+                                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                + " = '' WHERE "
+                                                + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                + " = E'"
+                                                + DefaultInputType.VARIABLE_REFERENCE.getInputName()
+                                                + "' AND "
+                                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                + " ~ E'"
+                                                + instanceVarPathEscNoDt
+                                                + "'; ");
+                        }
+                    }
+                    // end TODO
                 }
             }
 
@@ -7627,7 +7748,7 @@ public class CcddDbTableCommandHandler
      *            list of input type definition modifications
      *
      * @param updates
-     *            list of string arrays reflecting the content of the input types after being
+     *            array of string arrays reflecting the content of the input types after being
      *            changed in the input type editor
      *
      * @param dialog
@@ -7776,8 +7897,7 @@ public class CcddDbTableCommandHandler
                                 // Extract the context from the reference
                                 String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
-                                // Check if the input item regular expression match or selection
-                                // items changed and the context is in a table type definition
+                                // Check if the context is in a table type definition
                                 if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
                                 {
                                     // Check if the table type name hasn't already been added to

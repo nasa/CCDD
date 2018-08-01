@@ -955,6 +955,15 @@ public class CcddUndoHandler
     {
         private Object oldValue = "";
 
+        // TODO FOR AUTO-COMPLETE TEST
+        UndoableComboBox(Font font)
+        {
+            super(font);
+
+            // Set the model, and the edit and focus listeners
+            setModelAndListeners();
+        }
+
         /******************************************************************************************
          * Combo box constructor with an empty list
          *

@@ -602,6 +602,11 @@ public class CcddClassesComponent
                                     // from being overridden
                                     isPrefixChanging = true;
 
+                                    // TOD ISSUE WITH UNDO - FIRST, THE LAST LIST ITEM GETS
+                                    // INCLUDED IN THE UNDO/REDO STACK. SECOND, CAN KEEP HITTING
+                                    // UNDO AND IT KEEPS GOIG UNTIL AN ERROR IS ISSUED. IT MAY BE
+                                    // PUSHING ITEMS ON THE STACK WITH THE UNDO OPERATION
+
                                     // Check if the combo box is in a table cell
                                     if (table != null)
                                     {
@@ -610,19 +615,31 @@ public class CcddClassesComponent
                                         row = table.getEditingRow();
                                         column = table.getEditingColumn();
                                         isMenuShowing = isPopupVisible();
+
+                                        // TODO TRYING TO IGNORE THE SELECTION. ALMOST WORKS, BUT
+                                        // IT'S STORING THE LAST LIST ITEM AS THE PREVIOUS VALUE (I
+                                        // THINK). NOTE THAT DATA FIELDS ARE ALSO AFFECTED, SO
+                                        // SOMETHING NEEDS TO BE DONE FOR THOSE AS WELL
+                                        // table.getUndoHandler().setAllowUndo(false);
                                     }
 
-                                    // Force the combo box item list to scroll to the first
-                                    // matching item. Selecting the last item, then the matching
-                                    // item causes the matching item to appear at the top of the
-                                    // displayed list. The first item in the displayed list is a
-                                    // space (representing no selection; a blank would be used but
-                                    // causes height issues when displaying the item). A space is
-                                    // substituted to match an empty match prefix
+                                    // In order to force the combo box item list to scroll so that
+                                    // the first matching item is at the top of the menu, the last
+                                    // item is selected and then the matching item. For a table
+                                    // cell, due to an interaction in Java 8 between menu item
+                                    // selection and the call to initiate cell editing, a call to
+                                    // editCellAt() must be made twice (see below)
+                                    // TODO
+                                    // if (PaddedComboBox.this instanceof UndoableComboBox)
+                                    // {
+                                    // // TODO THIS ISN'T WORKING
+                                    // String last = getItemAt(getItemCount() - 1);
+                                    // ((UndoableComboBox)
+                                    // PaddedComboBox.this).setSelectedItem(last, false);
+                                    // }
+                                    // else
+
                                     setSelectedIndex(getItemCount() - 1);
-                                    setSelectedItem(item == ""
-                                                               ? " "
-                                                               : item);
 
                                     // Check if the combo box resides in a table cell
                                     if (table != null)
@@ -639,6 +656,25 @@ public class CcddClassesComponent
                                             @Override
                                             public void run()
                                             {
+                                                // Due to an interaction in Java 8, this must be
+                                                // done due to the selection of the last menu item
+                                                // (above) so that the matching item selection
+                                                // (below) is scrolled to
+                                                table.editCellAt(row, column);
+
+                                                // TODO SEE ABOVE TODO
+                                                // table.getUndoHandler().setAllowUndo(true);
+
+                                                // Scroll to the first matching item. The first
+                                                // item in the displayed list is a space
+                                                // (representing no selection; a blank would be
+                                                // used but causes height issues when displaying
+                                                // the item). A space is substituted to match an
+                                                // empty match prefix
+                                                setSelectedItem(item == ""
+                                                                           ? " "
+                                                                           : item);
+
                                                 // Re-initiate editing in the table cell
                                                 table.editCellAt(row, column);
                                                 getEditor().getEditorComponent().requestFocusInWindow();
@@ -657,6 +693,23 @@ public class CcddClassesComponent
                                                 isPrefixChanging = false;
                                             }
                                         });
+                                    }
+                                    // The combo box is not in a table cell
+                                    else
+                                    {
+                                        // Scroll to the first matching item. The first item in the
+                                        // displayed list is a space (representing no selection; a
+                                        // blank would be used but causes height issues when
+                                        // displaying the item). A space is substituted to match an
+                                        // empty match prefix
+                                        setSelectedItem(item == ""
+                                                                   ? " "
+                                                                   : item);
+
+                                        // Reset the flag so that normal updates to the
+                                        // auto-completion check box, such as directly selecting an
+                                        // item from the combo box list, are handled
+                                        isPrefixChanging = false;
                                     }
                                 }
                             }

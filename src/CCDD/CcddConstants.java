@@ -2282,8 +2282,11 @@ public class CcddConstants
         MESSAGE_ID_NAMES_AND_IDS("Message names & IDs",
                                  ".*",
                                  InputTypeFormat.TEXT,
-                                 "Message ID names & ID numbers in the "
-                                                       + "format '<ID name> (<ID number>)'"),
+                                 "Display a menu of all message ID names "
+                                                       + "& associated ID numbers in the format "
+                                                       + "'<ID name> (<ID number>)'; when an ID "
+                                                       + "name & number is selected from the menu "
+                                                       + "only the ID name is displayed"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|(" + FLOAT.getInputMatch() + ")",

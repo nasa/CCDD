@@ -1704,7 +1704,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
             // Check if the database isn't already disabled, this is a rename or delete dialog, and
             // the user doesn't have administrative access to the database
-            if (!isDisabled && (adminAccess == null || !adminAccess.contains(nameAndComment[0])))
+            if (!isDisabled && (adminAccess != null && !adminAccess.contains(nameAndComment[0])))
             {
                 // Add the index of the database to the disabled list
                 disabledItems.add(index);

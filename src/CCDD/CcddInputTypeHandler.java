@@ -233,7 +233,7 @@ public class CcddInputTypeHandler
      *
      * @param ccddMain
      *            main class reference
-     * 
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -267,11 +267,8 @@ public class CcddInputTypeHandler
             }
         }
 
-        // Sort the message names & IDs
-        Collections.sort(msgIDs, String.CASE_INSENSITIVE_ORDER);
-
         // Set the message names & IDs item list
-        inputType.setInputItems(msgIDs, true);
+        inputType.setInputItems(msgIDs, false);
 
         // Check if the list is empty (no message names & IDs)
         if (msgIDs.isEmpty())

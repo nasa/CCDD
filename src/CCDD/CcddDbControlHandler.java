@@ -921,7 +921,7 @@ public class CcddDbControlHandler
         {
             // Check if all the expected fields exist and the third field meets the constraints for
             // one or more user names
-            if (commentParts.length >= DatabaseComment.values().length - 1
+            if (commentParts.length >= DatabaseComment.values().length
                 && commentParts[2].matches("(?:"
                                            + DefaultInputType.ALPHANUMERIC.getInputMatch()
                                            + DATABASE_ADMIN_SEPARATOR
