@@ -384,9 +384,6 @@ public class CcddMacroHandler
                                                ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                 macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
-                // Enable auto-completion for the combo box
-                macroCbox.setAutoComplete(null);
-
                 // Set the first macro as initially selected
                 macroCbox.setSelectedIndex(0);
 

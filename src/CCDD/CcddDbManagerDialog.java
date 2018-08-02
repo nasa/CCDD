@@ -1390,9 +1390,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(accessTable);
 
-        // Disable storage of edit operations during table creation
-        accessTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         accessTable.setFixedCharacteristics(scrollPane,
                                             true,
@@ -1404,9 +1401,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                             true,
                                             ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                             true);
-
-        // Re-enable storage of edit operations
-        accessTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

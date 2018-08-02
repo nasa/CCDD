@@ -955,15 +955,6 @@ public class CcddUndoHandler
     {
         private Object oldValue = "";
 
-        // TODO FOR AUTO-COMPLETE TEST
-        UndoableComboBox(Font font)
-        {
-            super(font);
-
-            // Set the model, and the edit and focus listeners
-            setModelAndListeners();
-        }
-
         /******************************************************************************************
          * Combo box constructor with an empty list
          *
@@ -1132,8 +1123,7 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the selected combo box. In order for this to select the text area it must be
-         * scheduled to execute after other pending events
+         * Set the selected combo box item
          *
          * @param selection
          *            combo box selection item

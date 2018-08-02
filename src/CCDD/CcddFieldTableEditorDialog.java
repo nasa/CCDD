@@ -1359,9 +1359,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(dataFieldTable);
 
-        // Disable storage of edit operations during table creation
-        dataFieldTable.getUndoHandler().setAllowUndo(false);
-
         // Set up the field table parameters
         dataFieldTable.setFixedCharacteristics(scrollPane,
                                                false,
@@ -1378,9 +1375,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // cell selection object
         dataFieldTable.getUndoHandler().setSelectedCells(selectedCells);
         cellSelect = dataFieldTable.getUndoHandler().new UndoableCellSelection();
-
-        // Re-enable storage of edit operations
-        dataFieldTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

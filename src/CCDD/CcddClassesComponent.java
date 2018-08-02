@@ -102,6 +102,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddUndoHandler.UndoableComboBox;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common component classes class
@@ -557,10 +558,6 @@ public class CcddClassesComponent
             // the match text entered by the user
             getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
             {
-                // Storage for the previous contents of the auto-completion text field. This is
-                // used to skip further processing if no change in the displayed text occurs
-                String previousItem = "";
-
                 // Table cell row and column, and combo box drop down menu status (only used if the
                 // combo box is in a table cell)
                 int row = 0;
@@ -591,126 +588,121 @@ public class CcddClassesComponent
                                 // Get the current auto-completion text
                                 final String item = autoCompFld.getText();
 
-                                // Check if the contents of the text field changed due to the key
-                                // press (auto-completion may keep the text the same)
-                                if (!item.equals(previousItem))
+                                // Set the flag to indicate a prefix change is active. This is
+                                // needed to prevent the auto-completion text field contents from
+                                // being overridden
+                                isPrefixChanging = true;
+
+                                // Check if the combo box is in a table cell
+                                if (table != null)
                                 {
-                                    previousItem = item;
+                                    // Store the cell's row and column, and if the combo box drop
+                                    // down menu is showing
+                                    row = table.getEditingRow();
+                                    column = table.getEditingColumn();
+                                    isMenuShowing = isPopupVisible();
+                                }
 
-                                    // Set the flag to indicate a prefix change is active. This is
-                                    // needed to prevent the auto-completion text field contents
-                                    // from being overridden
-                                    isPrefixChanging = true;
-
-                                    // TOD ISSUE WITH UNDO - FIRST, THE LAST LIST ITEM GETS
-                                    // INCLUDED IN THE UNDO/REDO STACK. SECOND, CAN KEEP HITTING
-                                    // UNDO AND IT KEEPS GOIG UNTIL AN ERROR IS ISSUED. IT MAY BE
-                                    // PUSHING ITEMS ON THE STACK WITH THE UNDO OPERATION
-
-                                    // Check if the combo box is in a table cell
-                                    if (table != null)
-                                    {
-                                        // Store the cell's row and column, and if the combo box
-                                        // drop down menu is showing
-                                        row = table.getEditingRow();
-                                        column = table.getEditingColumn();
-                                        isMenuShowing = isPopupVisible();
-
-                                        // TODO TRYING TO IGNORE THE SELECTION. ALMOST WORKS, BUT
-                                        // IT'S STORING THE LAST LIST ITEM AS THE PREVIOUS VALUE (I
-                                        // THINK). NOTE THAT DATA FIELDS ARE ALSO AFFECTED, SO
-                                        // SOMETHING NEEDS TO BE DONE FOR THOSE AS WELL
-                                        // table.getUndoHandler().setAllowUndo(false);
-                                    }
-
+                                // Check if the combo box resides in a table cell
+                                if (table != null)
+                                {
                                     // In order to force the combo box item list to scroll so that
                                     // the first matching item is at the top of the menu, the last
                                     // item is selected and then the matching item. For a table
                                     // cell, due to an interaction in Java 8 between menu item
                                     // selection and the call to initiate cell editing, a call to
                                     // editCellAt() must be made twice (see below)
-                                    // TODO
-                                    // if (PaddedComboBox.this instanceof UndoableComboBox)
-                                    // {
-                                    // // TODO THIS ISN'T WORKING
-                                    // String last = getItemAt(getItemCount() - 1);
-                                    // ((UndoableComboBox)
-                                    // PaddedComboBox.this).setSelectedItem(last, false);
-                                    // }
-                                    // else
-
                                     setSelectedIndex(getItemCount() - 1);
 
-                                    // Check if the combo box resides in a table cell
-                                    if (table != null)
+                                    // Undo the jump to the last item. This removes it from the
+                                    // undo stack, but doesn't change the list position
+                                    table.getUndoManager().undo();
+
+                                    // Create a runnable object to be executed
+                                    SwingUtilities.invokeLater(new Runnable()
                                     {
-                                        // Create a runnable object to be executed
-                                        SwingUtilities.invokeLater(new Runnable()
+                                        /**********************************************************
+                                         * Selecting an item from the combo box list causes table
+                                         * cell editing to cease. Editing must be reestablished,
+                                         * but only after other pending GUI events are completed
+                                         *********************************************************/
+                                        @Override
+                                        public void run()
                                         {
-                                            /******************************************************
-                                             * Selecting an item from the combo box list causes
-                                             * table cell editing to cease. Editing must be
-                                             * reestablished, but only after other pending GUI
-                                             * events are completed
-                                             *****************************************************/
-                                            @Override
-                                            public void run()
+                                            // Due to an interaction in Java 8, this must be done
+                                            // due to the selection of the last menu item (above)
+                                            // so that the matching item selection (below) is
+                                            // scrolled to
+                                            table.editCellAt(row, column);
+
+                                            // Scroll to the first matching item. The first item in
+                                            // the displayed list is a space (representing no
+                                            // selection; a blank would be used but causes height
+                                            // issues when displaying the item). A space is
+                                            // substituted to match an empty match prefix
+                                            setSelectedItem(item == ""
+                                                                       ? " "
+                                                                       : item);
+
+                                            // Re-initiate editing in the table cell
+                                            table.editCellAt(row, column);
+                                            getEditor().getEditorComponent().requestFocusInWindow();
+
+                                            // Check if the drop down menu had been displayed
+                                            if (isMenuShowing)
                                             {
-                                                // Due to an interaction in Java 8, this must be
-                                                // done due to the selection of the last menu item
-                                                // (above) so that the matching item selection
-                                                // (below) is scrolled to
-                                                table.editCellAt(row, column);
-
-                                                // TODO SEE ABOVE TODO
-                                                // table.getUndoHandler().setAllowUndo(true);
-
-                                                // Scroll to the first matching item. The first
-                                                // item in the displayed list is a space
-                                                // (representing no selection; a blank would be
-                                                // used but causes height issues when displaying
-                                                // the item). A space is substituted to match an
-                                                // empty match prefix
-                                                setSelectedItem(item == ""
-                                                                           ? " "
-                                                                           : item);
-
-                                                // Re-initiate editing in the table cell
-                                                table.editCellAt(row, column);
-                                                getEditor().getEditorComponent().requestFocusInWindow();
-
-                                                // Check if the drop down menu had been displayed
-                                                if (isMenuShowing)
-                                                {
-                                                    // Redisplay the drop down menu
-                                                    showPopup();
-                                                }
-
-                                                // Reset the flag so that normal updates to the
-                                                // auto-completion check box, such as directly
-                                                // selecting an item from the combo box list, are
-                                                // handled
-                                                isPrefixChanging = false;
+                                                // Redisplay the drop down menu
+                                                showPopup();
                                             }
-                                        });
-                                    }
-                                    // The combo box is not in a table cell
-                                    else
-                                    {
-                                        // Scroll to the first matching item. The first item in the
-                                        // displayed list is a space (representing no selection; a
-                                        // blank would be used but causes height issues when
-                                        // displaying the item). A space is substituted to match an
-                                        // empty match prefix
-                                        setSelectedItem(item == ""
-                                                                   ? " "
-                                                                   : item);
 
-                                        // Reset the flag so that normal updates to the
-                                        // auto-completion check box, such as directly selecting an
-                                        // item from the combo box list, are handled
-                                        isPrefixChanging = false;
+                                            // Reset the flag so that normal updates to the
+                                            // auto-completion check box, such as directly
+                                            // selecting an item from the combo box list, are
+                                            // handled
+                                            isPrefixChanging = false;
+                                        }
+                                    });
+                                }
+                                // The combo box is not in a table cell
+                                else
+                                {
+                                    // Check if the combo box is undoable (this is the case for
+                                    // data fields, but not table cells)
+                                    if (PaddedComboBox.this instanceof UndoableComboBox)
+                                    {
+                                        // Get the currently selected item
+                                        Object selItem = getSelectedItem();
+
+                                        // In order to force the combo box item list to scroll so
+                                        // that the first matching item is at the top of the menu,
+                                        // the last item is selected. This is done as an undoable
+                                        // edit so that the change isn't placed on the undo stack.
+                                        // However, it does store the last item as far as undoing
+                                        // is concerned so the selected item is set back to the
+                                        // original without storing the change as undoable. This
+                                        // resets the 'old' selection so that it's displayed if an
+                                        // undo is performed (otherwise the last list item is
+                                        // displayed)
+                                        ((UndoableComboBox) PaddedComboBox.this).setSelectedItem(getItemAt(getItemCount()
+                                                                                                           - 1),
+                                                                                                 false);
+                                        ((UndoableComboBox) PaddedComboBox.this).setSelectedItem(selItem,
+                                                                                                 false);
                                     }
+
+                                    // Scroll to the first matching item. The first item in the
+                                    // displayed list is a space (representing no selection; a
+                                    // blank would be used but causes height issues when displaying
+                                    // the item). A space is substituted to match an empty match
+                                    // prefix
+                                    setSelectedItem(item == ""
+                                                               ? " "
+                                                               : item);
+
+                                    // Reset the flag so that normal updates to the auto-completion
+                                    // check box, such as directly selecting an item from the combo
+                                    // box list, are handled
+                                    isPrefixChanging = false;
                                 }
                             }
                         });
@@ -722,6 +714,7 @@ public class CcddClassesComponent
             // the combo box's contents with the currently matched item from the combo box list
             autoCompFld.addFocusListener(new FocusAdapter()
             {
+
                 /**********************************************************************************
                  * Override to capture focus loss events
                  *********************************************************************************/

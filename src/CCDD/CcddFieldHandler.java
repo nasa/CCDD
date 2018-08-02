@@ -321,7 +321,7 @@ public class CcddFieldHandler
         if (fieldDefinitions != null)
         {
             // Step through each field definition
-            for (String[] fieldDefn : fieldDefinitions.toArray(new String[0][0]))
+            for (String[] fieldDefn : fieldDefinitions)
             {
                 // Check if no owner name is provided (get the fields for all tables and groups for
                 // this case), or if the supplied owner name matches the field owner name

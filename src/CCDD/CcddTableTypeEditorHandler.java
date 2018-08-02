@@ -912,9 +912,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Disable storage of edit operations during table creation
-        table.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         table.setFixedCharacteristics(scrollPane,
                                       true,
@@ -926,9 +923,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                       true,
                                       ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                       true);
-
-        // Re-enable storage of edit operations
-        table.getUndoHandler().setAllowUndo(true);
 
         // Create a drop-down combo box to display the available table type input types
         setUpInputTypeColumn();

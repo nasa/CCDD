@@ -229,22 +229,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                               DialogOption.RETRIEVE_OPTION,
                                               true) == OK_BUTTON)
                         {
-                            // Check if no script file path is selected via the selection button
-                            if (scriptFile == null)
-                            {
-                                // Get a file reference using the last accessed file path
-                                scriptFile = new FileEnvVar[] {new FileEnvVar(ModifiablePathInfo.SCRIPT_PATH.getPath())};
-                            }
-                            // A script file path is selected
-                            else
-                            {
-                                // Store the script file path in the program preferences backing
-                                // store
-                                CcddFileIOHandler.storePath(ccddMain,
-                                                            scriptFile[0].getAbsolutePathWithEnvVars(),
-                                                            false,
-                                                            ModifiablePathInfo.SCRIPT_PATH);
-                            }
+                            // Store the script file path in the program preferences backing store
+                            CcddFileIOHandler.storePath(ccddMain,
+                                                        scriptFile[0].getAbsolutePathWithEnvVars(),
+                                                        false,
+                                                        ModifiablePathInfo.SCRIPT_PATH);
 
                             // Get an array containing the selected script names
                             String[] selectedScripts = getCheckBoxSelected();
@@ -424,11 +413,20 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         throw new CCDDException("Must select a script to retrieve");
                     }
 
-                    // Check if no script path is selected
-                    if (pathFld.getText().trim().isEmpty())
+                    // Check if no script file path is selected via the selection button
+                    if (scriptFile == null)
                     {
-                        // Inform the user that a script path must be selected
-                        throw new CCDDException("Must select a script location");
+                        // Get a file reference using the file path entered into the path field
+                        scriptFile = new FileEnvVar[] {new FileEnvVar(pathFld.getText())};
+                    }
+
+                    // Check if the script file path is valid
+                    if (!scriptFile[0].isDirectory())
+                    {
+                        scriptFile = null;
+
+                        // Inform the user that a valid path must be selected
+                        throw new CCDDException("Must select a valid path");
                     }
 
                     break;

@@ -1111,6 +1111,9 @@ public abstract class CcddJTableHandler extends JTable
                                            Font cellFont,
                                            boolean allowSort)
     {
+        // Disable storage of edit operations during table creation
+        undoHandler.setAllowUndo(false);
+
         // Set the table's scroll pane
         this.scrollPane = scrollPane;
 
@@ -1119,9 +1122,6 @@ public abstract class CcddJTableHandler extends JTable
 
         // Set to true to keep cell(s) highlighted when the table loses focus
         this.selectWithoutFocus = selectWithoutFocus;
-
-        // Set to true to allow changes to the table to be undone/redone
-        undoHandler.setAllowUndo(allowUndo);
 
         // Set the cell content font
         this.cellFont = cellFont;
@@ -1251,6 +1251,9 @@ public abstract class CcddJTableHandler extends JTable
                 tableChanged(null);
             }
         });
+
+        // Set to true to allow changes to the table to be undone/redone
+        undoHandler.setAllowUndo(allowUndo);
     }
 
     /**********************************************************************************************

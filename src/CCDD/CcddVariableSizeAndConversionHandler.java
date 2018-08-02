@@ -211,7 +211,8 @@ public class CcddVariableSizeAndConversionHandler
     /**********************************************************************************************
      * Get the list of structure and variable paths for valid variables
      *
-     * @return Reference to the list of structure and variable paths for valid variables
+     * @return Reference to the list of structure and variable paths for valid variables; returns
+     *         an empty list if no variables exist
      *********************************************************************************************/
     protected List<String> getAllVariableNames()
     {
@@ -583,7 +584,7 @@ public class CcddVariableSizeAndConversionHandler
 
         // Add the structure paths and variables to the variable references input type and refresh
         // any open editors
-        ccddMain.getInputTypeHandler().updateVariableReferences(structureAndVariablePaths);
+        ccddMain.getInputTypeHandler().updateVariableReferences();
         ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
     }
 
@@ -1005,6 +1006,19 @@ public class CcddVariableSizeAndConversionHandler
     }
 
     /**********************************************************************************************
+     * Remove the data type(s) from the supplied variable path + name
+     *
+     * @param fullName
+     *            variable path + name in the normal application format
+     *
+     * @return The supplied variable path + name with the data type(s) removed
+     *********************************************************************************************/
+    protected String removeDataTypeFromVariablePath(String fullName)
+    {
+        return fullName.replaceAll(",[^\\.]*\\.", ",");
+    }
+
+    /**********************************************************************************************
      * Return a unique name based on the variable path and the supplied separators. Retain or
      * remove the data types in the supplied variable path + name based on the input flag, replace
      * the commas in the (which separate each structure variable in the path) with the specified
@@ -1037,8 +1051,8 @@ public class CcddVariableSizeAndConversionHandler
         // Check if data types are to be excluded
         if (excludeDataTypes)
         {
-            // Remove the data types from the variable path + name
-            fullName = fullName.replaceAll(",[^\\.]*\\.", ",");
+            // Remove the data type(s) from the variable path + name
+            fullName = removeDataTypeFromVariablePath(fullName);
         }
         // Data types are retained
         else

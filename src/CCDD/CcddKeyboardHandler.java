@@ -159,13 +159,37 @@ public class CcddKeyboardHandler
                             ((AbstractButton) comp).doClick();
                             handled = true;
                         }
-                        // Check if this is a table
-                        else if (comp instanceof CcddJTableHandler
-                                 || (comp.getParent() instanceof CcddJTableHandler
-                                     && !(comp instanceof JComboBox)))
+                        // Not a button; check if this is a table (or a cell in a table)
+                        else
                         {
-                            // Handle the Enter key in the table
-                            handled = tableEditCellHandler(comp);
+                            boolean isTable = false;
+                            Component parentComp = comp;
+
+                            // Start with the component and work through its parent component(s)
+                            // until a table is found or the last parent is reached
+                            do
+                            {
+                                // Check if the component is a table
+                                if (parentComp instanceof CcddJTableHandler)
+                                {
+                                    // Set the flag to indicate the component is a table or a cell
+                                    // in a table
+                                    isTable = true;
+                                }
+                                // The component isn't a table
+                                else
+                                {
+                                    // Get the component's parent component
+                                    parentComp = parentComp.getParent();
+                                }
+                            } while (!isTable && parentComp != null);
+
+                            // Check if the component is an editor for a table cell
+                            if (isTable)
+                            {
+                                // Handle the Enter key in the table
+                                handled = tableEditCellHandler(comp);
+                            }
                         }
                     }
                     // Check if the space key is pressed
@@ -865,7 +889,7 @@ public class CcddKeyboardHandler
     private boolean tableEditCellHandler(Component comp)
     {
         boolean handled = false;
-        CcddJTableHandler table;
+        CcddJTableHandler table = null;
 
         // Check if this is a table
         if (comp instanceof CcddJTableHandler)
@@ -927,7 +951,26 @@ public class CcddKeyboardHandler
         // This is a text field cell in a table being that's being edited
         else
         {
-            table = (CcddJTableHandler) comp.getParent();
+            // Get the component's parent
+            Component parentComp = comp.getParent();
+
+            // Determine the table to which the component belongs. Depending on the cell editor
+            // this can be the component's parent, the parent's parent, etc.
+            do
+            {
+                // Check if this is the parent table
+                if (parentComp instanceof CcddJTableHandler)
+                {
+                    // Set the table reference
+                    table = (CcddJTableHandler) parentComp;
+                }
+                // This isn't the parent table
+                else
+                {
+                    // Get the parent of this component
+                    parentComp = parentComp.getParent();
+                }
+            } while (table == null);
 
             // Get the indices of the cell being edited
             int row = table.getEditingRow();
@@ -953,15 +996,14 @@ public class CcddKeyboardHandler
                     row++;
                     col = 0;
                 }
-            } while (row != table.getRowCount()
-                     && !table.isCellEditable(row, col));
+            } while (row != table.getRowCount() && !table.isCellEditable(row, col));
 
             // Initiate editing on the new cell, if valid
             if (table.editCellAt(row, col))
             {
                 // Editing initiated on the new cell; change the focus to this cell
                 table.changeSelection(row, col, false, false);
-                comp.requestFocus();
+                table.getEditorComponent().requestFocus();
             }
 
             // Set the flag to indicate that the event has been handled

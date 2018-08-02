@@ -117,6 +117,69 @@ public class CcddDbTableCommandHandler
     private final static String DELIMITER_CHARACTERS = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**********************************************************************************************
+     * Variable reference class; used to contain information on structure tables of the same table
+     * type having a column with the variable reference input type
+     *********************************************************************************************/
+    private class VariableReference
+    {
+        private final String columnDb;
+        private final String columnVisible;
+        private final String[] tables;
+
+        /******************************************************************************************
+         * Variable reference class constructor
+         *
+         * @param columnDb
+         *            column name (as used in the database) having the variable reference input
+         *            type
+         *
+         * @param columnVisible
+         *            column name (as seen by the user) having the variable reference input type
+         *
+         * @param tables
+         *            array of prototype structure tables of the table type having a column with
+         *            the variable reference input type
+         *****************************************************************************************/
+        VariableReference(String columnDb, String columnVisible, String[] tables)
+        {
+            this.columnDb = columnDb;
+            this.columnVisible = columnVisible;
+            this.tables = tables;
+        }
+
+        /******************************************************************************************
+         * Get the column name as used in the database
+         *
+         * @return Column name (as used in the database) having the variable reference input type
+         *****************************************************************************************/
+        protected String getColumnDb()
+        {
+            return columnDb;
+        }
+
+        /******************************************************************************************
+         * Get the column name as seen by the user
+         *
+         * @return Column name (as seen by the user) having the variable reference input type
+         *****************************************************************************************/
+        protected String getColumnVisible()
+        {
+            return columnVisible;
+        }
+
+        /******************************************************************************************
+         * Get the array of prototype structure tables of the same table type
+         *
+         * @return Array of prototype structure tables of the table type having a column with the
+         *         variable reference input type
+         *****************************************************************************************/
+        protected String[] getTables()
+        {
+            return tables;
+        }
+    }
+
+    /**********************************************************************************************
      * Database table command handler class constructor
      *
      * @param ccddMain
@@ -2753,6 +2816,7 @@ public class CcddDbTableCommandHandler
                                       Component parent)
     {
         boolean errorFlag = false;
+        boolean hasVarRefFieldChange = false;
 
         try
         {
@@ -2762,7 +2826,7 @@ public class CcddDbTableCommandHandler
             addLinkHandler = null;
             isPathUpdate = false;
             String[] varRefReferences = null;
-            String[] tablesOfType = new String[0];
+            List<VariableReference> variableReferences = new ArrayList<VariableReference>();
 
             // Get the name of the table to modify and convert the table name to lower case.
             // PostgreSQL automatically does this, so it's done here just to differentiate the
@@ -2793,30 +2857,44 @@ public class CcddDbTableCommandHandler
                                                               tableTree);
                 }
 
-                // TODO
-                // Get the references in the table type and data field internal tables that match
-                // the specified variable reference input type name
-                varRefReferences = inputTypeHandler.getInputTypeReferences(DefaultInputType.VARIABLE_REFERENCE.getInputName(),
-                                                                           parent);
-
-                // Step through each variable reference input type reference
-                for (String varRef : varRefReferences)
+                // Check if there are any modifications or deletions (additions won't change the
+                // values in table cells or data fields with the variable reference input type)
+                if (!modifications.isEmpty() || !deletions.isEmpty())
                 {
-                    // Split the reference into table name, column name, comment, and context
-                    String[] tblColCmtAndCntxt = varRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+                    // Get the references in the table type and data field internal tables that use
+                    // the variable reference input type. If a variable name is changed or deleted
+                    // then the tables and fields may require updating
+                    varRefReferences = inputTypeHandler.getInputTypeReferences(DefaultInputType.VARIABLE_REFERENCE.getInputName(),
+                                                                               parent);
 
-                    // Check if the context is in a table type definition
-                    if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
+                    // Step through each variable reference input type reference
+                    for (String varRef : varRefReferences)
                     {
-                        // Get the array of prototype tables of the the type having a variable
-                        // reference input type. Combine these with previous tables from other
-                        // types having a variable reference
-                        tablesOfType = CcddUtilities.concatenateArrays(tablesOfType,
-                                                                       queryTablesOfTypeList(typeDefinition.getName(),
-                                                                                             parent));
+                        // Split the reference into table name, column name, comment, and context
+                        String[] tblColCmtAndCntxt = varRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+                        // Check if the context is in a table type definition
+                        if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
+                        {
+                            // Extract the table type column values from the reference
+                            String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                            // Create the variable reference with the columns names (database and
+                            // visible) and the names of the prototype tables of this table type
+                            variableReferences.add(new VariableReference(refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()],
+                                                                         refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()],
+                                                                         queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()],
+                                                                                               parent)));
+                        }
+                        // The reference is in a data field
+                        else
+                        {
+                            // Set the flag to indicate that a data field is using the variable
+                            // reference input type
+                            hasVarRefFieldChange = true;
+                        }
                     }
                 }
-                // end TODO
             }
 
             // Get the table's description
@@ -2860,15 +2938,15 @@ public class CcddDbTableCommandHandler
                                                   newDataTypeHandler,
                                                   tableTree,
                                                   skipInternalTables,
-                                                  varRefReferences, // TODO
-                                                  tablesOfType) // TODO
+                                                  variableReferences,
+                                                  hasVarRefFieldChange)
                        + buildDeletionCommand(tableInfo,
                                               deletions,
                                               dbTableName,
                                               typeDefinition,
                                               skipInternalTables,
-                                              varRefReferences, // TODO
-                                              tablesOfType); // TODO
+                                              variableReferences,
+                                              hasVarRefFieldChange);
 
             // Check if no command was generated (e.g., the additions, modifications, and deletions
             // lists are empty)
@@ -2961,7 +3039,8 @@ public class CcddDbTableCommandHandler
                                                               tableInfo,
                                                               modifications,
                                                               deletions,
-                                                              forceUpdate);
+                                                              forceUpdate,
+                                                              hasVarRefFieldChange);
         }
 
         return errorFlag;
@@ -3260,6 +3339,17 @@ public class CcddDbTableCommandHandler
      *            used during a data type update where only the data type name has changed in order
      *            to speed up the operation
      *
+     * @param variableReferences
+     *            list containing the columns names (database and visible) and the names of the
+     *            prototype tables for each structure table type with a column using the variable
+     *            reference input type; an empty list if the table with the change is not a
+     *            structure. This list is used if a change is made to a variable's name, possibly
+     *            requiring updating a table cell or data field contents
+     *
+     * @param hasVarRefFieldChange
+     *            true is a data field has a variable reference input type and the table with the
+     *            change is a structure
+     *
      * @return Table row modification command
      *********************************************************************************************/
     private String buildModificationCommand(TableInformation tableInfo,
@@ -3268,8 +3358,8 @@ public class CcddDbTableCommandHandler
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddTableTreeHandler tableTree,
                                             boolean skipInternalTables,
-                                            String[] matches, // TODO
-                                            String[] tablesOfType) // TODO
+                                            List<VariableReference> variableReferences,
+                                            boolean hasVarRefFieldChange)
     {
         StringBuilder modCmd = new StringBuilder("");
         List<Object[]> tablePathList = null;
@@ -3878,6 +3968,24 @@ public class CcddDbTableCommandHandler
                                                             tlmDelCmd);
                                 }
                             }
+
+                            // Check if the variable's name or array size has changed (this is for
+                            // adjusting cells and fields having a variable reference input type;
+                            // data type doesn't affect the variable reference)
+                            if (variableChanged || arraySizeChanged)
+                            {
+                                // Update any table cells or data fields with the variable
+                                // reference input type containing the renamed variable
+                                modifyVariableReference(tableInfo,
+                                                        oldVariableName,
+                                                        newVariableName,
+                                                        oldDataType,
+                                                        newDataType,
+                                                        variableReferences,
+                                                        hasVarRefFieldChange,
+                                                        valuesModCmd,
+                                                        fieldsModCmd);
+                            }
                         }
                     }
 
@@ -4042,6 +4150,17 @@ public class CcddDbTableCommandHandler
      *            used during a data type update where only the data type name has changed in order
      *            to speed up the operation
      *
+     * @param variableReferences
+     *            list containing the columns names (database and visible) and the names of the
+     *            prototype tables for each structure table type with a column using the variable
+     *            reference input type; an empty list if the table with the change is not a
+     *            structure. This list is used if a change is made to a variable's name, possibly
+     *            requiring updating a table cell or data field contents
+     *
+     * @param hasVarRefFieldChange
+     *            true is a data field has a variable reference input type and the table with the
+     *            change is a structure
+     *
      * @return Table row deletion command
      *********************************************************************************************/
     private String buildDeletionCommand(TableInformation tableInfo,
@@ -4049,8 +4168,8 @@ public class CcddDbTableCommandHandler
                                         String dbTableName,
                                         TypeDefinition typeDefn,
                                         boolean skipInternalTables,
-                                        String[] matches, // TODO
-                                        String[] tablesOfType) // TODO
+                                        List<VariableReference> variableReferences,
+                                        boolean hasVarRefFieldChange)
     {
         StringBuilder delCmd = new StringBuilder("");
 
@@ -4202,89 +4321,14 @@ public class CcddDbTableCommandHandler
                                            + "', E'', 'ng'); ");
                     }
 
-                    // TODO matches WON'T BE NULL AT THIS POINT
-                    // Get the path without the data type(s)
-                    String instanceVarPathEscNoDt = "(?:^|.+,)"
-                                                    + tableInfo.getPrototypeName()
-                                                    + ","
-                                                    + CcddUtilities.escapePostgreSQLReservedChars(variableName)
-                                                    + "(?:,|$)";
-
-                    // Step through each table type or data field where the variable reference
-                    // input type is used
-                    for (String match : matches)
-                    {
-                        // Split the reference into table name, column name, comment, and context
-                        String[] tblColCmtAndCntxt = match.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-                        // Extract the context from the reference
-                        String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                        // Check if the context is in a table type definition and the current
-                        // table's type is the same as the match
-                        if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName())
-                            && typeDefn.getName().equals(refColumns[TableTypesColumn.TYPE_NAME.ordinal()]))
-                        {
-                            // Step through each prototype table of this type
-                            for (String table : tablesOfType)
-                            {
-                                // Remove references to the variable reference from the prototype
-                                // table
-                                delCmd.append("UPDATE "
-                                              + table
-                                              + " SET "
-                                              + refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()]
-                                              + " = '' WHERE "
-                                              + refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()]
-                                              + " ~ E'"
-                                              + instanceVarPathEscNoDt
-                                              + "'; ");
-
-                                // Check if the table isn't a root structure
-                                if (!rootStructures.contains(table))
-                                {
-                                    // Remove references to the variable reference from the
-                                    // instances
-                                    valuesDelCmd.append("UPDATE "
-                                                        + InternalTable.VALUES.getTableName()
-                                                        + " SET "
-                                                        + ValuesColumn.VALUE.getColumnName()
-                                                        + " = '' WHERE "
-                                                        + ValuesColumn.TABLE_PATH.getColumnName()
-                                                        + " ~ E'^.+,"
-                                                        + table
-                                                        + "\\\\..*$' AND "
-                                                        + ValuesColumn.COLUMN_NAME.getColumnName()
-                                                        + " = '"
-                                                        + refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()]
-                                                        + "' AND "
-                                                        + ValuesColumn.VALUE.getColumnName()
-                                                        + " ~ E'"
-                                                        + instanceVarPathEscNoDt
-                                                        + "'; ");
-                                }
-                            }
-                        }
-                        // Check if the context is in a data field definition
-                        else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
-                        {
-                            // Blank the data field value if the variable path matches
-                            fieldsDelCmd.append("UPDATE "
-                                                + InternalTable.FIELDS.getTableName()
-                                                + " SET "
-                                                + FieldsColumn.FIELD_VALUE.getColumnName()
-                                                + " = '' WHERE "
-                                                + FieldsColumn.FIELD_TYPE.getColumnName()
-                                                + " = E'"
-                                                + DefaultInputType.VARIABLE_REFERENCE.getInputName()
-                                                + "' AND "
-                                                + FieldsColumn.FIELD_VALUE.getColumnName()
-                                                + " ~ E'"
-                                                + instanceVarPathEscNoDt
-                                                + "'; ");
-                        }
-                    }
-                    // end TODO
+                    // Blank any table cells or data fields with the variable reference input type
+                    // containing the deleted variable
+                    deleteVariableReference(tableInfo,
+                                            variableName,
+                                            variableReferences,
+                                            hasVarRefFieldChange,
+                                            valuesDelCmd,
+                                            fieldsDelCmd);
                 }
             }
 
@@ -4874,8 +4918,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Remove all references for the specified rate column name in tables of the changed table type
-     * in the links and telemetry scheduler tables
+     * Build the command to remove all references for the specified rate column name in tables of
+     * the changed table type in the links and telemetry scheduler tables
      *
      * @param rateColName
      *            rate column name
@@ -4887,7 +4931,8 @@ public class CcddDbTableCommandHandler
      *            sub-command for references in the telemetry scheduler table to tables of the
      *            target type
      *
-     * @return
+     * @return Command to remove all references for the specified rate column name in tables of the
+     *         changed table type in the links and telemetry scheduler tables
      *********************************************************************************************/
     private String deleteLinkAndTlmRateRef(String rateColName,
                                            StringBuilder linksCmd,
@@ -4913,13 +4958,14 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Remove all references to the specified rate column name in the links and telemetry scheduler
-     * tables
+     * Build the command to remove all references to the specified rate column name in the links
+     * and telemetry scheduler tables
      *
      * @param rateColName
      *            rate column name
      *
-     * @return
+     * @return Command to remove all references to the specified rate column name in the links and
+     *         telemetry scheduler tables
      *********************************************************************************************/
     private String deleteAllLinkAndTlmRateRefs(String rateColName)
     {
@@ -4936,6 +4982,280 @@ public class CcddDbTableCommandHandler
                + " = '"
                + rateColName
                + "'; ";
+    }
+
+    /**********************************************************************************************
+     * Update any references to a variable that had its name changed in every table cell and data
+     * field with a variable reference input type
+     *
+     * @param tableInfo
+     *            reference to variable's table information
+     *
+     * @param oldVariableName
+     *            original variable name
+     *
+     * @param newVariableName
+     *            new variable name
+     *
+     * @param oldDataType
+     *            original data type
+     *
+     * @param newDataType
+     *            new data type
+     *
+     * @param variableReferences
+     *            list containing the columns names (database and visible) and the names of the
+     *            prototype tables for each structure table type with a column using the variable
+     *            reference input type; an empty list if the table with the change is not a
+     *            structure
+     *
+     * @param hasVarRefFieldChange
+     *            true is a data field has a variable reference input type and the table with the
+     *            change is a structure
+     *
+     * @param valuesModCmd
+     *            StringBuilder containing the existing values table modification command
+     *
+     * @param fieldsModCmd
+     *            StringBuilder containing the existing fields table modification command
+     *********************************************************************************************/
+    private void modifyVariableReference(TableInformation tableInfo,
+                                         String oldVariableName,
+                                         String newVariableName,
+                                         String oldDataType,
+                                         String newDataType,
+                                         List<VariableReference> variableReferences,
+                                         boolean hasVarRefFieldChange,
+                                         StringBuilder valuesModCmd,
+                                         StringBuilder fieldsModCmd)
+    {
+        ArrayListMultiple targetVars = new ArrayListMultiple();
+
+        // Build the variable name matching regular expression
+        String match = "(^|.+,"
+                       + tableInfo.getPrototypeName()
+                       + ".[^,]+,)"
+                       + oldDataType
+                       + "\\."
+                       + CcddUtilities.escapePostgreSQLReservedChars(oldVariableName)
+                       + "(,.+|$)";
+
+        // Check if the table with the variable name that changed is a root structure
+        if (rootStructures.contains(tableInfo.getProtoVariableName()))
+        {
+            targetVars.add(new String[] {CcddUtilities.escapePostgreSQLReservedChars(tableInfo.getPrototypeName()
+                                                                                     + ","
+                                                                                     + oldVariableName),
+                                         tableInfo.getPrototypeName()
+                                                                                                         + ","
+                                                                                                         + newVariableName});
+        }
+        // The table isn't a root structure
+        else
+        {
+            // Step through every variable name
+            for (String variable : variableHandler.getAllVariableNames())
+            {
+                // Check if the variable matches the pattern for the changed variable name
+                if (variable.matches(match))
+                {
+                    // Remove the data type(s) from the variable path (the variable reference input
+                    // type only displays the variable name portion of the path)
+                    String targetVar = CcddUtilities.escapePostgreSQLReservedChars(variableHandler.removeDataTypeFromVariablePath(variable));
+
+                    // Check if the variable isn't already in the list
+                    if (!targetVars.contains(targetVar))
+                    {
+                        // Add the before and after variable names to the list for use in building
+                        // the modification commands
+                        targetVars.add(new String[] {targetVar,
+                                                     variableHandler.removeDataTypeFromVariablePath(variable.replaceFirst(match,
+                                                                                                                          "$1"
+                                                                                                                                 + newDataType
+                                                                                                                                 + "."
+                                                                                                                                 + newVariableName
+                                                                                                                                 + "$2"))});
+                    }
+                }
+            }
+        }
+
+        // Step through each table type variable reference input type reference
+        for (VariableReference varRef : variableReferences)
+        {
+            // Step through each table of this table type
+            for (String table : varRef.getTables())
+            {
+                // Step through each variable affected by the name change
+                for (String[] targetVar : targetVars)
+                {
+                    // Update references to the variable reference from the prototype table
+                    valuesModCmd.append("UPDATE "
+                                        + table
+                                        + " SET "
+                                        + varRef.getColumnDb()
+                                        + " = '"
+                                        + targetVar[1]
+                                        + "' WHERE "
+                                        + varRef.getColumnDb()
+                                        + " = E'"
+                                        + targetVar[0]
+                                        + "'; ");
+
+                    // Check if the table isn't a root structure
+                    if (!rootStructures.contains(table))
+                    {
+                        // Update references to the variable reference from the instances
+                        valuesModCmd.append("UPDATE "
+                                            + InternalTable.VALUES.getTableName()
+                                            + " SET "
+                                            + ValuesColumn.VALUE.getColumnName()
+                                            + " = '"
+                                            + targetVar[1]
+                                            + "' WHERE "
+                                            + ValuesColumn.TABLE_PATH.getColumnName()
+                                            + " ~ E'^.+,"
+                                            + table
+                                            + "\\\\..*$' AND "
+                                            + ValuesColumn.COLUMN_NAME.getColumnName()
+                                            + " = '"
+                                            + varRef.getColumnVisible()
+                                            + "' AND "
+                                            + ValuesColumn.VALUE.getColumnName()
+                                            + " = E'"
+                                            + targetVar[0]
+                                            + "'; ");
+                    }
+                }
+            }
+        }
+
+        // Check if a data field has the variable reference input type
+        if (hasVarRefFieldChange)
+        {
+            // Step through each variable affected by the name change
+            for (String targetVar[] : targetVars)
+            {
+                // Update the data field value if the variable path matches
+                fieldsModCmd.append("UPDATE "
+                                    + InternalTable.FIELDS.getTableName()
+                                    + " SET "
+                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                    + " = E'"
+                                    + targetVar[1]
+                                    + "' WHERE "
+                                    + FieldsColumn.FIELD_TYPE.getColumnName()
+                                    + " = E'"
+                                    + DefaultInputType.VARIABLE_REFERENCE.getInputName()
+                                    + "' AND "
+                                    + FieldsColumn.FIELD_VALUE.getColumnName()
+                                    + " = E'"
+                                    + targetVar[0]
+                                    + "'; ");
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Blank any references to a variable that has been deleted in every table cell and data field
+     * with a variable reference input type
+     *
+     * @param tableInfo
+     *            reference to variable's table information
+     *
+     * @param variableName
+     *            name of the deleted variable
+     *
+     * @param variableReferences
+     *            list containing the columns names (database and visible) and the names of the
+     *            prototype tables for each structure table type with a column using the variable
+     *            reference input type; an empty list if the table with the change is not a
+     *            structure
+     *
+     * @param hasVarRefFieldChange
+     *            true is a data field has a variable reference input type and the table with the
+     *            change is a structure
+     *
+     * @param valuesDelCmd
+     *            StringBuilder containing the existing values table deletion command
+     *
+     * @param fieldsDelCmd
+     *            StringBuilder containing the existing fields table deletion command
+     *********************************************************************************************/
+    private void deleteVariableReference(TableInformation tableInfo,
+                                         String variableName,
+                                         List<VariableReference> variableReferences,
+                                         boolean hasVarRefFieldChange,
+                                         StringBuilder valuesDelCmd,
+                                         StringBuilder fieldsDelCmd)
+    {
+        // Get the path without the data type(s)
+        String instanceVarPathEscNoDt = "(?:^|.+,)"
+                                        + tableInfo.getPrototypeName()
+                                        + ","
+                                        + CcddUtilities.escapePostgreSQLReservedChars(variableName)
+                                        + "(?:,|$)";
+
+        // Step through each table type variable reference input type reference
+        for (VariableReference varRef : variableReferences)
+        {
+            // Step through each table of this table type
+            for (String table : varRef.getTables())
+            {
+                // Remove references to the variable reference from the prototype table
+                valuesDelCmd.append("UPDATE "
+                                    + table
+                                    + " SET "
+                                    + varRef.getColumnDb()
+                                    + " = '' WHERE "
+                                    + varRef.getColumnDb()
+                                    + " ~ E'"
+                                    + instanceVarPathEscNoDt
+                                    + "'; ");
+
+                // Check if the table isn't a root structure
+                if (!rootStructures.contains(table))
+                {
+                    // Remove references to the variable reference from the instances
+                    valuesDelCmd.append("UPDATE "
+                                        + InternalTable.VALUES.getTableName()
+                                        + " SET "
+                                        + ValuesColumn.VALUE.getColumnName()
+                                        + " = '' WHERE "
+                                        + ValuesColumn.TABLE_PATH.getColumnName()
+                                        + " ~ E'^.+,"
+                                        + table
+                                        + "\\\\..*$' AND "
+                                        + ValuesColumn.COLUMN_NAME.getColumnName()
+                                        + " = '"
+                                        + varRef.getColumnVisible()
+                                        + "' AND "
+                                        + ValuesColumn.VALUE.getColumnName()
+                                        + " ~ E'"
+                                        + instanceVarPathEscNoDt
+                                        + "'; ");
+                }
+            }
+        }
+
+        // Check if a data field has the variable reference input type
+        if (hasVarRefFieldChange)
+        {
+            // Blank the data field value if the variable path matches
+            fieldsDelCmd.append("UPDATE "
+                                + InternalTable.FIELDS.getTableName()
+                                + " SET "
+                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                + " = '' WHERE "
+                                + FieldsColumn.FIELD_TYPE.getColumnName()
+                                + " = E'"
+                                + DefaultInputType.VARIABLE_REFERENCE.getInputName()
+                                + "' AND "
+                                + FieldsColumn.FIELD_VALUE.getColumnName()
+                                + " ~ E'"
+                                + instanceVarPathEscNoDt
+                                + "'; ");
+        }
     }
 
     /**********************************************************************************************

@@ -1071,9 +1071,6 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(dataTypeTable);
 
-        // Disable storage of edit operations during creation of the table
-        dataTypeTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         dataTypeTable.setFixedCharacteristics(scrollPane,
                                               true,
@@ -1085,9 +1082,6 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                               true,
                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                               true);
-
-        // Re-enable storage of edit operations
-        dataTypeTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

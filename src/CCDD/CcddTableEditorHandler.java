@@ -678,10 +678,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (!variableName.isEmpty()
                     && !dataType.isEmpty()
                     && (committedInfo.getData().length == 0
-                        || (row < committedInfo.getData().length // TODO ADDED THIS CHECK AFTER
-                                                                 // HAVING AN INDEX OF OUT BOUNDS
-                                                                 // WHEN ADDING A ROW TO A TABLE
-                                                                 // WITH A VARIABLE PATH COLUMN
+                        || (row < committedInfo.getData().length
                             && committedInfo.getData()[row][variablePathIndex].toString().isEmpty()))
                     && (tableModel.getValueAt(row, arraySizeIndex).toString().isEmpty()
                         || ArrayVariable.isArrayMember(tableModel.getValueAt(row, variableNameIndex))))
@@ -1026,11 +1023,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param dbTableInfo
      *            table's information, as it currently exists in the database
      *
-     * @param applyToChild
-     *            true if the table that was updated is a prototype and this table is a child of
-     *            the updated table
+     * @param applyToInstance
+     *            true if the table that was updated is a prototype and this table is an instance
+     *            of the updated table
      *********************************************************************************************/
-    protected void doTableUpdatesComplete(TableInformation dbTableInfo, boolean applyToChild)
+    protected void doTableUpdatesComplete(TableInformation dbTableInfo, boolean applyToInstance)
     {
         Object[][] originalCommData = null;
         Integer[] emptyRows = null;
@@ -1091,9 +1088,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // present
         updateVariablePaths();
 
-        // Check if this is a child table to a prototype that has been updated; if so this table
-        // needs to have the same changes applied
-        if (applyToChild)
+        // Check if this is an instance table to a prototype that has been updated; if so this
+        // table needs to have the same changes applied
+        if (applyToInstance)
         {
             // Store the current array member display status
             boolean isShowArrayMembersOld = isShowArrayMembers;
@@ -1225,19 +1222,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Restore the original array member visibility
                 showHideArrayMembers();
             }
-        }
-        // Not applying changes to an instance of the table - this is the table where the edits
-        // took place. Check if the data fields don't match those stored in the database
-        else if (CcddFieldHandler.isFieldChanged(getFieldHandler().getFieldInformation(),
-                                                 dbTableInfo.getFieldHandler().getFieldInformation(),
-                                                 false,
-                                                 inputTypeHandler))
-        {
-            // Set the data fields so that when these are restored it's flagged as an undoable
-            // change
-            getFieldHandler().setFieldInformation(dbTableInfo.getFieldHandler().getFieldInformation());
-            createDataFieldPanel(false);
-            storeCurrentFieldInformation();
         }
 
         // Update the change indicator in the editor tab
@@ -3600,9 +3584,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Disable storage of edit operations during table creation
-        table.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         table.setFixedCharacteristics(scrollPane, tableInfo.isPrototype(),
                                       ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
@@ -3616,9 +3597,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Get a reference to the table model to shorten later calls
         tableModel = (UndoableTableModel) table.getModel();
-
-        // Re-enable storage of edit operations
-        table.getUndoHandler().setAllowUndo(true);
 
         // Set the reference to the editor's data field handler in the undo handler so that data
         // field value changes can be undone/redone correctly
@@ -5062,9 +5040,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             InputType inputType = typeDefn.getInputTypes()[column];
 
             // Create a combo box for displaying selection lists
-            // TODO
-            // PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
-            PaddedComboBox comboBox = table.getUndoHandler().new UndoableComboBox(table.getFont());
+            // TODO THE CELLS ARE UNDOABLE - THE COMPONENT WITHIN SHOULDN'T HAVE TO BE
+            PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
+            // PaddedComboBox comboBox = table.getUndoHandler().new
+            // UndoableComboBox(table.getFont());
 
             // Step through each item in the selection
             for (String item : inputType.getInputItems())

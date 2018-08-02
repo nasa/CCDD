@@ -11,7 +11,6 @@ import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +38,8 @@ import CCDD.CcddConstants.SearchType;
  *************************************************************************************************/
 public class CcddInputTypeHandler
 {
-    // Class reference
+    // Class references
+    private CcddMain ccddMain;
     private CcddDbCommandHandler dbCommand;
 
     // List of input types, both default and custom ones defined by the user
@@ -65,6 +65,7 @@ public class CcddInputTypeHandler
         inputTypeMap = new HashMap<>();
         inputTypes = new ArrayList<InputType>(0);
         selectionInputTypes = new ArrayList<InputType>(0);
+        this.ccddMain = ccddMain;
         dbCommand = ccddMain.getDbCommandHandler();
 
         // Set the input type list, combining the default types and the custom types stored in the
@@ -198,31 +199,46 @@ public class CcddInputTypeHandler
      * Update the variable references input type selection item list with the supplied structure
      * path and variables list. Based on whether or not the variable list is empty, add or remove
      * the input type from the list of those having selection items
-     *
-     * @param structureAndVariablePaths
-     *            structure path and variables list
      *********************************************************************************************/
-    protected void updateVariableReferences(List<String> structureAndVariablePaths)
+    protected void updateVariableReferences()
     {
+        // Get the reference to the variable handler to shorten subsequent calls
+        CcddVariableSizeAndConversionHandler variableHandler = ccddMain.getVariableHandler();
+
         // Get the reference to the variable references input type
         InputType inputType = getInputTypeByDefaultType(DefaultInputType.VARIABLE_REFERENCE);
 
         // Set the variable item list
-        inputType.setInputItems(structureAndVariablePaths, true);
+        inputType.setInputItems(variableHandler.getAllVariableNames());
 
         // Check if the list is empty (no variable references)
-        if (structureAndVariablePaths.isEmpty())
+        if (variableHandler.getAllVariableNames().isEmpty())
         {
             // Remove the variable reference input type from the list of those having selection
             // items
             selectionInputTypes.remove(inputType);
         }
-        // Check if the list of types having selection items doesn't already contain the variable
-        // references input type
-        else if (!selectionInputTypes.contains(inputType))
+        // The list isn't empty
+        else
         {
-            // Add the variable references input type to the list
-            selectionInputTypes.add(inputType);
+            // Step through each item (skipping the initial blank item)
+            for (int index = 1; index < inputType.getInputItems().size(); index++)
+            {
+                // Remove the data types from the variable path + name
+                inputType.getInputItems().set(index,
+                                              variableHandler.removeDataTypeFromVariablePath(inputType.getInputItems().get(index)));
+            }
+
+            // Sort the list alphabetically (case insensitive)
+            Collections.sort(inputType.getInputItems(), String.CASE_INSENSITIVE_ORDER);
+
+            // Check if the list of types having selection items doesn't already contain the
+            // variable references input type
+            if (!selectionInputTypes.contains(inputType))
+            {
+                // Add the variable references input type to the list
+                selectionInputTypes.add(inputType);
+            }
         }
     }
 
@@ -231,13 +247,10 @@ public class CcddInputTypeHandler
      * path and variables list. Based on whether or not the variable list is empty, add or remove
      * the input type from the list of those having selection items
      *
-     * @param ccddMain
-     *            main class reference
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void updateMsgNameAndIDReferences(CcddMain ccddMain, Component parent)
+    protected void updateMsgNameAndIDReferences(Component parent)
     {
         List<String> msgIDs = new ArrayList<String>();
 
@@ -268,7 +281,7 @@ public class CcddInputTypeHandler
         }
 
         // Set the message names & IDs item list
-        inputType.setInputItems(msgIDs, false);
+        inputType.setInputItems(msgIDs);
 
         // Check if the list is empty (no message names & IDs)
         if (msgIDs.isEmpty())
@@ -569,26 +582,22 @@ public class CcddInputTypeHandler
      *********************************************************************************************/
     protected String[] getInputTypeReferences(String inputTypeName, Component parent)
     {
-        // Get the references in the table type and data field internal tables that match the
-        // specified input type name
-        List<String> matches = new ArrayList<String>(Arrays.asList(dbCommand.getList(DatabaseListCommand.SEARCH,
-                                                                                     new String[][] {{"_search_text_",
-                                                                                                      "^"
-                                                                                                                       + CcddUtilities.escapePostgreSQLReservedChars(inputTypeName)
-                                                                                                                       + "$"},
-                                                                                                     {"_case_insensitive_",
-                                                                                                      "true"},
-                                                                                                     {"_allow_regex_",
-                                                                                                      "true"},
-                                                                                                     {"_selected_tables_",
-                                                                                                      SearchType.INPUT.toString()},
-                                                                                                     {"_columns_",
-                                                                                                      TableTypesColumn.INPUT_TYPE.getColumnName()
-                                                                                                                   + ", "
-                                                                                                                   + FieldsColumn.FIELD_TYPE.getColumnName()}},
-                                                                                     parent)));
-
-        return matches.toArray(new String[0]);
+        return dbCommand.getList(DatabaseListCommand.SEARCH,
+                                 new String[][] {{"_search_text_",
+                                                  "^"
+                                                                   + CcddUtilities.escapePostgreSQLReservedChars(inputTypeName)
+                                                                   + "$"},
+                                                 {"_case_insensitive_",
+                                                  "true"},
+                                                 {"_allow_regex_",
+                                                  "true"},
+                                                 {"_selected_tables_",
+                                                  SearchType.INPUT.toString()},
+                                                 {"_columns_",
+                                                  TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                               + ", "
+                                                               + FieldsColumn.FIELD_TYPE.getColumnName()}},
+                                 parent);
     }
 
     /**********************************************************************************************

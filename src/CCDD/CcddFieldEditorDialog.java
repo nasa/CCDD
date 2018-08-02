@@ -473,9 +473,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(fieldTable);
 
-        // Disable storage of edit operations during table creation
-        fieldTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         fieldTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -493,9 +490,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Create a drop-down combo box to display the available field applicability types
         setUpApplicabilityColumn();
-
-        // Re-enable storage of edit operations
-        fieldTable.getUndoHandler().setAllowUndo(true);
 
         // Define the editor panel to contain the table
         JPanel editorPanel = new JPanel();

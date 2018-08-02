@@ -15,7 +15,6 @@ import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -347,7 +346,6 @@ public class CcddClassesDataTable
          * name. For a structure table the root table is the top level structure table from which
          * this table descends. The first data type/variable name pair is from the root table, with
          * each succeeding pair coming from the next level down in the structure's hierarchy
-         *
          *
          * @return Table path
          *****************************************************************************************/
@@ -1278,7 +1276,7 @@ public class CcddClassesDataTable
             this.inputName = inputName;
             this.inputDescription = inputDescription;
             this.inputMatch = inputMatch;
-            setInputItems(convertItemStringToList(inputItems), false);
+            setInputItems(convertItemStringToList(inputItems));
             this.inputFormat = inputFormat;
             this.isInputCustom = isInputCustom;
         }
@@ -1331,12 +1329,8 @@ public class CcddClassesDataTable
          *            list of input type selection items (an empty item is automatically prepended
          *            to the list to allow blanking the selection); null if the input type has no
          *            selection items
-         *
-         * @param isVariable
-         *            true if the supplied list represents the structure paths and variables. The
-         *            data types in the table path are removed
          *****************************************************************************************/
-        protected void setInputItems(List<String> inputItems, boolean isVariable)
+        protected void setInputItems(List<String> inputItems)
         {
             // Check if any items are in the list
             if (inputItems != null)
@@ -1346,26 +1340,8 @@ public class CcddClassesDataTable
                 // Add a blank item as the first in the list
                 this.inputItems.add("");
 
-                // Check if the list represents structure paths and variables
-                if (isVariable)
-                {
-                    // Step through each item
-                    for (String item : inputItems)
-                    {
-                        // Remove the data types from the variable path + name and add the
-                        // resulting path/variable to the list
-                        this.inputItems.add(item.replaceAll(",[^\\.]*\\.", ","));
-                    }
-
-                    // Sort the list alphabetically (case insensitive)
-                    Collections.sort(this.inputItems, String.CASE_INSENSITIVE_ORDER);
-                }
-                // The list isn't the structure paths and variables list
-                else
-                {
-                    // Add the items to the selection list as is
-                    this.inputItems.addAll(inputItems);
-                }
+                // Add the items to the selection list as is
+                this.inputItems.addAll(inputItems);
             }
             // The list is null or empty
             else

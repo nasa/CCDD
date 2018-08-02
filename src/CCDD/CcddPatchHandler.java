@@ -35,6 +35,7 @@ import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
+import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
@@ -105,16 +106,38 @@ public class CcddPatchHandler
      *********************************************************************************************/
     private void backupDatabase(CcddDbControlHandler dbControl)
     {
-        // Back up the project database before applying the patch
-        dbControl.backupDatabase(dbControl.getDatabaseName(),
-                                 new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty()
-                                                                                                             ? ""
-                                                                                                             : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
-                                                                                                               + File.separator)
-                                                + dbControl.getDatabaseName()
-                                                + "_"
-                                                + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
-                                                + FileExtension.DBU.getExtension()));
+        // Set the flag if the current user's password is non-blank. Depending on the
+        // authentication set-up and operating system, the password may still be required by the
+        // pg_dump command even if the authentication method is 'trust'
+        boolean isPasswordSet = dbControl.isPasswordNonBlank();
+
+        // Check if no password is set
+        if (!isPasswordSet)
+        {
+            // Display the password dialog and obtain the password. Note that the user can enter a
+            // blank password (which may be valid)
+            CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain,
+                                                                           ServerPropertyDialogType.PASSWORD);
+
+            // Set the flag if the user selected the Okay button in the password dialog
+            isPasswordSet = dialog.isPasswordSet();
+        }
+
+        // Check if the user's database password is set (either non-blank or explicitly set to
+        // blank)
+        if (isPasswordSet)
+        {
+            // Back up the project database before applying the patch
+            dbControl.backupDatabase(dbControl.getDatabaseName(),
+                                     new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty()
+                                                                                                                 ? ""
+                                                                                                                 : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
+                                                                                                                   + File.separator)
+                                                    + dbControl.getDatabaseName()
+                                                    + "_"
+                                                    + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
+                                                    + FileExtension.DBU.getExtension()));
+        }
     }
 
     /**********************************************************************************************

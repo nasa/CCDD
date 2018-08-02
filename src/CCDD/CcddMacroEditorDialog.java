@@ -1021,9 +1021,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(macroTable);
 
-        // Disable storage of edit operations during table creation
-        macroTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         macroTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -1035,9 +1032,6 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                            true,
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
-
-        // Re-enable storage of edit operations
-        macroTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

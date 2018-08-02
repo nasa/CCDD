@@ -178,10 +178,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             // Update the input type handler with the changes. The variable paths input type must
             // be re-added since it gets removed when the input types are built
             inputTypeHandler.setInputTypeData(getUpdatedData());
-            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
-                                                              .getStructureAndVariablePaths());
-            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain,
-                                                          CcddInputTypeEditorDialog.this);
+            inputTypeHandler.updateVariableReferences();
+            inputTypeHandler.updateMsgNameAndIDReferences(CcddInputTypeEditorDialog.this);
 
             // Update the table type handler with the input type changes
             ccddMain.getTableTypeHandler().updateInputTypes(inputTypeNames);
@@ -950,9 +948,6 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(inputTypeTable);
 
-        // Disable storage of edit operations during creation of the table
-        inputTypeTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         inputTypeTable.setFixedCharacteristics(scrollPane,
                                                true,
@@ -964,9 +959,6 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                                true,
                                                ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                                true);
-
-        // Re-enable storage of edit operations
-        inputTypeTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

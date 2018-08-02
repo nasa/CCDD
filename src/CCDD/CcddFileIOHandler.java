@@ -890,9 +890,8 @@ public class CcddFileIOHandler
 
             // Restore the structure path and variables list in case any input types were added
             // (only applied to CSV and JSON imports)
-            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
-                                                              .getStructureAndVariablePaths());
-            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain, parent);
+            inputTypeHandler.updateVariableReferences();
+            inputTypeHandler.updateMsgNameAndIDReferences(parent);
 
             // Update the table type handler with the input type changes
             tableTypeHandler.updateInputTypes(null);
@@ -900,10 +899,6 @@ public class CcddFileIOHandler
             // If open, update the table type editor's input type column combo box lists to include
             // the new input type(s), if applicable
             dbTable.updateInputTypeColumns(null, parent);
-
-            // // Update any open editor's message ID names columns to include any new message ID
-            // // names, if applicable
-            // dbTable.updateMessageIDNamesColumns(parent); TODO
 
             eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                               "Table import completed successfully");
@@ -1004,9 +999,8 @@ public class CcddFileIOHandler
 
             dataTypeHandler.setDataTypeData(originalDataTypes);
             inputTypeHandler.setInputTypeData(originalInputTypes);
-            inputTypeHandler.updateVariableReferences(ccddMain.getVariableHandler()
-                                                              .getStructureAndVariablePaths());
-            inputTypeHandler.updateMsgNameAndIDReferences(ccddMain, parent);
+            inputTypeHandler.updateVariableReferences();
+            inputTypeHandler.updateMsgNameAndIDReferences(parent);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
             dbTable.storeInformationTable(InternalTable.FIELDS,

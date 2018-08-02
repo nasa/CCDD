@@ -51,6 +51,7 @@ import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -365,19 +366,36 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            list of row deletion information
      *
      * @param forceUpdate
-     *            true to make the changes to other tables; false to only make changes to tables
-     *            other than the one in which the changes originally took place
+     *            true to make the changes to other tables (e.g., following a data type or macro
+     *            change); false to only make changes to tables other than the one in which the
+     *            changes originally took place
+     *
+     * @param hasVarRefFieldChange
+     *            true is a data field has a variable reference input type and the table with the
+     *            change is a structure
      *********************************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
                                                       TableInformation tableInfo,
                                                       List<TableModification> modifications,
                                                       List<TableModification> deletions,
-                                                      boolean forceUpdate)
+                                                      boolean forceUpdate,
+                                                      boolean hasVarRefFieldChange)
     {
+        List<String[]> fieldDefns = null;
+
         // Get references to shorten subsequent calls. Can't use global references since this is a
         // static method
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
         CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
+
+        // Check if variable name was changed or deleted and a data field uses the variable
+        // reference input type
+        if (hasVarRefFieldChange)
+        {
+            // Get the data field definitions from the database
+            fieldDefns = dbTblCmdHndlr.retrieveInformationTable(InternalTable.FIELDS,
+                                                                main.getMainFrame());
+        }
 
         // Create a list to store the names of tables that are no longer valid
         List<String[]> invalidatedEditors = new ArrayList<String[]>();
@@ -436,35 +454,54 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Step through each individual editor
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
-                // Check if the prototype of the editor's table matches that of the table that was
-                // updated
-                if (editor.getTableInformation().getPrototypeName().equals(tableInfo.getPrototypeName()))
-                {
-                    // Flag that indicates true if a forced update is set (such as when a macro
-                    // name or value is changed), or if the updated table is a prototype and the
-                    // editor is for an instance table of the updated table
-                    boolean applyToChild = forceUpdate
-                                           || (tableInfo.isPrototype()
-                                               && !tableInfo.getTablePath().equals(editor.getTableInformation()
-                                                                                         .getTablePath()));
-
-                    // Load the table from the database
-                    TableInformation updateInfo = main.getDbTableCommandHandler().loadTableData(editor.getTableInformation()
-                                                                                                      .getTablePath(),
-                                                                                                true,
-                                                                                                true,
-                                                                                                true,
-                                                                                                editorDialog);
-
-                    // Store the updates as the committed changes in the table (so that other
-                    // changes are recognized)
-                    editor.doTableUpdatesComplete(updateInfo, applyToChild);
-                }
-
                 // Update the table's root structure status in case it changed
                 editor.getTableInformation().setRootStructure(dbTblCmdHndlr.getRootStructures()
                                                                            .contains(editor.getTableInformation()
                                                                                            .getTablePath()));
+
+                // Flag that indicates if the updated table is a prototype and the editor is for an
+                // instance of the updated table
+                boolean applyToInstance = tableInfo.isPrototype()
+                                          && !editor.getTableInformation().isPrototype()
+                                          && tableInfo.getPrototypeName().equals((editor.getTableInformation()
+                                                                                        .getPrototypeName()));
+
+                // Check if this is the table that was updated or an instance of it (if the updated
+                // table is a prototype)
+                if (applyToInstance
+                    || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName()))
+                {
+                    // Load the table from the database
+                    TableInformation updateInfo = main.getDbTableCommandHandler()
+                                                      .loadTableData(editor.getTableInformation()
+                                                                           .getTablePath(),
+                                                                     true,
+                                                                     true,
+                                                                     true,
+                                                                     editorDialog);
+
+                    // Store the updates as the committed changes in the table (so that other
+                    // changes are recognized)
+                    editor.doTableUpdatesComplete(updateInfo, applyToInstance || forceUpdate);
+                }
+
+                // Check if a data field exists that uses the variable reference input type and if
+                // table wasn't already updated above
+                if (hasVarRefFieldChange && !applyToInstance)
+                {
+                    // Update the current and committed field definitions and information so that
+                    // the update isn't considered a change
+                    editor.getTableInformation().getFieldHandler()
+                          .setFieldDefinitions(new ArrayList<String[]>(fieldDefns));
+                    editor.getCommittedTableInformation().getFieldHandler()
+                          .setFieldDefinitions(new ArrayList<String[]>(fieldDefns));;
+                    editor.getTableInformation().getFieldHandler()
+                          .buildFieldInformation(editor.getTableInformation().getTablePath());
+                    editor.getCommittedTableInformation().getFieldHandler()
+                          .buildFieldInformation(editor.getTableInformation().getTablePath());
+                    editor.createDataFieldPanel(false);
+                    editor.storeCurrentFieldInformation();
+                }
 
                 // Step through each row modification
                 for (TableModification mod : modifications)

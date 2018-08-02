@@ -657,9 +657,6 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
         // Place the table into a scroll pane
         JScrollPane scrollPane = new JScrollPane(msgIDTable);
 
-        // Disable storage of edit operations during table creation
-        msgIDTable.getUndoHandler().setAllowUndo(false);
-
         // Set common table parameters and characteristics
         msgIDTable.setFixedCharacteristics(scrollPane,
                                            true,
@@ -671,9 +668,6 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                                            true,
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont(),
                                            true);
-
-        // Re-enable storage of edit operations
-        msgIDTable.getUndoHandler().setAllowUndo(true);
 
         return scrollPane;
     }

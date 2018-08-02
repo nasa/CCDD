@@ -669,9 +669,6 @@ public class CcddLinkManagerHandler
         // tree using the tree path order in the variables tree
         firstRateChange = true;
 
-        // Enable auto-completion for the combo box
-        rateFilter.setAutoComplete(null);
-
         // Set the rate filter to the selected rate. This initial setting updates the link tree,
         // but skips rebuilding the variable tree unnecessarily
         rateFilter.setSelectedItem(selectedRate);
