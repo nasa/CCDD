@@ -1003,7 +1003,7 @@ public class CcddMain
         mntmManageApps.setEnabled(activateIfDatabase);
         mntmRateParameters.setEnabled(activateIfRate);
         mntmAppParameters.setEnabled(activateIfDatabase);
-        mntmManageScripts.setEnabled(activateIfDatabase && activateIfReadWrite);
+        mntmManageScripts.setEnabled(activateIfDatabase);
         mntmExecuteScripts.setEnabled(activateIfDatabase);
         mntmStoreScripts.setEnabled(activateIfDatabase && activateIfReadWrite);
         mntmRetrieveScripts.setEnabled(activateIfDatabase);

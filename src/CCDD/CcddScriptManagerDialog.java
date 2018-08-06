@@ -588,6 +588,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                                                                 STORE_ICON,
                                                                                 KeyEvent.VK_S,
                                                                                 "Store the updated script associations to the database");
+                    btnStoreAssns.setEnabled(dbControl.isAccessReadWrite());
 
                     // Add a listener for the Store button
                     btnStoreAssns.addActionListener(new ActionListener()

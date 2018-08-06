@@ -8,7 +8,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
-import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
 import static CCDD.CcddConstants.TYPE_COMMAND;
@@ -454,23 +453,26 @@ public class CcddFileIOHandler
                                             + CCDD_PROJECT_IDENTIFIER
                                             + ".+"))
                         {
+                            // Extract the database name from the comment
+                            String databaseName = line.replaceAll("COMMENT ON DATABASE (.+) IS '"
+                                                                  + CCDD_PROJECT_IDENTIFIER
+                                                                  + ".+",
+                                                                  "$1");
+
                             // Split the line read from the file in order to get the project name
                             // and description
-                            String[] parts = line.trim().split(DATABASE_COMMENT_SEPARATOR, 3);
+                            String[] comment = dbControl.parseDatabaseComment(databaseName,
+                                                                              line.trim());
 
-                            // Check if the necessary components of the comment exist
-                            if (parts.length == 3)
-                            {
-                                // Extract the project name (with case preserved) and description,
-                                // and set the flag indicating the comment is located
-                                projectName = parts[DatabaseComment.PROJECT_NAME.ordinal()];
-                                projectDescription = CcddUtilities.removeTrailer(parts[DatabaseComment.DESCRIPTION.ordinal()], "';");
-                                commentFound = true;
+                            // Extract the project name (with case preserved) and description, and
+                            // set the flag indicating the comment is located
+                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                            projectDescription = CcddUtilities.removeTrailer(comment[DatabaseComment.DESCRIPTION.ordinal()], "';");
+                            commentFound = true;
 
-                                // Insert a comment indicator into the file so that this line isn't
-                                // executed when the database is restored
-                                line = "-- " + line;
-                            }
+                            // Insert a comment indicator into the file so that this line isn't
+                            // executed when the database is restored
+                            line = "-- " + line;
                         }
 
                         // Write the line to the temporary file
