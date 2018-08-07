@@ -2595,7 +2595,7 @@ public class CcddDbControlHandler
                 try
                 {
                     // Get the database's creator
-                    String creator = getDatabaseAdmins(currentDatabase);
+                    String creator = getDatabaseAdmins(oldDatabase);
 
                     // Check if the old and new database names are identical; this implies only the
                     // project name and/or description changed

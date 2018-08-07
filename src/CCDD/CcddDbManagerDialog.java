@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -120,6 +121,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private final String COPY_APPEND = "_copy";
 
     private final String DIALOG_TITLE = "Manage User Access Level";
+
+    private final String ADMIN_LIST = "\n[Project admin(s): ";
 
     /**********************************************************************************************
      * Project database manager dialog class constructor
@@ -925,8 +928,11 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             // Check if the item matches the selected one
                             if (data[DB_PRJNAME].equals(name))
                             {
-                                // Store the item description and stop searching
-                                desc = data[DB_INFO];
+                                // Store the item description (without the administrator name(s))
+                                // and stop searching
+                                desc = data[DB_INFO].replaceFirst(Pattern.quote(ADMIN_LIST)
+                                                                  + ".*\\]$",
+                                                                  "");
                                 break;
                             }
                         }
@@ -1773,7 +1779,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 if (!comment[DatabaseComment.ADMINS.ordinal()].isEmpty())
                 {
                     // Append the project administrator(s) to the information field
-                    arrayItemData[index][DB_INFO] += "\n[Project admin(s): "
+                    arrayItemData[index][DB_INFO] += ADMIN_LIST
                                                      + comment[DatabaseComment.ADMINS.ordinal()].replaceAll(DATABASE_ADMIN_SEPARATOR,
                                                                                                             ", ")
                                                      + "]";

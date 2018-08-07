@@ -458,16 +458,20 @@ public class CcddFileIOHandler
                                                                   + CCDD_PROJECT_IDENTIFIER
                                                                   + ".+",
                                                                   "$1");
+                            String commentText = line.replaceAll("COMMENT ON DATABASE .+ IS '"
+                                                                 + CCDD_PROJECT_IDENTIFIER
+                                                                 + "(.+)';$",
+                                                                 "$1");
 
                             // Split the line read from the file in order to get the project name
                             // and description
                             String[] comment = dbControl.parseDatabaseComment(databaseName,
-                                                                              line.trim());
+                                                                              commentText);
 
                             // Extract the project name (with case preserved) and description, and
                             // set the flag indicating the comment is located
                             projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectDescription = CcddUtilities.removeTrailer(comment[DatabaseComment.DESCRIPTION.ordinal()], "';");
+                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
                             commentFound = true;
 
                             // Insert a comment indicator into the file so that this line isn't
