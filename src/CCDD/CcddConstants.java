@@ -36,8 +36,9 @@ import CCDD.CcddConstants.InternalTable.ValuesColumn;
  *************************************************************************************************/
 public class CcddConstants
 {
-    // CCDD version number and version date
+    // CCDD author and contributors
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
+    protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh";
 
     // Default server information
     protected static final String DEFAULT_POSTGRESQL_HOST = "localhost";
@@ -401,6 +402,12 @@ public class CcddConstants
 
         // Instance tables only, all types, with primitive variables (for structures)
         INSTANCE_TABLES_WITH_PRIMITIVES,
+
+        // Structure tables only, prototypes and instances
+        STRUCTURE_TABLES,
+
+        // Command tables only
+        COMMAND_TABLES,
 
         // Prototype and instance tables, structure types only, with primitive variables.
         // Structures that are not root tables appear in the prototype node, but include the child
@@ -1190,7 +1197,8 @@ public class CcddConstants
         MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
         MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20),
         MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100),
-        TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tab move location indicator width in pixels", "TabMoveLocationIndcatorWidth", 3, 1, 15);
+        TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tab move location indicator width in pixels", "TabMoveLocationIndcatorWidth", 3, 1, 15),
+        POSTGRESQL_CONNECTION_TIMEOUT("PostgreSQL Server Timeout", "Number of seconds allowed to validate the PostgreSQL server connection", "MaximumServerTimeout", 5, 1, 60);
 
         private final String name;
         private final String description;
@@ -2089,10 +2097,10 @@ public class CcddConstants
         INTEGER(true),
         NUMBER(true),
         RATE(false),
-        ENUMERATION(false),
+        ENUMERATION(true), // TODO WAS false
         DATA_TYPE(false),
-        MINIMUM(false),
-        MAXIMUM(false),
+        MINIMUM(false), // TODO CAN DO THE SAME AS FOR ENUMERATIONS?
+        MAXIMUM(false), // TODO CAN DO THE SAME AS FOR ENUMERATIONS?
         VARIABLE_PATH(false),
         PAGE_FORMAT(false);
 
@@ -2182,6 +2190,11 @@ public class CcddConstants
                      InputTypeFormat.TEXT,
                      "Command name; same constraints as for an "
                                            + "alphanumeric (see Alphanumeric)"),
+
+        COMMAND_REFERENCE("Command reference",
+                          ".*",
+                          InputTypeFormat.TEXT,
+                          "Display a menu of all defined commands"),
 
         DESCRIPTION("Description",
                     "(?s).*",
@@ -5353,6 +5366,78 @@ public class CcddConstants
         }
     }
 
+    // TODO
+    /**********************************************************************************************
+     * Command information table column information
+     *********************************************************************************************/
+    protected static enum CommandInformationTableColumnInfo
+    {
+        COMMAND_NAME("Command Name", "Command name"),
+        COMMAND_CODE("Command Code", "Command code"),
+        COMMAND_TABLE("Comamnd Table", "Table containing the command"),
+        ARGUMENTS("Arguments", "Command argument names");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /******************************************************************************************
+         * Command information table column information constructor
+         *
+         * @param columnName
+         *            text to display for the table verification column name
+         *
+         * @param toolTip
+         *            tool tip text to display for the table verification column
+         *****************************************************************************************/
+        CommandInformationTableColumnInfo(String columnName, String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /******************************************************************************************
+         * Get the script association table column names
+         *
+         * @return Array containing the command information table column names
+         *****************************************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[CommandInformationTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (CommandInformationTableColumnInfo type : CommandInformationTableColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /******************************************************************************************
+         * Get the command information table column tool tips
+         *
+         * @return Array containing the command information table column tool tips
+         *****************************************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[CommandInformationTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (CommandInformationTableColumnInfo type : CommandInformationTableColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+    }
+
     /**********************************************************************************************
      * Script associations table column information
      *********************************************************************************************/
@@ -5371,10 +5456,10 @@ public class CcddConstants
          * Script association table column information constructor
          *
          * @param columnName
-         *            text to display for the table verification column name
+         *            text to display for the script association column name
          *
          * @param toolTip
-         *            tool tip text to display for the table verification column
+         *            tool tip text to display for the script association column
          *****************************************************************************************/
         AssociationsTableColumnInfo(String columnName, String toolTip)
         {
@@ -6195,9 +6280,9 @@ public class CcddConstants
                     + "ORDER BY name ASC;"),
 
         // Get the list containing the user-viewable table name, database table name, and table
-        // type for all data tables, sorted alphabetically
-        DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type FROM "
-                              + "(SELECT split_part(obj_description, ',', 1) AS name, "
+        // type for all prototype data tables, sorted alphabetically
+        DATA_TABLES_WITH_TYPE("SELECT name || E',' || relname || E',' || type AS visname_dbname_type "
+                              + "FROM (SELECT split_part(obj_description, ',', 1) AS name, "
                               + "lower(split_part(obj_description, ',', 2)) AS type,"
                               + " relname FROM (SELECT obj_description(oid), relname"
                               + " FROM pg_class WHERE substr(relname, 1, "

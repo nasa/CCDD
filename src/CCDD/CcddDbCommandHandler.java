@@ -20,6 +20,7 @@ import java.util.List;
 
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary database command handler class
@@ -71,16 +72,6 @@ public class CcddDbCommandHandler
     protected void setConnection(Connection connection)
     {
         this.connection = connection;
-    }
-
-    /**********************************************************************************************
-     * Get the database connection
-     *
-     * @return The database connection
-     *********************************************************************************************/
-    protected Connection getConnection()
-    {
-        return connection;
     }
 
     /**********************************************************************************************
@@ -214,44 +205,63 @@ public class CcddDbCommandHandler
         }
         catch (SQLException se)
         {
-            try
+            // Check if the server is no longer connected
+            if (!connection.isValid(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize()))
             {
-                // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit is
-                // enabled. Auto-commit is usually disabled, but there are instances where it's
-                // enabled so this check is required to prevent an exception
-                if (connection.getAutoCommit() == false)
+                // Check if the attempt to reconnect to the server is successful
+                if (!ccddMain.getDbControlHandler().reconnectToDatabase())
                 {
-                    // Check if no save point exists
-                    if (savePoint == null)
-                    {
-                        // Revert the change to the database to before the last uncommitted
-                        // transaction
-                        connection.rollback();
-                    }
-                    // The save point exists
-                    else
-                    {
-                        // Revert any changes to the database to the save point
-                        connection.rollback(savePoint);
-                    }
+                    // Send the command again
+                    executeDbStatement(commandType, command, component);
+                }
+                // The connection attempt failed
+                else
+                {
+                    throw new SQLException("Connection to server lost");
                 }
             }
-            catch (SQLException se2)
+            // The server is connected
+            else
             {
-                // Inform the user that rolling back the changes failed
-                eventLog.logFailEvent(component,
-                                      "Cannot revert changes to project; cause '"
-                                                 + se2.getMessage()
-                                                 + "'",
-                                      "<html><b>Cannot revert changes to project");
-            }
-            finally
-            {
-                savePoint = null;
-            }
+                try
+                {
+                    // Check if auto-commit is disabled. Roll-backs aren't allowed if auto-commit
+                    // is enabled. Auto-commit is usually disabled, but there are instances where
+                    // it's enabled so this check is required to prevent an exception
+                    if (connection.getAutoCommit() == false)
+                    {
+                        // Check if no save point exists
+                        if (savePoint == null)
+                        {
+                            // Revert the change to the database to before the last uncommitted
+                            // transaction
+                            connection.rollback();
+                        }
+                        // The save point exists
+                        else
+                        {
+                            // Revert any changes to the database to the save point
+                            connection.rollback(savePoint);
+                        }
+                    }
+                }
+                catch (SQLException se2)
+                {
+                    // Inform the user that rolling back the changes failed
+                    eventLog.logFailEvent(component,
+                                          "Cannot revert changes to project; cause '"
+                                                     + se2.getMessage()
+                                                     + "'",
+                                          "<html><b>Cannot revert changes to project");
+                }
+                finally
+                {
+                    savePoint = null;
+                }
 
-            // Re-throw the exception so that the caller can handle it
-            throw new SQLException(se.getMessage());
+                // Re-throw the exception so that the caller can handle it
+                throw new SQLException(se.getMessage());
+            }
         }
 
         return result;

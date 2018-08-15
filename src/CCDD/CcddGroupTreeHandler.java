@@ -53,7 +53,6 @@ import CCDD.CcddUndoHandler.UndoableTreeModel;
 public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 {
     // Class references
-    private CcddDbTableCommandHandler dbTable;
     private CcddGroupHandler groupHandler;
     private CcddTableTypeHandler tableTypeHandler;
     private ToolTipTreeNode root;
@@ -159,10 +158,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                               List<String[]> groupDefinitions)
     {
         this.groupDefinitions = groupDefinitions;
-        dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         groupHandler = new CcddGroupHandler(undoHandler);
-        fieldHandler = new CcddFieldHandler(ccddMain);
 
         // Set the tree to be collapsed initially
         isExpanded = false;
@@ -186,16 +184,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     protected CcddGroupHandler getGroupHandler()
     {
         return groupHandler;
-    }
-
-    /**********************************************************************************************
-     * Get the reference to the data field handler
-     *
-     * @return Reference to the data field handler
-     *********************************************************************************************/
-    protected CcddFieldHandler getFieldHandler()
-    {
-        return fieldHandler;
     }
 
     /**********************************************************************************************
@@ -437,23 +425,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     private void buildFieldInformation(Component parent)
     {
-        // Get the data field information from the database
-        fieldHandler.setFieldDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS,
-                                                                          parent));
-
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
-            // Build the field information list for this group
-            fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldGroupName(groupInfo.getName()));
-
             // Set the field information in the group handler
-            groupInfo.setFieldInformation(fieldHandler.getFieldInformationCopy());
+            groupInfo.setFieldInformation(fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName())));
         }
-
-        // Reset the field handler field information reference so that no fields are initially
-        // active
-        fieldHandler.getFieldInformation().clear();
     }
 
     /**********************************************************************************************
@@ -546,7 +523,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     nodeName = removeExtraText(nodeName);
 
                     // Get the reference to the schedule rate field information
-                    fieldHandler.setFieldInformation(groupInfo.getFieldInformation());
                     FieldInformation rateInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(groupName),
                                                                                        DefaultApplicationField.SCHEDULE_RATE.getFieldName());
 

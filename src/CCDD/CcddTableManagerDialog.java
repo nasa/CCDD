@@ -180,6 +180,13 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     protected void doTableOperationComplete()
     {
+        // Update the lists and references since the tables changed
+        dbTable.updateListsAndReferences(caller);
+
+        // Update the field handler's data field information from the field definitions stored in
+        // the database
+        ccddMain.getFieldHandler().buildFieldInformation(caller);
+
         // Perform the steps based on the dialog type
         switch (dialogType)
         {

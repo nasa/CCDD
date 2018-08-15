@@ -89,7 +89,7 @@ public class CcddScriptDataAccessHandler
     private final CcddTableTreeHandler tableTree;
     private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
-    private final CcddVariableSizeAndConversionHandler variableHandler;
+    private final CcddVariableHandler variableHandler;
     private CcddXTCEHandler xtceHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
@@ -123,9 +123,6 @@ public class CcddScriptDataAccessHandler
      * @param linkHandler
      *            link handler reference
      *
-     * @param fieldHandler
-     *            field handler reference
-     *
      * @param groupHandler
      *            group handler reference
      *
@@ -144,7 +141,6 @@ public class CcddScriptDataAccessHandler
                                 ScriptEngine scriptEngine,
                                 TableInformation[] tableInformation,
                                 CcddLinkHandler linkHandler,
-                                CcddFieldHandler fieldHandler,
                                 CcddGroupHandler groupHandler,
                                 String scriptFileName,
                                 List<String> groupNames,
@@ -154,7 +150,6 @@ public class CcddScriptDataAccessHandler
         this.scriptEngine = scriptEngine;
         this.tableInformation = tableInformation;
         this.linkHandler = linkHandler;
-        this.fieldHandler = fieldHandler;
         this.groupHandler = groupHandler;
         this.scriptFileName = scriptFileName;
         this.groupNames = groupNames;
@@ -168,6 +163,7 @@ public class CcddScriptDataAccessHandler
         rateHandler = ccddMain.getRateParameterHandler();
         macroHandler = ccddMain.getMacroHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         variableHandler = ccddMain.getVariableHandler();
         tableTree = variableHandler.getVariableTree();
         copyHandler = null;
@@ -3569,11 +3565,8 @@ public class CcddScriptDataAccessHandler
     {
         List<String> fieldNames = new ArrayList<String>();
 
-        // Build the field information for this owner
-        fieldHandler.buildFieldInformation(ownerName);
-
         // Step through each data field associated with the owner
-        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(ownerName))
         {
             // Add the field name to the list
             fieldNames.add(fieldInfo.getFieldName());
@@ -4841,11 +4834,8 @@ public class CcddScriptDataAccessHandler
     {
         List<String[]> projectFields = new ArrayList<String[]>();
 
-        // Build the project's data field information
-        fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldProjectName());
-
         // Step through each data field belonging to the project
-        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName()))
         {
             // Add the data field information to the list
             projectFields.add(new String[] {fieldInfo.getFieldName(),
@@ -4992,8 +4982,7 @@ public class CcddScriptDataAccessHandler
             linkHandler = new CcddLinkHandler(ccddMain, parent);
         }
 
-        return linkHandler.getApplicationNames(tableInformation[0].getFieldHandler(),
-                                               dataFieldName);
+        return linkHandler.getApplicationNames(dataFieldName);
     }
 
     /**********************************************************************************************
@@ -5346,8 +5335,7 @@ public class CcddScriptDataAccessHandler
         if (rateHandler.getRateInformationIndexByStreamName(streamName) != -1)
         {
             // Create the copy table
-            entries = copyHandler.createCopyTable(fieldHandler,
-                                                  linkHandler,
+            entries = copyHandler.createCopyTable(linkHandler,
                                                   streamName,
                                                   headerSize,
                                                   messageIDNameField,
@@ -5611,7 +5599,7 @@ public class CcddScriptDataAccessHandler
         try
         {
             // Create the XTCE handler
-            xtceHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
+            xtceHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
 
             // Export the specified tables to the specified output file in XTCE XML format
             xtceHandler.exportToFile(new FileEnvVar(outputFileName),

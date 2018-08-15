@@ -87,6 +87,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
     // Components referenced by multiple methods
     private JButton btnSelectScript;
+    private JButton btnStoreAssns;
     private JTextField scriptNameFld;
     private JTextField nameFld;
     private JTextArea descriptionFld;
@@ -122,6 +123,21 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
         // Create the script association manager dialog
         initialize();
+    }
+
+    /**********************************************************************************************
+     * Enable/disable the script manager dialog menu controls
+     *
+     * @param enable
+     *            true to enable the controls; false to disable
+     *********************************************************************************************/
+    @Override
+    protected void setControlsEnabled(boolean enable)
+    {
+        super.setControlsEnabled(enable);
+
+        // Enable/disable the Store button based on the user's access level
+        btnStoreAssns.setEnabled(enable && dbControl.isAccessReadWrite());
     }
 
     /**********************************************************************************************
@@ -291,7 +307,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     assnsTable = scriptHandler.getAssociationsTable();
 
                     // Store the initial table data
-                    doAssnUpdatesComplete(false);
+                    committedAssnsData = assnsTable.getTableData(true);
 
                     // Add a listener for script association table row selection changes
                     assnsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -584,11 +600,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                     });
 
                     // Store script associations button
-                    JButton btnStoreAssns = CcddButtonPanelHandler.createButton("Store",
-                                                                                STORE_ICON,
-                                                                                KeyEvent.VK_S,
-                                                                                "Store the updated script associations to the database");
-                    btnStoreAssns.setEnabled(dbControl.isAccessReadWrite());
+                    btnStoreAssns = CcddButtonPanelHandler.createButton("Store",
+                                                                        STORE_ICON,
+                                                                        KeyEvent.VK_S,
+                                                                        "Store the updated script associations to the database");
 
                     // Add a listener for the Store button
                     btnStoreAssns.addActionListener(new ActionListener()
@@ -686,6 +701,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                 btnExecute,
                                 DIALOG_TITLE,
                                 null);
+
+                    // Enable the manager controls
+                    setControlsEnabled(true);
                 }
             });
         }

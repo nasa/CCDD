@@ -306,8 +306,6 @@ public class CcddImportSupportHandler
      * @param ccddMain
      *            main class reference
      *
-     * @param fieldHandler
-     *            data field handler reference
      *
      * @param dataFields
      *            list containing the data field definitions from the import file
@@ -317,13 +315,13 @@ public class CcddImportSupportHandler
      *             doesn't match
      *********************************************************************************************/
     protected void buildProjectdataFields(CcddMain ccddMain,
-                                          CcddFieldHandler fieldHandler,
                                           List<String[]> dataFields) throws CCDDException
     {
         // Check if any project-level data fields exist in the import file
         if (!dataFields.isEmpty())
         {
             boolean isNewField = false;
+            CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
 
             // Step through each project data field
             for (String[] dataField : dataFields)
@@ -373,9 +371,6 @@ public class CcddImportSupportHandler
      * @param ccddMain
      *            main class reference
      *
-     * @param fieldHandler
-     *            data field handler reference
-     *
      * @param isCreateField
      *            true is the project-level data fields are to be created
      *
@@ -400,13 +395,13 @@ public class CcddImportSupportHandler
      *             doesn't match
      *********************************************************************************************/
     protected void setProjectHeaderTablesAndVariables(CcddMain ccddMain,
-                                                      CcddFieldHandler fieldHandler,
                                                       boolean isCreateField,
                                                       String tlmHdrTable,
                                                       String cmdHdrTable,
                                                       String appIDName,
                                                       String funcCodeName) throws CCDDException
     {
+        CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
         ProjectDefinition projectDefn = new ProjectDefinition();
         tlmHeaderTable = tlmHdrTable;
         cmdHeaderTable = cmdHdrTable;
@@ -529,7 +524,7 @@ public class CcddImportSupportHandler
         if (isCreateField)
         {
             // Build the imported project-level data fields, if any
-            buildProjectdataFields(ccddMain, fieldHandler, projectDefn.getDataFields());
+            buildProjectdataFields(ccddMain, projectDefn.getDataFields());
         }
     }
 

@@ -309,7 +309,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                     String[] refNameAndType = refComment.split(",");
 
                                     // Check if the match is within a sizeof() call
-                                    if (CcddVariableSizeAndConversionHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
+                                    if (CcddVariableHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
                                                                                        dataType))
                                     {
                                         // Check if the table name hasn't already been added to the
@@ -1126,8 +1126,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             baseComboBox.addItem(type.getName().toLowerCase());
         }
 
-        // Enable auto-completion for the combo box
-        baseComboBox.setAutoComplete(dataTypeTable);
+        // Enable item matching for the combo box
+        baseComboBox.enableItemMatching(dataTypeTable);
 
         // Add a listener to the combo box for focus changes
         baseComboBox.addFocusListener(new FocusAdapter()

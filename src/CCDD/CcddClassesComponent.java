@@ -62,6 +62,7 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxEditor;
+import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -89,6 +90,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -102,7 +104,6 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
-import CCDD.CcddUndoHandler.UndoableComboBox;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary common component classes class
@@ -251,20 +252,26 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Custom combo box with auto-completion, padding for the list items, and tool tip text. The
+     * Custom combo box with item matching, padding for the list items, and tool tip text. The
      * combo box may have a list of selection items defined by an input type. One or more
      * characters may be typed into the combo box's data table cell or data field; the combo box
-     * list is pruned so that only items than begin with the character(s) are displayed.
-     * Additionally, the auto-completion feature populates the entered text to display the first
-     * matching item from the list
+     * list is pruned so that only items that match the character(s) are displayed (wildcard
+     * characters are allowed).
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class PaddedComboBox extends JComboBox<String>
     {
+        // Flag that indicates the combo box is undergoing a layout operation
         private boolean inLayOut = false;
 
+        // Flag that indicates if item matching is enable for this combo box
+        private boolean isItemMatchEnabled = false;
+
         // Flag that indicates that the auto-completion characters are being entered by the user
-        private boolean isPrefixChanging;
+        private boolean isPrefixChanging = false;
+
+        // Item matching the user's input criteria or list selection
+        private String selection = null;
 
         /******************************************************************************************
          * Padded combo box constructor with an empty list
@@ -356,6 +363,35 @@ public class CcddClassesComponent
             }
 
             return dim;
+        }
+
+        /******************************************************************************************
+         * Override in order to keep the combo box width to that of the longest list item. If item
+         * matching is enabled then base the width on the longest item in the full list, not the
+         * reduced list constrained by the item matching
+         *****************************************************************************************/
+        @Override
+        public Dimension getPreferredSize()
+        {
+            return isItemMatchEnabled
+                                      ? super.getSize()
+                                      : super.getPreferredSize();
+        }
+
+        /******************************************************************************************
+         * Override in order to store the current item selection if item matching is enabled
+         *****************************************************************************************/
+        @Override
+        public void setSelectedItem(Object item)
+        {
+            // Check if item matching is enabled for this combo box
+            if (isItemMatchEnabled)
+            {
+                // Store the selected item
+                selection = item.toString();
+            }
+
+            super.setSelectedItem(item);
         }
 
         /******************************************************************************************
@@ -459,16 +495,22 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Set up auto-completion
+         * Enable text matching in the combo box. When enabled, iIn addition to selecting an item
+         * directly from the list, the user may type in one or more characters to constrain the
+         * list to those items that match the text entered. Wildcard characters are allowed: a '?'
+         * matches a single character and a '*' matches one or more characters. Trailing characters
+         * are automatically assumed to be included (i.e., the result is the same as if an asterisk
+         * terminates the match text)
          *
          * @param table
          *            reference to the table in which the combo box is a cell editor; null if the
          *            combo box isn't in a table cell
          *****************************************************************************************/
-        protected void setAutoComplete(final CcddJTableHandler table)
+        protected void enableItemMatching(final CcddJTableHandler table)
         {
             isPrefixChanging = false;
-            List<String> inputItems = new ArrayList<String>();
+            selection = "";
+            final List<String> inputItems = new ArrayList<String>();
 
             // Step through each combo box item
             for (int index = 0; index < getItemCount(); index++)
@@ -477,34 +519,29 @@ public class CcddClassesComponent
                 inputItems.add(getItemAt(index));
             }
 
-            // Set the combo box to be editable so that characters can be typed for auto-completion
+            // Set the combo box to be editable so that characters can be typed for item matching
             // purposes
             setEditable(true);
 
-            // Create an auto-completion text field for use as the combo box's editor. only the
-            // last item needs to be memorized for this type of auto-completion field, so the
-            // maximum items to remember is set to one
-            final AutoCompleteTextField autoCompFld = new AutoCompleteTextField(inputItems, 1);
+            // Create the text field used as the editor for the combo box. Set the size so that it
+            // doesn't change as the user's text input constrains the list contents
+            final JTextField matchFld = new JTextField("");
 
-            // Set the flag so that only items from the input type's selection item list can be
-            // entered
-            autoCompFld.setOnlyFromList(true);
-
-            // Set the combo box's editor, using the auto-completion text field as the editor
+            // Set the combo box's editor, using the item matching text field as the editor
             setEditor(new ComboBoxEditor()
             {
                 /**********************************************************************************
-                 * Override so that the auto-completion text field can be returned as the editor
+                 * Override so that the item matching text field can be returned as the editor
                  * component
                  *********************************************************************************/
                 @Override
                 public Component getEditorComponent()
                 {
-                    return autoCompFld;
+                    return matchFld;
                 }
 
                 /**********************************************************************************
-                 * Override so that the auto-completion text field's contents can be set
+                 * Override so that the item matching text field's contents can be set
                  *********************************************************************************/
                 @Override
                 public void setItem(Object text)
@@ -513,67 +550,67 @@ public class CcddClassesComponent
                     // null
                     if (!isPrefixChanging && text != null)
                     {
-                        autoCompFld.setText(text.toString());
+                        // Store the text in the item matching text field
+                        matchFld.setText(text.toString());
                     }
                 }
 
                 /**********************************************************************************
-                 * Override to retrieve the auto-completion text field's contents
+                 * Override to retrieve the item matching text field's contents
                  *********************************************************************************/
                 @Override
                 public Object getItem()
                 {
-                    return autoCompFld.getText();
+                    return matchFld.getText();
                 }
 
                 /**********************************************************************************
-                 * Override to select all of the auto-completion text field's contents
+                 * Override to select all of the item matching text field's contents
                  *********************************************************************************/
                 @Override
                 public void selectAll()
                 {
-                    autoCompFld.selectAll();
+                    matchFld.selectAll();
                 }
 
                 /**********************************************************************************
-                 * Override to add an action listener to the auto-completion text field
+                 * Override to add an action listener to the item matching text field
                  *********************************************************************************/
                 @Override
                 public void addActionListener(ActionListener al)
                 {
-                    autoCompFld.addActionListener(al);
+                    matchFld.addActionListener(al);
                 }
 
                 /**********************************************************************************
-                 * Override to remove an action listener to the auto-completion text field
+                 * Override to remove an action listener to the item matching text field
                  *********************************************************************************/
                 @Override
                 public void removeActionListener(ActionListener al)
                 {
-                    autoCompFld.removeActionListener(al);
+                    matchFld.removeActionListener(al);
                 }
             });
 
-            // Add a key listener to the combo box editor (auto-completion text field) to capture
-            // the match text entered by the user
+            // Add a key listener to the combo box editor (item matching text field) to capture the
+            // match text entered by the user
             getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
             {
-                // Table cell row and column, and combo box drop down menu status (only used if the
-                // combo box is in a table cell)
-                int row = 0;
-                int column = 0;
-                boolean isMenuShowing = false;
-
                 /**********************************************************************************
                  * Override to capture key press events. Only those keys that alter the prefix need
                  * be processed
                  *********************************************************************************/
                 @Override
-                public void keyPressed(KeyEvent ke)
+                public void keyPressed(final KeyEvent ke)
                 {
-                    // Check if a prefix change is not already in progress
-                    if (!isPrefixChanging)
+                    // Check if a prefix change is not already in progress and the key pressed is a
+                    // character
+                    if (!isPrefixChanging && !ke.isActionKey())
                     {
+                        // Set the flag to indicate a prefix change is active. This is needed to
+                        // prevent the item matching text field contents from being overridden
+                        isPrefixChanging = true;
+
                         // Create a runnable object to be executed
                         SwingUtilities.invokeLater(new Runnable()
                         {
@@ -585,135 +622,85 @@ public class CcddClassesComponent
                             @Override
                             public void run()
                             {
-                                // Get the current auto-completion text
-                                final String item = autoCompFld.getText();
-
-                                // Set the flag to indicate a prefix change is active. This is
-                                // needed to prevent the auto-completion text field contents from
-                                // being overridden
-                                isPrefixChanging = true;
-
-                                // Check if the combo box is in a table cell
-                                if (table != null)
+                                // Step through each combo box item, skipping the initial blank
+                                // item
+                                for (int index = getItemCount() - 1; index > 0; index--)
                                 {
-                                    // Store the cell's row and column, and if the combo box drop
-                                    // down menu is showing
-                                    row = table.getEditingRow();
-                                    column = table.getEditingColumn();
-                                    isMenuShowing = isPopupVisible();
+                                    // Remove the item from the list
+                                    removeItemAt(index);
                                 }
 
-                                // Check if the combo box resides in a table cell
-                                if (table != null)
+                                // A custom matching system is used: a question mark matches a
+                                // single character and an asterisk matches one or more characters.
+                                // This is turned into a regular expression to perform the actual
+                                // match. First the reserved regular expression characters are
+                                // escaped, other than the asterisk and question mark; these are
+                                // then replaced with their corresponding regular expression.
+                                // Finally, a condition is added so that any characters following
+                                // the user's text is also matched
+                                String typedChars = matchFld.getText().replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
+                                                                                  "\\\\$1")
+                                                            .replaceAll("\\?", ".")
+                                                            .replaceAll("\\*", ".*?")
+                                                    + ".*";
+
+                                // Step through each item in the input list, skipping the initial
+                                // blank (which is retained when removing the existing items above)
+                                for (int index = 1; index < inputItems.size(); index++)
                                 {
-                                    // In order to force the combo box item list to scroll so that
-                                    // the first matching item is at the top of the menu, the last
-                                    // item is selected and then the matching item. For a table
-                                    // cell, due to an interaction in Java 8 between menu item
-                                    // selection and the call to initiate cell editing, a call to
-                                    // editCellAt() must be made twice (see below)
-                                    setSelectedIndex(getItemCount() - 1);
-
-                                    // Undo the jump to the last item. This removes it from the
-                                    // undo stack, but doesn't change the list position
-                                    table.getUndoManager().undo();
-
-                                    // Create a runnable object to be executed
-                                    SwingUtilities.invokeLater(new Runnable()
+                                    // Check if the item matches the user's criteria. If no match
+                                    // criteria are supplied (i.e., the input is blank) then all
+                                    // items are considered a match
+                                    if (inputItems.get(index).matches(typedChars)
+                                        || typedChars.isEmpty())
                                     {
-                                        /**********************************************************
-                                         * Selecting an item from the combo box list causes table
-                                         * cell editing to cease. Editing must be reestablished,
-                                         * but only after other pending GUI events are completed
-                                         *********************************************************/
-                                        @Override
-                                        public void run()
-                                        {
-                                            // Due to an interaction in Java 8, this must be done
-                                            // due to the selection of the last menu item (above)
-                                            // so that the matching item selection (below) is
-                                            // scrolled to
-                                            table.editCellAt(row, column);
-
-                                            // Scroll to the first matching item. The first item in
-                                            // the displayed list is a space (representing no
-                                            // selection; a blank would be used but causes height
-                                            // issues when displaying the item). A space is
-                                            // substituted to match an empty match prefix
-                                            setSelectedItem(item == ""
-                                                                       ? " "
-                                                                       : item);
-
-                                            // Re-initiate editing in the table cell
-                                            table.editCellAt(row, column);
-                                            getEditor().getEditorComponent().requestFocusInWindow();
-
-                                            // Check if the drop down menu had been displayed
-                                            if (isMenuShowing)
-                                            {
-                                                // Redisplay the drop down menu
-                                                showPopup();
-                                            }
-
-                                            // Reset the flag so that normal updates to the
-                                            // auto-completion check box, such as directly
-                                            // selecting an item from the combo box list, are
-                                            // handled
-                                            isPrefixChanging = false;
-                                        }
-                                    });
-                                }
-                                // The combo box is not in a table cell
-                                else
-                                {
-                                    // Check if the combo box is undoable (this is the case for
-                                    // data fields, but not table cells)
-                                    if (PaddedComboBox.this instanceof UndoableComboBox)
-                                    {
-                                        // Get the currently selected item
-                                        Object selItem = getSelectedItem();
-
-                                        // In order to force the combo box item list to scroll so
-                                        // that the first matching item is at the top of the menu,
-                                        // the last item is selected. This is done as an undoable
-                                        // edit so that the change isn't placed on the undo stack.
-                                        // However, it does store the last item as far as undoing
-                                        // is concerned so the selected item is set back to the
-                                        // original without storing the change as undoable. This
-                                        // resets the 'old' selection so that it's displayed if an
-                                        // undo is performed (otherwise the last list item is
-                                        // displayed)
-                                        ((UndoableComboBox) PaddedComboBox.this).setSelectedItem(getItemAt(getItemCount()
-                                                                                                           - 1),
-                                                                                                 false);
-                                        ((UndoableComboBox) PaddedComboBox.this).setSelectedItem(selItem,
-                                                                                                 false);
+                                        // Add the matching item to the list
+                                        addItem(inputItems.get(index));
                                     }
-
-                                    // Scroll to the first matching item. The first item in the
-                                    // displayed list is a space (representing no selection; a
-                                    // blank would be used but causes height issues when displaying
-                                    // the item). A space is substituted to match an empty match
-                                    // prefix
-                                    setSelectedItem(item == ""
-                                                               ? " "
-                                                               : item);
-
-                                    // Reset the flag so that normal updates to the auto-completion
-                                    // check box, such as directly selecting an item from the combo
-                                    // box list, are handled
-                                    isPrefixChanging = false;
                                 }
+
+                                // Get the first matching item. This is used as the selected item
+                                // if the focus is changed from the input field
+                                selection = getItemCount() > 1
+                                            && !matchFld.getText().isEmpty()
+                                                                             ? getItemAt(1)
+                                                                             : "";
+
+                                isPrefixChanging = false;
                             }
                         });
                     }
                 }
             });
 
-            // Add a focus listener to the combo box editor (auto-completion text field) to update
+            // Add a focus listener to the combo box editor (item matching text field) to update
             // the combo box's contents with the currently matched item from the combo box list
-            autoCompFld.addFocusListener(new FocusAdapter()
+            matchFld.addFocusListener(new FocusAdapter()
             {
+                /**********************************************************************************
+                 * Override to capture focus gain events
+                 *********************************************************************************/
+                @Override
+                public void focusGained(FocusEvent fe)
+                {
+                    selection = null;
+
+                    // Set the flag to indicate item matching is enabled. This is done here since
+                    // the combo box must have been instantiated in order to get the focus and
+                    // therefore it's width has been calculated
+                    isItemMatchEnabled = true;
+
+                    // Check if the combo box is in a table cell and the cell editor is the custom
+                    // one for a combo box in a cell
+                    if (table != null && table.getCellEditor() instanceof ComboBoxCellEditor)
+                    {
+                        // Set the flag to disable the stopCellEditing() call from stopping cell
+                        // editing. Without this the call below to remove an item from the combo
+                        // box list ends editing which prevents the expected behavior of the combo
+                        // box
+                        ((ComboBoxCellEditor) table.getCellEditor()).allowCellEdit(false);
+                    }
+                }
 
                 /**********************************************************************************
                  * Override to capture focus loss events
@@ -721,9 +708,111 @@ public class CcddClassesComponent
                 @Override
                 public void focusLost(FocusEvent fe)
                 {
-                    setSelectedItem(autoCompFld.getText());
+                    // Check if no text was typed by the user
+                    if (selection == null)
+                    {
+                        // Set the selection text to the current combo box editor contents
+                        selection = matchFld.getText();
+                    }
+
+                    // Set the flag so that the list updates don't trigger input field updates
+                    isPrefixChanging = true;
+
+                    // Step through each combo box item, skipping the initial blank item
+                    for (int index = getItemCount() - 1; index > 0; index--)
+                    {
+                        // Remove the item from the list
+                        removeItemAt(index);
+                    }
+
+                    // Step through each item in the input list, skipping the initial blank (which
+                    // is retained when removing the existing items above)
+                    for (int index = 1; index < inputItems.size(); index++)
+                    {
+                        // Add the matching item to the list
+                        addItem(inputItems.get(index));
+                    }
+
+                    // Reset the flag so that changes are accepted
+                    isPrefixChanging = false;
+
+                    // Check if the combo box is in a table cell and the cell editor is the custom
+                    // one for a combo box in a cell
+                    if (table != null && table.getCellEditor() instanceof ComboBoxCellEditor)
+                    {
+                        // Reenable the stopCellEditing() call
+                        ((ComboBoxCellEditor) table.getCellEditor()).allowCellEdit(true);
+                    }
+
+                    // Set the selected item from the list based on the user's match criteria or
+                    // list selection
+                    setSelectedItem(selection);
                 }
             });
+        }
+    }
+
+    /**********************************************************************************************
+     * Combo box used as a table cell editor class
+     *********************************************************************************************/
+    @SuppressWarnings("serial")
+    protected static class ComboBoxCellEditor extends DefaultCellEditor
+    {
+        // Flag used to determine if a call to stopCellEditing() is allowed to proceed
+        private boolean allowStopEdit = true;
+
+        JComboBox<?> comboBox;
+
+        /******************************************************************************************
+         * Combo box used as a table cell editor class constructor
+         *****************************************************************************************/
+        public ComboBoxCellEditor(JComboBox<?> comboBox)
+        {
+            super(comboBox);
+            this.comboBox = comboBox;
+        }
+
+        /******************************************************************************************
+         * Override so that calls to stop editing can be intercepted and disabled. This is
+         * necessary to allow the combo box item matching to operate in a table cell the same way
+         * it operates in a data field
+         *****************************************************************************************/
+        @Override
+        public boolean stopCellEditing()
+        {
+            boolean result = false;
+
+            // Check if the flag is set to allow stopping cell editing
+            if (allowStopEdit)
+            {
+                result = super.stopCellEditing();
+            }
+
+            return result;
+        }
+
+        /******************************************************************************************
+         * Set the flag that determines if calls to stop cell editing are allowed to proceed. This
+         * is necessary to allow the combo box item matching to operate in a table cell the same
+         * way it operates in a data field
+         *
+         * @param enable
+         *            true to allow calls to stopCellEditing() to proceed normally
+         *****************************************************************************************/
+        protected void allowCellEdit(boolean enable)
+        {
+            allowStopEdit = enable;
+        }
+
+        /******************************************************************************************
+         * Update the combo box's selected item to the currently highlighted list item. This is
+         * used by the keyboard handler when the Enter key is pressed so that the cell reflects the
+         * selected item
+         *****************************************************************************************/
+        protected void updateSelectedItem()
+        {
+            ComboPopup popup = (ComboPopup) comboBox.getAccessibleContext().getAccessibleChild(0);
+            comboBox.setSelectedItem(popup.getList().getSelectedValue());
         }
     }
 
@@ -1648,7 +1737,6 @@ public class CcddClassesComponent
                 int vgap = getVgap();
                 Insets insets = target.getInsets();
                 int horizontalInsetsAndGap = insets.left + insets.right + (hgap * 2);
-
                 int maxWidth = targetWidth - horizontalInsetsAndGap;
 
                 // Fit components into the allowed width
@@ -4130,7 +4218,7 @@ public class CcddClassesComponent
             }
             catch (Exception e)
             {
-                // TODO HIDE THE EXCEPTION
+                // Ignore the exception
             }
 
             // Check if the tab insertion indicator should be drawn

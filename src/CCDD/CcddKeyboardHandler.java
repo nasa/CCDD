@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.ArrowFocusOption;
 import CCDD.CcddConstants.BaseDataTypeInfo;
@@ -222,6 +223,12 @@ public class CcddKeyboardHandler
                             // The left and right arrows traverse the tabs, and the up and down
                             // arrows behave like (Shift+)Tab
                             arrowResponse = HANDLE_UP_AND_DOWN_ARROWS;
+                        }
+                        // Check if the focus is on a text field in a combo box
+                        else if (comp instanceof JTextField
+                                 && comp.getParent() instanceof JComboBox)
+                        {
+                            arrowResponse = USE_DEFAULT_HANDLER;
                         }
                         // Check if the focus is in a text field within a table
                         else if ((comp instanceof JTextField
@@ -974,7 +981,16 @@ public class CcddKeyboardHandler
 
             // Get the indices of the cell being edited
             int row = table.getEditingRow();
-            int col = table.getEditingColumn();
+            int column = table.getEditingColumn();
+
+            // Check if the table cell contains an item matching combo box
+            if (table.getCellEditor() instanceof ComboBoxCellEditor)
+            {
+                // Set the combo box selection to the currently highlighted list item and reenable
+                // stopCellEditing() so that the cell is updated to the selected item
+                ((ComboBoxCellEditor) table.getCellEditor()).updateSelectedItem();
+                ((ComboBoxCellEditor) table.getCellEditor()).allowCellEdit(true);
+            }
 
             // Terminate editing in this cell
             table.getCellEditor().stopCellEditing();
@@ -984,25 +1000,25 @@ public class CcddKeyboardHandler
             do
             {
                 // Check if this is not the last column
-                if (col < table.getColumnCount() - 1)
+                if (column < table.getColumnCount() - 1)
                 {
                     // Go to the next column
-                    col++;
+                    column++;
                 }
                 // At the last column
                 else
                 {
                     // Go to the first column of the next row
                     row++;
-                    col = 0;
+                    column = 0;
                 }
-            } while (row != table.getRowCount() && !table.isCellEditable(row, col));
+            } while (row != table.getRowCount() && !table.isCellEditable(row, column));
 
             // Initiate editing on the new cell, if valid
-            if (table.editCellAt(row, col))
+            if (table.editCellAt(row, column))
             {
                 // Editing initiated on the new cell; change the focus to this cell
-                table.changeSelection(row, col, false, false);
+                table.changeSelection(row, column, false, false);
                 table.getEditorComponent().requestFocus();
             }
 

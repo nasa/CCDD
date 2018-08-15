@@ -67,6 +67,7 @@ import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
@@ -98,7 +99,7 @@ public class CcddScriptHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
-    private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddVariableHandler variableHandler;
     private CcddJTableHandler assnsTable;
     private CcddFrameHandler scriptDialog = null;
 
@@ -1222,8 +1223,8 @@ public class CcddScriptHandler
      *            list of script associations to execute
      *
      * @param parent
-     *            GUI component over which to center any error dialog; null if none (e.g., if called via the command
-     *            line)
+     *            GUI component over which to center any error dialog; null if none (e.g., if
+     *            called via the command line)
      *
      * @return Array containing flags that indicate, for each association, if the association did
      *         not complete successfully
@@ -1260,9 +1261,6 @@ public class CcddScriptHandler
 
         // Get the link assignment information, if any
         CcddLinkHandler linkHandler = new CcddLinkHandler(ccddMain, parent);
-
-        // Load the data field information from the database
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
 
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
@@ -1516,7 +1514,7 @@ public class CcddScriptHandler
                                                                             null,
                                                                             null,
                                                                             false,
-                                                                            new String[0][0]);
+                                                                            new ArrayList<FieldInformation>(0));
                     }
                 }
                 // No table is assigned to this script association
@@ -1531,7 +1529,7 @@ public class CcddScriptHandler
                                                                 null,
                                                                 null,
                                                                 false,
-                                                                new String[0][0]);
+                                                                new ArrayList<FieldInformation>(0));
                 }
 
                 // Get the script file name with any environment variables expanded
@@ -1557,7 +1555,6 @@ public class CcddScriptHandler
                                   combinedTableInfo,
                                   groupNames,
                                   linkHandler,
-                                  fieldHandler,
                                   groupHandler,
                                   parent);
                 }
@@ -1738,9 +1735,6 @@ public class CcddScriptHandler
      * @param linkHandler
      *            link handler reference
      *
-     * @param fieldHandler
-     *            field handler reference
-     *
      * @param groupHandler
      *            group handler reference
      *
@@ -1755,7 +1749,6 @@ public class CcddScriptHandler
     protected ScriptEngine getScriptEngine(String scriptFileName,
                                            TableInformation[] tableInformation,
                                            CcddLinkHandler linkHandler,
-                                           CcddFieldHandler fieldHandler,
                                            CcddGroupHandler groupHandler,
                                            List<String> groupNames,
                                            Component parent) throws CCDDException
@@ -1817,7 +1810,6 @@ public class CcddScriptHandler
                                                                                             scriptEngine,
                                                                                             tableInformation,
                                                                                             linkHandler,
-                                                                                            fieldHandler,
                                                                                             groupHandler,
                                                                                             scriptFileName,
                                                                                             groupNames,
@@ -1866,9 +1858,6 @@ public class CcddScriptHandler
      * @param linkHandler
      *            link handler reference
      *
-     * @param fieldHandler
-     *            field handler reference
-     *
      * @param groupHandler
      *            group handler reference
      *
@@ -1884,7 +1873,6 @@ public class CcddScriptHandler
                                TableInformation[] tableInformation,
                                List<String> groupNames,
                                CcddLinkHandler linkHandler,
-                               CcddFieldHandler fieldHandler,
                                CcddGroupHandler groupHandler,
                                Component parent) throws CCDDException
     {
@@ -1892,7 +1880,6 @@ public class CcddScriptHandler
         ScriptEngine scriptEngine = getScriptEngine(scriptFileName,
                                                     tableInformation,
                                                     linkHandler,
-                                                    fieldHandler,
                                                     groupHandler,
                                                     groupNames,
                                                     parent);

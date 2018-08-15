@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
+import static CCDD.CcddConstants.CCDD_CONTRIBUTORS;
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
@@ -117,8 +118,10 @@ public class CcddMain
     private final CcddKeyboardHandler keyboardHandler;
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
-    private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddVariableHandler variableHandler;
+    private CcddCommandHandler commandHandler;
     private CcddInputTypeHandler inputTypeHandler;
+    private CcddFieldHandler fieldHandler;
     private CcddMessageIDHandler messageIDHandler;
     private CcddWebServer webServer;
 
@@ -179,6 +182,7 @@ public class CcddMain
     private JMenuItem mntmManageProjectFields;
     private JMenuItem mntmEditDataField;
     private JMenuItem mntmShowVariables;
+    private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
     private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmManageLinks;
@@ -576,6 +580,16 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Get the data field handler
+     *
+     * @return Data field handler
+     *********************************************************************************************/
+    protected CcddFieldHandler getFieldHandler()
+    {
+        return fieldHandler;
+    }
+
+    /**********************************************************************************************
      * Get the file handler
      *
      * @return File handler
@@ -626,13 +640,23 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Get the variable size and conversion handler
+     * Get the variables handler
      *
-     * @return Variable size and conversion handler reference
+     * @return Variables handler reference
      *********************************************************************************************/
-    protected CcddVariableSizeAndConversionHandler getVariableHandler()
+    protected CcddVariableHandler getVariableHandler()
     {
         return variableHandler;
+    }
+
+    /**********************************************************************************************
+     * Get the commands handler
+     *
+     * @return Commands handler reference
+     *********************************************************************************************/
+    protected CcddCommandHandler getCommandHandler()
+    {
+        return commandHandler;
     }
 
     /**********************************************************************************************
@@ -727,6 +751,9 @@ public class CcddMain
         // Read the data types definitions from the database
         dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
 
+        // read the data field definitions from the database
+        fieldHandler = new CcddFieldHandler(CcddMain.this);
+
         // Read the rate parameters from the project database and sort the list by data stream name
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
 
@@ -756,8 +783,11 @@ public class CcddMain
      *********************************************************************************************/
     protected void setPostFunctionDbSpecificHandlers()
     {
-        // Create a variable size and conversion handler for the project database
-        variableHandler = new CcddVariableSizeAndConversionHandler(CcddMain.this);
+        // Create a variable handler for the project database
+        variableHandler = new CcddVariableHandler(CcddMain.this);
+
+        // Create a command handler for the project database
+        commandHandler = new CcddCommandHandler(CcddMain.this);
 
         // Create a message ID handler for the project database
         messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
@@ -768,10 +798,13 @@ public class CcddMain
         macroHandler.setHandlers(variableHandler);
         scriptHandler.setHandlers();
 
-        // Determine the variable offsets (note that the variable size and conversion class must be
-        // fully instantiated and the macro handler updated with the variable handler reference
-        // before calling the path and offset list build method)
+        // Build the variables list and determine the variable offsets (note that the variables
+        // class must be fully instantiated and the macro handler updated with the variable handler
+        // reference before calling the path and offset list build method)
         variableHandler.buildPathAndOffsetLists();
+
+        // Build the command information list
+        commandHandler.buildCommandList();
 
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build
@@ -967,7 +1000,7 @@ public class CcddMain
         mntmCopyDb.setEnabled(activateIfServer);
         mntmDeleteDb.setEnabled(activateIfServer);
         mntmBackupDb.setEnabled(activateIfDatabase && activateIfReadWrite);
-        mntmRestoreDb.setEnabled(activateIfServer && activateIfReadWrite);
+        mntmRestoreDb.setEnabled(activateIfServer);
         mntmUnlock.setEnabled(activateIfServer);
         mntmVerifyDatabase.setEnabled(activateIfDatabase);
         mntmManageUsers.setEnabled(activateIfDatabase && activateIfAdmin);
@@ -997,6 +1030,7 @@ public class CcddMain
         mntmManageProjectFields.setEnabled(activateIfDatabase);
         mntmEditDataField.setEnabled(activateIfDatabase);
         mntmShowVariables.setEnabled(activateIfDatabase);
+        mntmShowCommands.setEnabled(activateIfDatabase);
         mntmSearchTable.setEnabled(activateIfDatabase);
         mntmManageLinks.setEnabled(activateIfRate);
         mntmManageTlm.setEnabled(activateIfRate);
@@ -1778,7 +1812,7 @@ public class CcddMain
         mntmManageTableTypes = createMenuItem(mnData, "Manage table types", KeyEvent.VK_Y, 1, "Open the table type manager");
         mntmManageDataTypes = createMenuItem(mnData, "Manage data types", KeyEvent.VK_D, 1, "Open the data type manager");
         mntmManageInputTypes = createMenuItem(mnData, "Manage input types", KeyEvent.VK_U, 1, "Open the input type manager");
-        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_O, 1, "Open the macro manager");
+        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_A, 1, "Open the macro manager");
         mnData.addSeparator();
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
         mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
@@ -1790,6 +1824,7 @@ public class CcddMain
         mnData.addSeparator();
         mntmPadding = createMenuItem(mnData, "Padding", KeyEvent.VK_P, 1, "Add, update, or remove padding variables");
         mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1, "Display all of the variable paths + names in various formats");
+        mntmShowCommands = createMenuItem(mnData, "Show commands", KeyEvent.VK_O, 1, "Display information for all of the commands");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database data and internal tables");
 
@@ -2515,13 +2550,26 @@ public class CcddMain
         mntmShowVariables.addActionListener(new ActionListener()
         {
             /**************************************************************************************
-             * Display a dialog showing all of the variable paths + names. The application format
-             * and ITOS record formats are shown
+             * Display a dialog showing all of the variable paths + names. The application and
+             * user-defined formats are shown
              *************************************************************************************/
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddVariablesDialog(CcddMain.this);
+                new CcddVariableDialog(CcddMain.this);
+            }
+        });
+
+        // Add a listener for the Show Commands command
+        mntmShowCommands.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Display a dialog showing information for all of the commands
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddCommandDialog(CcddMain.this);
             }
         });
 
@@ -2758,8 +2806,10 @@ public class CcddMain
 
                 // Display the application name, author, and version
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
-                                                          "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>"
+                                                          "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>Author: "
                                                                      + CCDD_AUTHOR
+                                                                     + "<br>Contributors: "
+                                                                     + CCDD_CONTRIBUTORS
                                                                      + "<br>"
                                                                      + CcddUtilities.colorHTMLText("Version: ",
                                                                                                    ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())

@@ -441,9 +441,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param ccddMain
      *            main class
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @param scriptEngine
      *            reference to the script engine so that the export methods can be overridden by
      *            the script methods; null if the internal methods are to be used
@@ -455,12 +452,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *             If an error occurs creating the handler
      *********************************************************************************************/
     CcddXTCEHandler(CcddMain ccddMain,
-                    CcddFieldHandler fieldHandler,
                     ScriptEngine scriptEngine,
                     Component parent) throws CCDDException
     {
         this.ccddMain = ccddMain;
-        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -468,12 +463,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
-
-        // Build the data field information for all fields
-        this.fieldHandler.buildFieldInformation(null);
 
         // Check if a reference to a script engine is provided
         if (scriptEngine != null)
@@ -529,20 +522,15 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param ccddMain
      *            main class
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @param parent
      *            GUI component instantiating this class
      *
      * @throws CCDDException
      *             If an error occurs creating the handler
      *********************************************************************************************/
-    CcddXTCEHandler(CcddMain ccddMain,
-                    CcddFieldHandler fieldHandler,
-                    Component parent) throws CCDDException
+    CcddXTCEHandler(CcddMain ccddMain, Component parent) throws CCDDException
     {
-        this(ccddMain, fieldHandler, null, parent);
+        this(ccddMain, null, parent);
     }
 
     /**********************************************************************************************
@@ -642,7 +630,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // default values, if not present in the import file. If importing all tables then add
             // these as project-level data fields to the database
             setProjectHeaderTablesAndVariables(ccddMain,
-                                               fieldHandler,
                                                importType == ImportType.IMPORT_ALL,
                                                tlmHeaderTable,
                                                cmdHeaderTable,
@@ -825,7 +812,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Continue to check while a table type with this name exists. This also adds the
                 // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "XTCE Structure " + sequence;
@@ -959,7 +946,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
 
                 // Continue to check while a table type with this name exists. This also adds the
                 // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "XTCE Command " + sequence;
@@ -2893,7 +2880,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeVariablePaths,
-                             CcddVariableSizeAndConversionHandler variableHandler,
+                             CcddVariableHandler variableHandler,
                              String[] separators,
                              Object... extraInfo) throws JAXBException,
                                                   MarshalException,

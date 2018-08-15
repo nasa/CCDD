@@ -132,7 +132,7 @@ public class CcddClassesDataTable
         private boolean isPrototype;
         private boolean isRootStructure;
         private boolean errorFlag;
-        private CcddFieldHandler fieldHandler;
+        private List<FieldInformation> fieldInformation;
 
         /******************************************************************************************
          * Table information class constructor
@@ -177,7 +177,6 @@ public class CcddClassesDataTable
             this.isRootStructure = isRootStructure;
             isPrototype = !tablePath.contains(".");
             errorFlag = false;
-            fieldHandler = new CcddFieldHandler(ccddMain);
         }
 
         /******************************************************************************************
@@ -210,8 +209,8 @@ public class CcddClassesDataTable
          * @param isRootStructure
          *            true if this table represents a root table of type 'structure'
          *
-         * @param fieldDefinitions
-         *            array of field definitions
+         * @param fieldInformation
+         *            list of field information
          *****************************************************************************************/
         TableInformation(String tableType,
                          String tablePath,
@@ -219,18 +218,15 @@ public class CcddClassesDataTable
                          String columnOrder,
                          String description,
                          boolean isRootStructure,
-                         String[][] fieldDefinitions)
+                         List<FieldInformation> fieldInformation)
         {
             this(tableType, tablePath, tableData, columnOrder, description, isRootStructure);
 
-            // Check if the data field definitions array is provided
-            if (fieldDefinitions != null)
+            // Check if the data field information is provided
+            if (fieldInformation != null)
             {
-                // Store the field definitions in the table's field handler
-                fieldHandler.getFieldDefinitions().addAll(Arrays.asList(fieldDefinitions));
-
-                // Build the data field information
-                fieldHandler.buildFieldInformation(tablePath);
+                // Store the field information
+                this.fieldInformation = fieldInformation;
             }
         }
 
@@ -573,13 +569,24 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the table data field handler
+         * Get the table data field information
          *
-         * @return Table data field handler
+         * @return Table data field information
          *****************************************************************************************/
-        protected CcddFieldHandler getFieldHandler()
+        protected List<FieldInformation> getFieldInformation()
         {
-            return fieldHandler;
+            return fieldInformation;
+        }
+
+        /******************************************************************************************
+         * Set the table data field information
+         *
+         * @param fieldInformation
+         *            table data field information
+         *****************************************************************************************/
+        protected void setFieldInformation(List<FieldInformation> fieldInformation)
+        {
+            this.fieldInformation = fieldInformation;
         }
     }
 

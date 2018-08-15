@@ -996,15 +996,14 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                            SearchResultsColumnInfo.OWNER.ordinal())
                                                .toString();
 
-                // Check if the the cell is selected and the owner is a data table
+                // Check if the the cell is selected and the owner is a data table or table data
+                // field
                 if (resultsTable.isCellSelected(row, column)
-                    && tableName.startsWith(SearchTarget.TABLE.getTargetName(true)))
+                    && (tableName.startsWith(SearchTarget.TABLE.getTargetName(true))
+                        || tableName.startsWith(SearchTarget.TABLE_FIELD.getTargetName(true))))
                 {
-                    // Remove the owner identifier. The table path for the search results uses a
-                    // colon after the root table name instead of the usual comma, so this must be
-                    // altered for the table path to be used to open the table
-                    tableName = tableName.substring(SearchTarget.TABLE.getTargetName(true).length())
-                                         .replaceFirst(":", ",");
+                    // Remove any HTML tags and the owner identifier
+                    tableName = CcddUtilities.removeHTMLTags(tableName).replaceFirst(".+:\\s", "");
 
                     // Check if the table isn't already in the list of those to be opened
                     if (!tablePaths.contains(tableName))
@@ -1022,8 +1021,6 @@ public class CcddSearchDialog extends CcddFrameHandler
         {
             // Load the selected table's data into a table editor
             dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
-
-            // TODO THE SEARCH TEXT SHOULD BE HIGHLIGHTED IN THE TABLE WHEN OPENED
         }
     }
 }

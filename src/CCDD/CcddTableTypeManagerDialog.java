@@ -28,7 +28,6 @@ import javax.swing.border.BevelBorder;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -125,8 +124,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
                 case COPY:
                     // Display a type editor for the copy
-                    editorDialog.addTypePanes(new String[] {typeNameFld.getText()},
-                                              fieldDefinitions);
+                    editorDialog.addTypePanes(new String[] {typeNameFld.getText()});
                     break;
 
                 case DELETE:
@@ -238,9 +236,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                           "");
 
                     // Display an new, empty type editor
-                    editorDialog.addTypePanes(new String[] {typeNameFld.getText()},
-                                              dbTable.retrieveInformationTable(InternalTable.FIELDS,
-                                                                               editorDialog));
+                    editorDialog.addTypePanes(new String[] {typeNameFld.getText()});
                 }
 
                 break;
@@ -318,6 +314,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Delete the type definition and tables of the deleted type
                     dbTable.deleteTableType(activeTypeName,
                                             savedDefn.isStructure(),
+                                            savedDefn.isCommand(),
                                             CcddTableTypeManagerDialog.this,
                                             editorDialog);
                 }

@@ -59,7 +59,7 @@ public class CcddMacroHandler
     // Class references
     private CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
-    private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddVariableHandler variableHandler;
 
     // Pop-up combo box for displaying the macro names and the dialog to contain it
     private PaddedComboBox macroCbox;
@@ -176,7 +176,7 @@ public class CcddMacroHandler
     /**********************************************************************************************
      * Set the reference to the variable size handler class
      *********************************************************************************************/
-    protected void setHandlers(CcddVariableSizeAndConversionHandler variableHandler)
+    protected void setHandlers(CcddVariableHandler variableHandler)
     {
         this.variableHandler = variableHandler;
     }
@@ -825,7 +825,7 @@ public class CcddMacroHandler
         int lastEnd = 0;
 
         // Check if the text string contains a macro or sizeof() call
-        if (hasMacro(text) || CcddVariableSizeAndConversionHandler.hasSizeof(text))
+        if (hasMacro(text) || CcddVariableHandler.hasSizeof(text))
         {
             expandedText = "";
             this.validDataTypes = validDataTypes;
@@ -997,7 +997,7 @@ public class CcddMacroHandler
         for (String[] macro : macros)
         {
             // Check if the macro's value has a sizeof() call for the specified data type
-            if (CcddVariableSizeAndConversionHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
+            if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
                                                                dataType))
             {
                 // Add the macro and its related macros to the list
@@ -1151,7 +1151,7 @@ public class CcddMacroHandler
     {
         // Check if the text string contains any macros
         if (text != null
-            && (hasMacro(text) || CcddVariableSizeAndConversionHandler.hasSizeof(text)))
+            && (hasMacro(text) || CcddVariableHandler.hasSizeof(text)))
         {
             // Replace any macro names in the text with the associated macro values
             text = getMacroExpansion(text);

@@ -46,7 +46,6 @@ import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
@@ -247,7 +246,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // the table type
         mntmClearValues.setEnabled(enable
                                    && activeEditor != null
-                                   && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                                   && !activeEditor.getPanelFieldInformation().isEmpty());
 
         // Set the menu item based on the input flag and if the editor represents a command table
         // type
@@ -277,7 +276,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Update the table type editor in which the change(s) occurred
         updatedEditor.doTypeUpdatesComplete(commandError);
 
-        // Check if an error occurred and that a table was modified
+        // Check if no error occurred and that a table was modified
         if (!commandError && tableNames != null)
         {
             // If any table editors are open then the displayed columns and data fields need to be
@@ -315,6 +314,14 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         }
                     }
                 }
+            }
+
+            // Check if the data field editor table dialog is open
+            if (ccddMain.getFieldTableEditor() != null
+                && ccddMain.getFieldTableEditor().isShowing())
+            {
+                // Update the data field editor table
+                ccddMain.getFieldTableEditor().reloadDataFieldTable(true);
             }
         }
     }
@@ -503,7 +510,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     {
                         activeEditor.getTable().printTable("Table Type: "
                                                            + activeEditor.getTypeName(),
-                                                           activeEditor.getFieldHandler(),
+                                                           activeEditor.getPanelFieldInformation(),
                                                            CcddTableTypeEditorDialog.this,
                                                            PageFormat.LANDSCAPE);
                     }
@@ -775,12 +782,13 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         new CcddFieldEditorDialog(ccddMain,
                                                   activeEditor,
                                                   CcddFieldHandler.getFieldTypeName(activeEditor.getTypeName()),
+                                                  activeEditor.getInputFieldPanelHandler().getPanelFieldInformation(),
                                                   tableTypeHandler.getTypeDefinition(activeEditor.getTypeName()).isStructure(),
                                                   MIN_WINDOW_WIDTH);
 
                         // Enable/disable the Clear values command depending on if any data fields
                         // remain
-                        mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                        mntmClearValues.setEnabled(!activeEditor.getPanelFieldInformation().isEmpty());
                     }
 
                     /******************************************************************************
@@ -805,7 +813,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     protected void performAction(ActionEvent ae)
                     {
                         // Check if there are any data fields to clear
-                        if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
+                        if (!activeEditor.getPanelFieldInformation().isEmpty())
                         {
                             // Remove all of the data field values
                             activeEditor.getInputFieldPanelHandler().clearFieldValues();
@@ -1210,9 +1218,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 });
 
                 // Add each table as a tab in the editor dialog tabbed pane
-                addTypePanes(typeNames,
-                             dbTable.retrieveInformationTable(InternalTable.FIELDS,
-                                                              CcddTableTypeEditorDialog.this));
+                addTypePanes(typeNames);
 
                 // Check if a table type exists
                 if (!typeEditors.isEmpty())
@@ -1361,7 +1367,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // Recreate the table type definitions table in the database and update the affected
         // table(s)
         dbTable.modifyTableTypeInBackground(editor.getTypeName(),
-                                            editor.getFieldHandler().getFieldInformation(),
+                                            activeEditor.getPanelFieldInformation(),
                                             mntmOverwrite.isSelected(),
                                             editor.getTypeAdditions(),
                                             editor.getTypeModifications(),
@@ -1400,7 +1406,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
 
                         // Perform the changes to the table in the database
                         dbTable.modifyTableType(editor.getTypeName(),
-                                                editor.getFieldHandler().getFieldInformation(),
+                                                activeEditor.getPanelFieldInformation(),
                                                 mntmOverwrite.isSelected(),
                                                 editor.getTypeAdditions(),
                                                 editor.getTypeModifications(),
@@ -1420,11 +1426,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *
      * @param typeNames
      *            array of table type names
-     *
-     * @param fieldDefinitions
-     *            list of data field definitions
      *********************************************************************************************/
-    protected void addTypePanes(String[] typeNames, List<String[]> fieldDefinitions)
+    protected void addTypePanes(String[] typeNames)
     {
         // Step through the table types
         for (String name : typeNames)
@@ -1432,7 +1435,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             // Create an editor for this table type and add it to the list of editors
             final CcddTableTypeEditorHandler editor = new CcddTableTypeEditorHandler(ccddMain,
                                                                                      name,
-                                                                                     fieldDefinitions,
                                                                                      this);
             typeEditors.add(editor);
 

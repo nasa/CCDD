@@ -51,7 +51,6 @@ import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -66,6 +65,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddFileIOHandler fileIOHandler;
+    private final CcddFieldHandler fieldHandler;
     private CcddTableEditorHandler activeEditor;
     private final List<CcddTableEditorHandler> tableEditors;
     private CcddFindReplaceDialog searchDlg;
@@ -142,6 +142,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
         fileIOHandler = ccddMain.getFileIOHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         tableEditors = new ArrayList<CcddTableEditorHandler>();
 
         // Create the data table editor dialog
@@ -320,7 +321,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmWithPrototype.setEnabled(enableIfChild);
         mntmManageFields.setEnabled(enableIfNotMacro);
         mntmClearValues.setEnabled(enableIfNotMacro
-                                   && !activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                                   && !fieldHandler.getFieldInformationByOwner(activeEditor.getOwnerName()).isEmpty());
 
         // Check if a recent tables menu item exists
         if (mntmRecentTables != null && mntmRecentTables.length != 0)
@@ -373,29 +374,23 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param hasVarRefFieldChange
      *            true is a data field has a variable reference input type and the table with the
      *            change is a structure
+     *
+     * @param hasCmdRefFieldChange
+     *            true is a data field has a command reference input type and the table with the
+     *            change is a command
      *********************************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
                                                       TableInformation tableInfo,
                                                       List<TableModification> modifications,
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate,
-                                                      boolean hasVarRefFieldChange)
+                                                      boolean hasVarRefFieldChange,
+                                                      boolean hasCmdRefFieldChange)
     {
-        List<String[]> fieldDefns = null;
-
         // Get references to shorten subsequent calls. Can't use global references since this is a
         // static method
         CcddDataTypeHandler dtHandler = main.getDataTypeHandler();
         CcddDbTableCommandHandler dbTblCmdHndlr = main.getDbTableCommandHandler();
-
-        // Check if variable name was changed or deleted and a data field uses the variable
-        // reference input type
-        if (hasVarRefFieldChange)
-        {
-            // Get the data field definitions from the database
-            fieldDefns = dbTblCmdHndlr.retrieveInformationTable(InternalTable.FIELDS,
-                                                                main.getMainFrame());
-        }
 
         // Create a list to store the names of tables that are no longer valid
         List<String[]> invalidatedEditors = new ArrayList<String[]>();
@@ -485,22 +480,15 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     editor.doTableUpdatesComplete(updateInfo, applyToInstance || forceUpdate);
                 }
 
-                // Check if a data field exists that uses the variable reference input type and if
-                // table wasn't already updated above
-                if (hasVarRefFieldChange && !applyToInstance)
+                // Check if a data field exists that uses the variable or command reference input
+                // type and if table wasn't already updated above
+                if ((hasVarRefFieldChange || hasCmdRefFieldChange) && !applyToInstance) // TODO
                 {
                     // Update the current and committed field definitions and information so that
                     // the update isn't considered a change
-                    editor.getTableInformation().getFieldHandler()
-                          .setFieldDefinitions(new ArrayList<String[]>(fieldDefns));
-                    editor.getCommittedTableInformation().getFieldHandler()
-                          .setFieldDefinitions(new ArrayList<String[]>(fieldDefns));;
-                    editor.getTableInformation().getFieldHandler()
-                          .buildFieldInformation(editor.getTableInformation().getTablePath());
-                    editor.getCommittedTableInformation().getFieldHandler()
-                          .buildFieldInformation(editor.getTableInformation().getTablePath());
-                    editor.createDataFieldPanel(false);
-                    editor.storeCurrentFieldInformation();
+                    editor.updateTableFieldInformationFromHandler();
+                    editor.createDataFieldPanel(false,
+                                                editor.getCommittedTableInformation().getFieldInformation());
                 }
 
                 // Step through each row modification
@@ -527,7 +515,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         if (main.getFieldTableEditor() != null && main.getFieldTableEditor().isShowing())
         {
             // Update the data field editor table
-            main.getFieldTableEditor().reloadDataFieldTable();
+            main.getFieldTableEditor().reloadDataFieldTable(false);
         }
     }
 
@@ -874,7 +862,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Print the table
                 activeEditor.getTable().printTable("Table: "
                                                    + activeEditor.getOwnerName(),
-                                                   activeEditor.getFieldHandler(),
+                                                   activeEditor.getPanelFieldInformation(),
                                                    CcddTableEditorDialog.this,
                                                    PageFormat.LANDSCAPE);
             }
@@ -1199,12 +1187,18 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 new CcddFieldEditorDialog(ccddMain,
                                           activeEditor,
                                           activeEditor.getTableInformation().getTablePath(),
+                                          activeEditor.getTableInformation().getFieldInformation(),
                                           (activeEditor.getTableTypeDefinition().isStructure()
                                            && !activeEditor.getTableInformation().getTablePath().contains(",")),
                                           MIN_WINDOW_WIDTH);
 
+                // Update the field information stored in the table information with the fields as
+                // updated by the field editor
+                activeEditor.getTableInformation().setFieldInformation(activeEditor.getInputFieldPanelHandler()
+                                                                                   .getPanelFieldInformation());
+
                 // Enable/disable the Clear values command depending on if any data fields remain
-                mntmClearValues.setEnabled(!activeEditor.getFieldHandler().getFieldInformation().isEmpty());
+                mntmClearValues.setEnabled(!activeEditor.getTableInformation().getFieldInformation().isEmpty());
             }
 
             /**************************************************************************************
@@ -1227,7 +1221,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             protected void performAction(ActionEvent ae)
             {
                 // Check if there are any data fields to clear
-                if (!activeEditor.getFieldHandler().getFieldInformation().isEmpty())
+                if (!activeEditor.getTableInformation().getFieldInformation().isEmpty())
                 {
                     // Remove all of the data field values from the table
                     activeEditor.getInputFieldPanelHandler().clearFieldValues();

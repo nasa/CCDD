@@ -724,8 +724,8 @@ public class CcddDataTypeHandler
             structureCbox = new PaddedComboBox(structures,
                                                ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
-            // Enable auto-completion for the combo box
-            structureCbox.setAutoComplete(null);
+            // Enable item matching for the combo box
+            structureCbox.enableItemMatching(null);
 
             // Set the first structure as initially selected
             structureCbox.setSelectedIndex(0);

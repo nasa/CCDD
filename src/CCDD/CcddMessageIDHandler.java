@@ -576,7 +576,8 @@ public class CcddMessageIDHandler
     {
         // Convert the message ID from a hexadecimal string to an integer. Remove the protection
         // flag if present so that the ID can be converted to an integer
-        int msgID = Integer.decode(ownerAndID[1].replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT, ""));
+        int msgID = Integer.decode(ownerAndID[1].replaceFirst("\\s*" + PROTECTED_MSG_ID_IDENT,
+                                                              ""));
 
         // Check if the list of duplicate message IDs is to be created
         if (isGetDuplicates)

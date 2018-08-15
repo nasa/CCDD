@@ -42,7 +42,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     private final CcddMain ccddMain;
     private final CcddApplicationSchedulerDialog schedulerDlg;
     private CcddGroupTreeHandler applicationTree;
-    private CcddFieldHandler fieldHndlr;
+    private final CcddFieldHandler fieldHandler;
 
     // Panel containing the application tree
     private JPanel treePnl;
@@ -66,6 +66,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
     {
         this.ccddMain = ccddMain;
         this.schedulerDlg = schedulerDlg;
+        fieldHandler = ccddMain.getFieldHandler();
 
         excludedList = new ArrayList<String>();
 
@@ -119,9 +120,6 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                 }
             }
         };
-
-        // Get the field handler reference from the application tree
-        fieldHndlr = applicationTree.getFieldHandler();
 
         // Create the tree panel
         treePnl = new JPanel(new GridBagLayout());
@@ -367,12 +365,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // Step through each application in the application tree
         for (GroupInformation appInfo : applicationTree.getGroupHandler().getGroupInformation())
         {
-            // Set the field handler to contain the current application's information
-            fieldHndlr.setFieldInformation(appInfo.getFieldInformation());
-
             // Get the scheduler rate of the current application
-            FieldInformation rateInfo = fieldHndlr.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(appInfo.getName()),
-                                                                             "Schedule Rate");
+            FieldInformation rateInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(appInfo.getName()),
+                                                                               "Schedule Rate");
 
             // Check if the application had a schedule rate assigned
             if (rateInfo != null && !rates.contains(rateInfo.getValue()))
@@ -520,12 +515,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
         // slot has no applications assigned
         if (!applicationName.isEmpty())
         {
-            // Update the data field handler with this application's field information
-            fieldHndlr.setFieldInformation(applicationTree.getGroupHandler().getGroupInformationByName(applicationName).getFieldInformation());
-
             // Get the information for the specified data field
-            FieldInformation groupInfo = fieldHndlr.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(applicationName),
-                                                                              appField.getFieldName());
+            FieldInformation groupInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldGroupName(applicationName),
+                                                                                appField.getFieldName());
             // Check if the field exists and isn't empty
             if (groupInfo != null && !groupInfo.getValue().isEmpty())
             {

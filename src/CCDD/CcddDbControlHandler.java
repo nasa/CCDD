@@ -249,6 +249,16 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
+     * Get the SQL database connection
+     *
+     * @return The SQL database connection
+     *********************************************************************************************/
+    protected Connection getConnection()
+    {
+        return connection;
+    }
+
+    /**********************************************************************************************
      * Get the server connection status
      *
      * @return true if a connection to a database exists
@@ -2055,6 +2065,7 @@ public class CcddDbControlHandler
         }
         catch (SQLException se)
         {
+            // Ignore any database error condition
         }
 
         return isAllowed;
@@ -2066,9 +2077,13 @@ public class CcddDbControlHandler
      * @param databaseName
      *            name of the database to open
      *
+     * @param isReconnect
+     *            true if this is an attempt to reconnect to the database following a failed
+     *            transaction
+     *
      * @return true if the connection attempt failed
      *********************************************************************************************/
-    private boolean connectToDatabase(String databaseName)
+    private boolean connectToDatabase(String databaseName, boolean isReconnect)
     {
         boolean errorFlag = false;
 
@@ -2094,7 +2109,7 @@ public class CcddDbControlHandler
             // grouped prior to committing
             connection.setAutoCommit(false);
 
-            // Store the database connection
+            // Store the database connection in the database command handler
             dbCommand.setConnection(connection);
 
             // Save the name of the newly connected database
@@ -2132,8 +2147,8 @@ public class CcddDbControlHandler
                         throw new CCDDException("");
                     }
 
-                    // Check if the database is locked
-                    if (isLocked)
+                    // Check if the database is locked and this isn't a reconnection attempt
+                    if (!isReconnect && isLocked)
                     {
                         throw new SQLException("database is locked");
                     }
@@ -2205,8 +2220,9 @@ public class CcddDbControlHandler
                 // password
                 isMissingPassword = true;
             }
-            // Connection failed for reason other than a missing password
-            else
+            // Connection failed for reason other than a missing password. Check if this isn't a
+            // reconnection attempt (errors are suppressed here if a reconnection attempt fails)
+            else if (!isReconnect)
             {
                 // Inform the user that the database connection failed
                 eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -2248,6 +2264,16 @@ public class CcddDbControlHandler
         }
 
         return errorFlag;
+    }
+
+    /**********************************************************************************************
+     * Reconnect to the active database
+     *
+     * @return true if the connection attempt failed
+     *********************************************************************************************/
+    protected boolean reconnectToDatabase()
+    {
+        return connectToDatabase(activeDatabase, true);
     }
 
     /**********************************************************************************************
@@ -2336,7 +2362,7 @@ public class CcddDbControlHandler
                     Class.forName(DATABASE_DRIVER);
 
                     // Check if the attempt to connect to the database fails
-                    if (connectToDatabase(databaseName))
+                    if (connectToDatabase(databaseName, false))
                     {
                         throw new CCDDException();
                     }
@@ -2413,7 +2439,7 @@ public class CcddDbControlHandler
                     if (!databaseName.equals(DEFAULT_DATABASE))
                     {
                         // Attempt to connect to the default database
-                        errorFlag = connectToDatabase(DEFAULT_DATABASE);
+                        errorFlag = connectToDatabase(DEFAULT_DATABASE, false);
                     }
                 }
                 catch (LinkageError | ClassNotFoundException le)

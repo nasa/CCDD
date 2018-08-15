@@ -169,8 +169,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
      * @param inputTypeNames
      *            list of the input type names, before and after the changes
      *********************************************************************************************/
-    protected void doInputTypeUpdatesComplete(boolean commandError,
-                                              List<String[]> inputTypeNames)
+    protected void doInputTypeUpdatesComplete(boolean commandError, List<String[]> inputTypeNames)
     {
         // Check that no error occurred performing the database commands
         if (!commandError)
@@ -179,6 +178,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             // be re-added since it gets removed when the input types are built
             inputTypeHandler.setInputTypeData(getUpdatedData());
             inputTypeHandler.updateVariableReferences();
+            inputTypeHandler.updateCommandReferences();
             inputTypeHandler.updateMsgNameAndIDReferences(CcddInputTypeEditorDialog.this);
 
             // Update the table type handler with the input type changes
@@ -1007,8 +1007,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             }
         }
 
-        // Enable auto-completion for the combo box
-        formatComboBox.setAutoComplete(inputTypeTable);
+        // Enable item matching for the combo box
+        formatComboBox.enableItemMatching(inputTypeTable);
 
         // Add a listener to the combo box for focus changes
         formatComboBox.addFocusListener(new FocusAdapter()

@@ -57,7 +57,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private final CcddEventLogDialog eventLog;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddRateParameterHandler rateHandler;
-    private CcddVariableSizeAndConversionHandler variableHandler;
+    private CcddVariableHandler variableHandler;
     private CcddLinkHandler linkHandler;
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
@@ -96,8 +96,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         tableTypeHandler = ccddMain.getTableTypeHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
-        fieldHandler = new CcddFieldHandler(ccddMain, null, ccddMain.getMainFrame());
-        jsonHandler = new CcddJSONHandler(ccddMain, fieldHandler, ccddMain.getMainFrame());
+        fieldHandler = ccddMain.getFieldHandler();
+        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -1648,11 +1648,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 JSONArray groupFieldsJA = new JSONArray();
 
-                // Build the field information list for this group
-                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldGroupName(groupName));
-
                 // Check if the group has any fields
-                if (!fieldHandler.getFieldInformation().isEmpty())
+                if (!fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupName)).isEmpty())
                 {
                     // Get the group data fields (extract the data field array from the table field
                     // tag)
@@ -1913,10 +1910,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             CcddCopyTableHandler copyHandler = new CcddCopyTableHandler(ccddMain);
 
             // Create the copy table entries based on the supplied parameters
-            String[][] copyTable = copyHandler.createCopyTable(new CcddFieldHandler(ccddMain,
-                                                                                    null,
-                                                                                    ccddMain.getMainFrame()),
-                                                               new CcddLinkHandler(ccddMain,
+            String[][] copyTable = copyHandler.createCopyTable(new CcddLinkHandler(ccddMain,
                                                                                    ccddMain.getMainFrame()),
                                                                rateInfo.getStreamName(),
                                                                headerSize,

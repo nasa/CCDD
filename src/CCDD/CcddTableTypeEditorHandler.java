@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -31,8 +30,10 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
 
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
@@ -51,7 +52,6 @@ import CCDD.CcddUndoHandler.UndoableTableModel;
 public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
-    private final CcddMain ccddMain;
     private String tableTypeName;
     private final CcddDbControlHandler dbControl;
     private final CcddTableTypeEditorDialog editorDialog;
@@ -73,7 +73,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private Object[][] committedData;
 
     // Storage for the most recent committed field information
-    private CcddFieldHandler committedFields;
+    private List<FieldInformation> committedFieldInfo;
 
     // Type description
     private String committedDescription;
@@ -104,32 +104,24 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Table type editor handler class constructor
      *
      * @param ccddMain
-     *            main class
+     *            main class reference
      *
      * @param tableTypeName
      *            table type name
-     *
-     * @param fieldDefinitions
-     *            data field definitions
      *
      * @param editorDialog
      *            editor dialog from which this editor was created
      *********************************************************************************************/
     protected CcddTableTypeEditorHandler(CcddMain ccddMain,
                                          String tableTypeName,
-                                         List<String[]> fieldDefinitions,
                                          CcddTableTypeEditorDialog editorDialog)
     {
-        this.ccddMain = ccddMain;
         this.tableTypeName = tableTypeName;
         this.editorDialog = editorDialog;
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
-
-        // Create the field information for this table type
-        fieldHandler = new CcddFieldHandler(ccddMain, fieldDefinitions);
-        fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableTypeName));
+        fieldHandler = ccddMain.getFieldHandler();
 
         // Get the type definition for the specified type name
         typeDefinition = tableTypeHandler.getTypeDefinition(tableTypeName);
@@ -163,7 +155,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         isBadType = false;
 
         // Create a copy of the field information
-        setCommittedInformation(fieldHandler);
+        setCommittedInformation();
 
         // Initialize the lists of type content changes
         typeAdditions = new ArrayList<String[]>();
@@ -171,7 +163,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         typeDeletions = new ArrayList<String[]>();
 
         // Create the table type editor
-        initialize();
+        initialize(ccddMain);
     }
 
     /**********************************************************************************************
@@ -233,11 +225,10 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      *            table information class for extracting the current table name, type, column
      *            order, and description
      *********************************************************************************************/
-    private void setCommittedInformation(CcddFieldHandler handler)
+    private void setCommittedInformation()
     {
         // Create a new field handler and copy the current field information into it
-        committedFields = new CcddFieldHandler(ccddMain);
-        committedFields.setFieldInformation(handler.getFieldInformationCopy());
+        committedFieldInfo = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeName));
 
         // Check if the table has been created
         if (table != null)
@@ -313,10 +304,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
+            // Update the table type's data field information in the field handler
+            fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeName),
+                                                        getPanelFieldInformation());
+
             // Store the current table data and description as the last committed
             committedData = table.getTableData(true);
             committedDescription = getDescription();
-            setCommittedInformation(fieldHandler);
+            setCommittedInformation();
 
             // Send a change event so that the editor tab name reflects that the table has changed
             table.getUndoManager().ownerHasChanged();
@@ -338,17 +333,20 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         setUpInputTypeColumn();
 
         // Update the input types in the field handlers (committed and active)
-        committedFields.updateFieldInputTypes(inputTypeNames);
-        fieldHandler.updateFieldInputTypes(inputTypeNames);
+        fieldHandler.updateFieldInputTypes(inputTypeNames, committedFieldInfo);
+        fieldHandler.updateFieldInputTypes(inputTypeNames, getPanelFieldInformation());
 
         // Redraw the data field panel
-        createDataFieldPanel(false);
+        createDataFieldPanel(false, getPanelFieldInformation());
     }
 
     /**********************************************************************************************
      * Create the table type editor
+     *
+     * @param ccddMain
+     *            main class reference
      *********************************************************************************************/
-    private void initialize()
+    private void initialize(CcddMain ccddMain)
     {
         // Define the table type editor JTable
         table = new CcddJTableHandler()
@@ -360,14 +358,13 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             protected boolean isTableChanged(Object[][] data)
             {
                 // Update the field information with the current text field values
-                updateCurrentFieldValues(fieldHandler.getFieldInformation());
+                updateFieldValueFromComponent(getPanelFieldInformation());
 
                 // Set the flag if the number of fields, field attributes, or field contents have
                 // changed
-                boolean isFieldChanged = CcddFieldHandler.isFieldChanged(fieldHandler.getFieldInformation(),
-                                                                         committedFields.getFieldInformation(),
-                                                                         true,
-                                                                         inputTypeHandler);
+                boolean isFieldChanged = fieldHandler.isFieldChanged(getPanelFieldInformation(),
+                                                                     committedFieldInfo,
+                                                                     true);
 
                 return isFieldChanged
                        || !committedDescription.equals(getDescription())
@@ -935,12 +932,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         setEditPanelUndo(table.getUndoManager(), table.getUndoHandler());
 
         // Create the input field panel to contain the type editor
-        createDescAndDataFieldPanel(editorDialog,
+        createDescAndDataFieldPanel(ccddMain,
+                                    editorDialog,
                                     scrollPane,
-                                    tableTypeName,
-                                    committedDescription,
-                                    fieldHandler,
-                                    inputTypeHandler);
+                                    CcddFieldHandler.getFieldTypeName(tableTypeName),
+                                    committedDescription);
 
         // Set the JTable name so that table change events can be identified with this table
         setTableTypeName(tableTypeName);
@@ -1193,11 +1189,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // Get the index of the input type column in view coordinates
         inputTypeIndex = table.convertColumnIndexToView(TableTypeEditorColumnInfo.INPUT_TYPE.ordinal());
 
-        // Set the column table editor to the combo box
-        table.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new DefaultCellEditor(comboBox));
+        // Enable item matching for the combo box
+        comboBox.enableItemMatching(table);
 
-        // Enable auto-completion for the combo box
-        comboBox.setAutoComplete(table);
+        // Set the column table editor to the combo box
+        table.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new ComboBoxCellEditor(comboBox));
 
         // Set the default selected type
         comboBox.setSelectedItem(DefaultInputType.TEXT.getInputName());

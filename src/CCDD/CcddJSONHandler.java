@@ -70,11 +70,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     private final CcddDbControlHandler dbControl;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddFieldHandler fieldHandler;
     private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddInputTypeHandler inputTypeHandler;
     private TableInformation tableInfo;
-    private final CcddFieldHandler fieldHandler;
 
     // GUI component over which to center any error dialog
     private final Component parent;
@@ -88,16 +88,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param ccddMain
      *            main class reference
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddJSONHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
+    CcddJSONHandler(CcddMain ccddMain, Component parent)
     {
         this.ccddMain = ccddMain;
-        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -105,6 +101,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
@@ -489,7 +486,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             // Add the table type if it's new or match it to an existing one with the same name if
             // the type definitions are the same
-            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions, fieldHandler);
+            String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefinitions);
 
             // Check if a table type isn't new and doesn't match an existing one with the same name
             if (badDefn != null)
@@ -679,7 +676,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
                 // Build the imported project-level data fields, if any
-                buildProjectdataFields(ccddMain, fieldHandler, projectDefn.getDataFields());
+                buildProjectdataFields(ccddMain, projectDefn.getDataFields());
             }
 
             // Get the table definitions JSON object
@@ -904,7 +901,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeVariablePaths,
-                             CcddVariableSizeAndConversionHandler variableHandler,
+                             CcddVariableHandler variableHandler,
                              String[] separators,
                              Object... extraInfo) throws CCDDException, Exception
     {
@@ -983,10 +980,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         }
 
                         // Build the data field information for the table
-                        fieldHandler.buildFieldInformation(tblName);
-
                         // Step through each data field belonging to the table
-                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(tblName))
                         {
                             // Check if if the input type is user-defined and this input type is
                             // not already output
@@ -1201,7 +1196,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                       boolean getDescription,
                                       boolean replaceMacros,
                                       boolean includeVariablePaths,
-                                      CcddVariableSizeAndConversionHandler variableHandler,
+                                      CcddVariableHandler variableHandler,
                                       String[] separators,
                                       JSONObject outputJO)
     {
@@ -1322,15 +1317,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         JSONArray dataFieldDefnJA = new JSONArray();
 
         // Get the existing data fields for the specified owner
-        fieldHandler.buildFieldInformation(ownerName);
+        List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(ownerName);
 
         // Check if the owner has any fields
-        if (!fieldHandler.getFieldInformation().isEmpty())
+        if (!fieldInformation.isEmpty())
         {
             JSONObject fieldJO = new JSONObject();
 
             // Step through the data fields for this owner
-            for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+            for (FieldInformation fieldInfo : fieldInformation)
             {
                 fieldJO = new JSONObject();
 
@@ -1389,7 +1384,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     protected JSONObject getTableInformation(String tableName,
                                              boolean replaceMacros,
                                              boolean includeVariablePaths,
-                                             CcddVariableSizeAndConversionHandler variableHandler,
+                                             CcddVariableHandler variableHandler,
                                              String[] separators)
     {
         // Store the table's data

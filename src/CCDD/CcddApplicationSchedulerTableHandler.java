@@ -280,8 +280,7 @@ public class CcddApplicationSchedulerTableHandler
      * @param timeSlots
      *            list of time slots in the table
      *********************************************************************************************/
-    private void validateTableData(List<Variable> applications,
-                                   List<Message> timeSlots)
+    private void validateTableData(List<Variable> applications, List<Message> timeSlots)
     {
         this.applications = applications;
         this.timeSlots = timeSlots;
@@ -329,8 +328,8 @@ public class CcddApplicationSchedulerTableHandler
         // Get a list of the current group's names
         String[] groupNames = groupTree.getGroupHandler().getGroupNames(true);
 
-        // Create a data field handler to interact with the groups' fields
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain);
+        // Get a reference to the data field handler to interact with the groups' fields
+        CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
 
         // Step through each application
         for (Variable app : applications)
@@ -346,7 +345,6 @@ public class CcddApplicationSchedulerTableHandler
                     // Get the group's information and set the data field handler to contain the
                     // current group's information
                     GroupInformation groupInfo = groupTree.getGroupHandler().getGroupInformationByName(name);
-                    fieldHandler.setFieldInformation(groupInfo.getFieldInformation());
 
                     // Get the application data field owner name
                     String application = CcddFieldHandler.getFieldGroupName(groupInfo.getName());

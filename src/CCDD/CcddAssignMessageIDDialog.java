@@ -65,6 +65,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private CcddTelemetrySchedulerDialog schedulerDlg;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddInputTypeHandler inputTypeHandler;
+    private CcddFieldHandler fieldHandler;
 
     // Components that need to be accessed by multiple methods
     private Border border;
@@ -378,6 +379,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 dbTable = ccddMain.getDbTableCommandHandler();
                 tableTypeHandler = ccddMain.getTableTypeHandler();
                 inputTypeHandler = ccddMain.getInputTypeHandler();
+                fieldHandler = ccddMain.getFieldHandler();
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -486,10 +488,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                         // Create a field handler and populate it with the field definitions for
                         // all of the tables in the database
-                        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain,
-                                                                             null,
-                                                                             CcddAssignMessageIDDialog.this);
-                        List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+                        List<FieldInformation> fieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldHandler.getFieldInformation());
 
                         // Sort the field information by table name so that sequence order of the
                         // message ID values is applied to the tables' alphabetical order
@@ -553,7 +552,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                         {
                             // Store the updated data fields table
                             dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
-                                                                      fieldHandler.getFieldDefinitionsFromInformation(),
+                                                                      fieldHandler.getFieldDefinitions(),
                                                                       null,
                                                                       CcddAssignMessageIDDialog.this);
                         }
@@ -1170,18 +1169,21 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Step through each table editor in the editor dialog
                     for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
                     {
-                        // Get the reference to the table's field handler
-                        CcddFieldHandler editorFldHandler = editor.getTableInformation().getFieldHandler();
-
                         // Check if the table contains the message ID field; if so then update it
                         // to the new value
-                        if (editorFldHandler.updateField(fieldInfo))
+                        if (fieldHandler.updateField(fieldInfo))
                         {
-                            // Update the committed message ID value
-                            editor.getCommittedTableInformation().getFieldHandler().updateField(fieldInfo);
+                            // Update the current and committed data field information for this
+                            // table
+                            editor.updateTableFieldInformationFromHandler();
 
-                            // Update the editor data fields
-                            editor.updateDataFields();
+                            // Update the editor data field components from the field values
+                            editor.updateFieldComponentFromValue(editor.getTableInformation().getFieldInformation());
+
+                            // Rebuild the data field panel in the table editor using the updated
+                            // fields
+                            editor.createDataFieldPanel(false,
+                                                        editor.getTableInformation().getFieldInformation());
 
                             // Set the flag to indicate the table/field combination was located and
                             // stop searching

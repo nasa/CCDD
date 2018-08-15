@@ -563,7 +563,7 @@ public class CcddDbVerificationHandler
                     comments = dbTable.queryDataTableComments(ccddMain.getMainFrame());
 
                     // Get metadata for all tables
-                    ResultSet tableResult = dbCommand.getConnection().getMetaData().getTables(null,
+                    ResultSet tableResult = dbControl.getConnection().getMetaData().getTables(null,
                                                                                               null,
                                                                                               null,
                                                                                               new String[] {"TABLE"});
@@ -884,7 +884,7 @@ public class CcddDbVerificationHandler
                         if (tableNameDb.equals(intTable.getTableName()))
                         {
                             // Get the table's column metadata
-                            ResultSet columnResult = dbCommand.getConnection().getMetaData().getColumns(null,
+                            ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null,
                                                                                                         null,
                                                                                                         tableNameDb,
                                                                                                         null);
@@ -1708,7 +1708,7 @@ public class CcddDbVerificationHandler
                         }
 
                         // Get the table's column metadata
-                        ResultSet columnResult = dbCommand.getConnection().getMetaData().getColumns(null,
+                        ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null,
                                                                                                     null,
                                                                                                     tableNameDb,
                                                                                                     null);
@@ -2757,7 +2757,7 @@ public class CcddDbVerificationHandler
                                                                 OK_ICON,
                                                                 KeyEvent.VK_O,
                                                                 "Correct the inconsistencies");
-            btnOk.setEnabled(dbControl.isAccessAdmin());
+            btnOk.setEnabled(dbControl.isAccessAdmin());// TODO
 
             // Add a listener for the Okay button
             btnOk.addActionListener(new ActionListener()
@@ -2975,7 +2975,7 @@ public class CcddDbVerificationHandler
                         dbCommand.releaseSavePoint(ccddMain.getMainFrame());
 
                         // Commit the change(s) to the database
-                        dbCommand.getConnection().commit();
+                        dbControl.getConnection().commit();
 
                         // Update the various handlers so that the updated internal tables will now
                         // be in use

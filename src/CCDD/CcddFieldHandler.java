@@ -29,11 +29,8 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
 public class CcddFieldHandler
 {
     // Class references
-    private final CcddMain ccddMain;
+    private final CcddDbTableCommandHandler dbTable;
     private final CcddInputTypeHandler inputTypeHandler;
-
-    // List of field definitions
-    private List<String[]> fieldDefinitions;
 
     // List of field information
     private List<FieldInformation> fieldInformation;
@@ -46,72 +43,15 @@ public class CcddFieldHandler
      *********************************************************************************************/
     CcddFieldHandler(CcddMain ccddMain)
     {
-        this.ccddMain = ccddMain;
+        // Get references to shorten subsequent calls
+        dbTable = ccddMain.getDbTableCommandHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
-        // Create storage for the field definitions and information
-        fieldDefinitions = new ArrayList<String[]>();
+        // Create storage for the field information
         fieldInformation = new ArrayList<FieldInformation>();
-    }
-
-    /**********************************************************************************************
-     * Field handler class constructor
-     *
-     * @param ccddMain
-     *            main class reference
-     *
-     * @param fieldDefinitions
-     *            field definitions
-     *********************************************************************************************/
-    CcddFieldHandler(CcddMain ccddMain, List<String[]> fieldDefinitions)
-    {
-        this(ccddMain);
-        this.fieldDefinitions = fieldDefinitions;
-    }
-
-    /**********************************************************************************************
-     * Field handler class constructor
-     *
-     * @param ccddMain
-     *            main class
-     *
-     * @param ownerName
-     *            name of the data field owner; null to build the information for all data fields
-     *
-     * @param parent
-     *            GUI component over which to center any error dialog
-     *********************************************************************************************/
-    CcddFieldHandler(CcddMain ccddMain, String ownerName, Component parent)
-    {
-        this(ccddMain);
-
-        // Load the data field definitions from the database
-        fieldDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.FIELDS,
-                                                                                        parent);
 
         // Use the field definitions to create the data field information
-        buildFieldInformation(ownerName);
-    }
-
-    /**********************************************************************************************
-     * Get the data field definitions
-     *
-     * @return data field definitions
-     *********************************************************************************************/
-    protected List<String[]> getFieldDefinitions()
-    {
-        return fieldDefinitions;
-    }
-
-    /**********************************************************************************************
-     * Set the data field definitions
-     *
-     * @param fieldDefinitions
-     *            field definitions
-     *********************************************************************************************/
-    protected void setFieldDefinitions(List<String[]> fieldDefinitions)
-    {
-        this.fieldDefinitions = fieldDefinitions;
+        buildFieldInformation(ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -189,20 +129,89 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
+     * Build the data field information from the field definitions stored in the database
+     *
+     * @param parent
+     *            GUI component over which to center any error dialogs
+     *********************************************************************************************/
+    protected void buildFieldInformation(Component parent)
+    {
+        // Use the field definitions to create the data field information
+        buildFieldInformation(dbTable.retrieveInformationTable(InternalTable.FIELDS, parent));
+    }
+
+    /**********************************************************************************************
+     * Build the data field information from the supplied field definitions
+     *
+     * @param fieldDefinitions
+     *            list of data field definitions
+     *********************************************************************************************/
+    protected void buildFieldInformation(List<String[]> fieldDefinitions)
+    {
+        // Clear the fields from the list. Note that this eliminates the input fields (text and
+        // check box) that are stored in the field information; these must be rebuilt (if needed)
+        // after calling this method
+        fieldInformation.clear();
+
+        // Check if the field definitions exist
+        if (fieldDefinitions != null)
+        {
+            // Step through each field definition
+            for (String[] fieldDefn : fieldDefinitions)
+            {
+                // Get the input type from its name
+                InputType inputType = inputTypeHandler.getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
+
+                // Get the applicability type from its name. The all tables applicability type is
+                // the default if the applicability type name is invalid
+                ApplicabilityType applicability = ApplicabilityType.ALL;
+                String applicabilityName = fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString();
+
+                // Step through each field applicability type
+                for (ApplicabilityType type : ApplicabilityType.values())
+                {
+                    // Check if the type matches this field's applicability type
+                    if (applicabilityName.equals(type.getApplicabilityName()))
+                    {
+                        // Store the field applicability type and stop searching
+                        applicability = type;
+                        break;
+                    }
+                }
+
+                // Add the field information
+                fieldInformation.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
+                                                          fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
+                                                          fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
+                                                          inputType,
+                                                          Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
+                                                          Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
+                                                          applicability,
+                                                          fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
+                                                          null));
+            }
+        }
+    }
+
+    /**********************************************************************************************
      * Update the input type for each field definition following a change to the input type
      * definitions
      *
      * @param inputTypeNames
      *            list of the input type names, before and after the changes; null if none of the
      *            input type names changed
+     *
+     * @param fieldInfo
+     *            reference to the field information list to update
      *********************************************************************************************/
-    protected void updateFieldInputTypes(List<String[]> inputTypeNames)
+    protected void updateFieldInputTypes(List<String[]> inputTypeNames,
+                                         List<FieldInformation> fieldInfo)
     {
         // Step through each field definition
-        for (FieldInformation fieldInfo : fieldInformation)
+        for (FieldInformation fldInfo : fieldInfo)
         {
             // Get the field's input type name before the change
-            String inputTypeName = fieldInfo.getInputType().getInputName();
+            String inputTypeName = fldInfo.getInputType().getInputName();
 
             // Check if a list of input type names is provided. If not, assume the names are
             // unchanged
@@ -223,13 +232,13 @@ public class CcddFieldHandler
             }
 
             // Set the field's input type based on the input type name
-            fieldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
+            fldInfo.setInputType(inputTypeHandler.getInputTypeByName(inputTypeName));
 
             // Check if the field value doesn't conform to the input type match regular expression
-            if (!fieldInfo.getValue().matches(fieldInfo.getInputType().getInputMatch()))
+            if (!fldInfo.getValue().matches(fldInfo.getInputType().getInputMatch()))
             {
                 // Set the field value to a blank
-                fieldInfo.setValue("");
+                fldInfo.setValue("");
             }
         }
     }
@@ -303,65 +312,59 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Build the data field information from the field definitions
+     * Get the list of field information for the specified owner
      *
      * @param ownerName
      *            name of the data field owner (table name, including the path if this table
-     *            references a structure, group name, or table type name); null to get all data
-     *            fields
+     *            references a structure, group name, or table type name)
+     *
+     * @return List of field information for the specified owner; an empty list if the owner has no
+     *         fields or the owner name is invalid
      *********************************************************************************************/
-    protected void buildFieldInformation(String ownerName)
+    protected List<FieldInformation> getFieldInformationByOwner(String ownerName)
     {
-        // Clear the fields from the list. Note that this eliminates the input fields (text and
-        // check box) that are stored in the field information; these must be rebuilt (if needed)
-        // after calling this method
-        fieldInformation.clear();
+        List<FieldInformation> ownerFieldInfo = new ArrayList<FieldInformation>();
 
-        // Check if the field definitions exist
-        if (fieldDefinitions != null)
+        // Check if the owner name is provided
+        if (ownerName != null)
         {
-            // Step through each field definition
-            for (String[] fieldDefn : fieldDefinitions)
+            // Step through each data field
+            for (FieldInformation fieldInfo : fieldInformation)
             {
-                // Check if no owner name is provided (get the fields for all tables and groups for
-                // this case), or if the supplied owner name matches the field owner name
-                if (ownerName == null
-                    || ownerName.isEmpty()
-                    || ownerName.equalsIgnoreCase(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString()))
+                // Check if the owner names match
+                if (fieldInfo.getOwnerName().equals(ownerName))
                 {
-                    // Get the input type from its name
-                    InputType inputType = inputTypeHandler.getInputTypeByName(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].toString());
-
-                    // Get the applicability type from its name. The all tables applicability type
-                    // is the default if the applicability type name is invalid
-                    ApplicabilityType applicability = ApplicabilityType.ALL;
-                    String applicabilityName = fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].toString();
-
-                    // Step through each field applicability type
-                    for (ApplicabilityType type : ApplicabilityType.values())
-                    {
-                        // Check if the type matches this field's applicability type
-                        if (applicabilityName.equals(type.getApplicabilityName()))
-                        {
-                            // Store the field applicability type and stop searching
-                            applicability = type;
-                            break;
-                        }
-                    }
-
-                    // Add the field information
-                    fieldInformation.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
-                                                              fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
-                                                              fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
-                                                              inputType,
-                                                              Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
-                                                              Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
-                                                              applicability,
-                                                              fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
-                                                              null));
+                    // Add the field to the list belonging to the specified owner
+                    ownerFieldInfo.add(fieldInfo);
                 }
             }
         }
+
+        return ownerFieldInfo;
+    }
+
+    /**********************************************************************************************
+     * Replace the specified owner's current data fields with those in the supplied list
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
+     *
+     * @param newOwnerFldInfo
+     *            list of field information for the specified owner; an empty list if the owner has
+     *            no fields
+     *********************************************************************************************/
+    protected void replaceFieldInformationByOwner(String ownerName,
+                                                  List<FieldInformation> newOwnerFldInfo)
+    {
+        // Get the list of the owner's current fields
+        List<FieldInformation> oldOwnerFldInfo = getFieldInformationByOwner(ownerName);
+
+        // Remove the owner's current fields
+        fieldInformation.removeAll(oldOwnerFldInfo);
+
+        // Add the owner's new fields
+        fieldInformation.addAll(newOwnerFldInfo);
     }
 
     /**********************************************************************************************
@@ -405,7 +408,7 @@ public class CcddFieldHandler
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
-            isRootStruct = ccddMain.getDbTableCommandHandler().getRootStructures().contains(ownerName);
+            isRootStruct = dbTable.getRootStructures().contains(ownerName);
         }
 
         return isTypeGroupProject
@@ -433,15 +436,11 @@ public class CcddFieldHandler
      *            true if the owner name is ignored. This is the case if called by the data field
      *            or table type editors
      *
-     * @param inpTypeHndlr
-     *            reference to the input type handler
-     *
      * @return Data field definitions array
      *********************************************************************************************/
-    protected static boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
-                                            List<FieldInformation> compFieldInfoB,
-                                            boolean isIgnoreOwnerName,
-                                            CcddInputTypeHandler inpTypeHndlr)
+    protected boolean isFieldChanged(List<FieldInformation> compFieldInfoA,
+                                     List<FieldInformation> compFieldInfoB,
+                                     boolean isIgnoreOwnerName)
     {
 
         // Set the change flag if the number of fields in the two field handlers differ
@@ -457,8 +456,8 @@ public class CcddFieldHandler
                 if ((!isIgnoreOwnerName && !compFieldInfoA.get(index).getOwnerName().equals(compFieldInfoB.get(index).getOwnerName()))
                     || !compFieldInfoA.get(index).getFieldName().equals(compFieldInfoB.get(index).getFieldName())
                     || !compFieldInfoA.get(index).getDescription().equals(compFieldInfoB.get(index).getDescription())
-                    || inpTypeHndlr.isInputTypeChanged(compFieldInfoA.get(index).getInputType(),
-                                                       compFieldInfoB.get(index).getInputType())
+                    || inputTypeHandler.isInputTypeChanged(compFieldInfoA.get(index).getInputType(),
+                                                           compFieldInfoB.get(index).getInputType())
                     || compFieldInfoA.get(index).getSize() != compFieldInfoB.get(index).getSize()
                     || !compFieldInfoA.get(index).getValue().equals(compFieldInfoB.get(index).getValue())
                     || compFieldInfoA.get(index).isRequired() != compFieldInfoB.get(index).isRequired()
@@ -475,7 +474,9 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Build the data field definitions from the supplied data field editor data
+     * Rebuild the data field definitions for the specified owner from the supplied data field
+     * editor data. The owner's existing fields (if any) are removed, then the supplied definitions
+     * are used to create the owner's new fields (if any)
      *
      * @param fieldData
      *            array of data field editor data
@@ -484,9 +485,10 @@ public class CcddFieldHandler
      *            name of the data field owner (table name, including the path if this table
      *            references a structure, group name, or table type name)
      *********************************************************************************************/
-    protected void buildFieldDefinitions(Object[][] fieldData, String ownerName)
+    protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData,
+                                                                 String ownerName)
     {
-        fieldDefinitions.clear();
+        List<FieldInformation> fieldInfo = new ArrayList<FieldInformation>();
 
         // Check if any data fields are defined
         if (fieldData.length != 0)
@@ -494,42 +496,54 @@ public class CcddFieldHandler
             // Step through each row in the editor data array
             for (Object[] data : fieldData)
             {
-                // Add the field definition to the list
-                fieldDefinitions.add(getFieldDefinitionArray(ownerName,
-                                                             data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
-                                                             data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
-                                                             inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                                             Integer.valueOf(data[FieldEditorColumnInfo.SIZE.ordinal()].toString()),
-                                                             Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
-                                                             ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
-                                                             data[FieldEditorColumnInfo.VALUE.ordinal()].toString()));
+                fieldInfo.add(new FieldInformation(ownerName,
+                                                   data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                   data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                   inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                   Integer.valueOf(data[FieldEditorColumnInfo.SIZE.ordinal()].toString()),
+                                                   Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                   ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                   data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
+                                                   null));
             }
         }
+
+        return fieldInfo;
     }
 
     /**********************************************************************************************
-     * Get the array of data field definitions for the data field editor
+     * Get the array of data field definitions for the specified owner for use in the data field
+     * editor
      *
-     * @return Object array containing the data field definitions used by the data field editor
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
+     *
+     * @param fieldInfo
+     *            list of field information
+     *
+     * @return Object array containing the data field definitions for the specified owner used by
+     *         the data field editor
      *********************************************************************************************/
-    protected Object[][] getFieldEditorDefinition()
+    protected Object[][] getFieldEditorDefinition(String ownerName,
+                                                  List<FieldInformation> fieldinfo)
     {
         List<Object[]> definitions = new ArrayList<Object[]>();
 
-        // Step through each row
-        for (FieldInformation fieldInfo : fieldInformation)
+        // Step through each of the owner's fields
+        for (FieldInformation fldInfo : fieldinfo)
         {
             // Create storage for a single field definition
             Object[] row = new Object[FieldEditorColumnInfo.values().length];
 
             // Store the field definition in the proper order
-            row[FieldEditorColumnInfo.NAME.ordinal()] = fieldInfo.getFieldName();
-            row[FieldEditorColumnInfo.DESCRIPTION.ordinal()] = fieldInfo.getDescription();
-            row[FieldEditorColumnInfo.INPUT_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-            row[FieldEditorColumnInfo.SIZE.ordinal()] = fieldInfo.getSize();
-            row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fieldInfo.isRequired();
-            row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-            row[FieldEditorColumnInfo.VALUE.ordinal()] = fieldInfo.getValue();
+            row[FieldEditorColumnInfo.NAME.ordinal()] = fldInfo.getFieldName();
+            row[FieldEditorColumnInfo.DESCRIPTION.ordinal()] = fldInfo.getDescription();
+            row[FieldEditorColumnInfo.INPUT_TYPE.ordinal()] = fldInfo.getInputType().getInputName();
+            row[FieldEditorColumnInfo.SIZE.ordinal()] = fldInfo.getSize();
+            row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fldInfo.isRequired();
+            row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fldInfo.getApplicabilityType().getApplicabilityName();
+            row[FieldEditorColumnInfo.VALUE.ordinal()] = fldInfo.getValue();
 
             // Add the field definition to the list
             definitions.add(row);
@@ -543,7 +557,7 @@ public class CcddFieldHandler
      *
      * @return String list containing the data field definitions
      *********************************************************************************************/
-    protected List<String[]> getFieldDefinitionsFromInformation()
+    protected List<String[]> getFieldDefinitions()
     {
         // Create storage for the field definitions
         List<String[]> definitions = new ArrayList<String[]>();
@@ -676,26 +690,30 @@ public class CcddFieldHandler
             fieldInformation.get(index).setOwnerName(newName);
         }
 
-        return getFieldDefinitionsFromInformation();
+        return getFieldDefinitions();
     }
 
     /**********************************************************************************************
      * Count the number of the specified field type that exists in the field information
+     *
+     * @param fieldOwner
+     *            field owner name
      *
      * @param fieldInputType
      *            field input type (InputType)
      *
      * @return The number of the specified field type that exists in the field information
      *********************************************************************************************/
-    protected int getFieldTypeCount(InputType fieldInputType)
+    protected int getFieldTypeCount(String fieldOwner, InputType fieldInputType)
     {
         int count = 0;
 
         // Step through each field definition
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Check if the field type matches the specified type
-            if (fieldInfo.getInputType().equals(fieldInputType))
+            // Check if the field type matches the specified owner and input type
+            if (fieldInfo.getOwnerName().equals(fieldOwner)
+                && fieldInfo.getInputType().equals(fieldInputType))
             {
                 // Increment the type counter
                 count++;

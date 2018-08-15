@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.TableMemberType.INCLUDE_PRIMITIVES;
 import static CCDD.CcddConstants.TableMemberType.TABLES_ONLY;
+import static CCDD.CcddConstants.TableTreeType.COMMAND_TABLES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES;
 import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES;
@@ -22,6 +23,7 @@ import static CCDD.CcddConstants.TableTreeType.INSTANCE_TABLES_WITH_PRIMITIVES;
 import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_STRUCTURES;
 import static CCDD.CcddConstants.TableTreeType.PROTOTYPE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.STRUCTURES_WITH_PRIMITIVES;
+import static CCDD.CcddConstants.TableTreeType.STRUCTURE_TABLES;
 import static CCDD.CcddConstants.TableTreeType.TABLES_WITH_PRIMITIVES;
 
 import java.awt.Color;
@@ -66,6 +68,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary table tree handler class
@@ -170,17 +173,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            group handler
      *
      * @param treeType
-     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
-     *            INSTANCE_TABLES to show only the table instances (parent tables with child
-     *            tables), TABLES to show the prototypes and instances for all tables,
-     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
-     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
-     *            structure table instances only including primitive variables,
-     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
-     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
-     *            show prototypes and instances for all tables including primitive variables,
-     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
-     *            primitive variables
+     *            table tree type (TableTreeType)
      *
      * @param getDescriptions
      *            true if the node descriptions are to be added as tool tips
@@ -280,17 +273,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            group handler
      *
      * @param treeType
-     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
-     *            INSTANCE_TABLES to show only the table instances (parent tables with child
-     *            tables), TABLES to show the prototypes and instances for all tables,
-     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
-     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
-     *            structure table instances only including primitive variables,
-     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
-     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
-     *            show prototypes and instances for all tables including primitive variables,
-     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
-     *            primitive variables
+     *            table tree type (TableTreeType)
      *
      * @param showGroupFilter
      *            true to display the group filter check box
@@ -337,17 +320,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            group handler
      *
      * @param treeType
-     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
-     *            INSTANCE_TABLES to show only the table instances (parent tables with child
-     *            tables), TABLES to show the prototypes and instances for all tables,
-     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
-     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
-     *            structure table instances only including primitive variables,
-     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
-     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
-     *            show prototypes and instances for all tables including primitive variables,
-     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
-     *            primitive variables
+     *            table tree type (TableTreeType)
      *
      * @param rateName
      *            rate column name used to filter the table tree for variables with rates
@@ -399,6 +372,54 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
+     * Table tree handler class constructor
+     *
+     * @param ccddMain
+     *            main class
+     *
+     * @param groupHandler
+     *            group handler
+     *
+     * @param treeType
+     *            table tree type (TableTreeType)
+     *
+     * @param prototypeNodeName
+     *            name of the prototype node; null to set the node to which the prototype node
+     *            would normally belong as the prototype node
+     *
+     * @param instanceNodeName
+     *            name of the instance node; null to set node to which the instance node would
+     *            normally belong as the instance node
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         String prototypeNodeName,
+                         String instanceNodeName,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             true,
+             true,
+             false,
+             false,
+             null,
+             null,
+             null,
+             false,
+             prototypeNodeName,
+             instanceNodeName,
+             parent);
+    }
+
+    /**********************************************************************************************
      * Table tree handler class constructor. Get just the tree information of the specified type.
      * Structure variable tables and primitives retain their order of appearance in the table's
      * definition
@@ -407,17 +428,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            main class
      *
      * @param treeType
-     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
-     *            INSTANCE_TABLES to show only the table instances (parent tables with child
-     *            tables), TABLES to show the prototypes and instances for all tables,
-     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
-     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
-     *            structure table instances only including primitive variables,
-     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
-     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
-     *            show prototypes and instances for all tables including primitive variables,
-     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
-     *            primitive variables
+     *            table tree type (TableTreeType)
      *
      * @param isSilent
      *            true if any errors when building the tree are not annunciated via a warning
@@ -458,17 +469,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *            main class
      *
      * @param treeType
-     *            table tree type: PROTOTYPE_TABLES to show only the prototype tables,
-     *            INSTANCE_TABLES to show only the table instances (parent tables with child
-     *            tables), TABLES to show the prototypes and instances for all tables,
-     *            STRUCTURES_WITH_PRIMITIVES to show prototype and instance structure tables
-     *            including primitive variables, INSTANCE_STRUCTURES_WITH_PRIMITIVES to show
-     *            structure table instances only including primitive variables,
-     *            INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES to show structure table instances
-     *            only including primitive variables with a rate value, TABLES_WITH_PRIMITIVES to
-     *            show prototypes and instances for all tables including primitive variables,
-     *            INSTANCE_TABLES_WITH_PRIMITIVES to show only the table instances including
-     *            primitive variables
+     *            table tree type (TableTreeType)
      *
      * @param parent
      *            GUI component over which to center any error dialog
@@ -688,14 +689,15 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Set the flag to indicate if all nodes, only the prototype node, or only the instance
         // node should be built and displayed
         nodeFilter = ((treeType == PROTOTYPE_TABLES
-                       || treeType == PROTOTYPE_STRUCTURES)
-                                                            ? TableTreeNodeFilter.PROTOTYPE_ONLY
-                                                            : (treeType == INSTANCE_TABLES
-                                                               || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                                                               || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
-                                                               || treeType == INSTANCE_TABLES_WITH_PRIMITIVES
-                                                                                                              ? TableTreeNodeFilter.INSTANCE_ONLY
-                                                                                                              : TableTreeNodeFilter.ALL));
+                       || treeType == PROTOTYPE_STRUCTURES
+                       || treeType == COMMAND_TABLES)
+                                                      ? TableTreeNodeFilter.PROTOTYPE_ONLY
+                                                      : (treeType == INSTANCE_TABLES
+                                                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                                                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES
+                                                         || treeType == INSTANCE_TABLES_WITH_PRIMITIVES
+                                                                                                        ? TableTreeNodeFilter.INSTANCE_ONLY
+                                                                                                        : TableTreeNodeFilter.ALL));
 
         // Check if both groups and table type are to be used to filter the table tree
         if (isByGroup && isByType)
@@ -743,7 +745,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         prototype = new ToolTipTreeNode(prototypeNodeName,
                                                         treeType == PROTOTYPE_TABLES
                                                                                      ? "Prototype tables"
-                                                                                     : "Prototype Structure Tables");
+                                                                                     : (treeType == COMMAND_TABLES
+                                                                                                                   ? "Command tables"
+                                                                                                                   : "Prototype dtructure tables"));
                         groupNode.add(prototype);
                     }
                     // No prototype node name is provided
@@ -805,7 +809,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     prototype = new ToolTipTreeNode(prototypeNodeName,
                                                     treeType == PROTOTYPE_TABLES
                                                                                  ? "Prototype tables"
-                                                                                 : "Prototype Structure Tables");
+                                                                                 : (treeType == COMMAND_TABLES
+                                                                                                               ? "Command tables"
+                                                                                                               : "Prototype structure tables"));
                     root.add(prototype);
                 }
                 // No prototype node name is provided
@@ -944,7 +950,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             protoAllNode = new ToolTipTreeNode(prototypeNodeName,
                                                treeType == PROTOTYPE_TABLES
                                                                             ? "Prototype tables"
-                                                                            : "Prototype Structure Tables");
+                                                                            : (treeType == COMMAND_TABLES
+                                                                                                          ? "Command tables"
+                                                                                                          : "Prototype structure tables"));
             allTablesNode.add(protoAllNode);
         }
 
@@ -1035,7 +1043,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 if (prototypeNodeName != null)
                 {
                     // Add the prototype node to the group's node
-                    prototype = new ToolTipTreeNode(prototypeNodeName, "Prototype tables");
+                    prototype = new ToolTipTreeNode(prototypeNodeName,
+                                                    treeType == COMMAND_TABLES
+                                                                               ? "Command tables"
+                                                                               : "Prototype tables");
                     typeNode.add(prototype);
                 }
                 // No prototype node name is provided
@@ -1119,21 +1130,36 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Step through each table
         for (TableMembers member : tableMembers)
         {
-            // Check if the name is in the supplied list or if the list is empty. Only show
-            // structure type tables for a tree showing structure instances with primitives
+            TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(member.getTableType());
+
+            // Set the flag if the member represents a structure
+            boolean isStructure = typeDefn.isStructure();
+
+            // Set the flag if the member represents a command
+            boolean isCommand = typeDefn.isCommand();
+
+            // Check if the member meets the criteria for inclusion in the tree: (1) the member
+            // name is in the supplied list (or no constraining list is supplied), (2)
+            // structures-only or structures-with-primitives-only is specified and the member is a
+            // structure, or (3) commands-only is specified and the member is a command
             if ((nameList == null || nameList.contains(member.getTableName()))
-                && ((treeType != STRUCTURES_WITH_PRIMITIVES
+                && ((treeType != STRUCTURE_TABLES
+                     && treeType != STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES
                      && treeType != INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES)
-                    || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
+                    || isStructure)
+                && (treeType != COMMAND_TABLES || isCommand))
             {
-                // Check if this isn't the special structures with primitives tree type (normal
-                // prototype nodes are excluded if it is), or if this tree only displays prototype
-                // structures
+                // Check if the member meets the criteria for inclusion in the prototypes node: (1)
+                // this isn't the special structures with primitives tree type (normal prototype
+                // nodes are excluded if it is), (2) prototype-structures-only or structures-only
+                // is specified and the member is a structure, or (3) commands-only is specified
+                // and the member is a command
                 if (treeType != STRUCTURES_WITH_PRIMITIVES
                     && nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY
-                    && (treeType != PROTOTYPE_STRUCTURES
-                        || tableTypeHandler.getTypeDefinition(member.getTableType()).isStructure()))
+                    && ((treeType != PROTOTYPE_STRUCTURES && treeType != STRUCTURE_TABLES)
+                        || isStructure)
+                    && (treeType != COMMAND_TABLES || isCommand))
                 {
                     // Add the table to the prototype node
                     protoNode.add(new ToolTipTreeNode(member.getTableName(),
@@ -1141,8 +1167,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                           "")));
                 }
 
-                // Check if the tree type isn't only for prototype tables
-                if (treeType != PROTOTYPE_TABLES && treeType != PROTOTYPE_STRUCTURES)
+                // Check if the member meets the criteria for inclusion in the instances tree: the
+                // tree type isn't only for prototype tables, only for prototype structures, or
+                // only for commands
+                if (treeType != PROTOTYPE_TABLES
+                    && treeType != PROTOTYPE_STRUCTURES
+                    && treeType != COMMAND_TABLES)
                 {
                     boolean isRoot = true;
 
@@ -2324,7 +2354,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         });
 
         // Check if instance tables are displayed in the tree
-        if (treeType != TableTreeType.PROTOTYPE_TABLES)
+        if (treeType != TableTreeType.PROTOTYPE_TABLES && treeType != COMMAND_TABLES)
         {
             // Create a hide data type check box
             final JCheckBox hideTypeChkBx = new JCheckBox("Hide data type");

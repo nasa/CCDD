@@ -24,8 +24,9 @@ public class CcddLinkHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDataTypeHandler dataTypeHandler;
+    private final CcddFieldHandler fieldHandler;
     private final CcddMacroHandler macroHandler;
-    private final CcddVariableSizeAndConversionHandler variableHandler;
+    private final CcddVariableHandler variableHandler;
 
     // List to contain the link definitions (link names and variable paths) retrieved from the
     // database
@@ -48,6 +49,7 @@ public class CcddLinkHandler
 
         this.ccddMain = ccddMain;
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         variableHandler = ccddMain.getVariableHandler();
 
@@ -399,9 +401,6 @@ public class CcddLinkHandler
      * Get the application name data field values associated with the specified link's variable
      * members
      *
-     * @param fieldHandler
-     *            field handler to access data fields
-     *
      * @param applicationFieldName
      *            name of the application name data field
      *
@@ -409,8 +408,7 @@ public class CcddLinkHandler
      *         specified link's variable members. Each application name is listed only once in the
      *         array
      *********************************************************************************************/
-    protected String[] getApplicationNames(CcddFieldHandler fieldHandler,
-                                           String applicationFieldName)
+    protected String[] getApplicationNames(String applicationFieldName)
     {
         List<String> appNames = new ArrayList<String>();
 

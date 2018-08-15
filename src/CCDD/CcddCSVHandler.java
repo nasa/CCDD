@@ -112,16 +112,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param ccddMain
      *            main class reference
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddCSVHandler(CcddMain ccddMain, CcddFieldHandler fieldHandler, Component parent)
+    CcddCSVHandler(CcddMain ccddMain, Component parent)
     {
         this.ccddMain = ccddMain;
-        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -129,6 +125,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
@@ -1008,8 +1005,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 {
                     // Add the table type if it's new or match it to an existing one with the same
                     // name if the type definitions are the same
-                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns,
-                                                                       fieldHandler);
+                    String badDefn = tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                     // Check if a table type isn't new and doesn't match an existing one with the
                     // same name
@@ -1035,9 +1031,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
                         // Build the imported project-level data fields, if any
-                        buildProjectdataFields(ccddMain,
-                                               fieldHandler,
-                                               projectDefn.getDataFields());
+                        buildProjectdataFields(ccddMain, projectDefn.getDataFields());
                     }
                 }
             }
@@ -1113,7 +1107,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeVariablePaths,
-                             CcddVariableSizeAndConversionHandler variableHandler,
+                             CcddVariableHandler variableHandler,
                              String[] separators,
                              Object... extraInfo) throws CCDDException, Exception
     {
@@ -1186,11 +1180,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         }
                     }
 
-                    // Build the data field information for the table
-                    fieldHandler.buildFieldInformation(tblName);
-
                     // Step through each data field belonging to the table
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(tblName))
                     {
                         // Check if if the input type is user-defined and this input type is
                         // not already output
@@ -1295,7 +1286,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Get the table's data field information
-                    List<FieldInformation> fieldInformation = tableInfo.getFieldHandler().getFieldInformation();
+                    List<FieldInformation> fieldInformation = tableInfo.getFieldInformation();
 
                     // Check if the table contains any data fields
                     if (!fieldInformation.isEmpty())
@@ -1352,8 +1343,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Build the data field information for this table type
-                    fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldTypeName(tableType));
-                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(tableType);
 
                     // Check if the table type contains any data fields
                     if (!fieldInformation.isEmpty())
@@ -1464,8 +1454,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             if (includeProjectFields)
             {
                 // Build the data field information for the project
-                fieldHandler.buildFieldInformation(CcddFieldHandler.getFieldProjectName());
-                List<FieldInformation> fieldInformation = fieldHandler.getFieldInformation();
+                List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldProjectName());
 
                 // Check if the project contains any data fields
                 if (!fieldInformation.isEmpty())

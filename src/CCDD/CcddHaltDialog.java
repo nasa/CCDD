@@ -379,9 +379,6 @@ public class CcddHaltDialog extends CcddDialogHandler
 
                     // Redraw the halt dialog
                     update(getGraphics());
-
-                    // Force the dialog to the front
-                    CcddHaltDialog.this.toFront();
                 }
             }
         });

@@ -196,14 +196,14 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Update the variable references input type selection item list with the supplied structure
-     * path and variables list. Based on whether or not the variable list is empty, add or remove
-     * the input type from the list of those having selection items
+     * Update the variable references input type selection item list. Based on whether or not the
+     * variable list is empty, add or remove the input type from the list of those having selection
+     * items
      *********************************************************************************************/
     protected void updateVariableReferences()
     {
         // Get the reference to the variable handler to shorten subsequent calls
-        CcddVariableSizeAndConversionHandler variableHandler = ccddMain.getVariableHandler();
+        CcddVariableHandler variableHandler = ccddMain.getVariableHandler();
 
         // Get the reference to the variable references input type
         InputType inputType = getInputTypeByDefaultType(DefaultInputType.VARIABLE_REFERENCE);
@@ -237,6 +237,43 @@ public class CcddInputTypeHandler
             if (!selectionInputTypes.contains(inputType))
             {
                 // Add the variable references input type to the list
+                selectionInputTypes.add(inputType);
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the command references input type selection item list
+     *********************************************************************************************/
+    protected void updateCommandReferences()
+    {
+        // Get the reference to the command handler to shorten subsequent calls
+        CcddCommandHandler commandHandler = ccddMain.getCommandHandler();
+
+        // Get the reference to the command references input type
+        InputType inputType = getInputTypeByDefaultType(DefaultInputType.COMMAND_REFERENCE);
+
+        // Set the command item list
+        inputType.setInputItems(commandHandler.getAllCommands());
+
+        // Check if the list is empty (no command references)
+        if (commandHandler.getAllCommands().isEmpty())
+        {
+            // Remove the command reference input type from the list of those having selection
+            // items
+            selectionInputTypes.remove(inputType);
+        }
+        // The list isn't empty
+        else
+        {
+            // Sort the list alphabetically (case insensitive)
+            Collections.sort(inputType.getInputItems(), String.CASE_INSENSITIVE_ORDER);
+
+            // Check if the list of types having selection items doesn't already contain the
+            // command references input type
+            if (!selectionInputTypes.contains(inputType))
+            {
+                // Add the command references input type to the list
                 selectionInputTypes.add(inputType);
             }
         }

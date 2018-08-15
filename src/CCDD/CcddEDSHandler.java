@@ -189,21 +189,15 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param ccddMain
      *            main class
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
      * @throws CCDDException
      *             If an error occurs creating the handler
      *********************************************************************************************/
-    CcddEDSHandler(CcddMain ccddMain,
-                   CcddFieldHandler fieldHandler,
-                   Component parent) throws CCDDException
+    CcddEDSHandler(CcddMain ccddMain, Component parent) throws CCDDException
     {
         this.ccddMain = ccddMain;
-        this.fieldHandler = fieldHandler;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -211,6 +205,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
@@ -345,7 +340,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // default values, if not present in the import file. If importing all tables then add
             // these as project-level data fields to the database
             setProjectHeaderTablesAndVariables(ccddMain,
-                                               fieldHandler,
                                                importType == ImportType.IMPORT_ALL,
                                                tlmHeaderTable,
                                                cmdHeaderTable,
@@ -437,8 +431,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         isCommand = false;
         maxNumArguments = 1;
 
-        CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
-
         // Set the flags to indicate if the target is a structure or command table
         boolean targetIsStructure = importType == ImportType.IMPORT_ALL
                                                                         ? true
@@ -518,7 +510,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Continue to check while a table type with this name exists. This also adds the
                 // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Structure " + sequence;
@@ -632,7 +624,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Continue to check while a table type with this name exists. This also adds the
                 // tab for the new definition to the table type manager, if open
-                while (tableTypeHandler.updateTableTypes(tableTypeDefns, fieldHandler) != null)
+                while (tableTypeHandler.updateTableTypes(tableTypeDefns) != null)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Command " + sequence;
@@ -2132,7 +2124,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
                              boolean includeVariablePaths,
-                             CcddVariableSizeAndConversionHandler variableHandler,
+                             CcddVariableHandler variableHandler,
                              String[] separators,
                              Object... extraInfo) throws JAXBException, MarshalException, Exception
     {
@@ -2192,7 +2184,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     boolean replaceMacros,
                                     boolean includeReservedMsgIDs,
                                     boolean includeVariablePaths,
-                                    CcddVariableSizeAndConversionHandler variableHandler,
+                                    CcddVariableHandler variableHandler,
                                     String[] separators,
                                     EndianType endianess,
                                     boolean isHeaderBigEndian)
@@ -2255,12 +2247,9 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private void buildNamespaces(String[] tableNames,
                                  boolean includeVariablePaths,
-                                 CcddVariableSizeAndConversionHandler variableHandler,
+                                 CcddVariableHandler variableHandler,
                                  String[] separators)
     {
-        // Build the data field information for all fields
-        fieldHandler.buildFieldInformation(null);
-
         // Get the names of the tables representing the telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),
                                                     DefaultInputType.XML_TLM_HDR);

@@ -61,6 +61,7 @@ public class CcddGroupHandler
     CcddGroupHandler(CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
     {
         this(undoHandler);
+
         buildGroupInformation(groupDefinitions);
     }
 

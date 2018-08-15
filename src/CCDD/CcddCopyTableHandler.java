@@ -10,10 +10,10 @@ package CCDD;
 import java.util.ArrayList;
 import java.util.List;
 
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.Variable;
-import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.SchedulerType;
 
@@ -23,10 +23,11 @@ import CCDD.CcddConstants.SchedulerType;
 public class CcddCopyTableHandler
 {
     // Class references
+    private final CcddFieldHandler fieldHandler;
     private final CcddRateParameterHandler rateHandler;
     private final CcddSchedulerDbIOHandler schedulerDb;
     private final CcddMacroHandler macroHandler;
-    private final CcddVariableSizeAndConversionHandler variableHandler;
+    private final CcddVariableHandler variableHandler;
 
     // List of copy table entries
     private final List<String[]> copyTable;
@@ -39,6 +40,7 @@ public class CcddCopyTableHandler
      *********************************************************************************************/
     CcddCopyTableHandler(CcddMain ccddMain)
     {
+        fieldHandler = ccddMain.getFieldHandler();
         rateHandler = ccddMain.getRateParameterHandler();
         schedulerDb = new CcddSchedulerDbIOHandler(ccddMain,
                                                    SchedulerType.TELEMETRY_SCHEDULER,
@@ -46,17 +48,14 @@ public class CcddCopyTableHandler
         macroHandler = ccddMain.getMacroHandler();
         variableHandler = ccddMain.getVariableHandler();
 
+        copyTable = new ArrayList<String[]>();
+
         // Load the telemetry scheduler information from the project database
         schedulerDb.loadStoredData();
-
-        copyTable = new ArrayList<String[]>();
     }
 
     /**********************************************************************************************
      * Create a copy table based on the message definitions
-     *
-     * @param fieldHandler
-     *            field handler reference
      *
      * @param linkHandler
      *            link handler reference
@@ -83,8 +82,7 @@ public class CcddCopyTableHandler
      *
      * @return Array containing the copy table entries
      *********************************************************************************************/
-    protected String[][] createCopyTable(CcddFieldHandler fieldHandler,
-                                         CcddLinkHandler linkHandler,
+    protected String[][] createCopyTable(CcddLinkHandler linkHandler,
                                          String dataStreamName,
                                          int headerSize,
                                          String messageIDNameField,

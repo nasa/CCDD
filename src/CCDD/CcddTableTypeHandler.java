@@ -33,6 +33,7 @@ import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
@@ -50,6 +51,7 @@ public class CcddTableTypeHandler
     private final CcddMain ccddMain;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddDbControlHandler dbControl;
+    private final CcddFieldHandler fieldHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
     // Type definitions list
@@ -528,6 +530,63 @@ public class CcddTableTypeHandler
             return getDbColumnNameByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
         }
 
+        // TODO
+        /******************************************************************************************
+         * Get the index of the first column having the specified input type format
+         *
+         * @param inputFormat
+         *            column input type format (InputTypeFormat)
+         *
+         * @return Index of the first column of the specified input type format; -1 if no column of
+         *         the specified format is found
+         *****************************************************************************************/
+        protected int getColumnIndexByInputTypeFormat(InputTypeFormat inputFormat)
+        {
+            int colIndex = -1;
+
+            // Step through the column types
+            for (int column = 0; column < columnInputType.size(); column++)
+            {
+                // Check if the input type format matches the format for this column
+                if (columnInputType.get(column).getInputFormat() == inputFormat)
+                {
+                    // Store the column index and stop searching
+                    colIndex = column;
+                    break;
+                }
+            }
+
+            return colIndex;
+        }
+
+        /******************************************************************************************
+         * Get the index or indices of the column(s) having the specified input type format
+         *
+         * @param inputFormat
+         *            column input type format (InputTypeFormat)
+         *
+         * @return List containing the index (or indices) of the column(s) of the specified input
+         *         type format; an empty list if no column of the specified format is found
+         *****************************************************************************************/
+        protected List<Integer> getColumnIndicesByInputTypeFormat(InputTypeFormat inputFormat)
+        {
+            List<Integer> colIndex = new ArrayList<Integer>();
+
+            // Step through the column types
+            for (int column = 0; column < columnInputType.size(); column++)
+            {
+                // Check if the input type format matches the format for this column
+                if (columnInputType.get(column).getInputFormat() == inputFormat)
+                {
+                    // Store the column index
+                    colIndex.add(column);
+                }
+            }
+
+            return colIndex;
+        }
+        // end TODO
+
         /******************************************************************************************
          * Get the index of the column having the specified name
          *
@@ -949,6 +1008,7 @@ public class CcddTableTypeHandler
     {
         this.ccddMain = ccddMain;
         this.inputTypeHandler = inputTypeHandler;
+        fieldHandler = ccddMain.getFieldHandler();
         dbTable = ccddMain.getDbTableCommandHandler();
         dbControl = ccddMain.getDbControlHandler();
         typeDefinitions = new ArrayList<TypeDefinition>();
@@ -1395,14 +1455,10 @@ public class CcddTableTypeHandler
      * @param tableTypeDefinitions
      *            list of table type definitions
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @return null if all of the table types are created or match existing ones; the name of the
      *         table type that matches an existing one but the type definitions differ
      *********************************************************************************************/
-    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions,
-                                      CcddFieldHandler fieldHandler)
+    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions)
     {
         boolean isNewStruct = false;
         String badType = null;
@@ -1412,7 +1468,7 @@ public class CcddTableTypeHandler
         for (TableTypeDefinition tableTypeDefn : tableTypeDefinitions)
         {
             // Determine if the table type is new or matches an existing one with the same name
-            TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn, fieldHandler);
+            TableTypeUpdate typeUpdate = updateTableTypes(tableTypeDefn);
 
             // Check if the type name matches an existing one but the type definition differs
             if (typeUpdate == TableTypeUpdate.MISMATCH)
@@ -1475,15 +1531,11 @@ public class CcddTableTypeHandler
      * @param tableTypeDefn
      *            table type definition
      *
-     * @param fieldHandler
-     *            reference to a data field handler
-     *
      * @return TableTypeUpdate.NEW if the table type is new, TableTypeUpdate.MATCH if the table
      *         type matches an existing one, or TableTypeUpdate.MISMATCH if the table type name
      *         matches an existing one but the type definition differs
      *********************************************************************************************/
-    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn,
-                                             CcddFieldHandler fieldHandler)
+    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn)
     {
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
@@ -1506,8 +1558,9 @@ public class CcddTableTypeHandler
             {
                 // Add the table type's data field definitions, if any, to the existing field
                 // definitions
-                fieldHandler.getFieldDefinitions().addAll(tableTypeDefn.getDataFields());
-                fieldHandler.buildFieldInformation(null);
+                List<String[]> fieldDefns = fieldHandler.getFieldDefinitions();
+                fieldDefns.addAll(tableTypeDefn.getDataFields());
+                fieldHandler.buildFieldInformation(fieldDefns);
                 isNewField = true;
             }
 
@@ -1515,8 +1568,7 @@ public class CcddTableTypeHandler
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
             {
                 // Add the new table type tab to the editor
-                ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()},
-                                                           tableTypeDefn.getDataFields());
+                ccddMain.getTableTypeEditor().addTypePanes(new String[] {tableTypeDefn.getTypeName()});
             }
         }
         // A table type with this name already exists

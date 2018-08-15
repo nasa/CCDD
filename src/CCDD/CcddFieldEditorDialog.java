@@ -43,9 +43,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableCellRenderer;
 
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -67,6 +69,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private final CcddInputFieldPanelHandler fieldPnlHndlr;
     private CcddJTableHandler fieldTable;
     private final CcddInputTypeHandler inputTypeHandler;
+    private final CcddFieldHandler fieldHandler;
 
     // Components referenced by multiple methods
     private JPanel outerPanel;
@@ -112,6 +115,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      * @param ownerName
      *            table name, including the path if this is a structure type table, or group name
      *
+     * @param fieldInfo
+     *            list of the owner's current field information
+     *
      * @param includeApplicability
      *            true to include the applicability column
      *
@@ -121,20 +127,19 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     CcddFieldEditorDialog(CcddMain ccddMain,
                           CcddInputFieldPanelHandler fieldPnlHandler,
                           String ownerName,
+                          List<FieldInformation> fieldInfo,
                           boolean includeApplicability,
                           int minimumWidth)
     {
         keyboardHandler = ccddMain.getKeyboardHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         this.fieldPnlHndlr = fieldPnlHandler;
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
 
-        // Store the old data fields in case an undo is requested
-        fieldPnlHandler.storeCurrentFieldInformation();
-
         // Create the data field editor dialog
-        initialize(minimumWidth);
+        initialize(fieldInfo, minimumWidth);
     }
 
     /**********************************************************************************************
@@ -143,10 +148,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      * @param minimumWidth
      *            minimum pixel width of the caller
      *********************************************************************************************/
-    private void initialize(final int minimumWidth)
+    private void initialize(List<FieldInformation> fieldInfo, final int minimumWidth)
     {
-        // Store the field information
-        currentData = fieldPnlHndlr.getFieldHandler().getFieldEditorDefinition();
+        // Convert the owner's current field information into the format for the editor table
+        currentData = fieldHandler.getFieldEditorDefinition(ownerName, fieldInfo);
 
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()
@@ -697,7 +702,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         btnUpdate.addActionListener(new ValidateCellActionListener(fieldTable)
         {
             /**************************************************************************************
-             * Update the table data fields
+             * Update the owner's data fields
              *************************************************************************************/
             @Override
             protected void performAction(ActionEvent ae)
@@ -780,13 +785,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // correctly identified
         currentData = fieldTable.getTableData(true);
 
-        // Build the field definitions from the editor table data, then use the definitions to
-        // build the field information
-        fieldPnlHndlr.getFieldHandler().buildFieldDefinitions(currentData, ownerName);
-        fieldPnlHndlr.getFieldHandler().buildFieldInformation(ownerName);
-
         // Rebuild the data field panel in the table editor using the current text field contents
-        fieldPnlHndlr.createDataFieldPanel(true);
+        fieldPnlHndlr.createDataFieldPanel(true,
+                                           fieldHandler.getFieldInformationFromData(currentData,
+                                                                                    ownerName));
 
         // Update the size of the data field owner to accommodate a field wider than the owner's
         // minimum width. Adding a field can require an increase in the owner's height. This
@@ -807,7 +809,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Update the undo manager so that all data field editor edits up to the press of the
         // Update button can be undone/redone
-        fieldPnlHndlr.storeCurrentFieldInformation();
         fieldTable.getUndoManager().endEditSequence();
     }
 
@@ -870,10 +871,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         });
 
         // Set the column table editor to the combo box
-        fieldTable.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new DefaultCellEditor(inputTypeCbox));
+        fieldTable.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new ComboBoxCellEditor(inputTypeCbox));
 
-        // Enable auto-completion for the combo box
-        inputTypeCbox.setAutoComplete(fieldTable);
+        // Enable item matching for the combo box
+        inputTypeCbox.enableItemMatching(fieldTable);
 
         // Set the default selected type
         inputTypeCbox.setSelectedItem(DefaultInputType.TEXT.getInputName());

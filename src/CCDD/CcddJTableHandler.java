@@ -1839,7 +1839,8 @@ public abstract class CcddJTableHandler extends JTable
                 }
 
                 // Check if the cell's current state doesn't match the check box state
-                if ((Boolean) table.getValueAt(row, column) != checkBox.isSelected())
+                if (!(table.getValueAt(row, column) instanceof Boolean)
+                    || (Boolean) table.getValueAt(row, column) != checkBox.isSelected())
                 {
                     // Set the check box state to the new state
                     checkBox.setSelected((Boolean) value);
@@ -4194,7 +4195,7 @@ public abstract class CcddJTableHandler extends JTable
                                               editColumn,
                                               false);
 
-                        // Reload the value in case any clean-up steps were performed
+                        // // Reload the value in case any clean-up steps were performed
                         newValue = tableModel.getValueAt(editRow, editColumn);
                     }
 
@@ -4457,8 +4458,9 @@ public abstract class CcddJTableHandler extends JTable
      * @param tableName
      *            table name; displayed at the top of each printed page
      *
-     * @param fieldHandler
-     *            data field handler; null if no data fields are associated with the table
+     * @param fieldInformation
+     *            data field information for the fields associated with this table; null if no data
+     *            fields are associated with the table
      *
      * @param parent
      *            parent window for this table
@@ -4467,7 +4469,7 @@ public abstract class CcddJTableHandler extends JTable
      *            page orientation; e.g., PageFormat.LANDSCAPE or PageFormat.PORTRAIT
      *********************************************************************************************/
     protected void printTable(String tableName,
-                              CcddFieldHandler fieldHandler,
+                              List<FieldInformation> fieldInformation,
                               Component parent,
                               int orientation)
     {
@@ -4571,13 +4573,12 @@ public abstract class CcddJTableHandler extends JTable
                             tblPages);
 
                 // Check if data fields are provided
-                if (fieldHandler != null
-                    && !fieldHandler.getFieldInformation().isEmpty())
+                if (fieldInformation != null && !fieldInformation.isEmpty())
                 {
                     String fields = "";
 
                     // Step through each data field
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformation())
+                    for (FieldInformation fieldInfo : fieldInformation)
                     {
                         // Append the field name and value to the output string
                         fields += "   "

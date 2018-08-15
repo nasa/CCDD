@@ -1472,14 +1472,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Check if the contents of the last cell edited in the editor table is validated and that
         // there are changes that haven't been stored. If changes exist then confirm discarding the
         // changes
-        if (accessTable.isLastCellValid()
-            && (!accessTable.isTableChanged(committedData,
-                                            Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
-                || new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
-                                                             "<html><b>Discard changes?",
-                                                             "Discard Changes",
-                                                             JOptionPane.QUESTION_MESSAGE,
-                                                             DialogOption.OK_CANCEL_OPTION) == OK_BUTTON))
+        if (accessTable == null ||
+            (accessTable.isLastCellValid()
+             && (!accessTable.isTableChanged(committedData,
+                                             Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
+                 || new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
+                                                              "<html><b>Discard changes?",
+                                                              "Discard Changes",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)))
         {
             // Close the dialog
             closeDialog();
@@ -1508,8 +1509,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             }
         }
 
-        // Enable auto-completion for the combo box
-        userComboBox.setAutoComplete(accessTable);
+        // Enable item matching for the combo box
+        userComboBox.enableItemMatching(accessTable);
 
         // Add a listener to the combo box for focus changes
         userComboBox.addFocusListener(new FocusAdapter()
@@ -1538,8 +1539,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             accessComboBox.addItem(level.getDisplayName());
         }
 
-        // Enable auto-completion for the combo box
-        accessComboBox.setAutoComplete(accessTable);
+        // Enable item matching for the combo box
+        accessComboBox.enableItemMatching(accessTable);
 
         // Add a listener to the combo box for focus changes
         accessComboBox.addFocusListener(new FocusAdapter()

@@ -110,7 +110,7 @@ public interface CcddImportExportInterface
                                boolean includeReservedMsgIDs,
                                boolean includeProjectFields,
                                boolean includeVariablePaths,
-                               CcddVariableSizeAndConversionHandler variableHandler,
+                               CcddVariableHandler variableHandler,
                                String[] separators,
                                Object... extraInfo) throws JAXBException, CCDDException, Exception;
 }

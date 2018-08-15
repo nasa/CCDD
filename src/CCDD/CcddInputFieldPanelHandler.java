@@ -61,7 +61,7 @@ public abstract class CcddInputFieldPanelHandler
     // Class references
     private CcddUndoManager undoManager;
     private CcddUndoHandler undoHandler;
-    private CcddFieldHandler dataFieldHandler;
+    private CcddFieldHandler fieldHandler;
     private UndoableDataFieldPanel undoFieldPnl;
     private CcddInputTypeHandler inputTypeHandler;
 
@@ -77,6 +77,9 @@ public abstract class CcddInputFieldPanelHandler
 
     // Reference to the dialog that created this field panel handler
     private Component fieldPnlHndlrOwner;
+
+    // List of the information used to create the data fields in the input panel
+    private List<FieldInformation> fieldInformation;
 
     // Description field scroll pane (not used with table descriptions)
     private JScrollPane descScrollPane;
@@ -161,16 +164,6 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Get the data field information for this field panel handler
-     *
-     * @return Data field information for this field panel handler
-     *********************************************************************************************/
-    protected CcddFieldHandler getFieldHandler()
-    {
-        return dataFieldHandler;
-    }
-
-    /**********************************************************************************************
      * Placeholder for the method to update the owning dialog's change indicator
      *********************************************************************************************/
     protected abstract void updateOwnerChangeIndicator();
@@ -240,32 +233,22 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Set the data field information for use when creating the data field panel
+     * Get the data field information used when creating the data field panel
      *
-     * @param fieldInfo
-     *            list of the data field information
+     * @return List of the data field information used to build the panel
      *********************************************************************************************/
-    protected void setDataFieldInformation(List<FieldInformation> fieldInfo)
+    protected List<FieldInformation> getPanelFieldInformation()
     {
-        dataFieldHandler.setFieldInformation(fieldInfo);
+        return fieldInformation;
     }
 
     /**********************************************************************************************
-     * Store the data field information in the undo handler in case an undo/redo operation is
-     * requested so that the fields can be set accordingly
-     *********************************************************************************************/
-    protected void storeCurrentFieldInformation()
-    {
-        undoFieldPnl.setCurrentFieldInfo(dataFieldHandler.getFieldInformationCopy());
-    }
-
-    /**********************************************************************************************
-     * Update the field information to match the data field text field and check box values
+     * Update the field information values to match the data field component values
      *
      * @param fieldInformation
      *            data field information list
      *********************************************************************************************/
-    protected void updateCurrentFieldValues(List<FieldInformation> fieldInformation)
+    protected void updateFieldValueFromComponent(List<FieldInformation> fieldInformation)
     {
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
@@ -278,20 +261,65 @@ public abstract class CcddInputFieldPanelHandler
                 // Check if this is a boolean input (check box) data field
                 if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
                 {
-                    // Update the data field with the check box selection state
+                    // Update the data field information value with the current check box selection
+                    // state
                     fieldInfo.setValue(((JCheckBox) fieldInfo.getInputFld()).isSelected()
                                                                                           ? "true"
                                                                                           : "false");
                 }
-                // Not a boolean input (check box) data field; it's a text field/area or combo box
-                else
+                // Check if the the field is a text field/area
+                else if (fieldInfo.getInputFld() instanceof JTextComponent)
                 {
-                    // Update the data field with the current value
-                    fieldInfo.setValue(fieldInfo.getInputFld() instanceof JTextComponent
-                                                                                         ? ((JTextComponent) fieldInfo.getInputFld()).getText()
-                                                                                         : (fieldInfo.getInputFld() instanceof PaddedComboBox
-                                                                                                                                              ? ((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString()
-                                                                                                                                              : ""));
+                    // Update the data field information value with the current text field/area
+                    // value
+                    fieldInfo.setValue(((JTextComponent) fieldInfo.getInputFld()).getText());
+                }
+                // Check if the the field is a combo box
+                else if (fieldInfo.getInputFld() instanceof PaddedComboBox)
+                {
+                    // Update the data field information value with the current combo box selection
+                    fieldInfo.setValue(((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString());
+                }
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the data field component values to match the field information values
+     *
+     * @param fieldInformation
+     *            data field information list
+     *********************************************************************************************/
+    protected void updateFieldComponentFromValue(List<FieldInformation> fieldInformation)
+    {
+        // Step through each data field
+        for (FieldInformation fieldInfo : fieldInformation)
+        {
+            // Check if a text field or check box exists for this data field and isn't a page
+            // format field (line break or separator)
+            if (fieldInfo.getInputFld() != null
+                && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
+            {
+                // Check if this is a boolean input (check box) data field
+                if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
+                {
+                    // Update the data field check box selection state with the current field
+                    // information value
+                    ((JCheckBox) fieldInfo.getInputFld()).setSelected(Boolean.getBoolean(fieldInfo.getValue()));
+                }
+                // Check if the the field is a text field/area
+                else if (fieldInfo.getInputFld() instanceof JTextComponent)
+                {
+                    // Update the data field text field/area value with the current field
+                    // information value
+                    ((JTextComponent) fieldInfo.getInputFld()).setText(fieldInfo.getValue());
+                }
+                // Check if the the field is a combo box
+                else if (fieldInfo.getInputFld() instanceof PaddedComboBox)
+                {
+                    // Update the data field combo box selection with the current field information
+                    // value
+                    ((PaddedComboBox) fieldInfo.getInputFld()).setSelectedItem(fieldInfo.getValue());
                 }
             }
         }
@@ -299,6 +327,9 @@ public abstract class CcddInputFieldPanelHandler
 
     /**********************************************************************************************
      * Create the table input field panel
+     *
+     * @param ccddMain
+     *            main class reference
      *
      * @param fieldPnlHndlrOwner
      *            reference to the owner of this description and data field handler
@@ -313,24 +344,17 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param description
      *            description field text; null if the description is initially blank and disabled
-     *
-     * @param fieldHandler
-     *            field handler reference
-     *
-     * @param inputTypeHandler
-     *            input type handler reference
      *********************************************************************************************/
-    protected void createDescAndDataFieldPanel(final Component fieldPnlHndlrOwner,
+    protected void createDescAndDataFieldPanel(CcddMain ccddMain,
+                                               final Component fieldPnlHndlrOwner,
                                                final JScrollPane tableScrollPane,
                                                String ownerName,
-                                               String description,
-                                               CcddFieldHandler fieldHandler,
-                                               CcddInputTypeHandler inputTypeHandler)
+                                               String description)
     {
         this.fieldPnlHndlrOwner = fieldPnlHndlrOwner;
         this.ownerName = ownerName;
-        this.dataFieldHandler = fieldHandler;
-        this.inputTypeHandler = inputTypeHandler;
+        fieldHandler = ccddMain.getFieldHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
 
         // Create the handler for undoing/redoing data field changes
         undoFieldPnl = undoHandler.new UndoableDataFieldPanel();
@@ -465,7 +489,7 @@ public abstract class CcddInputFieldPanelHandler
         gbc.gridy++;
         gbc.insets.top = 0;
         gbc.insets.bottom = 0;
-        createDataFieldPanel(false);
+        createDataFieldPanel(false, null);
 
         // Check if this editor doesn't contain a table
         if (tableScrollPane == null)
@@ -515,8 +539,12 @@ public abstract class CcddInputFieldPanelHandler
      * @param undoable
      *            true if the change(s) to the data fields should be stored for possible undo/redo
      *            operations; false to not store the changes
+     *
+     * @param ownerFieldInfo
+     *            list of field information to use to build the data fields; null to use the fields
+     *            stored in the database
      *********************************************************************************************/
-    protected void createDataFieldPanel(boolean undoable)
+    protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo)
     {
         maxFieldWidth = 0;
 
@@ -530,9 +558,22 @@ public abstract class CcddInputFieldPanelHandler
             inputPnl.remove(fieldPnl);
         }
 
-        // Check if any data fields exist
-        if (dataFieldHandler.getFieldInformation() != null
-            && !dataFieldHandler.getFieldInformation().isEmpty())
+        // Check if no field information is provided
+        if (ownerFieldInfo == null)
+        {
+            // Get the data fields for this table/group/etc. from the list currently stored in the
+            // database
+            fieldInformation = fieldHandler.getFieldInformationByOwner(ownerName);
+        }
+        // Field information is provided
+        else
+        {
+            // Set the field information to that supplied
+            fieldInformation = ownerFieldInfo;
+        }
+
+        // Check if any data fields exist for this table/group/etc.
+        if (!fieldInformation.isEmpty())
         {
             // Create a panel to contain the data fields. As the editor is resized the field panel
             // is resized to contain the data fields, wrapping them to new lines as needed
@@ -545,10 +586,12 @@ public abstract class CcddInputFieldPanelHandler
                                                                0));
 
             // Step through each data field
-            for (final FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
+            for (final FieldInformation fieldInfo : fieldInformation)
             {
                 // Check if this field is applicable
-                if (dataFieldHandler.isFieldApplicable(fieldInfo.getOwnerName(), fieldInfo.getApplicabilityType().getApplicabilityName(), null))
+                if (fieldHandler.isFieldApplicable(fieldInfo.getOwnerName(),
+                                                   fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                   null))
                 {
                     switch (fieldInfo.getInputType().getInputFormat())
                     {
@@ -657,12 +700,12 @@ public abstract class CcddInputFieldPanelHandler
                                 // The field has list items; display it as a combo box
                                 else
                                 {
-                                    // Create a combo box for displaying selection lists and set
-                                    // the initial selection
+                                    // Create a combo box for displaying selection lists, enable
+                                    // item matching, and set the initial selection
                                     fieldInfo.setInputFld(undoHandler.new UndoableComboBox(fieldInfo.getInputType().getInputItems().toArray(new String[0]),
                                                                                            ModifiableFontInfo.INPUT_TEXT.getFont()));
                                     inputFld = (UndoableComboBox) fieldInfo.getInputFld();
-                                    ((UndoableComboBox) inputFld).setAutoComplete(null);
+                                    ((UndoableComboBox) inputFld).enableItemMatching(null);
                                     ((UndoableComboBox) inputFld).setSelectedItem(fieldInfo.getValue(),
                                                                                   false);
                                 }
@@ -731,7 +774,8 @@ public abstract class CcddInputFieldPanelHandler
                                         // Check if the field's input type doesn't allow leading
                                         // and trailing white space characters
                                         if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
-                                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
+                                            &&
+                                            !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
                                         {
                                             // Remove leading and trailing white space characters
                                             inputTxt = inputTxt.trim();
@@ -826,7 +870,11 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Store the field information in the undo handler in case the update needs to be
             // undone
-            undoFieldPnl.addDataFieldEdit(this, dataFieldHandler.getFieldInformationCopy());
+            undoFieldPnl.addDataFieldEdit(this, fieldInformation);
+
+            // Store the data field information in the undo handler in case an undo/redo operation
+            // is requested so that the fields can be set accordingly
+            undoFieldPnl.setCurrentFieldInfo(fieldInformation);
         }
 
         // Force the owner of the editor panel to redraw so that changes to the fields are
@@ -845,7 +893,7 @@ public abstract class CcddInputFieldPanelHandler
         undoHandler.setAutoEndEditSequence(false);
 
         // Step through each data field
-        for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
+        for (FieldInformation fieldInfo : fieldInformation)
         {
             // Check if this is a boolean input (check box) data field
             if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
@@ -909,23 +957,18 @@ public abstract class CcddInputFieldPanelHandler
             @Override
             public void run()
             {
-                // Check if any fields exist
-                if (dataFieldHandler != null
-                    && dataFieldHandler.getFieldInformation() != null)
+                // Step through each field
+                for (FieldInformation fieldInfo : fieldInformation)
                 {
-                    // Step through each field
-                    for (FieldInformation fieldInfo : dataFieldHandler.getFieldInformation())
+                    // Check if the field is applicable and isn't a boolean input (check box) data
+                    // field
+                    if (fieldInfo.getInputFld() != null
+                        && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
                     {
-                        // Check if the field is applicable and isn't a boolean input (check box)
-                        // data field
-                        if (fieldInfo.getInputFld() != null
-                            && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.BOOLEAN)
-                        {
-                            // Set the text field background color. If the field is empty and is
-                            // flagged as required then set the background to indicate a value
-                            // should be supplied
-                            setFieldBackground(fieldInfo);
-                        }
+                        // Set the text field background color. If the field is empty and is
+                        // flagged as required then set the background to indicate a value should
+                        // be supplied
+                        setFieldBackground(fieldInfo);
                     }
                 }
             }

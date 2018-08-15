@@ -88,6 +88,7 @@ public class CcddFileIOHandler
     private final CcddDbTableCommandHandler dbTable;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddDataTypeHandler dataTypeHandler;
+    private CcddFieldHandler fieldHandler;
     private CcddMacroHandler macroHandler;
     private CcddReservedMsgIDHandler rsvMsgIDHandler;
     private CcddInputTypeHandler inputTypeHandler;
@@ -119,6 +120,7 @@ public class CcddFileIOHandler
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
@@ -714,9 +716,6 @@ public class CcddFileIOHandler
         List<TableDefinition> allTableDefinitions = new ArrayList<TableDefinition>();
         List<String> duplicateDefinitions = new ArrayList<String>();
 
-        // Create a data field handler
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
-
         // Store the current table type, data type, macro, reserved message ID, and data field
         // information in case it needs to be restored
         List<TypeDefinition> originalTableTypes = new ArrayList<TypeDefinition>(tableTypeHandler.getTypeDefinitions());
@@ -775,25 +774,25 @@ public class CcddFileIOHandler
                 if (filePath.endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
-                    ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
+                    ioHandler = new CcddCSVHandler(ccddMain, parent);
                 }
                 // Check if the file to import is in EDS format based on the extension
                 else if (filePath.endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create a EDS handler
-                    ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
+                    ioHandler = new CcddEDSHandler(ccddMain, parent);
                 }
                 // Check if the file to import is in JSON format based on the extension
                 else if (filePath.endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
-                    ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
+                    ioHandler = new CcddJSONHandler(ccddMain, parent);
                 }
                 // Check if the file to import is in XTCE format based on the extension
                 else if (filePath.endsWith(FileExtension.XTCE.getExtension()))
                 {
                     // Create a XTCE handler
-                    ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, parent);
+                    ioHandler = new CcddXTCEHandler(ccddMain, parent);
                 }
                 // The file extension isn't recognized
                 else
@@ -826,14 +825,8 @@ public class CcddFileIOHandler
                     // Step through each table definition
                     for (TableDefinition tableDefn : ioHandler.getTableDefinitions())
                     {
-                        // Build the field information for this table
-                        fieldHandler.buildFieldInformation(tableDefn.getName());
-
                         // Add the imported data field(s) to the table
-                        addImportedDataField(fieldHandler,
-                                             tableDefn,
-                                             tableDefn.getName(),
-                                             useExistingFields);
+                        addImportedDataField(tableDefn, tableDefn.getName(), useExistingFields);
                     }
                 }
 
@@ -882,7 +875,7 @@ public class CcddFileIOHandler
             dbCommand.releaseSavePoint(parent);
 
             // Commit the change(s) to the database
-            dbCommand.getConnection().commit();
+            dbControl.getConnection().commit();
 
             // Store the data file path in the program preferences backing store
             storePath(ccddMain,
@@ -894,10 +887,9 @@ public class CcddFileIOHandler
             // applicable
             dbTable.updateDataTypeColumns(parent);
 
-            // Restore the structure path and variables list in case any input types were added
-            // (only applied to CSV and JSON imports)
-            inputTypeHandler.updateVariableReferences();
-            inputTypeHandler.updateMsgNameAndIDReferences(parent);
+            // Restore the root structure table, variable path and offset, and command lists, and
+            // the variable, command, and message ID references in case any input types were added
+            dbTable.updateListsAndReferences(parent);
 
             // Update the table type handler with the input type changes
             tableTypeHandler.updateInputTypes(null);
@@ -994,6 +986,12 @@ public class CcddFileIOHandler
             // Restore the table types, data types, macros, reserved message IDs, and data fields
             // to the values prior to the import operation
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
+            dataTypeHandler.setDataTypeData(originalDataTypes);
+            inputTypeHandler.setInputTypeData(originalInputTypes);
+            fieldHandler.buildFieldInformation(originalDataFields);
+            dbTable.updateListsAndReferences(parent);
+            macroHandler.setMacroData(originalMacros);
+            rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
 
             // Check if the table type editor is open
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())
@@ -1002,17 +1000,6 @@ public class CcddFileIOHandler
                 // are now invalid
                 ccddMain.getTableTypeEditor().removeInvalidTabs();
             }
-
-            dataTypeHandler.setDataTypeData(originalDataTypes);
-            inputTypeHandler.setInputTypeData(originalInputTypes);
-            inputTypeHandler.updateVariableReferences();
-            inputTypeHandler.updateMsgNameAndIDReferences(parent);
-            macroHandler.setMacroData(originalMacros);
-            rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
-            dbTable.storeInformationTable(InternalTable.FIELDS,
-                                          originalDataFields,
-                                          null,
-                                          parent);
         }
 
         return errorFlag;
@@ -1092,6 +1079,12 @@ public class CcddFileIOHandler
                     // Get the number of table columns
                     int numColumns = typeDefn.getColumnCountVisible();
 
+                    // Add the table's data field definitions, if any, to the existing field
+                    // definitions
+                    List<String[]> fieldDefns = fieldHandler.getFieldDefinitions();
+                    fieldDefns.addAll(tableDefn.getDataFields());
+                    fieldHandler.buildFieldInformation(fieldDefns);
+
                     // Create the table information for the new table
                     TableInformation tableInfo = new TableInformation(tableDefn.getTypeName(),
                                                                       tableDefn.getName(),
@@ -1099,7 +1092,7 @@ public class CcddFileIOHandler
                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                       tableDefn.getDescription(),
                                                                       !tableDefn.getName().contains("."),
-                                                                      tableDefn.getDataFields().toArray(new String[0][0]));
+                                                                      fieldHandler.getFieldInformationByOwner(tableDefn.getName()));
 
                     // Check if the new table is not a prototype. The prototype for the table and
                     // each of its ancestors need to be created if these don't exist
@@ -1150,6 +1143,12 @@ public class CcddFileIOHandler
                                 || !dbTable.isTableExists(typeAndVar[0].toLowerCase(),
                                                           ccddMain.getMainFrame()))
                             {
+                                // Add the table's data field definitions, if any, to the existing
+                                // field definitions
+                                fieldDefns = fieldHandler.getFieldDefinitions();
+                                fieldDefns.addAll(tableDefn.getDataFields());
+                                fieldHandler.buildFieldInformation(fieldDefns);
+
                                 // Create the table information for the new prototype table
                                 TableInformation ancestorInfo = new TableInformation(tableDefn.getTypeName(),
                                                                                      typeAndVar[0],
@@ -1157,7 +1156,7 @@ public class CcddFileIOHandler
                                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                                      "",
                                                                                      true,
-                                                                                     tableDefn.getDataFields().toArray(new String[0][0]));
+                                                                                     fieldHandler.getFieldInformationByOwner(typeAndVar[0]));
 
                                 // Check if this is the child table and not one of its ancestors
                                 if (index == ancestors.length - 1)
@@ -1323,6 +1322,12 @@ public class CcddFileIOHandler
                                       null,
                                       parent);
 
+        // Store the data fields
+        dbTable.storeInformationTable(InternalTable.FIELDS,
+                                      fieldHandler.getFieldDefinitions(),
+                                      null,
+                                      parent);
+
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())
         {
@@ -1469,6 +1474,13 @@ public class CcddFileIOHandler
                     ccddMain.updateRecentTablesMenu();
                     tableEditorDlg.setControlsEnabled(false);
                     tableEditorDlgs.add(tableEditorDlg);
+
+                    // Check if the cancel import dialog is present
+                    if (haltDlg != null)
+                    {
+                        // Force the dialog to the front
+                        haltDlg.toFront();
+                    }
                 }
                 // A table editor dialog is already created and hasn't reached the maximum number
                 // of tabs
@@ -1479,13 +1491,6 @@ public class CcddFileIOHandler
 
                     // Add the table editor to the existing editor dialog
                     tableEditorDlg.addTablePanes(tableInformation);
-                }
-
-                // Check if the cancel import dialog is present
-                if (haltDlg != null)
-                {
-                    // Force the dialog to the front
-                    haltDlg.toFront();
                 }
 
                 // Get the reference to the table's editor
@@ -1636,33 +1641,25 @@ public class CcddFileIOHandler
                 if (dataFile[0].getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
-                    ioHandler = new CcddCSVHandler(ccddMain,
-                                                   tableHandler.getFieldHandler(),
-                                                   tableHandler.getOwner());
+                    ioHandler = new CcddCSVHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in EDS XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
                 {
                     // Create an EDS handler
-                    ioHandler = new CcddEDSHandler(ccddMain,
-                                                   tableHandler.getFieldHandler(),
-                                                   tableHandler.getOwner());
+                    ioHandler = new CcddEDSHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in JSON format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
-                    ioHandler = new CcddJSONHandler(ccddMain,
-                                                    tableHandler.getFieldHandler(),
-                                                    tableHandler.getOwner());
+                    ioHandler = new CcddJSONHandler(ccddMain, tableHandler.getOwner());
                 }
                 // Check if the file to import is in XTCE XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
                 {
                     // Create an XTCE handler
-                    ioHandler = new CcddXTCEHandler(ccddMain,
-                                                    tableHandler.getFieldHandler(),
-                                                    tableHandler.getOwner());
+                    ioHandler = new CcddXTCEHandler(ccddMain, tableHandler.getOwner());
                 }
                 // The file extension isn't recognized
                 else
@@ -1696,17 +1693,14 @@ public class CcddFileIOHandler
                     tableHandler.setDescription(tableDefn.getDescription());
 
                     // Add the imported data field(s) to the table
-                    addImportedDataField(tableHandler.getFieldHandler(),
-                                         tableDefn,
+                    addImportedDataField(tableDefn,
                                          tableHandler.getTableInformation().getTablePath(),
                                          useExistingFieldsCb.isSelected());
 
-                    // Update the field information in case the field values changed
-                    tableHandler.getFieldHandler().setFieldDefinitions(tableDefn.getDataFields());
-                    tableHandler.getFieldHandler().buildFieldInformation(tableHandler.getTableInformation().getTablePath());
-
                     // Rebuild the table's editor panel which contains the data fields
-                    tableHandler.createDataFieldPanel(true);
+                    tableHandler.createDataFieldPanel(true,
+                                                      fieldHandler.getFieldInformationFromData(tableDefn.getDataFields().toArray(new String[0][0]),
+                                                                                               tableDefn.getName()));
 
                     // Check if cell data is provided in the table definition
                     if (tableDefn.getData() != null && !tableDefn.getData().isEmpty())
@@ -1788,9 +1782,6 @@ public class CcddFileIOHandler
      * imported field already exists then the input flag determines if the existing or imported
      * field is used
      *
-     * @param fieldHandler
-     *            field handler reference
-     *
      * @param tableDefn
      *            imported table definition
      *
@@ -1801,8 +1792,7 @@ public class CcddFileIOHandler
      *            true to replace an existing data field with the imported ones if the field names
      *            match
      *********************************************************************************************/
-    private void addImportedDataField(CcddFieldHandler fieldHandler,
-                                      TableDefinition tableDefn,
+    private void addImportedDataField(TableDefinition tableDefn,
                                       String ownerName,
                                       boolean useExistingFields)
     {
@@ -1841,7 +1831,7 @@ public class CcddFileIOHandler
         }
 
         // Combine the existing and imported data fields
-        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefinitionsFromInformation());
+        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefinitions());
     }
 
     /**********************************************************************************************
@@ -1933,7 +1923,7 @@ public class CcddFileIOHandler
                                                     final boolean includeReservedMsgIDs,
                                                     final boolean includeProjectFields,
                                                     final boolean includeVariablePaths,
-                                                    final CcddVariableSizeAndConversionHandler variableHandler,
+                                                    final CcddVariableHandler variableHandler,
                                                     final String[] separators,
                                                     final FileExtension fileExtn,
                                                     final EndianType endianess,
@@ -2070,7 +2060,7 @@ public class CcddFileIOHandler
                                            final boolean includeReservedMsgIDs,
                                            final boolean includeProjectFields,
                                            final boolean includeVariablePaths,
-                                           final CcddVariableSizeAndConversionHandler variableHandler,
+                                           final CcddVariableHandler variableHandler,
                                            final String[] separators,
                                            final FileExtension fileExtn,
                                            final EndianType endianess,
@@ -2093,9 +2083,6 @@ public class CcddFileIOHandler
         // Remove the trailing period if present
         String path = CcddUtilities.removeTrailer(filePath, ".");
 
-        // Create a data field handler
-        CcddFieldHandler fieldHandler = new CcddFieldHandler(ccddMain, null, parent);
-
         // Check if external (script) methods are to be used
         if (useExternal)
         {
@@ -2116,7 +2103,6 @@ public class CcddFileIOHandler
                 scriptEngine = ccddMain.getScriptHandler().getScriptEngine(scriptFileName,
                                                                            new TableInformation[0],
                                                                            null,
-                                                                           fieldHandler,
                                                                            null,
                                                                            null,
                                                                            parent);
@@ -2163,25 +2149,25 @@ public class CcddFileIOHandler
             if (fileExtn == FileExtension.CSV)
             {
                 // Create a CSV handler
-                ioHandler = new CcddCSVHandler(ccddMain, fieldHandler, parent);
+                ioHandler = new CcddCSVHandler(ccddMain, parent);
             }
             // Check if the output format is EDS XML
             else if (fileExtn == FileExtension.EDS)
             {
                 // Create an EDS handler
-                ioHandler = new CcddEDSHandler(ccddMain, fieldHandler, parent);
+                ioHandler = new CcddEDSHandler(ccddMain, parent);
             }
             // Check if the output format is JSON
             else if (fileExtn == FileExtension.JSON)
             {
                 // Create an JSON handler
-                ioHandler = new CcddJSONHandler(ccddMain, fieldHandler, parent);
+                ioHandler = new CcddJSONHandler(ccddMain, parent);
             }
             // Check if the output format is XTCE XML
             else if (fileExtn == FileExtension.XTCE)
             {
-                // Create an XTCE handler, fieldHandler
-                ioHandler = new CcddXTCEHandler(ccddMain, fieldHandler, scriptEngine, parent);
+                // Create an XTCE handler
+                ioHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
             }
 
             // Check if the tables are to be exported to a single file
