@@ -1499,7 +1499,7 @@ public class CcddUtilities
     /**********************************************************************************************
      * Display a dialog for a generic exception, showing the cause and the stack trace
      *
-     * @param exception
+     * @param e
      *            exception reference
      *
      * @param parent
@@ -1508,7 +1508,7 @@ public class CcddUtilities
     protected static void displayException(Exception e, Component parent)
     {
         // Build the dialog message
-        String message = "<html><b>An unanticipated error occurred; cause<br>&#160;&#160;'</b>"
+        String message = "<html><b>An unanticipated error occurred; cause '</b>"
                          + e.getMessage()
                          + "<b>'<br><br>Error trace:</b><br>";
 

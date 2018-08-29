@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -55,6 +56,7 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
 import CCDD.CcddClassesComponent.MultilineLabel;
+import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -66,6 +68,7 @@ import CCDD.CcddConstants.SearchResultsColumnInfo;
 import CCDD.CcddConstants.SearchTarget;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddConstants.VariablePathTableColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -76,7 +79,6 @@ public class CcddSearchDialog extends CcddFrameHandler
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
     private CcddJTableHandler resultsTable;
     private CcddEventLogDialog eventLog;
@@ -131,8 +133,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         this.searchDlgType = searchDlgType;
         this.eventLog = eventLog;
 
-        // Create references to shorten subsequent calls
-        dbTable = ccddMain.getDbTableCommandHandler();
+        // Create reference to shorten subsequent calls
         tableTypeHandler = ccddMain.getTableTypeHandler();
 
         // Initialize the search results table contents
@@ -770,81 +771,103 @@ public class CcddSearchDialog extends CcddFrameHandler
                 {
                     List<Object[]> resultsDataList = null;
 
-                    // Update the search string list
-                    searchFld.updateList(searchFld.getText());
-
-                    // Store the search list in the program preferences
-                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
-
-                    switch (searchDlgType)
+                    try
                     {
-                        case TABLES:
-                        case SCRIPTS:
-                            // Search the database tables or scripts and display the results
-                            resultsDataList = searchHandler.searchTablesOrScripts(searchFld.getText(),
-                                                                                  ignoreCaseCb.isSelected(),
-                                                                                  allowRegexCb.isSelected(),
-                                                                                  (searchDlgType == SearchDialogType.TABLES
-                                                                                                                            ? dataTablesOnlyCb.isSelected()
-                                                                                                                            : false),
-                                                                                  searchColumns);
-                            break;
-
-                        case LOG:
-                            // Search the event log and display the results
-                            resultsDataList = searchHandler.searchEventLogFile(searchFld.getText(),
-                                                                               ignoreCaseCb.isSelected(),
-                                                                               targetRow);
-                            break;
-                    }
-
-                    // Check if this is a table search
-                    if (searchDlgType == SearchDialogType.TABLES)
-                    {
-                        List<Object[]> removeResults = new ArrayList<Object[]>();
-
-                        // Get the list of selected tables
-                        List<String> filterTables = tableTree.getSelectedTablesWithChildren();
-
-                        // Add the ancestors (instances and prototype) of the selected tables to
-                        // the list of filter tables
-                        tableTree.addTableAncestors(filterTables, true);
-
-                        // Check if tables were selected to filter the search results
-                        if (!filterTables.isEmpty())
+                        // Check if the search string allows a regular expression
+                        if (allowRegexCb.isSelected())
                         {
-                            // Step through the search results
-                            for (Object[] result : resultsDataList)
-                            {
-                                // Separate the target into the target type and owner
-                                String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
+                            // Validate the regular expression by compiling it
+                            Pattern.compile(searchFld.getText());
+                        }
 
-                                // Check if the target type isn't a table or table data field, and
-                                // if owner isn't one of the selected tables or its prototype
-                                if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
-                                       || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
-                                      && filterTables.contains(typeAndOwner[1])))
+                        // Update the search string list
+                        searchFld.updateList(searchFld.getText());
+
+                        // Store the search list in the program preferences
+                        ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
+
+                        switch (searchDlgType)
+                        {
+                            case TABLES:
+                            case SCRIPTS:
+                                // Search the database tables or scripts and display the results
+                                resultsDataList = searchHandler.searchTablesOrScripts(searchFld.getText(),
+                                                                                      ignoreCaseCb.isSelected(),
+                                                                                      allowRegexCb.isSelected(),
+                                                                                      (searchDlgType == SearchDialogType.TABLES
+                                                                                                                                ? dataTablesOnlyCb.isSelected()
+                                                                                                                                : false),
+                                                                                      searchColumns);
+                                break;
+
+                            case LOG:
+                                // Search the event log and display the results
+                                resultsDataList = searchHandler.searchEventLogFile(searchFld.getText(),
+                                                                                   ignoreCaseCb.isSelected(),
+                                                                                   targetRow);
+                                break;
+                        }
+
+                        // Check if this is a table search
+                        if (searchDlgType == SearchDialogType.TABLES)
+                        {
+                            List<Object[]> removeResults = new ArrayList<Object[]>();
+
+                            // Get the list of selected tables
+                            List<String> filterTables = tableTree.getSelectedTablesWithChildren();
+
+                            // Add the ancestors (instances and prototype) of the selected tables
+                            // to the list of filter tables
+                            tableTree.addTableAncestors(filterTables, true);
+
+                            // Check if tables were selected to filter the search results
+                            if (!filterTables.isEmpty())
+                            {
+                                // Step through the search results
+                                for (Object[] result : resultsDataList)
                                 {
-                                    // Add the search result to the list of those to remove
-                                    removeResults.add(result);
+                                    // Separate the target into the target type and owner
+                                    String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
+
+                                    // Check if the target type isn't a table or table data field,
+                                    // and if owner isn't one of the selected tables or its
+                                    // prototype
+                                    if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
+                                           || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
+                                          && filterTables.contains(typeAndOwner[1])))
+                                    {
+                                        // Add the search result to the list of those to remove
+                                        removeResults.add(result);
+                                    }
+
+                                    // Note: Since prototype tables are automatically added (needed
+                                    // since a child only returns matches in the values table), a
+                                    // false match can occur if the filter table is a child, the
+                                    // hit is in the child's prototype, and the child has
+                                    // overridden the prototype's value where the match occurs
                                 }
 
-                                // Note: Since prototype tables are automatically added (needed
-                                // since a child only returns matches in the values table), a false
-                                // match can occur if the filter table is a child, the hit is in
-                                // the child's prototype, and the child has overridden the
-                                // prototype's value where the match occurs
+                                // Remove the search results that aren't in the selected table(s)
+                                resultsDataList.removeAll(removeResults);
                             }
-
-                            // Remove the search results that aren't in the selected table(s)
-                            resultsDataList.removeAll(removeResults);
                         }
-                    }
 
-                    // Convert the results list to an array and display the results in the dialog's
-                    // search results table
-                    resultsData = resultsDataList.toArray(new Object[0][0]);
-                    resultsTable.loadAndFormatData();
+                        // Convert the results list to an array and display the results in the
+                        // dialog's search results table
+                        resultsData = resultsDataList.toArray(new Object[0][0]);
+                        resultsTable.loadAndFormatData();
+                    }
+                    catch (PatternSyntaxException pse)
+                    {
+                        // Inform the user that the regular expression is invalid
+                        new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
+                                                                  "<html><b>Invalid regular expression; cause '</b>"
+                                                                                         + pse.getMessage()
+                                                                                         + "'<b>",
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
                 }
 
                 // Update the number of results found label
@@ -857,6 +880,31 @@ public class CcddSearchDialog extends CcddFrameHandler
         // Check if this is the table search dialog
         if (searchDlgType == SearchDialogType.TABLES)
         {
+            // Create a table opener for the Open tables command
+            final TableOpener opener = new TableOpener()
+            {
+                /**********************************************************************************
+                 * Check if the search result is for a table or table data field
+                 *
+                 * @return true if the search result is for a table or table data field
+                 *********************************************************************************/
+                @Override
+                protected boolean isApplicable(String tableName)
+                {
+                    return tableName.startsWith(SearchTarget.TABLE.getTargetName(true))
+                           || tableName.startsWith(SearchTarget.TABLE_FIELD.getTargetName(true));
+                }
+
+                /**********************************************************************************
+                 * Remove any HTML tags and the owner identifier from the table name
+                 *********************************************************************************/
+                @Override
+                protected String cleanUpTableName(String tableName, int row)
+                {
+                    return CcddUtilities.removeHTMLTags(tableName).replaceFirst(".+:\\s", "");
+                }
+            };
+
             // Open table(s) button
             btnOpen = CcddButtonPanelHandler.createButton("Open",
                                                           TABLE_ICON,
@@ -866,13 +914,14 @@ public class CcddSearchDialog extends CcddFrameHandler
             // Add a listener for the Open button
             btnOpen.addActionListener(new ActionListener()
             {
-                /**************************************************************************************
+                /**********************************************************************************
                  * Open the selected table(s)
-                 *************************************************************************************/
+                 *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    openTables();
+                    opener.openTables(resultsTable,
+                                      VariablePathTableColumnInfo.APP_FORMAT.ordinal());
                 }
             });
         }
@@ -975,52 +1024,5 @@ public class CcddSearchDialog extends CcddFrameHandler
         }
 
         return title;
-    }
-
-    /**********************************************************************************************
-     * Open the table(s) associated with the selected search result(s)
-     *********************************************************************************************/
-    private void openTables()
-    {
-        List<String> tablePaths = new ArrayList<String>();
-
-        // Step through each row in the table
-        for (int row = 0; row < resultsTable.getRowCount(); row++)
-        {
-            // Step through each column in the table
-            for (int column = 0; column < resultsTable.getColumnCount(); column++)
-            {
-                // Get the owner for this row
-                String tableName = resultsTable.getModel()
-                                               .getValueAt(row,
-                                                           SearchResultsColumnInfo.OWNER.ordinal())
-                                               .toString();
-
-                // Check if the the cell is selected and the owner is a data table or table data
-                // field
-                if (resultsTable.isCellSelected(row, column)
-                    && (tableName.startsWith(SearchTarget.TABLE.getTargetName(true))
-                        || tableName.startsWith(SearchTarget.TABLE_FIELD.getTargetName(true))))
-                {
-                    // Remove any HTML tags and the owner identifier
-                    tableName = CcddUtilities.removeHTMLTags(tableName).replaceFirst(".+:\\s", "");
-
-                    // Check if the table isn't already in the list of those to be opened
-                    if (!tablePaths.contains(tableName))
-                    {
-                        // Add the table path to the list and stop checking the columns in this row
-                        tablePaths.add(tableName);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Check if any table is selected
-        if (!tablePaths.isEmpty())
-        {
-            // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
-        }
     }
 }

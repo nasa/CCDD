@@ -124,8 +124,6 @@ public class CcddTableTypeHandler
 
         /******************************************************************************************
          * Table type definition class constructor
-         *
-         * @return table type
          *****************************************************************************************/
         private TypeDefinition(String tableType)
         {
@@ -435,7 +433,7 @@ public class CcddTableTypeHandler
         /******************************************************************************************
          * Get the index or indices of the column(s) having the specified default input type
          *
-         * @param defaultInputType
+         * @param inputType
          *            column input type (DefaultInputType)
          *
          * @return List containing the index (or indices) of the column(s) of the specified default
@@ -530,7 +528,6 @@ public class CcddTableTypeHandler
             return getDbColumnNameByInputType(inputTypeHandler.getInputTypeByDefaultType(inputType));
         }
 
-        // TODO
         /******************************************************************************************
          * Get the index of the first column having the specified input type format
          *
@@ -585,7 +582,62 @@ public class CcddTableTypeHandler
 
             return colIndex;
         }
-        // end TODO
+
+        /******************************************************************************************
+         * Get the visible name of the first column having the specified input type format
+         *
+         * @param inputFormat
+         *            column input type format (InputTypeFormat)
+         *
+         * @return Visible name of the first column with the specified input type format; null if
+         *         no column of the specified format is found
+         *****************************************************************************************/
+        protected String getColumnNameByInputTypeFormat(InputTypeFormat inputFormat)
+        {
+            String colName = null;
+
+            // Step through the column types
+            for (int column = 0; column < columnInputType.size(); column++)
+            {
+                // Check if the input type format matches the format for this column
+                if (columnInputType.get(column).getInputFormat() == inputFormat)
+                {
+                    // Store the column name and stop searching
+                    colName = columnNamesDatabase.get(column);
+                    break;
+                }
+            }
+
+            return colName;
+        }
+
+        /******************************************************************************************
+         * Get the database name of the first column having the specified input type format
+         *
+         * @param inputFormat
+         *            column input type format (InputTypeFormat)
+         *
+         * @return Database name of the first column with the specified input type format; null if
+         *         no column of the specified format is found
+         *****************************************************************************************/
+        protected String getDbColumnNameByInputTypeFormat(InputTypeFormat inputFormat)
+        {
+            String colName = null;
+
+            // Step through the column types
+            for (int column = 0; column < columnInputType.size(); column++)
+            {
+                // Check if the input type format matches the format for this column
+                if (columnInputType.get(column).getInputFormat() == inputFormat)
+                {
+                    // Store the column name and stop searching
+                    colName = columnNamesDatabase.get(column);
+                    break;
+                }
+            }
+
+            return colName;
+        }
 
         /******************************************************************************************
          * Get the index of the column having the specified name
@@ -779,8 +831,8 @@ public class CcddTableTypeHandler
         /******************************************************************************************
          * Get the row index in the structure table for the specified variable name
          *
-         * @param tableInfo
-         *            reference to the table's TableInformation
+         * @param tableData
+         *            array of table data
          *
          * @param columnValue
          *            variable name
@@ -896,19 +948,22 @@ public class CcddTableTypeHandler
                                 bitColumn = index;
                             }
                             // Check that this is an enumeration column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION)))
+                            else if (inputTypes[index].getInputFormat()
+                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION).getInputFormat()))
                             {
                                 // Save the enumeration column index
                                 enumColumn = index;
                             }
                             // Check that this is a minimum column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM)))
+                            else if (inputTypes[index].getInputFormat()
+                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM).getInputFormat()))
                             {
                                 // Save the minimum column index
                                 minColumn = index;
                             }
                             // Check that this is a maximum column
-                            else if (inputTypes[index].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM)))
+                            else if (inputTypes[index].getInputFormat()
+                                                      .equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM).getInputFormat()))
                             {
                                 // Save the maximum column index
                                 maxColumn = index;
@@ -1370,7 +1425,8 @@ public class CcddTableTypeHandler
      * @param useDbName
      *            true to use the database column name; false to use the user column name
      *
-     * @return List of unique structure table enumeration column names
+     * @return List of unique structure table enumeration column names; an empty list if no
+     *         enumeration columns exist
      *********************************************************************************************/
     protected List<String> getStructEnumColNames(boolean useDbName)
     {
@@ -1383,7 +1439,8 @@ public class CcddTableTypeHandler
             if (typeDefn.isStructure())
             {
                 // Step through each of the table's enumeration columns
-                for (int enumIndex : typeDefn.getColumnIndicesByInputType(inputTypeHandler.getInputTypeByName(DefaultInputType.ENUMERATION.getInputName())))
+                for (int enumIndex : typeDefn.getColumnIndicesByInputTypeFormat(inputTypeHandler.getInputTypeByName(DefaultInputType.ENUMERATION.getInputName())
+                                                                                                .getInputFormat()))
                 {
                     // Get the name of the column
                     String name = useDbName

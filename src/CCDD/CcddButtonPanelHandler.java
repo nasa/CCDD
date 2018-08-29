@@ -278,9 +278,6 @@ public class CcddButtonPanelHandler
     /**********************************************************************************************
      * Create the buttons and button listeners based on the option type provided
      *
-     * @param parent
-     *            parent window; needed to get the button icons
-     *
      * @param optionType
      *            DialogOption type
      *********************************************************************************************/

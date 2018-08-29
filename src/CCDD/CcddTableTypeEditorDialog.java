@@ -296,7 +296,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         TableInformation tableInfo = dbTable.loadTableData(editor.getTableInformation().getTablePath(),
                                                                            true,
                                                                            true,
-                                                                           true,
                                                                            CcddTableTypeEditorDialog.this);
 
                         // Check that no error occurred loading the table's data

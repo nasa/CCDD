@@ -1239,7 +1239,7 @@ public class CcddMain
      * @param toolTip
      *            tool tip text
      *
-     * @param isChecked
+     * @param isSelected
      *            true to have the check box selected initially
      *
      * @return Check box menu item created

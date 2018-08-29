@@ -50,6 +50,7 @@ import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -354,9 +355,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      * @param main
      *            reference to CcddMain
      *
-     * @param dbTblCmdHndlr
-     *            reference to CcddDbTableCommandHandler
-     *
      * @param tableInfo
      *            table information
      *
@@ -371,21 +369,21 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            change); false to only make changes to tables other than the one in which the
      *            changes originally took place
      *
-     * @param hasVarRefFieldChange
-     *            true is a data field has a variable reference input type and the table with the
-     *            change is a structure
+     * @param isRefFieldChange
+     *            true is a data field has a variable (command, message name & ID) reference input
+     *            type
      *
-     * @param hasCmdRefFieldChange
-     *            true is a data field has a command reference input type and the table with the
-     *            change is a command
+     * @param isMsgNameIDChange
+     *            true is a message name or ID changed and a cell or field uses the message name &
+     *            ID input type
      *********************************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
                                                       TableInformation tableInfo,
                                                       List<TableModification> modifications,
                                                       List<TableModification> deletions,
                                                       boolean forceUpdate,
-                                                      boolean hasVarRefFieldChange,
-                                                      boolean hasCmdRefFieldChange)
+                                                      boolean isRefFieldChange,
+                                                      boolean isMsgNameIDChange)
     {
         // Get references to shorten subsequent calls. Can't use global references since this is a
         // static method
@@ -441,7 +439,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
 
         // Update the tables with message names & IDs columns
-        dbTblCmdHndlr.updateInputTypeColumns(null, main.getMainFrame());
+        // dbTblCmdHndlr.updateInputTypeColumns(null, main.getMainFrame());
+        // TODO THIS FOULS UP currentTableInfo's fieldInformation
 
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())
@@ -461,10 +460,25 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                           && tableInfo.getPrototypeName().equals((editor.getTableInformation()
                                                                                         .getPrototypeName()));
 
+                // Check if a data field exists that uses the variable (command) reference input
+                // type and if table wasn't already updated above
+                if (isRefFieldChange && !applyToInstance) // TODO TEST CMD AND MSGID PORTIONS
+                {
+                    // Update the current and committed field definitions and information so that
+                    // the update isn't considered a change
+                    editor.updateTableFieldInformationFromHandler();
+                    editor.createDataFieldPanel(false,
+                                                editor.getTableInformation().getFieldInformation());
+                }
+
                 // Check if this is the table that was updated or an instance of it (if the updated
                 // table is a prototype)
                 if (applyToInstance
-                    || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName()))
+                    || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName())
+                    // TODO IF A MESSAGE NAME OR ID CHANGED AND THE TABLE HAS A 'MSG NAME & ID'
+                    // INPUT TYPE COLUMN THEN THE TABLE NEEDS TO BE UPDATED
+                    || (isMsgNameIDChange
+                        && editor.getTableTypeDefinition().getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1))
                 {
                     // Load the table from the database
                     TableInformation updateInfo = main.getDbTableCommandHandler()
@@ -472,23 +486,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                                            .getTablePath(),
                                                                      true,
                                                                      true,
-                                                                     true,
                                                                      editorDialog);
 
                     // Store the updates as the committed changes in the table (so that other
                     // changes are recognized)
                     editor.doTableUpdatesComplete(updateInfo, applyToInstance || forceUpdate);
-                }
-
-                // Check if a data field exists that uses the variable or command reference input
-                // type and if table wasn't already updated above
-                if ((hasVarRefFieldChange || hasCmdRefFieldChange) && !applyToInstance) // TODO
-                {
-                    // Update the current and committed field definitions and information so that
-                    // the update isn't considered a change
-                    editor.updateTableFieldInformationFromHandler();
-                    editor.createDataFieldPanel(false,
-                                                editor.getCommittedTableInformation().getFieldInformation());
                 }
 
                 // Step through each row modification
@@ -1183,6 +1185,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             @Override
             protected void performAction(ActionEvent ae)
             {
+                // Set the field information so that the field information reference in the table
+                // information is the same as the panel's field information
+                activeEditor.getTableInformation().setFieldInformation(activeEditor.getInputFieldPanelHandler()
+                                                                                   .getPanelFieldInformation());
+
                 // Create the field editor dialog showing the fields for this table
                 new CcddFieldEditorDialog(ccddMain,
                                           activeEditor,

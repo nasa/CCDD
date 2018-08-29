@@ -291,9 +291,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param toolTipText
      *            tool tip text for the new node
      *
-     * @param index
-     *            index in the parent at which to insert the new node
-     *
      * @param order
      *            order in which the added node should be placed relative to the child nodes
      *            already preset
@@ -918,7 +915,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * Placeholder to remove any unwanted text from the node names. The object array is converted
      * to a string array
      *
-     * @param node
+     * @param nodePath
      *            path array
      *
      * @return Cleaned node path array

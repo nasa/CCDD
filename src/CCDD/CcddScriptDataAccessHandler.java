@@ -51,12 +51,14 @@ import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddCommandHandler.CommandInformation;
 import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -90,6 +92,7 @@ public class CcddScriptDataAccessHandler
     private CcddApplicationSchedulerTableHandler schTable;
     private CcddCopyTableHandler copyHandler;
     private final CcddVariableHandler variableHandler;
+    private final CcddCommandHandler commandHandler;
     private CcddXTCEHandler xtceHandler;
     private final CcddInputTypeHandler inputTypeHandler;
 
@@ -165,6 +168,7 @@ public class CcddScriptDataAccessHandler
         inputTypeHandler = ccddMain.getInputTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
         variableHandler = ccddMain.getVariableHandler();
+        commandHandler = ccddMain.getCommandHandler();
         tableTree = variableHandler.getVariableTree();
         copyHandler = null;
         xtceHandler = null;
@@ -412,7 +416,7 @@ public class CcddScriptDataAccessHandler
      * Determine if the supplied data type is a primitive type
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is a primitive; false otherwise
      *********************************************************************************************/
@@ -425,72 +429,72 @@ public class CcddScriptDataAccessHandler
      * Determine if the supplied data type is a signed or unsigned integer
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is an integer (signed or unsigned); false otherwise
      *********************************************************************************************/
-    public boolean isDataTypeInteger(String dataTypeName)
+    public boolean isDataTypeInteger(String dataType)
     {
-        return dataTypeHandler.isInteger(dataTypeName);
+        return dataTypeHandler.isInteger(dataType);
     }
 
     /**********************************************************************************************
      * Determine if the supplied data type is an unsigned integer
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is an unsigned integer; false otherwise
      *********************************************************************************************/
-    public boolean isDataTypeUnsignedInt(String dataTypeName)
+    public boolean isDataTypeUnsignedInt(String dataType)
     {
-        return dataTypeHandler.isUnsignedInt(dataTypeName);
+        return dataTypeHandler.isUnsignedInt(dataType);
     }
 
     /**********************************************************************************************
      * Determine if the supplied data type is a float or double
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is a float or double; false otherwise
      *********************************************************************************************/
-    public boolean isDataTypeFloat(String dataTypeName)
+    public boolean isDataTypeFloat(String dataType)
     {
-        return dataTypeHandler.isFloat(dataTypeName);
+        return dataTypeHandler.isFloat(dataType);
     }
 
     /**********************************************************************************************
      * Determine if the supplied data type is a character or string
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is a character or string; false otherwise
      *********************************************************************************************/
-    public boolean isDataTypeCharacter(String dataTypeName)
+    public boolean isDataTypeCharacter(String dataType)
     {
-        return dataTypeHandler.isCharacter(dataTypeName);
+        return dataTypeHandler.isCharacter(dataType);
     }
 
     /**********************************************************************************************
      * Determine if the supplied data type is a character string
      *
      * @param dataType
-     *            data type to test
+     *            name of the data type to test
      *
      * @return true if the supplied data type is a character string; false otherwise
      *********************************************************************************************/
-    public boolean isDataTypeString(String dataTypeName)
+    public boolean isDataTypeString(String dataType)
     {
-        return dataTypeHandler.isString(dataTypeName);
+        return dataTypeHandler.isString(dataType);
     }
 
     /**********************************************************************************************
      * Get the C type for the specified data type
      *
      * @param dataType
-     *            primitive data type
+     *            name of the primitive data type
      *
      * @return C type for the specified data type; returns null if the data type doesn't exist or
      *         isn't a primitive type
@@ -516,7 +520,7 @@ public class CcddScriptDataAccessHandler
      * Get the base type for the specified data type
      *
      * @param dataType
-     *            primitive data type
+     *            name of the primitive data type
      *
      * @return Base type for the specified data type; returns null if the data type doesn't exist
      *         or isn't a primitive type
@@ -542,7 +546,7 @@ public class CcddScriptDataAccessHandler
      * Get the number of bytes for the specified data type
      *
      * @param dataType
-     *            structure or primitive data type
+     *            name of the structure or primitive data type
      *
      * @return Number of bytes required to store the data type; returns 0 if the data type doesn't
      *         exist
@@ -556,7 +560,7 @@ public class CcddScriptDataAccessHandler
      * Get the number of bits for the specified data type
      *
      * @param dataType
-     *            structure or primitive data type
+     *            name of teh structure or primitive data type
      *
      * @return Number of bits required to store the data type; returns 0 if the data type doesn't
      *         exist
@@ -570,7 +574,7 @@ public class CcddScriptDataAccessHandler
      * Convert a primitive data type into its ITOS encoded form
      *
      * @param dataType
-     *            data type (e.g., "uint16" or "double")
+     *            name of the data type (e.g., "uint16" or "double")
      *
      * @param encoding
      *            "SINGLE_CHAR" to get the single character encoding (e.g., "I" for any integer
@@ -1556,7 +1560,7 @@ public class CcddScriptDataAccessHandler
             TableInformation tableInfo = getTableInformation(TYPE_STRUCTURE);
 
             // Step through each enumeration column
-            for (int enumIndex : typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION))
+            for (int enumIndex : typeDefn.getColumnIndicesByInputTypeFormat(InputTypeFormat.ENUMERATION))
             {
                 // Get the enumeration
                 String enumeration = tableInfo.getData()[row][enumIndex].toString();
@@ -3498,6 +3502,31 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Get an array containing the name, code, table, and argument name(s) for every command in the
+     * project database
+     *
+     * @return Array containing the name, code, table, and argument name(s) for every command. The
+     *         array is sorted by command name; if the same then by command code; if the same then
+     *         by table name
+     *********************************************************************************************/
+    public String[] getCommandInformation()
+    {
+        List<String[]> commandList = new ArrayList<String[]>();
+
+        // Step through each command in the project
+        for (CommandInformation commandInfo : commandHandler.getCommandInformation())
+        {
+            // Add the command information to the list
+            commandList.add(new String[] {commandInfo.getCommandName(),
+                                          commandInfo.getCommandCode(),
+                                          commandInfo.getTable(),
+                                          commandInfo.getArguments()});
+        }
+
+        return commandList.toArray(new String[0]);
+    }
+
+    /**********************************************************************************************
      * Get the name(s) of the data field(s) associated with the specified table
      *
      * @param tableName
@@ -3743,8 +3772,8 @@ public class CcddScriptDataAccessHandler
             // Get the field value
             fieldValue = fieldInfo.getValue();
 
-            // Check if the data field contains a message ID
-            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
+            // Check if the data field contains a message name and ID
+            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
             {
                 // Remove the auto-assignment protection flag, if present
                 fieldValue = CcddMessageIDHandler.removeProtectionFlag(fieldValue);
@@ -4027,8 +4056,8 @@ public class CcddScriptDataAccessHandler
                     tableData = macroHandler.getMacroExpansion(tableData);
                 }
 
-                // Check if the data field contains a message ID
-                if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
+                // Check if the data field contains a message name and ID
+                if (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
                 {
                     // Remove the auto-assignment protection flag, if present
                     tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -4261,8 +4290,8 @@ public class CcddScriptDataAccessHandler
                             tableData = macroHandler.getMacroExpansion(tableData);
                         }
 
-                        // Check if the data field contains a message ID
-                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID)))
+                        // Check if the data field contains a message name and ID
+                        if (typeDefn.getInputTypes()[dataColumnIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
                         {
                             // Remove the auto-assignment protection flag, if present
                             tableData = CcddMessageIDHandler.removeProtectionFlag(tableData);
@@ -5379,21 +5408,16 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get an array containing every message ID name and its corresponding message ID, and the
-     * owning entity from every table cell, data field (table or group), and telemetry message. ID
-     * names and IDs are determined by the input type assigned to the table column or data field,
-     * and are matched one-to-one by relative position; i.e., the first message ID name data field
-     * for a table or group is paired with the first message ID data field, and so on. If more
-     * names are defined than IDs or vice versa then a blank ID/name is paired with the unmatched
-     * name/ID
+     * Get an array containing every message name and its corresponding ID, and the owning entity
+     * from every table cell, data field (table or group), and telemetry message. Message names and
+     * IDs are determined by the input type assigned to the table column or data field
      *
-     * @return Two-dimensional array containing every message ID name and its corresponding message
-     *         ID, and the owning entity, sorted by the owner name. Each row in the array is an
-     *         array in the form [owner name], [message ID name], [message ID]. The owner name is
-     *         preceded by 'Group:' if the owner is a group, and by "Tlm:' if the owner is a
-     *         telemetry message
+     * @return Two-dimensional array containing every message name and its corresponding ID, and
+     *         the owning entity, sorted by the owner name. Each row in the array is an array in
+     *         the form [owner name], [message name], [message ID]. The owner name is preceded by
+     *         'Group:' if the owner is a group, and by "Tlm:' if the owner is a telemetry message
      *********************************************************************************************/
-    public String[][] getMessageIDOwnersIDsAndNames()
+    public String[][] getMessageOwnersIDsAndNames()
     {
         return ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
                                                                     true,

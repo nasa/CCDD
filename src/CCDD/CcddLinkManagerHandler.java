@@ -310,7 +310,7 @@ public class CcddLinkManagerHandler
                     // Update the description field text so that it can be undone/redone. The focus
                     // change, which is usually used to perform the update, occurs after the node
                     // selection edit and would cause the wrong description field to be changed
-                    descriptionFld.updateText(true);
+                    descriptionFld.updateText(descriptionFld.isFocusOwner());
 
                     // Get the name of the selected link(s)
                     String[] selected = getTopLevelSelectedNodeNames();

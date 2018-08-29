@@ -1864,8 +1864,6 @@ public class CcddScriptHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *
-     * @return true if an error occurs during script execution
-     *
      * @throws CCDDException
      *             If an error occurs while attempting to access the script file
      *********************************************************************************************/
@@ -1925,7 +1923,7 @@ public class CcddScriptHandler
             loadedTablePaths.add(tablePath);
 
             // Read the table's data from the database
-            tableInfo = dbTable.loadTableData(tablePath, false, false, false, parent);
+            tableInfo = dbTable.loadTableData(tablePath, false, false, parent);
 
             // Check that the data was successfully loaded from the database and that the table
             // isn't empty

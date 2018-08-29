@@ -189,6 +189,7 @@ public class CcddConstants
 
     // Variable name pattern and data type for padding variables
     protected static final String PAD_VARIABLE = "pad[0-9]+__";
+    protected static final String PAD_VARIABLE_MATCH = PAD_VARIABLE + "(?:\\\\[[0-9]+\\\\])?$";
     protected static final String PAD_DATA_TYPE = "char";
 
     // Main window initial and minimum window size
@@ -2089,22 +2090,24 @@ public class CcddConstants
      *********************************************************************************************/
     protected static enum InputTypeFormat
     {
-        TEXT(true),
-        ARRAY(true),
-        BOOLEAN(true),
-        FLOAT(true),
-        HEXADECIMAL(true),
-        INTEGER(true),
-        NUMBER(true),
-        RATE(false),
-        ENUMERATION(true), // TODO WAS false
-        DATA_TYPE(false),
-        MINIMUM(false), // TODO CAN DO THE SAME AS FOR ENUMERATIONS?
-        MAXIMUM(false), // TODO CAN DO THE SAME AS FOR ENUMERATIONS?
-        VARIABLE_PATH(false),
-        PAGE_FORMAT(false);
+        TEXT(true, true),
+        ARRAY(true, false),
+        BOOLEAN(true, false),
+        FLOAT(true, false),
+        HEXADECIMAL(true, false),
+        INTEGER(true, false),
+        NUMBER(true, false),
+        RATE(false, false),
+        ENUMERATION(true, true),
+        DATA_TYPE(false, false),
+        MINIMUM(true, true),
+        MAXIMUM(true, true),
+        VARIABLE_PATH(false, false),
+        MESSAGE_ID(false, false),
+        PAGE_FORMAT(false, false);
 
         private final boolean isUserSelectable;
+        private final boolean isValidWithItems;
 
         /******************************************************************************************
          * Default input type formats constructor
@@ -2112,9 +2115,10 @@ public class CcddConstants
          * @param inputName
          *            input type name
          *****************************************************************************************/
-        InputTypeFormat(boolean isUserSelectable)
+        InputTypeFormat(boolean isUserSelectable, boolean isValidWithItems)
         {
             this.isUserSelectable = isUserSelectable;
+            this.isValidWithItems = isValidWithItems;
         }
 
         /******************************************************************************************
@@ -2138,6 +2142,16 @@ public class CcddConstants
         protected boolean isUserSelectable()
         {
             return isUserSelectable;
+        }
+
+        /******************************************************************************************
+         * Check if this input format can be selected when the input type has selection items
+         *
+         * @return true if the format can be selected when the input type has selection items
+         *****************************************************************************************/
+        protected boolean isValidWithItems()
+        {
+            return isValidWithItems;
         }
     }
 
@@ -2238,7 +2252,7 @@ public class CcddConstants
                                          + "numerals 0 - 9 (leading '+' or '-' is optional)"),
 
         INT_POSITIVE("Positive integer",
-                     "^\\+??\\s*0*([1-9][0-9]*)",
+                     "^\\+??\\s*0*([1-9]\\d*)",
                      InputTypeFormat.INTEGER,
                      "Integer value > 0 (leading '+' is optional; see Integer)"),
 
@@ -2277,29 +2291,23 @@ public class CcddConstants
                           "Hexadecimal range; hexadecimal value followed optionally by a "
                                                        + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
-        MESSAGE_ID("Message ID",
-                   "^(?:0x)?[a-fA-F0-9]*\\s*" + PROTECTED_MSG_ID_IDENT + "?",
-                   InputTypeFormat.HEXADECIMAL,
-                   "Message ID: hexadecimal; optional initial '0x' or '0X' "
-                                                + "followed by one or more hexadecimal digits (0 - 9, "
-                                                + "a - f (case insensitive)). Append '"
-                                                + PROTECTED_MSG_ID_IDENT
-                                                + "' to protect this ID from automatic reassignment"),
+        MESSAGE_NAME_AND_ID("Message name & ID",
+                            "(?:[a-zA-Z_][a-zA-Z0-9_]*\\s+)?(?:(?:0x)?[a-fA-F0-9]*\\s*"
+                                                 + PROTECTED_MSG_ID_IDENT
+                                                 + "?)?",
+                            InputTypeFormat.MESSAGE_ID,
+                            "Message name and ID: the name and ID are optional; if both are "
+                                                        + "present the separate with a space. The name has the same constraints "
+                                                        + "as an alphanumeric (see Alphanumeric). The ID has the same "
+                                                        + "constraints as a hexadecimal (see Hexadecimal); append '"
+                                                        + PROTECTED_MSG_ID_IDENT
+                                                        + "' to protect this ID from automatic reassignment"),
 
-        MESSAGE_ID_NAME("Message ID name",
-                        "[a-zA-Z_][a-zA-Z0-9_]*",
-                        InputTypeFormat.TEXT,
-                        "Message ID name: same constraints as for an "
-                                              + "alphanumeric (see Alphanumeric)"),
-
-        MESSAGE_ID_NAMES_AND_IDS("Message names & IDs",
-                                 ".*",
-                                 InputTypeFormat.TEXT,
-                                 "Display a menu of all message ID names "
-                                                       + "& associated ID numbers in the format "
-                                                       + "'<ID name> (<ID number>)'; when an ID "
-                                                       + "name & number is selected from the menu "
-                                                       + "only the ID name is displayed"),
+        MESSAGE_REFERENCE("Message reference",
+                          ".*",
+                          InputTypeFormat.TEXT,
+                          "Display a menu of all messages in the format "
+                                                + "'<message name> (ID: <message IDr>, owner: <owner>)'"),
 
         MINIMUM("Minimum",
                 "(" + INTEGER.getInputMatch() + ")|(" + FLOAT.getInputMatch() + ")",
@@ -2606,6 +2614,7 @@ public class CcddConstants
                     false,
                     false,
                     false),
+
         ROW_INDEX("",
                   "_Index_",
                   "Row index",
@@ -2628,6 +2637,7 @@ public class CcddConstants
                       true,
                       true,
                       true),
+
         DESCRIPTION_STRUCT(TYPE_STRUCTURE,
                            COL_DESCRIPTION,
                            "Parameter description",
@@ -2638,6 +2648,7 @@ public class CcddConstants
                            true,
                            true,
                            true),
+
         UNITS(TYPE_STRUCTURE,
               COL_UNITS,
               "Parameter units",
@@ -2648,6 +2659,7 @@ public class CcddConstants
               true,
               true,
               true),
+
         DATA_TYPE(TYPE_STRUCTURE,
                   COL_DATA_TYPE,
                   "Parameter data type",
@@ -2658,6 +2670,7 @@ public class CcddConstants
                   true,
                   true,
                   true),
+
         ARRAY_SIZE(TYPE_STRUCTURE,
                    COL_ARRAY_SIZE,
                    "Parameter array size",
@@ -2668,6 +2681,7 @@ public class CcddConstants
                    true,
                    true,
                    true),
+
         BIT_LENGTH(TYPE_STRUCTURE,
                    "Bit Length",
                    "Parameter number of bits (bit values only)",
@@ -2678,16 +2692,40 @@ public class CcddConstants
                    false,
                    false,
                    true),
+
         ENUMERATION(TYPE_STRUCTURE,
                     COL_ENUMERATION,
                     "Enumerated parameters",
                     DefaultInputType.ENUMERATION,
-                    true,
+                    false,
                     false,
                     false,
                     false,
                     false,
                     false),
+
+        MINIMUM(TYPE_STRUCTURE,
+                COL_MINIMUM,
+                "Minimum value",
+                DefaultInputType.MINIMUM,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false),
+
+        MAXIMUM(TYPE_STRUCTURE,
+                COL_MAXIMUM,
+                "Maximum value",
+                DefaultInputType.MAXIMUM,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false),
+
         RATE(TYPE_STRUCTURE,
              "Rate",
              "Downlink data rate, samples/second",
@@ -2710,6 +2748,7 @@ public class CcddConstants
                      false,
                      true,
                      true),
+
         COMMAND_CODE(TYPE_COMMAND,
                      "Command Code",
                      "Command function code",
@@ -2720,6 +2759,7 @@ public class CcddConstants
                      false,
                      true,
                      true),
+
         DESCRIPTION_CMD(TYPE_COMMAND,
                         COL_DESCRIPTION,
                         "Command description",
@@ -2730,6 +2770,7 @@ public class CcddConstants
                         false,
                         true,
                         false),
+
         ARG_NAME_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 Name",
                    "Command argument 1 name",
@@ -2740,6 +2781,7 @@ public class CcddConstants
                    false,
                    true,
                    false),
+
         ARG_DESCRIPTION_1(TYPE_COMMAND,
                           COL_ARGUMENT + " 1 " + COL_DESCRIPTION,
                           "Command argument 1 description",
@@ -2750,6 +2792,7 @@ public class CcddConstants
                           false,
                           true,
                           false),
+
         ARG_UNITS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_UNITS,
                     "Command argument 1 units",
@@ -2760,6 +2803,7 @@ public class CcddConstants
                     false,
                     true,
                     false),
+
         ARG_TYPE_1(TYPE_COMMAND,
                    COL_ARGUMENT + " 1 " + COL_DATA_TYPE,
                    "Command argument 1 data type",
@@ -2770,6 +2814,7 @@ public class CcddConstants
                    false,
                    true,
                    false),
+
         ARG_ARRAY_SIZE_1(TYPE_COMMAND,
                          COL_ARGUMENT + " 1 " + COL_ARRAY_SIZE,
                          "Command argument 1 array size",
@@ -2780,6 +2825,7 @@ public class CcddConstants
                          false,
                          true,
                          false),
+
         ARG_BIT_LENGTH_1(TYPE_COMMAND,
                          COL_ARGUMENT + " 1 " + COL_BIT_LENGTH,
                          "Command argument 1 bit length",
@@ -2790,6 +2836,7 @@ public class CcddConstants
                          false,
                          true,
                          false),
+
         ARG_ENUMS_1(TYPE_COMMAND,
                     COL_ARGUMENT + " 1 " + COL_ENUMERATION,
                     "Command argument 1 enumeration",
@@ -2800,6 +2847,7 @@ public class CcddConstants
                     false,
                     true,
                     false),
+
         ARG_MIN_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MINIMUM,
                   "Command argument 1 minimum value",
@@ -2810,6 +2858,7 @@ public class CcddConstants
                   false,
                   true,
                   false),
+
         ARG_MAX_1(TYPE_COMMAND,
                   COL_ARGUMENT + " 1 " + COL_MAXIMUM,
                   "Command argument 1 maximum value",
@@ -3155,13 +3204,14 @@ public class CcddConstants
          * @param compareTableType
          *            table type
          *
-         * @param compareColumnName
-         *            column name
+         * @param compareInputType
+         *            input type name
          *
          * @return true if the supplied table type and input type match a protected table type and
          *         input type combination, and if this pair is flagged as protected
          *****************************************************************************************/
-        protected static boolean isInputTypeUnique(String compareTableType, String compareInputType)
+        protected static boolean isInputTypeUnique(String compareTableType,
+                                                   String compareInputType)
         {
             boolean isUniqueInputType = false;
 
@@ -3302,7 +3352,8 @@ public class CcddConstants
         /******************************************************************************************
          * Get the column database data type based on the column index
          *
-         * @column column index
+         * @param column
+         *            column index
          *
          * @return Column database data type
          *****************************************************************************************/
@@ -3416,20 +3467,12 @@ public class CcddConstants
                             + FieldsColumn.FIELD_APPLICABILITY.columnName
                             + ", "
                             + FieldsColumn.FIELD_VALUE.columnName
-                            + ") VALUES ('Type:Structure', 'Telemetry message ID name', 'Telemetry message ID name', '15', '"
-                            + DefaultInputType.MESSAGE_ID_NAME.getInputName()
+                            + ") VALUES ('Type:Structure', 'Telemetry message name & ID', 'Telemetry message name and ID', '15', '"
+                            + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                            + "', ''), ('Type:Structure', 'Telemetry message ID', 'Telemetry message ID', '7', '"
-                            + DefaultInputType.MESSAGE_ID.getInputName()
-                            + "', 'true', '"
-                            + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                            + "', ''), ('Type:Command', 'Command ID name', 'Command ID name', '15', '"
-                            + DefaultInputType.MESSAGE_ID_NAME.getInputName()
-                            + "', 'true', '"
-                            + ApplicabilityType.ALL.getApplicabilityName()
-                            + "', ''), ('Type:Command', 'Command message ID', 'Command message ID', '7', '"
-                            + DefaultInputType.MESSAGE_ID.getInputName()
+                            + "', ''), ('Type:Command', 'Command name & ID', 'Command name and ID', '15', '"
+                            + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ALL.getApplicabilityName()
                             + "', '')"),
@@ -4525,6 +4568,7 @@ public class CcddConstants
                       true,
                       ApplicabilityType.ALL,
                       "1"),
+
         EXECUTION_TIME("Execution Time",
                        "Estimated time for this application to execute",
                        DefaultInputType.INT_POSITIVE,
@@ -4532,6 +4576,7 @@ public class CcddConstants
                        true,
                        ApplicabilityType.ALL,
                        "1"),
+
         PRIORITY("Execution Priority",
                  "Application execution priority",
                  DefaultInputType.INT_POSITIVE,
@@ -4539,27 +4584,23 @@ public class CcddConstants
                  true,
                  ApplicabilityType.ALL,
                  "1"),
-        MESSAGE_RATE("Message rate",
+
+        MESSAGE_RATE("Message Rate",
                      "Application message rate, samples/second",
                      DefaultInputType.INT_POSITIVE,
                      7,
                      true,
                      ApplicabilityType.ALL,
                      "1"),
-        WAKE_UP_NAME("Wake-Up Name",
-                     "Application wake-up name",
-                     DefaultInputType.MESSAGE_ID_NAME,
-                     10,
-                     true,
-                     ApplicabilityType.ALL,
-                     ""),
-        WAKE_UP_ID("Wake-Up ID",
-                   "Application wake-up ID",
-                   DefaultInputType.MESSAGE_ID,
-                   7,
-                   true,
-                   ApplicabilityType.ALL,
-                   "0x1"),
+
+        WAKE_UP_MESSAGE("Wake-Up Message",
+                        "Application wake-up message name & ID",
+                        DefaultInputType.MESSAGE_NAME_AND_ID,
+                        15,
+                        true,
+                        ApplicabilityType.ALL,
+                        "WAKE_UP 0x1"),
+
         HK_SEND_RATE("HK_Send Rate",
                      "Application housekeeping send rate",
                      DefaultInputType.INT_POSITIVE,
@@ -4567,20 +4608,15 @@ public class CcddConstants
                      true,
                      ApplicabilityType.ALL,
                      "1"),
-        HK_WAKE_UP_NAME("HK Wake-Up Name",
-                        "Application housekeeping wake-up name",
-                        DefaultInputType.MESSAGE_ID_NAME,
-                        10,
-                        true,
-                        ApplicabilityType.ALL,
-                        ""),
-        HK_WAKE_UP_ID("HK Wake-Up ID",
-                      "Application housekeeping wake-up ID",
-                      DefaultInputType.MESSAGE_ID,
-                      7,
-                      true,
-                      ApplicabilityType.ALL,
-                      "0x1"),
+
+        HK_WAKE_UP_MESSAGE("HK Wake-Up Message",
+                           "Application housekeeping wake-up message name & ID",
+                           DefaultInputType.MESSAGE_NAME_AND_ID,
+                           15,
+                           true,
+                           ApplicabilityType.ALL,
+                           "HK_WAKE_UP 0x1"),
+
         SCH_GROUP("SCH Group",
                   "Application Schedule group",
                   DefaultInputType.ALPHANUMERIC,
@@ -5366,7 +5402,75 @@ public class CcddConstants
         }
     }
 
-    // TODO
+    /**********************************************************************************************
+     * Variable path table column information
+     *********************************************************************************************/
+    protected static enum VariablePathTableColumnInfo
+    {
+        APP_FORMAT("Application Format", "Variable name with structure path as defined within the application"),
+        USER_FORMAT("User Format", "Variable name with structure path as specified by user input");
+
+        private final String columnName;
+        private final String toolTip;
+
+        /******************************************************************************************
+         * Variable path table column information constructor
+         *
+         * @param columnName
+         *            text to display for the table verification column name
+         *
+         * @param toolTip
+         *            tool tip text to display for the table verification column
+         *****************************************************************************************/
+        VariablePathTableColumnInfo(String columnName, String toolTip)
+        {
+            this.columnName = columnName;
+            this.toolTip = toolTip;
+        }
+
+        /******************************************************************************************
+         * Get the variable path table column names
+         *
+         * @return Array containing the variable path table column names
+         *****************************************************************************************/
+        protected static String[] getColumnNames()
+        {
+            String[] names = new String[VariablePathTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (VariablePathTableColumnInfo type : VariablePathTableColumnInfo.values())
+            {
+                // Store the column name
+                names[index] = type.columnName;
+                index++;
+            }
+
+            return names;
+        }
+
+        /******************************************************************************************
+         * Get the variable path table column tool tips
+         *
+         * @return Array containing the variable path table column tool tips
+         *****************************************************************************************/
+        protected static String[] getToolTips()
+        {
+            String[] toolTips = new String[VariablePathTableColumnInfo.values().length];
+            int index = 0;
+
+            // Step through each column
+            for (VariablePathTableColumnInfo type : VariablePathTableColumnInfo.values())
+            {
+                // Get the tool tip text
+                toolTips[index] = type.toolTip;
+                index++;
+            }
+
+            return toolTips;
+        }
+    }
+
     /**********************************************************************************************
      * Command information table column information
      *********************************************************************************************/
@@ -5396,7 +5500,7 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Get the script association table column names
+         * Get the command information table column names
          *
          * @return Array containing the command information table column names
          *****************************************************************************************/
@@ -5884,7 +5988,7 @@ public class CcddConstants
     protected static enum MsgIDListColumnIndex
     {
         OWNER,
-        MESSAGE_ID_NAME,
+        MESSAGE_NAME,
         MESSAGE_ID
     }
 
@@ -5895,7 +5999,7 @@ public class CcddConstants
     {
         OWNER("Owner", "Message ID owner (table, group, or telemetry message)"),
         PATH("Structure Path", "Structure table path"),
-        MESSAGE_ID_NAME("Message ID Name", "Message ID name"),
+        MESSAGE_NAME("Message Name", "Message name"),
         MESSAGE_ID("Message ID", "Message ID");
 
         private final String columnName;
@@ -6187,7 +6291,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the copy table column name
          *
-         * @Return Copy table column name
+         * @return Copy table column name
          *****************************************************************************************/
         protected String getColumnName()
         {
@@ -6479,7 +6583,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the list command
          *
-         * @param listOption
+         * @param listOptions
          *            array containing replacement text for those commands that must be tailored
          *
          * @return List command string

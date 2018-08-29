@@ -37,7 +37,7 @@ public class CcddMathExpressionHandler
         /******************************************************************************************
          * Get the value of this nest level
          *
-         * @return Value
+         * @return Value of this nest level
          *****************************************************************************************/
         protected Double getValue()
         {
@@ -47,8 +47,8 @@ public class CcddMathExpressionHandler
         /******************************************************************************************
          * Set the value of this nest level
          *
-         * @param value
-         *            value
+         * @param dValue
+         *            value of this nest level
          *****************************************************************************************/
         protected void setValue(Double dValue)
         {

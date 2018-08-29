@@ -6,8 +6,6 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DATA_FIELD_IDENTIFIER_SEPARATOR;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -17,6 +15,7 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -62,10 +61,10 @@ public abstract class CcddInputFieldPanelHandler
     private CcddUndoManager undoManager;
     private CcddUndoHandler undoHandler;
     private CcddFieldHandler fieldHandler;
-    private UndoableDataFieldPanel undoFieldPnl;
     private CcddInputTypeHandler inputTypeHandler;
 
     // Components referenced by multiple methods
+    private UndoableDataFieldPanel undoFieldPnl;
     private UndoableTextArea descriptionFld;
     private JPanel inputPnl;
     private Border border;
@@ -105,6 +104,16 @@ public abstract class CcddInputFieldPanelHandler
     protected JPanel getFieldPanel()
     {
         return inputPnl;
+    }
+
+    /**********************************************************************************************
+     * Get the reference to the undoable field panel containing the data fields
+     *
+     * @return Reference to the undoable field panel containing data fields
+     *********************************************************************************************/
+    protected UndoableDataFieldPanel getUndoFieldPanel()
+    {
+        return undoFieldPnl;
     }
 
     /**********************************************************************************************
@@ -155,7 +164,7 @@ public abstract class CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the name of the owner of this description and data field panel handler
      *
-     * @param owner
+     * @param ownerName
      *            name of the owner of this description and data field panel handler
      *********************************************************************************************/
     protected void setOwnerName(String ownerName)
@@ -187,6 +196,17 @@ public abstract class CcddInputFieldPanelHandler
     protected void setDescription(String description)
     {
         descriptionFld.setText(description);
+    }
+
+    /**********************************************************************************************
+     * Check if the description field is the current focus owner (i.e., editing is active for the
+     * field)
+     *
+     * @return true if the description field has the focus
+     *********************************************************************************************/
+    protected boolean isDescriptionFocusOwner()
+    {
+        return descriptionFld.isFocusOwner();
     }
 
     /**********************************************************************************************
@@ -253,32 +273,44 @@ public abstract class CcddInputFieldPanelHandler
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Check if a text field or check box exists for this data field and isn't a page
-            // format field (line break or separator)
-            if (fieldInfo.getInputFld() != null
-                && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
+            // Get the reference to the field in the field handler
+            FieldInformation fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                              fieldInfo.getFieldName());
+
+            // Check if the field exists in the field handler
+            if (fldInfo != null)
             {
-                // Check if this is a boolean input (check box) data field
-                if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
+                // Get the data field's input component
+                Component inputFld = fldInfo.getInputFld();
+
+                // Check if a text field or check box exists for this data field and isn't a page
+                // format field (line break or separator)
+                if (inputFld != null
+                    && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
                 {
-                    // Update the data field information value with the current check box selection
-                    // state
-                    fieldInfo.setValue(((JCheckBox) fieldInfo.getInputFld()).isSelected()
-                                                                                          ? "true"
-                                                                                          : "false");
-                }
-                // Check if the the field is a text field/area
-                else if (fieldInfo.getInputFld() instanceof JTextComponent)
-                {
-                    // Update the data field information value with the current text field/area
-                    // value
-                    fieldInfo.setValue(((JTextComponent) fieldInfo.getInputFld()).getText());
-                }
-                // Check if the the field is a combo box
-                else if (fieldInfo.getInputFld() instanceof PaddedComboBox)
-                {
-                    // Update the data field information value with the current combo box selection
-                    fieldInfo.setValue(((PaddedComboBox) fieldInfo.getInputFld()).getSelectedItem().toString());
+                    // Check if this is a boolean input (check box) data field
+                    if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
+                    {
+                        // Update the data field information value with the current check box
+                        // selection state
+                        fieldInfo.setValue(((JCheckBox) inputFld).isSelected()
+                                                                               ? "true"
+                                                                               : "false");
+                    }
+                    // Check if the the field is a text field/area
+                    else if (inputFld instanceof JTextComponent)
+                    {
+                        // Update the data field information value with the current text field/area
+                        // value
+                        fieldInfo.setValue(((JTextComponent) inputFld).getText());
+                    }
+                    // Check if the the field is a combo box
+                    else if (inputFld instanceof PaddedComboBox)
+                    {
+                        // Update the data field information value with the current combo box
+                        // selection
+                        fieldInfo.setValue(((PaddedComboBox) inputFld).getSelectedItem().toString());
+                    }
                 }
             }
         }
@@ -344,15 +376,21 @@ public abstract class CcddInputFieldPanelHandler
      *
      * @param description
      *            description field text; null if the description is initially blank and disabled
+     *
+     * @param ownerFieldInfo
+     *            list of field information to use to build the data fields; null if no data field
+     *            is associated with owner
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(CcddMain ccddMain,
                                                final Component fieldPnlHndlrOwner,
                                                final JScrollPane tableScrollPane,
                                                String ownerName,
-                                               String description)
+                                               String description,
+                                               List<FieldInformation> ownerFieldInfo)
     {
         this.fieldPnlHndlrOwner = fieldPnlHndlrOwner;
         this.ownerName = ownerName;
+        this.fieldInformation = new ArrayList<FieldInformation>();
         fieldHandler = ccddMain.getFieldHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
@@ -489,7 +527,7 @@ public abstract class CcddInputFieldPanelHandler
         gbc.gridy++;
         gbc.insets.top = 0;
         gbc.insets.bottom = 0;
-        createDataFieldPanel(false, null);
+        createDataFieldPanel(false, CcddFieldHandler.getFieldInformationCopy(ownerFieldInfo));
 
         // Check if this editor doesn't contain a table
         if (tableScrollPane == null)
@@ -541,12 +579,27 @@ public abstract class CcddInputFieldPanelHandler
      *            operations; false to not store the changes
      *
      * @param ownerFieldInfo
-     *            list of field information to use to build the data fields; null to use the fields
-     *            stored in the database
+     *            list of field information to use to build the data fields null if no data field
+     *            is associated with the owner
      *********************************************************************************************/
     protected void createDataFieldPanel(boolean undoable, List<FieldInformation> ownerFieldInfo)
     {
         maxFieldWidth = 0;
+
+        // Clear the current field information. This is done so the the variable's reference isn't
+        // changed
+        fieldInformation.clear();
+
+        // Check if any data fields are provided for this input panel
+        if (ownerFieldInfo != null)
+        {
+            // Step through each of the supplied data field's information
+            for (FieldInformation fldInfo : ownerFieldInfo)
+            {
+                // Add the data field information to the list
+                fieldInformation.add(fldInfo);
+            }
+        }
 
         // Set the preferred size so that the layout manager uses its default sizing
         fieldPnlHndlrOwner.setPreferredSize(null);
@@ -556,20 +609,6 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Remove the existing data fields
             inputPnl.remove(fieldPnl);
-        }
-
-        // Check if no field information is provided
-        if (ownerFieldInfo == null)
-        {
-            // Get the data fields for this table/group/etc. from the list currently stored in the
-            // database
-            fieldInformation = fieldHandler.getFieldInformationByOwner(ownerName);
-        }
-        // Field information is provided
-        else
-        {
-            // Set the field information to that supplied
-            fieldInformation = ownerFieldInfo;
         }
 
         // Check if any data fields exist for this table/group/etc.
@@ -593,23 +632,70 @@ public abstract class CcddInputFieldPanelHandler
                                                    fieldInfo.getApplicabilityType().getApplicabilityName(),
                                                    null))
                 {
+                    FieldInformation fldInfo;
+
                     switch (fieldInfo.getInputType().getInputFormat())
                     {
                         case PAGE_FORMAT:
                             if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
                             {
-                                // Create a text field for the separator so it can be handled like
-                                // other fields
-                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
+                                // // Get the reference to the data field's input field
+                                // UndoableTextField undoableTxtFld = (UndoableTextField)
+                                // fieldInfo.getInputFld();
+                                //
+                                // // Check if the input field doesn't exist or if it does but
+                                // // isn't a text field
+                                // if (fieldInfo.getInputFld() == null
+                                // || !(fieldInfo.getInputFld() instanceof UndoableTextField))
+                                // {
+                                // // Create an undoable text field
+                                // undoableTxtFld = undoHandler.new
+                                // UndoableTextField(fieldInfo.getValue(),
+                                // fieldInfo.getSize());
+                                // }
+
+                                // Create an undoable text field
+                                UndoableTextField undoableTxtFld = undoHandler.new UndoableTextField(fieldInfo.getValue(),
+                                                                                                     fieldInfo.getSize());
+
+                                // Get the reference to the data field in the field handler
+                                fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                                 fieldInfo.getFieldName());
+
+                                // Check if the data field exists
+                                if (fldInfo != null)
+                                {
+                                    // Store the input field in the field handler
+                                    fldInfo.setInputFld(undoableTxtFld);
+                                }
+
+                                // Store the reference to the input field in the data field
+                                // information
+                                fieldInfo.setInputFld(undoableTxtFld);
 
                                 // Add a vertical separator to the field panel
                                 fieldPnl.add(new JSeparator(SwingConstants.VERTICAL));
                             }
                             else if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR)))
                             {
-                                // Create a text field for the separator so it can be handled like
-                                // other fields
-                                fieldInfo.setInputFld(undoHandler.new UndoableTextField());
+                                // Create an undoable text field
+                                UndoableTextField undoableTxtFld = undoHandler.new UndoableTextField(fieldInfo.getValue(),
+                                                                                                     fieldInfo.getSize());
+
+                                // Get the reference to the data field in the field handler
+                                fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                                 fieldInfo.getFieldName());
+
+                                // Check if the data field exists
+                                if (fldInfo != null)
+                                {
+                                    // Store the input field in the field handler
+                                    fldInfo.setInputFld(undoableTxtFld);
+                                }
+
+                                // Store the reference to the input field in the data field
+                                // information
+                                fieldInfo.setInputFld(undoableTxtFld);
 
                                 // Add a horizontal separator to the field panel
                                 fieldPnl.add(new JSeparator());
@@ -618,19 +704,36 @@ public abstract class CcddInputFieldPanelHandler
                             break;
 
                         case BOOLEAN:
-                            // Create the data field check box
-                            fieldInfo.setInputFld(undoHandler.new UndoableCheckBox(fieldInfo.getFieldName(),
-                                                                                   Boolean.valueOf(fieldInfo.getValue())));
+                            // Create an undoable text field
+                            UndoableCheckBox undoableChkBox = undoHandler.new UndoableCheckBox(fieldInfo.getFieldName(),
+                                                                                               Boolean.valueOf(fieldInfo.getValue()));
 
-                            UndoableCheckBox booleanCb = (UndoableCheckBox) fieldInfo.getInputFld();
+                            // Set the field's value ('true' or 'false')
+                            fieldInfo.setValue(String.valueOf(Boolean.getBoolean(fieldInfo.getValue())));
+
+                            // Get the reference to the data field in the field handler
+                            fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                             fieldInfo.getFieldName());
+
+                            // Check if the data field exists
+                            if (fldInfo != null)
+                            {
+                                // Store the input field in the field handler
+                                fldInfo.setInputFld(undoableChkBox);
+                            }
+
+                            // Store the reference to the input field in the data field
+                            // information
+                            fieldInfo.setInputFld(undoableChkBox);
+
+                            // Set the data field reference in the undo handler for the
+                            // input field
+                            undoableChkBox.setUndoFieldInformation(fieldInfo);
+
+                            // Set the check box label font and color
+                            UndoableCheckBox booleanCb = undoableChkBox;
                             booleanCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                             booleanCb.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-
-                            // Set the check box's name so that the undo handler can identify the
-                            // check box, even if it's destroyed and recreated
-                            booleanCb.setName(fieldInfo.getOwnerName()
-                                              + DATA_FIELD_IDENTIFIER_SEPARATOR
-                                              + fieldInfo.getFieldName());
 
                             // Adjust the left and right padding around the check box so that it is
                             // spaced the same as a text field data field
@@ -676,13 +779,27 @@ public abstract class CcddInputFieldPanelHandler
                             // Check if the input type is for multi-line text
                             if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI)))
                             {
-                                // Create the data field input field as a text area, which allows
-                                // new line characters which cause the field to be displayed in
-                                // multiple rows
-                                fieldInfo.setInputFld(undoHandler.new UndoableTextArea(fieldInfo.getValue(),
-                                                                                       1,
-                                                                                       fieldInfo.getSize()));
-                                inputFld = (UndoableTextArea) fieldInfo.getInputFld();
+                                // Create an undoable text area
+                                UndoableTextArea undoableTxtArea = undoHandler.new UndoableTextArea(fieldInfo.getValue(),
+                                                                                                    1,
+                                                                                                    fieldInfo.getSize());
+
+                                // Get the reference to the data field in the field handler
+                                fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                                 fieldInfo.getFieldName());
+
+                                // Check if the data field exists
+                                if (fldInfo != null)
+                                {
+                                    // Store the input field in the field handler
+                                    fldInfo.setInputFld(undoableTxtArea);
+                                }
+
+                                // Store the reference to the input field in the data field
+                                // information
+                                fieldInfo.setInputFld(undoableTxtArea);
+
+                                inputFld = undoableTxtArea;
                             }
                             // The input type is one other than for multi-line text
                             else
@@ -691,20 +808,62 @@ public abstract class CcddInputFieldPanelHandler
                                 // displayed as a text input field and not a combo box
                                 if (fieldInfo.getInputType().getInputItems() == null)
                                 {
-                                    // Create the data field input field as a text field, which
-                                    // allows a single rows
-                                    fieldInfo.setInputFld(undoHandler.new UndoableTextField(fieldInfo.getValue(),
-                                                                                            fieldInfo.getSize()));
-                                    inputFld = (UndoableTextField) fieldInfo.getInputFld();
+                                    // Create an undoable text field
+                                    UndoableTextField undoableTxtFld = undoHandler.new UndoableTextField(fieldInfo.getValue(),
+                                                                                                         fieldInfo.getSize());
+
+                                    // Get the reference to the data field in the field handler
+                                    fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                                     fieldInfo.getFieldName());
+
+                                    // Check if the data field exists
+                                    if (fldInfo != null)
+                                    {
+                                        // Store the input field in the field handler
+                                        fldInfo.setInputFld(undoableTxtFld);
+                                    }
+
+                                    // Store the reference to the input field in the data field
+                                    // information
+                                    fieldInfo.setInputFld(undoableTxtFld);
+
+                                    // Set the data field reference in the undo handler for the
+                                    // input field
+                                    undoableTxtFld.setUndoFieldInformation(fieldInfo);
+
+                                    inputFld = undoableTxtFld;
                                 }
                                 // The field has list items; display it as a combo box
                                 else
                                 {
-                                    // Create a combo box for displaying selection lists, enable
-                                    // item matching, and set the initial selection
-                                    fieldInfo.setInputFld(undoHandler.new UndoableComboBox(fieldInfo.getInputType().getInputItems().toArray(new String[0]),
-                                                                                           ModifiableFontInfo.INPUT_TEXT.getFont()));
-                                    inputFld = (UndoableComboBox) fieldInfo.getInputFld();
+                                    // Create an undoable combo box
+                                    UndoableComboBox undoableCmbBx = undoHandler.new UndoableComboBox(fieldInfo.getInputType()
+                                                                                                               .getInputItems()
+                                                                                                               .toArray(new String[0]),
+                                                                                                      ModifiableFontInfo.INPUT_TEXT.getFont());
+
+                                    // Get the reference to the data field in the field handler
+                                    fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                                                     fieldInfo.getFieldName());
+
+                                    // Check if the data field exists
+                                    if (fldInfo != null)
+                                    {
+                                        // Store the input field in the field handler
+                                        fldInfo.setInputFld(undoableCmbBx);
+                                    }
+
+                                    // Store the reference to the input field in the data field
+                                    // information
+                                    fieldInfo.setInputFld(undoableCmbBx);
+
+                                    // Set the data field reference in the undo handler for the
+                                    // input field
+                                    undoableCmbBx.setUndoFieldInformation(fieldInfo);
+
+                                    inputFld = undoableCmbBx;
+
+                                    // Enable item matching and set the initially selected item
                                     ((UndoableComboBox) inputFld).enableItemMatching(null);
                                     ((UndoableComboBox) inputFld).setSelectedItem(fieldInfo.getValue(),
                                                                                   false);
@@ -717,12 +876,6 @@ public abstract class CcddInputFieldPanelHandler
                                                    && fieldInfo.isRequired()
                                                                              ? ModifiableColorInfo.REQUIRED_BACK.getColor()
                                                                              : ModifiableColorInfo.INPUT_BACK.getColor());
-
-                            // Set the input field's name so that the undo handler can identify the
-                            // input field, even if it's destroyed and recreated
-                            inputFld.setName(fieldInfo.getOwnerName()
-                                             + DATA_FIELD_IDENTIFIER_SEPARATOR
-                                             + fieldInfo.getFieldName());
 
                             // Check if a description exists for this field
                             if (!fieldInfo.getDescription().isEmpty())
@@ -870,11 +1023,8 @@ public abstract class CcddInputFieldPanelHandler
         {
             // Store the field information in the undo handler in case the update needs to be
             // undone
-            undoFieldPnl.addDataFieldEdit(this, fieldInformation);
-
-            // Store the data field information in the undo handler in case an undo/redo operation
-            // is requested so that the fields can be set accordingly
-            undoFieldPnl.setCurrentFieldInfo(fieldInformation);
+            undoFieldPnl.addDataFieldEdit(this,
+                                          CcddFieldHandler.getFieldInformationCopy(fieldInformation));
         }
 
         // Force the owner of the editor panel to redraw so that changes to the fields are

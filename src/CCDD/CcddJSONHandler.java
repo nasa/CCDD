@@ -260,7 +260,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @param importFile
      *            import file reference
      *
-     * @param importAll
+     * @param importType
      *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
@@ -1206,7 +1206,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         tableInfo = dbTable.loadTableData(tableName,
                                           !getDescription,
                                           false,
-                                          false,
                                           ccddMain.getMainFrame());
 
         // Check if the table exists and successfully loaded
@@ -1837,8 +1836,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 JSONObject msgIDJO = new JSONObject();
                 msgIDJO.put(MsgIDTableColumnInfo.OWNER.getColumnName(),
                             msgID[MsgIDListColumnIndex.OWNER.ordinal()]);
-                msgIDJO.put(MsgIDTableColumnInfo.MESSAGE_ID_NAME.getColumnName(),
-                            msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]);
+                msgIDJO.put(MsgIDTableColumnInfo.MESSAGE_NAME.getColumnName(),
+                            msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()]);
                 msgIDJO.put(MsgIDTableColumnInfo.MESSAGE_ID.getColumnName(),
                             msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]);
 

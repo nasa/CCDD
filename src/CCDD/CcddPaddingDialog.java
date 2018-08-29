@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -114,11 +115,11 @@ public class CcddPaddingDialog extends CcddDialogHandler
                 // Check if a table is selected
                 if (isStructureSelected(prototypeTree))
                 {
+                    // Close the dialog
                     CcddPaddingDialog.this.closeDialog();
-                    new CcddPaddingVariableHandler(ccddMain,
-                                                   PadOperationType.ADD_UPDATE,
-                                                   getPrototypeTables(ccddMain, prototypeTree),
-                                                   CcddPaddingDialog.this);
+
+                    // Add/update the padding for the selected table(s)
+                    addUpdatePadding(ccddMain, PadOperationType.ADD_UPDATE, prototypeTree);
                 }
             }
         });
@@ -140,12 +141,12 @@ public class CcddPaddingDialog extends CcddDialogHandler
             {
                 // Check if a table is selected
                 if (isStructureSelected(prototypeTree))
-                {
+                { // Close the dialog
+
                     CcddPaddingDialog.this.closeDialog();
-                    new CcddPaddingVariableHandler(ccddMain,
-                                                   PadOperationType.REMOVE,
-                                                   getPrototypeTables(ccddMain, prototypeTree),
-                                                   CcddPaddingDialog.this);
+
+                    // Remove the padding from the selected table(s)
+                    addUpdatePadding(ccddMain, PadOperationType.REMOVE, prototypeTree);
                 }
             }
         });
@@ -213,24 +214,30 @@ public class CcddPaddingDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the prototype structure table names selected by the user from the table tree.
-     * If the selected table is the prototype for a child table, then include the prototype name
-     * for every table in the child's path
+     * Perform the specified padding operation on the selected tables. If a selected table is the
+     * prototype for a child table, then include the prototype name for every table in the child's
+     * path in the tables to be altered
      *
      * @param ccddMain
-     *            main class
+     *            main class reference
+     *
+     * @param padOpType
+     *            padding operation type: REMOVE to remove padding from the selected and affected
+     *            tabled; ADD_UPDATE to add or update the padding for the selected and affected
+     *            tables (PadOperationType)
      *
      * @param prototypeTree
      *            reference to the prototype table tree
-     *
-     * @return List containing the names of the prototype tables for which to alter the padding
      *********************************************************************************************/
-    private List<String> getPrototypeTables(CcddMain ccddMain, CcddTableTreeHandler prototypeTree)
+    private void addUpdatePadding(CcddMain ccddMain,
+                                  PadOperationType padOpType,
+                                  CcddTableTreeHandler prototypeTree)
     {
-        // Get the list of prototype table(s) selected by the user
-        List<String> prototStructTables = prototypeTree.getSelectedTablesWithoutChildren();
-
+        List<String> referencedPrototypeTables = new ArrayList<String>();
         List<String> affectedTables = new ArrayList<String>();
+
+        // Get the list of prototype table(s) selected by the user
+        List<String> selectedPrototypeTables = prototypeTree.getSelectedTablesWithoutChildren();
 
         // Get an instance table tree
         CcddTableTreeHandler instanceTree = new CcddTableTreeHandler(ccddMain,
@@ -242,9 +249,11 @@ public class CcddPaddingDialog extends CcddDialogHandler
                                                                      false,
                                                                      CcddPaddingDialog.this);
 
+        System.out.println("\nSelected:"); // TODO
         // Step through each prototype table selected by the user
-        for (String prototypeTable : prototStructTables)
+        for (String prototypeTable : selectedPrototypeTables)
         {
+            System.out.println(" " + prototypeTable); // TODO
             // Step through each instance table that references the selected prototype table
             for (String tablePath : instanceTree.getTableTreePathList(prototypeTable,
                                                                       instanceTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
@@ -260,9 +269,10 @@ public class CcddPaddingDialog extends CcddDialogHandler
                     String parentTable = TableInformation.getParentTable(tablePath);
 
                     // Check if this table hasn't already been added to the list of affected tables
-                    if (!prototStructTables.contains(parentTable)
+                    if (!selectedPrototypeTables.contains(parentTable)
                         && !affectedTables.contains(parentTable))
                     {
+                        System.out.println("  affected: " + parentTable); // TODO
                         // Add the table name to the list of affected tables
                         affectedTables.add(parentTable);
                     }
@@ -276,9 +286,37 @@ public class CcddPaddingDialog extends CcddDialogHandler
             }
         }
 
-        // Add any table(s) that the selected prototype(s) affect to the list of prototype tables
-        prototStructTables.addAll(affectedTables);
+        // Add any table(s) (prototype and instance) that the selected prototype(s) affect to the
+        // list of prototype tables
+        selectedPrototypeTables.addAll(affectedTables);
 
-        return prototStructTables;
+        System.out.println("\nReferenced:"); // TODO
+        // Step through each selected table and its descendant table(s) (if any). Information on
+        // the tables and the prototypes of their descendants is required when determining
+        // structure size and alignment
+        for (String table : instanceTree.getTablesWithChildren(selectedPrototypeTables))
+        {
+            // Get the prototype for the table
+            String protoTable = TableInformation.getPrototypeName(table);
+
+            // Check if the list doesn't already contain this prototype table
+            if (!referencedPrototypeTables.contains(protoTable))
+            {
+                System.out.println(" " + protoTable); // TODO
+                // Add the prototype table to the list
+                referencedPrototypeTables.add(protoTable);
+            }
+        }
+
+        // Sort the lists alphabetically
+        Collections.sort(selectedPrototypeTables, String.CASE_INSENSITIVE_ORDER);
+        Collections.sort(referencedPrototypeTables, String.CASE_INSENSITIVE_ORDER);
+
+        // Perform the padding operation
+        new CcddPaddingVariableHandler(ccddMain,
+                                       padOpType,
+                                       selectedPrototypeTables,
+                                       referencedPrototypeTables,
+                                       CcddPaddingDialog.this);
     }
 }

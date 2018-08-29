@@ -11,6 +11,7 @@ import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
+import static CCDD.CcddConstants.TABLE_ICON;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -39,6 +40,7 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddCommandHandler.CommandInformation;
 import CCDD.CcddConstants.CommandInformationTableColumnInfo;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
@@ -62,9 +64,6 @@ public class CcddCommandDialog extends CcddDialogHandler
 
     // Components referenced from multiple methods
     private JLabel numCommandsLbl;
-
-    // Commands table data
-    private Object[][] tableData;
 
     /**********************************************************************************************
      * Command information dialog class constructor
@@ -204,7 +203,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                         // the editors and renderers for the table cells, set up the table grid
                         // lines, and calculate the minimum width required to display the table
                         // information
-                        setUpdatableCharacteristics(tableData,
+                        setUpdatableCharacteristics(getCommands(),
                                                     CommandInformationTableColumnInfo.getColumnNames(),
                                                     null,
                                                     CommandInformationTableColumnInfo.getToolTips(),
@@ -271,9 +270,6 @@ public class CcddCommandDialog extends CcddDialogHandler
                     }
                 };
 
-                // Get the project's commands
-                tableData = getCommands();
-
                 // Place the table into a scroll pane
                 JScrollPane scrollPane = new JScrollPane(commandTable);
 
@@ -303,10 +299,13 @@ public class CcddCommandDialog extends CcddDialogHandler
                 gbc.gridy++;
                 dialogPnl.add(commandsTblPnl, gbc);
 
+                // Create a table opener for the Open tables command
+                final TableOpener opener = new TableOpener();
+
                 // Show commands button
                 btnShow = CcddButtonPanelHandler.createButton("Show",
                                                               RENAME_ICON,
-                                                              KeyEvent.VK_O,
+                                                              KeyEvent.VK_W,
                                                               "Show the project commands");
 
                 // Add a listener for the Show button
@@ -319,9 +318,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
 
-                        // Get the commands (matching the filtering tables, if applicable) and
-                        // display them in the table
-                        tableData = getCommands();
+                        // Display the commands, matching the filtering tables, if applicable
                         commandTable.loadAndFormatData();
                     }
                 });
@@ -331,6 +328,26 @@ public class CcddCommandDialog extends CcddDialogHandler
                                                                        PRINT_ICON,
                                                                        KeyEvent.VK_P,
                                                                        "Print the command information");
+
+                // Open table(s) button
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                                                      "Open the table(s) associated with the selected search result(s)");
+
+                // Add a listener for the Open button
+                btnOpen.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Open the selected table(s)
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        opener.openTables(commandTable,
+                                          CommandInformationTableColumnInfo.COMMAND_TABLE.ordinal());
+                    }
+                });
 
                 // Add a listener for the Print button
                 btnPrint.addActionListener(new ActionListener()
@@ -373,6 +390,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                 // Add the buttons to the dialog's button panel
                 buttonPnl.setBorder(emptyBorder);
                 buttonPnl.add(btnShow);
+                buttonPnl.add(btnOpen);
                 buttonPnl.add(btnPrint);
                 buttonPnl.add(btnClose);
             }

@@ -96,29 +96,29 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.isDataTypePrimitive(dataType);
     }
 
-    public static boolean isDataTypeInteger(String dataTypeName)
+    public static boolean isDataTypeInteger(String dataType)
     {
-        return accessHandler.isDataTypeInteger(dataTypeName);
+        return accessHandler.isDataTypeInteger(dataType);
     }
 
-    public static boolean isDataTypeUnsignedInt(String dataTypeName)
+    public static boolean isDataTypeUnsignedInt(String dataType)
     {
-        return accessHandler.isDataTypeUnsignedInt(dataTypeName);
+        return accessHandler.isDataTypeUnsignedInt(dataType);
     }
 
-    public static boolean isDataTypeFloat(String dataTypeName)
+    public static boolean isDataTypeFloat(String dataType)
     {
-        return accessHandler.isDataTypeFloat(dataTypeName);
+        return accessHandler.isDataTypeFloat(dataType);
     }
 
-    public static boolean isDataTypeCharacter(String dataTypeName)
+    public static boolean isDataTypeCharacter(String dataType)
     {
-        return accessHandler.isDataTypeCharacter(dataTypeName);
+        return accessHandler.isDataTypeCharacter(dataType);
     }
 
-    public static boolean isDataTypeString(String dataTypeName)
+    public static boolean isDataTypeString(String dataType)
     {
-        return accessHandler.isDataTypeString(dataTypeName);
+        return accessHandler.isDataTypeString(dataType);
     }
 
     public static String getCDataType(String dataType)
@@ -346,14 +346,19 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getCommandArgArraySize(argumentNumber, row);
     }
 
-    public static String getCommandbitLengthSize(int argumentNumber, int row)
+    public static String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
+    {
+        return accessHandler.getCommandArgArraySizeWithMacros(argumentNumber, row);
+    }
+
+    public static String getCommandArgBitLength(int argumentNumber, int row)
     {
         return accessHandler.getCommandArgBitLength(argumentNumber, row);
     }
 
-    public static String getCommandArgArraySizeWithMacros(int argumentNumber, int row)
+    public static String getCommandArgBitLengthWithMacros(int argumentNumber, int row)
     {
-        return accessHandler.getCommandArgArraySizeWithMacros(argumentNumber, row);
+        return accessHandler.getCommandArgBitLengthWithMacros(argumentNumber, row);
     }
 
     public static String getCommandArgEnumeration(int argumentNumber, int row)
@@ -550,6 +555,11 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getStructureTableITOSPathByRowWithMacros(row);
     }
 
+    public static int getStructureParentRowByChildRow(int row)
+    {
+        return accessHandler.getStructureParentRowByChildRow(row);
+    }
+
     public static boolean isStructureShared(String structureName)
     {
         return accessHandler.isStructureShared(structureName);
@@ -558,6 +568,11 @@ public class CcddScriptDataAccessHandlerStatic
     public static String[] getVariablePaths()
     {
         return accessHandler.getVariablePaths();
+    }
+
+    public static String[] getCommandInformation()
+    {
+        return accessHandler.getCommandInformation();
     }
 
     public static String[] getTableDataFieldNames(String tableName)
@@ -573,6 +588,11 @@ public class CcddScriptDataAccessHandlerStatic
     public static String[] getTypeDataFieldNames(String typeName)
     {
         return accessHandler.getTypeDataFieldNames(typeName);
+    }
+
+    public static String[] getProjectFieldNames()
+    {
+        return accessHandler.getProjectFieldNames();
     }
 
     public static String[][] getTableDataFieldValues(String fieldName)
@@ -610,6 +630,11 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getTypeDataFieldValue(typeName, fieldName);
     }
 
+    public static String getProjectDataFieldValue(String fieldName)
+    {
+        return accessHandler.getProjectDataFieldValue(fieldName);
+    }
+
     public static String getTableDataFieldDescription(String tableName, String fieldName)
     {
         return accessHandler.getTableDataFieldDescription(tableName, fieldName);
@@ -623,6 +648,11 @@ public class CcddScriptDataAccessHandlerStatic
     public static String getTypeDataFieldDescription(String typeName, String fieldName)
     {
         return accessHandler.getTypeDataFieldDescription(typeName, fieldName);
+    }
+
+    public static String getProjectDataFieldDescription(String fieldName)
+    {
+        return accessHandler.getProjectDataFieldDescription(fieldName);
     }
 
     public static String getStructureTableData(String columnName, int row)
@@ -804,7 +834,7 @@ public class CcddScriptDataAccessHandlerStatic
         accessHandler.closeFile(printWriter);
     }
 
-    public String[][] getProjectFields()
+    public static String[][] getProjectFields()
     {
         return accessHandler.getProjectFields();
     }
@@ -913,9 +943,9 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getTelemetryMessageIDs(streamName);
     }
 
-    public static String[][] getMessageIDOwnersIDsAndNames()
+    public static String[][] getMessageOwnersIDsAndNames()
     {
-        return accessHandler.getMessageIDOwnersIDsAndNames();
+        return accessHandler.getMessageOwnersIDsAndNames();
     }
 
     public static String[] getDataStreamNames()
@@ -948,7 +978,7 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getNumberOfTimeSlots();
     }
 
-    public String getPrototypeName(String tableName)
+    public static String getPrototypeName(String tableName)
     {
         return TableInformation.getPrototypeName(tableName);
     }
@@ -985,6 +1015,19 @@ public class CcddScriptDataAccessHandlerStatic
                    classification1,
                    classification2,
                    classification3);
+    }
+
+    public static void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem,
+                                                String classification,
+                                                String validationStatus,
+                                                String version,
+                                                String date) throws CCDDException
+    {
+        accessHandler.xtceAddSpaceSystemHeader(spaceSystem,
+                                               classification,
+                                               validationStatus,
+                                               version,
+                                               date);
     }
 
     public static void xtceCreateTelemetryMetadata(SpaceSystemType spaceSystem)
@@ -1092,19 +1135,19 @@ public class CcddScriptDataAccessHandlerStatic
                                                stringSize);
     }
 
-    public static void createCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
+    public static void xtceCreateCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
     {
         accessHandler.xtceCreateCommandMetadata(spaceSystem);
     }
 
-    protected static void addSpaceSystemCommands(SpaceSystemType spaceSystem,
-                                                 String[][] tableData,
-                                                 int cmdNameColumn,
-                                                 int cmdCodeColumn,
-                                                 int cmdDescColumn,
-                                                 boolean isCmdHeader,
-                                                 String cmdHdrSysPath,
-                                                 String applicationID) throws CCDDException
+    protected static void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
+                                                     String[][] tableData,
+                                                     int cmdNameColumn,
+                                                     int cmdCodeColumn,
+                                                     int cmdDescColumn,
+                                                     boolean isCmdHeader,
+                                                     String cmdHdrSysPath,
+                                                     String applicationID) throws CCDDException
     {
         accessHandler.xtceAddSpaceSystemCommands(spaceSystem,
                                                  tableData,

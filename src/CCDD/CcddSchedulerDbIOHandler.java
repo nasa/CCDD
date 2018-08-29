@@ -481,19 +481,17 @@ public class CcddSchedulerDbIOHandler
                     String[] app = new String[2];
 
                     // Store the message name, and application name, rate, run time, priority,
-                    // wake-up name, wake-up ID, send rate, housekeeping wake-up name, housekeeping
-                    // wake-up ID, and schedule group name
+                    // wake-up message name & ID, send rate, housekeeping wake-up message name &
+                    // ID, and schedule group name
                     app[AppSchedulerColumn.TIME_SLOT.ordinal()] = message.getName();
                     app[AppSchedulerColumn.APP_INFO.ordinal()] = appData.getFullName() + ","
                                                                  + appData.getRate() + ","
                                                                  + appData.getSize() + ","
                                                                  + appData.getPriority() + ","
                                                                  + appData.getMessageRate() + ","
-                                                                 + appData.getWakeUpName() + ","
-                                                                 + appData.getWakeUpID() + ","
+                                                                 + appData.getWakeUpMessage() + ","
                                                                  + appData.getHkSendRate() + ","
-                                                                 + appData.getHkWakeUpName() + ","
-                                                                 + appData.getHkWakeUpID() + ","
+                                                                 + appData.getHkWakeUpMessage() + ","
                                                                  + appData.getSchGroup();
 
                     // Add the application to the list

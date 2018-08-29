@@ -10,6 +10,7 @@ package CCDD;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -211,6 +212,7 @@ public class CcddCommandHandler
      *********************************************************************************************/
     protected void buildCommandList()
     {
+        boolean hasCmdTable = false;
         commandInformation = new ArrayList<CommandInformation>();
 
         // Create the query command to obtain the command information from the project database
@@ -225,6 +227,9 @@ public class CcddCommandHandler
             // Check if the table type represents a command
             if (typeDefn != null && typeDefn.isCommand())
             {
+                // Set the flag to indicate the project has a command table
+                hasCmdTable = true;
+
                 // Get the column indices for the command argument names
                 List<Integer> argNameColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.ARGUMENT_NAME);
 
@@ -259,7 +264,7 @@ public class CcddCommandHandler
                 // Append the command to obtain the specified column information from the command
                 // table
                 command += "(SELECT '"
-                           + namesAndType[1]
+                           + namesAndType[0]
                            + "' AS command_table, "
                            + columnNames
                            + " FROM "
@@ -268,78 +273,82 @@ public class CcddCommandHandler
             }
         }
 
-        // Clean up the command
-        command = CcddUtilities.removeTrailer(command, " UNION ALL ") + ") AS cmds;";
-
-        try
+        // Check if the project has a command table
+        if (hasCmdTable)
         {
-            // Perform the query to obtain the command information for all commands defined in the
-            // project
-            ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command,
-                                                                               ccddMain.getMainFrame());
+            // Clean up the command
+            command = CcddUtilities.removeTrailer(command, " UNION ALL ") + ") AS cmds;";
 
-            // Check if a comment exists
-            while (commands.next())
+            try
             {
-                // Add the command's information to the list
-                commandInformation.add(new CommandInformation(commands.getString(1),
-                                                              commands.getString(2),
-                                                              commands.getString(3),
-                                                              commands.getString(4)
-                                                                      .replaceAll("^\\s|\\s$",
-                                                                                  "")));
-            }
-        }
-        catch (SQLException se)
-        {
-            // Inform the user an error occurred obtaining the command information
-            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Cannot obtain command information",
-                                                      "Query Fail",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-        }
+                // Perform the query to obtain the command information for all commands defined in
+                // the project
+                ResultSet commands = ccddMain.getDbCommandHandler().executeDbQuery(command,
+                                                                                   ccddMain.getMainFrame());
 
-        // Sort the command information
-        commandInformation.sort(new Comparator<CommandInformation>()
-        {
-            /**************************************************************************************
-             * Sort the command information by command name; if the same then by command code; if
-             * the same then by table name
-             *************************************************************************************/
-            @Override
-            public int compare(CommandInformation cmd1, CommandInformation cmd2)
-            {
-                // Compare the command names
-                int result = cmd1.getCommandName().compareToIgnoreCase(cmd2.getCommandName());
-
-                // Check if the table names are the same
-                if (result == 0)
+                // Check if a comment exists
+                while (commands.next())
                 {
-                    // Compare the command codes, converting them to integer values first (unless
-                    // blank)
-                    result = cmd1.getCommandCode().isEmpty()
-                             || cmd2.getCommandCode().isEmpty()
-                                                                ? cmd1.getCommandCode().compareToIgnoreCase(cmd2.getCommandCode())
-                                                                : (Integer.decode(cmd1.getCommandCode()) > Integer.decode(cmd2.getCommandCode())
-                                                                                                                                                 ? 1
-                                                                                                                                                 : -1);
+                    // Add the command's information to the list
+                    commandInformation.add(new CommandInformation(commands.getString(1),
+                                                                  commands.getString(2),
+                                                                  commands.getString(3),
+                                                                  commands.getString(4)
+                                                                          .replaceAll("^\\s|\\s$",
+                                                                                      "")));
+                }
+            }
+            catch (SQLException se)
+            {
+                // Inform the user an error occurred obtaining the command information
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Cannot obtain command information",
+                                                          "Query Fail",
+                                                          JOptionPane.ERROR_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
 
-                    // Check if the command codes are the same
+            // Sort the command information
+            Collections.sort(commandInformation, new Comparator<CommandInformation>()
+            {
+                /**********************************************************************************
+                 * Sort the command information by command name; if the same then by command code;
+                 * if the same then by table name
+                 *********************************************************************************/
+                @Override
+                public int compare(CommandInformation cmd1, CommandInformation cmd2)
+                {
+                    // Compare the command names
+                    int result = cmd1.getCommandName().compareToIgnoreCase(cmd2.getCommandName());
+
+                    // Check if the table names are the same
                     if (result == 0)
                     {
-                        // Compare the table names
-                        result = cmd1.getTable().compareToIgnoreCase(cmd2.getTable());
+                        // Compare the command codes, converting them to integer values first
+                        // (unless blank)
+                        result = cmd1.getCommandCode().isEmpty()
+                                 || cmd2.getCommandCode().isEmpty()
+                                                                    ? cmd1.getCommandCode().compareToIgnoreCase(cmd2.getCommandCode())
+                                                                    : (Integer.decode(cmd1.getCommandCode()) > Integer.decode(cmd2.getCommandCode())
+                                                                                                                                                     ? 1
+                                                                                                                                                     : -1);
+
+                        // Check if the command codes are the same
+                        if (result == 0)
+                        {
+                            // Compare the table names
+                            result = cmd1.getTable().compareToIgnoreCase(cmd2.getTable());
+                        }
                     }
+
+                    return result;
                 }
+            });
 
-                return result;
-            }
-        });
-
-        // Add the command information to the command references input type and refresh any open
-        // editors
-        ccddMain.getInputTypeHandler().updateCommandReferences();
-        ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
+            // Add the command information to the command references input type and refresh any
+            // open editors
+            ccddMain.getInputTypeHandler().updateCommandReferences();
+            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
+        }
     }
 }

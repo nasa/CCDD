@@ -341,9 +341,6 @@ public class CcddCommonTreeHandler extends JTree
     /**********************************************************************************************
      * Store the current tree expansion state
      *
-     * @param tree
-     *            reference to the tree for which to obtain the expansion state
-     *
      * @return String representing the current tree expansion state
      *********************************************************************************************/
     protected String getExpansionState()
@@ -369,9 +366,6 @@ public class CcddCommonTreeHandler extends JTree
 
     /**********************************************************************************************
      * Restore the tree expansion state
-     *
-     * @param tree
-     *            reference to the tree for which to restore the expansion state
      *
      * @param expState
      *            string representing the desired tree expansion state

@@ -2359,7 +2359,7 @@ public abstract class CcddJTableHandler extends JTable
      * Update the flags indicating the state of the control and shift modifier keys. The modifier's
      * flag is set to true if the key is pressed while no other modifier keys are pressed
      *
-     * @param keyEvent
+     * @param ke
      *            key event
      *********************************************************************************************/
     private void updateModifierKeyStates(KeyEvent ke)
@@ -3791,8 +3791,8 @@ public abstract class CcddJTableHandler extends JTable
      * @param isSelected
      *            true if the cell is to be rendered with the selection highlighted
      *
-     * @param int
-     *            row cell row, view coordinates
+     * @param row
+     *            cell row, view coordinates
      *
      * @param column
      *            cell column, view coordinates

@@ -416,9 +416,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      * Create an assignment tree panel. The table tree is placed in a scroll pane. A check box is
      * added that allows tree expansion/collapse
      *
-     * @param label
-     *            assignment tree title
-     *
      * @param selectionMode
      *            tree item selection mode (single versus multiple)
      *

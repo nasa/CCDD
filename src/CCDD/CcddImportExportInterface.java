@@ -44,7 +44,7 @@ public interface CcddImportExportInterface
      * @param importFile
      *            reference to the user-specified input file
      *
-     * @param importAll
+     * @param importType
      *            ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
      *            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
      *            only the data for the first table defined
@@ -61,9 +61,9 @@ public interface CcddImportExportInterface
      *********************************************************************************************/
     abstract void importFromFile(FileEnvVar importFile,
                                  ImportType importType,
-                                 TypeDefinition targetTypeDefinition) throws CCDDException,
-                                                                      IOException,
-                                                                      Exception;
+                                 TypeDefinition targetTypeDefn) throws CCDDException,
+                                                                IOException,
+                                                                Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file

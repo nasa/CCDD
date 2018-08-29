@@ -888,8 +888,8 @@ public class CcddKeyboardHandler
      * it is included in order to eliminate the cell background color 'flash' that occurs when a
      * check box is toggled
      *
-     * @param table
-     *            reference to the table where the key press event occurred
+     * @param comp
+     *            reference to the component where the key press event occurred
      *
      * @return true if the key press event is handled by this method; false otherwise
      *********************************************************************************************/

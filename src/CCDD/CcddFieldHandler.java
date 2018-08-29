@@ -89,7 +89,9 @@ public class CcddFieldHandler
             // Step through each field
             for (FieldInformation info : fieldInfo)
             {
-                // Add the field to the copy
+                // Add the field to the copy (note that the input field reference isn't included in
+                // the copy - the input field only is stored in the field handler and the input
+                // field panel's field information)
                 fldInfo.add(new FieldInformation(info.getOwnerName(),
                                                  info.getFieldName(),
                                                  info.getDescription(),
@@ -98,7 +100,7 @@ public class CcddFieldHandler
                                                  info.isRequired(),
                                                  info.getApplicabilityType(),
                                                  info.getValue(),
-                                                 info.getInputFld()));
+                                                 null));
             }
         }
 
@@ -344,6 +346,21 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
+     * Get a copy of the list of field information for the specified owner
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
+     *
+     * @return Copy of the list of field information for the specified owner; an empty list if the
+     *         owner has no fields or the owner name is invalid
+     *********************************************************************************************/
+    protected List<FieldInformation> getFieldInformationByOwnerCopy(String ownerName)
+    {
+        return getFieldInformationCopy(getFieldInformationByOwner(ownerName));
+    }
+
+    /**********************************************************************************************
      * Replace the specified owner's current data fields with those in the supplied list
      *
      * @param ownerName
@@ -364,7 +381,7 @@ public class CcddFieldHandler
         fieldInformation.removeAll(oldOwnerFldInfo);
 
         // Add the owner's new fields
-        fieldInformation.addAll(newOwnerFldInfo);
+        fieldInformation.addAll(getFieldInformationCopy(newOwnerFldInfo));
     }
 
     /**********************************************************************************************
@@ -442,7 +459,6 @@ public class CcddFieldHandler
                                      List<FieldInformation> compFieldInfoB,
                                      boolean isIgnoreOwnerName)
     {
-
         // Set the change flag if the number of fields in the two field handlers differ
         boolean isFieldChanged = compFieldInfoA.size() != compFieldInfoB.size();
 
@@ -496,6 +512,7 @@ public class CcddFieldHandler
             // Step through each row in the editor data array
             for (Object[] data : fieldData)
             {
+                // Add the field information for this data field to the list
                 fieldInfo.add(new FieldInformation(ownerName,
                                                    data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                    data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
@@ -526,12 +543,12 @@ public class CcddFieldHandler
      *         the data field editor
      *********************************************************************************************/
     protected Object[][] getFieldEditorDefinition(String ownerName,
-                                                  List<FieldInformation> fieldinfo)
+                                                  List<FieldInformation> fieldInfo)
     {
         List<Object[]> definitions = new ArrayList<Object[]>();
 
         // Step through each of the owner's fields
-        for (FieldInformation fldInfo : fieldinfo)
+        for (FieldInformation fldInfo : fieldInfo)
         {
             // Create storage for a single field definition
             Object[] row = new Object[FieldEditorColumnInfo.values().length];

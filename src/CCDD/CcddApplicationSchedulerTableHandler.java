@@ -397,28 +397,16 @@ public class CcddApplicationSchedulerTableHandler
                             appData.setMessageRate(Integer.valueOf(appInfo.getValue()));
                         }
 
-                        // Get the wake-up name field information
+                        // Get the wake-up message name & ID field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         DefaultApplicationField.WAKE_UP_NAME.getFieldName());
+                                                                         DefaultApplicationField.WAKE_UP_MESSAGE.getFieldName());
 
-                        // Check if the application's wake-up name changed
+                        // Check if the application's wake-up message name & ID changed
                         if (appInfo != null
-                            && !appInfo.getValue().equals(appData.getWakeUpName()))
+                            && !appInfo.getValue().equals(appData.getWakeUpMessage()))
                         {
-                            // Update the application's wake-up name
-                            appData.setWakeUpName(appInfo.getValue());
-                        }
-
-                        // Get the wake-up ID field information
-                        appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         DefaultApplicationField.WAKE_UP_ID.getFieldName());
-
-                        // Check if the application's wake-up ID changed
-                        if (appInfo != null
-                            && !appInfo.getValue().equals(appData.getWakeUpID()))
-                        {
-                            // Update the application's wake-up ID
-                            appData.setWakeUpID(appInfo.getValue());
+                            // Update the application's wake-up message name & ID
+                            appData.setWakeUpMessage(appInfo.getValue());
                         }
 
                         // Get the HK send rate field information
@@ -433,28 +421,16 @@ public class CcddApplicationSchedulerTableHandler
                             appData.setHkSendRate(Integer.valueOf(appInfo.getValue()));
                         }
 
-                        // Get the HK wake-up name field information
+                        // Get the HK wake-up message name & ID field information
                         appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         DefaultApplicationField.HK_WAKE_UP_NAME.getFieldName());
+                                                                         DefaultApplicationField.HK_WAKE_UP_MESSAGE.getFieldName());
 
-                        // Check if the application's HK wake-up name changed
+                        // Check if the application's HK wake-up message name & ID changed
                         if (appInfo != null
-                            && !appInfo.getValue().equals(appData.getHkWakeUpName()))
+                            && !appInfo.getValue().equals(appData.getHkWakeUpMessage()))
                         {
-                            // Update the application's HK wake-up name
-                            appData.setHkWakeUpName(appInfo.getValue());
-                        }
-
-                        // Get the HK wake-up ID field information
-                        appInfo = fieldHandler.getFieldInformationByName(application,
-                                                                         DefaultApplicationField.HK_WAKE_UP_ID.getFieldName());
-
-                        // Check if the application's HK wake-up ID changed
-                        if (appInfo != null
-                            && !appInfo.getValue().equals(appData.getHkWakeUpID()))
-                        {
-                            // Update the application's HK wake-up ID
-                            appData.setHkWakeUpID(appInfo.getValue());
+                            // Update the application's HK wake-up message name & ID
+                            appData.setHkWakeUpMessage(appInfo.getValue());
                         }
 
                         // Get the schedule group field information

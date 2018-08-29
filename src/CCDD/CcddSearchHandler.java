@@ -107,8 +107,6 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     /**********************************************************************************************
      * Set the reference to the event log to search
-     *
-     * @return Reference to the event log to search
      *********************************************************************************************/
     protected void setEventLog(CcddEventLogDialog eventLog)
     {

@@ -429,7 +429,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
             // Set the field information in the group handler
-            groupInfo.setFieldInformation(fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName())));
+            groupInfo.setFieldInformation(fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldGroupName(groupInfo.getName())));
         }
     }
 

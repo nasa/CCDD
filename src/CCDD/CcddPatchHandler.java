@@ -9,7 +9,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
-import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -23,15 +22,16 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.AccessLevel;
-import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.LinksColumn;
+import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
@@ -87,22 +87,29 @@ public class CcddPatchHandler
 
         // Patch #09272017: Update the data fields table applicability column to change "Parents
         // only" to "Roots only"
-        updateFieldApplicability();
+        // updateFieldApplicability();
 
         // Patch #11132017: Update the associations table to include a name column
-        updateAssociationsTable2();
+        // updateAssociationsTable2();
 
         // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
         updatePaddingVariables();
 
         // Patch #07242018: Update the database to support user access levels
         updateUserAccess();
+
+        // Patch #08292018: Change the message ID name input type to 'Text' and the message ID
+        // input type to 'Message name & ID' in the table type and data field tables
+        updateMessageNamesAndIDs();
     }
 
     /**********************************************************************************************
      * Backup the project database. Store the backup file in the folder specified in the program
      * preferences (or the CCDD start-up folder if no preference is specified). The file name is a
      * combination of the project's database name and the current date/time stamp
+     *
+     * @param dbControl
+     *            reference to the database control class
      *********************************************************************************************/
     private void backupDatabase(CcddDbControlHandler dbControl)
     {
@@ -137,6 +144,147 @@ public class CcddPatchHandler
                                                     + "_"
                                                     + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                     + FileExtension.DBU.getExtension()));
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the project database table type and data field table references to the message ID
+     * name and message ID input types. The message name and ID have been combined into a single
+     * input type, 'Message name & ID'. Change the message ID name input type to 'Text' and the
+     * message ID input type to 'Message name & ID'. Note that the original message ID names are no
+     * longer associated with the IDs; this must be done manually
+     *********************************************************************************************/
+    private void updateMessageNamesAndIDs() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+
+            // Determine if the table type or data field tables reference a message ID name or
+            // message ID input type, or if the application scheduler table has separate wake-up
+            // names and IDs
+            ResultSet msgData = dbCommand.executeDbQuery("SELECT 1 FROM "
+                                                         + InternalTable.TABLE_TYPES.getTableName()
+                                                         + " WHERE "
+                                                         + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                         + " = 'Message ID name' OR "
+                                                         + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                                         + " = 'Message ID' UNION SELECT 1 FROM "
+                                                         + InternalTable.FIELDS.getTableName()
+                                                         + " WHERE "
+                                                         + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                         + " = 'Message ID name' OR "
+                                                         + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                         + " = 'Message ID' UNION SELECT 1 FROM "
+                                                         + InternalTable.APP_SCHEDULER.getTableName()
+                                                         + " WHERE "
+                                                         + AppSchedulerColumn.APP_INFO.getColumnName()
+                                                         + " ~E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';",
+                                                         ccddMain.getMainFrame());
+
+            // Check if the patch hasn't already been applied
+            if (msgData.next())
+            {
+                msgData.close();
+
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the table type, data field, and "
+                                                                                       + "application scheduler tables message "
+                                                                                       + "name and IDs?<br><br></b>Changes "
+                                                                                       + "message ID name input type to 'Text' "
+                                                                                       + "and the message ID input type to "
+                                                                                       + "'Message name & ID'. Combines the "
+                                                                                       + "application scheduler wake-up "
+                                                                                       + "message name and ID pairs into a "
+                                                                                       + "single<br><b><i>Older versions of "
+                                                                                       + "CCDD are incompatible with this "
+                                                                                       + "project database after applying the "
+                                                                                       + "patch",
+                                                              "Apply Patch #08292018",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    throw new CCDDException("User elected to not install patch (#08292018)");
+                }
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Update the table type and data field tables. The message ID fields are changed
+                // to use the message name & ID type, and the message ID name fields are changed to
+                // use the text input type
+                dbCommand.executeDbCommand("UPDATE "
+                                           + InternalTable.TABLE_TYPES.getTableName()
+                                           + " SET "
+                                           + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                           + " = '"
+                                           + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                                           + "' WHERE "
+                                           + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                           + " = 'Message ID'; UPDATE "
+                                           + InternalTable.TABLE_TYPES.getTableName()
+                                           + " SET "
+                                           + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                           + " = '"
+                                           + DefaultInputType.TEXT.getInputName()
+                                           + "' WHERE "
+                                           + TableTypesColumn.INPUT_TYPE.getColumnName()
+                                           + " = 'Message ID name'; UPDATE "
+                                           + InternalTable.FIELDS.getTableName()
+                                           + " SET "
+                                           + FieldsColumn.FIELD_TYPE.getColumnName()
+                                           + " = '"
+                                           + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                                           + "' WHERE "
+                                           + FieldsColumn.FIELD_TYPE.getColumnName()
+                                           + " = 'Message ID'; UPDATE "
+                                           + InternalTable.FIELDS.getTableName()
+                                           + " SET "
+                                           + FieldsColumn.FIELD_TYPE.getColumnName()
+                                           + " = '"
+                                           + DefaultInputType.TEXT.getInputName()
+                                           + "' WHERE "
+                                           + FieldsColumn.FIELD_TYPE.getColumnName()
+                                           + " = 'Message ID name'; UPDATE "
+                                           + InternalTable.APP_SCHEDULER.getTableName()
+                                           + " SET "
+                                           + AppSchedulerColumn.APP_INFO.getColumnName()
+                                           + " = regexp_replace("
+                                           + AppSchedulerColumn.APP_INFO.getColumnName()
+                                           + ", E'([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*),([^,]*,[^,]*,[^,]*),([^,]*,.*)', '\\\\1 \\\\2 \\\\3', 'g') WHERE "
+                                           + AppSchedulerColumn.APP_INFO.getColumnName()
+                                           + " ~ E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';",
+                                           ccddMain.getMainFrame());
+
+                // Inform the user that updating the database table type, data field, and
+                // application scheduler tables completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' table type, data field, and application "
+                                                                   + "scheduler tables conversion complete");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            // Inform the user that adding access level support failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot update project '"
+                                                           + dbControl.getProjectName()
+                                                           + "' to change message name and IDs; cause '"
+                                                           + e.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot update project '</b>"
+                                                                  + dbControl.getProjectName()
+                                                                  + "<b>' to change message name and IDs "
+                                                                  + "(project database will be closed)");
+
+            throw new CCDDException();
         }
     }
 
@@ -262,6 +410,8 @@ public class CcddPatchHandler
             // Check if there are any pad variables using the old format in any structure table
             if (padData.next())
             {
+                padData.close();
+
                 // Check if the user elects to not apply the patch
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                               "<html><b>Apply patch to update padding variable names?<br><br></b>"
@@ -273,7 +423,6 @@ public class CcddPatchHandler
                                                               JOptionPane.QUESTION_MESSAGE,
                                                               DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                 {
-                    padData.close();
                     throw new CCDDException("User elected to not install patch (#06212018)");
                 }
 
@@ -341,8 +490,6 @@ public class CcddPatchHandler
                                                                    + dbControl.getProjectName()
                                                                    + "' padding variable conversion complete");
             }
-
-            padData.close();
         }
         catch (Exception e)
         {
@@ -359,211 +506,212 @@ public class CcddPatchHandler
         }
     }
 
-    /**********************************************************************************************
-     * Update the associations table to include a name column. Older versions of CCDD are not
-     * compatible with the project database after applying this patch
-     *
-     * @throws CCDDException
-     *             If the user elects to not install the patch or an error occurs while applying
-     *             the patch
-     *********************************************************************************************/
-    private void updateAssociationsTable2() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-
-            // Create lists to contain the old and new associations table items
-            List<String[]> tableData = new ArrayList<String[]>();
-
-            // Read the contents of the associations table
-            ResultSet assnsData = dbCommand.executeDbQuery("SELECT * FROM "
-                                                           + InternalTable.ASSOCIATIONS.getTableName()
-                                                           + " ORDER BY OID;",
-                                                           ccddMain.getMainFrame());
-
-            // Check if the patch hasn't already been applied
-            if (assnsData.getMetaData().getColumnCount() == 3)
-            {
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Apply patch to update the script "
-                                                                                       + "associations table?<br><br></b>"
-                                                                                       + "Incorporates a name column in the "
-                                                                                       + "script associations table.<br><b><i>Older "
-                                                                                       + "versions of CCDD will be incompatible "
-                                                                                       + "with this project database after "
-                                                                                       + "applying the patch",
-                                                              "Apply Patch #11132017",
-                                                              JOptionPane.QUESTION_MESSAGE,
-                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
-                {
-                    assnsData.close();
-                    throw new CCDDException("User elected to not install patch (#11132017)");
-                }
-
-                // Step through each of the query results
-                while (assnsData.next())
-                {
-                    // Create an array to contain the column values
-                    String[] columnValues = new String[4];
-
-                    // Step through each column in the row
-                    for (int column = 0; column < 3; column++)
-                    {
-                        // Add the column value to the array. Note that the first column's index in
-                        // the database is 1, not 0. Also, shift the old data over one column to
-                        // make room for the name
-                        columnValues[column + 1] = assnsData.getString(column + 1);
-
-                        // Check if the value is null
-                        if (columnValues[column] == null)
-                        {
-                            // Replace the null with a blank
-                            columnValues[column] = "";
-                        }
-                    }
-
-                    // Add the row data to the list
-                    tableData.add(columnValues);
-                }
-
-                assnsData.close();
-
-                // Check if there are any associations in the table
-                if (tableData.size() != 0)
-                {
-                    // Indicate in the log that the old data successfully loaded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      InternalTable.ASSOCIATIONS.getTableName()
-                                                   + " retrieved");
-                }
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Store the updated associations table
-                dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
-                                              tableData,
-                                              null,
-                                              ccddMain.getMainFrame());
-
-                // Inform the user that updating the database associations table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  "Project '"
-                                                                   + dbControl.getProjectName()
-                                                                   + "' associations table conversion complete");
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that converting the associations table failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '"
-                                                           + dbControl.getProjectName()
-                                                           + "' associations table to new format; cause '"
-                                                           + e.getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot convert project '</b>"
-                                                                  + dbControl.getProjectName()
-                                                                  + "<b>' associations table to new format "
-                                                                  + "(project database will be closed)");
-
-            throw new CCDDException();
-        }
-    }
-
-    /**********************************************************************************************
-     * Update the data fields table applicability column to change "Parents only" to "Roots only".
-     * Older versions of CCDD are not compatible with the project database after applying this
-     * patch
-     *
-     * @throws CCDDException
-     *             If the user elects to not install the patch or an error occurs while applying
-     *             the patch
-     *********************************************************************************************/
-    private void updateFieldApplicability() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-
-            // Read the contents of the data field table's applicability column
-            ResultSet fieldData = dbCommand.executeDbQuery("SELECT * FROM "
-                                                           + InternalTable.FIELDS.getTableName()
-                                                           + " WHERE "
-                                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                                           + " = 'Parents only';",
-                                                           ccddMain.getMainFrame());
-
-            // Check if the patch hasn't already been applied
-            if (fieldData.next())
-            {
-                // Check if the user elects to not apply the patch
-                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Apply patch to update the data "
-                                                                                       + "fields table?<br><br></b>Changes "
-                                                                                       + "data field applicability 'Parents "
-                                                                                       + "only' to 'Roots only'.<br><b><i>Older "
-                                                                                       + "versions of CCDD are imcompatible "
-                                                                                       + "with this project database after "
-                                                                                       + "applying the patch",
-                                                              "Apply Patch #09272017",
-                                                              JOptionPane.QUESTION_MESSAGE,
-                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
-                {
-                    fieldData.close();
-                    throw new CCDDException("User elected to not install patch (#09272017)");
-                }
-
-                fieldData.close();
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Update the data fields table
-                dbCommand.executeDbCommand("UPDATE "
-                                           + InternalTable.FIELDS.getTableName()
-                                           + " SET "
-                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                           + " = '"
-                                           + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                                           + "' WHERE "
-                                           + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
-                                           + " = 'Parents only';",
-                                           ccddMain.getMainFrame());
-
-                // Inform the user that updating the database data fields table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  "Project '"
-                                                                   + dbControl.getProjectName()
-                                                                   + "' data fields table conversion complete");
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that converting the data fields table failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '"
-                                                           + dbControl.getProjectName()
-                                                           + "' data fields table to new format; cause '"
-                                                           + e.getMessage()
-                                                           + "'",
-                                  "<html><b>Cannot convert project '</b>"
-                                                                  + dbControl.getProjectName()
-                                                                  + "<b>' data fields table to new format "
-                                                                  + "(project database will be closed)");
-
-            throw new CCDDException();
-        }
-    }
+    // /**********************************************************************************************
+    // * Update the associations table to include a name column. Older versions of CCDD are not
+    // * compatible with the project database after applying this patch
+    // *
+    // * @throws CCDDException
+    // * If the user elects to not install the patch or an error occurs while applying
+    // * the patch
+    // *********************************************************************************************/
+    // private void updateAssociationsTable2() throws CCDDException
+    // {
+    // CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+    // CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+    //
+    // try
+    // {
+    // CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+    // CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+    //
+    // // Create lists to contain the old and new associations table items
+    // List<String[]> tableData = new ArrayList<String[]>();
+    //
+    // // Read the contents of the associations table
+    // ResultSet assnsData = dbCommand.executeDbQuery("SELECT * FROM "
+    // + InternalTable.ASSOCIATIONS.getTableName()
+    // + " ORDER BY OID;",
+    // ccddMain.getMainFrame());
+    //
+    // // Check if the patch hasn't already been applied
+    // if (assnsData.getMetaData().getColumnCount() == 3)
+    // {
+    // // Check if the user elects to not apply the patch
+    // if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+    // "<html><b>Apply patch to update the script "
+    // + "associations table?<br><br></b>"
+    // + "Incorporates a name column in the "
+    // + "script associations table.<br><b><i>Older "
+    // + "versions of CCDD will be incompatible "
+    // + "with this project database after "
+    // + "applying the patch",
+    // "Apply Patch #11132017",
+    // JOptionPane.QUESTION_MESSAGE,
+    // DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+    // {
+    // assnsData.close();
+    // throw new CCDDException("User elected to not install patch (#11132017)");
+    // }
+    //
+    // // Step through each of the query results
+    // while (assnsData.next())
+    // {
+    // // Create an array to contain the column values
+    // String[] columnValues = new String[4];
+    //
+    // // Step through each column in the row
+    // for (int column = 0; column < 3; column++)
+    // {
+    // // Add the column value to the array. Note that the first column's index in
+    // // the database is 1, not 0. Also, shift the old data over one column to
+    // // make room for the name
+    // columnValues[column + 1] = assnsData.getString(column + 1);
+    //
+    // // Check if the value is null
+    // if (columnValues[column] == null)
+    // {
+    // // Replace the null with a blank
+    // columnValues[column] = "";
+    // }
+    // }
+    //
+    // // Add the row data to the list
+    // tableData.add(columnValues);
+    // }
+    //
+    // assnsData.close();
+    //
+    // // Check if there are any associations in the table
+    // if (tableData.size() != 0)
+    // {
+    // // Indicate in the log that the old data successfully loaded
+    // eventLog.logEvent(SUCCESS_MSG,
+    // InternalTable.ASSOCIATIONS.getTableName()
+    // + " retrieved");
+    // }
+    //
+    // // Back up the project database before applying the patch
+    // backupDatabase(dbControl);
+    //
+    // // Store the updated associations table
+    // dbTable.storeInformationTable(InternalTable.ASSOCIATIONS,
+    // tableData,
+    // null,
+    // ccddMain.getMainFrame());
+    //
+    // // Inform the user that updating the database associations table completed
+    // eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+    // "Project '"
+    // + dbControl.getProjectName()
+    // + "' associations table conversion complete");
+    // }
+    // }
+    // catch (Exception e)
+    // {
+    // // Inform the user that converting the associations table failed
+    // eventLog.logFailEvent(ccddMain.getMainFrame(),
+    // "Cannot convert project '"
+    // + dbControl.getProjectName()
+    // + "' associations table to new format; cause '"
+    // + e.getMessage()
+    // + "'",
+    // "<html><b>Cannot convert project '</b>"
+    // + dbControl.getProjectName()
+    // + "<b>' associations table to new format "
+    // + "(project database will be closed)");
+    //
+    // throw new CCDDException();
+    // }
+    // }
+    //
+    // /**********************************************************************************************
+    // * Update the data fields table applicability column to change "Parents only" to "Roots
+    // only".
+    // * Older versions of CCDD are not compatible with the project database after applying this
+    // * patch
+    // *
+    // * @throws CCDDException
+    // * If the user elects to not install the patch or an error occurs while applying
+    // * the patch
+    // *********************************************************************************************/
+    // private void updateFieldApplicability() throws CCDDException
+    // {
+    // CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+    // CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+    //
+    // try
+    // {
+    // CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+    //
+    // // Read the contents of the data field table's applicability column
+    // ResultSet fieldData = dbCommand.executeDbQuery("SELECT * FROM "
+    // + InternalTable.FIELDS.getTableName()
+    // + " WHERE "
+    // + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+    // + " = 'Parents only';",
+    // ccddMain.getMainFrame());
+    //
+    // // Check if the patch hasn't already been applied
+    // if (fieldData.next())
+    // {
+    // // Check if the user elects to not apply the patch
+    // if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+    // "<html><b>Apply patch to update the data "
+    // + "fields table?<br><br></b>Changes "
+    // + "data field applicability 'Parents "
+    // + "only' to 'Roots only'.<br><b><i>Older "
+    // + "versions of CCDD are incompatible "
+    // + "with this project database after "
+    // + "applying the patch",
+    // "Apply Patch #09272017",
+    // JOptionPane.QUESTION_MESSAGE,
+    // DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+    // {
+    // fieldData.close();
+    // throw new CCDDException("User elected to not install patch (#09272017)");
+    // }
+    //
+    // fieldData.close();
+    //
+    // // Back up the project database before applying the patch
+    // backupDatabase(dbControl);
+    //
+    // // Update the data fields table
+    // dbCommand.executeDbCommand("UPDATE "
+    // + InternalTable.FIELDS.getTableName()
+    // + " SET "
+    // + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+    // + " = '"
+    // + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
+    // + "' WHERE "
+    // + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+    // + " = 'Parents only';",
+    // ccddMain.getMainFrame());
+    //
+    // // Inform the user that updating the database data fields table completed
+    // eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+    // "Project '"
+    // + dbControl.getProjectName()
+    // + "' data fields table conversion complete");
+    // }
+    // }
+    // catch (Exception e)
+    // {
+    // // Inform the user that converting the data fields table failed
+    // eventLog.logFailEvent(ccddMain.getMainFrame(),
+    // "Cannot convert project '"
+    // + dbControl.getProjectName()
+    // + "' data fields table to new format; cause '"
+    // + e.getMessage()
+    // + "'",
+    // "<html><b>Cannot convert project '</b>"
+    // + dbControl.getProjectName()
+    // + "<b>' data fields table to new format "
+    // + "(project database will be closed)");
+    //
+    // throw new CCDDException();
+    // }
+    // }
     //
     // /**********************************************************************************************
     // * Update the associations table to include a description column and to change the table

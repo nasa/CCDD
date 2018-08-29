@@ -86,7 +86,7 @@ public class CcddImportSupportHandler
      *            current state of the flag that indicates if all table type errors should be
      *            ignored
      *
-     * @param defn
+     * @param tableTypeDefn
      *            reference to the TableTypeDefinition to which this column definition applies
      *
      * @param columnDefn

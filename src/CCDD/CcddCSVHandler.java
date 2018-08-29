@@ -1137,7 +1137,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 TableInformation tableInfo = dbTable.loadTableData(tblName,
                                                                    true,
                                                                    false,
-                                                                   true,
                                                                    parent);
 
                 // Check if the table's data successfully loaded

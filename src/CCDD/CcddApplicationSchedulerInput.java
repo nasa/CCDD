@@ -335,15 +335,11 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
                                             Integer.valueOf(getDataFieldValue(application,
                                                                               DefaultApplicationField.MESSAGE_RATE)),
                                             getDataFieldValue(application,
-                                                              DefaultApplicationField.WAKE_UP_NAME),
-                                            getDataFieldValue(application,
-                                                              DefaultApplicationField.WAKE_UP_ID),
+                                                              DefaultApplicationField.WAKE_UP_MESSAGE),
                                             Integer.valueOf(getDataFieldValue(application,
                                                                               DefaultApplicationField.HK_SEND_RATE)),
                                             getDataFieldValue(application,
-                                                              DefaultApplicationField.HK_WAKE_UP_NAME),
-                                            getDataFieldValue(application,
-                                                              DefaultApplicationField.HK_WAKE_UP_ID),
+                                                              DefaultApplicationField.HK_WAKE_UP_MESSAGE),
                                             getDataFieldValue(application,
                                                               DefaultApplicationField.SCH_GROUP)));
         }

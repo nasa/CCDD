@@ -332,7 +332,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      * @param labelText
      *            text to display beside the input field
      *
-     * @param initialValue
+     * @param intialName
      *            text to initially display in the name field
      *
      * @param dialogPnl
@@ -343,7 +343,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void addTypeNameField(String labelText,
                                   String intialName,
-                                  JPanel dialogPanel,
+                                  JPanel dialogPnl,
                                   GridBagConstraints dialogGbc)
     {
         // Set the initial layout manager characteristics
@@ -394,7 +394,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         dialogGbc.fill = GridBagConstraints.HORIZONTAL;
         dialogGbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         dialogGbc.insets.bottom = 0;
-        dialogPanel.add(pnl, dialogGbc);
+        dialogPnl.add(pnl, dialogGbc);
     }
 
     /**********************************************************************************************

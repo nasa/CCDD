@@ -24,8 +24,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +52,7 @@ import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -310,7 +309,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                                     // Check if the match is within a sizeof() call
                                     if (CcddVariableHandler.hasSizeof(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()],
-                                                                                       dataType))
+                                                                      dataType))
                                     {
                                         // Check if the table name hasn't already been added to the
                                         // list
@@ -899,7 +898,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                             }
 
                                             // Get the enumeration column index(ices), if present
-                                            List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
+                                            List<Integer> enumerationIndices = typeDefn.getColumnIndicesByInputTypeFormat(InputTypeFormat.ENUMERATION);
 
                                             // Step through each enumeration column
                                             for (int enumIndex : enumerationIndices)
@@ -1128,20 +1127,6 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
         // Enable item matching for the combo box
         baseComboBox.enableItemMatching(dataTypeTable);
-
-        // Add a listener to the combo box for focus changes
-        baseComboBox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                baseComboBox.showPopup();
-            }
-        });
 
         // Create the data type cell editor for base types
         baseTypeCellEditor = new DefaultCellEditor(baseComboBox);

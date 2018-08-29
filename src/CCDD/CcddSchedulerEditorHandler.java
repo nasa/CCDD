@@ -54,8 +54,8 @@ import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TelemetryData;
 import CCDD.CcddClassesDataTable.Variable;
 import CCDD.CcddClassesDataTable.VariableGenerator;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -1326,11 +1326,9 @@ public class CcddSchedulerEditorHandler
                                                                         + appData.getSize() + ","
                                                                         + appData.getPriority() + ","
                                                                         + appData.getMessageRate() + ","
-                                                                        + appData.getWakeUpID() + ","
-                                                                        + appData.getWakeUpName() + ","
+                                                                        + appData.getWakeUpMessage() + ","
                                                                         + appData.getHkSendRate() + ","
-                                                                        + appData.getHkWakeUpID() + ","
-                                                                        + appData.getHkWakeUpName() + ","
+                                                                        + appData.getHkWakeUpMessage() + ","
                                                                         + appData.getSchGroup());
                 }
 

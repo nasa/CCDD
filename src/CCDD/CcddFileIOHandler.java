@@ -1092,7 +1092,7 @@ public class CcddFileIOHandler
                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                       tableDefn.getDescription(),
                                                                       !tableDefn.getName().contains("."),
-                                                                      fieldHandler.getFieldInformationByOwner(tableDefn.getName()));
+                                                                      fieldHandler.getFieldInformationByOwnerCopy(tableDefn.getName()));
 
                     // Check if the new table is not a prototype. The prototype for the table and
                     // each of its ancestors need to be created if these don't exist
@@ -1156,7 +1156,7 @@ public class CcddFileIOHandler
                                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                                      "",
                                                                                      true,
-                                                                                     fieldHandler.getFieldInformationByOwner(typeAndVar[0]));
+                                                                                     fieldHandler.getFieldInformationByOwnerCopy(typeAndVar[0]));
 
                                 // Check if this is the child table and not one of its ancestors
                                 if (index == ancestors.length - 1)
@@ -1257,7 +1257,6 @@ public class CcddFileIOHandler
                             // prototype's data to the table. The data from the import file is
                             // pasted over the prototype's
                             TableInformation protoInfo = dbTable.loadTableData(tableInfo.getPrototypeName(),
-                                                                               false,
                                                                                false,
                                                                                false,
                                                                                ccddMain.getMainFrame());

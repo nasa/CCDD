@@ -1787,10 +1787,10 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Minimum/maximum pairing class constructor
          *
-         * @param minimum
+         * @param minColumn
          *            minimum value column index
          *
-         * @param maximum
+         * @param maxColumn
          *            maximum value column index
          *****************************************************************************************/
         MinMaxPair(int minColumn, int maxColumn)
@@ -2149,7 +2149,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the group description
          *
-         * @param pathName
+         * @param description
          *            group description
          *****************************************************************************************/
         protected void setDescription(String description)
@@ -2758,7 +2758,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the stream maximum messages per cycle
          *
-         * @param rateName
+         * @param maxMsgsPerCycle
          *            stream maximum messages per cycle
          *****************************************************************************************/
         protected void setMaxMsgsPerCycle(int maxMsgsPerCycle)
@@ -2779,7 +2779,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the stream maximum bytes per second
          *
-         * @param rateName
+         * @param maxBytesPerSec
          *            stream maximum bytes per second
          *****************************************************************************************/
         protected void setMaxBytesPerSec(int maxBytesPerSec)
@@ -2800,7 +2800,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the stream sample rate array
          *
-         * @param rateName
+         * @param sampleRates
          *            stream sample rate array
          *****************************************************************************************/
         protected void setSampleRates(String[] sampleRates)
@@ -3036,11 +3036,9 @@ public class CcddClassesDataTable
                                        Integer.valueOf(varData[DefaultApplicationField.EXECUTION_TIME.ordinal() + 1]),
                                        Integer.valueOf(varData[DefaultApplicationField.PRIORITY.ordinal() + 1]),
                                        Integer.valueOf(varData[DefaultApplicationField.MESSAGE_RATE.ordinal() + 1]),
-                                       varData[DefaultApplicationField.WAKE_UP_NAME.ordinal() + 1],
-                                       varData[DefaultApplicationField.WAKE_UP_ID.ordinal() + 1],
+                                       varData[DefaultApplicationField.WAKE_UP_MESSAGE.ordinal() + 1],
                                        Integer.valueOf(varData[DefaultApplicationField.HK_SEND_RATE.ordinal() + 1]),
-                                       varData[DefaultApplicationField.HK_WAKE_UP_NAME.ordinal() + 1],
-                                       varData[DefaultApplicationField.HK_WAKE_UP_ID.ordinal() + 1],
+                                       varData[DefaultApplicationField.HK_WAKE_UP_MESSAGE.ordinal() + 1],
                                        varData[DefaultApplicationField.SCH_GROUP.ordinal() + 1]);
         }
     }
@@ -3272,11 +3270,9 @@ public class CcddClassesDataTable
     {
         private int priority;
         private int messageRate;
-        private String wakeUpName;
-        private String wakeUpID;
+        private String wakeUpMessage;
         private int hkSendRate;
-        private String hkWakeUpName;
-        private String hkWakeUpID;
+        private String hkWakeUpMessage;
         private String schGroup;
 
         /******************************************************************************************
@@ -3297,20 +3293,14 @@ public class CcddClassesDataTable
          * @param messageRate
          *            message rate
          *
-         * @param wakeUpName
-         *            application wake-up name
-         *
-         * @param wakeUpID
-         *            application wake up ID
+         * @param wakeUpMessage
+         *            application wake-up message name and ID
          *
          * @param hkSendRate
          *            application housekeeping send rate
          *
-         * @param hkWakeUpName
-         *            application wake-up name
-         *
-         * @param hkWakeUpID
-         *            application wake up ID
+         * @param hkWakeUpMessage
+         *            application wake-up message name and ID
          *
          * @param schGroup
          *            application schedule group
@@ -3320,11 +3310,9 @@ public class CcddClassesDataTable
                         int runTime,
                         int priority,
                         int messageRate,
-                        String wakeUpname,
-                        String wakeUpID,
+                        String wakeUpMessage,
                         int hkSendRate,
-                        String hkWakeUpName,
-                        String hkWakeUpID,
+                        String hkWakeUpMessage,
                         String schGroup)
         {
             // Call the variable constructor
@@ -3332,11 +3320,9 @@ public class CcddClassesDataTable
 
             this.priority = priority;
             this.messageRate = messageRate;
-            this.wakeUpName = wakeUpname;
-            this.wakeUpID = wakeUpID;
+            this.wakeUpMessage = wakeUpMessage;
             this.hkSendRate = hkSendRate;
-            this.hkWakeUpName = hkWakeUpName;
-            this.hkWakeUpID = hkWakeUpID;
+            this.hkWakeUpMessage = hkWakeUpMessage;
             this.schGroup = schGroup;
         }
 
@@ -3383,45 +3369,34 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the application wake-up name
+         * Get the application wake-up message name & ID
          *
-         * @return Application wake-up name
+         * @return Application wake-up message name & ID
          *****************************************************************************************/
-        protected String getWakeUpName()
+        protected String getWakeUpMessage()
         {
-            return wakeUpName;
+            return wakeUpMessage;
         }
 
         /******************************************************************************************
-         * Set the application wake-up name
+         * Set the application wake-up message name & ID
          *
-         * @param schGroup
-         *            new application wake-up name
+         * @param wakeUpMessage
+         *            new application wake-up message name & ID
          *****************************************************************************************/
-        protected void setWakeUpName(String wakeUpName)
+        protected void setWakeUpMessage(String wakeUpMessage)
         {
-            this.wakeUpName = wakeUpName;
+            this.wakeUpMessage = wakeUpMessage;
         }
 
         /******************************************************************************************
-         * Get the application wake up ID
+         * Get the application wake-up message ID from the message name & ID
          *
-         * @return Application wake up ID
+         * @return Application wake-up message ID
          *****************************************************************************************/
         protected String getWakeUpID()
         {
-            return wakeUpID;
-        }
-
-        /******************************************************************************************
-         * Set the application wake up ID
-         *
-         * @param wakeUpID
-         *            new application wake up ID
-         *****************************************************************************************/
-        protected void setWakeUpID(String wakeUpID)
-        {
-            this.wakeUpID = wakeUpID;
+            return CcddMessageIDHandler.getMessageID(wakeUpMessage);
         }
 
         /******************************************************************************************
@@ -3437,7 +3412,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Set the application housekeeping send rate
          *
-         * @param schGroup
+         * @param hkSendRate
          *            new application housekeeping send rate
          *****************************************************************************************/
         protected void setHkSendRate(int hkSendRate)
@@ -3446,45 +3421,24 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the application housekeeping wake-up name
+         * Get the application housekeeping wake-up message name & ID
          *
-         * @return Application housekeeping wake-up name
+         * @return Application housekeeping wake-up message name & ID
          *****************************************************************************************/
-        protected String getHkWakeUpName()
+        protected String getHkWakeUpMessage()
         {
-            return hkWakeUpName;
+            return hkWakeUpMessage;
         }
 
         /******************************************************************************************
-         * Set the application housekeeping wake-up name
+         * Set the application housekeeping wake-up message name & ID
          *
-         * @param schGroup
-         *            new application housekeeping wake-up name
+         * @param hkWakeUpMessage
+         *            new application housekeeping wake-up message name & ID
          *****************************************************************************************/
-        protected void setHkWakeUpName(String hkName)
+        protected void setHkWakeUpMessage(String hkWakeUpMessage)
         {
-            this.hkWakeUpName = hkName;
-        }
-
-        /******************************************************************************************
-         * Get the application housekeeping wake-up ID
-         *
-         * @return Application housekeeping wake-up ID
-         *****************************************************************************************/
-        protected String getHkWakeUpID()
-        {
-            return hkWakeUpID;
-        }
-
-        /******************************************************************************************
-         * Set the application housekeeping wake-up ID
-         *
-         * @param schGroup
-         *            new application housekeeping wake-up ID
-         *****************************************************************************************/
-        protected void setHkWakeUpID(String hkID)
-        {
-            this.hkWakeUpID = hkID;
+            this.hkWakeUpMessage = hkWakeUpMessage;
         }
 
         /******************************************************************************************
@@ -4156,6 +4110,95 @@ public class CcddClassesDataTable
         protected String getRateName()
         {
             return rateName;
+        }
+    }
+
+    /**********************************************************************************************
+     * Table opener class. Used by dialogs with a table open button to open the selected table(s)
+     * into a table editor
+     *********************************************************************************************/
+    protected static class TableOpener
+    {
+        /******************************************************************************************
+         * Check if the table is applicable for opening. Override this method to include criteria
+         * that the table must meet or to alter the specified table name
+         *
+         * @param tableName
+         *            the raw value from the table cell specified as the table name column in the
+         *            openTables() method
+         *
+         * @return true if the table should be added to the list of ones to open
+         *****************************************************************************************/
+        protected boolean isApplicable(String tableName)
+        {
+            return true;
+        }
+
+        /******************************************************************************************
+         * Override this method to perform any clean up actions on the raw table name value
+         *
+         * @param tableName
+         *            the raw value from the table cell specified as the table name column in the
+         *            openTables() method
+         *
+         * @param row
+         *            table row index containing the raw table name value
+         *
+         * @return true if the table should be added to the list of ones to open
+         *****************************************************************************************/
+        protected String cleanUpTableName(String tableName, int row)
+        {
+            return tableName;
+        }
+
+        /******************************************************************************************
+         * Open the table(s) in the currently selected row(s)
+         *
+         * @param table
+         *            reference to the table containing the table name
+         *
+         * @param tableNameColumn
+         *            table column index containing the raw table name value
+         *****************************************************************************************/
+        protected void openTables(CcddJTableHandler table, int tableNameColumn)
+        {
+            List<String> tablePaths = new ArrayList<String>();
+
+            // Step through each row in the table
+            for (int row = 0; row < table.getRowCount(); row++)
+            {
+                // Check if the row is selected
+                if (table.isRowSelected(row))
+                {
+                    // Get the variable path for this row with the HTML tag removed
+                    String tableName = table.getModel()
+                                            .getValueAt(row, tableNameColumn)
+                                            .toString();
+
+                    // Check if the table meets the criteria for inclusion in the list of tables to
+                    // open
+                    if (isApplicable(tableName))
+                    {
+                        // Clean up the table name, if needed
+                        tableName = cleanUpTableName(tableName, row);
+
+                        // Check if the table isn't already in the list of those to be opened
+                        if (!tablePaths.contains(tableName))
+                        {
+                            // Add the table path to the list
+                            tablePaths.add(tableName);
+                        }
+                    }
+                }
+            }
+
+            // Check if any table is selected
+            if (!tablePaths.isEmpty())
+            {
+                // Load the selected table's data into a table editor
+                ccddMain.getDbTableCommandHandler().loadTableDataInBackground(tablePaths.toArray(new String[0]),
+                                                                              null);
+            }
         }
     }
 }

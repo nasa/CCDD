@@ -78,18 +78,18 @@ public interface CcddSchedulerInputInterface
     /**********************************************************************************************
      * Add the specified variable(s) to the excluded variable list
      *
-     * @param excludedVariable
+     * @param excludeVariable
      *            list containing the variable(s) to be excluded
      *********************************************************************************************/
-    abstract void excludeVariable(List<String> name);
+    abstract void excludeVariable(List<String> excludeVariable);
 
     /**********************************************************************************************
      * Remove the variable(s) from the excluded variable list
      *
-     * @param name
+     * @param includeVariable
      *            list of variables to be removed from the excluded variable list
      *********************************************************************************************/
-    abstract void includeVariable(List<String> name);
+    abstract void includeVariable(List<String> includeVariable);
 
     /**********************************************************************************************
      * Update the tree to display variables at the given rate

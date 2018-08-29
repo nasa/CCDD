@@ -273,6 +273,9 @@ public class CcddClassesComponent
         // Item matching the user's input criteria or list selection
         private String selection = null;
 
+        // Flag that indicates if any list item is HTML formatted
+        private boolean hasHTML = false;
+
         /******************************************************************************************
          * Padded combo box constructor with an empty list
          *
@@ -346,7 +349,7 @@ public class CcddClassesComponent
             {
                 // Get the preferred width of the combo box list. This accounts for the longest
                 // list item name in addition to the width of a scroll bar, even if not needed
-                int listWidth = getPreferredSize().width;
+                int listWidth = super.getPreferredSize().width;
 
                 // Check if the number of items in the list doesn't exceed the maximum, in which
                 // case no scroll bar appears
@@ -374,7 +377,7 @@ public class CcddClassesComponent
         public Dimension getPreferredSize()
         {
             return isItemMatchEnabled
-                                      ? super.getSize()
+                                      ? getSize()
                                       : super.getPreferredSize();
         }
 
@@ -511,12 +514,39 @@ public class CcddClassesComponent
             isPrefixChanging = false;
             selection = "";
             final List<String> inputItems = new ArrayList<String>();
+            final List<String> cleanInputItems;
 
             // Step through each combo box item
             for (int index = 0; index < getItemCount(); index++)
             {
+                // Check if the item is HTML tagged
+                if (getItemAt(index).startsWith("<html>"))
+                {
+                    // Set the flag to indicate an HTML tagged item exists in the list
+                    hasHTML = true;
+                }
+
                 // Add the item to the list
                 inputItems.add(getItemAt(index));
+            }
+
+            // Check if any list item is HTML tagged
+            if (hasHTML)
+            {
+                cleanInputItems = new ArrayList<String>();
+
+                // Step through each combo box item
+                for (int index = 0; index < getItemCount(); index++)
+                {
+                    // Add the item to the list with the HTML tags removed
+                    cleanInputItems.add(CcddUtilities.removeHTMLTags(getItemAt(index)));
+                }
+            }
+            // No item is HTML tagged
+            else
+            {
+                // Point the HTML-free list to the first list
+                cleanInputItems = inputItems;
             }
 
             // Set the combo box to be editable so that characters can be typed for item matching
@@ -541,6 +571,15 @@ public class CcddClassesComponent
                 }
 
                 /**********************************************************************************
+                 * Override to retrieve the item matching text field's contents
+                 *********************************************************************************/
+                @Override
+                public Object getItem()
+                {
+                    return matchFld.getText();
+                }
+
+                /**********************************************************************************
                  * Override so that the item matching text field's contents can be set
                  *********************************************************************************/
                 @Override
@@ -551,17 +590,20 @@ public class CcddClassesComponent
                     if (!isPrefixChanging && text != null)
                     {
                         // Store the text in the item matching text field
-                        matchFld.setText(text.toString());
+                        matchFld.setText(hasHTML
+                                                 ? CcddUtilities.removeHTMLTags(text.toString())
+                                                 : text.toString());
+                        // Check if the combo box is in a table cell
+                        if (table != null)
+                        {
+                            // Force the table to be redrawn. Without this call when another cell
+                            // is selected the table doesn't respond to the change (e.g., in
+                            // prepareRenderer() to alter cell background colors) unless the table
+                            // is forced to redraw my some other means (selecting another cell or
+                            // resizing the table)
+                            table.repaint();
+                        }
                     }
-                }
-
-                /**********************************************************************************
-                 * Override to retrieve the item matching text field's contents
-                 *********************************************************************************/
-                @Override
-                public Object getItem()
-                {
-                    return matchFld.getText();
                 }
 
                 /**********************************************************************************
@@ -622,8 +664,9 @@ public class CcddClassesComponent
                             @Override
                             public void run()
                             {
-                                // Step through each combo box item, skipping the initial blank
-                                // item
+                                // Step through each combo box item, leaving the initial item. If
+                                // all list items are removed a noticeable time penalty is incurred
+                                // for lists with a large number of items
                                 for (int index = getItemCount() - 1; index > 0; index--)
                                 {
                                     // Remove the item from the list
@@ -646,18 +689,23 @@ public class CcddClassesComponent
 
                                 // Step through each item in the input list, skipping the initial
                                 // blank (which is retained when removing the existing items above)
-                                for (int index = 1; index < inputItems.size(); index++)
+                                for (int index = 0; index < inputItems.size(); index++)
                                 {
-                                    // Check if the item matches the user's criteria. If no match
-                                    // criteria are supplied (i.e., the input is blank) then all
-                                    // items are considered a match
-                                    if (inputItems.get(index).matches(typedChars)
+                                    // Check if the item matches the user's criteria (use the list
+                                    // that has any HTML tags removed so that the HTML formatting
+                                    // doesn't alter the match check). If no match criteria are
+                                    // supplied (i.e., the input is blank) then all items are
+                                    // considered a match
+                                    if (cleanInputItems.get(index).matches(typedChars)
                                         || typedChars.isEmpty())
                                     {
                                         // Add the matching item to the list
                                         addItem(inputItems.get(index));
                                     }
                                 }
+
+                                // Remove the initial list item that wasn't removed above
+                                removeItemAt(0);
 
                                 // Get the first matching item. This is used as the selected item
                                 // if the focus is changed from the input field
@@ -700,6 +748,9 @@ public class CcddClassesComponent
                         // box
                         ((ComboBoxCellEditor) table.getCellEditor()).allowCellEdit(false);
                     }
+
+                    // Display the drop down menu
+                    showPopup();
                 }
 
                 /**********************************************************************************
@@ -987,9 +1038,6 @@ public class CcddClassesComponent
 
         /******************************************************************************************
          * Create a check box color icon
-         *
-         * @param size
-         *            width and height of the icon in pixels
          *
          * @param borderColor
          *            color with which to outline the icon
@@ -3177,8 +3225,7 @@ public class CcddClassesComponent
             /**************************************************************************************
              * Get the reference to the tabbed pane
              *
-             * @param Reference
-             *            to the tabbed pan
+             * @return Reference to the tabbed pan
              *************************************************************************************/
             public DnDTabbedPane getTabbedPane()
             {
@@ -3799,8 +3846,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drag source drag event
          *
-         * @param dtde
-         *            drop target drop event
+         * @param dsde
+         *            drop source drop event
          *
          * @return Tab transfer data from the supplied drag source drag event
          *****************************************************************************************/
@@ -3825,8 +3872,8 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Get the tab transfer data from the supplied drag source drop event
          *
-         * @param dtde
-         *            drop target drop event
+         * @param dsde
+         *            drop source drop event
          *
          * @return Tab transfer data from the supplied drag source drop event
          *****************************************************************************************/

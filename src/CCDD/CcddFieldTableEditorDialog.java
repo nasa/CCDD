@@ -66,6 +66,7 @@ import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
@@ -688,6 +689,33 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 groupFilterCbx.addActionListener(filterListener);
                 typeFilterCbx.addActionListener(filterListener);
 
+                // Create a table opener for the Open tables command
+                final TableOpener opener = new TableOpener()
+                {
+                    /******************************************************************************
+                     * Include the structure path, is applicable, with the table name
+                     *****************************************************************************/
+                    @Override
+                    protected String cleanUpTableName(String tableName, int row)
+                    {
+                        // Check if the data field for this row belongs to a table (versus the
+                        // project, a group, or a table type)
+                        if (!ownerIsNotTable(tableName))
+                        {
+                            // Get the structure path for this row
+                            String path = dataFieldTable.getModel()
+                                                        .getValueAt(row,
+                                                                    FieldTableEditorColumnInfo.PATH.ordinal())
+                                                        .toString();
+
+                            // Add the table path to the list
+                            tableName = getOwnerWithPath(tableName, path);
+                        }
+
+                        return tableName;
+                    }
+                };
+
                 // Define the buttons for the lower panel: Select data fields button
                 JButton btnSelect = CcddButtonPanelHandler.createButton("Select",
                                                                         OK_ICON,
@@ -757,7 +785,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     @Override
                     protected void performAction(ActionEvent ae)
                     {
-                        openTables();
+                        opener.openTables(dataFieldTable,
+                                          FieldTableEditorColumnInfo.OWNER.ordinal());
                     }
                 });
 
@@ -1377,51 +1406,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         cellSelect = dataFieldTable.getUndoHandler().new UndoableCellSelection();
 
         return scrollPane;
-    }
-
-    /**********************************************************************************************
-     * Open the table(s) associated with the selected data fields
-     *********************************************************************************************/
-    private void openTables()
-    {
-        List<String> tablePaths = new ArrayList<String>();
-
-        // Step through each row in the table
-        for (int row = 0; row < dataFieldTable.getRowCount(); row++)
-        {
-            // Step through each column in the table
-            for (int column = 0; column < dataFieldTable.getColumnCount(); column++)
-            {
-                // Get the owner for this row
-                String ownerName = dataFieldTable.getModel()
-                                                 .getValueAt(row,
-                                                             FieldTableEditorColumnInfo.OWNER.ordinal())
-                                                 .toString();
-
-                // Check if the cell at these coordinates is selected and that the data field for
-                // this row belongs to a table (versus the project, a group, or a table type)
-                if (dataFieldTable.isCellSelected(dataFieldTable.convertRowIndexToView(row), column)
-                    && !ownerIsNotTable(ownerName))
-                {
-                    // Get the structure path for this row
-                    String path = dataFieldTable.getModel()
-                                                .getValueAt(row,
-                                                            FieldTableEditorColumnInfo.PATH.ordinal())
-                                                .toString();
-
-                    // Add the table path to the list and stop checking the columns in this row
-                    tablePaths.add(getOwnerWithPath(ownerName, path));
-                    break;
-                }
-            }
-        }
-
-        // Check if any table/field is selected
-        if (!tablePaths.isEmpty())
-        {
-            // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
-        }
     }
 
     /**********************************************************************************************

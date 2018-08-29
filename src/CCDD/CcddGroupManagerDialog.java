@@ -69,6 +69,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
+import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 import CCDD.CcddUndoHandler.UndoableTreePathSelection;
 
 /**************************************************************************************************
@@ -103,12 +104,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
     private UndoableTreePathSelection nodeSelect;
 
-    // Group information and group fields stored in the database
-    private List<String[]> committedGroups;
-    private List<GroupInformation> committedGroupFields;
+    // Group definitions and group information stored in the database
+    private List<String[]> committedGroupDefns;
+    private List<GroupInformation> committedGroupInfo;
 
-    // Current group field definitions
-    private List<String[]> currentGroups;
+    // Current group definitions
+    private List<String[]> currentGroupDefns;
 
     // Node selection change in progress flag
     private boolean isNodeSelectionChanging;
@@ -174,12 +175,16 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Update the group's data field information in the field handler
-            fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(selectedGroup.getName()),
-                                                        selectedGroup.getFieldInformation());
-
             // Store the groups in the committed groups list
             copyGroupInformation();
+
+            // Step through each group
+            for (GroupInformation groupInfo : committedGroupInfo)
+            {
+                // Update the group's data field information in the field handler
+                fieldHandler.replaceFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()),
+                                                            groupInfo.getFieldInformation());
+            }
 
             // Remove any group names from the deleted groups list
             deletedGroups.clear();
@@ -211,21 +216,20 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void copyGroupInformation()
     {
-        committedGroupFields = new ArrayList<GroupInformation>();
+        committedGroupInfo = new ArrayList<GroupInformation>();
 
         // Store the group definitions
-        committedGroups = groupTree.createDefinitionsFromTree();
+        committedGroupDefns = groupTree.createDefinitionsFromTree();
 
         // Step through each group
         for (GroupInformation groupInfo : groupHandler.getGroupInformation())
         {
             // Create a copy of the group information and store it in the committed group list
-            GroupInformation newInfo = new GroupInformation(groupInfo.getName(),
-                                                            null,
-                                                            null,
-                                                            null,
-                                                            CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
-            committedGroupFields.add(newInfo);
+            committedGroupInfo.add(new GroupInformation(groupInfo.getName(),
+                                                        null,
+                                                        null,
+                                                        null,
+                                                        CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation())));
         }
     }
 
@@ -334,10 +338,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             updateSelectedGroupInformation();
 
                             // Update the description field text so that it can be undone/redone.
-                            // The focus change, which is usually used to perform the update,
-                            // occurs after the node selection edit and would cause the wrong
-                            // description field to be changed
-                            fieldPnlHndlr.updateDescriptionField(true);
+                            // The focus change, which is usually used to perform the text update,
+                            // occurs after the node selection edit action, causing the wrong
+                            // description field to be changed. The description text is only placed
+                            // on the stack if edit is active for the description field (i.e., it
+                            // doesn't have the focus)
+                            fieldPnlHndlr.updateDescriptionField(fieldPnlHndlr.isDescriptionFocusOwner());
 
                             // Get the name of the selected group(s)
                             String[] selected = getTopLevelSelectedNodeNames();
@@ -458,8 +464,14 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Set the undo/redo manager and handler for the description and data field values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
-                // Create the description and data fields
-                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain, groupMgr, null, null, null);
+                // Create the description and data field panel. Since no group is initially
+                // selected the owner, description, and data fields are null
+                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,
+                                                          groupMgr,
+                                                          null,
+                                                          null,
+                                                          null,
+                                                          null);
 
                 // Set the modal undo manager in the keyboard handler while the group manager is
                 // active
@@ -497,10 +509,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        // Check if the application check box is selected and a group is
+                        // Check if the application check box is selected and a single group is
                         // selected
-                        if (((JCheckBox) ae.getSource()).isSelected()
-                            && selectedGroup != null)
+                        if (((JCheckBox) ae.getSource()).isSelected() && selectedGroup != null)
                         {
                             // The application check box selection and the added CFS application
                             // data fields should be a single edit action so that both are removed
@@ -663,6 +674,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Set the undo manager in the keyboard handler back to the group manager
                         ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
 
+                        // Update the group's field information
+                        selectedGroup.setFieldInformation(fieldPnlHndlr.getPanelFieldInformation());
+
                         // Enable/disable the Clear values button depending on if any data fields
                         // remain
                         btnClearValues.setEnabled(!fieldPnlHndlr.getPanelFieldInformation().isEmpty());
@@ -706,10 +720,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     {
                         undoManager.undo();
 
-                        // Update the group selection following an undo
-                        undoHandler.setAllowUndo(false);
-                        groupTree.updateTableSelection();
-                        undoHandler.setAllowUndo(true);
+                        // Check if a single group is selected
+                        if (selectedGroup != null)
+                        {
+                            // Restore the group's data field information to that currently
+                            // displayed following the undo operation (in case there's a change)
+                            selectedGroup.setFieldInformation(fieldPnlHndlr.getPanelFieldInformation());
+                        }
 
                         // Update the data field background colors
                         fieldPnlHndlr.setFieldBackgound();
@@ -773,7 +790,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         {
                             // Store the group list into the database
                             dbTable.storeInformationTableInBackground(InternalTable.GROUPS,
-                                                                      currentGroups,
+                                                                      currentGroupDefns,
                                                                       updateFields,
                                                                       deletedGroups,
                                                                       null,
@@ -913,11 +930,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     private void recreateDataFieldPanel(boolean undoable)
     {
         // Rebuild the data field panel using the data fields for the selected group (display an
-        // empty field panel if no group is selected)
+        // empty field panel if a single group isn't selected)
         fieldPnlHndlr.createDataFieldPanel(undoable,
                                            (selectedGroup != null
                                                                   ? selectedGroup.getFieldInformation()
-                                                                  : new ArrayList<FieldInformation>(0)));
+                                                                  : null));
 
         // Validate the dialog to redraw the description and field area correctly Update the
         // dialog's minimum size to accommodate the change in the size or number of data fields,
@@ -944,10 +961,14 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void enableApplicationCheckBox(boolean enable, boolean isApplication)
     {
+        // Enable or disable the check box based on the input flag
         applicationCb.setEnabled(enable);
-        applicationCb.setSelected(enable
-                                         ? isApplication
-                                         : false);
+
+        // Use the model so that the check box selection action isn't stored on the undo/redo stack
+        ((UndoableToggleButtonModel) applicationCb.getModel()).setSelected((enable
+                                                                                   ? isApplication
+                                                                                   : false),
+                                                                           false);
     }
 
     /**********************************************************************************************
@@ -1298,8 +1319,11 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // are restored together
                 undoHandler.setAutoEndEditSequence(false);
 
+                // Get a reference to the renamed group
+                GroupInformation renamedGroup = groupHandler.getGroupInformationByName(selected[0]);
+
                 // Rename the group
-                groupHandler.getGroupInformationByName(selected[0]).setName(groupNameFld.getText());
+                renamedGroup.setName(groupNameFld.getText());
                 groupTree.renameRootChildNode(selected[0], groupNameFld.getText());
 
                 // Add the original name to the list of deleted groups so that the group's data
@@ -1307,8 +1331,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 deletedGroups.add(selected[0]);
 
                 // Step through each data field in the renamed group
-                for (FieldInformation fieldInfo : groupHandler.getGroupInformationByName(groupNameFld.getText()).getFieldInformation())
+                for (FieldInformation fieldInfo : renamedGroup.getFieldInformation())
                 {
+                    // Update the field's owner in the field handler's
+                    fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
+                                                           fieldInfo.getFieldName())
+                                .setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
+
                     // Set the data field owner to the renamed group's name so that the group's
                     // data fields will be created in the internal data fields table
                     fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
@@ -1375,14 +1404,20 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Copy the group node in the group tree
                 groupTree.copyNodeTree(groupInfo.getName(), groupNameFld.getText(), groupInfo);
 
+                // Get a reference to the copy of the group
+                GroupInformation copiedGroup = groupHandler.getGroupInformationByName(groupNameFld.getText());
+
                 // Copy the target group's data fields to the copy of the group
-                groupHandler.getGroupInformationByName(groupNameFld.getText()).setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
+                copiedGroup.setFieldInformation(CcddFieldHandler.getFieldInformationCopy(groupInfo.getFieldInformation()));
 
                 // Step through each data field in the copied group
-                for (FieldInformation fieldInfo : groupHandler.getGroupInformationByName(groupNameFld.getText()).getFieldInformation())
+                for (FieldInformation fieldInfo : copiedGroup.getFieldInformation())
                 {
                     // Set the data field owner to the copy's group name
                     fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
+
+                    // Add the field to the field handler
+                    fieldHandler.getFieldInformation().add(fieldInfo);
                 }
 
                 // Update the group dialog's change indicator
@@ -1517,7 +1552,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void updateSelectedGroupInformation()
     {
-        // Check if a group is selected
+        // Check if a single group is selected
         if (selectedGroup != null)
         {
             // Set the group's CFS application status
@@ -1545,22 +1580,22 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         updateSelectedGroupInformation();
 
         // Get the current group definitions from the group tree
-        currentGroups = groupTree.createDefinitionsFromTree();
+        currentGroupDefns = groupTree.createDefinitionsFromTree();
 
         // Initialize the change flag to true if the number of current and committed group
         // definitions differ
-        boolean hasChanges = currentGroups.size() != committedGroups.size();
+        boolean hasChanges = currentGroupDefns.size() != committedGroupDefns.size();
 
         // Check if the number of groups is the same
         if (!hasChanges)
         {
             // Step through the current group list
-            for (String[] curGrp : currentGroups)
+            for (String[] curGrp : currentGroupDefns)
             {
                 boolean isFound = false;
 
                 // Step through the committed group list
-                for (String[] comGrp : committedGroups)
+                for (String[] comGrp : committedGroupDefns)
                 {
                     // Check if the current group entry matches the committed group entry
                     if (Arrays.equals(curGrp, comGrp))
@@ -1582,13 +1617,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         }
 
         // Get the reference to the updated group information
-        List<GroupInformation> currentGroupFields = groupHandler.getGroupInformation();
+        List<GroupInformation> currentGroupInfo = groupHandler.getGroupInformation();
 
         // Create storage for the updated data fields
         updateFields = new ArrayList<List<FieldInformation>>();
 
         // Step through each current group
-        for (GroupInformation currentInfo : currentGroupFields)
+        for (GroupInformation currentInfo : currentGroupInfo)
         {
             boolean isDiffers = false;
 
@@ -1596,7 +1631,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             String groupName = currentInfo.getName();
 
             // Get a reference to the group's committed information
-            GroupInformation committedInfo = groupHandler.getGroupInformationByName(committedGroupFields,
+            GroupInformation committedInfo = groupHandler.getGroupInformationByName(committedGroupInfo,
                                                                                     groupName);
 
             // Check if the group isn't new

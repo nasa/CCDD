@@ -807,7 +807,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Create the table tree selection panel
      *
-     * @param labeltext
+     * @param labelText
      *            label to display above the table tree
      *
      * @param tableSelect
@@ -815,8 +815,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *
      * @return JPanel containing the selection panel
      *********************************************************************************************/
-    private JPanel createSelectionPanel(String labelText,
-                                        int tableSelect)
+    private JPanel createSelectionPanel(String labelText, int tableSelect)
     {
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,

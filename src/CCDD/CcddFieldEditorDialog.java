@@ -52,6 +52,7 @@ import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -100,6 +101,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // field editor update
     private Object[][] currentData;
 
+    // List of the owner's current field information
+    private final List<FieldInformation> fieldInformation;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Data Field Editor";
 
@@ -115,7 +119,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      * @param ownerName
      *            table name, including the path if this is a structure type table, or group name
      *
-     * @param fieldInfo
+     * @param fieldInformation
      *            list of the owner's current field information
      *
      * @param includeApplicability
@@ -127,19 +131,24 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     CcddFieldEditorDialog(CcddMain ccddMain,
                           CcddInputFieldPanelHandler fieldPnlHandler,
                           String ownerName,
-                          List<FieldInformation> fieldInfo,
+                          List<FieldInformation> fieldInformation,
                           boolean includeApplicability,
                           int minimumWidth)
     {
-        keyboardHandler = ccddMain.getKeyboardHandler();
-        inputTypeHandler = ccddMain.getInputTypeHandler();
-        fieldHandler = ccddMain.getFieldHandler();
         this.fieldPnlHndlr = fieldPnlHandler;
         this.ownerName = ownerName;
         this.includeApplicability = includeApplicability;
+        this.fieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldInformation);
+        keyboardHandler = ccddMain.getKeyboardHandler();
+        inputTypeHandler = ccddMain.getInputTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
+
+        // Set the field information in the undo handler in case an undo or redo is performed
+        fieldPnlHandler.getUndoFieldPanel()
+                       .setUndoFieldInformation(CcddFieldHandler.getFieldInformationCopy(fieldInformation));
 
         // Create the data field editor dialog
-        initialize(fieldInfo, minimumWidth);
+        initialize(minimumWidth);
     }
 
     /**********************************************************************************************
@@ -148,10 +157,10 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      * @param minimumWidth
      *            minimum pixel width of the caller
      *********************************************************************************************/
-    private void initialize(List<FieldInformation> fieldInfo, final int minimumWidth)
+    private void initialize(final int minimumWidth)
     {
         // Convert the owner's current field information into the format for the editor table
-        currentData = fieldHandler.getFieldEditorDefinition(ownerName, fieldInfo);
+        currentData = fieldHandler.getFieldEditorDefinition(ownerName, fieldInformation);
 
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()
@@ -210,12 +219,13 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 // Check that the table has rows
                 if (fieldTable.getRowCount() != 0)
                 {
-                    // Get the text in the input type column
-                    String cellValue = fieldTable.getValueAt(row, inputTypeIndex).toString();
-
                     // Check if the row represents a separator or line break
-                    if (cellValue.equals(DefaultInputType.SEPARATOR.getInputName())
-                        || cellValue.equals(DefaultInputType.BREAK.getInputName()))
+                    if (column != FieldEditorColumnInfo.APPLICABILITY.ordinal()
+                        && inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row,
+                                                                                     inputTypeIndex)
+                                                                         .toString())
+                                           .getInputFormat()
+                                           .equals(InputTypeFormat.PAGE_FORMAT))
                     {
                         // Set the flag to indicate this cell is not editable
                         isEditable = false;
@@ -413,8 +423,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         found = false;
 
                         // Check if the type is a separator or line break
-                        if (fieldTable.getValueAt(row, column).equals(DefaultInputType.SEPARATOR.getInputName())
-                            || fieldTable.getValueAt(row, column).equals(DefaultInputType.BREAK.getInputName()))
+                        if (inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row,
+                                                                                      column)
+                                                                          .toString())
+                                            .getInputFormat()
+                                            .equals(InputTypeFormat.PAGE_FORMAT))
                         {
                             found = true;
                         }
@@ -622,7 +635,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    0,
                                                    DefaultInputType.SEPARATOR.getInputName(),
                                                    false,
-                                                   "",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
                                                    ""});
             }
         });
@@ -649,7 +662,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    0,
                                                    DefaultInputType.BREAK.getInputName(),
                                                    false,
-                                                   "",
+                                                   ApplicabilityType.ALL.getApplicabilityName(),
                                                    ""});
             }
         });
@@ -785,10 +798,20 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
         // correctly identified
         currentData = fieldTable.getTableData(true);
 
+        // Clear the current field information. This is done so the the variable's reference isn't
+        // changed
+        fieldInformation.clear();
+
+        // Step through each of the supplied data field's information
+        for (FieldInformation fieldInfo : fieldHandler.getFieldInformationFromData(currentData,
+                                                                                   ownerName))
+        {
+            // Add the data field information to the list
+            fieldInformation.add(fieldInfo);
+        }
+
         // Rebuild the data field panel in the table editor using the current text field contents
-        fieldPnlHndlr.createDataFieldPanel(true,
-                                           fieldHandler.getFieldInformationFromData(currentData,
-                                                                                    ownerName));
+        fieldPnlHndlr.createDataFieldPanel(true, fieldInformation);
 
         // Update the size of the data field owner to accommodate a field wider than the owner's
         // minimum width. Adding a field can require an increase in the owner's height. This

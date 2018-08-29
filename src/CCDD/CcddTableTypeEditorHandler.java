@@ -199,15 +199,15 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the table type name
      *
-     * @param table
+     * @param tableTypeName
      *            table type name
      *********************************************************************************************/
-    protected void setTableTypeName(String name)
+    protected void setTableTypeName(String tableTypeName)
     {
-        tableTypeName = name;
+        this.tableTypeName = tableTypeName;
 
         // Set the JTable name so that table change events can be identified with this table
-        table.setName(name);
+        table.setName(tableTypeName);
 
         // Check if the table type has uncommitted changes
         if (isTableChanged())
@@ -220,15 +220,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
     /**********************************************************************************************
      * Set the committed table information
-     *
-     * @param info
-     *            table information class for extracting the current table name, type, column
-     *            order, and description
      *********************************************************************************************/
     private void setCommittedInformation()
     {
-        // Create a new field handler and copy the current field information into it
-        committedFieldInfo = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeName));
+        // Store the current field information
+        committedFieldInfo = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableTypeName));
 
         // Check if the table has been created
         if (table != null)
@@ -473,7 +469,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                       || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.PRIM_AND_STRUCT.getInputName())
                                       || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.ARRAY_INDEX.getInputName())
                                       || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.BIT_LENGTH.getInputName())
-                                      || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.ENUMERATION.getInputName())
+                                      || inputTypeHandler.getInputTypeByName(rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()).getInputFormat().equals(DefaultInputType.ENUMERATION.getInputFormat())
                                       || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.RATE.getInputName())
                                       || rowData[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].equals(DefaultInputType.VARIABLE_PATH.getInputName()));
 
@@ -791,7 +787,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                                                                                                                                 ? TYPE_COMMAND
                                                                                                                                                                 : TYPE_OTHER)),
                                                                 inputTypeHandler,
-                                                                inputTypeHandler.getInputTypeByName(table.getValueAt(row, inputTypeIndex).toString())))
+                                                                inputTypeHandler.getInputTypeByName(table.getValueAt(row,
+                                                                                                                     inputTypeIndex)
+                                                                                                         .toString())))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.TYPE_REQUIRED_BACK.getColor());
@@ -862,7 +860,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                     || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.PRIM_AND_STRUCT))
                                     || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ARRAY_INDEX))
                                     || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BIT_LENGTH))
-                                    || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION))
+                                    || inputType.getInputFormat().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.ENUMERATION).getInputFormat())
                                     || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE_PATH)))
                                 {
                                     // Select the structure and pointer allowed check boxes since
@@ -936,7 +934,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                     editorDialog,
                                     scrollPane,
                                     CcddFieldHandler.getFieldTypeName(tableTypeName),
-                                    committedDescription);
+                                    committedDescription,
+                                    committedFieldInfo);
 
         // Set the JTable name so that table change events can be identified with this table
         setTableTypeName(tableTypeName);
@@ -973,7 +972,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         // type
                         if (table.getModel().getValueAt(tableRow,
                                                         TableTypeEditorColumnInfo.INPUT_TYPE.ordinal())
-                                 .equals(defColumn.getInputType().getInputName()))
+                                 .toString().equals(defColumn.getInputType().getInputName()))
                         {
                             // Set the flag to indicate the target table type input type is in use
                             // and stop searching

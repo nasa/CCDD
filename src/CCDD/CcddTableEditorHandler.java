@@ -12,7 +12,7 @@ import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.PAD_VARIABLE;
+import static CCDD.CcddConstants.PAD_VARIABLE_MATCH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
@@ -404,8 +404,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Set the reference to the editor dialog to which this editor belongs
      *
-     * @param Reference
-     *            to the editor dialog to which this editor belongs
+     * @param editorDialog
+     *            reference to the editor dialog to which this editor belongs
      *********************************************************************************************/
     protected void setEditorDialog(CcddTableEditorDialog editorDialog)
     {
@@ -415,8 +415,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Enable/disable editing of the table
      *
-     * @param true
-     *            to enable normal editing of the table, false to disable editing
+     * @param enable
+     *            true to enable normal editing of the table, false to disable editing
      *********************************************************************************************/
     protected void setTableEditEnable(boolean enable)
     {
@@ -650,8 +650,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void updateTableFieldInformationFromHandler()
     {
-        currentTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwner(currentTableInfo.getTablePath()));
-        committedTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwner(currentTableInfo.getTablePath()));
+        currentTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwnerCopy(currentTableInfo.getTablePath()));
+        committedTableInfo.setFieldInformation(CcddFieldHandler.getFieldInformationCopy(currentTableInfo.getFieldInformation()));
     }
 
     /**********************************************************************************************
@@ -823,7 +823,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             dataTypeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
             arraySizeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
             bitLengthIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.BIT_LENGTH);
-            enumerationIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
+            enumerationIndex = typeDefn.getColumnIndicesByInputTypeFormat(InputTypeFormat.ENUMERATION);
             rateIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE);
         }
         // The table doesn't represent a structure
@@ -840,7 +840,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         }
 
         // Get the list of message names & IDs column(s)
-        msgIDNameIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID_NAMES_AND_IDS);
+        msgIDNameIndex = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_REFERENCE);
 
         // Set the variable path column index. This column is only active for a structure table,
         // but can appear in other table types (if the column is added to a structure type and then
@@ -874,7 +874,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         getSpecialColumnIndices();
 
         // Update the current and committed field information
-        currentTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwner(tblInfo.getTablePath()));
+        currentTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwnerCopy(tblInfo.getTablePath()));
         setCommittedInformation(tblInfo);
 
         // Get the variable path separators and (re)create the variable path column content, if
@@ -926,7 +926,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             // Update the input types in the field handlers (committed and active)
             fieldHandler.updateFieldInputTypes(inputTypeNames,
                                                committedTableInfo.getFieldInformation());
-            fieldHandler.updateFieldInputTypes(inputTypeNames, currentTableInfo.getFieldInformation());
+            fieldHandler.updateFieldInputTypes(inputTypeNames,
+                                               currentTableInfo.getFieldInformation());
 
             // Redraw the data field panel
             createDataFieldPanel(false, currentTableInfo.getFieldInformation());
@@ -1559,10 +1560,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                          && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
                          && !typeDefn.isPointerAllowed()[column])
 
-                    // This is an array definition, and the input type is 'message ID' or is the
-                    // variable path
+                    // This is an array definition, and the input type is for the message name & ID
+                    // or is the variable path - the members of an array can have a message name &
+                    // ID or variable path, but not the array's definition
                      || ((isArrayDefinition
-                          && (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID))
+                          && (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
                               || column == variablePathIndex)))
 
                     // This is the bit length cell and either the array size is present or the data
@@ -1886,15 +1888,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                     + "<b>'; characters consistent with input type '</b>"
                                                     + typeDefn.getInputTypes()[column].getInputName()
                                                     + "<b>' expected");
-                        }
-
-                        // Check if this is a message ID name column
-                        if (msgIDNameIndex.contains(column))
-                        {
-                            // The message ID, which is included with the ID name in the combo box
-                            // list, doesn't appear when the item is selected from the list, so
-                            // remove the ID
-                            newValueS = newValueS.replaceFirst(" \\(.*", "");
                         }
                     }
 
@@ -2387,8 +2380,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // variable
                     else if (variableNameIndex != -1
                              && getExpandedValueAt(table.convertRowIndexToModel(row),
-                                                   variableNameIndex).matches(PAD_VARIABLE
-                                                                              + "(?:\\[[0-9]+\\])?$"))
+                                                   variableNameIndex).matches(PAD_VARIABLE_MATCH))
                     {
                         // Change the cell's background color
                         comp.setBackground(ModifiableColorInfo.PADDING_BACK.getColor());
@@ -3622,8 +3614,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             createDescAndDataFieldPanel(ccddMain,
                                         editorDialog,
                                         scrollPane,
-                                        currentTableInfo.getProtoVariableName(),
-                                        currentTableInfo.getDescription());
+                                        committedTableInfo.getProtoVariableName(),
+                                        committedTableInfo.getDescription(),
+                                        committedTableInfo.getFieldInformation());
+
+            // Set the current table information's field information to reference the input panel
+            // field information
+            currentTableInfo.setFieldInformation(getPanelFieldInformation());
 
             // Set the dialog name so that this dialog can be recognized as being open by the table
             // selection dialog, and the JTable name so that table change events can be identified
@@ -4240,7 +4237,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             for (; minIndex < table.getModel().getColumnCount(); minIndex++)
             {
                 // Check that this is a minimum column
-                if (typeDefn.getInputTypes()[minIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MINIMUM)))
+                if (typeDefn.getInputTypes()[minIndex].getInputFormat().equals(InputTypeFormat.MINIMUM))
                 {
                     // Save the minimum column index, increment the index for matching up with the
                     // next pairing, and stop searching
@@ -4254,7 +4251,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             for (; maxIndex < table.getModel().getColumnCount(); maxIndex++)
             {
                 // Check that this is a maximum column
-                if (typeDefn.getInputTypes()[maxIndex].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MAXIMUM)))
+                if (typeDefn.getInputTypes()[maxIndex].getInputFormat().equals(InputTypeFormat.MAXIMUM))
                 {
                     // Save the maximum column index, increment the index for matching up with the
                     // next pairing, and stop searching
@@ -4332,7 +4329,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Validate changes to the command argument minimum and maximum value columns
+     * Validate changes to an associated pair of minimum and maximum value columns
      *
      * @param tableData
      *            list containing the table data row arrays
@@ -5069,7 +5066,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param tableData
      *            list containing the table data row arrays
      *
-     * @param row
+     * @param firstRow
      *            table model row index for the array definition or for the first member of a
      *            string array
      *
@@ -5083,9 +5080,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         if (!typeDefn.isRowValueUnique()[columnChanged])
         {
             // Get the variable name
-            String variableName = getExpandedValueAt(tableData,
-                                                     firstRow,
-                                                     variableNameIndex);
+            String variableName = getExpandedValueAt(tableData, firstRow, variableNameIndex);
 
             // Set to true if the updated row is the array's definition. Set to false to indicate
             // that only the members of the string indicated by the specified row are to be updated

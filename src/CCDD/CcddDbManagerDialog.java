@@ -31,8 +31,6 @@ import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -816,7 +814,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *            dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
     private void addDatabaseInputFields(String nameText,
-                                        JPanel dialogPanel,
+                                        JPanel dialogPnl,
                                         boolean enabled,
                                         GridBagConstraints dialogGbc)
     {
@@ -899,7 +897,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         dialogGbc.gridwidth = GridBagConstraints.REMAINDER;
         dialogGbc.fill = GridBagConstraints.HORIZONTAL;
         dialogGbc.insets.bottom = 0;
-        dialogPanel.add(nameDescPnl, dialogGbc);
+        dialogPnl.add(nameDescPnl, dialogGbc);
 
         // Add a listener for radio button selection change events
         addPropertyChangeListener(new PropertyChangeListener()
@@ -1512,20 +1510,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         // Enable item matching for the combo box
         userComboBox.enableItemMatching(accessTable);
 
-        // Add a listener to the combo box for focus changes
-        userComboBox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                userComboBox.showPopup();
-            }
-        });
-
         // Create the cell editor for access levels
         userNameCellEditor = new DefaultCellEditor(userComboBox);
 
@@ -1541,20 +1525,6 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
         // Enable item matching for the combo box
         accessComboBox.enableItemMatching(accessTable);
-
-        // Add a listener to the combo box for focus changes
-        accessComboBox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                accessComboBox.showPopup();
-            }
-        });
 
         // Create the cell editor for user names
         accessLevelCellEditor = new DefaultCellEditor(accessComboBox);

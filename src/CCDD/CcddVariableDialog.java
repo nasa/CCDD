@@ -15,6 +15,7 @@ import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
 import static CCDD.CcddConstants.STORE_ICON;
+import static CCDD.CcddConstants.TABLE_ICON;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
@@ -46,6 +47,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -53,6 +55,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddConstants.VariablePathTableColumnInfo;
 
 /**************************************************************************************************
  * CFS Command & Data Dictionary variable paths & names dialog class
@@ -293,13 +296,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                         // lines, and calculate the minimum width required to display the table
                         // information
                         setUpdatableCharacteristics(tableData,
-                                                    new String[] {"Application Format",
-                                                                  "User Format"},
+                                                    VariablePathTableColumnInfo.getColumnNames(),
                                                     null,
-                                                    new String[] {"Variable name with structure path "
-                                                                  + "as defined within the application",
-                                                                  "Variable name with structure path "
-                                                                                                         + "as specified by user input"},
+                                                    VariablePathTableColumnInfo.getToolTips(),
                                                     false,
                                                     true,
                                                     true);
@@ -338,10 +337,36 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.gridy++;
                 dialogPnl.add(variablesTblPnl, gbc);
 
+                // Create a table opener for the Open tables command
+                final TableOpener opener = new TableOpener()
+                {
+                    /******************************************************************************
+                     * Clean up the table name
+                     *****************************************************************************/
+                    @Override
+                    protected String cleanUpTableName(String tableName, int row)
+                    {
+                        // Remove the HTML tags from the table name
+                        tableName = CcddUtilities.removeHTMLTags(tableName);
+
+                        // Get the index of the last variable name in the path
+                        int varIndex = tableName.lastIndexOf(",");
+
+                        // Check if the path contains a variable name
+                        if (varIndex != -1)
+                        {
+                            // Remove the last variable name from the path, leaving the table name
+                            tableName = tableName.substring(0, varIndex);
+                        }
+
+                        return tableName;
+                    }
+                };
+
                 // Show variables button
                 btnShow = CcddButtonPanelHandler.createButton("Show",
                                                               RENAME_ICON,
-                                                              KeyEvent.VK_O,
+                                                              KeyEvent.VK_W,
                                                               "Show the project variables");
 
                 // Add a listener for the Show button
@@ -377,6 +402,26 @@ public class CcddVariableDialog extends CcddDialogHandler
                             tableData = getVariables();
                             variableTable.loadAndFormatData();
                         }
+                    }
+                });
+
+                // Open table(s) button
+                JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                                      TABLE_ICON,
+                                                                      KeyEvent.VK_O,
+                                                                      "Open the table(s) associated with the selected variable(s)");
+
+                // Add a listener for the Open button
+                btnOpen.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Open the selected table(s)
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        opener.openTables(variableTable,
+                                          VariablePathTableColumnInfo.APP_FORMAT.ordinal());
                     }
                 });
 
@@ -466,6 +511,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 // Add the buttons to the dialog's button panel
                 buttonPnl.setBorder(emptyBorder);
                 buttonPnl.add(btnShow);
+                buttonPnl.add(btnOpen);
                 buttonPnl.add(btnPrint);
                 buttonPnl.add(btnStore);
                 buttonPnl.add(btnCancel);

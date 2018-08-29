@@ -1879,7 +1879,6 @@ public class CcddDbVerificationHandler
                 TableInformation tableInfo = dbTable.loadTableData(tableTree.getFullVariablePath(path.getPath()),
                                                                    false,
                                                                    false,
-                                                                   false,
                                                                    ccddMain.getMainFrame());
 
                 // Check if the table loaded successfully and that the table has data
@@ -2314,7 +2313,7 @@ public class CcddDbVerificationHandler
      * @param arrayName
      *            array variable name
      *
-     * @param data
+     * @param dataType
      *            type array data type
      *********************************************************************************************/
     private void checkDataTypesMatch(TableInformation tableInfo,
@@ -2757,7 +2756,7 @@ public class CcddDbVerificationHandler
                                                                 OK_ICON,
                                                                 KeyEvent.VK_O,
                                                                 "Correct the inconsistencies");
-            btnOk.setEnabled(dbControl.isAccessAdmin());// TODO
+            btnOk.setEnabled(dbControl.isAccessAdmin());
 
             // Add a listener for the Okay button
             btnOk.addActionListener(new ActionListener()

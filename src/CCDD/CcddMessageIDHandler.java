@@ -10,6 +10,7 @@ package CCDD;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
@@ -23,6 +24,7 @@ import CCDD.CcddClassesDataTable.Message;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
@@ -125,6 +127,75 @@ public class CcddMessageIDHandler
     }
 
     /**********************************************************************************************
+     * Separate the message name and ID in the supplied string
+     *
+     * @param nameID
+     *            message name and ID in the format {@literal <}name{@literal >}
+     *            {@literal <}ID{@literal >}. A null, blank input, or an input containing only the
+     *            ID is accepted
+     *
+     * @return Array containing the message name and ID. The name, or both the name and ID can be
+     *         blank
+     *********************************************************************************************/
+    protected static String[] getMessageNameAndID(String nameID)
+    {
+        String[] nameAndID = new String[] {"", ""};
+
+        // Check if the name and ID are provided
+        if (nameID != null && !nameID.isEmpty())
+        {
+            // Separate the message name (if present) from the ID
+            String[] parts = nameID.split("\\s+", 2);
+
+            // Check if only the ID is present
+            if (parts.length == 1)
+            {
+                // Store the ID
+                nameAndID[1] = parts[0];
+            }
+            // Check if both the name and ID are present
+            else if (parts.length == 2)
+            {
+                // Store the name and ID
+                nameAndID[0] = parts[0];
+                nameAndID[1] = parts[1];
+            }
+        }
+
+        return nameAndID;
+    }
+
+    /**********************************************************************************************
+     * Get the message name from the message name and ID in the supplied string
+     *
+     * @param nameID
+     *            message name and ID in the format {@literal <}name{@literal >}
+     *            {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
+     *            accepted
+     *
+     * @return Message name from the supplied message name and ID (may be blank)
+     *********************************************************************************************/
+    protected static String getMessageName(String nameID)
+    {
+        return getMessageNameAndID(nameID)[0];
+    }
+
+    /**********************************************************************************************
+     * Get the message ID from the message name and ID in the supplied string
+     *
+     * @param nameID
+     *            message name and ID in the format {@literal <}name{@literal >}
+     *            {@literal <}ID{@literal >}. A blank input, or an input containing only the ID is
+     *            accepted
+     *
+     * @return Message ID from the supplied message name and ID (may be blank)
+     *********************************************************************************************/
+    protected static String getMessageID(String nameID)
+    {
+        return getMessageNameAndID(nameID)[1];
+    }
+
+    /**********************************************************************************************
      * Create the list of message IDs that are reserved or are already in use
      *
      * @param includeStructures
@@ -160,6 +231,8 @@ public class CcddMessageIDHandler
      *
      * @param parent
      *            GUI component over which to center any error dialog
+     *
+     * @return List of message IDs that are reserved or are already in use
      *********************************************************************************************/
     protected List<Integer> getMessageIDsInUse(boolean includeStructures,
                                                boolean includeCommands,
@@ -171,7 +244,7 @@ public class CcddMessageIDHandler
                                                boolean isGetDuplicates,
                                                Component parent)
     {
-        List<String[]> tableIDs = new ArrayList<String[]>();
+        ArrayListMultiple tblAndFldMsgs = new ArrayListMultiple();
 
         // Empty the duplicates list in case this isn't the first execution of this method
         duplicates.clear();
@@ -183,44 +256,51 @@ public class CcddMessageIDHandler
         // Step through each table type
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
-            // Step through each column that contains message IDs
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID))
+            // Step through each column that contains a message name & ID
+            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID))
             {
                 // Query the database for those values in the specified message ID column that are
                 // in use in any table, including any references in the custom values table
-                tableIDs.addAll(dbTable.queryDatabase("SELECT"
-                                                      + (isGetDuplicates
-                                                                         ? " "
-                                                                         : " DISTINCT ON (2) ")
-                                                      + "* FROM find_columns_by_name('"
-                                                      + typeDefn.getColumnNamesUser()[idColumn]
-                                                      + "', '"
-                                                      + typeDefn.getColumnNamesDatabase()[idColumn]
-                                                      + "', '{"
-                                                      + typeDefn.getName()
-                                                      + "}');",
-                                                      parent));
+                tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT"
+                                                           + (isGetDuplicates
+                                                                              ? " "
+                                                                              : " DISTINCT ON (2) ")
+                                                           + "* FROM find_columns_by_name('"
+                                                           + typeDefn.getColumnNamesUser()[idColumn]
+                                                           + "', '"
+                                                           + typeDefn.getColumnNamesDatabase()[idColumn]
+                                                           + "', '{"
+                                                           + typeDefn.getName()
+                                                           + "}');",
+                                                           parent));
             }
         }
 
-        // Get the list of all message ID data field values
-        tableIDs.addAll(dbTable.queryDatabase("SELECT"
-                                              + (isGetDuplicates
-                                                                 ? " "
-                                                                 : " DISTINCT ON (2) ")
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.OWNER_NAME.ordinal())
-                                              + ", "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                              + " FROM "
-                                              + InternalTable.FIELDS.getTableName()
-                                              + " WHERE "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
-                                              + " = '"
-                                              + DefaultInputType.MESSAGE_ID.getInputName()
-                                              + "' AND "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                              + " != '';",
-                                              parent));
+        // Get the list of all message name & ID data field values for project, group, or table
+        // data fields (ignore fields assigned to table types)
+        tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT"
+                                                   + (isGetDuplicates
+                                                                      ? " "
+                                                                      : " DISTINCT ON (2) ")
+                                                   + FieldsColumn.OWNER_NAME.getColumnName()
+                                                   + ", "
+                                                   + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                   + " FROM "
+                                                   + InternalTable.FIELDS.getTableName()
+                                                   + " WHERE "
+                                                   + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                   + " = '"
+                                                   + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                                                   + "' AND "
+                                                   + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                   + " != '' AND "
+                                                   + FieldsColumn.OWNER_NAME.getColumnName()
+                                                   + " !~ '"
+                                                   + TYPE_DATA_FIELD_IDENT
+                                                   + "';", // TODO had ORDER BY OID - this causes a
+                                                           // problem if DISTINCT ON (2) is
+                                                           // included. Is the ORDER BY needed?
+                                                   parent));
 
         // Get the list of tables representing structures
         structureTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE));
@@ -232,30 +312,41 @@ public class CcddMessageIDHandler
         otherTables = Arrays.asList(dbTable.getPrototypeTablesOfType(TYPE_OTHER));
 
         // Step through each data field message ID
-        for (String[] tableOwnerAndID : tableIDs)
+        for (String[] tblAndFldMsg : tblAndFldMsgs)
         {
-            // Replace any macro in the message ID with the corresponding text
-            tableOwnerAndID[1] = macroHandler.getMacroExpansion(tableOwnerAndID[1]);
+            // Get the message owner
+            String owner = tblAndFldMsg[0];
+
+            // Get the message ID from the message name and ID
+            String msgID = getMessageID(tblAndFldMsg[1]);
+
+            // Replace any macro in the message ID with the corresponding text and format the ID as
+            // hexadecimal
+            msgID = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(msgID),
+                                                     InputTypeFormat.HEXADECIMAL,
+                                                     true);
 
             // Check if the message ID is flagged as protected, or the message ID data field is
             // assigned to a structure (command, other) table and the structure (command, other)
             // IDs are to be included
-            if (tableOwnerAndID[1].endsWith(PROTECTED_MSG_ID_IDENT)
-                || (includeStructures && structureTables.contains(TableInformation.getPrototypeName(tableOwnerAndID[0])))
-                || (includeCommands && commandTables.contains(tableOwnerAndID[0]))
-                || (includeOthers && otherTables.contains(tableOwnerAndID[0])))
+            if (msgID.endsWith(PROTECTED_MSG_ID_IDENT)
+                || (includeStructures && structureTables.contains(TableInformation.getPrototypeName(owner)))
+                || (includeCommands && commandTables.contains(owner))
+                || (includeOthers && otherTables.contains(owner)))
             {
                 // Get the IDs in use in the table cells and data fields, and update the duplicates
                 // list (if the flag is set)
-                updateUsageAndDuplicates("Table", tableOwnerAndID, isGetDuplicates);
+                updateUsageAndDuplicates("Table",
+                                         new String[] {owner, msgID}, isGetDuplicates);
             }
             // Check if the message ID data field is assigned to a group and the group IDs are to
             // be included
-            else if (includeGroups && tableOwnerAndID[0].startsWith(GROUP_DATA_FIELD_IDENT))
+            else if (includeGroups && owner.startsWith(GROUP_DATA_FIELD_IDENT))
             {
                 // Get the IDs in use in the group data fields, and update the duplicates list (if
                 // the flag is set)
-                updateUsageAndDuplicates("Group", tableOwnerAndID, isGetDuplicates);
+                updateUsageAndDuplicates("Group",
+                                         new String[] {owner, msgID}, isGetDuplicates);
             }
         }
 
@@ -353,12 +444,9 @@ public class CcddMessageIDHandler
 
     /**********************************************************************************************
      * Get the list containing every message ID name and its corresponding message ID, and the
-     * owning entity from every table cell, data field (table or group), and telemetry message. ID
-     * names and IDs are determined by the input type assigned to the table column or data field,
-     * and are matched one-to-one by relative position; i.e., the first message ID name data field
-     * for a table or group is paired with the first message ID data field, and so on. If more
-     * names are defined than IDs or vice versa then a blank ID/name is paired with the unmatched
-     * name/ID
+     * owning entity from every table cell, data field (table or group), and telemetry message.
+     * Message names & IDs are determined by the input type assigned to the table column or data
+     * field
      *
      * @param sortOrder
      *            order in which to sort the message ID list: BY_OWNER or BY_NAME
@@ -370,131 +458,74 @@ public class CcddMessageIDHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *
-     * @return List containing every message ID name and its corresponding message ID, and the
-     *         owning entity
+     * @return List containing every message name and its corresponding message ID, and the owning
+     *         entity
      *********************************************************************************************/
     protected List<String[]> getMessageIDsAndNames(MessageIDSortOrder sortOrder,
                                                    boolean hideProtectionFlag,
                                                    Component parent)
     {
-        String id;
         ArrayListMultiple ownersNamesAndIDs = new ArrayListMultiple();
-        ArrayListMultiple tableIDNames = new ArrayListMultiple();
-        ArrayListMultiple tableIDs = new ArrayListMultiple();
+        ArrayListMultiple tblAndFldMsgs = new ArrayListMultiple();
 
         // Step through each table type
         for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
         {
-            // Step through each column that contains message ID names
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID_NAME))
+            // Step through each column that contains a message name & ID
+            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID))
             {
                 // Query the database for those values in the specified message ID name column that
                 // are in use in any table, including any references in the custom values table
-                tableIDNames.addAll(dbTable.queryDatabase("SELECT "
-                                                          + "* FROM find_columns_by_name('"
-                                                          + typeDefn.getColumnNamesUser()[idColumn]
-                                                          + "', '"
-                                                          + typeDefn.getColumnNamesDatabase()[idColumn]
-                                                          + "', '{"
-                                                          + typeDefn.getName()
-                                                          + "}');",
-                                                          parent));
-            }
-
-            // Step through each column that contains message IDs
-            for (int idColumn : typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_ID))
-            {
-                // Query the database for those values in the specified message ID column that are
-                // in use in any table, including any references in the custom values table
-                tableIDs.addAll(dbTable.queryDatabase("SELECT "
-                                                      + "* FROM find_columns_by_name('"
-                                                      + typeDefn.getColumnNamesUser()[idColumn]
-                                                      + "', '"
-                                                      + typeDefn.getColumnNamesDatabase()[idColumn]
-                                                      + "', '{"
-                                                      + typeDefn.getName()
-                                                      + "}');",
-                                                      parent));
+                tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT "
+                                                           + "* FROM find_columns_by_name('"
+                                                           + typeDefn.getColumnNamesUser()[idColumn]
+                                                           + "', '"
+                                                           + typeDefn.getColumnNamesDatabase()[idColumn]
+                                                           + "', '{"
+                                                           + typeDefn.getName()
+                                                           + "}');",
+                                                           parent));
             }
         }
 
-        // Get the list of all message ID name data field values
-        tableIDNames.addAll(dbTable.queryDatabase("SELECT "
-                                                  + InternalTable.FIELDS.getColumnName(FieldsColumn.OWNER_NAME.ordinal())
-                                                  + ", "
-                                                  + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                                  + " FROM "
-                                                  + InternalTable.FIELDS.getTableName()
-                                                  + " WHERE "
-                                                  + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
-                                                  + " = '"
-                                                  + DefaultInputType.MESSAGE_ID_NAME.getInputName()
-                                                  + "' AND "
-                                                  + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                                  + " != '' ORDER BY OID;",
-                                                  parent));
+        // Get the list of all message name & ID data field values for project, group, or table
+        // data fields (ignore fields assigned to table types)
+        tblAndFldMsgs.addAll(dbTable.queryDatabase("SELECT "
+                                                   + FieldsColumn.OWNER_NAME.getColumnName()
+                                                   + ", "
+                                                   + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                   + " FROM "
+                                                   + InternalTable.FIELDS.getTableName()
+                                                   + " WHERE "
+                                                   + FieldsColumn.FIELD_TYPE.getColumnName()
+                                                   + " = '"
+                                                   + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                                                   + "' AND "
+                                                   + FieldsColumn.FIELD_VALUE.getColumnName()
+                                                   + " != '' AND "
+                                                   + FieldsColumn.OWNER_NAME.getColumnName()
+                                                   + " !~ '"
+                                                   + TYPE_DATA_FIELD_IDENT
+                                                   + "' ORDER BY OID;",
+                                                   parent));
 
-        // Get the list of all message ID data field values
-        tableIDs.addAll(dbTable.queryDatabase("SELECT "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.OWNER_NAME.ordinal())
-                                              + ", "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                              + " FROM "
-                                              + InternalTable.FIELDS.getTableName()
-                                              + " WHERE "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_TYPE.ordinal())
-                                              + " = '"
-                                              + DefaultInputType.MESSAGE_ID.getInputName()
-                                              + "' AND "
-                                              + InternalTable.FIELDS.getColumnName(FieldsColumn.FIELD_VALUE.ordinal())
-                                              + " != '' ORDER BY OID;",
-                                              parent));
-
-        // Step through each ID name
-        while (tableIDNames.size() > 0)
+        // Step through each message name/ID belonging to a table cell or data field
+        for (String[] tblAndFldMsg : tblAndFldMsgs)
         {
-            // Get the ID name owner and ID name from the first list member, then remove it from
-            // the ID name list
-            String idOwner = tableIDNames.get(0)[0];
-            String idName = tableIDNames.get(0)[1];
-            tableIDNames.remove(0);
+            // Get the message owner
+            String owner = tblAndFldMsg[0];
 
-            // Get the index in the ID list of the first member with the same owner
-            int index = tableIDs.indexOf(idOwner);
+            // Separate the message name (if present) from the ID
+            String[] nameAndID = getMessageNameAndID(tblAndFldMsg[1]);
 
-            // Check if a matching owner is found
-            if (index != -1)
-            {
-                // Get the ID with the matching owner and remove it from the ID list
-                id = hideProtectionFlag
-                                        ? removeProtectionFlag(tableIDs.get(index)[1])
-                                        : tableIDs.get(index)[1];
-                tableIDs.remove(index);
-            }
-            // No matching owner exists
-            else
-            {
-                // Set the ID to the default (a blank)
-                id = "";
-            }
+            // Replace any macro in the message ID with the corresponding text and format the ID as
+            // hexadecimal
+            nameAndID[1] = CcddInputTypeHandler.formatInput(macroHandler.getMacroExpansion(nameAndID[1]),
+                                                            InputTypeFormat.HEXADECIMAL,
+                                                            true);
 
-            // Add the owner, ID name, and ID to the list
-            ownersNamesAndIDs.add(new String[] {idOwner, idName, id});
-        }
-
-        // Process any IDs remaining in the ID list. These are the ones with no corresponding ID
-        // name
-        while (tableIDs.size() > 0)
-        {
-            // Get the ID owner and ID from the first list member, then remove it from the ID list
-            String idOwner = tableIDs.get(0)[0];
-            id = hideProtectionFlag
-                                    ? removeProtectionFlag(tableIDs.get(0)[1])
-                                    : tableIDs.get(0)[1];
-            tableIDs.remove(0);
-
-            // Add the owner, default ID name (a blank), and ID to the list
-            ownersNamesAndIDs.add(new String[] {idOwner, "", id});
+            // Add the message owner, name, and ID to the list
+            ownersNamesAndIDs.add(new String[] {owner, nameAndID[0], nameAndID[1]});
         }
 
         // Get the telemetry rates, message ID names, and IDs assigned in the telemetry scheduler
@@ -548,7 +579,7 @@ public class CcddMessageIDHandler
 
             case BY_NAME:
                 // Sort the message ID list by ID name
-                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal());
+                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.MESSAGE_NAME.ordinal());
                 ownersNamesAndIDs.sort(ArrayListMultipleSortType.STRING);
                 break;
         }

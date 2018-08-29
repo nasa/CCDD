@@ -76,7 +76,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      * @param ccddMain
      *            main class
      *
-     * @param databaseName
+     * @param useActiveDatabase
      *            true to use the active database; false to use the default database. This is only
      *            used when opening the database after changing the login credentials
      *

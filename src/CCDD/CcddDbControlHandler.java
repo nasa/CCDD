@@ -1656,7 +1656,6 @@ public class CcddDbControlHandler
                 String dbArraySize = null;
                 String dbBitLength = null;
                 String dbRate = null;
-                String dbEnumeration = null;
 
                 String compareColumns = "";
 
@@ -1673,7 +1672,7 @@ public class CcddDbControlHandler
                                        + "column_name = '" + dbArraySize + "' OR "
                                        + "column_name = '" + dbBitLength + "' OR ";
 
-                List<String> rateAndEnums = new ArrayList<String>();
+                List<String> rateColNames = new ArrayList<String>();
 
                 // Step through each table type definition
                 for (TypeDefinition typeDefn : ccddMain.getTableTypeHandler().getTypeDefinitions())
@@ -1681,29 +1680,24 @@ public class CcddDbControlHandler
                     // Check if the type represents a structure
                     if (typeDefn.isStructure())
                     {
-                        // Get this type's first rate and enumeration column names
+                        // Get this type's first rate column name
                         dbRate = typeDefn.getDbColumnNameByInputType(DefaultInputType.RATE);
-                        dbEnumeration = typeDefn.getDbColumnNameByInputType(DefaultInputType.ENUMERATION);
 
                         // Create the portion of the command comparing the column name to the first
-                        // rate and enumeration column names
-                        String rateAndEnum = "column_name = '" + dbRate + "' OR "
-                                             + "column_name = '" + dbEnumeration + "') OR ";
+                        // rate column name
+                        String rateColName = "column_name = '" + dbRate + "') OR ";
 
-                        // Check if this pair of rate and enumeration columns names doesn't already
-                        // exist in the comparison
-                        if (!rateAndEnums.contains(rateAndEnum))
+                        // Check if this rate column name doesn't already exist in the comparison
+                        if (!rateColNames.contains(rateColName))
                         {
-                            // Add the rate and enumeration name pair so that it won't be added
-                            // again
-                            rateAndEnums.add(rateAndEnum);
+                            // Add the rate name so that it won't be added again
+                            rateColNames.add(rateColName);
 
                             // Create a string containing the partial command for determining if
                             // the columns that are necessary to define a structure table are
                             // present in a table
                             compareColumns += defStructCols
-                                              + "column_name = '" + dbRate + "' OR "
-                                              + "column_name = '" + dbEnumeration + "') OR ";
+                                              + "column_name = '" + dbRate + "') OR ";
                         }
                     }
                 }
@@ -1711,16 +1705,13 @@ public class CcddDbControlHandler
                 // Check if no structure table type exists
                 if (compareColumns.isEmpty())
                 {
-                    // Get the default rate and enumeration column names
+                    // Get the default rate column name
                     dbRate = DefaultColumn.RATE.getDbName();
-                    dbEnumeration = DefaultColumn.ENUMERATION.getDbName();
 
                     // Create a string containing the partial command for determining if the
                     // columns that are necessary to define a structure table are present in a
                     // table
-                    compareColumns = defStructCols
-                                     + "column_name = '" + dbRate + "' OR "
-                                     + "column_name = '" + dbEnumeration + "')";
+                    compareColumns = defStructCols + "column_name = '" + dbRate + "')";
                 }
                 // At least one structure table type exists
                 else
@@ -2732,12 +2723,11 @@ public class CcddDbControlHandler
                     // Check if the currently open database is not the one being copied; otherwise,
                     // check if the target database can be closed and the default opened (required
                     // in order to make changes to the current database)
-                    if (!targetDatabase.equals(currentDatabase)
-                        || !openDatabase(DEFAULT_DATABASE))
+                    if (!targetDatabase.equals(currentDatabase) || !openDatabase(DEFAULT_DATABASE))
                     {
                         // Get the creator and owner of the database being copied; the copy will
                         // have the same creator and owner
-                        String creator = getDatabaseAdmins(currentDatabase);
+                        String creator = getDatabaseAdmins(targetDatabase);
                         String ownerName = targetDatabase.equals(currentDatabase)
                                                                                   ? activeOwner
                                                                                   : queryDatabaseOwner(targetDatabase,

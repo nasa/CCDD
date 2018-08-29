@@ -24,8 +24,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +76,9 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     private final CcddInputTypeHandler inputTypeHandler;
     private CcddJTableHandler inputTypeTable;
 
-    // Cell editors for the input type format and items columns
+    // Cell editors for the input type format column
     private DefaultCellEditor formatCellEditor;
+    private DefaultCellEditor itemFormatCellEditor;
 
     // Table instance model data. Current copy is the table information as it exists in the table
     // editor and is used to determine what changes have been made to the table since the previous
@@ -655,12 +654,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                   // column isn't blank or the input format type is boolean
                                     (column != InputTypeEditorColumnInfo.MATCH.ordinal()
                                      || (rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty()
-                                         && !InputType.getInputFormatByName(rowData[InputTypeEditorColumnInfo.FORMAT.ordinal()].toString()).equals(InputTypeFormat.BOOLEAN)))
-
-                                  // ... the format column if the selection items column isn't
-                                  // blank
-                                  && (column != InputTypeEditorColumnInfo.FORMAT.ordinal()
-                                      || rowData[InputTypeEditorColumnInfo.ITEMS.ordinal()].toString().isEmpty());
+                                         && !InputType.getInputFormatByName(rowData[InputTypeEditorColumnInfo.FORMAT.ordinal()].toString()).equals(InputTypeFormat.BOOLEAN)));
                 }
 
                 return isAlterable;
@@ -692,8 +686,11 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // type column
                 if (modelColumn == InputTypeEditorColumnInfo.FORMAT.ordinal())
                 {
-                    // Select the combo box cell editor that displays the input type formats
-                    cellEditor = formatCellEditor;
+                    // Select the combo box cell editor, based on if the type has selection items,
+                    // that displays the input type formats
+                    cellEditor = getValueAt(row, InputTypeEditorColumnInfo.ITEMS.ordinal()).toString().isEmpty()
+                                                                                                                 ? formatCellEditor
+                                                                                                                 : itemFormatCellEditor;
                 }
 
                 return cellEditor;
@@ -802,7 +799,6 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 // Set the input match regular expression to mirror the selection
                                 // items and the format to be text
                                 tableData.get(row)[InputTypeEditorColumnInfo.MATCH.ordinal()] = itemRegEx;
-                                tableData.get(row)[InputTypeEditorColumnInfo.FORMAT.ordinal()] = InputTypeFormat.TEXT.getFormatName();
                             }
                         }
                         // Check if the input type format has been changed to represent a boolean
@@ -989,12 +985,13 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the cell editor for input type formats
+     * Create the cell editors for input type formats
      *********************************************************************************************/
     private void createInputTypeFormatCellEditor()
     {
-        // Create a combo box for displaying the input type formats
+        // Create combo boxes for displaying the input type formats
         final PaddedComboBox formatComboBox = new PaddedComboBox(inputTypeTable.getFont());
+        final PaddedComboBox itemFormatComboBox = new PaddedComboBox(inputTypeTable.getFont());
 
         // Step through each input type format
         for (InputTypeFormat type : InputTypeFormat.values())
@@ -1005,27 +1002,22 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // Add the input type format name to the list
                 formatComboBox.addItem(type.getFormatName());
             }
+
+            // Check if the format type is selectable when the input type has selection items
+            if (type.isValidWithItems())
+            {
+                // Add the input type format name to the list
+                itemFormatComboBox.addItem(type.getFormatName());
+            }
         }
 
-        // Enable item matching for the combo box
+        // Enable item matching for the combo boxes
         formatComboBox.enableItemMatching(inputTypeTable);
+        itemFormatComboBox.enableItemMatching(inputTypeTable);
 
-        // Add a listener to the combo box for focus changes
-        formatComboBox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                formatComboBox.showPopup();
-            }
-        });
-
-        // Create the input type format cell editor
+        // Create the input type format cell editors
         formatCellEditor = new DefaultCellEditor(formatComboBox);
+        itemFormatCellEditor = new DefaultCellEditor(itemFormatComboBox);
     }
 
     /**********************************************************************************************

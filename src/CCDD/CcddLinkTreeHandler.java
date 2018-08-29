@@ -556,7 +556,7 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      * Remove the HTML tags and rate/size text from the node names. The object array is converted
      * to a string array
      *
-     * @param node
+     * @param nodePath
      *            path array
      *
      * @return Node path array with any HTML tags and rate/size text removed

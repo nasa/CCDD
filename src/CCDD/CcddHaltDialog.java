@@ -69,10 +69,6 @@ public class CcddHaltDialog extends CcddDialogHandler
      * @param numSteps
      *            total number of steps in the operation
      *
-     * @param modal
-     *            false to allow the other application windows to still be operated while the
-     *            dialog is open
-     *
      * @param parent
      *            component over which to center the dialog
      *********************************************************************************************/

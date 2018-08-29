@@ -39,6 +39,7 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.SearchResultsColumnInfo;
@@ -215,10 +216,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     /**********************************************************************************************
      * Get the separator characters used to convert an application variable path to a user-defined
      * variable path
-     *
-     * @param variablePath
-     *            variable path + name for which to return the converted path; blank to provide the
-     *            paths for all variables
      *
      * @param parameters
      *            comma-separated string containing the variable path separator character(s),
@@ -2151,7 +2148,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             TableInformation tableInfo = dbTable.loadTableData(table,
                                                                false,
                                                                false,
-                                                               false,
                                                                ccddMain.getMainFrame());
 
             // Check if the table loaded successfully
@@ -2210,8 +2206,12 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                             rateIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.RATE);
                         }
 
-                        // Get the enumeration column(s)
-                        enumerationIndices = typeDefn.getColumnIndicesByInputType(DefaultInputType.ENUMERATION);
+                        // Check if a enumeration column exists
+                        if ((descColName = typeDefn.getColumnNameByInputTypeFormat(InputTypeFormat.ENUMERATION)) != null)
+                        {
+                            // Get the enumeration column(s)
+                            enumerationIndices = typeDefn.getColumnIndicesByInputTypeFormat(InputTypeFormat.ENUMERATION);
+                        }
 
                         // Check if a description column exists
                         if ((descColName = typeDefn.getColumnNameByInputType(DefaultInputType.DESCRIPTION)) != null)
@@ -2391,7 +2391,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             {
                 // Get the information from the database for the specified table
                 TableInformation tableInfo = dbTable.loadTableData(commandTable,
-                                                                   false,
                                                                    false,
                                                                    false,
                                                                    ccddMain.getMainFrame());

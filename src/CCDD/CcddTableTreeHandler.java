@@ -1870,6 +1870,56 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
+     * Get a list of the specified root table name(s) including all descendant tables
+     *
+     * @param tables
+     *            list of root tables for which the descendants are required
+     *
+     * @return List containing the table path+names of the specified root table(s) and the
+     *         descendants of these tables
+     *********************************************************************************************/
+    protected List<String> getTablesWithChildren(List<String> tables)
+    {
+        List<String> tablesWithChildren = new ArrayList<String>();
+
+        // STep through each supplied table
+        for (String table : tables)
+        {
+            List<Object[]> childPaths = new ArrayList<Object[]>();
+
+            // Add the table to the list
+            tablesWithChildren.add(table);
+
+            // Get the node for the table
+            ToolTipTreeNode node = getNodeByNodePath(table);
+
+            // TODO ONLY ROOT TABLES ARE FOUND!
+            // Check if the table is in the tree
+            if (node != null)
+            {
+                // Get the children of this table node
+                addChildNodes(node, childPaths, null, false);
+
+                // Step through each of the child table paths
+                for (Object[] childPath : childPaths)
+                {
+                    // Get the table's full path (with the root table)
+                    String fullPath = getFullVariablePath(childPath);
+
+                    // Check if the table isn't already in the list
+                    if (!tablesWithChildren.contains(fullPath))
+                    {
+                        // Add the table's full path (with the root table) to the full path list
+                        tablesWithChildren.add(getFullVariablePath(childPath));
+                    }
+                }
+            }
+        }
+
+        return tablesWithChildren;
+    }
+
+    /**********************************************************************************************
      * Get a list of the tables (with their paths) represented by the selected nodes. If a header
      * node (i.e., a non-table node one level above a table node, such as a group or type node) is
      * selected then its descendants are checked, recursively, until the level containing tables is
@@ -1908,10 +1958,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     /**********************************************************************************************
      * Get a list of the table names that are the descendants of the specified node (do not include
-     * any duplicates or children of these tables, if any). This is a recursive method
+     * any duplicates or children of these descendants, if any). This is a recursive method
      *
      * @return List containing the table path+names of the specified node, excluding any duplicates
-     *         and children of these tables
+     *         and children of these descendant tables
      *********************************************************************************************/
     private List<String> getTablesWithoutChildren(ToolTipTreeNode node)
     {

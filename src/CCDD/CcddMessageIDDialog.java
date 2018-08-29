@@ -30,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 
+import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -44,9 +45,6 @@ import CCDD.CcddConstants.TableSelectionMode;
 @SuppressWarnings("serial")
 public class CcddMessageIDDialog extends CcddDialogHandler
 {
-    // Class reference
-    private final CcddDbTableCommandHandler dbTable;
-
     // Flag that indicates if any of the tables with message IDS to display are children of another
     // table, and therefore have a structure path
     private boolean isPath;
@@ -59,8 +57,6 @@ public class CcddMessageIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     CcddMessageIDDialog(CcddMain ccddMain)
     {
-        dbTable = ccddMain.getDbTableCommandHandler();
-
         // Create the message ID dialog
         initialize(ccddMain.getMessageIDHandler(), ccddMain.getMainFrame());
     }
@@ -182,6 +178,37 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         gbc.gridy++;
         dialogPnl.add(msgIDTblPnl, gbc);
 
+        // Create a table opener for the Open tables command
+        final TableOpener opener = new TableOpener()
+        {
+            /**************************************************************************************
+             * Check if the field owner is a table
+             *
+             * @return true if the field owner is a table
+             *************************************************************************************/
+            @Override
+            protected boolean isApplicable(String tableName)
+            {
+                // Remove any HTML tags from the table name
+                tableName = CcddUtilities.removeHTMLTags(tableName);
+
+                return !tableName.startsWith(CcddFieldHandler.getFieldGroupName(""))
+                       && !tableName.startsWith("Tlm:");
+            }
+
+            /**************************************************************************************
+             * Include the structure path, is applicable, with the table name
+             *************************************************************************************/
+            @Override
+            protected String cleanUpTableName(String tableName, int row)
+            {
+                return getOwnerWithPath(tableName,
+                                        CcddUtilities.removeHTMLTags(msgIDTable.getModel().getValueAt(row,
+                                                                                                      MsgIDTableColumnInfo.PATH.ordinal())
+                                                                               .toString()));
+            }
+        };
+
         // Open tables button
         JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
                                                               TABLE_ICON,
@@ -197,7 +224,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                openTables(msgIDTable);
+                opener.openTables(msgIDTable, MsgIDTableColumnInfo.OWNER.ordinal());
             }
         });
 
@@ -250,50 +277,6 @@ public class CcddMessageIDDialog extends CcddDialogHandler
 
         // Display the dialog
         showOptionsDialog(parent, dialogPnl, buttonPnl, null, "Show All Message IDs", true);
-    }
-
-    /**********************************************************************************************
-     * Open the table(s) associated with the selected message IDs
-     *********************************************************************************************/
-    private void openTables(CcddJTableHandler msgIDTable)
-    {
-        List<String> tablePaths = new ArrayList<String>();
-
-        // Step through each row in the table
-        for (int row = 0; row < msgIDTable.getRowCount(); row++)
-        {
-            // Step through each column in the table
-            for (int column = 0; column < msgIDTable.getColumnCount(); column++)
-            {
-                // Get the owner for this row
-                String ownerName = CcddUtilities.removeHTMLTags(msgIDTable.getModel().getValueAt(row,
-                                                                                                 MsgIDTableColumnInfo.OWNER.ordinal())
-                                                                          .toString().trim());
-
-                // Check if the cell at these coordinates is selected and that the message ID for
-                // this row belongs to a table (versus a group or telemetry scheduler)
-                if (msgIDTable.isCellSelected(msgIDTable.convertRowIndexToView(row), column)
-                    && !ownerName.startsWith(CcddFieldHandler.getFieldGroupName(""))
-                    && !ownerName.startsWith("Tlm:"))
-                {
-                    // Get the structure path for this row
-                    String path = CcddUtilities.removeHTMLTags(msgIDTable.getModel().getValueAt(row,
-                                                                                                MsgIDTableColumnInfo.PATH.ordinal())
-                                                                         .toString());
-
-                    // Add the table path to the list and stop checking the columns in this row
-                    tablePaths.add(getOwnerWithPath(ownerName, path));
-                    break;
-                }
-            }
-        }
-
-        // Check if any table/field is selected
-        if (!tablePaths.isEmpty())
-        {
-            // Load the selected table's data into a table editor
-            dbTable.loadTableDataInBackground(tablePaths.toArray(new String[0]), null);
-        }
     }
 
     /**********************************************************************************************
@@ -363,7 +346,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             // Add the message ID information to the list
             ownerMsgIDs.add(new Object[] {CcddUtilities.highlightDataType(ownerName),
                                           CcddUtilities.highlightDataType(pathName),
-                                          msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()],
+                                          msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()],
                                           msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]});
         }
 

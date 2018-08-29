@@ -176,7 +176,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Create the event log
      *
-     * @param logFile
+     * @param targetLogFile
      *            event log file; null if creating the session log or if opening a user-selected
      *            log file
      *

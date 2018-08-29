@@ -759,7 +759,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Create the table tree selection panel
      *
-     * @param labeltext
+     * @param labelText
      *            label to display above the table tree
      *
      * @param gbc

@@ -118,6 +118,9 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
             // Update the project field dialog's change indicator
             updateChangeIndicator();
         }
+
+        // Discard any store edits
+        undoManager.discardAllEdits();
     }
 
     /**********************************************************************************************
@@ -210,15 +213,16 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 // edits can be undone/redone
                 undoHandler.setFieldHandler(fieldHandler);
 
+                // Get the field information for the project data fields
+                committedFieldInformation = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldProjectName());
+
                 // Create the input field panel
                 fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,
                                                           CcddProjectFieldDialog.this,
                                                           null,
                                                           CcddFieldHandler.getFieldProjectName(),
-                                                          committedDescription);
-
-                // Build the field information for the project data fields
-                committedFieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldPnlHndlr.getPanelFieldInformation());
+                                                          committedDescription,
+                                                          committedFieldInformation);
 
                 // Enable the project description only if the user has administrative access
                 fieldPnlHndlr.enableDescriptionField(dbControl.isAccessAdmin(),

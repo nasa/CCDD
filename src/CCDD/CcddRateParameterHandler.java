@@ -302,7 +302,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Get the index of the rate information with the specified rate column name
      *
-     * @param rateName
+     * @param rateColumnName
      *            rate column name
      *
      * @return Index of the rate information with the specified rate column name; -1 if no rate

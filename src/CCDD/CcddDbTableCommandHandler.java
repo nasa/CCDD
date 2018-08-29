@@ -72,6 +72,8 @@ import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddConstants.TableMemberType;
 import CCDD.CcddConstants.TableTreeType;
+import CCDD.CcddInputTypeHandler.InputTypeReference;
+import CCDD.CcddInputTypeHandler.ReferenceCheckResults;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -108,6 +110,10 @@ public class CcddDbTableCommandHandler
     // rebuilt
     private boolean isCommandChange;
 
+    // Flag that indicates that a message name or ID has been added, modified, or deleted. If this
+    // flag is true then the message name & ID list needs to be rebuilt
+    private boolean isMsgIDChange;
+
     // Character(s) separating table references in the script associations and telemetry scheduler
     // tables, with any special characters escaped so as to be used in a PostgrSQL command
     private final String assnsSeparator;
@@ -122,73 +128,6 @@ public class CcddDbTableCommandHandler
 
     // Characters used to create a unique delimiter for literal strings stored in the database
     private final static String DELIMITER_CHARACTERS = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-    /**********************************************************************************************
-     * Variable (command) reference class; used to contain information on structure (command)
-     * tables of the same table type having a column with the variable (command) reference input
-     * type
-     *********************************************************************************************/
-    private class VarCmdReference
-    {
-        private final String columnDb;
-        private final String columnVisible;
-        private final String[] tables;
-
-        /******************************************************************************************
-         * Variable (command) reference class constructor
-         *
-         * @param columnDb
-         *            column name (as used in the database) having the variable (command) reference
-         *            input type
-         *
-         * @param columnVisible
-         *            column name (as seen by the user) having the variable (command) reference
-         *            input type
-         *
-         * @param tables
-         *            array of prototype structure (command) tables of the table type having a
-         *            column with the variable (command) reference input type
-         *****************************************************************************************/
-        VarCmdReference(String columnDb, String columnVisible, String[] tables)
-        {
-            this.columnDb = columnDb;
-            this.columnVisible = columnVisible;
-            this.tables = tables;
-        }
-
-        /******************************************************************************************
-         * Get the column name as used in the database
-         *
-         * @return Column name (as used in the database) having the variable (command) reference
-         *         input type
-         *****************************************************************************************/
-        protected String getColumnDb()
-        {
-            return columnDb;
-        }
-
-        /******************************************************************************************
-         * Get the column name as seen by the user
-         *
-         * @return Column name (as seen by the user) having the variable (command) reference input
-         *         type
-         *****************************************************************************************/
-        protected String getColumnVisible()
-        {
-            return columnVisible;
-        }
-
-        /******************************************************************************************
-         * Get the array of prototype structure (command) tables of the same table type
-         *
-         * @return Array of prototype structure (command) tables of the table type having a column
-         *         with the variable (command) reference input type
-         *****************************************************************************************/
-        protected String[] getTables()
-        {
-            return tables;
-        }
-    }
 
     /**********************************************************************************************
      * Database table command handler class constructor
@@ -589,7 +528,7 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Retrieve the specified cell's value from the specified table
      *
-     * @param table
+     * @param tableName
      *            name database table name
      *
      * @param primaryKey
@@ -890,9 +829,6 @@ public class CcddDbTableCommandHandler
      *            the root table, with each succeeding pair coming from the next level down in the
      *            structure's hierarchy
      *
-     * @param tableName
-     *            name of the queried table's prototype table; blank if none
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -1136,8 +1072,6 @@ public class CcddDbTableCommandHandler
         rootStructures = getRootStructures(parent);
         variableHandler.buildPathAndOffsetLists();
         commandHandler.buildCommandList();
-        inputTypeHandler.updateVariableReferences();
-        inputTypeHandler.updateCommandReferences();;
         inputTypeHandler.updateMsgNameAndIDReferences(parent);
     }
 
@@ -1206,8 +1140,8 @@ public class CcddDbTableCommandHandler
      * @param tableType
      *            type of table to create (e.g., Structure or Command)
      *
-     * @param tableDialog
-     *            reference to the table manager dialog
+     * @param parent
+     *            GUI component over which to center any error dialog
      *
      * @return true if an error occurred when creating a table
      *********************************************************************************************/
@@ -1469,7 +1403,7 @@ public class CcddDbTableCommandHandler
      * @param idColumnName
      *            name of the internal table's identifier column
      *
-     * @param tableName
+     * @param oldName
      *            current name of the table
      *
      * @param newName
@@ -2008,7 +1942,6 @@ public class CcddDbTableCommandHandler
                             TableInformation tableInfo = loadTableData(tablePaths[index],
                                                                        true,
                                                                        true,
-                                                                       true,
                                                                        parent);
 
                             // Check if the table failed to load successfully
@@ -2107,10 +2040,6 @@ public class CcddDbTableCommandHandler
      * @param loadColumnOrder
      *            true to load the table's column order
      *
-     * @param loadFieldInfo
-     *            true to retrieve the data field information to include with the table
-     *            information; false to not load the field information
-     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -2120,7 +2049,6 @@ public class CcddDbTableCommandHandler
     protected TableInformation loadTableData(String tablePath,
                                              boolean loadDescription,
                                              boolean loadColumnOrder,
-                                             boolean loadFieldInfo,
                                              Component parent)
     {
         // Create an empty table information class
@@ -2219,9 +2147,7 @@ public class CcddDbTableCommandHandler
                                                                                       parent)
                                                               : ""),
                                              rootStructures.contains(tablePath),
-                                             (loadFieldInfo
-                                                            ? fieldHandler.getFieldInformationByOwner(tablePath)
-                                                            : null));
+                                             fieldHandler.getFieldInformationByOwnerCopy(tablePath));
 
             // Get the index of the variable name and data type columns
             int varNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
@@ -2834,8 +2760,8 @@ public class CcddDbTableCommandHandler
                                       Component parent)
     {
         boolean errorFlag = false;
-        boolean isVarRefFieldChange = false;
-        boolean isCmdRefFieldChange = false;
+        ReferenceCheckResults msgIDRefChk = null;
+        boolean isRefFieldChange = false;
 
         try
         {
@@ -2844,11 +2770,10 @@ public class CcddDbTableCommandHandler
             updateLinks = false;
             addLinkHandler = null;
             isVariablePathChange = false;
-            String[] varRefReferences = null;
-            List<VarCmdReference> variableReferences = new ArrayList<VarCmdReference>();
             isCommandChange = false;
-            String[] cmdRefReferences = null;
-            List<VarCmdReference> commandReferences = new ArrayList<VarCmdReference>();
+            isMsgIDChange = false;
+            ReferenceCheckResults varRefChk = null;
+            ReferenceCheckResults cmdRefChk = null;
 
             // Get the name of the table to modify and convert the table name to lower case.
             // PostgreSQL automatically does this, so it's done here just to differentiate the
@@ -2886,77 +2811,32 @@ public class CcddDbTableCommandHandler
                     // Get the references in the table type and data field internal tables that use
                     // the variable reference input type. If a variable name is changed or deleted
                     // then the tables and fields may require updating
-                    varRefReferences = inputTypeHandler.getInputTypeReferences(DefaultInputType.VARIABLE_REFERENCE.getInputName(),
-                                                                               parent);
-
-                    // Step through each variable reference input type reference
-                    for (String varRef : varRefReferences)
-                    {
-                        // Split the reference into table name, column name, comment, and context
-                        String[] tblColCmtAndCntxt = varRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-                        // Check if the context is in a table type definition
-                        if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
-                        {
-                            // Extract the table type column values from the reference
-                            String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                            // Create the variable reference with the columns names (database and
-                            // visible) and the names of the prototype tables of this table type
-                            variableReferences.add(new VarCmdReference(refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()],
-                                                                       refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()],
-                                                                       queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()],
-                                                                                             parent)));
-                        }
-                        // The reference is in a data field
-                        else
-                        {
-                            // Set the flag to indicate that a data field is using the variable
-                            // reference input type
-                            isVarRefFieldChange = true;
-                        }
-                    }
+                    varRefChk = inputTypeHandler.getInputTypeReferences(DefaultInputType.VARIABLE_REFERENCE,
+                                                                        parent);
+                    isRefFieldChange |= varRefChk.isFieldUsesType();
                 }
             }
             // Check if the table represents a command and if there are any modifications or
             // deletions (additions won't change the values in table cells or data fields with the
             // command reference input type)
-            else if (typeDefinition.isCommand() && (!modifications.isEmpty() || !deletions.isEmpty()))
+            else if (typeDefinition.isCommand()
+                     && (!modifications.isEmpty() || !deletions.isEmpty()))
             {
                 // Get the references in the table type and data field internal tables that use the
                 // command reference input type. If a command name, code, or argument is changed or
                 // deleted then the tables and fields may require updating
-                cmdRefReferences = inputTypeHandler.getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE.getInputName(),
-                                                                           parent);
-
-                // Step through each command reference input type reference
-                for (String cmdRef : cmdRefReferences)
-                {
-                    // Split the reference into table name, column name, comment, and context
-                    String[] tblColCmtAndCntxt = cmdRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
-
-                    // Check if the context is in a table type definition
-                    if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
-                    {
-                        // Extract the table type column values from the reference
-                        String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
-
-                        // Create the command reference with the columns names (database and
-                        // visible) and the names of the prototype tables of this table type
-                        commandReferences.add(new VarCmdReference(refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()],
-                                                                  refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()],
-                                                                  queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()],
-                                                                                        parent)));
-                    }
-                    // The reference is in a data field
-                    else
-                    {
-                        // Set the flag to indicate that a data field is using the command
-                        // reference input type
-                        isCmdRefFieldChange = true;
-                    }
-                }
+                cmdRefChk = inputTypeHandler.getInputTypeReferences(DefaultInputType.COMMAND_REFERENCE,
+                                                                    parent);
+                isRefFieldChange |= cmdRefChk.isFieldUsesType();
             }
+
+            // Get the references in the table type and data field internal tables that use the
+            // message name & ID input type. If a message name or ID is added, changed, or deleted
+            // then the tables and fields may require updating
+            // TODO
+            msgIDRefChk = inputTypeHandler.getInputTypeReferences(DefaultInputType.MESSAGE_REFERENCE,
+                                                                  parent);
+            isRefFieldChange |= msgIDRefChk.isFieldUsesType();
 
             // Get the table's description
             String description = tableInfo.getDescription();
@@ -2987,7 +2867,9 @@ public class CcddDbTableCommandHandler
                                                                                               tableInfo.getColumnOrder())
                                                                            : ""));
 
-            // Build the commands to add, modify, and delete table rows
+            // Build the commands to add, modify, and delete table rows, and to update any table
+            // cells or data fields that have the message name & ID input type if a message name or
+            // ID value is changed
             command.append(buildAdditionCommand(tableInfo,
                                                 additions,
                                                 dbTableName,
@@ -2999,19 +2881,20 @@ public class CcddDbTableCommandHandler
                                                       newDataTypeHandler,
                                                       tableTree,
                                                       skipInternalTables,
-                                                      variableReferences,
-                                                      isVarRefFieldChange,
-                                                      commandReferences,
-                                                      isCmdRefFieldChange)
+                                                      varRefChk,
+                                                      cmdRefChk)
                            + buildDeletionCommand(tableInfo,
                                                   deletions,
                                                   dbTableName,
                                                   typeDefinition,
                                                   skipInternalTables,
-                                                  variableReferences,
-                                                  isVarRefFieldChange,
-                                                  commandReferences,
-                                                  isCmdRefFieldChange));
+                                                  varRefChk,
+                                                  cmdRefChk)
+                           + updateMessageNameAndIDReference(tableInfo,
+                                                             typeDefinition,
+                                                             modifications,
+                                                             deletions,
+                                                             msgIDRefChk));
 
             // Check if no command was generated (e.g., the additions, modifications, and deletions
             // lists are empty)
@@ -3065,7 +2948,9 @@ public class CcddDbTableCommandHandler
 
                 // Log that inserting data into the table succeeded
                 eventLog.logEvent(SUCCESS_MSG,
-                                  "Table '" + tableInfo.getProtoVariableName() + "' data modified");
+                                  "Table '"
+                                               + tableInfo.getProtoVariableName()
+                                               + "' data modified");
             }
         }
         catch (SQLException se)
@@ -3099,9 +2984,9 @@ public class CcddDbTableCommandHandler
                 // Rebuild the variable paths and offsets lists
                 variableHandler.buildPathAndOffsetLists();
             }
-            // Check if variable name or command name, code, or argument was changed or deleted,
-            // and a data field uses the variable or command reference input type
-            if (isVarRefFieldChange || isCmdRefFieldChange)
+            // Check if a data field exists that uses the variable reference, command reference, or
+            // message name & ID input type
+            if (isRefFieldChange)
             {
                 // Rebuild the data field information from the the field definitions stored in the
                 // database
@@ -3123,14 +3008,21 @@ public class CcddDbTableCommandHandler
                 commandHandler.buildCommandList();
             }
 
+            // Check if a data field exists that references the message name & ID input type
+            if (isMsgIDChange)
+            {
+                // Update the message name & ID input type list
+                inputTypeHandler.updateMsgNameAndIDReferences(parent);
+            }
+
             // Make changes to any open table editors
             CcddTableEditorDialog.doTableModificationComplete(ccddMain,
                                                               tableInfo,
                                                               modifications,
                                                               deletions,
                                                               forceUpdate,
-                                                              isVarRefFieldChange,
-                                                              isCmdRefFieldChange);
+                                                              isRefFieldChange,
+                                                              isMsgIDChange);
         }
 
         return errorFlag;
@@ -3428,27 +3320,11 @@ public class CcddDbTableCommandHandler
      *            used during a data type update where only the data type name has changed in order
      *            to speed up the operation
      *
-     * @param variableReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            prototype tables for each structure table type with a column using the variable
-     *            reference input type; an empty list if the table with the change is not a
-     *            structure. This list is used if a change is made to a variable's name, possibly
-     *            requiring updating a table cell or data field contents
+     * @param varRefChkResults
+     *            results of the variable reference input type search
      *
-     * @param hasVarRefFieldChange
-     *            true is a data field has a variable reference input type and the table with the
-     *            change is a structure
-     *
-     * @param commandReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            tables for each command table type with a column using the command reference
-     *            input type; an empty list if the table with the change is not a command. This
-     *            list is used if a change is made to a command's name, code, or arguments names,
-     *            possibly requiring updating a table cell or data field contents
-     *
-     * @param hasCmdRefFieldChange
-     *            true is a data field has a command reference input type and the table with the
-     *            change is a command
+     * @param cmdRefChkResults
+     *            results of the command reference input type search
      *
      * @return Table row modification command
      *********************************************************************************************/
@@ -3458,10 +3334,8 @@ public class CcddDbTableCommandHandler
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddTableTreeHandler tableTree,
                                             boolean skipInternalTables,
-                                            List<VarCmdReference> variableReferences,
-                                            boolean hasVarRefFieldChange,
-                                            List<VarCmdReference> commandReferences,
-                                            boolean hasCmdRefFieldChange)
+                                            ReferenceCheckResults varRefChkResults,
+                                            ReferenceCheckResults cmdRefChkResults)
     {
         StringBuilder modCmd = new StringBuilder("");
         List<Object[]> tablePathList = null;
@@ -4083,8 +3957,7 @@ public class CcddDbTableCommandHandler
                                                         newVariableName,
                                                         oldDataType,
                                                         newDataType,
-                                                        variableReferences,
-                                                        hasVarRefFieldChange,
+                                                        varRefChkResults,
                                                         valuesModCmd,
                                                         fieldsModCmd);
                             }
@@ -4093,8 +3966,6 @@ public class CcddDbTableCommandHandler
                     // Check if this is a command table
                     else if (typeDefn.isCommand())
                     {
-                        // TODO ARE THESE COL INDICES OKAY TO USE? NOT SAME AS FOR VARS (WHICH PASS
-                        // THE INDICES IN THE MOD ITSELF)
                         // Get the column indices for the command name and code
                         int cmdNameCol = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME);
                         int cmdCodeCol = typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE);
@@ -4153,8 +4024,7 @@ public class CcddDbTableCommandHandler
                                                    newCommandCode,
                                                    oldNumArgs,
                                                    newNumArgs,
-                                                   commandReferences,
-                                                   hasCmdRefFieldChange,
+                                                   cmdRefChkResults,
                                                    valuesModCmd,
                                                    fieldsModCmd);
                         }
@@ -4321,27 +4191,11 @@ public class CcddDbTableCommandHandler
      *            used during a data type update where only the data type name has changed in order
      *            to speed up the operation
      *
-     * @param variableReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            prototype tables for each structure table type with a column using the variable
-     *            reference input type; an empty list if the table with the change is not a
-     *            structure. This list is used if a variable is deleted, possibly requiring
-     *            updating a table cell or data field contents
+     * @param varRefChkResults
+     *            results of the variable reference input type search
      *
-     * @param hasVarRefFieldChange
-     *            true is a data field has a variable reference input type and the table with the
-     *            change is a structure
-     *
-     * @param commandReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            tables for each command table type with a column using the command reference
-     *            input type; an empty list if the table with the change is not a command. This
-     *            list is used if command is deleted, possibly requiring updating a table cell or
-     *            data field contents
-     *
-     * @param hasCmdRefFieldChange
-     *            true is a data field has a command reference input type and the table with the
-     *            change is a command
+     * @param cmdRefChkResults
+     *            results of the command reference input type search
      *
      * @return Table row deletion command
      *********************************************************************************************/
@@ -4350,10 +4204,8 @@ public class CcddDbTableCommandHandler
                                         String dbTableName,
                                         TypeDefinition typeDefn,
                                         boolean skipInternalTables,
-                                        List<VarCmdReference> variableReferences,
-                                        boolean hasVarRefFieldChange,
-                                        List<VarCmdReference> commandReferences,
-                                        boolean hasCmdRefFieldChange)
+                                        ReferenceCheckResults varRefChkResults,
+                                        ReferenceCheckResults cmdRefChkResults)
     {
         StringBuilder delCmd = new StringBuilder("");
 
@@ -4509,8 +4361,7 @@ public class CcddDbTableCommandHandler
                     // containing the deleted variable
                     deleteVariableReference(tableInfo,
                                             variableName,
-                                            variableReferences,
-                                            hasVarRefFieldChange,
+                                            varRefChkResults,
                                             valuesDelCmd,
                                             fieldsDelCmd);
                 }
@@ -4523,11 +4374,9 @@ public class CcddDbTableCommandHandler
 
                     // Blank any table cells or data fields with the command reference input type
                     // containing the deleted command
-                    // TODO OKAY TO GET COL INDEX THIS WAY (DIFFERS FROM STRUCTS)
                     deleteCommandReference(tableInfo,
                                            del.getRowData()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)].toString(),
-                                           variableReferences,
-                                           hasCmdRefFieldChange,
+                                           cmdRefChkResults,
                                            valuesDelCmd,
                                            fieldsDelCmd);
                 }
@@ -4957,9 +4806,6 @@ public class CcddDbTableCommandHandler
      *            StringBuilder containing the existing links table deletion command. If empty then
      *            a new command is initiated; otherwise the deletions are appended to the existing
      *            command
-     *
-     * @return StringBuilder containing the links table command. This must be terminated by a
-     *         semi-colon prior to execution
      *********************************************************************************************/
     private void deleteLinkPathRef(String linksPath, StringBuilder linksCmd)
     {
@@ -4985,9 +4831,6 @@ public class CcddDbTableCommandHandler
      *            StringBuilder containing the existing telemetry scheduler table deletion command.
      *            If empty then a new command is initiated; otherwise the deletions are appended to
      *            the existing command
-     *
-     * @return StringBuilder containing the telemetry scheduler table command. This must be
-     *         terminated by a semi-colon prior to execution
      *********************************************************************************************/
     private void deleteTlmPathRef(String tlmPath, StringBuilder tlmCmd)
     {
@@ -5204,15 +5047,8 @@ public class CcddDbTableCommandHandler
      * @param newDataType
      *            new data type
      *
-     * @param variableReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            prototype tables for each structure table type with a column using the variable
-     *            reference input type; an empty list if the table with the change is not a
-     *            structure
-     *
-     * @param hasVarRefFieldChange
-     *            true is a data field has a variable reference input type and the table with the
-     *            change is a structure
+     * @param varRefChkResults
+     *            results of the variable reference input type search
      *
      * @param valuesModCmd
      *            StringBuilder containing the existing values table modification command
@@ -5225,8 +5061,7 @@ public class CcddDbTableCommandHandler
                                          String newVariableName,
                                          String oldDataType,
                                          String newDataType,
-                                         List<VarCmdReference> variableReferences,
-                                         boolean hasVarRefFieldChange,
+                                         ReferenceCheckResults varRefChkResults,
                                          StringBuilder valuesModCmd,
                                          StringBuilder fieldsModCmd)
     {
@@ -5282,7 +5117,7 @@ public class CcddDbTableCommandHandler
         }
 
         // Step through each table type variable reference input type reference
-        for (VarCmdReference varRef : variableReferences)
+        for (InputTypeReference varRef : varRefChkResults.getReferences())
         {
             // Step through each table of this table type
             for (String table : varRef.getTables())
@@ -5332,7 +5167,7 @@ public class CcddDbTableCommandHandler
         }
 
         // Check if a data field has the variable reference input type
-        if (hasVarRefFieldChange)
+        if (varRefChkResults.isFieldUsesType())
         {
             // Step through each variable affected by the name change
             for (String targetVar[] : targetVars)
@@ -5367,15 +5202,8 @@ public class CcddDbTableCommandHandler
      * @param variableName
      *            name of the deleted variable
      *
-     * @param variableReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            prototype tables for each structure table type with a column using the variable
-     *            reference input type; an empty list if the table with the change is not a
-     *            structure
-     *
-     * @param hasVarRefFieldChange
-     *            true is a data field has a variable reference input type and the table with the
-     *            change is a structure
+     * @param varRefChkResults
+     *            results of the variable reference input type search
      *
      * @param valuesDelCmd
      *            StringBuilder containing the existing values table deletion command
@@ -5385,8 +5213,7 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private void deleteVariableReference(TableInformation tableInfo,
                                          String variableName,
-                                         List<VarCmdReference> variableReferences,
-                                         boolean hasVarRefFieldChange,
+                                         ReferenceCheckResults varRefChkResults,
                                          StringBuilder valuesDelCmd,
                                          StringBuilder fieldsDelCmd)
     {
@@ -5398,7 +5225,7 @@ public class CcddDbTableCommandHandler
                                         + "(?:,|$)";
 
         // Step through each table type variable reference input type reference
-        for (VarCmdReference varRef : variableReferences)
+        for (InputTypeReference varRef : varRefChkResults.getReferences())
         {
             // Step through each table of this table type
             for (String table : varRef.getTables())
@@ -5440,7 +5267,7 @@ public class CcddDbTableCommandHandler
         }
 
         // Check if a data field has the variable reference input type
-        if (hasVarRefFieldChange)
+        if (varRefChkResults.isFieldUsesType())
         {
             // Blank the data field value if the variable path matches
             fieldsDelCmd.append("UPDATE "
@@ -5484,16 +5311,8 @@ public class CcddDbTableCommandHandler
      * @param newNumArgs
      *            new number of arguments
      *
-     *
-     * @param commandReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            prototype tables for each structure table type with a column using the command
-     *            reference input type; an empty list if the table with the change is not a
-     *            structure
-     *
-     * @param hasCmdRefFieldChange
-     *            true is a data field has a command reference input type and the table with the
-     *            change is a structure
+     * @param cmdRefChkResults
+     *            results of the command reference input type search
      *
      * @param valuesModCmd
      *            StringBuilder containing the existing values table modification command
@@ -5508,8 +5327,7 @@ public class CcddDbTableCommandHandler
                                         String newCommandCode,
                                         int oldNumArgs,
                                         int newNumArgs,
-                                        List<VarCmdReference> commandReferences,
-                                        boolean hasCmdRefFieldChange,
+                                        ReferenceCheckResults cmdRefChkResults,
                                         StringBuilder valuesModCmd,
                                         StringBuilder fieldsModCmd)
     {
@@ -5524,7 +5342,7 @@ public class CcddDbTableCommandHandler
                                                                 newNumArgs);
 
         // Step through each table type command reference input type reference
-        for (VarCmdReference cmdRef : commandReferences)
+        for (InputTypeReference cmdRef : cmdRefChkResults.getReferences())
         {
             // Step through each table of this table type
             for (String table : cmdRef.getTables())
@@ -5545,7 +5363,7 @@ public class CcddDbTableCommandHandler
         }
 
         // Check if a data field has the command reference input type
-        if (hasCmdRefFieldChange)
+        if (cmdRefChkResults.isFieldUsesType())
         {
             // Update the data field value if the command path matches
             fieldsModCmd.append("UPDATE "
@@ -5576,14 +5394,8 @@ public class CcddDbTableCommandHandler
      * @param commandName
      *            name of the deleted command
      *
-     * @param commandReferences
-     *            list containing the columns names (database and visible) and the names of the
-     *            tables for each command table type with a column using the command reference
-     *            input type; an empty list if the table with the change is not a command
-     *
-     * @param hasCmdRefFieldChange
-     *            true is a data field has a command reference input type and the table with the
-     *            change is a command
+     * @param cmdRefChkResults
+     *            results of the command reference input type search
      *
      * @param valuesDelCmd
      *            StringBuilder containing the existing values table deletion command
@@ -5593,8 +5405,7 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private void deleteCommandReference(TableInformation tableInfo,
                                         String commandName,
-                                        List<VarCmdReference> commandReferences,
-                                        boolean hasCmdRefFieldChange,
+                                        ReferenceCheckResults cmdRefChkResults,
                                         StringBuilder valuesDelCmd,
                                         StringBuilder fieldsDelCmd)
     {
@@ -5603,7 +5414,7 @@ public class CcddDbTableCommandHandler
         commandName += " \\(.*";
 
         // Step through each table type command reference input type reference
-        for (VarCmdReference cmdRef : commandReferences)
+        for (InputTypeReference cmdRef : cmdRefChkResults.getReferences())
         {
             // Step through each table of this table type
             for (String table : cmdRef.getTables())
@@ -5622,7 +5433,7 @@ public class CcddDbTableCommandHandler
         }
 
         // Check if a data field has the command reference input type
-        if (hasCmdRefFieldChange)
+        if (cmdRefChkResults.isFieldUsesType())
         {
             // Blank the data field value if the command matches
             fieldsDelCmd.append("UPDATE "
@@ -5639,6 +5450,210 @@ public class CcddDbTableCommandHandler
                                 + commandName
                                 + "'; ");
         }
+    }
+
+    // TODO
+    /**********************************************************************************************
+     * Build the commands to update any references to a message name or ID that has been modified
+     * or deleted in every table cell and data field with a message name & ID reference input type
+     *
+     * @param tableInfo
+     *            table information
+     *
+     * @param typeDefn
+     *            table's type definition
+     *
+     * @param modifications
+     *            list of row update information
+     *
+     * @param deletions
+     *            list of row deletion information
+     *
+     * @param msgIDRefChkResults
+     *            results of the message name & ID reference input type search
+     *
+     * @return Message name & ID cells and fields update command
+     *********************************************************************************************/
+    private String updateMessageNameAndIDReference(TableInformation tableInfo,
+                                                   TypeDefinition typeDefn,
+                                                   List<TableModification> modifications,
+                                                   List<TableModification> deletions,
+                                                   ReferenceCheckResults msgIDRefChkResults)
+    {
+        StringBuilder msgIDCmd = new StringBuilder("");
+
+        // Check if any table column or data field uses the message name & ID input type
+        if (!msgIDRefChkResults.getReferences().isEmpty() || msgIDRefChkResults.isFieldUsesType())
+        {
+            // Create storage for the lists of names and IDs before and after the change is applied
+            List<String> msgNameIDs = new ArrayList<String>();
+            List<String> newMsgNameIDs = new ArrayList<String>();
+
+            // Get the indices for columns using the message name and ID input type
+            List<Integer> msgColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.MESSAGE_NAME_AND_ID);
+
+            // Step through each row of data in the table
+            for (int row = 0; row < tableInfo.getData().length; row++)
+            {
+                boolean isModDel = false;
+
+                // Step through each row modification
+                for (TableModification mod : modifications)
+                {
+                    // Check if the modified row's index matches the current row
+                    if (row == Integer.valueOf(mod.getRowData()[DefaultColumn.ROW_INDEX.ordinal()].toString()) - 1)
+                    {
+                        // Step through each message name and ID column
+                        for (Integer nameCol : msgColumns)
+                        {
+                            // Store the original and (possibly) updated message name
+                            msgNameIDs.add(mod.getOriginalRowData()[nameCol].toString());
+                            newMsgNameIDs.add(mod.getRowData()[nameCol].toString());
+                        }
+
+                        // Set the flag to indicate a modification was found and stop searching
+                        isModDel = true;
+                        break;
+                    }
+                }
+
+                // Check if the current row wasn't modified
+                if (!isModDel)
+                {
+                    // Step through each row deletion
+                    for (TableModification del : deletions)
+                    {
+                        // Check if the deleted row's index matches the current row
+                        if (row == Integer.valueOf(del.getRowData()[DefaultColumn.ROW_INDEX.ordinal()].toString()) - 1)
+                        {
+                            // Step through each message name and ID column
+                            for (Integer nameCol : msgColumns)
+                            {
+                                // Store the original message name and a blank as the updated name
+                                msgNameIDs.add(del.getRowData()[nameCol].toString());
+                                newMsgNameIDs.add("");
+                            }
+
+                            // Set the flag to indicate a deletion was found and stop searching
+                            isModDel = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Check if the current row wasn't modified or deleted
+                if (!isModDel)
+                {
+                    // Step through each message name and ID column
+                    for (Integer nameCol : msgColumns)
+                    {
+                        // Store the message name as both original and updated (no change)
+                        msgNameIDs.add(tableInfo.getData()[row][nameCol].toString());
+                        newMsgNameIDs.add(tableInfo.getData()[row][nameCol].toString());
+                    }
+                }
+            }
+
+            // Get the reference to the message name and ID input type
+            InputType nameType = inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID);
+
+            // Step through each of the table's data fields
+            for (FieldInformation fieldInfo : tableInfo.getFieldInformation())
+            {
+                // Check if the field's input type is for a message name
+                if (fieldInfo.getInputType().equals(nameType))
+                {
+                    // Get the reference to the field in the field handler. This has the field's
+                    // original value
+                    FieldInformation fldInfo = fieldHandler.getFieldInformationByInputType(fieldInfo.getOwnerName(),
+                                                                                           nameType);
+
+                    // Store the original and (possibly) updated message name
+                    msgNameIDs.add(fldInfo != null
+                                                   ? fldInfo.getValue()
+                                                   : "");
+                    newMsgNameIDs.add(fldInfo != null
+                                                      ? fieldInfo.getValue()
+                                                      : "");
+                }
+            }
+
+            // Step through the lists of message names and IDs
+            for (int index = 0; index < msgNameIDs.size(); index++)
+            {
+                // Check if the message name and ID isn't blank
+                if (!msgNameIDs.get(index).isEmpty())
+                {
+                    // Separate the message name and ID in the original and updated name/ID string
+                    String[] nameAndID = CcddMessageIDHandler.getMessageNameAndID(msgNameIDs.get(index));
+                    String[] newNameAndID = CcddMessageIDHandler.getMessageNameAndID(newMsgNameIDs.get(index));
+
+                    // Build the original and updated name, ID, and owner reference
+                    String msgNameIDOwner = nameAndID[0]
+                                            + " (ID: "
+                                            + nameAndID[1]
+                                            + ", owner: "
+                                            + tableInfo.getTablePath()
+                                            + ")";
+                    String newMsgNameIDOwner = newMsgNameIDs.get(index).isEmpty()
+                                                                                  ? ""
+                                                                                  : newNameAndID[0]
+                                                                                    + " (ID: "
+                                                                                    + newNameAndID[1]
+                                                                                    + ", owner: "
+                                                                                    + tableInfo.getTablePath()
+                                                                                    + ")";
+
+                    // Step through each table type message name & ID reference input type
+                    // reference
+                    for (InputTypeReference msgIDRef : msgIDRefChkResults.getReferences())
+                    {
+                        // Step through each table of this table type
+                        for (String table : msgIDRef.getTables())
+                        {
+                            // Update references to the message name & ID reference from the table
+                            msgIDCmd.append("UPDATE "
+                                            + table
+                                            + " SET "
+                                            + msgIDRef.getColumnDb()
+                                            + " = '"
+                                            + newMsgNameIDOwner
+                                            + "' WHERE "
+                                            + msgIDRef.getColumnDb()
+                                            + " = E'"
+                                            + msgNameIDOwner
+                                            + "'; ");
+                        }
+                    }
+
+                    // Check if a data field has the message name & ID reference input type
+                    if (msgIDRefChkResults.isFieldUsesType())
+                    {
+                        // Update the data field value if the message name & ID matches
+                        msgIDCmd.append("UPDATE "
+                                        + InternalTable.FIELDS.getTableName()
+                                        + " SET "
+                                        + FieldsColumn.FIELD_VALUE.getColumnName()
+                                        + " = '"
+                                        + newMsgNameIDOwner
+                                        + "' WHERE "
+                                        + FieldsColumn.FIELD_TYPE.getColumnName()
+                                        + " = E'"
+                                        + DefaultInputType.MESSAGE_REFERENCE.getInputName()
+                                        + "' AND "
+                                        + FieldsColumn.FIELD_VALUE.getColumnName()
+                                        + " = E'"
+                                        + msgNameIDOwner
+                                        + "'; ");
+                    }
+                }
+            }
+
+            // Set the flag to indicate if a message name & ID reference may have changed
+            isMsgIDChange = msgIDCmd.length() != 0;
+        }
+
+        return msgIDCmd.toString();
     }
 
     /**********************************************************************************************
@@ -7666,7 +7681,7 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Update the input type columns in the open table editors
      *
-     * @param inputTypeNamess
+     * @param inputTypeNames
      *            list of the input type names, before and after the changes; null if none of the
      *            input type names changed
      *
@@ -7877,7 +7892,7 @@ public class CcddDbTableCommandHandler
             private ModifiedTable(String tablePath)
             {
                 // Load the table's information from the project database
-                tableInformation = loadTableData(tablePath, false, true, false, dialog);
+                tableInformation = loadTableData(tablePath, false, true, dialog);
 
                 // Create a table editor handler using the updated data types and/or macros, but
                 // without displaying the editor itself
@@ -8508,7 +8523,7 @@ public class CcddDbTableCommandHandler
             ModifiedTable(String tablePath)
             {
                 // Load the table's information from the project database
-                tableInformation = loadTableData(tablePath, false, true, false, dialog);
+                tableInformation = loadTableData(tablePath, false, true, dialog);
 
                 // Create a table editor handler using the updated input types, but without
                 // displaying the editor itself

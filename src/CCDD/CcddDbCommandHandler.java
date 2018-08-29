@@ -133,7 +133,7 @@ public class CcddDbCommandHandler
      *            GUI component over which to center any error dialog
      *
      * @return true if the first result is a ResultSet object, or false if it is an update count or
-     *         there are no results; returns null if no connection exists to the server
+     *         there are no results
      *
      * @throws SQLException
      *             If no connection exists to the server

@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.PROTECTED_MSG_ID_IDENT;
+import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.MsgIDListColumnIndex;
+import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.SearchType;
 
 /**************************************************************************************************
@@ -53,6 +55,120 @@ public class CcddInputTypeHandler
 
     // Map used to locate an input type based on its name as the key
     private final Map<String, InputType> inputTypeMap;
+
+    /**********************************************************************************************
+     * Variable (command) reference class; used to contain information on structure (command)
+     * tables of the same table type having a column with the variable (command) reference input
+     * type
+     *********************************************************************************************/
+    protected class InputTypeReference
+    {
+        private final String columnDb;
+        private final String columnVisible;
+        private final String[] tables;
+
+        /******************************************************************************************
+         * Variable (command) reference class constructor
+         *
+         * @param columnDb
+         *            column name (as used in the database) having the variable (command) reference
+         *            input type
+         *
+         * @param columnVisible
+         *            column name (as seen by the user) having the variable (command) reference
+         *            input type
+         *
+         * @param tables
+         *            array of prototype structure (command) tables of the table type having a
+         *            column with the variable (command) reference input type
+         *****************************************************************************************/
+        InputTypeReference(String columnDb, String columnVisible, String[] tables)
+        {
+            this.columnDb = columnDb;
+            this.columnVisible = columnVisible;
+            this.tables = tables;
+        }
+
+        /******************************************************************************************
+         * Get the column name as used in the database
+         *
+         * @return Column name (as used in the database) having the variable (command) reference
+         *         input type
+         *****************************************************************************************/
+        protected String getColumnDb()
+        {
+            return columnDb;
+        }
+
+        /******************************************************************************************
+         * Get the column name as seen by the user
+         *
+         * @return Column name (as seen by the user) having the variable (command) reference input
+         *         type
+         *****************************************************************************************/
+        protected String getColumnVisible()
+        {
+            return columnVisible;
+        }
+
+        /******************************************************************************************
+         * Get the array of prototype structure (command) tables of the same table type
+         *
+         * @return Array of prototype structure (command) tables of the table type having a column
+         *         with the variable (command) reference input type
+         *****************************************************************************************/
+        protected String[] getTables()
+        {
+            return tables;
+        }
+    }
+
+    /**********************************************************************************************
+     * Input type reference check results class
+     *********************************************************************************************/
+    protected class ReferenceCheckResults
+    {
+        private final List<InputTypeReference> references;
+        private final boolean isFieldUsesType;
+
+        /******************************************************************************************
+         * Input type reference check results class constructor
+         *
+         * @param references
+         *            list of references in the table type and data field internal tables that use
+         *            the input type
+         *
+         * @param isRefFieldChange
+         *            true to indicate that a data field is using the input type
+         *****************************************************************************************/
+        ReferenceCheckResults(List<InputTypeReference> references, boolean isRefFieldChange)
+        {
+            this.references = references;
+            this.isFieldUsesType = isRefFieldChange;
+        }
+
+        /******************************************************************************************
+         * Get the list of references in the table type and data field internal tables that use the
+         * input type
+         *
+         * @return List of references in the table type and data field internal tables that use the
+         *         input type
+         *****************************************************************************************/
+        protected List<InputTypeReference> getReferences()
+        {
+            return references;
+        }
+
+        /******************************************************************************************
+         * Check if a data field is using the input type
+         *
+         * @return true if a data field is using the input type
+         *****************************************************************************************/
+        protected boolean isFieldUsesType()
+        {
+            return isFieldUsesType;
+        }
+    }
 
     /**********************************************************************************************
      * Input type handler class constructor
@@ -292,7 +408,7 @@ public class CcddInputTypeHandler
         List<String> msgIDs = new ArrayList<String>();
 
         // Get the reference to the message names & IDs input type
-        InputType inputType = getInputTypeByDefaultType(DefaultInputType.MESSAGE_ID_NAMES_AND_IDS);
+        InputType inputType = getInputTypeByDefaultType(DefaultInputType.MESSAGE_REFERENCE);
 
         // Step through each message ID name & ID pair
         for (String[] msgID : ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
@@ -300,12 +416,14 @@ public class CcddInputTypeHandler
                                                                                    parent))
         {
             // Check if the message ID name isn't blank
-            if (!msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()].isEmpty())
+            if (!msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()].isEmpty())
             {
-                // Get the message name & ID to display in the list
-                String item = msgID[MsgIDListColumnIndex.MESSAGE_ID_NAME.ordinal()]
-                              + " ("
+                // Get the message name, ID, and owner to display in the list
+                String item = msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()]
+                              + " (ID: "
                               + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
+                              + ", owner: "
+                              + msgID[MsgIDListColumnIndex.OWNER.ordinal()]
                               + ")";
 
                 // Check if the message name & ID isn't already in the list
@@ -427,8 +545,8 @@ public class CcddInputTypeHandler
      * Get an array of all of the input type names, excluding separators and breaks
      *
      * @param includeSpecialTypes
-     *            true to include special input types (data type, enumeration, and variable path);
-     *            false to exclude
+     *            true to include special input types (data type and variable path); false to
+     *            exclude
      *
      * @return Array of all of the input type names
      *********************************************************************************************/
@@ -445,7 +563,6 @@ public class CcddInputTypeHandler
             if (!inputType.getInputFormat().equals(InputTypeFormat.PAGE_FORMAT)
                 && (includeSpecialTypes
                     || (!inputType.getInputFormat().equals(InputTypeFormat.DATA_TYPE)
-                        && !inputType.getInputFormat().equals(InputTypeFormat.ENUMERATION)
                         && !inputType.getInputFormat().equals(InputTypeFormat.VARIABLE_PATH))))
             {
                 // Store the input type name in the array
@@ -470,7 +587,7 @@ public class CcddInputTypeHandler
      *********************************************************************************************/
     protected String[] getDescriptions(boolean includeSpecialTypes)
     {
-        // Get the list of input names, sorted alphabetically
+        // Get the list of input type names, sorted alphabetically
         String[] inputNames = getNames(includeSpecialTypes);
 
         // Create an array to hold the input type descriptions
@@ -582,9 +699,33 @@ public class CcddInputTypeHandler
                         break;
 
                     case ARRAY:
-
                         // Remove all spaces and replace any commas with a comma and space
                         valueS = valueS.replaceAll("\\s", "").replaceAll(",", ", ");
+                        break;
+
+                    case MESSAGE_ID:
+                        // Separate the message name and ID (if both are present)
+                        String[] values = valueS.split("\\s+");
+
+                        // Check if only one value is provided and the single value's format
+                        // matches that for a hexadecimal value
+                        if (values.length == 1)
+                        {
+                            // Format the message ID
+                            valueS = formatInput(valueS,
+                                                 InputTypeFormat.HEXADECIMAL,
+                                                 preserveZeroes);
+                        }
+                        // Check if a message name and ID are present
+                        else if (values.length == 2)
+                        {
+                            // Format the message ID portion
+                            valueS = values[0]
+                                     + " "
+                                     + formatInput(values[1],
+                                                   InputTypeFormat.HEXADECIMAL,
+                                                   preserveZeroes);
+                        }
 
                         break;
 
@@ -676,5 +817,57 @@ public class CcddInputTypeHandler
                                         + "<b>' doesn't match the existing definition");
             }
         }
+    }
+
+    /**********************************************************************************************
+     * Get the results of a search for references in the table type and data field internal tables
+     * for the specified default input type
+     *
+     * @param inputType
+     *            default input type for which to search (DefaultInputType)
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return Reference to the ReferenceCheckResults containing the list of references in the
+     *         table type and data field internal tables that use the specified input type (an
+     *         empty list if there are no references) and the flag that indicates if a data field
+     *         is using the input type
+     *********************************************************************************************/
+    protected ReferenceCheckResults getInputTypeReferences(DefaultInputType inputType,
+                                                           Component parent)
+    {
+        boolean isFieldUsesType = false;
+        List<InputTypeReference> references = new ArrayList<InputTypeReference>();
+
+        // Step through each reference in the table type and data field internal tables that use
+        // the specified input type
+        for (String typeRef : getInputTypeReferences(inputType.getInputName(), parent))
+        {
+            // Split the reference into table name, column name, comment, and context
+            String[] tblColCmtAndCntxt = typeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+
+            // Check if the context is in a table type definition
+            if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
+            {
+                // Extract the table type column values from the reference
+                String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+
+                // Create the reference with the columns names (database and visible) and the names
+                // of the prototype tables of this table type
+                references.add(new InputTypeReference(refColumns[TableTypesColumn.COLUMN_NAME_DB.ordinal()],
+                                                      refColumns[TableTypesColumn.COLUMN_NAME_VISIBLE.ordinal()],
+                                                      ccddMain.getDbTableCommandHandler().queryTablesOfTypeList(refColumns[TableTypesColumn.TYPE_NAME.ordinal()],
+                                                                                                                parent)));
+            }
+            // The reference is in a data field
+            else
+            {
+                // Set the flag to indicate that a data field is using the input type
+                isFieldUsesType = true;
+            }
+        }
+
+        return new ReferenceCheckResults(references, isFieldUsesType);
     }
 }

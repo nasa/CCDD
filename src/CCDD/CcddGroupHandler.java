@@ -55,8 +55,8 @@ public class CcddGroupHandler
      * @param undoHandler
      *            reference to the undo handler
      *
-     * @param groupInformation
-     *            group information list
+     * @param groupDefinitions
+     *            group definitions list
      *********************************************************************************************/
     CcddGroupHandler(CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
     {

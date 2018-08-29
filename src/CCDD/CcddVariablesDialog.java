@@ -61,7 +61,7 @@ public class CcddVariablesDialog extends CcddDialogHandler
     // Class references
     private final CcddMain ccddMain;
     private CcddJTableHandler variableTable;
-    private final CcddVariableSizeAndConversionHandler variableHandler;
+    private final CcddVariableHandler variableHandler;
     private CcddTableTreeHandler tableTree;
 
     // Components referenced from multiple methods
