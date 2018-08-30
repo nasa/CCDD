@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary input type handler.
+ * CFS Command and Data Dictionary input type handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -33,10 +33,7 @@ import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.SearchType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary input type handler class
- *
- * @param ccddMain
- *            main class
+ * CFS Command and Data Dictionary input type handler class
  *************************************************************************************************/
 public class CcddInputTypeHandler
 {
@@ -248,7 +245,7 @@ public class CcddInputTypeHandler
     /**********************************************************************************************
      * Get the custom input types
      *
-     * return Array containing the custom input type definitions
+     * @return Array containing the custom input type definitions
      *********************************************************************************************/
     protected String[][] getCustomInputTypeData()
     {
@@ -411,9 +408,9 @@ public class CcddInputTypeHandler
         InputType inputType = getInputTypeByDefaultType(DefaultInputType.MESSAGE_REFERENCE);
 
         // Step through each message ID name & ID pair
-        for (String[] msgID : ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
-                                                                                   true,
-                                                                                   parent))
+        for (String[] msgID : ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_NAME,
+                                                                                         true,
+                                                                                         parent))
         {
             // Check if the message ID name isn't blank
             if (!msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()].isEmpty())

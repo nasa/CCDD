@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table type handler.
+ * CFS Command and Data Dictionary table type handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -41,7 +41,7 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table type handler class. The table definition consists of one or
+ * CFS Command and Data Dictionary table type handler class. The table definition consists of one or
  * more table types, each with its associated column name(s) and file definition(s), and the value
  * required status of the columns
  *************************************************************************************************/
@@ -124,6 +124,9 @@ public class CcddTableTypeHandler
 
         /******************************************************************************************
          * Table type definition class constructor
+         *
+         * @param tableType
+         *            table type name
          *****************************************************************************************/
         private TypeDefinition(String tableType)
         {

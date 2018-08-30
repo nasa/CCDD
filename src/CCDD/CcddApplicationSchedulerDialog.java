@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary application scheduler dialog.
+ * CFS Command and Data Dictionary application scheduler dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -30,7 +30,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.SchedulerType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary application scheduler dialog class
+ * CFS Command and Data Dictionary application scheduler dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements CcddSchedulerDialogInterface

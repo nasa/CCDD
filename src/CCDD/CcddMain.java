@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary.
+ * CFS Command and Data Dictionary.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -95,7 +95,7 @@ import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary main class
+ * CFS Command and Data Dictionary main class
  *************************************************************************************************/
 public class CcddMain
 {
@@ -222,6 +222,9 @@ public class CcddMain
 
     /**********************************************************************************************
      * Create the application
+     *
+     * @param args
+     *            array containing the command line arguments
      *********************************************************************************************/
     private CcddMain(String[] args)
     {
@@ -971,6 +974,9 @@ public class CcddMain
     /**********************************************************************************************
      * Activate/deactivate the main menu by setting the component enable flags appropriately. While
      * disabled these components are grayed out and do not respond to inputs
+     *
+     * @param activate
+     *            true to enable the GUI components, false to disable
      *********************************************************************************************/
     protected void setGUIActivated(boolean activate)
     {
@@ -1124,7 +1130,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1160,7 +1166,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1197,7 +1203,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1234,7 +1240,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1276,7 +1282,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *
      * @param toolTip
      *            tool tip text
@@ -1318,7 +1324,7 @@ public class CcddMain
      *
      * @param occurrence
      *            specifies which occurrence of the character in the item name to highlight; set to
-     *            < 2 to use the first occurrence
+     *            &lt; 2 to use the first occurrence
      *********************************************************************************************/
     private void setMnemonic(AbstractButton menuItem, String name, int key, int occurrence)
     {
@@ -1717,7 +1723,7 @@ public class CcddMain
 
         // Create the main application frame and set its characteristics
         frameCCDD = new JFrame();
-        frameCCDD.setTitle("CFS Command & Data Dictionary  " + ccddVersion);
+        frameCCDD.setTitle("CFS Command and Data Dictionary  " + ccddVersion);
         frameCCDD.setBounds(100, 100, INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
         frameCCDD.setMinimumSize(new Dimension(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT));
 
@@ -2806,7 +2812,7 @@ public class CcddMain
 
                 // Display the application name, author, and version
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
-                                                          "<html><b>Core Flight System<br>Command & Data Dictionary</b><br>Author: "
+                                                          "<html><b>Core Flight System<br>Command and Data Dictionary</b><br>Author: "
                                                                      + CCDD_AUTHOR
                                                                      + "<br>Contributors: "
                                                                      + CCDD_CONTRIBUTORS
@@ -2926,9 +2932,9 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Get the application look & feel
+     * Get the application look and feel
      *
-     * @return name of the selected look & feel
+     * @return name of the selected look and feel
      *********************************************************************************************/
     protected String getLookAndFeel()
     {
@@ -2936,13 +2942,13 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Set the application's look & feel
+     * Set the application's look and feel
      *
      * @param laf
-     *            name of the selected look & feel; null to use the look & feel stored in the
+     *            name of the selected look and feel; null to use the look and feel stored in the
      *            program preferences
      *
-     * @return true if an error occurred loading the look & feel
+     * @return true if an error occurred loading the look and feel
      *********************************************************************************************/
     protected boolean setLookAndFeel(String laf)
     {
@@ -2997,7 +3003,7 @@ public class CcddMain
      * GUI update type
      *
      * @param updateType
-     *            type of GUI update - LAF for look & feel; FONT for font; COLOR for color
+     *            type of GUI update - LAF for look and feel; FONT for font; COLOR for color
      *
      * @param dialogs
      *            array of other dialogs to update. This is used to update the Preferences dialog
@@ -3097,7 +3103,7 @@ public class CcddMain
      * a change in the specified GUI update type
      *
      * @param updateType
-     *            type of GUI update - LAF for look & feel; FONT for font; COLOR for color
+     *            type of GUI update - LAF for look and feel; FONT for font; COLOR for color
      *
      * @param container
      *            reference to the Container object to update

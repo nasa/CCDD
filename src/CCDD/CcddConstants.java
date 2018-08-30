@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary common constants.
+ * CFS Command and Data Dictionary common constants.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -32,7 +32,7 @@ import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary common constants class
+ * CFS Command and Data Dictionary common constants class
  *************************************************************************************************/
 public class CcddConstants
 {
@@ -2112,8 +2112,11 @@ public class CcddConstants
         /******************************************************************************************
          * Default input type formats constructor
          *
-         * @param inputName
-         *            input type name
+         * @param isUserSelectable
+         *            true if the format can be selected by the user
+         *
+         * @param isValidWithItems
+         *            true if the format can be selected when the input type has selection items
          *****************************************************************************************/
         InputTypeFormat(boolean isUserSelectable, boolean isValidWithItems)
         {
@@ -3057,6 +3060,9 @@ public class CcddConstants
          * @param inputTypeName
          *            column input type name
          *
+         * @param isStructure
+         *            true if the column belongs to a structure
+         *
          * @return Database column name corresponding to the visible column name
          *********************************************************************************************/
         protected static String convertVisibleToDatabase(String columnName,
@@ -3198,7 +3204,7 @@ public class CcddConstants
         }
 
         /******************************************************************************************
-         * Check if the supplied table type and input type match one of the default table type &
+         * Check if the supplied table type and input type match one of the default table type and
          * input type pairs
          *
          * @param compareTableType
@@ -4293,6 +4299,9 @@ public class CcddConstants
         /******************************************************************************************
          * Get the internal table column name by index
          *
+         * @param index
+         *            column index
+         *
          * @return Internal table column name for the specified index; null if the index is invalid
          *****************************************************************************************/
         protected String getColumnName(int index)
@@ -4311,6 +4320,9 @@ public class CcddConstants
 
         /******************************************************************************************
          * Get the internal table column data type by index
+         *
+         * @param index
+         *            column index
          *
          * @return Internal table column data type for the specified index; null if the index is
          *         invalid
@@ -6280,7 +6292,7 @@ public class CcddConstants
         /******************************************************************************************
          * Copy table entries constructor
          *
-         * @param name
+         * @param columnName
          *            copy table column name
          *****************************************************************************************/
         CopyTableEntry(String columnName)
@@ -6334,6 +6346,8 @@ public class CcddConstants
         APPLICATION_DESCRIPTION("Application Description"),
         APPLICATION_FIELD("Application Data Field"),
         APPLICATION_TABLE("Application Table"),
+        APP_SCHED_SCHEDULE_TABLE("Schedule Definition Table"),
+        APP_SCHED_MESSAGE_TABLE("Message Definition Table"),
         COPY_TABLE_STREAM("Stream Name"),
         COPY_TABLE_HDR_SIZE("Header Size"),
         COPY_TABLE_OPTIMIZE("Optimized"),
@@ -6700,6 +6714,8 @@ public class CcddConstants
 
         /******************************************************************************************
          * Event log message type name
+         *
+         * @return Log message type name
          *****************************************************************************************/
         protected String getTypeName()
         {
@@ -6708,6 +6724,8 @@ public class CcddConstants
 
         /******************************************************************************************
          * Event log message type color
+         *
+         * @return Log message type color
          *****************************************************************************************/
         protected String getTypeColor()
         {
@@ -6716,6 +6734,8 @@ public class CcddConstants
 
         /******************************************************************************************
          * Event log message type message
+         *
+         * @return Log message type message
          *****************************************************************************************/
         protected String getTypeMsg()
         {
@@ -6906,10 +6926,10 @@ public class CcddConstants
     }
 
     /**********************************************************************************************
-     * Set GUI adjustment(s) based on the selected look & feel
+     * Set GUI adjustment(s) based on the selected look and feel
      *
      * @param lookAndFeel
-     *            name of the look & feel in effect
+     *            name of the look and feel in effect
      *********************************************************************************************/
     protected static void setLaFAdjustments(String lookAndFeel)
     {

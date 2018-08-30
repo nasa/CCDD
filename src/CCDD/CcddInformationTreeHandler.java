@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary generic information tree handler.
+ * CFS Command and Data Dictionary generic information tree handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -23,7 +23,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.TableCommentIndex;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary generic information tree handler class
+ * CFS Command and Data Dictionary generic information tree handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler

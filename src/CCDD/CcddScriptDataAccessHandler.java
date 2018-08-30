@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary script data access handler.
+ * CFS Command and Data Dictionary script data access handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -70,8 +70,8 @@ import CCDD.CcddImportSupportHandler.BasePrimitiveDataType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary script data access class. This class contains public methods that
- * are accessible to the data output scripts
+ * CFS Command and Data Dictionary script data access class. This class contains public methods
+ * that are accessible to the data output scripts
  *************************************************************************************************/
 public class CcddScriptDataAccessHandler
 {
@@ -2608,6 +2608,9 @@ public class CcddScriptDataAccessHandler
      * Get the table type name referenced in the specified row of the structure table type data.
      * Convenience method that specifies the table type as "structure"
      *
+     * @param row
+     *            table data row index
+     *
      * @return Type name referenced in the specified row of the structure table type data
      *********************************************************************************************/
     public String getStructureTypeNameByRow(int row)
@@ -2618,6 +2621,9 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Get the table type name referenced in the specified row of the command table type data.
      * Convenience method that specifies the table type as "command"
+     *
+     * @param row
+     *            table data row index
      *
      * @return Type name referenced in the specified row of the command table type data
      *********************************************************************************************/
@@ -3388,7 +3394,11 @@ public class CcddScriptDataAccessHandler
 
     /**********************************************************************************************
      * Get the row index in the structure data for the first entry associated with the parent
-     * structure of the entry on the specified row of the structure data
+     * structure of the entry on the specified row of the structure data. The subsequent rows of
+     * the parent structure are not necessarily contiguous in the structure data. If a variable in
+     * the structure has a structure data type then the child structure's rows are inserted within
+     * the rows of the parent. Use getStructurePathByRow() (or variant) to determine the structure
+     * to which a specific row belongs
      *
      * @param row
      *            table data row index
@@ -3397,9 +3407,6 @@ public class CcddScriptDataAccessHandler
      *         structure of the entry on the specified row of the structure data; -1 if there is no
      *         parent associated with the specified row or no structure data exists
      *********************************************************************************************/
-    // TODO ISSUE: THE 'PARENT' ROW IS THE ROW OF THE FIRST VARIABLE IN THE PARENT; THE SUBSEQUENT
-    // ROWS OF THE PARENT ARE NOT NECESSARILY CONTIGUOUS (IF THE VARIABLE HAS A STRUCTURE DATA
-    // TYPE)
     public int getStructureParentRowByChildRow(int row)
     {
         int parentRow = -1;
@@ -4672,8 +4679,7 @@ public class CcddScriptDataAccessHandler
      * each array member
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @return Two-dimensional array representing the enumeration parameters ; returns null if the
      *         input text is empty or the enumeration separator characters cannot be determined
@@ -5377,14 +5383,14 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get the copy table message ID names and their corresponding ID values for the specified data
+     * Get the copy table message names and their corresponding ID values for the specified data
      * stream
      *
      * @param streamName
      *            data stream name
      *
-     * @return Array containing the copy table message ID names and ID values; returns blank if
-     *         there are no entries for the specified data stream or if data stream name is invalid
+     * @return Array containing the copy table message names and ID values; returns blank if there
+     *         are no entries for the specified data stream or if data stream name is invalid
      *********************************************************************************************/
     public String[][] getTelemetryMessageIDs(String streamName)
     {
@@ -5408,20 +5414,20 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Get an array containing every message name and its corresponding ID, and the owning entity
-     * from every table cell, data field (table or group), and telemetry message. Message names and
-     * IDs are determined by the input type assigned to the table column or data field
+     * Get an array containing every message owner, name, and ID from every table cell, data field
+     * (table or group), and telemetry message. Message names and IDs are determined by the input
+     * type assigned to the table column or data field
      *
-     * @return Two-dimensional array containing every message name and its corresponding ID, and
-     *         the owning entity, sorted by the owner name. Each row in the array is an array in
-     *         the form [owner name], [message name], [message ID]. The owner name is preceded by
-     *         'Group:' if the owner is a group, and by "Tlm:' if the owner is a telemetry message
+     * @return Two-dimensional array containing every message owner, name, and ID, sorted by the
+     *         owner name. Each row in the array is an array in the form [owner name], [message
+     *         name], [message ID]. The owner name is preceded by 'Group:' if the owner is a group,
+     *         and by "Tlm:' if the owner is a telemetry message
      *********************************************************************************************/
-    public String[][] getMessageOwnersIDsAndNames()
+    public String[][] getMessageOwnersNamesAndIDs()
     {
-        return ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
-                                                                    true,
-                                                                    parent)
+        return ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
+                                                                          true,
+                                                                          parent)
                        .toArray(new String[0][0]);
     }
 
@@ -5523,7 +5529,6 @@ public class CcddScriptDataAccessHandler
         return schTable.getNumberOfTimeSlots();
     }
 
-    // TODO ADDED TO SUPPORT THE XTCE EXPORT CONVERSION OVERRIDE METHODS
     /**********************************************************************************************
      * Get the name of the prototype table for the specified table
      *
@@ -5555,7 +5560,7 @@ public class CcddScriptDataAccessHandler
      * size string
      *
      * @param arrayString
-     *            array size in the format [#]<[#]<...>> or #<,#<...>>
+     *            array size in the format {@literal [#]<[#]<...>> or #<,#<...>>}
      *
      * @return Array of integers containing the size of each array dimension
      *********************************************************************************************/
@@ -5566,12 +5571,12 @@ public class CcddScriptDataAccessHandler
 
     /**********************************************************************************************
      * Convert an integer array containing the size of each array dimension into a string in the
-     * format [#]<[#]<...>>
+     * format {@literal [#]<[#]<...>>}
      *
      * @param arrayIndex
      *            array of integers containing the size of each array dimension
      *
-     * @return Array size in the format [#]<[#]<...>>
+     * @return Array size in the format {@literal [#]<[#]<...>>}
      *********************************************************************************************/
     public String formatArrayIndex(int[] arrayIndex)
     {
@@ -5768,6 +5773,9 @@ public class CcddScriptDataAccessHandler
      *
      * @param applicationID
      *            telemetry header application ID
+     *
+     * @throws CCDDException
+     *             If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem,
                                              String tableName,
@@ -5827,8 +5835,7 @@ public class CcddScriptDataAccessHandler
      *            parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            parameter units
@@ -5945,8 +5952,7 @@ public class CcddScriptDataAccessHandler
      *            parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            parameter units; null to not specify
@@ -6149,8 +6155,7 @@ public class CcddScriptDataAccessHandler
      *            command argument bit length
      *
      * @param enumeration
-     *            command argument enumeration in the format <enum label>|<enum value>[|...][,...];
-     *            null to not specify
+     *            {@literal command argument enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            command argument units; null to not specify
@@ -6273,8 +6278,7 @@ public class CcddScriptDataAccessHandler
      *            space system reference
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/
@@ -6311,7 +6315,7 @@ public class CcddScriptDataAccessHandler
      * end of each path segment
      *
      * @param path
-     *            system path in the form <</>path1</path2<...>>
+     *            {@literal system path in the form <</>path1</path2<...>>}
      *
      * @return Path with each invalid character replaced with an underscore and any leading
      *         underscores moved to the end of each path segment

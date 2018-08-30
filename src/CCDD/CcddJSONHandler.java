@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary JSON handler.
+ * CFS Command and Data Dictionary JSON handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -60,7 +60,7 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary JSON handler class
+ * CFS Command and Data Dictionary JSON handler class
  *************************************************************************************************/
 public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
@@ -1305,6 +1305,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *            then every data table's data fields are returned), table type name in the format
      *            tableTypeTag:tableTypepName, or group owner in the format groupTag:groupName
      *
+     * @param tagName
+     *            JSON tag name
+     *
      * @param outputJO
      *            JSON object to which the data fields are added
      *
@@ -1820,9 +1823,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         JSONObject outputJO = new JSONObject();
 
         // Get the list of message ID names and associated ID values
-        List<String[]> msgIDs = ccddMain.getMessageIDHandler().getMessageIDsAndNames(MessageIDSortOrder.BY_NAME,
-                                                                                     true,
-                                                                                     parent);
+        List<String[]> msgIDs = ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_NAME,
+                                                                                           true,
+                                                                                           parent);
 
         // Check if there are any message IDs or names to output
         if (!msgIDs.isEmpty())

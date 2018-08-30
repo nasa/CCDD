@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary undoable components handler.
+ * CFS Command and Data Dictionary undoable components handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -44,7 +44,7 @@ import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary undoable components handler class
+ * CFS Command and Data Dictionary undoable components handler class
  *************************************************************************************************/
 public class CcddUndoHandler
 {
@@ -222,6 +222,8 @@ public class CcddUndoHandler
          *
          * @param undoable
          *            true if the list addition can be undone
+         *
+         * @return true
          *****************************************************************************************/
         protected boolean add(E listItem, boolean undoable)
         {
@@ -313,6 +315,8 @@ public class CcddUndoHandler
          *
          * @param undoable
          *            true if the list addition can be undone
+         *
+         * @return true if the list changed as a result of the call
          *****************************************************************************************/
         @SuppressWarnings("unchecked")
         protected boolean addAll(Collection<? extends E> listItems, boolean undoable)
@@ -358,6 +362,8 @@ public class CcddUndoHandler
          *
          * @param undoable
          *            true if the list removal can be undone
+         *
+         * @return true if the list contained the specified element
          *****************************************************************************************/
         @SuppressWarnings("unchecked")
         protected boolean remove(Object listItem, boolean undoable)
@@ -403,6 +409,8 @@ public class CcddUndoHandler
          *
          * @param undoable
          *            true if the list removal can be undone
+         *
+         * @return The element that was removed from the list
          *****************************************************************************************/
         protected E remove(int index, boolean undoable)
         {
@@ -447,6 +455,8 @@ public class CcddUndoHandler
          *
          * @param undoable
          *            true if the list removal can be undone
+         *
+         * @return true if the list changed as a result of the call
          *****************************************************************************************/
         @SuppressWarnings("unchecked")
         protected boolean removeAll(Collection<?> listItems, boolean undoable)
@@ -2021,6 +2031,9 @@ public class CcddUndoHandler
          * @param row
          *            row to insert
          *
+         * @param values
+         *            array containing the column information for the row to insert into the table
+         *
          * @param undoable
          *            true if the row deletion can be undone
          *****************************************************************************************/
@@ -3410,6 +3423,15 @@ public class CcddUndoHandler
 
             /**************************************************************************************
              * Tree node change edit event handler constructor
+             *
+             * @param path
+             *            tree path
+             *
+             * @param oldValue
+             *            original node user object
+             *
+             * @param newValue
+             *            new node user object
              *************************************************************************************/
             UndoableNodeChangeEdit(TreePath path, Object oldValue, Object newValue)
             {
@@ -3491,6 +3513,15 @@ public class CcddUndoHandler
 
             /**************************************************************************************
              * Tree node remove edit event handler constructor
+             *
+             * @param parent
+             *            parent tree node
+             *
+             * @param child
+             *            child tree node
+             *
+             * @param index
+             *            child index
              *************************************************************************************/
             UndoableNodeRemoveEdit(MutableTreeNode parent, final MutableTreeNode child, int index)
             {

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary telemetry scheduler dialog.
+ * CFS Command and Data Dictionary telemetry scheduler dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -41,7 +41,7 @@ import CCDD.CcddConstants.SchedulerType;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary telemetry scheduler dialog class
+ * CFS Command and Data Dictionary telemetry scheduler dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements CcddSchedulerDialogInterface

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary description and data field panel handler. Copyright 2017 United
+ * CFS Command and Data Dictionary description and data field panel handler. Copyright 2017 United
  * States Government as represented by the Administrator of the National Aeronautics and Space
  * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
  * Other Rights Reserved.
@@ -52,7 +52,7 @@ import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary description and data field panel handler class. The editor panel
+ * CFS Command and Data Dictionary description and data field panel handler class. The editor panel
  * contains the table description and data fields (if any)
  *************************************************************************************************/
 public abstract class CcddInputFieldPanelHandler

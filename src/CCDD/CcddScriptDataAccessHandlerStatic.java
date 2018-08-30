@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary static script data access handler.
+ * CFS Command and Data Dictionary static script data access handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -20,8 +20,8 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddImportSupportHandler.BasePrimitiveDataType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary static script data access class. This class contains static public
- * methods that are accessible to the data output scripts
+ * CFS Command and Data Dictionary static script data access class. This class contains static
+ * public methods that are accessible to the data output scripts
  *************************************************************************************************/
 public class CcddScriptDataAccessHandlerStatic
 {
@@ -38,9 +38,10 @@ public class CcddScriptDataAccessHandlerStatic
         CcddScriptDataAccessHandlerStatic.accessHandler = accessHandler;
     }
 
-    /**********************************************************************************************
-     * Following are the static calls to the non-static versions of the public access methods
-     *********************************************************************************************/
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Following are the static calls to the non-static versions of the public access methods
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     public static String getScriptName()
     {
         return accessHandler.getScriptName();
@@ -943,9 +944,9 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getTelemetryMessageIDs(streamName);
     }
 
-    public static String[][] getMessageOwnersIDsAndNames()
+    public static String[][] getMessageOwnersNamesAndIDs()
     {
-        return accessHandler.getMessageOwnersIDsAndNames();
+        return accessHandler.getMessageOwnersNamesAndIDs();
     }
 
     public static String[] getDataStreamNames()

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary command information dialog.
+ * CFS Command and Data Dictionary command information dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -51,7 +51,7 @@ import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary command information dialog class
+ * CFS Command and Data Dictionary command information dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddCommandDialog extends CcddDialogHandler

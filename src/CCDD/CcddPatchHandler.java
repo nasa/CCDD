@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary project database patch handler.
+ * CFS Command and Data Dictionary project database patch handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -40,14 +40,14 @@ import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary project database patch handler class
+ * CFS Command and Data Dictionary project database patch handler class
  *************************************************************************************************/
 public class CcddPatchHandler
 {
     private final CcddMain ccddMain;
 
     /**********************************************************************************************
-     * CFS Command & Data Dictionary project database patch handler class constructor. THe patch
+     * CFS Command and Data Dictionary project database patch handler class constructor. THe patch
      * handler is used to integrate application changes that require alteration of the project
      * database schema. The alterations are meant to be transparent to the user; however, once
      * patched older versions of the application are no longer guaranteed to function properly and
@@ -150,9 +150,13 @@ public class CcddPatchHandler
     /**********************************************************************************************
      * Update the project database table type and data field table references to the message ID
      * name and message ID input types. The message name and ID have been combined into a single
-     * input type, 'Message name & ID'. Change the message ID name input type to 'Text' and the
-     * message ID input type to 'Message name & ID'. Note that the original message ID names are no
-     * longer associated with the IDs; this must be done manually
+     * input type, 'Message name &amp; ID'. Change the message ID name input type to 'Text' and the
+     * message ID input type to 'Message name &amp; ID'. Note that the original message ID names
+     * are no longer associated with the IDs; this must be done manually
+     *
+     * @throws CCDDException
+     *             if an error occurs performing the update or the user elects to not install the
+     *             patch
      *********************************************************************************************/
     private void updateMessageNamesAndIDs() throws CCDDException
     {
@@ -271,7 +275,6 @@ public class CcddPatchHandler
         }
         catch (Exception e)
         {
-            e.printStackTrace();
             // Inform the user that adding access level support failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Cannot update project '"
@@ -290,6 +293,10 @@ public class CcddPatchHandler
 
     /**********************************************************************************************
      * Update the project database so that user access levels are supported
+     *
+     * @throws CCDDException
+     *             if an error occurs performing the update or the user elects to not install the
+     *             patch
      *********************************************************************************************/
     private void updateUserAccess() throws CCDDException
     {
@@ -373,6 +380,10 @@ public class CcddPatchHandler
     /**********************************************************************************************
      * Update the padding variable format from '__pad#' to 'pad#__'. This is to accommodate XML
      * exports that don't allow leading underscores in variable names (e.g., EDS)
+     *
+     * @throws CCDDException
+     *             if an error occurs performing the update or the user elects to not install the
+     *             patch
      *********************************************************************************************/
     private void updatePaddingVariables() throws CCDDException
     {

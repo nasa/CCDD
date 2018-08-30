@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary keyboard handler.
+ * CFS Command and Data Dictionary keyboard handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -51,7 +51,7 @@ import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTextField;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary keyboard handler class
+ * CFS Command and Data Dictionary keyboard handler class
  *************************************************************************************************/
 public class CcddKeyboardHandler
 {

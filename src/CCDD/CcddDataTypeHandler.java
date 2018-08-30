@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary data type handler.
+ * CFS Command and Data Dictionary data type handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -51,7 +51,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary data type handler class
+ * CFS Command and Data Dictionary data type handler class
  *************************************************************************************************/
 public class CcddDataTypeHandler
 {
@@ -112,6 +112,9 @@ public class CcddDataTypeHandler
 
     /**********************************************************************************************
      * Determine if the specified column contains integer values
+     *
+     * @param column
+     *            column index
      *
      * @return true if the specified column contains integer values; false otherwise
      *********************************************************************************************/
@@ -687,6 +690,7 @@ public class CcddDataTypeHandler
     {
         comboDlg = new JDialog(owner);
 
+        System.out.println("insertDataTypeName"); // TODO
         // Check if the data type array isn't supplied
         if (structures == null)
         {

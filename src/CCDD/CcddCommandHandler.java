@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary command handler.
+ * CFS Command and Data Dictionary command handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -21,7 +21,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary command handler class
+ * CFS Command and Data Dictionary command handler class
  *************************************************************************************************/
 public class CcddCommandHandler
 {
@@ -35,9 +35,6 @@ public class CcddCommandHandler
 
     /**********************************************************************************************
      * Command information class
-     *
-     * @param ccddMain
-     *            main class
      *********************************************************************************************/
     public class CommandInformation
     {

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table type editor handler.
+ * CFS Command and Data Dictionary table type editor handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -46,7 +46,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table type editor handler class
+ * CFS Command and Data Dictionary table type editor handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler

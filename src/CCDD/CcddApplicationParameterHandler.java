@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary application parameter handler.
+ * CFS Command and Data Dictionary application parameter handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -13,7 +13,7 @@ import CCDD.CcddConstants.ApplicationParameter;
 import CCDD.CcddConstants.InternalTable;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary application parameter handler class
+ * CFS Command and Data Dictionary application parameter handler class
  *************************************************************************************************/
 public class CcddApplicationParameterHandler
 {

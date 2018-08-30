@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary undo/redo edits manager.
+ * CFS Command and Data Dictionary undo/redo edits manager.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -14,7 +14,7 @@ import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary undo/redo edits manager class
+ * CFS Command and Data Dictionary undo/redo edits manager class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddUndoManager extends UndoManager

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary common tree handler.
+ * CFS Command and Data Dictionary common tree handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -36,7 +36,7 @@ import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary common tree handler class
+ * CFS Command and Data Dictionary common tree handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddCommonTreeHandler extends JTree
@@ -124,6 +124,9 @@ public class CcddCommonTreeHandler extends JTree
 
     /**********************************************************************************************
      * Common tree handler class constructor
+     *
+     * @param ccddMain
+     *            main class reference
      *********************************************************************************************/
     CcddCommonTreeHandler(CcddMain ccddMain)
     {
@@ -153,6 +156,9 @@ public class CcddCommonTreeHandler extends JTree
 
     /**********************************************************************************************
      * Get the total number of nodes that descend from the specified node
+     *
+     * @param node
+     *            target node
      *
      * @return Total number of nodes that descend from the specified node. The node itself is
      *         counted, so the minimum return value is 1

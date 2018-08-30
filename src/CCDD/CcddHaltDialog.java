@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary cancellation dialog.
+ * CFS Command and Data Dictionary cancellation dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -131,6 +131,9 @@ public class CcddHaltDialog extends CcddDialogHandler
      * @param operation
      *            dialog label describing the termination operation
      *
+     * @param modal
+     *            true to make the dialog modal
+     *
      * @param parent
      *            parent component over which to center the dialog
      *********************************************************************************************/
@@ -219,6 +222,8 @@ public class CcddHaltDialog extends CcddDialogHandler
      *
      * @param parent
      *            parent component over which to center the dialog
+     *
+     * @return Index of the button pressed to exit the dialog
      *********************************************************************************************/
     protected int initialize(String title,
                              String label,

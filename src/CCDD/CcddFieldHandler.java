@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary field handler.
+ * CFS Command and Data Dictionary field handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -24,7 +24,7 @@ import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary field handler class
+ * CFS Command and Data Dictionary field handler class
  *************************************************************************************************/
 public class CcddFieldHandler
 {
@@ -76,6 +76,9 @@ public class CcddFieldHandler
 
     /**********************************************************************************************
      * Static method to create a copy of the supplied data field information
+     *
+     * @param fieldInfo
+     *            list of field information to copy
      *
      * @return Copy of the supplied data field information
      *********************************************************************************************/
@@ -500,6 +503,8 @@ public class CcddFieldHandler
      * @param ownerName
      *            name of the data field owner (table name, including the path if this table
      *            references a structure, group name, or table type name)
+     *
+     * @return List of data field information created from the supplied field definitions
      *********************************************************************************************/
     protected List<FieldInformation> getFieldInformationFromData(Object[][] fieldData,
                                                                  String ownerName)
@@ -623,6 +628,8 @@ public class CcddFieldHandler
      *
      * @param value
      *            data field value
+     * 
+     * @return Field definition array created from the supplied inputs
      *********************************************************************************************/
     protected static String[] getFieldDefinitionArray(String ownerName,
                                                       String fieldName,

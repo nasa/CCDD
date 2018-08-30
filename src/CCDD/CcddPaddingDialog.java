@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary variable padding selection dialog.
+ * CFS Command and Data Dictionary variable padding selection dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -35,7 +35,7 @@ import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary variable padding selection dialog class
+ * CFS Command and Data Dictionary variable padding selection dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddPaddingDialog extends CcddDialogHandler
@@ -249,11 +249,9 @@ public class CcddPaddingDialog extends CcddDialogHandler
                                                                      false,
                                                                      CcddPaddingDialog.this);
 
-        System.out.println("\nSelected:"); // TODO
         // Step through each prototype table selected by the user
         for (String prototypeTable : selectedPrototypeTables)
         {
-            System.out.println(" " + prototypeTable); // TODO
             // Step through each instance table that references the selected prototype table
             for (String tablePath : instanceTree.getTableTreePathList(prototypeTable,
                                                                       instanceTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME),
@@ -272,7 +270,6 @@ public class CcddPaddingDialog extends CcddDialogHandler
                     if (!selectedPrototypeTables.contains(parentTable)
                         && !affectedTables.contains(parentTable))
                     {
-                        System.out.println("  affected: " + parentTable); // TODO
                         // Add the table name to the list of affected tables
                         affectedTables.add(parentTable);
                     }
@@ -290,22 +287,38 @@ public class CcddPaddingDialog extends CcddDialogHandler
         // list of prototype tables
         selectedPrototypeTables.addAll(affectedTables);
 
-        System.out.println("\nReferenced:"); // TODO
         // Step through each selected table and its descendant table(s) (if any). Information on
         // the tables and the prototypes of their descendants is required when determining
         // structure size and alignment
         for (String table : instanceTree.getTablesWithChildren(selectedPrototypeTables))
         {
-            // Get the prototype for the table
-            String protoTable = TableInformation.getPrototypeName(table);
-
-            // Check if the list doesn't already contain this prototype table
-            if (!referencedPrototypeTables.contains(protoTable))
+            // The table path can reference multiple prototypes (the root table plus one for each
+            // child structure variable). Each of these prototypes must be included in the
+            // referenced tables list
+            do
             {
-                System.out.println(" " + protoTable); // TODO
-                // Add the prototype table to the list
-                referencedPrototypeTables.add(protoTable);
-            }
+                // Get the prototype for the last child structure variable in the table path
+                String protoTable = TableInformation.getPrototypeName(table);
+
+                // Check if the list doesn't already contain this prototype table
+                if (!referencedPrototypeTables.contains(protoTable))
+                {
+                    // Add the prototype table to the list
+                    referencedPrototypeTables.add(protoTable);
+                }
+
+                // Get the index of the last child structure variable in the table path
+                int index = table.lastIndexOf(",");
+
+                // Check if a child structure variable remains in the path
+                if (index != -1)
+                {
+                    // Remove the child structure variable from the table path
+                    table = table.substring(0, index);
+                }
+            } while (table.contains(","));
+            // Continue to process the table path, until no child structure variable reference
+            // remains
         }
 
         // Sort the lists alphabetically

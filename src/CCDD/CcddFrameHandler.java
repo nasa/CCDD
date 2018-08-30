@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary frame handler.
+ * CFS Command and Data Dictionary frame handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -28,7 +28,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary frame handler class
+ * CFS Command and Data Dictionary frame handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddFrameHandler extends JFrame

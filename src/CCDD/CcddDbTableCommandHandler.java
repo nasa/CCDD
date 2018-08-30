@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary database table command handler.
+ * CFS Command and Data Dictionary database table command handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -77,7 +77,7 @@ import CCDD.CcddInputTypeHandler.ReferenceCheckResults;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary database table command handler class
+ * CFS Command and Data Dictionary database table command handler class
  *************************************************************************************************/
 public class CcddDbTableCommandHandler
 {
@@ -897,8 +897,8 @@ public class CcddDbTableCommandHandler
      * @param tablePath
      *            comma-separated variable names describing the path to this table, beginning with
      *            the root table; the names are in the order from highest level to lowest level,
-     *            where the lowest level name is the <variable name> portion of the table name;
-     *            blank if the queried table is a prototype
+     *            where the lowest level name is the &lt;variable name&gt; portion of the table
+     *            name; blank if the queried table is a prototype
      *
      * @param tableType
      *            type of table being queried
@@ -1714,6 +1714,8 @@ public class CcddDbTableCommandHandler
      * @param isDataTable
      *            true if the table(s) to be deleted are data tables; false if the tables are
      *            scripts or internal tables
+     *
+     * @return Command to delete one or more prototype or script tables
      *********************************************************************************************/
     private String deleteTableCommand(String[] tableNames, boolean isDataTable)
     {
@@ -4577,6 +4579,9 @@ public class CcddDbTableCommandHandler
      * Build the commands to delete variable references in the links and telemetry scheduler tables
      * that are no longer valid due to changes in bit-packing
      *
+     * @param orgTableNode
+     *            reference to the node prior to the update
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -5455,7 +5460,8 @@ public class CcddDbTableCommandHandler
     // TODO
     /**********************************************************************************************
      * Build the commands to update any references to a message name or ID that has been modified
-     * or deleted in every table cell and data field with a message name & ID reference input type
+     * or deleted in every table cell and data field with a message name and ID reference input
+     * type
      *
      * @param tableInfo
      *            table information
@@ -5470,9 +5476,9 @@ public class CcddDbTableCommandHandler
      *            list of row deletion information
      *
      * @param msgIDRefChkResults
-     *            results of the message name & ID reference input type search
+     *            results of the message name and ID reference input type search
      *
-     * @return Message name & ID cells and fields update command
+     * @return Message name and ID cells and fields update command
      *********************************************************************************************/
     private String updateMessageNameAndIDReference(TableInformation tableInfo,
                                                    TypeDefinition typeDefn,

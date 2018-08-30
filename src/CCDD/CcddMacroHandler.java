@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary macro handler.
+ * CFS Command and Data Dictionary macro handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -52,7 +52,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary macro handler class
+ * CFS Command and Data Dictionary macro handler class
  *************************************************************************************************/
 public class CcddMacroHandler
 {
@@ -175,6 +175,9 @@ public class CcddMacroHandler
 
     /**********************************************************************************************
      * Set the reference to the variable size handler class
+     *
+     * @param variableHandler
+     *            reference to the variable handler
      *********************************************************************************************/
     protected void setHandlers(CcddVariableHandler variableHandler)
     {
@@ -299,6 +302,9 @@ public class CcddMacroHandler
      *
      * @param text
      *            text string in which to replace the macro name
+     * 
+     * @return The supplied text string with all references to the specified macro replaced by the
+     *         new macro name
      *********************************************************************************************/
     protected String replaceMacroName(String oldName, String newName, String text)
     {
@@ -998,7 +1004,7 @@ public class CcddMacroHandler
         {
             // Check if the macro's value has a sizeof() call for the specified data type
             if (CcddVariableHandler.hasSizeof(macro[MacrosColumn.VALUE.ordinal()],
-                                                               dataType))
+                                              dataType))
             {
                 // Add the macro and its related macros to the list
                 addRelatedMacros(macro[MacrosColumn.MACRO_NAME.ordinal()], references);

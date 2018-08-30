@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary event log.
+ * CFS Command and Data Dictionary event log.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -72,7 +72,7 @@ import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary event log class
+ * CFS Command and Data Dictionary event log class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddEventLogDialog extends CcddFrameHandler

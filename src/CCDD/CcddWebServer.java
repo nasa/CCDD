@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary web server.
+ * CFS Command and Data Dictionary web server.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -28,7 +28,7 @@ import org.eclipse.jetty.util.security.Credential;
 import CCDD.CcddConstants.EventLogMessageType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary web server class
+ * CFS Command and Data Dictionary web server class
  *************************************************************************************************/
 public class CcddWebServer
 {

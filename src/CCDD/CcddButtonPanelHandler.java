@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary button panel handler.
+ * CFS Command and Data Dictionary button panel handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -33,7 +33,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary button panel handling class
+ * CFS Command and Data Dictionary button panel handling class
  *************************************************************************************************/
 public class CcddButtonPanelHandler
 {
@@ -280,6 +280,8 @@ public class CcddButtonPanelHandler
      *
      * @param optionType
      *            DialogOption type
+     *
+     * @return Reference to the JPanel containing the buttons
      *********************************************************************************************/
     private JPanel createButtonPanel(DialogOption optionType)
     {

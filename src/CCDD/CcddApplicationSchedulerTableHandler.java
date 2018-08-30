@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary application scheduler table handler.
+ * CFS Command and Data Dictionary application scheduler table handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -21,7 +21,7 @@ import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.SchedulerType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary application scheduler table handler class
+ * CFS Command and Data Dictionary application scheduler table handler class
  *************************************************************************************************/
 public class CcddApplicationSchedulerTableHandler
 {
@@ -116,6 +116,9 @@ public class CcddApplicationSchedulerTableHandler
 
     /**********************************************************************************************
      * Sort the list of messages based on the assigned priorities
+     *
+     * @param msg
+     *            message
      *********************************************************************************************/
     private void prioritizeApps(Message msg)
     {
@@ -135,15 +138,20 @@ public class CcddApplicationSchedulerTableHandler
     }
 
     /**********************************************************************************************
+     * Get message index
      *
+     * @param msgID
+     *            wake-up ID
+     *
+     * @return Message index
      *********************************************************************************************/
-    private String getMessageIndex(int x)
+    private String getMessageIndex(int msgID)
     {
         String index = "0";
 
         for (String[] message : defines)
         {
-            if (Integer.valueOf(message[1]) == x)
+            if (Integer.valueOf(message[1]) == msgID)
             {
                 index = message[0];
                 break;
@@ -156,7 +164,7 @@ public class CcddApplicationSchedulerTableHandler
     /**********************************************************************************************
      * Build the application wake-up message ID define statement parameters
      *********************************************************************************************/
-    private void createSchedulerTableDefines()
+    protected void createSchedulerTableDefines()
     {
         List<Variable> appsSorted = new ArrayList<Variable>();
 

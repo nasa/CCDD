@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary command line argument handler.
+ * CFS Command and Data Dictionary command line argument handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -31,7 +31,7 @@ import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary command line argument handler class
+ * CFS Command and Data Dictionary command line argument handler class
  *************************************************************************************************/
 public class CcddCommandLineHandler
 {
@@ -383,6 +383,9 @@ public class CcddCommandLineHandler
     /**********************************************************************************************
      * Command line argument handler class constructor
      *
+     * @param ccddMain
+     *            main class reference
+     *
      * @param args
      *            array of command line arguments and associated parameters
      *********************************************************************************************/
@@ -715,7 +718,7 @@ public class CcddCommandLineHandler
                                         6)
         {
             /**************************************************************************************
-             * Set the look & feel
+             * Set the look and feel
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)

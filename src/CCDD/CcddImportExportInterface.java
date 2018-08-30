@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary import/export interface.
+ * CFS Command and Data Dictionary import/export interface.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -18,7 +18,7 @@ import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary import/export interface
+ * CFS Command and Data Dictionary import/export interface
  *************************************************************************************************/
 public interface CcddImportExportInterface
 {
@@ -54,10 +54,13 @@ public interface CcddImportExportInterface
      *            importing all tables
      *
      * @throws CCDDException
+     *             If data is missing, extraneous, or an error in the import file
      *
      * @throws IOException
+     *             If an import file I/O error occurs
      *
      * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     abstract void importFromFile(FileEnvVar importFile,
                                  ImportType importType,
@@ -99,10 +102,13 @@ public interface CcddImportExportInterface
      *            extra parameters dependent on the export format
      *
      * @throws JAXBException
+     *             If an error occurs marshaling the project
      *
      * @throws CCDDException
+     *             If an error occurs executing an external (script) method
      *
      * @throws Exception
+     *             If an unanticipated error occurs
      *********************************************************************************************/
     abstract void exportToFile(FileEnvVar exportFile,
                                String[] tableNames,

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary message ID handler.
+ * CFS Command and Data Dictionary message ID handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -33,10 +33,7 @@ import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary message ID handler class
- *
- * @param ccddMain
- *            main class
+ * CFS Command and Data Dictionary message ID handler class
  *************************************************************************************************/
 public class CcddMessageIDHandler
 {
@@ -297,9 +294,7 @@ public class CcddMessageIDHandler
                                                    + FieldsColumn.OWNER_NAME.getColumnName()
                                                    + " !~ '"
                                                    + TYPE_DATA_FIELD_IDENT
-                                                   + "';", // TODO had ORDER BY OID - this causes a
-                                                           // problem if DISTINCT ON (2) is
-                                                           // included. Is the ORDER BY needed?
+                                                   + "';",
                                                    parent));
 
         // Get the list of tables representing structures
@@ -443,13 +438,13 @@ public class CcddMessageIDHandler
     }
 
     /**********************************************************************************************
-     * Get the list containing every message ID name and its corresponding message ID, and the
-     * owning entity from every table cell, data field (table or group), and telemetry message.
-     * Message names & IDs are determined by the input type assigned to the table column or data
-     * field
+     * Get the list containing every message owner, name, and ID from every table cell, data field
+     * (table or group), and telemetry message. Message names and IDs are determined by the input
+     * type assigned to the table column or data field
      *
      * @param sortOrder
      *            order in which to sort the message ID list: BY_OWNER or BY_NAME
+     *            (MessageIDSortOrder)
      *
      * @param hideProtectionFlag
      *            true to not display the flag character that protects a message ID from being
@@ -461,9 +456,9 @@ public class CcddMessageIDHandler
      * @return List containing every message name and its corresponding message ID, and the owning
      *         entity
      *********************************************************************************************/
-    protected List<String[]> getMessageIDsAndNames(MessageIDSortOrder sortOrder,
-                                                   boolean hideProtectionFlag,
-                                                   Component parent)
+    protected List<String[]> getMessageOwnersNamesAndIDs(MessageIDSortOrder sortOrder,
+                                                         boolean hideProtectionFlag,
+                                                         Component parent)
     {
         ArrayListMultiple ownersNamesAndIDs = new ArrayListMultiple();
         ArrayListMultiple tblAndFldMsgs = new ArrayListMultiple();

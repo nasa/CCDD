@@ -24,7 +24,7 @@
         <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc"/>
         <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc"/>
         <copy todir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/Javadoc">
-        	<fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/doc" includes="**"/>
+        	<fileset dir="/home/rmcclune/COP_CFS_Workspace/CFS_CDD/Javadoc" includes="**"/>
         </copy>
         <delete dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>
         <mkdir dir="/home/rmcclune/COP_CFS_Workspace/tools/cfs_cdd/CCDD_lib"/>

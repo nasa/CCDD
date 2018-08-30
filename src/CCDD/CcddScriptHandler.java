@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary script handler.
+ * CFS Command and Data Dictionary script handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -88,7 +88,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary script handler class. This class handles execution of the data
+ * CFS Command and Data Dictionary script handler class. This class handles execution of the data
  * output scripts
  *************************************************************************************************/
 public class CcddScriptHandler
@@ -157,6 +157,9 @@ public class CcddScriptHandler
     /**********************************************************************************************
      * Set the reference to the active script manager or executive dialog. This should be null when
      * the script manager or executive isn't open
+     *
+     * @param scriptDialog
+     *            reference to the active script manager or executive dialog
      *********************************************************************************************/
     protected void setScriptDialog(CcddFrameHandler scriptDialog)
     {
@@ -284,6 +287,8 @@ public class CcddScriptHandler
 
     /**********************************************************************************************
      * Get a reference to the script associations table
+     *
+     * @return Reference to the script associations table
      *********************************************************************************************/
     protected CcddJTableHandler getAssociationsTable()
     {

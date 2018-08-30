@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary EDS handler.
+ * CFS Command and Data Dictionary EDS handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -102,7 +102,7 @@ import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary EDS handler class
+ * CFS Command and Data Dictionary EDS handler class
  *************************************************************************************************/
 public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
@@ -2845,8 +2845,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            parameter units
@@ -3384,8 +3383,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            enumeration in the format {@literal <enum label>|<enum value>[|...][,...]}; null
+     *            to not specify
      *
      * @param units
      *            parameter units; null to not specify
@@ -3703,8 +3702,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            name space
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/

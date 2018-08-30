@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary find/replace text in a data or table type table dialog. Copyright
+ * CFS Command and Data Dictionary find/replace text in a data or table type table dialog. Copyright
  * 2017 United States Government as represented by the Administrator of the National Aeronautics
  * and Space Administration. No copyright is claimed in the United States under Title 17, U.S.
  * Code. All Other Rights Reserved.
@@ -49,7 +49,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary find/replace text in a data or table type table dialog class
+ * CFS Command and Data Dictionary find/replace text in a data or table type table dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddFindReplaceDialog extends CcddDialogHandler

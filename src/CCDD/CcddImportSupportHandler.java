@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary import support handler.
+ * CFS Command and Data Dictionary import support handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -25,7 +25,7 @@ import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary import support handler class
+ * CFS Command and Data Dictionary import support handler class
  *************************************************************************************************/
 public class CcddImportSupportHandler
 {
@@ -702,7 +702,7 @@ public class CcddImportSupportHandler
      * end of each path segment
      *
      * @param path
-     *            system path in the form <</>path1</path2<...>>
+     *            system path in the form {@literal <</>path1</path2<...>>}
      *
      * @return Path with each invalid character replaced with an underscore and any leading
      *         underscores moved to the end of each path segment

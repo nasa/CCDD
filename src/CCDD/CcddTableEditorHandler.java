@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table editor handler.
+ * CFS Command and Data Dictionary table editor handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -77,7 +77,7 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddUndoHandler.UndoableTableModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table editor handler class
+ * CFS Command and Data Dictionary table editor handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
@@ -188,6 +188,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @param tableInfo
      *            table information
+     *
+     * @param tableTypeHandler
+     *            table type handler reference
+     *
+     * @param inputTypeHandler
+     *            input type handler reference
      *
      * @param newDataTypeHandler
      *            data type handler reference for when the data type definitions have changed; same
@@ -364,6 +370,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      * @param newMacroHandler
      *            macro handler reference reflecting updates to the macro values due to sizeof()
      *            calls
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
      *********************************************************************************************/
     protected CcddTableEditorHandler(CcddMain ccddMain,
                                      TableInformation tableInfo,
@@ -1254,6 +1263,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Get the value of the cell in the row of table data supplied with any macro name replaced
      * with its corresponding macro value
+     *
+     * @param tableData
+     *            list of table data row arrays
      *
      * @param row
      *            row index, model coordinates
@@ -4190,7 +4202,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Associate the structure table's data type column (the first column with the primitive &
+     * Associate the structure table's data type column (the first column with the primitive and
      * structure input type) with any enumeration columns
      *********************************************************************************************/
     private void setStructureDataTypeEnumAssociations()

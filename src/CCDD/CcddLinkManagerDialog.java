@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary link manager dialog.
+ * CFS Command and Data Dictionary link manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -66,7 +66,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary link manager dialog class
+ * CFS Command and Data Dictionary link manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddLinkManagerDialog extends CcddDialogHandler

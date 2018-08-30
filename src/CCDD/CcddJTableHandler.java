@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary custom Swing table handler.
+ * CFS Command and Data Dictionary custom Swing table handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -104,7 +104,7 @@ import sun.print.ServiceDialog;
 import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary custom Swing table handler class
+ * CFS Command and Data Dictionary custom Swing table handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public abstract class CcddJTableHandler extends JTable
@@ -578,6 +578,8 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Get the undo manager
+     *
+     * @return Reference to the undo manager
      *********************************************************************************************/
     protected CcddUndoManager getUndoManager()
     {
@@ -586,6 +588,8 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Get the undo handler
+     *
+     * @return Reference to the undo handler
      *********************************************************************************************/
     protected CcddUndoHandler getUndoHandler()
     {
@@ -1292,7 +1296,7 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Set common table characteristics. This must be called again if the table changes while it is
-     * visible; e.g., the look & feel is changed or new table data is loaded
+     * visible; e.g., the look and feel is changed or new table data is loaded
      *
      * @param tableData
      *            two-dimensional array of data to be placed into the table
@@ -2009,6 +2013,9 @@ public abstract class CcddJTableHandler extends JTable
 
         /******************************************************************************************
          * Multi-line table cell editor constructor
+         *
+         * @param textArea
+         *            reference to the JTextArea to be used as the cell editor
          *****************************************************************************************/
         MultiLineCellEditor(final JTextArea textArea)
         {
@@ -3062,6 +3069,8 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Create an array of cell values containing empty strings to fill an inserted row. This method
      * can be overridden to account for cells with non-string content
+     *
+     * @return Array containing the column values for an empty row
      *********************************************************************************************/
     protected Object[] getEmptyRow()
     {
@@ -4437,7 +4446,7 @@ public abstract class CcddJTableHandler extends JTable
 
     /**********************************************************************************************
      * Reset the table header renderer and the mouse listener for column resizing (via mouse button
-     * double click) following a change to the look & feel
+     * double click) following a change to the look and feel
      *********************************************************************************************/
     protected void resetHeaderOnLaFChange()
     {

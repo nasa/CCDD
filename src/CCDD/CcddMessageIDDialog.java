@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary show all message IDs dialog.
+ * CFS Command and Data Dictionary show all message IDs dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -40,7 +40,7 @@ import CCDD.CcddConstants.MsgIDTableColumnInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary show all message IDs dialog class
+ * CFS Command and Data Dictionary show all message IDs dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddMessageIDDialog extends CcddDialogHandler
@@ -72,7 +72,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize(CcddMessageIDHandler messageIDHandler, Component parent)
     {
-        final List<String[]> msgIDs = messageIDHandler.getMessageIDsAndNames(MessageIDSortOrder.BY_OWNER,
+        final List<String[]> msgIDs = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
                                                                              false,
                                                                              parent);
 

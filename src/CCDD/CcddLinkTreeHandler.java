@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary variable link tree handler.
+ * CFS Command and Data Dictionary variable link tree handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -51,7 +51,7 @@ import CCDD.CcddUndoHandler.UndoableArrayList;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary link tree handler class
+ * CFS Command and Data Dictionary link tree handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddLinkTreeHandler extends CcddInformationTreeHandler

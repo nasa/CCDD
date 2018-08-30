@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary scheduler dialog interface.
+ * CFS Command and Data Dictionary scheduler dialog interface.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -8,7 +8,7 @@
 package CCDD;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary scheduler dialog interface
+ * CFS Command and Data Dictionary scheduler dialog interface
  *************************************************************************************************/
 public interface CcddSchedulerDialogInterface
 {
@@ -50,6 +50,9 @@ public interface CcddSchedulerDialogInterface
 
     /**********************************************************************************************
      * Steps to perform following storing of the scheduler data in the project database
+     *
+     * @param errorFlag
+     *            true if an error occurred updating the project database
      *********************************************************************************************/
     abstract void doSchedulerUpdatesComplete(boolean errorFlag);
 }

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table manager dialog.
+ * CFS Command and Data Dictionary table manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -64,7 +64,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table manager dialog class
+ * CFS Command and Data Dictionary table manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableManagerDialog extends CcddDialogHandler
@@ -905,6 +905,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Create the import option dialog panel
+     *
+     * @param gbc
+     *            reference to the panel's GridBagConstraints
      *
      * @return Import option dialog panel
      *********************************************************************************************/

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary data type editor dialog.
+ * CFS Command and Data Dictionary data type editor dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -61,7 +61,7 @@ import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary data type editor dialog class
+ * CFS Command and Data Dictionary data type editor dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddDataTypeEditorDialog extends CcddDialogHandler

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary variable paths & names dialog.
+ * CFS Command and Data Dictionary variable paths & names dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -58,7 +58,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddConstants.VariablePathTableColumnInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary variable paths & names dialog class
+ * CFS Command and Data Dictionary variable paths and names dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddVariableDialog extends CcddDialogHandler
@@ -79,7 +79,7 @@ public class CcddVariableDialog extends CcddDialogHandler
     private Object[][] tableData;
 
     /**********************************************************************************************
-     * Variable paths & names dialog class constructor
+     * Variable paths and names dialog class constructor
      *
      * @param ccddMain
      *            main class reference
@@ -94,10 +94,10 @@ public class CcddVariableDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Create the variable paths & names dialog. This is executed in a separate thread since it can
-     * take a noticeable amount time to complete, and by using a separate thread the GUI is allowed
-     * to continue to update. The GUI menu commands, however, are disabled until the telemetry
-     * scheduler initialization completes execution
+     * Create the variable paths and names dialog. This is executed in a separate thread since it
+     * can take a noticeable amount time to complete, and by using a separate thread the GUI is
+     * allowed to continue to update. The GUI menu commands, however, are disabled until the
+     * telemetry scheduler initialization completes execution
      *********************************************************************************************/
     private void initialize()
     {
@@ -110,7 +110,7 @@ public class CcddVariableDialog extends CcddDialogHandler
             JButton btnShow;
 
             /**************************************************************************************
-             * Build the variable paths & names dialog
+             * Build the variable paths and names dialog
              *************************************************************************************/
             @Override
             protected void execute()

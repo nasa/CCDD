@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary utilities.
+ * CFS Command and Data Dictionary utilities.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -29,7 +29,7 @@ import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary utilities class
+ * CFS Command and Data Dictionary utilities class
  *************************************************************************************************/
 public class CcddUtilities
 {
@@ -99,6 +99,9 @@ public class CcddUtilities
          *
          * @param inputText
          *            text string in which to replace the HTML characters
+         *
+         * @return The input text with the HTML reserved characters replaced with the equivalent
+         *         HTML tag
          *****************************************************************************************/
         private String replaceReservedChar(String inputText)
         {
@@ -201,6 +204,12 @@ public class CcddUtilities
     /**********************************************************************************************
      * Check if two arrays contain the same set of items. The order of the items in each set has no
      * effect on the match outcome
+     *
+     * @param array1
+     *            first array to compare
+     *
+     * @param array2
+     *            second array to compare
      *
      * @return true if the two arrays contain the same items
      *********************************************************************************************/
@@ -514,8 +523,7 @@ public class CcddUtilities
      * Determine the character that separates an enumeration value from its corresponding label
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @return Character that separates an enumeration value from its corresponding label
      *********************************************************************************************/
@@ -537,8 +545,7 @@ public class CcddUtilities
      * Determine the character that separates the enumerated pairs
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @param enumValueSeparator
      *            character used to separate an enumeration value from its corresponding label
@@ -756,7 +763,7 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
-     * Concatenate the contents of two one-dimensional string arrays to produce a third array
+     * Concatenate the contents of two one-dimensional arrays to produce a third array
      *
      * @param array1
      *            first array to combine (can be null)
@@ -764,12 +771,13 @@ public class CcddUtilities
      * @param array2
      *            second array to combine
      *
-     * @return One-dimensional string array with the contents of the second array appended to the
-     *         first array
+     * @return One-dimensional array with the contents of the second array appended to the first
+     *         array
      *********************************************************************************************/
-    protected static String[] concatenateArrays(String[] array1, String[] array2)
+    @SuppressWarnings("unchecked")
+    protected static <T> T[] concatenateArrays(T[] array1, T[] array2)
     {
-        String[] concatArray;
+        T[] concatArray;
 
         // Check if the first array is empty
         if (array1 == null || array1.length == 0)
@@ -785,7 +793,8 @@ public class CcddUtilities
             int numRows2 = array2.length;
 
             // Create storage for the combined array
-            concatArray = new String[numRows1 + numRows2];
+            concatArray = (T[]) Array.newInstance(array1.getClass().getComponentType(),
+                                                  numRows1 + numRows2);
 
             // Copy the input arrays into the proper location in the combined array
             System.arraycopy(array1, 0, concatArray, 0, numRows1);
@@ -797,6 +806,9 @@ public class CcddUtilities
 
     /**********************************************************************************************
      * Concatenate the contents of two two-dimensional arrays to produce a third array
+     *
+     * @param <T>
+     *            generic type parameter
      *
      * @param array1
      *            first array to combine (can be null)
@@ -1030,6 +1042,9 @@ public class CcddUtilities
      *
      * @param text
      *            string to which to apply the HTML tags
+     *
+     * @param color
+     *            color to which to set the text (Color)
      *
      * @return Input string with the HTML tags to alter the color to the one supplied
      *********************************************************************************************/

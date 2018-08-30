@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary database control handler.
+ * CFS Command and Data Dictionary database control handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -79,7 +79,7 @@ import CCDD.CcddConstants.ServerPropertyDialogType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary database control handler class
+ * CFS Command and Data Dictionary database control handler class
  *************************************************************************************************/
 public class CcddDbControlHandler
 {
@@ -283,6 +283,9 @@ public class CcddDbControlHandler
      * case letters are set to lower case. Non-alphanumeric characters are replaced with
      * underscores(_), and an underscore is prepended if the name begins with a numeral. The
      * database name is truncated if necessary to the maximum length allowed by PostgreSQL
+     *
+     * @param projectName
+     *            project name
      *
      * @return The specified project name converted to its equivalent PostgreSQL database name
      *********************************************************************************************/
@@ -626,8 +629,9 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the PostgreSQL server version
      *
-     * @return String containing the database server version in the format <major version>.<minor
-     *         version>; returns '*not connected*' if not connected to the PostgreSQL server
+     * @return String containing the database server version in the format &lt;major
+     *         version&gt;.&lt;minor version&gt;; returns '*not connected*' if not connected to the
+     *         PostgreSQL server
      *********************************************************************************************/
     protected String getDatabaseVersion()
     {
@@ -859,9 +863,9 @@ public class CcddDbControlHandler
      * @param databaseName
      *            database name
      *
-     * @return Array containing the database comment in the format <lock status (0 or 1)>,<visible
-     *         project database name (with capitalization and special characters intact)>,<project
-     *         description>; null if the comment cannot be retrieved
+     * @return Array containing the database comment in the format &lt;lock status (0 or
+     *         1)&gt;,&lt;visible project database name (with capitalization and special characters
+     *         intact)&gt;,&lt;project description&gt;; null if the comment cannot be retrieved
      *********************************************************************************************/
     protected String[] getDatabaseComment(String databaseName)
     {
@@ -910,9 +914,9 @@ public class CcddDbControlHandler
      * @param comment
      *            database comment
      *
-     * @return Array containing the database comment in the format <lock status (0 or 1)>,<visible
-     *         project database name (with capitalization and special characters intact)>,<project
-     *         description>; null if the comment cannot be retrieved
+     * @return Array containing the database comment in the format &lt;lock status (0 or
+     *         1)&gt;,&lt;visible project database name (with capitalization and special characters
+     *         intact)&gt;,&lt;project description&gt;; null if the comment cannot be retrieved
      *********************************************************************************************/
     protected String[] parseDatabaseComment(String databaseName, String comment)
     {

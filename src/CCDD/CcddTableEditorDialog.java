@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary data table editor dialog.
+ * CFS Command and Data Dictionary data table editor dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -57,7 +57,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary data table editor dialog class
+ * CFS Command and Data Dictionary data table editor dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableEditorDialog extends CcddFrameHandler
@@ -370,12 +370,12 @@ public class CcddTableEditorDialog extends CcddFrameHandler
      *            changes originally took place
      *
      * @param isRefFieldChange
-     *            true is a data field has a variable (command, message name & ID) reference input
-     *            type
+     *            true is a data field has a variable (command, message name and ID) reference
+     *            input type
      *
      * @param isMsgNameIDChange
-     *            true is a message name or ID changed and a cell or field uses the message name &
-     *            ID input type
+     *            true is a message name or ID changed and a cell or field uses the message name
+     *            and ID input type
      *********************************************************************************************/
     protected static void doTableModificationComplete(CcddMain main,
                                                       TableInformation tableInfo,
@@ -439,8 +439,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         dbTblCmdHndlr.closeDeletedTableEditors(invalidatedEditors, main.getMainFrame());
 
         // Update the tables with message names & IDs columns
-        // dbTblCmdHndlr.updateInputTypeColumns(null, main.getMainFrame());
-        // TODO THIS FOULS UP currentTableInfo's fieldInformation
+        dbTblCmdHndlr.updateInputTypeColumns(null, main.getMainFrame());
 
         // Step through the open editor dialogs
         for (CcddTableEditorDialog editorDialog : main.getTableEditorDialogs())

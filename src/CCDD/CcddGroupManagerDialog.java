@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary group manager dialog.
+ * CFS Command and Data Dictionary group manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -73,7 +73,7 @@ import CCDD.CcddUndoHandler.UndoableCheckBox.UndoableToggleButtonModel;
 import CCDD.CcddUndoHandler.UndoableTreePathSelection;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary group manager dialog class
+ * CFS Command and Data Dictionary group manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddGroupManagerDialog extends CcddDialogHandler
@@ -926,6 +926,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Update the group manager dialog's size following additions or deletions to the data field
      * panel
+     *
+     * @param undoable
+     *            true if the update can be undone/redone
      *********************************************************************************************/
     private void recreateDataFieldPanel(boolean undoable)
     {

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary mathematical expression handler.
+ * CFS Command and Data Dictionary mathematical expression handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary mathematical expression handler class
+ * CFS Command and Data Dictionary mathematical expression handler class
  *************************************************************************************************/
 public class CcddMathExpressionHandler
 {

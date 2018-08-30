@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary link manager handler.
+ * CFS Command and Data Dictionary link manager handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -57,7 +57,7 @@ import CCDD.CcddUndoHandler.UndoableTextArea;
 import CCDD.CcddUndoHandler.UndoableTreePathSelection;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary link manager handler class
+ * CFS Command and Data Dictionary link manager handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddLinkManagerHandler

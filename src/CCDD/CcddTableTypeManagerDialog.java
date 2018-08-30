@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table type manager dialog.
+ * CFS Command and Data Dictionary table type manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -35,7 +35,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table type manager dialog class
+ * CFS Command and Data Dictionary table type manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableTypeManagerDialog extends CcddDialogHandler

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary web data access handler.
+ * CFS Command and Data Dictionary web data access handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -47,7 +47,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary web data access handler class
+ * CFS Command and Data Dictionary web data access handler class
  *************************************************************************************************/
 public class CcddWebDataAccessHandler extends AbstractHandler
 {
@@ -490,7 +490,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                     case "application":
                         // Get the application scheduler table
-                        response = getApplicationSchedulerData();
+                        response = getApplicationSchedulerData(attributeAndName[1]);
                         break;
 
                     default:
@@ -639,13 +639,13 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Perform a search for the specified text in the data and internal tables
      *
      * @param searchCriteria
-     *            attribute containing the search constraints in the format <search text>,<ignore
-     *            case (true or false)>,<allow regular expression (true or false)>,<data table
-     *            cells only (true or false)><,search table column names>. The 'ignore case' and
-     *            'data table cells only' flags default to false if not provided. The last
-     *            criterion is optional and allows the search to be constrained to specific columns
-     *            in the data tables. The column names must be comma-separated (if more than one)
-     *            and are case sensitive
+     *            attribute containing the search constraints in the format &lt;search
+     *            text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular expression (true
+     *            or false)&gt;,&lt;data table cells only (true or false)&gt;&lt;,search table
+     *            column names&gt;. The 'ignore case' and 'data table cells only' flags default to
+     *            false if not provided. The last criterion is optional and allows the search to be
+     *            constrained to specific columns in the data tables. The column names must be
+     *            comma-separated (if more than one) and are case sensitive
      *
      * @return JSON encoded string containing the search results. An empty string if no matches are
      *         found, and null if the search parameters are missing or invalid
@@ -1466,6 +1466,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * @param groupHandler
      *            group handler
      *
+     * @param includeNameTag
+     *            true to include the group name and description tags
+     *
      * @return JSON encoded string containing the specified group's (application's) description;
      *         null if the specified group/application doesn't exist or the project has no
      *         groups/applications, or blank if the specified group/application has no description
@@ -1955,16 +1958,112 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the application scheduler's schedule table entries
+     * *** NOTE: This provides a rudimentary schedule or message table entry output ***
      *
-     * @return JSON encoded string containing the scheduler entries; null if the number of
-     *         parameters or their formats are incorrect
+     * Get the application scheduler's schedule or message definition table entries
+     *
+     * @param appTableType
+     *            application scheduler table entry type: schedule or message
+     *
+     * @return JSON encoded string containing the schedule or message definition table entries;
+     *         null if the table type is unrecognized
+     *
+     * @throws CCDDException
+     *             If the scheduler table type is unrecognized
      *********************************************************************************************/
-    private String getApplicationSchedulerData()
+    @SuppressWarnings("unchecked")
+    private String getApplicationSchedulerData(String appTableType) throws CCDDException
     {
         String response = null;
+        JSONArray tableJA = new JSONArray();
 
-        // TODO Need to get the application scheduler working before addressing this
+        // Create an instance of the application scheduler table handler in order to read the
+        // information from the database
+        CcddApplicationSchedulerTableHandler appSchTable = new CcddApplicationSchedulerTableHandler(ccddMain);
+
+        // Check if the schedule definition table data is requested
+        if (appTableType.equals("schedule"))
+        {
+            // Get the number of time slots
+            int numTimeSlots = appSchTable.getNumberOfTimeSlots();
+
+            // Check if there are any time slots
+            if (numTimeSlots != 0)
+            {
+                // Schedule definition table columns
+                String[] columnNames = new String[] {"EnableState",
+                                                     "Type",
+                                                     "Frequency",
+                                                     "Remainder",
+                                                     "MessageIndex",
+                                                     "GroupData"};
+
+                // Step through each time slot
+                for (int timeSlot = 0; timeSlot < numTimeSlots; timeSlot++)
+                {
+                    // Get the schedule definition table entries
+                    String[][] sdtEntries = appSchTable.getScheduleDefinitionTableByRow(timeSlot);
+
+                    // Step through each row in the table
+                    for (String[] row : sdtEntries)
+                    {
+                        JSONObject rowJO = new JSONObject();
+
+                        // Step through each column in the row
+                        for (int column = 0; column < row.length; column++)
+                        {
+                            // Add the schedule definition table value to the array. An array is
+                            // used to preserve the order of the items
+                            rowJO.put(columnNames[column], row[column]);
+                        }
+
+                        // Add the row's schedule definition table values to the table array
+                        tableJA.add(rowJO);
+                    }
+                }
+
+                // Store the schedule definition table information
+                JSONObject appJO = new JSONObject();
+                appJO.put(JSONTags.APP_SCHED_SCHEDULE_TABLE.getTag(), tableJA);
+                response = appJO.toString();
+            }
+        }
+        // Check if the message definition table data is requested
+        else if (appTableType.equals("message"))
+        {
+            // Get the message definition table entries
+            String[] msgEntries = appSchTable.getMessageDefinitionTable();
+
+            // CHeck if there are any entries
+            if (msgEntries.length != 0)
+            {
+                // Step through each message definition table entry
+                for (int row = 0; row < msgEntries.length; row++)
+                {
+                    JSONObject rowJO = new JSONObject();
+
+                    // Add the message definition table value to the array. An array is used to
+                    // preserve the order of the items
+                    rowJO.put("Command ID #" + row, msgEntries[row]
+                                                    + (!msgEntries[row].equals("SCH_UNUSED_MID")
+                                                                                                 ? ", 0xC000, 0x0001, 0x0000"
+                                                                                                 : ""));
+
+                    // Add the row's message definition table values to the table array
+                    tableJA.add(rowJO);
+                }
+
+                // Store the message definition table information
+                JSONObject appJO = new JSONObject();
+                appJO.put(JSONTags.APP_SCHED_MESSAGE_TABLE.getTag(), tableJA);
+                response = appJO.toString();
+            }
+        }
+        // Invalid table type
+        else
+        {
+            throw new CCDDException("Invalid table type");
+        }
 
         return response;
     }

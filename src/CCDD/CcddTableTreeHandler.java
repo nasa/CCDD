@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary table tree handler.
+ * CFS Command and Data Dictionary table tree handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -71,7 +71,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary table tree handler class
+ * CFS Command and Data Dictionary table tree handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddTableTreeHandler extends CcddCommonTreeHandler
@@ -1694,6 +1694,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the table name from the node name, removing the variable name if present
      *
+     * @param nodeName
+     *            tree node name
+     *
      * @return Table name portion of the node name
      *********************************************************************************************/
     private static String getTableFromNodeName(String nodeName)
@@ -1882,7 +1885,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     {
         List<String> tablesWithChildren = new ArrayList<String>();
 
-        // STep through each supplied table
+        // Step through each supplied table
         for (String table : tables)
         {
             List<Object[]> childPaths = new ArrayList<Object[]>();
@@ -1893,7 +1896,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Get the node for the table
             ToolTipTreeNode node = getNodeByNodePath(table);
 
-            // TODO ONLY ROOT TABLES ARE FOUND!
             // Check if the table is in the tree
             if (node != null)
             {
@@ -1959,6 +1961,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get a list of the table names that are the descendants of the specified node (do not include
      * any duplicates or children of these descendants, if any). This is a recursive method
+     *
+     * @param node
+     *            tree node for which to get the table names
      *
      * @return List containing the table path+names of the specified node, excluding any duplicates
      *         and children of these descendant tables

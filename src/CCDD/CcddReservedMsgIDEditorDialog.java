@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary reserved message ID editor dialog.
+ * CFS Command and Data Dictionary reserved message ID editor dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -51,7 +51,7 @@ import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary reserved message ID editor dialog class
+ * CFS Command and Data Dictionary reserved message ID editor dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler

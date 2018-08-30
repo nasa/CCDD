@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary script storage dialog.
+ * CFS Command and Data Dictionary script storage dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -39,7 +39,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.ScriptIOType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary script storage dialog class
+ * CFS Command and Data Dictionary script storage dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddScriptStorageDialog extends CcddDialogHandler

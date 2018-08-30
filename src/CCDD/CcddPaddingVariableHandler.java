@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary padding variable handler.
+ * CFS Command and Data Dictionary padding variable handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -27,7 +27,7 @@ import CCDD.CcddConstants.PadOperationType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary padding variable handler class
+ * CFS Command and Data Dictionary padding variable handler class
  *************************************************************************************************/
 public class CcddPaddingVariableHandler
 {
@@ -770,13 +770,6 @@ public class CcddPaddingVariableHandler
                             paddingInfo.updateTable();
                         }
                     }
-
-                    // Add a log entry indication the padding adjustment completed
-                    eventLog.logEvent(STATUS_MSG,
-                                      (padOperation == PadOperationType.ADD_UPDATE
-                                                                                   ? "Adding/updating"
-                                                                                   : "Removing")
-                                                  + " padding variables complete");
                 }
 
                 /**********************************************************************************
@@ -788,6 +781,13 @@ public class CcddPaddingVariableHandler
                     // Check if the user didn't cancel padding adjustment
                     if (!haltDlg.isHalted())
                     {
+
+                        // Add a log entry indication the padding adjustment completed
+                        eventLog.logEvent(STATUS_MSG,
+                                          (padOperation == PadOperationType.ADD_UPDATE
+                                                                                       ? "Adding/updating"
+                                                                                       : "Removing")
+                                                      + " padding variables completed");
                         // Close the cancellation dialog
                         haltDlg.closeDialog();
                     }
@@ -795,7 +795,10 @@ public class CcddPaddingVariableHandler
                     else
                     {
                         eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                                          "Padding adjustment canceled by user");
+                                          (padOperation == PadOperationType.ADD_UPDATE
+                                                                                       ? "Adding/updating"
+                                                                                       : "Removing")
+                                                                          + " padding terminated by user");
                     }
 
                     haltDlg = null;

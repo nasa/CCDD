@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary data field table editor dialog.
+ * CFS Command and Data Dictionary data field table editor dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -80,7 +80,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddUndoHandler.UndoableCellSelection;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary data field table editor dialog class
+ * CFS Command and Data Dictionary data field table editor dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddFieldTableEditorDialog extends CcddFrameHandler

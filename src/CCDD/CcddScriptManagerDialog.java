@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary script association manager dialog.
+ * CFS Command and Data Dictionary script association manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -72,7 +72,7 @@ import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary script association manager dialog class
+ * CFS Command and Data Dictionary script association manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddScriptManagerDialog extends CcddFrameHandler

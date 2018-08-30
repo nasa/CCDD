@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary background command handler.
+ * CFS Command and Data Dictionary background command handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -13,7 +13,7 @@ import java.awt.Cursor;
 import javax.swing.SwingWorker;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary background command class
+ * CFS Command and Data Dictionary background command class
  *************************************************************************************************/
 public class CcddBackgroundCommand
 {

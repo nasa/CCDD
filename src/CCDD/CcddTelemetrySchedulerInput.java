@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary telemetry scheduler input.
+ * CFS Command and Data Dictionary telemetry scheduler input.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -41,7 +41,7 @@ import CCDD.CcddConstants.SchedulerColumn;
 import CCDD.CcddConstants.TableTreeType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary telemetry scheduler input class
+ * CFS Command and Data Dictionary telemetry scheduler input class
  *************************************************************************************************/
 public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
 {

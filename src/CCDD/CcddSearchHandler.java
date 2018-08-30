@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary search database tables and scripts handler. Copyright 2017 United
+ * CFS Command and Data Dictionary search database tables and scripts handler. Copyright 2017 United
  * States Government as represented by the Administrator of the National Aeronautics and Space
  * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
  * Other Rights Reserved.
@@ -49,7 +49,7 @@ import CCDD.CcddConstants.SearchType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary search database tables, scripts, and event log handler class
+ * CFS Command and Data Dictionary search database tables, scripts, and event log handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddSearchHandler extends CcddDialogHandler
@@ -107,6 +107,9 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     /**********************************************************************************************
      * Set the reference to the event log to search
+     *
+     * @param eventLog
+     *            reference to the event log to search
      *********************************************************************************************/
     protected void setEventLog(CcddEventLogDialog eventLog)
     {
@@ -133,7 +136,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            string containing the names of columns, separated by commas, to which to
      *            constrain a table search
      *
-     * @return Search results List containing object arrays providing each match's location in the
+     * @return Search results list containing object arrays providing each match's location in the
      *         database tables or event log, the column within the location, and an extract for the
      *         located match showing its context
      *********************************************************************************************/
@@ -647,7 +650,7 @@ public class CcddSearchHandler extends CcddDialogHandler
      *            row index to match if this is an event log entry search on a table that displays
      *            only a single log entry; null otherwise
      *
-     * @return Search results List containing object arrays providing each match's location in the
+     * @return Search results list containing object arrays providing each match's location in the
      *         database tables or event log, the column within the location, and an extract for the
      *         located match showing its context
      *********************************************************************************************/
@@ -765,6 +768,10 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param resultsDataList
      *            list containing the sorted search results
+     *
+     * @return Search results sorted by the first (target) column, and if the same then by second
+     *         (location) column. Array variable member references in the location column are
+     *         arranged by array dimension value
      *********************************************************************************************/
     private List<Object[]> sortSearchResults(List<Object[]> resultsDataList)
     {

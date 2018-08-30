@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary database verification handler.
+ * CFS Command and Data Dictionary database verification handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -72,7 +72,7 @@ import CCDD.CcddConstants.VerificationColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary database verification handler class
+ * CFS Command and Data Dictionary database verification handler class
  *************************************************************************************************/
 public class CcddDbVerificationHandler
 {

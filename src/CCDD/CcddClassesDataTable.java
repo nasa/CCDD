@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary common classes.
+ * CFS Command and Data Dictionary common classes.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -25,7 +25,7 @@ import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.InputTypeFormat;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary common classes class
+ * CFS Command and Data Dictionary common classes class
  *************************************************************************************************/
 public class CcddClassesDataTable
 {
@@ -1073,7 +1073,7 @@ public class CcddClassesDataTable
          * delimiters are simply removed
          *
          * @param tablePath
-         *            table path in the format rootName<,childStructure.childName<,...>>
+         *            table path in the format {@literal rootName<,childStructure.childName<,...>>}
          *
          * @return true if the table name/path is not in the expected format
          *****************************************************************************************/
@@ -1117,7 +1117,7 @@ public class CcddClassesDataTable
          * Check if the table name/path is in the expected format
          *
          * @param tablePath
-         *            table path in the format rootName<,childStructure.childName<,...>>
+         *            table path in the format {@literal rootName<,childStructure.childName<,...>>}
          *
          * @throws CCDDException
          *             If the table name/path is not in the expected format
@@ -2515,7 +2515,7 @@ public class CcddClassesDataTable
          * Parse an array size into an array of integers representing each array index
          *
          * @param arrayString
-         *            array size value in the format [#]<[#]<...>> or #<,#<,...>>
+         *            array size value in the format {@literal [#]<[#]<...>> or #<,#<,...>>}
          *
          * @return Array of integers representing each array index. An empty array is returned if
          *         the array size cell is blank
@@ -3369,9 +3369,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the application wake-up message name & ID
+         * Get the application wake-up message name and ID
          *
-         * @return Application wake-up message name & ID
+         * @return Application wake-up message name and ID
          *****************************************************************************************/
         protected String getWakeUpMessage()
         {
@@ -3379,10 +3379,10 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set the application wake-up message name & ID
+         * Set the application wake-up message name and ID
          *
          * @param wakeUpMessage
-         *            new application wake-up message name & ID
+         *            new application wake-up message name and ID
          *****************************************************************************************/
         protected void setWakeUpMessage(String wakeUpMessage)
         {
@@ -3390,7 +3390,7 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the application wake-up message ID from the message name & ID
+         * Get the application wake-up message ID from the message name and ID
          *
          * @return Application wake-up message ID
          *****************************************************************************************/
@@ -3421,9 +3421,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the application housekeeping wake-up message name & ID
+         * Get the application housekeeping wake-up message name and ID
          *
-         * @return Application housekeeping wake-up message name & ID
+         * @return Application housekeeping wake-up message name and ID
          *****************************************************************************************/
         protected String getHkWakeUpMessage()
         {
@@ -3431,10 +3431,10 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Set the application housekeeping wake-up message name & ID
+         * Set the application housekeeping wake-up message name and ID
          *
          * @param hkWakeUpMessage
-         *            new application housekeeping wake-up message name & ID
+         *            new application housekeeping wake-up message name and ID
          *****************************************************************************************/
         protected void setHkWakeUpMessage(String hkWakeUpMessage)
         {

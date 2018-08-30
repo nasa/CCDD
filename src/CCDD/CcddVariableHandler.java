@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary variable handler.
+ * CFS Command and Data Dictionary variable handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -31,7 +31,7 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary variable handler class
+ * CFS Command and Data Dictionary variable handler class
  *************************************************************************************************/
 public class CcddVariableHandler
 {

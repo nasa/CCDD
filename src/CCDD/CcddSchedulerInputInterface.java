@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary scheduler input interface.
+ * CFS Command and Data Dictionary scheduler input interface.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import CCDD.CcddClassesDataTable.Variable;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary scheduler input interface
+ * CFS Command and Data Dictionary scheduler input interface
  *************************************************************************************************/
 public interface CcddSchedulerInputInterface
 {

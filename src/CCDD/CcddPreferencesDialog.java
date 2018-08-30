@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary program preferences dialog.
+ * CFS Command and Data Dictionary program preferences dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -59,7 +59,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary program preferences dialog class
+ * CFS Command and Data Dictionary program preferences dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddPreferencesDialog extends CcddDialogHandler
@@ -322,7 +322,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Add the look & feel update tab to the tabbed pane
+     * Add the look and feel update tab to the tabbed pane
      *********************************************************************************************/
     private void addLafTab()
     {
@@ -817,6 +817,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
      *
      * @param dialogs
      *            array of preference dialogs to update
+     *
+     * @param checkBox
+     *            reference to the color check box
      *********************************************************************************************/
     private void updateColor(ModifiableColorInfo modColor,
                              int red,

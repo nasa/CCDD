@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary XTCE handler.
+ * CFS Command and Data Dictionary XTCE handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -112,7 +112,7 @@ import CCDD.CcddConstants.ModifiableOtherSettingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary XTCE handler class
+ * CFS Command and Data Dictionary XTCE handler class
  *************************************************************************************************/
 public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
@@ -234,7 +234,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
          *            parameter bit length
          *
          * @param enumeration
-         *            enumeration in the format <enum label>|<enum value>[|...][,...]
+         *            enumeration in the format {@literal <enum label>|<enum value>[|...][,...]}
          *
          * @param units
          *            parameter units
@@ -1216,17 +1216,13 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                    + "/"
                                                                                                    + tlmHeaderTable))
                 {
-                    // Add a variable to the structure for the telemetry header table
+                    // Add a variable to the structure for the telemetry header table. Note that
+                    // the telemetry header table name is used as the variable name since there's
+                    // nowhere to store the variable name in the file
                     rowIndex = addVariableDefinitionToStructure(tableDefn,
                                                                 rowIndex,
                                                                 0,
-                                                                tlmHeaderTable, // TODO USING THE
-                                                                                // DATA TYPE AS THE
-                                                                                // VARIABLE NAME
-                                                                                // SINCE THERE'S
-                                                                                // NOWHERE TO STORE
-                                                                                // THE NAME IN THE
-                                                                                // FILE
+                                                                tlmHeaderTable,
                                                                 tlmHeaderTable,
                                                                 null,
                                                                 null,
@@ -1820,8 +1816,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            parameter units; null to not specify
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param minimum
      *            minimum parameter value
@@ -3980,8 +3975,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            parameter bit length; null or blank if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            parameter units
@@ -4290,8 +4284,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            parameter bit length; null or empty if not a bit-wise parameter
      *
      * @param enumeration
-     *            enumeration in the format <enum label>|<enum value>[|...][,...]; null to not
-     *            specify
+     *            {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
      *
      * @param units
      *            parameter units; null to not specify
@@ -5223,8 +5216,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            command argument bit length
      *
      * @param enumeration
-     *            command argument enumeration in the format <enum label>|<enum value>[|...][,...];
-     *            null to not specify
+     *            command argument enumeration in the format
+     *            {@literal <enum label>|<enum value>[|...][,...];} null to not specify
      *
      * @param units
      *            command argument units; null to not specify
@@ -5744,8 +5737,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            space system reference
      *
      * @param enumeration
-     *            enumeration in the format <enum value><enum value separator><enum label>[<enum
-     *            value separator>...][<enum pair separator>...]
+     *            {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/

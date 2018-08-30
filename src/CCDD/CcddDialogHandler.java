@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary custom dialog handler.
+ * CFS Command and Data Dictionary custom dialog handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -90,7 +90,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary dialog handler class
+ * CFS Command and Data Dictionary dialog handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddDialogHandler extends JDialog
@@ -1099,7 +1099,7 @@ public class CcddDialogHandler extends JDialog
                  * Handle changes to the file(s) selected. Whenever a file selection change strip
                  * the path name from the file(s) and build a list of just the names. Insert this
                  * list into the file chooser's file name text field. This is done automatically
-                 * for most look & feels, but not all (e.g., GTK+)
+                 * for most look and feels, but not all (e.g., GTK+)
                  *********************************************************************************/
                 @Override
                 public void propertyChange(PropertyChangeEvent pce)
@@ -2226,6 +2226,7 @@ public class CcddDialogHandler extends JDialog
      * class. This is a recursive method
      *
      * @param <E>
+     *            generic type parameter
      *
      * @param container
      *            container object in which to search

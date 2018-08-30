@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary group tree handler.
+ * CFS Command and Data Dictionary group tree handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -47,7 +47,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary group tree handler class
+ * CFS Command and Data Dictionary group tree handler class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddGroupTreeHandler extends CcddInformationTreeHandler
@@ -486,6 +486,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
      *
      * @param startNode
      *            starting node for which to adjust the text and color
+     *
+     * @param excludes
+     *            list of groups names to be excluded (group name is grayed out in the tree)
      *********************************************************************************************/
     protected void adjustNodeText(ToolTipTreeNode startNode, List<String> excludes)
     {

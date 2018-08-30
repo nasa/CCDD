@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary message ID assignment dialog.
+ * CFS Command and Data Dictionary message ID assignment dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -58,7 +58,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary message ID assignment dialog class
+ * CFS Command and Data Dictionary message ID assignment dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddAssignMessageIDDialog extends CcddDialogHandler
@@ -1035,10 +1035,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                               null,
                                                               CcddAssignMessageIDDialog.this);
                 }
-
-                // Add a log entry indication the message ID assignment completed
-                eventLog.logEvent(STATUS_MSG, "Table/group message ID assignment complete");
-
             }
 
             /**************************************************************************************
@@ -1055,12 +1051,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 {
                     // Close the cancellation dialog
                     haltDlg.closeDialog();
+
+                    // Add a log entry indication the message ID assignment completed
+                    eventLog.logEvent(STATUS_MSG, "Table/group message ID assignment completed");
                 }
                 // Message ID assignment was canceled
                 else
                 {
                     eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                                      "Table/group message ID assignment canceled by user");
+                                      "Table/group message ID assignment terminated by user");
                 }
 
                 haltDlg = null;
@@ -1126,10 +1125,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
                 // Update the scheduler table
                 schedulerDlg.getSchedulerHandler().getSchedulerEditor().updateSchedulerTable(true);
-
-                // Add a log entry indication the message ID/name assignment completed
-                eventLog.logEvent(STATUS_MSG,
-                                  "Telemetry message ID/name assignment complete");
             }
 
             /**************************************************************************************
@@ -1146,12 +1141,16 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 {
                     // Close the cancellation dialog
                     haltDlg.closeDialog();
+
+                    // Add a log entry indication the message ID/name assignment completed
+                    eventLog.logEvent(STATUS_MSG,
+                                      "Telemetry message ID/name assignment completed");
                 }
                 // Message ID assignment was canceled
                 else
                 {
                     eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                                      "Telemetry message ID/name assignment canceled by user");
+                                      "Telemetry message ID/name assignment terminated by user");
                 }
 
                 haltDlg = null;

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary application parameter assignment dialog.
+ * CFS Command and Data Dictionary application parameter assignment dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -30,7 +30,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary application parameter assignment dialog class
+ * CFS Command and Data Dictionary application parameter assignment dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationParameterDialog extends CcddDialogHandler

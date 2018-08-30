@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary scheduler database I/O handler.
+ * CFS Command and Data Dictionary scheduler database I/O handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -25,7 +25,7 @@ import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.SchedulerType;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary scheduler database I/O handler class
+ * CFS Command and Data Dictionary scheduler database I/O handler class
  *************************************************************************************************/
 public class CcddSchedulerDbIOHandler
 {
@@ -552,7 +552,8 @@ public class CcddSchedulerDbIOHandler
                 if (!row[AppSchedulerColumn.APP_INFO.ordinal()].isEmpty())
                 {
                     // Split the member column to extract the application name
-                    String name = row[AppSchedulerColumn.APP_INFO.ordinal()].split(",", DefaultApplicationField.values().length)[0];
+                    String name = row[AppSchedulerColumn.APP_INFO.ordinal()].split(",",
+                                                                                   DefaultApplicationField.values().length)[0];
 
                     // Step through all created variables
                     for (Variable variable : varList)

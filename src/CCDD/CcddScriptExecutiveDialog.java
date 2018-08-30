@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary script executive dialog.
+ * CFS Command and Data Dictionary script executive dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -27,7 +27,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary script executive dialog class
+ * CFS Command and Data Dictionary script executive dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddScriptExecutiveDialog extends CcddFrameHandler

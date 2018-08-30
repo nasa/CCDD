@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary project data field manager dialog.
+ * CFS Command and Data Dictionary project data field manager dialog.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -42,7 +42,7 @@ import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary project data field manager dialog class
+ * CFS Command and Data Dictionary project data field manager dialog class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddProjectFieldDialog extends CcddDialogHandler

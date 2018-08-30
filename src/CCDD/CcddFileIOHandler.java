@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary file I/O handler.
+ * CFS Command and Data Dictionary file I/O handler.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -77,7 +77,7 @@ import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary file I/O handler class
+ * CFS Command and Data Dictionary file I/O handler class
  *************************************************************************************************/
 public class CcddFileIOHandler
 {
@@ -662,7 +662,7 @@ public class CcddFileIOHandler
                 // Import was canceled
                 else
                 {
-                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import canceled by user");
+                    eventLog.logEvent(EventLogMessageType.STATUS_MSG, "Import terminated by user");
                 }
 
                 haltDlg = null;

@@ -1,5 +1,5 @@
 /**
- * CFS Command & Data Dictionary application scheduler input.
+ * CFS Command and Data Dictionary application scheduler input.
  *
  * Copyright 2017 United States Government as represented by the Administrator of the National
  * Aeronautics and Space Administration. No copyright is claimed in the United States under Title
@@ -33,7 +33,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.SchedulerColumn;
 
 /**************************************************************************************************
- * CFS Command & Data Dictionary application scheduler input class
+ * CFS Command and Data Dictionary application scheduler input class
  *************************************************************************************************/
 @SuppressWarnings("serial")
 public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterface
@@ -61,6 +61,9 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *
      * @param ccddMain
      *            main class
+     * 
+     * @param schedulerDlg
+     *            reference to the application scheduler dialog
      *********************************************************************************************/
     CcddApplicationSchedulerInput(CcddMain ccddMain, CcddApplicationSchedulerDialog schedulerDlg)
     {
