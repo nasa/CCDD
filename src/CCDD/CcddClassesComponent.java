@@ -15,6 +15,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -24,6 +25,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -47,6 +49,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -69,6 +73,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -88,6 +93,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.plaf.basic.ComboPopup;
@@ -873,6 +880,280 @@ public class CcddClassesComponent
         }
     }
 
+    // TODO
+    /**********************************************************************************************
+     * Pop-up combo box class
+     *********************************************************************************************/
+    static class PopUpComboBox
+    {
+        private PaddedComboBox popUpCbox;
+        private JDialog popUpDlg;
+
+        /******************************************************************************************
+         * Pop-up combo box class constructor. Display a pop-up combo box containing the supplied
+         * selection items. When the user selects an item insert it into the supplied text
+         * component
+         *
+         * @param owner
+         *            dialog owning the pop-up combo box
+         *
+         * @param textComp
+         *            text component over which to display the pop-up combo box and insert the
+         *            selected item
+         *
+         * @param selItems
+         *            list of selection items
+         *****************************************************************************************/
+        PopUpComboBox(Window owner, final JTextComponent textComp, List<String> selItems)
+        {
+            this(owner, textComp, selItems, null);
+        }
+
+        /******************************************************************************************
+         * Pop-up combo box class constructor. Display a pop-up combo box containing the supplied
+         * selection items using the supplied tool tip text. When the user selects an item insert
+         * it into the supplied text component
+         *
+         * @param owner
+         *            dialog owning the pop-up combo box
+         *
+         * @param textComp
+         *            text component over which to display the pop-up combo box and insert the
+         *            selected item
+         *
+         * @param selItems
+         *            list of selection items
+         *
+         * @param toolTips
+         *            list of selection item tool tips; null if no tool tip text is associated with
+         *            the item
+         *****************************************************************************************/
+        PopUpComboBox(Window owner,
+                      final JTextComponent textComp,
+                      List<String> selItems,
+                      List<String> toolTips)
+        {
+            // Check if any selection items exist
+            if (selItems != null && !selItems.isEmpty())
+            {
+                // Create the pop-up dialog
+                popUpDlg = new JDialog(owner);
+
+                // Create the pop-up combo box
+                popUpCbox = new PaddedComboBox(selItems.toArray(new String[0]),
+                                               (toolTips != null
+                                                                 ? toolTips.toArray(new String[0])
+                                                                 : null),
+                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont());
+                popUpCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+                // Enable item matching for the combo box
+                popUpCbox.enableItemMatching(null);
+
+                // Set the first item as initially selected
+                popUpCbox.setSelectedIndex(0);
+
+                // Set the property to allow the arrow keys to be used to change the item selection
+                // in the combo box
+                popUpCbox.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
+
+                // Add a listener for selection events in the r pop-up combo box
+                popUpCbox.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Handle a selection event in the pop-up combo box
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Get the selected item, performing any custom text alteration
+                        String selectedItem = alterText(((JComboBox<?>) ae.getSource()).getSelectedItem()
+                                                                                       .toString()
+                                                                                       .trim());
+
+                        // Get the starting index of the selected text in the component
+                        int start = textComp.getSelectionStart();
+
+                        // Insert the item into the text component's existing text, overwriting any
+                        // of the text that is highlighted
+                        textComp.setText(getInsertedReference(selectedItem, textComp));
+                        textComp.setSelectionStart(start);
+
+                        // Select the item that was inserted
+                        textComp.setSelectionEnd(start + selectedItem.length());
+
+                        // Remove the pop-up and return to the caller
+                        exitReferenceCombo();
+                    }
+                });
+
+                // Add a listener for key press events in the pop-up combo box
+                popUpCbox.addKeyListener(new KeyAdapter()
+                {
+                    /******************************************************************************
+                     * Handle a key press event in the pop-up combo box
+                     *****************************************************************************/
+                    @Override
+                    public void keyPressed(KeyEvent ke)
+                    {
+                        // Check if the escape key is pressed
+                        if (ke.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        {
+                            // Remove the pop-up and return to the caller
+                            exitReferenceCombo();
+                        }
+                    }
+                });
+
+                // Add a listener for changes to the expansion/contraction of the combo box
+                popUpCbox.addPopupMenuListener(new PopupMenuListener()
+                {
+                    /******************************************************************************
+                     * Handle a combo box expansion event
+                     *****************************************************************************/
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent pme)
+                    {
+                    }
+
+                    /******************************************************************************
+                     * Handle a combo box contraction event
+                     *****************************************************************************/
+                    @Override
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent pme)
+                    {
+                    }
+
+                    /******************************************************************************
+                     * Handle a combo box cancel event. This occurs if the mouse is clicked outside
+                     * the combo box
+                     *****************************************************************************/
+                    @Override
+                    public void popupMenuCanceled(PopupMenuEvent pme)
+                    {
+                        // Remove the pop-up and return to the caller
+                        exitReferenceCombo();
+                    }
+                });
+
+                // Create the dialog to contain the pop-up combo box. Set to modeless so that
+                // pop-up dialog focus changes can be detected
+                popUpDlg.setModalityType(ModalityType.MODELESS);
+                popUpDlg.setUndecorated(true);
+                popUpDlg.add(popUpCbox, BorderLayout.NORTH);
+                popUpDlg.setSize(new Dimension(popUpCbox.getPreferredSize()));
+
+                // Add a listener for focus changes to the pop-up dialog
+                popUpDlg.addWindowFocusListener(new WindowFocusListener()
+                {
+                    /******************************************************************************
+                     * Handle a gain of pop-up dialog focus
+                     *****************************************************************************/
+                    @Override
+                    public void windowGainedFocus(WindowEvent we)
+                    {
+                        // Create a runnable object to be executed
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            /**********************************************************************
+                             * Delay showing the pop-up; if this isn't done then the pop-up isn't
+                             * expanded consistently
+                             *********************************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Expand the combo box when it appears
+                                popUpCbox.showPopup();
+                            }
+                        });
+                    }
+
+                    /******************************************************************************
+                     * Handle a loss of pop-up dialog focus
+                     *****************************************************************************/
+                    @Override
+                    public void windowLostFocus(WindowEvent we)
+                    {
+                        // Remove the pop-up and return to the caller
+                        exitReferenceCombo();
+                    }
+                });
+
+                // Position and display the pop-up
+                positionReferencePopup(textComp);
+                popUpDlg.setVisible(true);
+            }
+        }
+
+        /******************************************************************************************
+         * Override to alter the selected item text
+         *
+         * @param selectedItem
+         *            selected item text
+         *
+         * @return Altered selected item text
+         *****************************************************************************************/
+        protected String alterText(String selectedItem)
+        {
+            return selectedItem;
+        }
+
+        /******************************************************************************************
+         * Position the dialog containing the pop-up combo box at the text cursor position in the
+         * text component
+         *
+         * @param textComp
+         *            text component over which to display the pop-up combo box
+         *****************************************************************************************/
+        private void positionReferencePopup(JTextComponent textComp)
+        {
+            try
+            {
+                // Get the position of the text cursor within the text component
+                Rectangle popUp = textComp.modelToView(textComp.getCaretPosition());
+
+                // Position the pop-up at the text cursor position
+                popUpDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x,
+                                     textComp.getLocationOnScreen().y);
+            }
+            catch (BadLocationException ble)
+            {
+                // Position the pop-up at the left end of the text component
+                popUpDlg.setLocation(textComp.getLocationOnScreen().x,
+                                     textComp.getLocationOnScreen().y);
+            }
+        }
+
+        /******************************************************************************************
+         * Get the text of the specified text component with the selected item inserted at the
+         * current selection point
+         *
+         * @param text
+         *            reference
+         *
+         * @param textComp
+         *            text component over which the pop-up combo box is displayed
+         *
+         * @return Text of the specified text component with the selected item inserted at the
+         *         current selection point
+         *****************************************************************************************/
+        private String getInsertedReference(String text, JTextComponent textComp)
+        {
+            return textComp.getText().substring(0, textComp.getSelectionStart())
+                   + text
+                   + textComp.getText().substring(textComp.getSelectionEnd());
+        }
+
+        /******************************************************************************************
+         * Remove the pop-up combo box and return to the caller
+         *****************************************************************************************/
+        private void exitReferenceCombo()
+        {
+            popUpDlg.setVisible(false);
+            popUpDlg.dispose();
+        }
+    }
+
     /**********************************************************************************************
      * Modifiable font class
      *********************************************************************************************/
@@ -1573,21 +1854,26 @@ public class CcddClassesComponent
     }
 
     /**********************************************************************************************
-     * Array list class with string arrays. The array column for use with the indexOf and contains
-     * methods can be specified (defaults to column 0)
+     * Array list class with string arrays. The array column for use with the indexOf(),
+     * contains(), and sort() methods can be specified (defaults to column 0). Multiple column
+     * indices can be provided so that a sort() is based on the first column, and if the same the
+     * second column, etc.
      *********************************************************************************************/
     @SuppressWarnings("serial")
     protected static class ArrayListMultiple extends ArrayList<String[]>
     {
-        private int compareColumn;
+        private int[] compareColumn;
 
         /******************************************************************************************
          * Array list class constructor with string arrays; sets the comparison column
          *
          * @param compareColumn
-         *            index of the column for indexOf, contains, and sort comparisons
+         *            index of the column for indexOf(), contains(), and sort() comparisons. If
+         *            multiple columns are specified only the first is used for indexOf() and
+         *            contains() calls; the sort() is based on the items in the column sequence
+         *            provided
          ******************************************************************************************/
-        protected ArrayListMultiple(int compareColumn)
+        protected ArrayListMultiple(int... compareColumn)
         {
             setComparisonColumn(compareColumn);
         }
@@ -1602,12 +1888,15 @@ public class CcddClassesComponent
         }
 
         /******************************************************************************************
-         * Set the comparison column
+         * Set the comparison column(s)
          *
          * @param compareColumn
-         *            index of the column for indexOf, contains, and sort comparisons
+         *            index of the column for indexOf(), contains(), and sort() comparisons. If
+         *            multiple columns are specified only the first is used for indexOf() and
+         *            contains() calls; the sort() is based on the items in the column sequence
+         *            provided
          ******************************************************************************************/
-        protected void setComparisonColumn(int compareColumn)
+        protected void setComparisonColumn(int... compareColumn)
         {
             this.compareColumn = compareColumn;
         }
@@ -1638,7 +1927,7 @@ public class CcddClassesComponent
             for (String[] listString : this)
             {
                 // Check if the input string matches the one in the comparison column in the array
-                if (checkString.equals(listString[compareColumn]))
+                if (checkString.equals(listString[compareColumn[0]]))
                 {
                     // Set the index to the matching one and stop searching
                     matchIndex = index;
@@ -1670,18 +1959,30 @@ public class CcddClassesComponent
                 public int compare(final String[] item1, final String[] item2)
                 {
                     int result = 0;
+                    int index = 0;
 
-                    switch (sortType)
+                    do
                     {
-                        case STRING:
-                            // Compare the two values as text (case insensitive)
-                            result = item1[compareColumn].compareToIgnoreCase(item2[compareColumn]);
-                            break;
+                        switch (sortType)
+                        {
+                            case STRING:
+                                // Compare the two values as text (case insensitive)
+                                result = item1[compareColumn[index]].compareToIgnoreCase(item2[compareColumn[index]]);
+                                break;
 
-                        case HEXADECIMAL:
-                            // Compare the two hexadecimal values as integers, converted to base 10
-                            result = Integer.decode(item1[compareColumn]).compareTo(Integer.decode(item2[compareColumn]));
-                    }
+                            case HEXADECIMAL:
+                                // Compare the two hexadecimal values as integers, converted to
+                                // base 10
+                                result = Integer.decode(item1[compareColumn[index]]).compareTo(Integer.decode(item2[compareColumn[index]]));
+                        }
+                        index++;
+                    } while (result == 0
+                             && index < compareColumn.length
+                             && index < item1.length
+                             && index < item2.length);
+                    // Continue to perform the comparison as long as the two items match, more
+                    // comparison columns are defined, and the column index doesn't exceed the
+                    // comparison item array size
 
                     return result;
                 }

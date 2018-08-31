@@ -1731,6 +1731,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // it
                 ccddMain.getTableEditorDialogs().add(new CcddTableEditorDialog(ccddMain,
                                                                                (CcddTableEditorHandler) tabContents));
+
+                // Update the command menu items so that the new editor has the recent tables menu
+                // items
+                ccddMain.updateRecentTablesMenu();
             }
         };
 

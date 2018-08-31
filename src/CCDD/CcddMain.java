@@ -812,7 +812,7 @@ public class CcddMain
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build
         // method)
-        inputTypeHandler.updateMsgNameAndIDReferences(getMainFrame());
+        inputTypeHandler.updateMessageReferences(getMainFrame());
 
         // Check if the web server is enabled
         if (isWebServer())

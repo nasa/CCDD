@@ -1072,7 +1072,7 @@ public class CcddDbTableCommandHandler
         rootStructures = getRootStructures(parent);
         variableHandler.buildPathAndOffsetLists();
         commandHandler.buildCommandList();
-        inputTypeHandler.updateMsgNameAndIDReferences(parent);
+        inputTypeHandler.updateMessageReferences(parent);
     }
 
     /**********************************************************************************************
@@ -2835,7 +2835,6 @@ public class CcddDbTableCommandHandler
             // Get the references in the table type and data field internal tables that use the
             // message name & ID input type. If a message name or ID is added, changed, or deleted
             // then the tables and fields may require updating
-            // TODO
             msgIDRefChk = inputTypeHandler.getInputTypeReferences(DefaultInputType.MESSAGE_REFERENCE,
                                                                   parent);
             isRefFieldChange |= msgIDRefChk.isFieldUsesType();
@@ -3014,7 +3013,7 @@ public class CcddDbTableCommandHandler
             if (isMsgIDChange)
             {
                 // Update the message name & ID input type list
-                inputTypeHandler.updateMsgNameAndIDReferences(parent);
+                inputTypeHandler.updateMessageReferences(parent);
             }
 
             // Make changes to any open table editors
@@ -3372,7 +3371,7 @@ public class CcddDbTableCommandHandler
 
                     // Build the update command
                     modCmd.append("UPDATE "
-                                  + tableInfo.getProtoVariableName().toLowerCase()
+                                  + tableInfo.getTablePath().toLowerCase()
                                   + " SET ");
 
                     // Step through each changed column
@@ -5457,7 +5456,6 @@ public class CcddDbTableCommandHandler
         }
     }
 
-    // TODO
     /**********************************************************************************************
      * Build the commands to update any references to a message name or ID that has been modified
      * or deleted in every table cell and data field with a message name and ID reference input

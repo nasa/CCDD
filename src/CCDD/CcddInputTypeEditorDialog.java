@@ -178,7 +178,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             inputTypeHandler.setInputTypeData(getUpdatedData());
             inputTypeHandler.updateVariableReferences();
             inputTypeHandler.updateCommandReferences();
-            inputTypeHandler.updateMsgNameAndIDReferences(CcddInputTypeEditorDialog.this);
+            inputTypeHandler.updateMessageReferences(CcddInputTypeEditorDialog.this);
 
             // Update the table type handler with the input type changes
             ccddMain.getTableTypeHandler().updateInputTypes(inputTypeNames);

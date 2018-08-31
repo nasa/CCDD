@@ -567,14 +567,18 @@ public class CcddMessageIDHandler
         switch (sortOrder)
         {
             case BY_OWNER:
-                // Sort the message ID list by owner
-                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.OWNER.ordinal());
+                // Sort the message ID list by owner (then ID, then name)
+                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.OWNER.ordinal(),
+                                                      MsgIDListColumnIndex.MESSAGE_ID.ordinal(),
+                                                      MsgIDListColumnIndex.MESSAGE_NAME.ordinal());
                 ownersNamesAndIDs.sort(ArrayListMultipleSortType.STRING);
                 break;
 
             case BY_NAME:
-                // Sort the message ID list by ID name
-                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.MESSAGE_NAME.ordinal());
+                // Sort the message ID list by ID name (then ID, then owner)
+                ownersNamesAndIDs.setComparisonColumn(MsgIDListColumnIndex.MESSAGE_NAME.ordinal(),
+                                                      MsgIDListColumnIndex.MESSAGE_ID.ordinal(),
+                                                      MsgIDListColumnIndex.OWNER.ordinal());
                 ownersNamesAndIDs.sort(ArrayListMultipleSortType.STRING);
                 break;
         }

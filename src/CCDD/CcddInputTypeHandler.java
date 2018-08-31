@@ -393,60 +393,56 @@ public class CcddInputTypeHandler
     }
 
     /**********************************************************************************************
-     * Update the variable references input type selection item list with the supplied structure
-     * path and variables list. Based on whether or not the variable list is empty, add or remove
-     * the input type from the list of those having selection items
+     * Update the message references input type selection item list with the supplied message name,
+     * ID, and owner list. Based on whether or not the message list is empty, add or remove the
+     * input type from the list of those having selection items
      *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    protected void updateMsgNameAndIDReferences(Component parent)
+    protected void updateMessageReferences(Component parent)
     {
         List<String> msgIDs = new ArrayList<String>();
 
-        // Get the reference to the message names & IDs input type
+        // Get the reference to the message reference input type
         InputType inputType = getInputTypeByDefaultType(DefaultInputType.MESSAGE_REFERENCE);
 
-        // Step through each message ID name & ID pair
+        // Step through each message reference
         for (String[] msgID : ccddMain.getMessageIDHandler().getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_NAME,
                                                                                          true,
                                                                                          parent))
         {
-            // Check if the message ID name isn't blank
-            if (!msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()].isEmpty())
-            {
-                // Get the message name, ID, and owner to display in the list
-                String item = msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()]
-                              + " (ID: "
-                              + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
-                              + ", owner: "
-                              + msgID[MsgIDListColumnIndex.OWNER.ordinal()]
-                              + ")";
+            // Get the message name, ID, and owner to display in the list
+            String item = msgID[MsgIDListColumnIndex.MESSAGE_NAME.ordinal()]
+                          + " (ID: "
+                          + msgID[MsgIDListColumnIndex.MESSAGE_ID.ordinal()]
+                          + ", owner: "
+                          + msgID[MsgIDListColumnIndex.OWNER.ordinal()]
+                          + ")";
 
-                // Check if the message name & ID isn't already in the list
-                if (!msgIDs.contains(item))
-                {
-                    // Add the message ID name & ID to the list
-                    msgIDs.add(item);
-                }
+            // Check if the message reference isn't already in the list
+            if (!msgIDs.contains(item))
+            {
+                // Add the message reference to the list
+                msgIDs.add(item);
             }
         }
 
-        // Set the message names & IDs item list
+        // Set the message reference item list
         inputType.setInputItems(msgIDs);
 
-        // Check if the list is empty (no message names & IDs)
+        // Check if the list is empty (no message references)
         if (msgIDs.isEmpty())
         {
-            // Remove the message names & IDs input type from the list of those having selection
+            // Remove the message references input type from the list of those having selection
             // items
             selectionInputTypes.remove(inputType);
         }
         // Check if the list of types having selection items doesn't already contain the message
-        // names & IDs input type
+        // references input type
         else if (!selectionInputTypes.contains(inputType))
         {
-            // Add the message names & IDs input type to the list
+            // Add the message references input type to the list
             selectionInputTypes.add(inputType);
         }
     }

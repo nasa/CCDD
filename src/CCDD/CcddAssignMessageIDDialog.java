@@ -1044,7 +1044,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Update the message name & ID reference list
-                inputTypeHandler.updateMsgNameAndIDReferences(CcddAssignMessageIDDialog.this);
+                inputTypeHandler.updateMessageReferences(CcddAssignMessageIDDialog.this);
 
                 // Check if the user didn't cancel message ID assignment
                 if (!haltDlg.isHalted())
@@ -1134,7 +1134,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             protected void complete()
             {
                 // Update the message name & ID reference list
-                inputTypeHandler.updateMsgNameAndIDReferences(CcddAssignMessageIDDialog.this);
+                inputTypeHandler.updateMessageReferences(CcddAssignMessageIDDialog.this);
 
                 // Check if the user didn't cancel message ID assignment
                 if (!haltDlg.isHalted())
@@ -1390,7 +1390,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                             // table
                             editor.updateTableFieldInformationFromHandler();
 
-                            // TODO
                             // Update the editor data field components from the field values
                             editor.updateFieldComponentFromValue(editor.getTableInformation().getFieldInformation());
 
@@ -1480,7 +1479,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param tlmName
      *            telemetry message name tab information reference
      *********************************************************************************************/
-    // TODO NAME AND IDS MUST BE SEPARATED IN THE TLM SCHED
     private void assignTelemetryMessageNames(MsgTabInfo tlmName)
     {
         // Get the message starting number and interval values
@@ -1509,15 +1507,15 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
             // Check if the message has sub-messages other than the default
             if (message.getNumberOfSubMessages() > 1)
             {
-                // Check if the user canceled ID assignment
-                if (haltDlg.isHalted())
-                {
-                    break;
-                }
-
                 // Step through each of the message's sub-messages
                 for (Message subMessage : message.getSubMessages())
                 {
+                    // Check if the user canceled ID assignment
+                    if (haltDlg.isHalted())
+                    {
+                        break;
+                    }
+
                     // Update the sub-message name to match the new pattern
                     subMessage.setName(subMessage.getName().replaceFirst(Pattern.quote(originalName),
                                                                          msgName));
@@ -1532,7 +1530,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * @param tlmID
      *            telemetry message ID tab information reference
      *********************************************************************************************/
-    // TODO NAME AND IDS MUST BE SEPARATED IN THE TLM SCHED
     private void assignTelemetryMessageIDs(MsgTabInfo tlmID)
     {
         // Get the starting message ID, ID interval, and format length (to preserve leading zeroes)

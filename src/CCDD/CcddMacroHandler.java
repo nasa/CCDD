@@ -9,45 +9,25 @@ package CCDD;
 
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
-import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.SearchType;
 
@@ -60,10 +40,6 @@ public class CcddMacroHandler
     private CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
     private CcddVariableHandler variableHandler;
-
-    // Pop-up combo box for displaying the macro names and the dialog to contain it
-    private PaddedComboBox macroCbox;
-    private JDialog comboDlg;
 
     // List containing the macro names and associated unexpanded values
     private List<String[]> macros;
@@ -81,6 +57,9 @@ public class CcddMacroHandler
 
     // List containing the valid data types when evaluating sizeof() calls
     private List<String> validDataTypes;
+
+    // List containing the macro pop-up combo box tool tips
+    private final List<String> popUpToolTips;
 
     /**********************************************************************************************
      * Macro location class
@@ -141,6 +120,8 @@ public class CcddMacroHandler
         this.ccddMain = ccddMain;
         this.macros = macros;
         tableTypeHandler = ccddMain.getTableTypeHandler();
+
+        popUpToolTips = new ArrayList<String>();
 
         // Create the macro name search pattern
         macroPattern = Pattern.compile("^.*?("
@@ -302,7 +283,7 @@ public class CcddMacroHandler
      *
      * @param text
      *            text string in which to replace the macro name
-     * 
+     *
      * @return The supplied text string with all references to the specified macro replaced by the
      *         new macro name
      *********************************************************************************************/
@@ -327,258 +308,6 @@ public class CcddMacroHandler
         }
 
         return text;
-    }
-
-    /**********************************************************************************************
-     * Display a pop-up combo box containing the names of the defined macros. When the user selects
-     * a macro insert it into the supplied text component
-     *
-     * @param owner
-     *            dialog owning the pop-up combo box
-     *
-     * @param textComp
-     *            text component over which to display the pop-up combo box and insert the selected
-     *            macro name
-     *
-     * @param inputType
-     *            input type of the text component (InputType)
-     *
-     * @param validDataTypes
-     *            list of valid data types from which to choose
-     *********************************************************************************************/
-    protected void insertMacroName(Window owner,
-                                   final JTextComponent textComp,
-                                   InputType inputType,
-                                   List<String> validDataTypes)
-    {
-        comboDlg = new JDialog(owner);
-
-        // Check if any macros exist
-        if (!macros.isEmpty())
-        {
-            List<String> validMacros = new ArrayList<String>();
-            List<String> toolTips = new ArrayList<String>();
-
-            // Step through each macro
-            for (String[] macro : macros)
-            {
-                // Get the text component's text with the macro value replacing the macro name
-                String text = getInsertedMacro(macro[MacrosColumn.VALUE.ordinal()],
-                                               textComp);
-
-                // Create a string version of the new value, replacing any macro in the text with
-                // its corresponding value
-                text = getMacroExpansion(text, validDataTypes);
-
-                // Check if the text component's text, with the macro's value inserted, is allowed
-                // in the target text component based on the component's input type
-                if ((text.isEmpty() || text.matches(inputType.getInputMatch()))
-                    && !isMacroRecursive)
-                {
-                    // Add the macro name to the list with its value as the item's tool tip text
-                    validMacros.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);
-                    toolTips.add(macro[MacrosColumn.VALUE.ordinal()]);
-                }
-            }
-
-            // Check if any of the macro's are applicable to the target text component
-            if (!validMacros.isEmpty())
-            {
-                // Create the pop-up combo box
-                macroCbox = new PaddedComboBox(validMacros.toArray(new String[0]),
-                                               toolTips.toArray(new String[0]),
-                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont());
-                macroCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-
-                // Set the first macro as initially selected
-                macroCbox.setSelectedIndex(0);
-
-                // Set the property to allow the arrow keys to be used to change the macro
-                // selection in the combo box
-                macroCbox.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-
-                // Add a listener for selection events in the macro pop-up combo box
-                macroCbox.addActionListener(new ActionListener()
-                {
-                    /******************************************************************************
-                     * Handle a selection event in the macro combo box
-                     *****************************************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Get the selected macro's name and enclose it in the macro identifier
-                        // character(s)
-                        String macroName = getFullMacroName(((JComboBox<?>) ae.getSource()).getSelectedItem().toString().trim());
-
-                        // Get the starting index of the selected text in the component
-                        int start = textComp.getSelectionStart();
-
-                        // Insert the macro into the text component's existing text, overwriting
-                        // any of the text that is highlighted
-                        textComp.setText(getInsertedMacro(macroName, textComp));
-                        textComp.setSelectionStart(start);
-
-                        // Select the macro name that was inserted
-                        textComp.setSelectionEnd(start + macroName.length());
-
-                        // Remove the macro pop-up and return to the caller. Get the selected
-                        // macro's name and enclose it in the macro identifier character(s)
-                        exitMacroCombo();
-                    }
-                });
-
-                // Add a listener for key press events in the macro pop-up combo box
-                macroCbox.addKeyListener(new KeyAdapter()
-                {
-                    /******************************************************************************
-                     * Handle a key press event in the macro combo box
-                     *****************************************************************************/
-                    @Override
-                    public void keyPressed(KeyEvent ke)
-                    {
-                        // Check if the escape key is pressed
-                        if (ke.getKeyCode() == KeyEvent.VK_ESCAPE)
-                        {
-                            // Remove the macro pop-up and return to the caller
-                            exitMacroCombo();
-                        }
-                    }
-                });
-
-                // Add a listener for changes to the expansion/contraction of the combo box
-                macroCbox.addPopupMenuListener(new PopupMenuListener()
-                {
-                    /******************************************************************************
-                     * Handle a combo box expansion event
-                     *****************************************************************************/
-                    @Override
-                    public void popupMenuWillBecomeVisible(PopupMenuEvent pme)
-                    {
-                    }
-
-                    /******************************************************************************
-                     * Handle a combo box contraction event
-                     *****************************************************************************/
-                    @Override
-                    public void popupMenuWillBecomeInvisible(PopupMenuEvent pme)
-                    {
-                    }
-
-                    /******************************************************************************
-                     * Handle a combo box cancel event. This occurs if the mouse is clicked outside
-                     * the combo box
-                     *****************************************************************************/
-                    @Override
-                    public void popupMenuCanceled(PopupMenuEvent pme)
-                    {
-                        // Remove the macro pop-up and return to the caller
-                        exitMacroCombo();
-                    }
-                });
-
-                // Create the dialog to contain the macro pop-up combo box. Set to modeless so that
-                // pop-up dialog focus changes can be detected
-                comboDlg.setModalityType(ModalityType.MODELESS);
-                comboDlg.setUndecorated(true);
-                comboDlg.add(macroCbox, BorderLayout.NORTH);
-                comboDlg.setSize(new Dimension(macroCbox.getPreferredSize()));
-
-                // Add a listener for focus changes to the pop-up dialog
-                comboDlg.addWindowFocusListener(new WindowFocusListener()
-                {
-                    /******************************************************************************
-                     * Handle a gain of pop-up dialog focus
-                     *****************************************************************************/
-                    @Override
-                    public void windowGainedFocus(WindowEvent we)
-                    {
-                        // Create a runnable object to be executed
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
-                            /**********************************************************************
-                             * Delay showing the pop-up; if this isn't done then the pop-up isn't
-                             * expanded consistently
-                             *********************************************************************/
-                            @Override
-                            public void run()
-                            {
-                                // Expand the combo box when it appears
-                                macroCbox.showPopup();
-                            }
-                        });
-                    }
-
-                    /******************************************************************************
-                     * Handle a loss of pop-up dialog focus
-                     *****************************************************************************/
-                    @Override
-                    public void windowLostFocus(WindowEvent we)
-                    {
-                        // Remove the macro pop-up and return to the caller
-                        exitMacroCombo();
-                    }
-                });
-
-                // Position and display the pop-up
-                positionMacroPopup(textComp);
-                comboDlg.setVisible(true);
-            }
-        }
-    }
-
-    /**********************************************************************************************
-     * Position the dialog containing the macro pop-up combo box at the text cursor position in the
-     * text component
-     *
-     * @param textComp
-     *            text component over which to display the pop-up combo box
-     *********************************************************************************************/
-    private void positionMacroPopup(JTextComponent textComp)
-    {
-        try
-        {
-            // Get the position of the text cursor within the text component
-            Rectangle popUp = textComp.modelToView(textComp.getCaretPosition());
-
-            // Position the pop-up at the text cursor position
-            comboDlg.setLocation(textComp.getLocationOnScreen().x + popUp.x,
-                                 textComp.getLocationOnScreen().y);
-        }
-        catch (BadLocationException ble)
-        {
-            // Position the pop-up at the left end of the text component
-            comboDlg.setLocation(textComp.getLocationOnScreen().x,
-                                 textComp.getLocationOnScreen().y);
-        }
-    }
-
-    /**********************************************************************************************
-     * Get the text of the specified text component with the macro name or value inserted at the
-     * current selection point
-     *
-     * @param text
-     *            macro name or value
-     *
-     * @param textComp
-     *            text component over which the pop-up combo box is displayed
-     *
-     * @return Text of the specified text component with the macro name or value inserted at the
-     *         current selection point
-     *********************************************************************************************/
-    private String getInsertedMacro(String text, JTextComponent textComp)
-    {
-        return textComp.getText().substring(0, textComp.getSelectionStart())
-               + text
-               + textComp.getText().substring(textComp.getSelectionEnd());
-    }
-
-    /**********************************************************************************************
-     * Remove the macro pop-up combo box and return to the caller
-     *********************************************************************************************/
-    private void exitMacroCombo()
-    {
-        comboDlg.setVisible(false);
-        comboDlg.dispose();
     }
 
     /**********************************************************************************************
@@ -1225,5 +954,67 @@ public class CcddMacroHandler
             // Reset the macro expansion array so that the any new macro is expanded
             clearStoredValues();
         }
+    }
+
+    /**********************************************************************************************
+     * Get the list of items to display in the macro pop-up combo box
+     *
+     * @param textComp
+     *            text component over which to display the pop-up combo box and insert the selected
+     *            macro name
+     *
+     * @param inputType
+     *            input type of the text component (InputType)
+     *
+     * @param validDataTypes
+     *            list of valid data types from which to choose
+     *
+     * @return List of items to display in the macro pop-up combo box
+     *********************************************************************************************/
+    protected List<String> getMacroPopUpItems(JTextComponent textComp,
+                                              InputType inputType,
+                                              List<String> validDataTypes)
+    {
+        List<String> validMacros = new ArrayList<String>();
+        popUpToolTips.clear();
+
+        // Check if any macros exist
+        if (!macros.isEmpty())
+        {
+            // Step through each macro
+            for (String[] macro : macros)
+            {
+                // Get the text component's text with the macro value replacing the macro name
+                String text = textComp.getText().substring(0, textComp.getSelectionStart())
+                              + macro[MacrosColumn.VALUE.ordinal()]
+                              + textComp.getText().substring(textComp.getSelectionEnd());
+
+                // Create a string version of the new value, replacing any macro in the text with
+                // its corresponding value
+                text = getMacroExpansion(text, validDataTypes);
+
+                // Check if the text component's text, with the macro's value inserted, is allowed
+                // in the target text component based on the component's input type
+                if ((text.isEmpty() || text.matches(inputType.getInputMatch()))
+                    && !isMacroRecursive)
+                {
+                    // Add the macro name to the list with its value as the item's tool tip text
+                    validMacros.add(macro[MacrosColumn.MACRO_NAME.ordinal()]);
+                    popUpToolTips.add(macro[MacrosColumn.VALUE.ordinal()]);
+                }
+            }
+        }
+
+        return validMacros;
+    }
+
+    /**********************************************************************************************
+     * Get the list of tool tips for the items in the macro pop-up combo box
+     *
+     * @return List of tool tips for the items in the macro pop-up combo box
+     *********************************************************************************************/
+    protected List<String> getMacroPopUpToolTips()
+    {
+        return popUpToolTips;
     }
 }
