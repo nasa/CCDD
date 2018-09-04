@@ -2295,12 +2295,14 @@ public class CcddConstants
                                                        + "hyphen and a second hexadecimal value (see Hexadecimal)"),
 
         MESSAGE_NAME_AND_ID("Message name & ID",
-                            "(?:[a-zA-Z_][a-zA-Z0-9_]*\\s+)?(?:(?:0x)?[a-fA-F0-9]*\\s*"
+                            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:(?:0x)?[a-fA-F0-9]*\\s*"
                                                  + PROTECTED_MSG_ID_IDENT
-                                                 + "?)?",
+                                                 + "?)|(?:[a-zA-Z_][a-zA-Z0-9_]*\\s+(?:0x)?[a-fA-F0-9]*\\s*"
+                                                 + PROTECTED_MSG_ID_IDENT
+                                                 + "?)",
                             InputTypeFormat.MESSAGE_ID,
                             "Message name and ID: the name and ID are optional; if both are "
-                                                        + "present the separate with a space. The name has the same constraints "
+                                                        + "present then separate with a space. The name has the same constraints "
                                                         + "as an alphanumeric (see Alphanumeric). The ID has the same "
                                                         + "constraints as a hexadecimal (see Hexadecimal); append '"
                                                         + PROTECTED_MSG_ID_IDENT

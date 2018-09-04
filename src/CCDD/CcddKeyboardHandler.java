@@ -44,6 +44,7 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
+import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.SearchDialogType;
 import CCDD.CcddUndoHandler.UndoableCheckBox;
 import CCDD.CcddUndoHandler.UndoableTextArea;
@@ -499,7 +500,8 @@ public class CcddKeyboardHandler
                                 // at the current text insertion point
                                 new PopUpComboBox(editorDialog,
                                                   (JTextComponent) comp,
-                                                  editorDialog.getTableEditor().getValidDataTypes());
+                                                  editorDialog.getTableEditor().getValidDataTypes(),
+                                                  ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
                         }
                         // Check if this is a description or data field
@@ -510,7 +512,8 @@ public class CcddKeyboardHandler
                             // the text component at the current text insertion point
                             new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
                                               (JTextComponent) comp,
-                                              dataTypeHandler.getDataTypePopUpItems(false));
+                                              dataTypeHandler.getDataTypePopUpItems(false),
+                                              ModifiableFontInfo.INPUT_TEXT.getFont());
                         }
                         // Check if editing is active in the data type editor
                         else if (SwingUtilities.getWindowAncestor(comp) instanceof CcddDataTypeEditorDialog
@@ -535,7 +538,8 @@ public class CcddKeyboardHandler
                                 // at the current text insertion point
                                 new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
                                                   (JTextComponent) comp,
-                                                  dataTypeHandler.getDataTypePopUpItems(false));
+                                                  dataTypeHandler.getDataTypePopUpItems(false),
+                                                  ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
                         }
                         // Check if editing is active in the the macro editor
@@ -546,7 +550,8 @@ public class CcddKeyboardHandler
                             // the current text insertion point
                             new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
                                               (JTextComponent) comp,
-                                              dataTypeHandler.getDataTypePopUpItems(true));
+                                              dataTypeHandler.getDataTypePopUpItems(true),
+                                              ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                         }
 
                         // Set the flag to indicate this key press was handled
@@ -615,7 +620,8 @@ public class CcddKeyboardHandler
                                                       macroHandler.getMacroPopUpItems((JTextComponent) comp,
                                                                                       inputType,
                                                                                       editor.getValidDataTypes()),
-                                                      macroHandler.getMacroPopUpToolTips())
+                                                      macroHandler.getMacroPopUpToolTips(),
+                                                      ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                     {
                                         /**********************************************************
                                          * Enclose the selected macro name in the macro identifier
@@ -642,7 +648,8 @@ public class CcddKeyboardHandler
                                                   macroHandler.getMacroPopUpItems((JTextComponent) comp,
                                                                                   inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT),
                                                                                   null),
-                                                  macroHandler.getMacroPopUpToolTips())
+                                                  macroHandler.getMacroPopUpToolTips(),
+                                                  ModifiableFontInfo.DATA_TABLE_CELL.getFont())
                                 {
                                     /**************************************************************
                                      * Enclose the selected macro name in the macro identifier
@@ -667,7 +674,8 @@ public class CcddKeyboardHandler
                                               macroHandler.getMacroPopUpItems((JTextComponent) comp,
                                                                               inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT),
                                                                               null),
-                                              macroHandler.getMacroPopUpToolTips())
+                                              macroHandler.getMacroPopUpToolTips(),
+                                              ModifiableFontInfo.INPUT_TEXT.getFont())
                             {
                                 /******************************************************************
                                  * Replace the macro name with the corresponding value
@@ -691,11 +699,11 @@ public class CcddKeyboardHandler
                         ((CcddCommonTreeHandler) comp).expandCollapseSelectedNodes();
                     }
                 }
-                // Check if the Alt key is pressed, but not the Shift or Ctrl keys, and if the
-                // Alt-V, Alt-C, or Alt-M key is pressed
+                // Check if Alt-Shift-V, Alt-Shift-C, or Alt-Shift-M is pressed (but not with the
+                // Ctrl key)
                 else if (ke.getID() == KeyEvent.KEY_PRESSED
                          && ke.isAltDown()
-                         && !ke.isShiftDown()
+                         && ke.isShiftDown()
                          && !ke.isControlDown()
                          && (ke.getKeyCode() == KeyEvent.VK_V
                              || ke.getKeyCode() == KeyEvent.VK_C
@@ -730,7 +738,8 @@ public class CcddKeyboardHandler
                                 // the text component at the current text insertion point
                                 new PopUpComboBox(editorDialog,
                                                   (JTextComponent) comp,
-                                                  inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems());
+                                                  inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems(),
+                                                  ModifiableFontInfo.DATA_TABLE_CELL.getFont());
                             }
                         }
                     }
@@ -742,7 +751,8 @@ public class CcddKeyboardHandler
                         // at the current text insertion point
                         new PopUpComboBox(SwingUtilities.getWindowAncestor(comp),
                                           (JTextComponent) comp,
-                                          inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems());
+                                          inputTypeHandler.getInputTypeByDefaultType(refInputType).getInputItems(),
+                                          ModifiableFontInfo.INPUT_TEXT.getFont());
                     }
 
                     // Set the flag to indicate this key press was handled

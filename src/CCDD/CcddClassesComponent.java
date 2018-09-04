@@ -880,19 +880,19 @@ public class CcddClassesComponent
         }
     }
 
-    // TODO
     /**********************************************************************************************
-     * Pop-up combo box class
+     * Pop-up combo box class. Display a pop-up PaddedComboBox containing the supplied selection
+     * items. When the user selects an item insert it into the supplied text component
      *********************************************************************************************/
     static class PopUpComboBox
     {
         private PaddedComboBox popUpCbox;
         private JDialog popUpDlg;
+        private JTextComponent textComp;
+        private boolean isExiting;
 
         /******************************************************************************************
-         * Pop-up combo box class constructor. Display a pop-up combo box containing the supplied
-         * selection items. When the user selects an item insert it into the supplied text
-         * component
+         * Pop-up combo box class constructor. No tool tips are displayed for the list items
          *
          * @param owner
          *            dialog owning the pop-up combo box
@@ -903,16 +903,20 @@ public class CcddClassesComponent
          *
          * @param selItems
          *            list of selection items
+         *
+         * @param font
+         *            modifiable font reference
          *****************************************************************************************/
-        PopUpComboBox(Window owner, final JTextComponent textComp, List<String> selItems)
+        PopUpComboBox(Window owner,
+                      final JTextComponent textComp,
+                      List<String> selItems,
+                      ModifiableFont font)
         {
-            this(owner, textComp, selItems, null);
+            this(owner, textComp, selItems, null, font);
         }
 
         /******************************************************************************************
-         * Pop-up combo box class constructor. Display a pop-up combo box containing the supplied
-         * selection items using the supplied tool tip text. When the user selects an item insert
-         * it into the supplied text component
+         * Pop-up combo box class constructor
          *
          * @param owner
          *            dialog owning the pop-up combo box
@@ -927,15 +931,22 @@ public class CcddClassesComponent
          * @param toolTips
          *            list of selection item tool tips; null if no tool tip text is associated with
          *            the item
+         *
+         * @param font
+         *            modifiable font reference
          *****************************************************************************************/
         PopUpComboBox(Window owner,
-                      final JTextComponent textComp,
+                      JTextComponent textComp,
                       List<String> selItems,
-                      List<String> toolTips)
+                      List<String> toolTips,
+                      ModifiableFont font)
         {
             // Check if any selection items exist
             if (selItems != null && !selItems.isEmpty())
             {
+                this.textComp = textComp;
+                isExiting = false;
+
                 // Create the pop-up dialog
                 popUpDlg = new JDialog(owner);
 
@@ -944,60 +955,42 @@ public class CcddClassesComponent
                                                (toolTips != null
                                                                  ? toolTips.toArray(new String[0])
                                                                  : null),
-                                               ModifiableFontInfo.DATA_TABLE_CELL.getFont());
-                popUpCbox.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+                                               font);
 
                 // Enable item matching for the combo box
                 popUpCbox.enableItemMatching(null);
 
-                // Set the first item as initially selected
-                popUpCbox.setSelectedIndex(0);
-
-                // Set the property to allow the arrow keys to be used to change the item selection
-                // in the combo box
-                popUpCbox.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-
-                // Add a listener for selection events in the r pop-up combo box
-                popUpCbox.addActionListener(new ActionListener()
-                {
-                    /******************************************************************************
-                     * Handle a selection event in the pop-up combo box
-                     *****************************************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Get the selected item, performing any custom text alteration
-                        String selectedItem = alterText(((JComboBox<?>) ae.getSource()).getSelectedItem()
-                                                                                       .toString()
-                                                                                       .trim());
-
-                        // Get the starting index of the selected text in the component
-                        int start = textComp.getSelectionStart();
-
-                        // Insert the item into the text component's existing text, overwriting any
-                        // of the text that is highlighted
-                        textComp.setText(getInsertedReference(selectedItem, textComp));
-                        textComp.setSelectionStart(start);
-
-                        // Select the item that was inserted
-                        textComp.setSelectionEnd(start + selectedItem.length());
-
-                        // Remove the pop-up and return to the caller
-                        exitReferenceCombo();
-                    }
-                });
-
                 // Add a listener for key press events in the pop-up combo box
-                popUpCbox.addKeyListener(new KeyAdapter()
+                popUpCbox.getEditor().getEditorComponent().addKeyListener(new KeyAdapter()
                 {
                     /******************************************************************************
-                     * Handle a key press event in the pop-up combo box
+                     * Handle a pop-up combo box key press event
                      *****************************************************************************/
                     @Override
                     public void keyPressed(KeyEvent ke)
                     {
-                        // Check if the escape key is pressed
-                        if (ke.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        // Check if the enter or escape key is pressed
+                        if (ke.getKeyCode() == KeyEvent.VK_ENTER
+                            || ke.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        {
+                            // Remove the pop-up and return to the caller
+                            exitReferenceCombo();
+                        }
+                    }
+                });
+
+                // Add a listener for action (specifically mouse button) events in the pop-up combo
+                // box
+                popUpCbox.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Handle a pop-up combo box action event
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Check if the action event is due to a mouse button
+                        if ((ae.getModifiers() & ActionEvent.MOUSE_EVENT_MASK) != 0)
                         {
                             // Remove the pop-up and return to the caller
                             exitReferenceCombo();
@@ -1149,8 +1142,35 @@ public class CcddClassesComponent
          *****************************************************************************************/
         private void exitReferenceCombo()
         {
-            popUpDlg.setVisible(false);
-            popUpDlg.dispose();
+            // Check if the pop-up combo box isn't already exiting
+            if (!isExiting)
+            {
+                // Set the flag to indicate that the pop-up combo box is exiting. This flag
+                // prevents multiple calls to this exit method
+                isExiting = true;
+
+                // Dispose of the dialog
+                popUpDlg.setVisible(false);
+                popUpDlg.dispose();
+
+                // Check if a valid item is selected
+                if (popUpCbox.getSelectedItem() != null)
+                {
+                    // Get the selected item, performing any custom text alteration
+                    String selectedItem = alterText(popUpCbox.getSelectedItem().toString().trim());
+
+                    // Get the starting index of the selected text in the component
+                    int start = textComp.getSelectionStart();
+
+                    // Insert the item into the text component's existing text, overwriting any
+                    // of the text that is highlighted
+                    textComp.setText(getInsertedReference(selectedItem, textComp));
+                    textComp.setSelectionStart(start);
+
+                    // Select the item that was inserted
+                    textComp.setSelectionEnd(start + selectedItem.length());
+                }
+            }
         }
     }
 

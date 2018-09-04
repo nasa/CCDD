@@ -893,8 +893,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the table editor contents
         table.loadAndFormatData();
 
-        // Rebuild the data field panel in the table editor using the updated fields
-        createDataFieldPanel(false, currentTableInfo.getFieldInformation());
+        // Rebuild the data field panel in the table editor using the updated fields. A copy must
+        // be used to prevent clearing the field information
+        createDataFieldPanel(false,
+                             CcddFieldHandler.getFieldInformationCopy(currentTableInfo.getFieldInformation()));
+
+        // Set the current table information's field information to reference the input panel field
+        // information
+        currentTableInfo.setFieldInformation(getPanelFieldInformation());
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -938,8 +944,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             fieldHandler.updateFieldInputTypes(inputTypeNames,
                                                currentTableInfo.getFieldInformation());
 
-            // Redraw the data field panel
-            createDataFieldPanel(false, currentTableInfo.getFieldInformation());
+            // Redraw the data field panel. A copy must be used to prevent clearing the field
+            // information
+            createDataFieldPanel(false,
+                                 CcddFieldHandler.getFieldInformationCopy(currentTableInfo.getFieldInformation()));
+
+            // Set the current table information's field information to reference the input panel
+            // field information
+            currentTableInfo.setFieldInformation(getPanelFieldInformation());
         }
     }
 

@@ -639,21 +639,6 @@ public abstract class CcddInputFieldPanelHandler
                         case PAGE_FORMAT:
                             if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
                             {
-                                // // Get the reference to the data field's input field
-                                // UndoableTextField undoableTxtFld = (UndoableTextField)
-                                // fieldInfo.getInputFld();
-                                //
-                                // // Check if the input field doesn't exist or if it does but
-                                // // isn't a text field
-                                // if (fieldInfo.getInputFld() == null
-                                // || !(fieldInfo.getInputFld() instanceof UndoableTextField))
-                                // {
-                                // // Create an undoable text field
-                                // undoableTxtFld = undoHandler.new
-                                // UndoableTextField(fieldInfo.getValue(),
-                                // fieldInfo.getSize());
-                                // }
-
                                 // Create an undoable text field
                                 UndoableTextField undoableTxtFld = undoHandler.new UndoableTextField(fieldInfo.getValue(),
                                                                                                      fieldInfo.getSize());

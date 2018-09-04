@@ -129,10 +129,10 @@ public class CcddMessageIDHandler
      * @param nameID
      *            message name and ID in the format {@literal <}name{@literal >}
      *            {@literal <}ID{@literal >}. A null, blank input, or an input containing only the
-     *            ID is accepted
+     *            name or ID is accepted
      *
-     * @return Array containing the message name and ID. The name, or both the name and ID can be
-     *         blank
+     * @return Array containing the message name and ID. The name, ID,or both the name and ID can
+     *         be blank
      *********************************************************************************************/
     protected static String[] getMessageNameAndID(String nameID)
     {
@@ -144,11 +144,21 @@ public class CcddMessageIDHandler
             // Separate the message name (if present) from the ID
             String[] parts = nameID.split("\\s+", 2);
 
-            // Check if only the ID is present
+            // Check if only a single value is present
             if (parts.length == 1)
             {
-                // Store the ID
-                nameAndID[1] = parts[0];
+                // Check if the value is a hexadecimal
+                if (parts[0].matches(DefaultInputType.HEXADECIMAL.getInputMatch()))
+                {
+                    // Store the ID
+                    nameAndID[1] = parts[0];
+                }
+                // Not a hexadecimal; assume this is the name
+                else
+                {
+                    // Store the name
+                    nameAndID[0] = parts[0];
+                }
             }
             // Check if both the name and ID are present
             else if (parts.length == 2)

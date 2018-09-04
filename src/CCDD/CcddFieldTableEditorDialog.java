@@ -68,6 +68,7 @@ import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
+import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldTableEditorColumnInfo;
 import CCDD.CcddConstants.InputTypeFormat;
@@ -1333,24 +1334,64 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                            .toString(),
                                                                  false);
 
-                            // Step through each row in the table
-                            for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
+                            // Check if the value isn't blank
+                            if (!value.isEmpty())
                             {
-                                // Check if this isn't the same row as the one being updated, that
-                                // the cell isn't blank, and that the text matches that in another
-                                // row of the same column
-                                if (rowModel != checkRow
-                                    && !value.isEmpty()
-                                    && inputType.formatInput(tableModel.getValueAt(checkRow,
-                                                                                   columnModel)
-                                                                       .toString(),
-                                                             false)
-                                                .equals(value))
+                                // Check if the field's input type represents a message name & ID
+                                if (inputType.equals(ccddMain.getInputTypeHandler().getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID)))
                                 {
-                                    // Change the cell's background color to indicate it has the
-                                    // same value as another cell in the same column
-                                    comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
-                                    break;
+                                    // Separate the message name and ID
+                                    String[] nameID = CcddMessageIDHandler.getMessageNameAndID(value);
+
+                                    // Step through each row in the table
+                                    for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
+                                    {
+                                        // Check if this isn't the same row as the one being
+                                        // updated
+                                        if (rowModel != checkRow)
+                                        {
+                                            // Separate the message name and ID
+                                            String[] chkNameID = CcddMessageIDHandler.getMessageNameAndID(tableModel.getValueAt(checkRow,
+                                                                                                                                columnModel)
+                                                                                                                    .toString());
+
+                                            // Check if the message names and/or IDs match (blanks
+                                            // are ignored)
+                                            if ((!nameID[0].isEmpty() && nameID[0].equals(chkNameID[0]))
+                                                || (!nameID[1].isEmpty() && nameID[1].equals(chkNameID[1])))
+                                            {
+                                                // Change the cell's background color to indicate
+                                                // it has the same value as another cell in the
+                                                // same column
+                                                comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                // The field is not for a message name & ID
+                                else
+                                {
+                                    // Step through each row in the table
+                                    for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
+                                    {
+                                        // Check if this isn't the same row as the one being
+                                        // updated and if the text matches that in another row of
+                                        // the same column
+                                        if (rowModel != checkRow
+                                            && inputType.formatInput(tableModel.getValueAt(checkRow,
+                                                                                           columnModel)
+                                                                               .toString(),
+                                                                     false)
+                                                        .equals(value))
+                                        {
+                                            // Change the cell's background color to indicate it
+                                            // has the same value as another cell in the same
+                                            // column
+                                            comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }

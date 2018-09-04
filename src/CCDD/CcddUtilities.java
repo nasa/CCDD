@@ -765,6 +765,9 @@ public class CcddUtilities
     /**********************************************************************************************
      * Concatenate the contents of two one-dimensional arrays to produce a third array
      *
+     * @param <T>
+     *            generic type parameter
+     *
      * @param array1
      *            first array to combine (can be null)
      *

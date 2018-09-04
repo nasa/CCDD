@@ -702,7 +702,8 @@ public class CcddInputTypeHandler
 
                         // Check if only one value is provided and the single value's format
                         // matches that for a hexadecimal value
-                        if (values.length == 1)
+                        if (values.length == 1
+                            && valueS.matches(DefaultInputType.HEXADECIMAL.getInputMatch()))
                         {
                             // Format the message ID
                             valueS = formatInput(valueS,
