@@ -905,7 +905,7 @@ public class CcddVariableHandler
                     if (variablePathIndex != -1)
                     {
                         // Append the database and user column names to the search criteria
-                        varPathColumnsDb += typeDefn.getColumnNamesDatabase()[variablePathIndex] + ",";
+                        varPathColumnsDb += typeDefn.getColumnNamesDatabaseQuoted()[variablePathIndex] + ",";
                         varPathColumnsUser += ValuesColumn.COLUMN_NAME.getColumnName()
                                               + " = '"
                                               + typeDefn.getColumnNamesUser()[variablePathIndex]

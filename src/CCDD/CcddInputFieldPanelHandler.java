@@ -6,8 +6,11 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
+
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,6 +31,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
@@ -35,6 +40,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
 
+import CCDD.CcddClassesComponent.CustomSplitPane;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.WrapLayout;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -64,11 +70,12 @@ public abstract class CcddInputFieldPanelHandler
     private CcddInputTypeHandler inputTypeHandler;
 
     // Components referenced by multiple methods
+    private JPanel inputPnl;
     private UndoableDataFieldPanel undoFieldPnl;
     private UndoableTextArea descriptionFld;
-    private JPanel inputPnl;
-    private Border border;
+    private JPanel descAndFldPnl;
     private JPanel fieldPnl;
+    private Border border;
     private GridBagConstraints gbc;
 
     // Name of the owner (table or group) for the field panel handler
@@ -97,9 +104,9 @@ public abstract class CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
-     * Get the JPanel containing the description and data fields
+     * Get the JPanel containing the table (if applicable), description, and data fields
      *
-     * @return JPanel containing the description and data fields
+     * @return JPanel containing the table (if applicable), description, and data fields
      *********************************************************************************************/
     protected JPanel getFieldPanel()
     {
@@ -273,44 +280,33 @@ public abstract class CcddInputFieldPanelHandler
         // Step through each data field
         for (FieldInformation fieldInfo : fieldInformation)
         {
-            // Get the reference to the field in the field handler
-            FieldInformation fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
-                                                                              fieldInfo.getFieldName());
+            // Get a reference to the data field's input field to shorten subsequent calls
+            Component inputFld = fieldInfo.getInputFld();
 
-            // Check if the field exists in the field handler
-            if (fldInfo != null)
+            // Check if the data field isn't a page format field (line break or separator)
+            if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
             {
-                // Get the data field's input component
-                Component inputFld = fldInfo.getInputFld();
-
-                // Check if a text field or check box exists for this data field and isn't a page
-                // format field (line break or separator)
-                if (inputFld != null
-                    && fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
+                // Check if this is a boolean input (check box) data field
+                if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
                 {
-                    // Check if this is a boolean input (check box) data field
-                    if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)
-                    {
-                        // Update the data field information value with the current check box
-                        // selection state
-                        fieldInfo.setValue(((JCheckBox) inputFld).isSelected()
-                                                                               ? "true"
-                                                                               : "false");
-                    }
-                    // Check if the the field is a text field/area
-                    else if (inputFld instanceof JTextComponent)
-                    {
-                        // Update the data field information value with the current text field/area
-                        // value
-                        fieldInfo.setValue(((JTextComponent) inputFld).getText());
-                    }
-                    // Check if the the field is a combo box
-                    else if (inputFld instanceof PaddedComboBox)
-                    {
-                        // Update the data field information value with the current combo box
-                        // selection
-                        fieldInfo.setValue(((PaddedComboBox) inputFld).getSelectedItem().toString());
-                    }
+                    // Update the data field information value with the current check box selection
+                    // state
+                    fieldInfo.setValue(((JCheckBox) inputFld).isSelected()
+                                                                           ? "true"
+                                                                           : "false");
+                }
+                // Check if the the field is a text field/area
+                else if (inputFld instanceof JTextComponent)
+                {
+                    // Update the data field information value with the current text field/area
+                    // value
+                    fieldInfo.setValue(((JTextComponent) inputFld).getText());
+                }
+                // Check if the the field is a combo box
+                else if (inputFld instanceof PaddedComboBox)
+                {
+                    // Update the data field information value with the current combo box selection
+                    fieldInfo.setValue(((PaddedComboBox) inputFld).getSelectedItem().toString());
                 }
             }
         }
@@ -388,9 +384,12 @@ public abstract class CcddInputFieldPanelHandler
                                                String description,
                                                List<FieldInformation> ownerFieldInfo)
     {
+        final JScrollPane inputScrollPane;
+        JPanel tablePnl = null;
+        this.fieldInformation = new ArrayList<FieldInformation>();
+
         this.fieldPnlHndlrOwner = fieldPnlHndlrOwner;
         this.ownerName = ownerName;
-        this.fieldInformation = new ArrayList<FieldInformation>();
         fieldHandler = ccddMain.getFieldHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
 
@@ -410,21 +409,6 @@ public abstract class CcddInputFieldPanelHandler
                                      0,
                                      0);
 
-        // Create an outer panel to put the editor panel in (the border doesn't appear without
-        // this) and add the table description text field
-        inputPnl = new JPanel(new GridBagLayout());
-
-        // Check if this editor contains a table
-        if (tableScrollPane != null)
-        {
-            // Define the editor panel to contain the table
-            JPanel innerPanel = new JPanel();
-            innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
-            innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            innerPanel.add(tableScrollPane);
-            inputPnl.add(innerPanel, gbc);
-        }
-
         // Create borders for the input fields
         border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
                                                                                     Color.LIGHT_GRAY,
@@ -434,6 +418,25 @@ public abstract class CcddInputFieldPanelHandler
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
                                                                                     ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
         Border emptyBorder = BorderFactory.createEmptyBorder();
+
+        // Create an outer panel to put the editor panel in (the border doesn't appear without
+        // this) and add the table description text field
+        descAndFldPnl = new JPanel(new GridBagLayout());
+
+        inputPnl = new JPanel(new GridBagLayout());
+        inputPnl.setBorder(emptyBorder);
+
+        // Check if this editor contains a table
+        if (tableScrollPane != null)
+        {
+            // Define the editor panel to contain the table
+            JPanel innerPanel = new JPanel();
+            innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
+            innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+            innerPanel.add(tableScrollPane);
+            tablePnl = new JPanel(new GridBagLayout());
+            tablePnl.add(innerPanel, gbc);
+        }
 
         // Create a panel to hold the table's system name, description and, if applicable, message
         // ID information
@@ -496,7 +499,7 @@ public abstract class CcddInputFieldPanelHandler
         if (tableScrollPane == null)
         {
             // Place the description field within a scroll pane and add the field to the editor
-            inputPnl.setBorder(BorderFactory.createEtchedBorder());
+            descAndFldPnl.setBorder(BorderFactory.createEtchedBorder());
             descScrollPane.setBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
             gbc.gridy++;
@@ -506,7 +509,7 @@ public abstract class CcddInputFieldPanelHandler
         else
         {
             // Place the description field within a scroll pane and add the field to the editor
-            inputPnl.setBorder(emptyBorder);
+            descAndFldPnl.setBorder(emptyBorder);
             descriptionFld.setToolTipText(CcddUtilities.wrapText("Table description",
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             descScrollPane.setBorder(emptyBorder);
@@ -521,13 +524,14 @@ public abstract class CcddInputFieldPanelHandler
         // Add the description panel to the editor
         gbc.gridx = 0;
         gbc.gridy++;
-        inputPnl.add(descriptionPnl, gbc);
+        descAndFldPnl.add(descriptionPnl, gbc);
 
         // Add the data field panel to the editor
         gbc.gridy++;
         gbc.insets.top = 0;
         gbc.insets.bottom = 0;
         createDataFieldPanel(false, CcddFieldHandler.getFieldInformationCopy(ownerFieldInfo));
+        gbc.weighty = 1.0;
 
         // Check if this editor doesn't contain a table
         if (tableScrollPane == null)
@@ -535,15 +539,56 @@ public abstract class CcddInputFieldPanelHandler
             // Add an invisible component in order to force the description panel and data fields
             // to the top of the panel
             JLabel invisibleLbl = new JLabel("");
-            gbc.weighty = 1.0;
             gbc.gridy++;
-            inputPnl.add(invisibleLbl, gbc);
-            gbc.weighty = 0.0;
-            gbc.gridy--;
+            descAndFldPnl.add(invisibleLbl, gbc);
         }
 
-        // Add a listener for changes in the editor panel's size
-        inputPnl.addComponentListener(new ComponentAdapter()
+        // Create the scroll pane to hold the description and data fields
+        inputScrollPane = new JScrollPane(descAndFldPnl);
+        inputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        inputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        inputScrollPane.setBorder(emptyBorder);
+
+        // Check if this editor doesn't contain a table
+        if (tableScrollPane == null)
+        {
+            // Add the input panel to the editor panel
+            inputPnl.add(inputScrollPane, gbc);
+        }
+        // The editor contains a table
+        else
+        {
+            // Place the table and input panels into a split pane
+            CustomSplitPane splitPane = new CustomSplitPane(tablePnl,
+                                                            inputScrollPane,
+                                                            null,
+                                                            JSplitPane.VERTICAL_SPLIT);
+
+            // Set so that when resizing the editor's vertical size the table gets all the
+            // additional height
+            splitPane.setResizeWeight(1.0);
+
+            // Check if the data field panel exists (if there are no fields defined then the panel
+            // isn't created)
+            if (fieldPnl != null)
+            {
+                // Set the data field panel size so that the input scroll pane is sized such that
+                // the fields are displayed
+                fieldPnl.setSize(fieldPnl.getPreferredSize());
+            }
+
+            // Set the input scroll pane's minimum height to that of the description field
+            inputScrollPane.setPreferredSize(inputScrollPane.getPreferredSize());
+            inputScrollPane.setMinimumSize(new Dimension(inputScrollPane.getMinimumSize().width,
+                                                         descriptionPnl.getPreferredSize().height
+                                                                                                 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2));
+
+            // Add the split pane to the editor panel
+            inputPnl.add(splitPane, gbc);
+        }
+
+        // Add a listener for changes in the input panel's size
+        inputScrollPane.addComponentListener(new ComponentAdapter()
         {
             /**************************************************************************************
              * Handle resizing of the editor panel
@@ -561,10 +606,29 @@ public abstract class CcddInputFieldPanelHandler
                     @Override
                     public void run()
                     {
-                        // Revalidate to force the editor panel to redraw to the new sizes, which
-                        // causes the data fields to be correctly sized so that all of the fields
-                        // are visible
-                        inputPnl.revalidate();
+                        // Check if the field panel exists (for some dialogs the panel exists only
+                        // if a selection is made to determine which fields to display)
+                        if (fieldPnl != null)
+                        {
+                            // TODO IF THE VERTICAL SCROLL BAR IS VISIBLE IN THE INPUT SCROLL PANE
+                            // THEN A SEPARATOR 'JUMPS' IN WIDTH AS THE PANEL IS RESIZED. IT
+                            // APPEARS THAT THE WRAP LAYOUT METHOD GETS CALLED WITH THE CORRECT
+                            // SIZE AND THEN A SMALLER ONE (16 pixels LESS)
+
+                            // Update the field panel width to the input scroll pane width to that
+                            // the field layout (wrapped) is performed
+                            fieldPnl.setSize(new Dimension(inputScrollPane.getWidth()
+                                                           -
+                                                           (inputScrollPane.getVerticalScrollBar()
+                                                                           .isShowing()
+                                                                                        ? LAF_SCROLL_BAR_WIDTH
+                                                                                        : 0)
+                                                           - ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                           fieldPnl.getHeight()));
+                        }
+
+                        // Revalidate to force the input panel to redraw to the new size
+                        inputScrollPane.revalidate();
                     }
                 });
             }
@@ -586,19 +650,32 @@ public abstract class CcddInputFieldPanelHandler
     {
         maxFieldWidth = 0;
 
-        // Clear the current field information. This is done so the the variable's reference isn't
-        // changed
-        fieldInformation.clear();
-
         // Check if any data fields are provided for this input panel
         if (ownerFieldInfo != null)
         {
-            // Step through each of the supplied data field's information
-            for (FieldInformation fldInfo : ownerFieldInfo)
+            // Check if the supplied fields aren't already loaded as the input panel's fields. If
+            // these are the same there's no need to copy the information (plus the clear command
+            // below would wipe out the supplied information)
+            if (!ownerFieldInfo.equals(fieldInformation))
             {
-                // Add the data field information to the list
-                fieldInformation.add(fldInfo);
+                // Clear the current field information. Clearing (versus recreating) the list is
+                // done so the the variable's reference isn't changed
+                fieldInformation.clear();
+
+                // Step through each of the supplied data field's information
+                for (FieldInformation fldInfo : ownerFieldInfo)
+                {
+                    // Add the data field information to the list
+                    fieldInformation.add(fldInfo);
+                }
             }
+        }
+        // No data field information is supplied
+        else
+        {
+            // Clear the current field information. Clearing (versus recreating) the list is done
+            // so the the variable's reference isn't changed
+            fieldInformation.clear();
         }
 
         // Set the preferred size so that the layout manager uses its default sizing
@@ -608,7 +685,7 @@ public abstract class CcddInputFieldPanelHandler
         if (fieldPnl != null)
         {
             // Remove the existing data fields
-            inputPnl.remove(fieldPnl);
+            descAndFldPnl.remove(fieldPnl);
         }
 
         // Check if any data fields exist for this table/group/etc.
@@ -713,7 +790,8 @@ public abstract class CcddInputFieldPanelHandler
 
                             // Set the data field reference in the undo handler for the
                             // input field
-                            undoableChkBox.setUndoFieldInformation(fieldInfo);
+                            undoableChkBox.setUndoFieldInformation(fieldInfo.getOwnerName(),
+                                                                   fieldInfo.getFieldName());
 
                             // Set the check box label font and color
                             UndoableCheckBox booleanCb = undoableChkBox;
@@ -814,7 +892,8 @@ public abstract class CcddInputFieldPanelHandler
 
                                     // Set the data field reference in the undo handler for the
                                     // input field
-                                    undoableTxtFld.setUndoFieldInformation(fieldInfo);
+                                    undoableTxtFld.setUndoFieldInformation(fieldInfo.getOwnerName(),
+                                                                           fieldInfo.getFieldName());
 
                                     inputFld = undoableTxtFld;
                                 }
@@ -844,7 +923,8 @@ public abstract class CcddInputFieldPanelHandler
 
                                     // Set the data field reference in the undo handler for the
                                     // input field
-                                    undoableCmbBx.setUndoFieldInformation(fieldInfo);
+                                    undoableCmbBx.setUndoFieldInformation(fieldInfo.getOwnerName(),
+                                                                          fieldInfo.getFieldName());
 
                                     inputFld = undoableCmbBx;
 
@@ -999,7 +1079,7 @@ public abstract class CcddInputFieldPanelHandler
             if (fieldPnl.getComponentCount() != 0)
             {
                 // Add the data field panel to the dialog
-                inputPnl.add(fieldPnl, gbc);
+                descAndFldPnl.add(fieldPnl, gbc);
             }
         }
 

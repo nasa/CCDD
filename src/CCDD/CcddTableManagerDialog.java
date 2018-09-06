@@ -1877,19 +1877,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                     + "<b>' matches a primitive data type");
         }
 
-        // Step through the list of reserved words
-        for (String keyWord : dbControl.getKeyWords())
-        {
-            // Check if the table name matches the reserved word
-            if (tableName.equalsIgnoreCase(keyWord))
-            {
-                // Inform the user that the table name is a reserved word
-                throw new CCDDException("Table name '</b>"
-                                        + tableName
-                                        + "<b>' matches a reserved word");
-            }
-        }
-
         // Check if the table starts with the characters designating an internal table
         if (tableName.startsWith(INTERNAL_TABLE_PREFIX))
         {

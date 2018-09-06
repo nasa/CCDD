@@ -674,13 +674,20 @@ public class CcddClassesComponent
                             @Override
                             public void run()
                             {
-                                // Step through each combo box item, leaving the initial item. If
-                                // all list items are removed a noticeable time penalty is incurred
-                                // for lists with a large number of items
-                                for (int index = getItemCount() - 1; index > 0; index--)
+                                // Set the flag if the selection list has any items
+                                boolean hadItem = getItemCount() != 0;
+
+                                // Check if the list currently has any items
+                                if (hadItem)
                                 {
-                                    // Remove the item from the list
-                                    removeItemAt(index);
+                                    // Step through each combo box item, leaving the initial item
+                                    // (if any). If all list items are removed a noticeable time
+                                    // penalty is incurred for lists with a large number of items
+                                    for (int index = getItemCount() - 1; index > 0; index--)
+                                    {
+                                        // Remove the item from the list
+                                        removeItemAt(index);
+                                    }
                                 }
 
                                 // A custom matching system is used: a question mark matches a
@@ -714,8 +721,12 @@ public class CcddClassesComponent
                                     }
                                 }
 
-                                // Remove the initial list item that wasn't removed above
-                                removeItemAt(0);
+                                // Check if the list wan't empty to begin with
+                                if (hadItem)
+                                {
+                                    // Remove the initial list item that wasn't removed above
+                                    removeItemAt(0);
+                                }
 
                                 // Get the first matching item. This is used as the selected item
                                 // if the focus is changed from the input field

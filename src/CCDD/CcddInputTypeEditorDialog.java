@@ -32,7 +32,6 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -44,6 +43,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
@@ -77,8 +77,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     private CcddJTableHandler inputTypeTable;
 
     // Cell editors for the input type format column
-    private DefaultCellEditor formatCellEditor;
-    private DefaultCellEditor itemFormatCellEditor;
+    private ComboBoxCellEditor formatCellEditor;
+    private ComboBoxCellEditor itemFormatCellEditor;
 
     // Table instance model data. Current copy is the table information as it exists in the table
     // editor and is used to determine what changes have been made to the table since the previous
@@ -1016,8 +1016,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         itemFormatComboBox.enableItemMatching(inputTypeTable);
 
         // Create the input type format cell editors
-        formatCellEditor = new DefaultCellEditor(formatComboBox);
-        itemFormatCellEditor = new DefaultCellEditor(itemFormatComboBox);
+        formatCellEditor = new ComboBoxCellEditor(formatComboBox);
+        itemFormatCellEditor = new ComboBoxCellEditor(itemFormatComboBox);
     }
 
     /**********************************************************************************************

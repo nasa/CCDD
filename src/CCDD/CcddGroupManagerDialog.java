@@ -942,7 +942,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Validate the dialog to redraw the description and field area correctly Update the
         // dialog's minimum size to accommodate the change in the size or number of data fields,
         // then revalidate the dialog so that the components are sized correctly
-        setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
+        setMinimumSize(new Dimension(Math.max(getMinimumWidth(),
                                               fieldPnlHndlr.getMaxFieldWidth()),
                                      getPreferredSize().height));
         setPreferredSize(getPreferredSize());
@@ -985,9 +985,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         btnRenameGroup.setEnabled(enable);
         btnCopyGroup.setEnabled(enable);
         btnManageFields.setEnabled(enable);
-        btnClearValues.setEnabled(enable
-                                  &&
-                                  !fieldPnlHndlr.getPanelFieldInformation().isEmpty());
+        btnClearValues.setEnabled(enable && !fieldPnlHndlr.getPanelFieldInformation().isEmpty());
     }
 
     /**********************************************************************************************

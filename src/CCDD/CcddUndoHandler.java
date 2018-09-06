@@ -694,7 +694,8 @@ public class CcddUndoHandler
     @SuppressWarnings("serial")
     protected class UndoableCheckBox extends JCheckBox
     {
-        private FieldInformation fieldInfo = null;
+        private String fieldOwner = null;
+        private String fieldName = null;
 
         /******************************************************************************************
          * Toggle button model undo/redo class
@@ -759,7 +760,8 @@ public class CcddUndoHandler
                                                                             new CheckBoxEdit(UndoableCheckBox.this,
                                                                                              oldValue,
                                                                                              isSelected(),
-                                                                                             fieldInfo));
+                                                                                             fieldOwner,
+                                                                                             fieldName));
 
                         // Step through the registered listeners
                         for (UndoableEditListener listener : listeners)
@@ -810,16 +812,19 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the data field to which the text field belongs (only used if the text field is a
-         * data field)
+         * Set the data field to which the check box belongs (only used if the check box is a data
+         * field)
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the check box belongs
+         *
+         * @param fieldName
+         *            name of the data field to which the check box belongs
          *****************************************************************************************/
-        protected void setUndoFieldInformation(FieldInformation fieldInfo)
+        protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
         }
 
         /******************************************************************************************
@@ -863,7 +868,8 @@ public class CcddUndoHandler
         private UndoableCheckBox checkBox;
         private final boolean oldValue;
         private final boolean newValue;
-        private final FieldInformation fieldInfo;
+        private final String fieldOwner;
+        private final String fieldName;
 
         /******************************************************************************************
          * Check box edit event handler constructor
@@ -877,19 +883,25 @@ public class CcddUndoHandler
          * @param newValue
          *            new check box selection state
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the check box belongs; null if the check box
+         *            is not a data field
+         *
+         * @param fieldName
+         *            name of the data field to which the check box belongs; null if the check box
+         *            is not a data field
          *****************************************************************************************/
         CheckBoxEdit(UndoableCheckBox checkBox,
                      boolean oldValue,
                      boolean newValue,
-                     FieldInformation fieldInfo)
+                     String fieldOwner,
+                     String fieldName)
         {
             this.checkBox = checkBox;
             this.oldValue = oldValue;
             this.newValue = newValue;
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
 
             // Add the check box edit to the undo stack
             undoManager.addEditSequence(this);
@@ -928,16 +940,25 @@ public class CcddUndoHandler
          *****************************************************************************************/
         private void setSelectedCheckBox(boolean selected)
         {
-            // Check if a field handler exists and if the check box's owning data field has been
-            // set (the owner is set when the data field is created)
-            if (fieldHandler != null && fieldInfo != null)
+            // Check if a data field handler exists and if the check box's owner and name have been
+            // set (the owner and name are set when the data field is created)
+            if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
-                // Set the check box reference to that associated with the specified data field.
-                // When a data field is altered the entire set of associated fields are recreated
-                // and therefore the check box reference stored in this edit no longer points to an
-                // existing field. Since the owner and field names in the data field information do
-                // still match, this step directs the undo/redo operation to the correct check box
-                checkBox = (UndoableCheckBox) fieldInfo.getInputFld();
+                // Get the reference to the data field based on the owner and name
+                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldOwner,
+                                                                                    fieldName);
+
+                // Check if the data field exists
+                if (fieldInfo != null)
+                {
+                    // Set the check box reference to that associated with the specified data
+                    // field. When a data field is altered the entire set of associated fields are
+                    // recreated and therefore the check box reference stored in this edit no
+                    // longer points to an existing field. Since the owner and field names in the
+                    // data field information do still match, this step directs the undo/redo
+                    // operation to the correct data field
+                    checkBox = (UndoableCheckBox) fieldInfo.getInputFld();
+                }
             }
 
             // Update the check box selection state
@@ -967,7 +988,8 @@ public class CcddUndoHandler
     protected class UndoableComboBox extends PaddedComboBox
     {
         private Object oldValue = "";
-        private FieldInformation fieldInfo;
+        private String fieldOwner = null;
+        private String fieldName = null;
 
         /******************************************************************************************
          * Combo box constructor with an empty list
@@ -987,16 +1009,19 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
-         * Set the data field to which the text field belongs (only used if the text field is a
-         * data field)
+         * Set the data field to which the combo box belongs (only used if the combo box is a data
+         * field)
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the combo box belongs
+         *
+         * @param fieldName
+         *            name of the data field to which the combo box belongs
          *****************************************************************************************/
-        protected void setUndoFieldInformation(FieldInformation fieldInfo)
+        protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
         }
 
         /******************************************************************************************
@@ -1071,7 +1096,8 @@ public class CcddUndoHandler
                                                                         new ComboBoxEdit(UndoableComboBox.this,
                                                                                          oldValue,
                                                                                          selection,
-                                                                                         fieldInfo));
+                                                                                         fieldOwner,
+                                                                                         fieldName));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -1103,7 +1129,8 @@ public class CcddUndoHandler
         private UndoableComboBox comboBox;
         private final Object oldValue;
         private final Object newValue;
-        private final FieldInformation fieldInfo;
+        private final String fieldOwner;
+        private final String fieldName;
 
         /******************************************************************************************
          * Combo box edit event handler constructor
@@ -1117,19 +1144,25 @@ public class CcddUndoHandler
          * @param newValue
          *            new selected combo box item
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the combo box belongs; null if the combo box
+         *            is not a data field
+         *
+         * @param fieldName
+         *            name of the data field to which the combo box belongs; null if the combo box
+         *            is not a data field
          *****************************************************************************************/
         ComboBoxEdit(UndoableComboBox comboBox,
                      Object oldValue,
                      Object newValue,
-                     FieldInformation fieldInfo)
+                     String fieldOwner,
+                     String fieldName)
         {
             this.comboBox = comboBox;
             this.oldValue = oldValue;
             this.newValue = newValue;
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
 
             // Add the combo box edit to the undo stack
             undoManager.addEditSequence(this);
@@ -1167,16 +1200,25 @@ public class CcddUndoHandler
          *****************************************************************************************/
         private void setSelectedComboBox(Object selection)
         {
-            // Check if a field handler exists and if the combo box's owning data field has been
-            // set (the owner is set when the data field is created)
-            if (fieldHandler != null && comboBox != null)
+            // Check if a data field handler exists and if the combo box's owner and name have been
+            // set (the owner and name are set when the data field is created)
+            if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
-                // Set the combo box reference to that associated with the specified data field.
-                // When a data field is altered the entire set of associated fields are recreated
-                // and therefore the combo box reference stored in this edit no longer points to an
-                // existing field. Since the owner and field names in the data field information do
-                // still match, this step directs the undo/redo operation to the correct combo box
-                comboBox = (UndoableComboBox) fieldInfo.getInputFld();
+                // Get the reference to the data field based on the owner and name
+                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldOwner,
+                                                                                    fieldName);
+
+                // Check if the data field exists
+                if (fieldInfo != null)
+                {
+                    // Set the text field reference to that associated with the specified data
+                    // field. When a data field is altered the entire set of associated fields are
+                    // recreated and therefore the combo box reference stored in this edit no
+                    // longer points to an existing field. Since the owner and field names in the
+                    // data field information do still match, this step directs the undo/redo
+                    // operation to the correct data field
+                    comboBox = (UndoableComboBox) fieldInfo.getInputFld();
+                }
             }
 
             // Update the combo box selection item
@@ -1205,7 +1247,8 @@ public class CcddUndoHandler
     protected class UndoableTextField extends JTextField
     {
         private String oldValue = "";
-        private FieldInformation fieldInfo = null;
+        private String fieldOwner = null;
+        private String fieldName = null;
 
         /******************************************************************************************
          * Text field value undo/redo class constructor
@@ -1327,13 +1370,16 @@ public class CcddUndoHandler
          * Set the data field to which the text field belongs (only used if the text field is a
          * data field)
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the text field belongs
+         *
+         * @param fieldName
+         *            name of the data field to which the text field belongs
          *****************************************************************************************/
-        protected void setUndoFieldInformation(FieldInformation fieldInfo)
+        protected void setUndoFieldInformation(String fieldOwner, String fieldName)
         {
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
         }
 
         /******************************************************************************************
@@ -1374,7 +1420,8 @@ public class CcddUndoHandler
                                                                         new TextFieldEdit(UndoableTextField.this,
                                                                                           oldValue,
                                                                                           text,
-                                                                                          fieldInfo));
+                                                                                          fieldOwner,
+                                                                                          fieldName));
 
                     // Step through the registered listeners
                     for (UndoableEditListener listener : listeners)
@@ -1409,8 +1456,8 @@ public class CcddUndoHandler
         private UndoableTextField textField;
         private final String oldValue;
         private final String newValue;
-
-        private final FieldInformation fieldInfo;
+        private final String fieldOwner;
+        private final String fieldName;
 
         /******************************************************************************************
          * Text field edit event handler constructor
@@ -1424,19 +1471,25 @@ public class CcddUndoHandler
          * @param newValue
          *            new text field value
          *
-         * @param fieldInfo
-         *            field information for the data field to which the text field belongs; null if
-         *            the text field is not a data field
+         * @param fieldOwner
+         *            owner of the data field to which the text field belongs; null if the text
+         *            field is not a data field
+         *
+         * @param fieldName
+         *            name of the data field to which the text field belongs; null if the text
+         *            field is not a data field
          *****************************************************************************************/
         TextFieldEdit(UndoableTextField textField,
                       String oldValue,
                       String newValue,
-                      FieldInformation fieldInfo)
+                      String fieldOwner,
+                      String fieldName)
         {
             this.textField = textField;
             this.oldValue = oldValue;
             this.newValue = newValue;
-            this.fieldInfo = fieldInfo;
+            this.fieldOwner = fieldOwner;
+            this.fieldName = fieldName;
 
             // Add the text field edit to the undo stack
             undoManager.addEditSequence(this);
@@ -1475,17 +1528,25 @@ public class CcddUndoHandler
          *****************************************************************************************/
         private void setSelectedTextField(final String value)
         {
-            // Check if a field handler exists and if the text field's owning data field has been
-            // set (the owner is set when the data field is created)
-            if (fieldHandler != null && fieldInfo != null)
+            // Check if a data field handler exists and if the text field's owner and name have
+            // been set (the owner and name are set when the data field is created)
+            if (fieldHandler != null && fieldOwner != null && fieldName != null)
             {
-                // Set the text field reference to that associated with the specified data field.
-                // When a data field is altered the entire set of associated fields are recreated
-                // and therefore the text field reference stored in this edit no longer points to
-                // an existing field. Since the owner and field names in the data field information
-                // do still match, this step directs the undo/redo operation to the correct text
-                // field
-                textField = (UndoableTextField) fieldInfo.getInputFld();
+                // Get the reference to the data field based on the owner and name
+                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldOwner,
+                                                                                    fieldName);
+
+                // Check if the data field exists
+                if (fieldInfo != null)
+                {
+                    // Set the text field reference to that associated with the specified data
+                    // field. When a data field is altered the entire set of associated fields are
+                    // recreated and therefore the text field reference stored in this edit no
+                    // longer points to an existing field. Since the owner and field names in the
+                    // data field information do still match, this step directs the undo/redo
+                    // operation to the correct data field
+                    textField = (UndoableTextField) fieldInfo.getInputFld();
+                }
             }
 
             // Update the text field value

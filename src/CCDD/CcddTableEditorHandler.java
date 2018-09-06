@@ -58,7 +58,6 @@ import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
 import CCDD.CcddClassesDataTable.BitPackRowIndex;
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.MinMaxPair;
 import CCDD.CcddClassesDataTable.RateInformation;
@@ -882,7 +881,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Get the model column indices for columns with special input types
         getSpecialColumnIndices();
 
-        // Update the current and committed field information
+        // Update the current field information and store the supplied table information as the
+        // committed information
         currentTableInfo.setFieldInformation(fieldHandler.getFieldInformationByOwnerCopy(tblInfo.getTablePath()));
         setCommittedInformation(tblInfo);
 
@@ -893,14 +893,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Update the table editor contents
         table.loadAndFormatData();
 
-        // Rebuild the data field panel in the table editor using the updated fields. A copy must
-        // be used to prevent clearing the field information
-        createDataFieldPanel(false,
-                             CcddFieldHandler.getFieldInformationCopy(currentTableInfo.getFieldInformation()));
-
-        // Set the current table information's field information to reference the input panel field
-        // information
-        currentTableInfo.setFieldInformation(getPanelFieldInformation());
+        // Rebuild the data field panel in the table editor using the updated fields
+        createDataFieldPanel(false, currentTableInfo.getFieldInformation());
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -938,20 +932,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check that the table is open in a table editor
         if (editorDialog != null)
         {
-            // Update the input types in the field handlers (committed and active)
+            // Update the input types in the field handlers (committed and active), then rebuild
+            // the data field panel
             fieldHandler.updateFieldInputTypes(inputTypeNames,
                                                committedTableInfo.getFieldInformation());
             fieldHandler.updateFieldInputTypes(inputTypeNames,
                                                currentTableInfo.getFieldInformation());
-
-            // Redraw the data field panel. A copy must be used to prevent clearing the field
-            // information
-            createDataFieldPanel(false,
-                                 CcddFieldHandler.getFieldInformationCopy(currentTableInfo.getFieldInformation()));
-
-            // Set the current table information's field information to reference the input panel
-            // field information
-            currentTableInfo.setFieldInformation(getPanelFieldInformation());
+            createDataFieldPanel(false, currentTableInfo.getFieldInformation());
         }
     }
 
@@ -1221,20 +1208,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 table.arrangeColumns(columnOrder);
             }
 
-            // Check if the data fields don't match those stored in the database
+            // Check if the data fields don't match those stored in the database. This can occur,
+            // for example, if the table has a reference input type (variable. command, or message)
+            // and the reference changed
             if (fieldHandler.isFieldChanged(currentTableInfo.getFieldInformation(),
                                             dbTableInfo.getFieldInformation(),
                                             false))
             {
-                // Create a copy of the current data fields
-                List<FieldInformation> currentFields = fieldHandler.getFieldInformationCopy();
-
-                // Set the data fields so that when these are restored it's flagged as an undoable
-                // change
+                // Update the data fields
                 createDataFieldPanel(false, dbTableInfo.getFieldInformation());
-
-                // Restore the data fields
-                createDataFieldPanel(true, currentFields);
             }
 
             // Enable automatic edit termination and end the edit sequence. Any uncommitted changes
@@ -3044,7 +3026,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 return dbTable.queryTableCellValue(currentTableInfo.getPrototypeName(),
                                                    committedTableInfo.getData()[row][primaryKeyIndex].toString(),
-                                                   typeDefn.getColumnNamesDatabase()[column],
+                                                   typeDefn.getColumnNamesDatabaseQuoted()[column],
                                                    editorDialog);
             }
 
@@ -4854,7 +4836,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             PaddedComboBox comboBox = new PaddedComboBox(table.getFont());
 
             // Set the column table editor to the combo box
-            rateColumn.setCellEditor(new DefaultCellEditor(comboBox));
+            rateColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
 
             // Get the rate information for this rate column
             RateInformation rateInfo = rateHandler.getRateInformationByRateName(typeDefn.getColumnNamesUser()[rateIndex.get(index)]);

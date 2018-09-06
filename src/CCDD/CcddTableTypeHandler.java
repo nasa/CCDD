@@ -41,9 +41,9 @@ import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddConstants.TableTypeUpdate;
 
 /**************************************************************************************************
- * CFS Command and Data Dictionary table type handler class. The table definition consists of one or
- * more table types, each with its associated column name(s) and file definition(s), and the value
- * required status of the columns
+ * CFS Command and Data Dictionary table type handler class. The table definition consists of one
+ * or more table types, each with its associated column name(s) and file definition(s), and the
+ * value required status of the columns
  *************************************************************************************************/
 public class CcddTableTypeHandler
 {
@@ -103,6 +103,10 @@ public class CcddTableTypeHandler
         // Table column names used in the database
         private final List<String> columnNamesDatabase;
 
+        // Table column names used in the database, bounded by double quotes if the name matches a
+        // PostgreSQL reserved word
+        private final List<String> columnNamesDatabaseQuoted;
+
         // Table column names seen by the user
         private final List<String> columnNamesUser;
 
@@ -133,6 +137,7 @@ public class CcddTableTypeHandler
             this.tableType = tableType;
             columnIndex = new ArrayList<Integer>();
             columnNamesDatabase = new ArrayList<String>();
+            columnNamesDatabaseQuoted = new ArrayList<String>();
             columnNamesUser = new ArrayList<String>();
             columnToolTip = new ArrayList<String>();
             columnInputType = new ArrayList<InputType>();
@@ -228,6 +233,19 @@ public class CcddTableTypeHandler
             return columnNamesDatabase.toArray(new String[0]);
         }
 
+        // TODO
+        /******************************************************************************************
+         * Get the array of column names as used in the database, surrounded by double quotes if
+         * the name matches a PostgreSQL key word
+         *
+         * @return Array of column names as used in the database, surrounded by double quotes if
+         *         the name matches a PostgreSQL key word
+         *****************************************************************************************/
+        protected String[] getColumnNamesDatabaseQuoted()
+        {
+            return columnNamesDatabaseQuoted.toArray(new String[0]);
+        }
+
         /******************************************************************************************
          * Convert the visible column names to their database equivalents. The database column name
          * is the visible name with any characters that are invalid in a database column name
@@ -242,11 +260,16 @@ public class CcddTableTypeHandler
             // Step through each visible column name
             for (int row = NUM_HIDDEN_COLUMNS; row < columnNamesDatabase.size(); row++)
             {
-                // Convert he column name to the database equivalent
-                columnNamesDatabase.set(row,
-                                        DefaultColumn.convertVisibleToDatabase(columnNamesDatabase.get(row),
-                                                                               columnInputType.get(row).getInputName(),
-                                                                               isStructure));
+                // TODO
+                // Convert the column name to the database equivalent. This bounds the name in
+                // double quotes if it matches a PostgreSQL reserved word
+                String dbColName = convertVisibleToDatabase(columnNamesDatabase.get(row),
+                                                            columnInputType.get(row).getInputName(),
+                                                            isStructure);
+
+                // Store the name with quotes (if needed) and without quotes (if present)
+                columnNamesDatabaseQuoted.set(row, dbColName);
+                columnNamesDatabase.set(row, dbColName.replaceAll("\"", ""));
             }
         }
 
@@ -763,6 +786,7 @@ public class CcddTableTypeHandler
         {
             columnIndex.add(index);
             columnNamesDatabase.add(databaseName);
+            columnNamesDatabaseQuoted.add(dbControl.getQuotedName(databaseName));
             columnNamesUser.add(visibleName);
             columnToolTip.add(comment);
             columnInputType.add(inputType);
@@ -1036,9 +1060,9 @@ public class CcddTableTypeHandler
                 // Add the command argument column. The argument description is updated with the
                 // argument index
                 addColumn(columnIndex,
-                          DefaultColumn.convertVisibleToDatabase(argName,
-                                                                 ((DefaultInputType) cmdArgCol[2]).getInputName(),
-                                                                 false),
+                          convertVisibleToDatabase(argName,
+                                                   ((DefaultInputType) cmdArgCol[2]).getInputName(),
+                                                   false),
                           argName,
                           cmdArgCol[1].toString().replaceFirst("###",
                                                                String.valueOf(argumentIndex)),
@@ -1292,6 +1316,71 @@ public class CcddTableTypeHandler
         Collections.sort(types);
 
         return types.toArray(new String[0]);
+    }
+
+    /**********************************************************************************************
+     * Convert the visible column name to its database equivalent by replacing all characters that
+     * are invalid in a database column name with underscores. If the column belongs to a table
+     * representing a structure the specific input types use predefined names in place of the
+     * conversion name. If the column name matches a PostgreSQL reserved word then the name is
+     * bounded by double quotes
+     *
+     * @param columnName
+     *            column name (as seen by the user)
+     *
+     * @param inputTypeName
+     *            column input type name
+     *
+     * @param isStructure
+     *            true if the column belongs to a structure
+     *
+     * @return Database column name corresponding to the visible column name
+     *********************************************************************************************/
+    protected String convertVisibleToDatabase(String columnName,
+                                              String inputTypeName,
+                                              boolean isStructure)
+    {
+        String dbColumnName = null;
+
+        // Check if the column belongs to a structure type table
+        if (isStructure)
+        {
+            if (inputTypeName.equals(DefaultInputType.VARIABLE.getInputName()))
+            {
+                // Use the default database name for the variable name column
+                dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
+            }
+            else if (inputTypeName.equals(DefaultInputType.ARRAY_INDEX.getInputName()))
+            {
+                // Use the default database name for the variable name column
+                dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
+            }
+            else if (inputTypeName.equals(DefaultInputType.BIT_LENGTH.getInputName()))
+            {
+                // Use the default database name for the variable name column
+                dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
+            }
+            else if (inputTypeName.equals(DefaultInputType.PRIM_AND_STRUCT.getInputName()))
+            {
+                // Use the default database name for the variable name column
+                dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
+            }
+            else
+            {
+                // Replace any characters that aren't allowed in a database column name
+                // with underscores
+                dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+            }
+        }
+        // The column doesn't belong to a structure type table
+        else
+        {
+            // Replace any characters that aren't allowed in a database column name with
+            // underscores
+            dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+        }
+
+        return dbControl.getQuotedName(dbColumnName);
     }
 
     /**********************************************************************************************

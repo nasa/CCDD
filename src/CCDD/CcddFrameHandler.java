@@ -102,6 +102,16 @@ public class CcddFrameHandler extends JFrame
     }
 
     /**********************************************************************************************
+     * Get the frame minimum width
+     *
+     * @return Frame minimum width
+     *********************************************************************************************/
+    protected int getMinimumWidth()
+    {
+        return Math.max(buttonHandler.getButtonPanelMinimumWidth(), frameMinimumWidth);
+    }
+
+    /**********************************************************************************************
      * Get the total width of the table to be displayed in the window which is the sum of the
      * minimum column sizes
      *
@@ -294,9 +304,7 @@ public class CcddFrameHandler extends JFrame
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().width),
                                        Math.min(Math.max(getHeight(), MIN_WINDOW_HEIGHT),
                                                 java.awt.Toolkit.getDefaultToolkit().getScreenSize().height)));
-        setMinimumSize(new Dimension(Math.max(frameMinimumWidth,
-                                              buttonPnl.getWidth()),
-                                     MIN_WINDOW_HEIGHT));
+        setMinimumSize(new Dimension(getMinimumWidth(), MIN_WINDOW_HEIGHT));
         setSize(getPreferredSize());
 
         // Position the frame centered on the parent

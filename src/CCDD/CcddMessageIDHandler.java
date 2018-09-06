@@ -275,7 +275,7 @@ public class CcddMessageIDHandler
                                                            + "* FROM find_columns_by_name('"
                                                            + typeDefn.getColumnNamesUser()[idColumn]
                                                            + "', '"
-                                                           + typeDefn.getColumnNamesDatabase()[idColumn]
+                                                           + typeDefn.getColumnNamesDatabaseQuoted()[idColumn]
                                                            + "', '{"
                                                            + typeDefn.getName()
                                                            + "}');",
@@ -485,7 +485,7 @@ public class CcddMessageIDHandler
                                                            + "* FROM find_columns_by_name('"
                                                            + typeDefn.getColumnNamesUser()[idColumn]
                                                            + "', '"
-                                                           + typeDefn.getColumnNamesDatabase()[idColumn]
+                                                           + typeDefn.getColumnNamesDatabaseQuoted()[idColumn]
                                                            + "', '{"
                                                            + typeDefn.getName()
                                                            + "}');",

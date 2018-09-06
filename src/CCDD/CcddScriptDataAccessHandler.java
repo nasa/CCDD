@@ -3695,14 +3695,13 @@ public class CcddScriptDataAccessHandler
      * Get the value for the specified table's specified data field
      *
      * @param tableName
-     *            name of the table, including the path if this table references a structure, to
+     *            name of the table, including the path if this table references a structure, for
      *            which the field is a member
      *
      * @param fieldName
      *            data field name
      *
-     * @return Data field value; returns a null if the table type, table name, or field name is
-     *         invalid
+     * @return Data field value; returns a null if the table name or field name is invalid
      *********************************************************************************************/
     public String getTableDataFieldValue(String tableName, String fieldName)
     {
@@ -3713,7 +3712,7 @@ public class CcddScriptDataAccessHandler
      * Get the value for the specified group's specified data field
      *
      * @param groupName
-     *            name of the group to which the field is a member
+     *            name of the group for which the field is a member
      *
      * @param fieldName
      *            data field name
@@ -3729,7 +3728,7 @@ public class CcddScriptDataAccessHandler
      * Get the value for the specified table type's specified data field
      *
      * @param typeName
-     *            name of the table type to which the field is a member
+     *            name of the table type for which the field is a member
      *
      * @param fieldName
      *            data field name
@@ -5429,6 +5428,24 @@ public class CcddScriptDataAccessHandler
                                                                           true,
                                                                           parent)
                        .toArray(new String[0][0]);
+    }
+
+    /**********************************************************************************************
+     * Parse the supplied string containing a message name and ID into an array with the name in
+     * index 0 and the ID in index 1 (depending on the input string either or both may be blank).
+     * If only the name or ID is present in the supplied string the output is based on if the
+     * string evaluates to a hexadecimal value (treated as the ID; name is blank) or not (treated
+     * as the name; ID is blank)
+     *
+     * @param msgNameAndID
+     *            message name and ID in the format [&lt;message name&gt;] [&lt;message ID&gt;]
+     *
+     * @return One-dimensional array containing the message name in index 0 and the ID in index 1
+     *         (depending on the input string either or both may be blank)
+     *********************************************************************************************/
+    public String[] parseMessageNameAndID(String msgNameAndID)
+    {
+        return CcddMessageIDHandler.getMessageNameAndID(msgNameAndID);
     }
 
     /**********************************************************************************************

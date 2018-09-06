@@ -1140,8 +1140,7 @@ public class CcddFileIOHandler
                             // Check if the ancestor prototype table should be replaced or doesn't
                             // exist
                             if (isReplace
-                                || !dbTable.isTableExists(typeAndVar[0].toLowerCase(),
-                                                          ccddMain.getMainFrame()))
+                                || !dbTable.isTableExists(typeAndVar[0], ccddMain.getMainFrame()))
                             {
                                 // Add the table's data field definitions, if any, to the existing
                                 // field definitions

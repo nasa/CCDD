@@ -714,8 +714,8 @@ public class CcddDbVerificationHandler
                                                           + "(SELECT current_database())) AS db, (SELECT "
                                                           + "relname AS name, relkind AS type, relowner "
                                                           + "FROM pg_class cls JOIN pg_namespace nsp ON "
-                                                          + "cls.relnamespace = nsp.oid WHERE nsp.nspname "
-                                                          + "= 'public') AS tbl WHERE db.datdba != tbl.relowner",
+                                                          + "cls.relnamespace = nsp.oid WHERE nsp.nspname = "
+                                                          + "'public') AS tbl WHERE db.datdba != tbl.relowner",
                                                           ccddMain.getMainFrame());
 
             // Step through each component with a mismatched owner
@@ -841,7 +841,7 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void verifyInternalTables(ResultSet tableResult)
     {
-        String tableNameDb = "";
+        String dbTableName = "";
 
         try
         {
@@ -863,11 +863,11 @@ public class CcddDbVerificationHandler
                 }
 
                 // Get the table name
-                tableNameDb = tableResult.getString("TABLE_NAME");
+                dbTableName = tableResult.getString("TABLE_NAME");
 
                 // Check if this is an internal table other than a script file
-                if (tableNameDb.startsWith(INTERNAL_TABLE_PREFIX)
-                    && !tableNameDb.startsWith(InternalTable.SCRIPT.getTableName()))
+                if (dbTableName.startsWith(INTERNAL_TABLE_PREFIX)
+                    && !dbTableName.startsWith(InternalTable.SCRIPT.getTableName()))
                 {
                     boolean isFound = false;
 
@@ -881,12 +881,12 @@ public class CcddDbVerificationHandler
                         }
 
                         // Check if the table name matches that of a known internal table
-                        if (tableNameDb.equals(intTable.getTableName()))
+                        if (dbTableName.equals(intTable.getTableName()))
                         {
                             // Get the table's column metadata
                             ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null,
                                                                                                         null,
-                                                                                                        tableNameDb,
+                                                                                                        dbTableName,
                                                                                                         null);
 
                             columnResult.last();
@@ -896,11 +896,11 @@ public class CcddDbVerificationHandler
                             {
                                 // Table has too few columns
                                 issues.add(new TableIssue("Internal table '"
-                                                          + tableNameDb
+                                                          + dbTableName
                                                           + "' is missing one or more columns",
                                                           "Delete table",
                                                           "DROP TABLE "
-                                                                          + tableNameDb
+                                                                          + dbTableName
                                                                           + "; "
                                                                           + dbControl.buildInformationTableCommand(intTable)
                                                                           + " "));
@@ -927,11 +927,11 @@ public class CcddDbVerificationHandler
                                     {
                                         // Table has too many columns
                                         issues.add(new TableIssue("Internal table '"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "' has too many columns",
                                                                   "Delete extra column(s)",
                                                                   "ALTER TABLE "
-                                                                                            + tableNameDb
+                                                                                            + dbTableName
                                                                                             + " DROP COLUMN "
                                                                                             + columnResult.getString("COLUMN_NAME")
                                                                                             + "; "));
@@ -952,7 +952,7 @@ public class CcddDbVerificationHandler
                                     {
                                         // Column name is unknown
                                         issues.add(new TableIssue("Internal table '"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "' column "
                                                                   + columnIndex
                                                                   + " name mismatch (expected: '"
@@ -962,7 +962,7 @@ public class CcddDbVerificationHandler
                                                                   + "')",
                                                                   "Rename column",
                                                                   "ALTER TABLE "
-                                                                                   + tableNameDb
+                                                                                   + dbTableName
                                                                                    + " RENAME COLUMN "
                                                                                    + columnName
                                                                                    + " TO "
@@ -978,7 +978,7 @@ public class CcddDbVerificationHandler
                                     {
                                         // Column's type is incorrect
                                         issues.add(new TableIssue("Internal table '"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "' column '"
                                                                   + columnName
                                                                   + "' data type mismatch (expected: '"
@@ -988,7 +988,7 @@ public class CcddDbVerificationHandler
                                                                   + "')",
                                                                   "Modify table type",
                                                                   "ALTER TABLE "
-                                                                                       + tableNameDb
+                                                                                       + dbTableName
                                                                                        + " ALTER COLUMN "
                                                                                        + columnName
                                                                                        + " TYPE "
@@ -1013,10 +1013,10 @@ public class CcddDbVerificationHandler
                     {
                         // Internal table name doesn't match one of the expected ones
                         issues.add(new TableIssue("Unknown internal table '"
-                                                  + tableNameDb
+                                                  + dbTableName
                                                   + "'",
                                                   "Delete table",
-                                                  "DROP TABLE " + tableNameDb + "; "));
+                                                  "DROP TABLE " + dbTableName + "; "));
                     }
                 }
 
@@ -1029,12 +1029,12 @@ public class CcddDbVerificationHandler
             // Inform the user that obtaining the internal table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Error obtaining metadata for internal table '"
-                                                           + tableNameDb
+                                                           + dbTableName
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
                                   "<html><b>Error obtaining metadata for internal table '</b>"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "<b>'");
         }
     }
@@ -1048,7 +1048,7 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void verifyInputTypes(ResultSet tableResult)
     {
-        String tableNameDb = "";
+        String dbTableName = "";
 
         try
         {
@@ -1070,18 +1070,18 @@ public class CcddDbVerificationHandler
                 }
 
                 // Get the table name
-                tableNameDb = tableResult.getString("TABLE_NAME");
+                dbTableName = tableResult.getString("TABLE_NAME");
 
                 String columnName = "";
 
                 // Check if this is the tables types internal table
-                if (tableNameDb.equals(InternalTable.TABLE_TYPES.getTableName()))
+                if (dbTableName.equals(InternalTable.TABLE_TYPES.getTableName()))
                 {
                     // Get the column name containing the input type
                     columnName = TableTypesColumn.INPUT_TYPE.getColumnName();
                 }
                 // Check if this is the data fields internal table
-                else if (tableNameDb.equals(InternalTable.FIELDS.getTableName()))
+                else if (dbTableName.equals(InternalTable.FIELDS.getTableName()))
                 {
                     // Get the column name containing the input type
                     columnName = FieldsColumn.FIELD_TYPE.getColumnName();
@@ -1091,7 +1091,7 @@ public class CcddDbVerificationHandler
                 if (!columnName.isEmpty())
                 {
                     // Step through the input types referenced in the internal table
-                    for (String[] inputType : getInternalTableMembers(tableNameDb,
+                    for (String[] inputType : getInternalTableMembers(dbTableName,
                                                                       columnName,
                                                                       null))
                     {
@@ -1106,7 +1106,7 @@ public class CcddDbVerificationHandler
                         {
                             // Invalid input type
                             issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
+                                                      + dbTableName
                                                       + "' references an invalid input type, '"
                                                       + inputType[0]
                                                       + "'",
@@ -1114,7 +1114,7 @@ public class CcddDbVerificationHandler
                                                              + DefaultInputType.TEXT.getInputName()
                                                              + "'",
                                                       "UPDATE "
-                                                                    + tableNameDb
+                                                                    + dbTableName
                                                                     + " SET "
                                                                     + columnName
                                                                     + " = '"
@@ -1139,12 +1139,12 @@ public class CcddDbVerificationHandler
             // Inform the user that obtaining the internal table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Error obtaining metadata for internal table '"
-                                                           + tableNameDb
+                                                           + dbTableName
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
                                   "<html><b>Error obtaining metadata for internal table '</b>"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "<b>'");
         }
     }
@@ -1158,7 +1158,7 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void verifyPathReferences(ResultSet tableResult)
     {
-        String tableNameDb = "";
+        String dbTableName = "";
 
         try
         {
@@ -1197,13 +1197,13 @@ public class CcddDbVerificationHandler
                 }
 
                 // Get the table name
-                tableNameDb = tableResult.getString("TABLE_NAME");
+                dbTableName = tableResult.getString("TABLE_NAME");
 
                 // Check if this is the script associations table
-                if (tableNameDb.equals(InternalTable.ASSOCIATIONS.getTableName()))
+                if (dbTableName.equals(InternalTable.ASSOCIATIONS.getTableName()))
                 {
                     // Step through the associated tables
-                    for (String[] member : getInternalTableMembers(tableNameDb,
+                    for (String[] member : getInternalTableMembers(dbTableName,
                                                                    AssociationsColumn.MEMBERS.getColumnName(),
                                                                    AssociationsColumn.SCRIPT_FILE.getColumnName()))
                     {
@@ -1231,7 +1231,7 @@ public class CcddDbVerificationHandler
                                     {
                                         // Association table reference is invalid
                                         issues.add(new TableIssue("Internal table '"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "' references a non-existent group, '"
                                                                   + groupName
                                                                   + "', associated with script '"
@@ -1239,7 +1239,7 @@ public class CcddDbVerificationHandler
                                                                   + "'",
                                                                   "Delete script association",
                                                                   "DELETE FROM "
-                                                                                               + tableNameDb
+                                                                                               + dbTableName
                                                                                                + " WHERE "
                                                                                                + AssociationsColumn.SCRIPT_FILE.getColumnName()
                                                                                                + " = "
@@ -1261,7 +1261,7 @@ public class CcddDbVerificationHandler
                                 {
                                     // Association table reference is invalid
                                     issues.add(new TableIssue("Internal table '"
-                                                              + tableNameDb
+                                                              + dbTableName
                                                               + "' references a non-existent table, '"
                                                               + table
                                                               + "', associated with script '"
@@ -1269,7 +1269,7 @@ public class CcddDbVerificationHandler
                                                               + "'",
                                                               "Delete script association",
                                                               "DELETE FROM "
-                                                                                           + tableNameDb
+                                                                                           + dbTableName
                                                                                            + " WHERE "
                                                                                            + AssociationsColumn.SCRIPT_FILE.getColumnName()
                                                                                            + " = "
@@ -1290,13 +1290,13 @@ public class CcddDbVerificationHandler
                     }
                 }
                 // Check if this is the data fields table
-                else if (tableNameDb.equals(InternalTable.FIELDS.getTableName()))
+                else if (dbTableName.equals(InternalTable.FIELDS.getTableName()))
                 {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the field owners
-                    for (String[] member : getInternalTableMembers(tableNameDb,
+                    for (String[] member : getInternalTableMembers(dbTableName,
                                                                    FieldsColumn.OWNER_NAME.getColumnName(),
                                                                    null))
                     {
@@ -1315,13 +1315,13 @@ public class CcddDbVerificationHandler
                         {
                             // Data field table owner reference is invalid
                             issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
+                                                      + dbTableName
                                                       + "' references a non-existent table, '"
                                                       + member[0]
                                                       + "'",
                                                       "Delete table's data field(s)",
                                                       "DELETE FROM "
-                                                                                      + tableNameDb
+                                                                                      + dbTableName
                                                                                       + " WHERE "
                                                                                       + FieldsColumn.OWNER_NAME.getColumnName()
                                                                                       + " = "
@@ -1336,13 +1336,13 @@ public class CcddDbVerificationHandler
                     }
                 }
                 // Check if this is the groups table
-                else if (tableNameDb.equals(InternalTable.GROUPS.getTableName()))
+                else if (dbTableName.equals(InternalTable.GROUPS.getTableName()))
                 {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the group tables
-                    for (String[] member : getInternalTableMembers(tableNameDb,
+                    for (String[] member : getInternalTableMembers(dbTableName,
                                                                    GroupsColumn.MEMBERS.getColumnName(),
                                                                    null))
                     {
@@ -1360,13 +1360,13 @@ public class CcddDbVerificationHandler
                         {
                             // Group table member reference is invalid
                             issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
+                                                      + dbTableName
                                                       + "' references a non-existent table, '"
                                                       + member[0]
                                                       + "'",
                                                       "Delete table from group",
                                                       "DELETE FROM "
-                                                                                 + tableNameDb
+                                                                                 + dbTableName
                                                                                  + " WHERE "
                                                                                  + GroupsColumn.MEMBERS.getColumnName()
                                                                                  + " = "
@@ -1381,13 +1381,13 @@ public class CcddDbVerificationHandler
                     }
                 }
                 // Check if this is the links table
-                else if (tableNameDb.equals(InternalTable.LINKS.getTableName()))
+                else if (dbTableName.equals(InternalTable.LINKS.getTableName()))
                 {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through the link variables
-                    for (String[] member : getInternalTableMembers(tableNameDb,
+                    for (String[] member : getInternalTableMembers(dbTableName,
                                                                    LinksColumn.MEMBER.getColumnName(),
                                                                    null))
                     {
@@ -1405,13 +1405,13 @@ public class CcddDbVerificationHandler
                         {
                             // Link variable member reference is invalid
                             issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
+                                                      + dbTableName
                                                       + "' references a non-existent variable, '"
                                                       + member[0]
                                                       + "'",
                                                       "Delete variable from link",
                                                       "DELETE FROM "
-                                                                                   + tableNameDb
+                                                                                   + dbTableName
                                                                                    + " WHERE "
                                                                                    + LinksColumn.MEMBER.getColumnName()
                                                                                    + " = "
@@ -1426,13 +1426,13 @@ public class CcddDbVerificationHandler
                     }
                 }
                 // Check if this is the telemetry scheduler table
-                else if (tableNameDb.equals(InternalTable.TLM_SCHEDULER.getTableName()))
+                else if (dbTableName.equals(InternalTable.TLM_SCHEDULER.getTableName()))
                 {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
 
                     // Step through each variable in the telemetry table
-                    for (String[] member : getInternalTableMembers(tableNameDb,
+                    for (String[] member : getInternalTableMembers(dbTableName,
                                                                    TlmSchedulerColumn.MEMBER.getColumnName(),
                                                                    null))
                     {
@@ -1452,7 +1452,7 @@ public class CcddDbVerificationHandler
                         {
                             // Telemetry scheduler message variable member reference is invalid
                             issues.add(new TableIssue("Internal table '"
-                                                      + tableNameDb
+                                                      + dbTableName
                                                       + "' references a non-existent variable, '"
                                                       + member[0].replaceFirst(".*"
                                                                                + Pattern.quote(TLM_SCH_SEPARATOR),
@@ -1460,7 +1460,7 @@ public class CcddDbVerificationHandler
                                                       + "'",
                                                       "Delete variable from message(s)",
                                                       "DELETE FROM "
-                                                                                         + tableNameDb
+                                                                                         + dbTableName
                                                                                          + " WHERE "
                                                                                          + TlmSchedulerColumn.MEMBER.getColumnName()
                                                                                          + " = "
@@ -1475,7 +1475,7 @@ public class CcddDbVerificationHandler
                     }
                 }
                 // Check if this is the custom values table
-                else if (tableNameDb.equals(InternalTable.VALUES.getTableName()))
+                else if (dbTableName.equals(InternalTable.VALUES.getTableName()))
                 {
                     // Clear any entries created while checking other tables
                     badRefs.clear();
@@ -1517,7 +1517,7 @@ public class CcddDbVerificationHandler
                     if (!haltDlg.isHalted())
                     {
                         // Step through the custom values variables
-                        for (String[] member : getInternalTableMembers(tableNameDb,
+                        for (String[] member : getInternalTableMembers(dbTableName,
                                                                        ValuesColumn.TABLE_PATH.getColumnName(),
                                                                        null))
                         {
@@ -1533,13 +1533,13 @@ public class CcddDbVerificationHandler
                             {
                                 // Custom values variable member reference is invalid
                                 issues.add(new TableIssue("Internal table '"
-                                                          + tableNameDb
+                                                          + dbTableName
                                                           + "' references a non-existent variable, '"
                                                           + member[0]
                                                           + "'",
                                                           "Delete variable reference",
                                                           "DELETE FROM "
-                                                                                       + tableNameDb
+                                                                                       + dbTableName
                                                                                        + " WHERE "
                                                                                        + ValuesColumn.TABLE_PATH.getColumnName()
                                                                                        + " = "
@@ -1564,12 +1564,12 @@ public class CcddDbVerificationHandler
             // Inform the user that obtaining the internal table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Error obtaining metadata for internal table '"
-                                                           + tableNameDb
+                                                           + dbTableName
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
                                   "<html><b>Error obtaining metadata for internal table '</b>"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "<b>'");
         }
     }
@@ -1626,7 +1626,7 @@ public class CcddDbVerificationHandler
      *********************************************************************************************/
     private void verifyTableTypes(ResultSet tableResult)
     {
-        String tableNameDb = "";
+        String dbTableName = "";
 
         try
         {
@@ -1652,16 +1652,15 @@ public class CcddDbVerificationHandler
                 }
 
                 // Get the table name
-                tableNameDb = tableResult.getString("TABLE_NAME");
+                dbTableName = tableResult.getString("TABLE_NAME");
 
                 // Check if this is a data table
-                if (!tableNameDb.startsWith(INTERNAL_TABLE_PREFIX))
+                if (!dbTableName.startsWith(INTERNAL_TABLE_PREFIX))
                 {
                     String tableName = "";
 
                     // Get the comment array for this table
-                    String[] comment = dbTable.getTableComment(tableNameDb,
-                                                               comments);
+                    String[] comment = dbTable.getTableComment(dbTableName, comments);
 
                     // Get the table name as seen by the user
                     tableName = comment[TableCommentIndex.NAME.ordinal()];
@@ -1710,7 +1709,7 @@ public class CcddDbVerificationHandler
                         // Get the table's column metadata
                         ResultSet columnResult = dbControl.getConnection().getMetaData().getColumns(null,
                                                                                                     null,
-                                                                                                    tableNameDb,
+                                                                                                    dbTableName,
                                                                                                     null);
 
                         // Create storage for flags indicating which columns have been matched
@@ -1751,9 +1750,9 @@ public class CcddDbVerificationHandler
                                                               + ")",
                                                               "Modify data type",
                                                               "ALTER TABLE "
-                                                                                  + tableNameDb
+                                                                                  + dbControl.getQuotedName(dbTableName)
                                                                                   + " ALTER COLUMN "
-                                                                                  + columnName
+                                                                                  + dbControl.getQuotedName(columnName)
                                                                                   + " TYPE "
                                                                                   + DefaultColumn.getColumnDbType(columnIndex)
                                                                                   + "; "));
@@ -1774,9 +1773,9 @@ public class CcddDbVerificationHandler
                                                           + ")",
                                                           "Delete column",
                                                           "ALTER TABLE "
-                                                                           + tableNameDb
+                                                                           + dbControl.getQuotedName(dbTableName)
                                                                            + " DROP COLUMN "
-                                                                           + columnName
+                                                                           + dbControl.getQuotedName(columnName)
                                                                            + "; "));
                             }
                         }
@@ -1797,9 +1796,9 @@ public class CcddDbVerificationHandler
                                                           + "'",
                                                           "Add missing column",
                                                           "ALTER TABLE "
-                                                                                + tableNameDb
+                                                                                + dbControl.getQuotedName(dbTableName)
                                                                                 + " ADD COLUMN "
-                                                                                + typeDefinition.getColumnNamesDatabase()[index]
+                                                                                + typeDefinition.getColumnNamesDatabaseQuoted()[index]
                                                                                 + " "
                                                                                 + DefaultColumn.getColumnDbType(index)
                                                                                 + " DEFAULT ''; "));
@@ -1816,7 +1815,9 @@ public class CcddDbVerificationHandler
                                                   + comment[TableCommentIndex.TYPE.ordinal()]
                                                   + ")",
                                                   "Delete table",
-                                                  "DROP TABLE " + tableNameDb + "; "));
+                                                  "DROP TABLE "
+                                                                  + dbControl.getQuotedName(dbTableName)
+                                                                  + "; "));
                     }
                 }
 
@@ -1831,12 +1832,12 @@ public class CcddDbVerificationHandler
             // Inform the user that obtaining the table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
                                   "Error obtaining metadata for table '"
-                                                           + tableNameDb
+                                                           + dbTableName
                                                            + "'; cause '"
                                                            + se.getMessage()
                                                            + "'",
                                   "<html><b>Error obtaining metadata for table '</b>"
-                                                                  + tableNameDb
+                                                                  + dbTableName
                                                                   + "<b>'");
         }
     }
@@ -2423,8 +2424,7 @@ public class CcddDbVerificationHandler
         String[] columnValues = new String[tableInfo.getData().length];
 
         // Get the comment array for this table
-        String[] comment = dbTable.getTableComment(tableInfo.getTablePath().toLowerCase(),
-                                                   comments);
+        String[] comment = dbTable.getTableComment(tableInfo.getTablePath(), comments);
 
         // Get the table's type definition
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);

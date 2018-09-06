@@ -1268,11 +1268,13 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
 
-                // Check if the cell doesn't have the focus or is selected. The focus and selection
-                // highlight colors override the invalid highlight color
+                // Check if the cell doesn't have the focus or is selected (the focus and selection
+                // highlight colors override the invalid highlight color) and if this is a column
+                // for a data field
                 if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
                     && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
-                    && columnModel != FieldTableEditorColumnInfo.OWNER.ordinal())
+                    && columnModel != FieldTableEditorColumnInfo.OWNER.ordinal()
+                    && columnModel != FieldTableEditorColumnInfo.PATH.ordinal())
                 {
                     // Get the row index in model coordinates
                     int rowModel = convertRowIndexToModel(row);

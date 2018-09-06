@@ -2352,7 +2352,7 @@ public class CcddConstants
                                                    + "structure name"),
 
         RATE("Rate",
-             "^\\+??\\s*(0*+1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
+             "^\\+??\\s*(0*1/)??(\\d*|\\d*\\.|\\d*\\.\\d+)",
              InputTypeFormat.RATE,
              "Rate value; positive integer value (see Positive integer) or a "
                                    + "positive integer followed by a '/' and another positive "
@@ -3048,70 +3048,6 @@ public class CcddConstants
         protected String getTableType()
         {
             return tableType;
-        }
-
-        /**********************************************************************************************
-         * Convert the visible column name to its database equivalent by replacing all characters
-         * that are invalid in a database column name with underscores. If the column belongs to a
-         * table representing a structure the specific input types use predefined names in place of
-         * the conversion name
-         *
-         * @param columnName
-         *            column name (as seen by the user)
-         *
-         * @param inputTypeName
-         *            column input type name
-         *
-         * @param isStructure
-         *            true if the column belongs to a structure
-         *
-         * @return Database column name corresponding to the visible column name
-         *********************************************************************************************/
-        protected static String convertVisibleToDatabase(String columnName,
-                                                         String inputTypeName,
-                                                         boolean isStructure)
-        {
-            String dbColumnName = null;
-
-            // Check if the column belongs to a structure type table
-            if (isStructure)
-            {
-                if (inputTypeName.equals(DefaultInputType.VARIABLE.getInputName()))
-                {
-                    // Use the default database name for the variable name column
-                    dbColumnName = DefaultColumn.VARIABLE_NAME.getDbName();
-                }
-                else if (inputTypeName.equals(DefaultInputType.ARRAY_INDEX.getInputName()))
-                {
-                    // Use the default database name for the variable name column
-                    dbColumnName = DefaultColumn.ARRAY_SIZE.getDbName();
-                }
-                else if (inputTypeName.equals(DefaultInputType.BIT_LENGTH.getInputName()))
-                {
-                    // Use the default database name for the variable name column
-                    dbColumnName = DefaultColumn.BIT_LENGTH.getDbName();
-                }
-                else if (inputTypeName.equals(DefaultInputType.PRIM_AND_STRUCT.getInputName()))
-                {
-                    // Use the default database name for the variable name column
-                    dbColumnName = DefaultColumn.DATA_TYPE.getDbName();
-                }
-                else
-                {
-                    // Replace any characters that aren't allowed in a database column name
-                    // with underscores
-                    dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
-                }
-            }
-            // The column doesn't belong to a structure type table
-            else
-            {
-                // Replace any characters that aren't allowed in a database column name with
-                // underscores
-                dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
-            }
-
-            return dbColumnName;
         }
 
         /******************************************************************************************
@@ -6462,10 +6398,11 @@ public class CcddConstants
         // Get the list of roles, sorted alphabetically
         ROLES("SELECT r.rolname FROM pg_catalog.pg_roles r ORDER BY r.rolname ASC;"),
 
-        // Get the owner of the specified database
+        // Get the owner of the specified database. '_db_name_' must be replaced by the database
+        // name
         DATABASE_OWNER("SELECT pg_catalog.pg_get_userbyid(d.datdba) AS owner "
                        + "FROM pg_catalog.pg_database d "
-                       + "WHERE d.datname = '__';"),
+                       + "WHERE d.datname = '_db_name_';"),
 
         // Get the list of PostgreSQL keywords
         KEYWORDS("SELECT * FROM pg_get_keywords()"),

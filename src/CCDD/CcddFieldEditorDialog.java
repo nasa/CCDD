@@ -26,14 +26,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -879,20 +876,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                            inputTypeHandler.getDescriptions(true),
                                            ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
-        // Add a listener to the combo box for focus changes
-        inputTypeCbox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                inputTypeCbox.showPopup();
-            }
-        });
-
         // Set the column table editor to the combo box
         fieldTable.getColumnModel().getColumn(inputTypeIndex).setCellEditor(new ComboBoxCellEditor(inputTypeCbox));
 
@@ -929,22 +912,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             applicabilityCBox = new PaddedComboBox(ApplicabilityType.getApplicabilityNames(),
                                                    ModifiableFontInfo.DATA_TABLE_CELL.getFont());
 
-            // Add a listener to the combo box for focus changes
-            applicabilityCBox.addFocusListener(new FocusAdapter()
-            {
-                /**********************************************************************************
-                 * Handle a focus gained event so that the combo box automatically expands when
-                 * selected
-                 *********************************************************************************/
-                @Override
-                public void focusGained(FocusEvent fe)
-                {
-                    applicabilityCBox.showPopup();
-                }
-            });
-
             // Set the column table editor to the combo box
-            fieldTable.getColumnModel().getColumn(applicabilityIndex).setCellEditor(new DefaultCellEditor(applicabilityCBox));
+            fieldTable.getColumnModel().getColumn(applicabilityIndex).setCellEditor(new ComboBoxCellEditor(applicabilityCBox));
 
             // Set the default selected type
             applicabilityCBox.setSelectedItem(ApplicabilityType.ALL.getApplicabilityName());

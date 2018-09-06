@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -61,6 +60,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
@@ -96,8 +96,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private JCheckBox stampChkBx;
 
     // Cell editor for the user name and access level columns
-    private DefaultCellEditor userNameCellEditor;
-    private DefaultCellEditor accessLevelCellEditor;
+    private ComboBoxCellEditor userNameCellEditor;
+    private ComboBoxCellEditor accessLevelCellEditor;
 
     // Array containing the radio button or check box text and descriptions
     private String[][] arrayItemData;
@@ -1511,7 +1511,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         userComboBox.enableItemMatching(accessTable);
 
         // Create the cell editor for access levels
-        userNameCellEditor = new DefaultCellEditor(userComboBox);
+        userNameCellEditor = new ComboBoxCellEditor(userComboBox);
 
         // Create a combo box for displaying the access levels
         final PaddedComboBox accessComboBox = new PaddedComboBox(accessTable.getFont());
@@ -1527,7 +1527,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         accessComboBox.enableItemMatching(accessTable);
 
         // Create the cell editor for user names
-        accessLevelCellEditor = new DefaultCellEditor(accessComboBox);
+        accessLevelCellEditor = new ComboBoxCellEditor(accessComboBox);
     }
 
     /**********************************************************************************************

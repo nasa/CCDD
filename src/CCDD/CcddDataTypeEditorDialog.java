@@ -31,7 +31,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -43,6 +42,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.ComboBoxCellEditor;
 import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
 import CCDD.CcddClassesDataTable.CCDDException;
@@ -74,7 +74,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     private CcddJTableHandler dataTypeTable;
 
     // Cell editor for the base data type column
-    private DefaultCellEditor baseTypeCellEditor;
+    private ComboBoxCellEditor baseTypeCellEditor;
 
     // Table instance model data. Current copy is the table information as it exists in the table
     // editor and is used to determine what changes have been made to the table since the previous
@@ -1129,7 +1129,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         baseComboBox.enableItemMatching(dataTypeTable);
 
         // Create the data type cell editor for base types
-        baseTypeCellEditor = new DefaultCellEditor(baseComboBox);
+        baseTypeCellEditor = new ComboBoxCellEditor(baseComboBox);
     }
 
     /**********************************************************************************************

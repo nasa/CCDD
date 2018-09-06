@@ -103,6 +103,17 @@ public class CcddButtonPanelHandler
     }
 
     /**********************************************************************************************
+     * Get the minimum width needed to display the button panel
+     *
+     * @return Minimum width of the button panel
+     *********************************************************************************************/
+    protected int getButtonPanelMinimumWidth()
+    {
+        return buttonPnl.getWidth()
+               + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+    }
+
+    /**********************************************************************************************
      * Enable/disable the button panel buttons
      *
      * @param enable

@@ -254,7 +254,7 @@ public class CcddDbTableCommandHandler
     protected boolean isTableExists(String tableName, Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.SPECIFIC_TABLE,
-                                 new String[][] {{"_table_name_", tableName}},
+                                 new String[][] {{"_table_name_", tableName.toLowerCase()}},
                                  parent).length != 0;
     }
 
@@ -367,8 +367,9 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private String buildDataTableComment(String tableName, String tableType)
     {
-        return buildTableComment(tableName.toLowerCase(),
-                                 CcddConstants.TableCommentIndex.buildComment(tableName, tableType));
+        return buildTableComment(dbControl.getQuotedName(tableName),
+                                 CcddConstants.TableCommentIndex.buildComment(tableName,
+                                                                              tableType));
     }
 
     /**********************************************************************************************
@@ -960,7 +961,7 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Return an array of table comment components for the specified table
      *
-     * @param tableNameDb
+     * @param dbTableName
      *            table name as used by the database
      *
      * @param comments
@@ -968,7 +969,7 @@ public class CcddDbTableCommandHandler
      *
      * @return Array of comment components for the specified table
      *********************************************************************************************/
-    protected String[] getTableComment(String tableNameDb, String[][] comments)
+    protected String[] getTableComment(String dbTableName, String[][] comments)
     {
         // Initialize the comment array
         String[] comment = new String[TableCommentIndex.values().length];
@@ -978,7 +979,7 @@ public class CcddDbTableCommandHandler
         for (String[] cmt : comments)
         {
             // Check if the target name matches the table name in the comment
-            if (tableNameDb.equals(cmt[TableCommentIndex.NAME.ordinal()].toLowerCase()))
+            if (dbTableName.equalsIgnoreCase(cmt[TableCommentIndex.NAME.ordinal()]))
             {
                 // Store the elements of the comment that were retrieved for the table and stop
                 // searching
@@ -1212,10 +1213,11 @@ public class CcddDbTableCommandHandler
     {
         StringBuilder command = new StringBuilder("");
 
-        // Convert the table name to lower case. This is done automatically by PostgreSQL, so this
-        // is done here to differentiate the table name from the upper case database commands in
-        // the event log
-        String dbTableName = tableName.toLowerCase();
+        // Convert the table name to lower case and bound it with double quotes if it matches a
+        // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the name
+        // is quoted), so forcing the name to lower case is done here to differentiate the table
+        // name from the upper case database commands in the event log
+        String dbTableName = dbControl.getQuotedName(tableName);
 
         // Get the column names defined in the template file for this table type
         TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableType);
@@ -1291,18 +1293,20 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
-                    // Convert the table names to lower case. This is done automatically by
-                    // PostgreSQL, so this is done here to differentiate the table name from the
-                    // upper case database commands in the event log
-                    String dbTableName = tableName.toLowerCase();
-                    String dbNewName = newName.toLowerCase();
+                    // Convert each of the table names to lower case and bound it with double
+                    // quotes if it matches a PostgreSQL reserved word. PostgreSQL automatically
+                    // assumes lower case (unless the name is quoted), so forcing the name to lower
+                    // case is done here to differentiate the table name from the upper case
+                    // database commands in the event log
+                    String dbTableName = dbControl.getQuotedName(tableName);
+                    String dbNewName = dbControl.getQuotedName(newName);
 
                     // Get the table's comment so that it can be rebuilt with the new table name
-                    String[] comment = queryDataTableComment(dbTableName, tableDialog);
+                    String[] comment = queryDataTableComment(tableName, tableDialog);
 
                     String command = "";
 
-                    // Check that the old and new names differ in more than capitalization
+                    // Check if the old and new names differ in more than capitalization
                     if (!dbTableName.equals(dbNewName))
                     {
                         // Create the command to change the table's name and all references to it
@@ -1477,18 +1481,20 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
-                    // Convert the table names to lower case. This is done automatically by
-                    // PostgreSQL, so this is done here to differentiate the table name from the
-                    // upper case database commands in the event log
-                    String dbTableName = tableName.toLowerCase();
-                    String dbNewName = newName.toLowerCase();
+                    // Convert each of the table names to lower case and bound it with double
+                    // quotes if it matches a PostgreSQL reserved word. PostgreSQL automatically
+                    // assumes lower case (unless the name is quoted), so forcing the name to lower
+                    // case is done here to differentiate the table name from the upper case
+                    // database commands in the event log
+                    String dbTableName = dbControl.getQuotedName(tableName);
+                    String dbNewName = dbControl.getQuotedName(newName);
 
                     // Get the existing table's comment, description, and column order so that
                     // these can be used for the copy
-                    String[] comment = queryDataTableComment(dbTableName, tableDialog);
+                    String[] comment = queryDataTableComment(tableName, tableDialog);
                     String columnOrder = queryColumnOrder(tableName, comment[1], tableDialog);
 
-                    String sequenceName = dbNewName
+                    String sequenceName = newName.toLowerCase()
                                           + "_"
                                           + DefaultColumn.PRIMARY_KEY.getDbName()
                                           + "_seq";
@@ -1726,7 +1732,7 @@ public class CcddDbTableCommandHandler
         for (String name : tableNames)
         {
             // Add the table to the commands
-            command += name + ", ";
+            command += dbControl.getQuotedName(name) + ", ";
         }
 
         command = CcddUtilities.removeTrailer(command, ", ") + " CASCADE";
@@ -2059,14 +2065,16 @@ public class CcddDbTableCommandHandler
         // Strip the variable name, if present, from the table name
         String tableName = tableInfo.getPrototypeName();
 
-        // Convert the table name to lower case. PostgreSQL ignores case; it's done here just to
-        // differentiate the table name from the database commands in the event log
-        String dbTableName = tableName.toLowerCase();
+        // Convert the table name to lower case and bound it with double quotes if it matches a
+        // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the name
+        // is quoted), so forcing the name to lower case is done here to differentiate the table
+        // name from the upper case database commands in the event log
+        String dbTableName = dbControl.getQuotedName(tableName);
 
         try
         {
             // Check if the table doesn't exist in the database
-            if (!isTableExists(dbTableName, parent))
+            if (!isTableExists(tableName, parent))
             {
                 throw new CCDDException("Table doesn't exist");
             }
@@ -2084,7 +2092,7 @@ public class CcddDbTableCommandHandler
             }
 
             // Get a comma-separated list of the columns for this table's type
-            String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase());
+            String columnNames = CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted());
 
             // Get the table's row information for the specified columns. The table must have all
             // of its table type's columns or else it fails to load
@@ -2570,7 +2578,7 @@ public class CcddDbTableCommandHandler
                 if (!isFound)
                 {
                     // Get the comment array for this table
-                    String[] comment = getTableComment(tableName.toLowerCase(), comments);
+                    String[] comment = getTableComment(tableName, comments);
 
                     // Add the table to the member list with empty data type, variable name, bit
                     // length, and rate lists
@@ -2780,7 +2788,7 @@ public class CcddDbTableCommandHandler
             // Get the name of the table to modify and convert the table name to lower case.
             // PostgreSQL automatically does this, so it's done here just to differentiate the
             // table name from the database commands in the event log
-            String dbTableName = tableInfo.getPrototypeName().toLowerCase();
+            String dbTableName = dbControl.getQuotedName(tableInfo.getPrototypeName());
 
             // Get the table type definition
             TypeDefinition typeDefinition = tableTypeHandler.getTypeDefinition(tableInfo.getType());
@@ -2878,6 +2886,7 @@ public class CcddDbTableCommandHandler
                                                 skipInternalTables)
                            + buildModificationCommand(tableInfo,
                                                       modifications,
+                                                      dbTableName,
                                                       typeDefinition,
                                                       newDataTypeHandler,
                                                       tableTree,
@@ -3076,7 +3085,7 @@ public class CcddDbTableCommandHandler
             addCmd.append("INSERT INTO "
                           + dbTableName
                           + " ("
-                          + CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabase())
+                          + CcddUtilities.convertArrayToString(typeDefn.getColumnNamesDatabaseQuoted())
                           + ") VALUES ");
 
             // Step through each addition
@@ -3305,6 +3314,9 @@ public class CcddDbTableCommandHandler
      * @param modifications
      *            list of row modification information
      *
+     * @param dbTableName
+     *            name of the table's prototype to which to modify rows
+     *
      * @param typeDefn
      *            table type definition
      *
@@ -3331,6 +3343,7 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private String buildModificationCommand(TableInformation tableInfo,
                                             List<TableModification> modifications,
+                                            String dbTableName,
                                             TypeDefinition typeDefn,
                                             CcddDataTypeHandler newDataTypeHandler,
                                             CcddTableTreeHandler tableTree,
@@ -3371,7 +3384,7 @@ public class CcddDbTableCommandHandler
 
                     // Build the update command
                     modCmd.append("UPDATE "
-                                  + tableInfo.getTablePath().toLowerCase()
+                                  + dbTableName
                                   + " SET ");
 
                     // Step through each changed column
@@ -3382,7 +3395,7 @@ public class CcddDbTableCommandHandler
                             || !mod.getOriginalRowData()[column].equals(mod.getRowData()[column]))
                         {
                             // Build the command to change the column value
-                            modCmd.append(typeDefn.getColumnNamesDatabase()[column]
+                            modCmd.append(typeDefn.getColumnNamesDatabaseQuoted()[column]
                                           + " = "
                                           + delimitText(mod.getRowData()[column])
                                           + ", ");
@@ -5131,7 +5144,7 @@ public class CcddDbTableCommandHandler
                 {
                     // Update references to the variable reference from the prototype table
                     valuesModCmd.append("UPDATE "
-                                        + table
+                                        + dbControl.getQuotedName(table)
                                         + " SET "
                                         + varRef.getColumnDb()
                                         + " = '"
@@ -5236,7 +5249,7 @@ public class CcddDbTableCommandHandler
             {
                 // Remove references to the variable reference from the prototype table
                 valuesDelCmd.append("UPDATE "
-                                    + table
+                                    + dbControl.getQuotedName(table)
                                     + " SET "
                                     + varRef.getColumnDb()
                                     + " = '' WHERE "
@@ -5353,7 +5366,7 @@ public class CcddDbTableCommandHandler
             {
                 // Update references to the command reference from the table
                 valuesModCmd.append("UPDATE "
-                                    + table
+                                    + dbControl.getQuotedName(table)
                                     + " SET "
                                     + cmdRef.getColumnDb()
                                     + " = '"
@@ -5425,7 +5438,7 @@ public class CcddDbTableCommandHandler
             {
                 // Remove references to the command reference from the table
                 valuesDelCmd.append("UPDATE "
-                                    + table
+                                    + dbControl.getQuotedName(table)
                                     + " SET "
                                     + cmdRef.getColumnDb()
                                     + " = '' WHERE "
@@ -5617,7 +5630,7 @@ public class CcddDbTableCommandHandler
                         {
                             // Update references to the message name & ID reference from the table
                             msgIDCmd.append("UPDATE "
-                                            + table
+                                            + dbControl.getQuotedName(table)
                                             + " SET "
                                             + msgIDRef.getColumnDb()
                                             + " = '"
@@ -6934,7 +6947,7 @@ public class CcddDbTableCommandHandler
                                                       : false;
             boolean isCommand = typeDefn.isCommand();
 
-            // Create the command to update the table definitions table
+            // Create the command to update the table type definitions table
             StringBuilder command = new StringBuilder(storeTableTypesInfoTableCommand());
 
             // Check if this isn't a new table type
@@ -6979,21 +6992,21 @@ public class CcddDbTableCommandHandler
                     tableNamesList.addAll(tableTree.getTableTreePathList(protoName));
 
                     // Get the database form of the table name
-                    String dbTable = protoName.toLowerCase();
+                    String dbTable = dbControl.getQuotedName(protoName);
 
                     // Step through each addition
                     for (String add[] : additions)
                     {
                         // Get the column name in database form
-                        String dbName = DefaultColumn.convertVisibleToDatabase(add[0],
-                                                                               add[1],
-                                                                               isStructure);
+                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(add[0],
+                                                                                    add[1],
+                                                                                    isStructure);
 
                         // Append the add command
                         command.append("ALTER TABLE "
                                        + dbTable
                                        + " ADD COLUMN "
-                                       + dbName
+                                       + dbColumn
                                        + " text DEFAULT ''; ");
                     }
 
@@ -7001,24 +7014,52 @@ public class CcddDbTableCommandHandler
                     for (String[] mod : modifications)
                     {
                         // Get the old and new column names in database form
-                        String oldDbName = DefaultColumn.convertVisibleToDatabase(mod[0],
-                                                                                  mod[2],
-                                                                                  isStructure);
-                        String newDbName = DefaultColumn.convertVisibleToDatabase(mod[1],
-                                                                                  mod[3],
-                                                                                  isStructure);
+                        String oldDbColumn = tableTypeHandler.convertVisibleToDatabase(mod[0],
+                                                                                       mod[2],
+                                                                                       isStructure);
+                        String newDbColumn = tableTypeHandler.convertVisibleToDatabase(mod[1],
+                                                                                       mod[3],
+                                                                                       isStructure);
 
                         // Check if the database form of the name changed
-                        if (!oldDbName.equals(newDbName))
+                        if (!oldDbColumn.equals(newDbColumn))
                         {
                             // Append the modify command
                             command.append("ALTER TABLE "
                                            + dbTable
                                            + " RENAME COLUMN "
-                                           + oldDbName
+                                           + oldDbColumn
                                            + " TO "
-                                           + newDbName
+                                           + newDbColumn
                                            + "; ");
+                        }
+
+                        // Check if the input type changed, but not to a text type (a text type
+                        // accepts anything, so there's no need to adjust the field content)
+                        if (!mod[2].equals(mod[3])
+                            && inputTypeHandler.getInputTypeByName(mod[3]).getInputFormat() != InputTypeFormat.TEXT)
+                        {
+                            // Append the command to blank any cells containing a value that
+                            // doesn't conform to the new input type format. The input type format
+                            // must be modified to conform to a regular expressions acceptable to
+                            // PostgreSQL (which is more constraining than Java's)
+                            command.append("UPDATE "
+                                           + dbTable
+                                           + " SET "
+                                           + newDbColumn
+                                           + " = '' WHERE "
+                                           + newDbColumn
+                                           + " != '' AND "
+                                           + newDbColumn
+                                           + " !~ E'^"
+                                           + inputTypeHandler.getInputTypeByName(mod[3])
+                                                             .getInputMatch()
+                                                             .replaceFirst("\\^", "")
+                                                             .replaceFirst("\\$$", "")
+                                                             .replaceAll("\\?\\?", "?")
+                                                             .replaceAll("\\\\",
+                                                                         "\\\\\\\\\\\\")
+                                           + "$'; ");
                         }
                     }
 
@@ -7026,12 +7067,16 @@ public class CcddDbTableCommandHandler
                     for (String[] del : deletions)
                     {
                         // Get the column name in database form
-                        String dbName = DefaultColumn.convertVisibleToDatabase(del[0],
-                                                                               del[1],
-                                                                               isStructure);
+                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(del[0],
+                                                                                    del[1],
+                                                                                    isStructure);
 
                         // Append the delete command
-                        command.append("ALTER TABLE " + dbTable + " DROP COLUMN " + dbName + "; ");
+                        command.append("ALTER TABLE "
+                                       + dbTable
+                                       + " DROP COLUMN "
+                                       + dbColumn
+                                       + "; ");
                     }
 
                     // Check if the column order changed
@@ -7159,9 +7204,7 @@ public class CcddDbTableCommandHandler
                         {
                             // Remove all references to tables of the changed type in the links and
                             // telemetry scheduler tables
-                            command.append(deleteLinkAndTlmRateRef(".+",
-                                                                   linksCmd,
-                                                                   tlmSchCmd));
+                            command.append(deleteLinkAndTlmRateRef(".+", linksCmd, tlmSchCmd));
                         }
                     }
 

@@ -135,7 +135,7 @@ public class CcddPatchHandler
         if (isPasswordSet)
         {
             // Back up the project database before applying the patch
-            dbControl.backupDatabase(dbControl.getDatabaseName(),
+            dbControl.backupDatabase(dbControl.getProjectName(),
                                      new FileEnvVar((ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath().isEmpty()
                                                                                                                  ? ""
                                                                                                                  : ModifiablePathInfo.DATABASE_BACKUP_PATH.getPath()
@@ -455,9 +455,9 @@ public class CcddPatchHandler
 
                     // Update the padding variable names to the new format
                     dbCommand.executeDbCommand("UPDATE "
-                                               + protoStruct
+                                               + dbControl.getQuotedName(protoStruct)
                                                + " SET "
-                                               + variableNameColumn
+                                               + dbControl.getQuotedName(variableNameColumn)
                                                + " = regexp_replace("
                                                + variableNameColumn
                                                + ", E'^__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E'pad\\\\1__\\\\2');",

@@ -25,10 +25,13 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddConstants.MessageIDSortOrder;
@@ -73,8 +76,8 @@ public class CcddMessageIDDialog extends CcddDialogHandler
     private void initialize(CcddMessageIDHandler messageIDHandler, Component parent)
     {
         final List<String[]> msgIDs = messageIDHandler.getMessageOwnersNamesAndIDs(MessageIDSortOrder.BY_OWNER,
-                                                                             false,
-                                                                             parent);
+                                                                                   false,
+                                                                                   parent);
 
         // Set the initial layout manager characteristics
         GridBagConstraints gbc = new GridBagConstraints(0,
@@ -146,6 +149,56 @@ public class CcddMessageIDDialog extends CcddDialogHandler
                                             true,
                                             true,
                                             true);
+            }
+
+            /**************************************************************************************
+             * Override prepareRenderer to allow adjusting the background colors of table cells
+             *************************************************************************************/
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+            {
+                JComponent comp = (JComponent) super.prepareRenderer(renderer, row, column);
+
+                // Get the column index in model coordinates
+                int columnModel = convertColumnIndexToModel(column);
+
+                // Check if the cell doesn't have the focus or is selected (the focus and selection
+                // highlight colors override the invalid highlight color), and if this is the
+                // message name or ID column
+                if (comp.getBackground() != ModifiableColorInfo.FOCUS_BACK.getColor()
+                    && comp.getBackground() != ModifiableColorInfo.SELECTED_BACK.getColor()
+                    && columnModel != MsgIDTableColumnInfo.OWNER.ordinal())
+                {
+                    // Get the row index in model coordinates
+                    int rowModel = convertRowIndexToModel(row);
+
+                    // Get a reference to the table model to shorten subsequent calls
+                    TableModel tableModel = getModel();
+
+                    // Get the contents of the column
+                    String value = tableModel.getValueAt(rowModel, columnModel).toString();
+
+                    // Check if the value isn't blank
+                    if (!value.isEmpty())
+                    {
+                        // Step through each row in the table
+                        for (int checkRow = 0; checkRow < tableModel.getRowCount(); checkRow++)
+                        {
+                            // Check if this isn't the same row as the one being updated and if the
+                            // text matches that in another row of the same column
+                            if (rowModel != checkRow
+                                && tableModel.getValueAt(checkRow, columnModel).toString().equals(value))
+                            {
+                                // Change the cell's background color to indicate it has the same
+                                // value as another cell in the same column
+                                comp.setBackground(ModifiableColorInfo.REQUIRED_BACK.getColor());
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return comp;
             }
         };
 

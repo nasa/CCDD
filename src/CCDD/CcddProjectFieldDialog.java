@@ -458,7 +458,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                 // Update the minimum size of the owner so that all of the fields
                                 // remain visible
                                 CcddProjectFieldDialog.this.setPreferredSize(null);
-                                CcddProjectFieldDialog.this.setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
+                                CcddProjectFieldDialog.this.setMinimumSize(new Dimension(Math.max(CcddProjectFieldDialog.this.getMinimumWidth(),
                                                                                                   fieldPnlHndlr.getMaxFieldWidth()),
                                                                                          CcddProjectFieldDialog.this.getPreferredSize().height));
                             }

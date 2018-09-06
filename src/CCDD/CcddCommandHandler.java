@@ -231,9 +231,9 @@ public class CcddCommandHandler
                 List<Integer> argNameColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.ARGUMENT_NAME);
 
                 // Begin building the column name string
-                String columnNames = typeDefn.getColumnNamesDatabase()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
+                String columnNames = typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_NAME)]
                                      + ", "
-                                     + typeDefn.getColumnNamesDatabase()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
+                                     + typeDefn.getColumnNamesDatabaseQuoted()[typeDefn.getColumnIndexByInputType(DefaultInputType.COMMAND_CODE)]
                                      + ", ";
 
                 // Check if the table type has any argument name columns
@@ -243,7 +243,7 @@ public class CcddCommandHandler
                     for (Integer argNameCol : argNameColumns)
                     {
                         // Append the argument name column name to the column name string
-                        columnNames += typeDefn.getColumnNamesDatabase()[argNameCol]
+                        columnNames += typeDefn.getColumnNamesDatabaseQuoted()[argNameCol]
                                        + " || E'\\n' || ";
                     }
 

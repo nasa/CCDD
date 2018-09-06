@@ -103,7 +103,7 @@ public class CcddFieldHandler
                                                  info.isRequired(),
                                                  info.getApplicabilityType(),
                                                  info.getValue(),
-                                                 null));
+                                                 info.getInputFld()));
             }
         }
 
@@ -628,7 +628,7 @@ public class CcddFieldHandler
      *
      * @param value
      *            data field value
-     * 
+     *
      * @return Field definition array created from the supplied inputs
      *********************************************************************************************/
     protected static String[] getFieldDefinitionArray(String ownerName,

@@ -17,8 +17,6 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +51,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
     private String tableTypeName;
-    private final CcddDbControlHandler dbControl;
     private final CcddTableTypeEditorDialog editorDialog;
     private final CcddFieldHandler fieldHandler;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -118,7 +115,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     {
         this.tableTypeName = tableTypeName;
         this.editorDialog = editorDialog;
-        dbControl = ccddMain.getDbControlHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
@@ -556,19 +552,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                     // Check if the column name has been changed and if the name isn't blank
                     if (column == TableTypeEditorColumnInfo.NAME.ordinal() && !newValueS.isEmpty())
                     {
-                        // Step through the list of reserved words
-                        for (String keyWord : dbControl.getKeyWords())
-                        {
-                            // Check if the column name matches the reserved word
-                            if (newValueS.equalsIgnoreCase(keyWord))
-                            {
-                                // Inform the user that the column name is a reserved word
-                                throw new CCDDException("Column name '</b>"
-                                                        + newValueS
-                                                        + "<b>' matches a reserved word");
-                            }
-                        }
-
                         // Check if the column name matches a default name (case insensitive)
                         if (newValueS.equalsIgnoreCase(DefaultColumn.PRIMARY_KEY.getDbName())
                             || newValueS.equalsIgnoreCase(DefaultColumn.ROW_INDEX.getDbName()))
@@ -582,9 +565,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         boolean isStructure = typeDefinition.isStructure();
 
                         // Get the database form of the column name
-                        String dbName = DefaultColumn.convertVisibleToDatabase(newValueS,
-                                                                               tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
-                                                                               isStructure);
+                        String dbName = tableTypeHandler.convertVisibleToDatabase(newValueS,
+                                                                                  tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
+                                                                                  isStructure);
 
                         // Compare this column name to the others in the table in order to avoid
                         // creating a duplicate
@@ -604,9 +587,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                                 // Check if the database form of the column name matches matches
                                 // the database form of the one being added
-                                if (dbName.equalsIgnoreCase(DefaultColumn.convertVisibleToDatabase(tableData.get(otherRow)[TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
-                                                                                                   tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
-                                                                                                   isStructure)))
+                                if (dbName.equalsIgnoreCase(tableTypeHandler.convertVisibleToDatabase(tableData.get(otherRow)[TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
+                                                                                                      tableData.get(otherRow)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
+                                                                                                      isStructure)))
                                 {
                                     throw new CCDDException("Column name '</b>"
                                                             + newValueS
@@ -1170,20 +1153,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 super.setSelectedItem(anObject);
             }
         };
-
-        // Add a listener to the combo box for focus changes
-        comboBox.addFocusListener(new FocusAdapter()
-        {
-            /**************************************************************************************
-             * Handle a focus gained event so that the combo box automatically expands when
-             * selected
-             *************************************************************************************/
-            @Override
-            public void focusGained(FocusEvent fe)
-            {
-                comboBox.showPopup();
-            }
-        });
 
         // Get the index of the input type column in view coordinates
         inputTypeIndex = table.convertColumnIndexToView(TableTypeEditorColumnInfo.INPUT_TYPE.ordinal());

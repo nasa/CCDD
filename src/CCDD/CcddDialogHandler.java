@@ -267,6 +267,17 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**********************************************************************************************
+     * Get the dialog minimum width
+     *
+     * @return Dialog minimum width
+     *********************************************************************************************/
+    protected int getMinimumWidth()
+    {
+        return Math.max(buttonHandler.getButtonPanelMinimumWidth(),
+                        ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize());
+    }
+
+    /**********************************************************************************************
      * Set the component to initially have the focus
      *
      * @param component
@@ -2194,12 +2205,12 @@ public class CcddDialogHandler extends JDialog
                 // displayed if the table contents exceeds the initial height, and a pixel is added
                 // to this width to prevent the dialog from being resized smaller than its original
                 // width). Set the minimum height to the packed height of the dialog components
-                setMinimumSize(new Dimension(Math.max(ModifiableSizeInfo.MIN_DIALOG_WIDTH.getSize(),
+                setMinimumSize(new Dimension(Math.max(getMinimumWidth(),
                                                       getWidth() + (isContainsComponent(this,
                                                                                         JTable.class)
                                                                                                       ? LAF_SCROLL_BAR_WIDTH
                                                                                                       : 0)
-                                                                                                     + 1),
+                                                                         + 1),
                                              getHeight()));
             }
 

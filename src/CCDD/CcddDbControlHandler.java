@@ -617,13 +617,60 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Get the list of database reserved words
+     * Force the supplied table or column name to lower case. Bound the name with double quotes if
+     * it matches a PostgreSQL reserved word
      *
-     * @return String array containing the reserved words
+     * @param name
+     *            table or column name
+     *
+     * @return Supplied table or column name in lower case, bounded with double quotes if it
+     *         matches a PostgreSQL reserved word (case insensitive)
      *********************************************************************************************/
-    protected String[] getKeyWords()
+    protected String getQuotedName(String name)
     {
-        return keyWords;
+        // Force the name to lower case
+        name = name.toLowerCase();
+
+        // Step through the list of reserved words
+        for (String keyWord : keyWords)
+        {
+            // Check if the table/column name matches the reserved word
+            if (name.equalsIgnoreCase(keyWord))
+            {
+                // Bound the supplied name with double quotes and stop searching
+                name = "\"" + name + "\"";
+                break;
+            }
+        }
+
+        return name;
+    }
+
+    /**********************************************************************************************
+     * Check if the supplied table or column name is a PostgreSQL reserved word
+     *
+     * @param name
+     *            table or column name
+     *
+     * @return true if the supplied name matches a reserved word (case insensitive)
+     *********************************************************************************************/
+    protected boolean isKeyWord(String name)
+    {
+        boolean isKeyWord = false;
+
+        // Step through the list of reserved words
+        for (String keyWord : keyWords)
+        {
+            // Check if the table/column name matches the reserved word
+            if (name.equalsIgnoreCase(keyWord))
+            {
+                // Set the flag to indicate the supplied name is a reserved word and stop searching
+                isKeyWord = true;
+                break;
+            }
+        }
+
+        return isKeyWord;
     }
 
     /**********************************************************************************************
@@ -789,7 +836,7 @@ public class CcddDbControlHandler
     protected String[] queryDatabaseOwner(String databaseName, Component parent)
     {
         return dbCommand.getList(DatabaseListCommand.DATABASE_OWNER,
-                                 new String[][] {{"__", databaseName.toLowerCase()}},
+                                 new String[][] {{"_db_name_", databaseName.toLowerCase()}},
                                  parent);
     }
 
@@ -1180,7 +1227,7 @@ public class CcddDbControlHandler
                                                  String description)
     {
         return "COMMENT ON DATABASE "
-               + convertProjectNameToDatabase(projectName)
+               + getQuotedName(convertProjectNameToDatabase(projectName))
                + " IS "
                + CcddDbTableCommandHandler.delimitText(CCDD_PROJECT_IDENTIFIER
                                                        + (lockStatus ? "1" : "0")
@@ -1229,15 +1276,16 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     private String buildOwnerCommand(String ownerName, DatabaseObject object, String objectName)
     {
+        // Bound the owner and object names with double quotes if the name matches a PostgreSQL
+        // reserved word
+        objectName = object.toString() + " " + getQuotedName(objectName);
+        ownerName = getQuotedName(ownerName);
+
         return "ALTER "
-               + object.toString()
-               + " "
                + objectName
                + " OWNER TO "
                + ownerName
                + "; GRANT ALL PRIVILEGES ON "
-               + object.toString()
-               + " "
                + objectName
                + " TO GROUP "
                + ownerName
@@ -1291,7 +1339,7 @@ public class CcddDbControlHandler
 
             // Execute the command to create the project database
             dbCommand.executeDbUpdate("CREATE DATABASE "
-                                      + databaseName
+                                      + getQuotedName(databaseName)
                                       + " ENCODING 'UTF8'; "
                                       + buildDatabaseCommentCommand(projectName,
                                                                     activeUser,
@@ -1579,7 +1627,6 @@ public class CcddDbControlHandler
                                        ccddMain.getMainFrame());
 
             // Create function to reset the rate for a link that no longer has any member variables
-            // dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
             dbCommand.executeDbCommand(deleteFunction("reset_link_rate")
                                        + "CREATE FUNCTION reset_link_rate() RETURNS VOID AS "
                                        + "$$ BEGIN DECLARE row record; BEGIN TRUNCATE "
@@ -1701,7 +1748,9 @@ public class CcddDbControlHandler
                             // the columns that are necessary to define a structure table are
                             // present in a table
                             compareColumns += defStructCols
-                                              + "column_name = '" + dbRate + "') OR ";
+                                              + "column_name = '"
+                                              + dbRate
+                                              + "') OR ";
                         }
                     }
                 }
@@ -1775,17 +1824,19 @@ public class CcddDbControlHandler
                     // Step through each data stream
                     for (RateInformation rateInfo : ccddMain.getRateParameterHandler().getRateInformation())
                     {
-                        // Get the rate column name (in its database form)
-                        String rateColName = DefaultColumn.convertVisibleToDatabase(rateInfo.getRateName(),
-                                                                                    DefaultInputType.RATE.getInputName(),
-                                                                                    true);
+                        // Get the rate column name (in its database form, quoted if needed to
+                        // avoid a conflict with a PostgreSQL reserved word, and not quoted)
+                        String rateColNameQuoted = ccddMain.getTableTypeHandler().convertVisibleToDatabase(rateInfo.getRateName(),
+                                                                                                           DefaultInputType.RATE.getInputName(),
+                                                                                                           true);
+                        String rateColName = rateColNameQuoted.replaceAll("\"", "");
 
                         // Add detection for the rate column. If the column doesn't exist in the
                         // table then a blank is returned for that column's rate value
                         rateCol += "CASE WHEN "
                                    + rateColName
                                    + "_exists THEN "
-                                   + rateColName
+                                   + rateColNameQuoted
                                    + "::text ELSE ''''::text END || '','' || ";
                         rateJoin += " CROSS JOIN (SELECT EXISTS (SELECT 1 FROM "
                                     + "pg_catalog.pg_attribute WHERE attrelid = ''' "
@@ -1795,7 +1846,7 @@ public class CcddDbControlHandler
                                     + "AND NOT attisdropped AND attnum > 0) AS "
                                     + rateColName
                                     + "_exists) "
-                                    + rateColName;
+                                    + rateColNameQuoted;
                     }
 
                     // Remove the trailing separator text
@@ -1820,15 +1871,19 @@ public class CcddDbControlHandler
                     // Build the enumeration separator (triple backslashes) portion of the command
                     String enumSep = " || E''' || E'\\\\\\\\\\\\\\\\\\\\\\\\' || ''' || ";
 
-                    // Step through each enumeration column name (in its database form)
+                    // Step through each enumeration column name in its database form
                     for (String enumColName : enumColumns)
                     {
+                        // Get the enumeration column name , quoted if needed to avoid a conflict
+                        // with a PostgreSQL reserved word
+                        String enumColNameQuoted = getQuotedName(enumColName);
+
                         // Add detection for the enumeration column. If the column doesn't exist in
                         // the table then a blank is returned for that column's enumeration value
                         enumCol += "CASE WHEN "
                                    + enumColName
                                    + "_exists THEN "
-                                   + enumColName
+                                   + enumColNameQuoted
                                    + "::text ELSE ''''::text END"
                                    + enumSep;
                         enumJoin += " CROSS JOIN (SELECT EXISTS (SELECT 1 FROM "
@@ -1839,7 +1894,7 @@ public class CcddDbControlHandler
                                     + "AND NOT attisdropped AND attnum > 0) AS "
                                     + enumColName
                                     + "_exists) "
-                                    + enumColName;
+                                    + enumColNameQuoted;
                     }
 
                     // Remove the trailing separator text
@@ -1876,7 +1931,7 @@ public class CcddDbControlHandler
                                                + rateCol
                                                + ", "
                                                + enumCol
-                                               + " FROM ' || name || '"
+                                               + " FROM \"' || name || '\""
                                                + rateJoin
                                                + enumJoin
                                                + " WHERE "
@@ -2189,7 +2244,7 @@ public class CcddDbControlHandler
                     }
 
                     // Backup the database
-                    backupDatabaseInBackground(databaseName, new FileEnvVar(backupFileName));
+                    backupDatabaseInBackground(activeProject, new FileEnvVar(backupFileName));
 
                     // Reset the backup file name to prevent another automatic backup
                     backupFileName = "";
@@ -2366,6 +2421,15 @@ public class CcddDbControlHandler
                     // (default database)
                     if (isDatabaseConnected())
                     {
+                        // Check if the reserved word list hasn't been retrieved
+                        if (keyWords == null)
+                        {
+                            // Get the array of reserved words
+                            keyWords = dbCommand.getList(DatabaseListCommand.KEYWORDS,
+                                                         null,
+                                                         ccddMain.getMainFrame());
+                        }
+
                         // Check if the database functions should be created; if so create the
                         // internal tables and database functions, and check if an error occurs
                         // creating them
@@ -2413,15 +2477,6 @@ public class CcddDbControlHandler
                             ccddMain.getProgPrefs().put(PROJECT_STRINGS,
                                                         CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentProjectNames()));
                             ccddMain.updateRecentProjectsMenu();
-                        }
-
-                        // Check if the reserved word list hasn't been retrieved
-                        if (keyWords == null)
-                        {
-                            // Get the array of reserved words
-                            keyWords = dbCommand.getList(DatabaseListCommand.KEYWORDS,
-                                                         null,
-                                                         ccddMain.getMainFrame());
                         }
                     }
                 }
@@ -2637,9 +2692,9 @@ public class CcddDbControlHandler
                     {
                         // Rename the database to the new name and update the description
                         dbCommand.executeDbUpdate("ALTER DATABASE "
-                                                  + oldDatabase
+                                                  + getQuotedName(oldDatabase)
                                                   + " RENAME TO "
-                                                  + newDatabase
+                                                  + getQuotedName(newDatabase)
                                                   + "; "
                                                   + buildDatabaseCommentCommand(newProject,
                                                                                 creator,
@@ -2742,9 +2797,9 @@ public class CcddDbControlHandler
 
                         // Copy the database and transfer the comment
                         dbCommand.executeDbCommand("CREATE DATABASE "
-                                                   + copyDatabase
+                                                   + getQuotedName(copyDatabase)
                                                    + " WITH TEMPLATE "
-                                                   + targetDatabase
+                                                   + getQuotedName(targetDatabase)
                                                    + "; "
                                                    + buildDatabaseCommentCommand(copyProject,
                                                                                  creator,
@@ -2814,7 +2869,7 @@ public class CcddDbControlHandler
             connection.setAutoCommit(true);
 
             // Delete the database
-            dbCommand.executeDbUpdate("DROP DATABASE " + databaseName + ";",
+            dbCommand.executeDbUpdate("DROP DATABASE " + getQuotedName(databaseName) + ";",
                                       ccddMain.getMainFrame());
 
             // Log that the database deletion succeeded
@@ -2969,18 +3024,18 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Backup a database. This command is executed in a separate thread since it can take a
+     * Backup a project database. This command is executed in a separate thread since it can take a
      * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
      * continue to update. The GUI menu commands, however, are disabled until the database command
      * completes execution
      *
-     * @param databaseName
-     *            name of the database to backup
+     * @param projectName
+     *            project name
      *
      * @param backupFile
      *            file to which to backup the database
      *********************************************************************************************/
-    protected void backupDatabaseInBackground(final String databaseName,
+    protected void backupDatabaseInBackground(final String projectName,
                                               final FileEnvVar backupFile)
     {
         // Execute the command in the background
@@ -2993,13 +3048,13 @@ public class CcddDbControlHandler
             protected void execute()
             {
                 // Perform the backup operation
-                backupDatabase(databaseName, backupFile);
+                backupDatabase(projectName, backupFile);
             }
         });
     }
 
     /**********************************************************************************************
-     * Backup a database
+     * Backup a project database
      *
      * @param projectName
      *            project name
