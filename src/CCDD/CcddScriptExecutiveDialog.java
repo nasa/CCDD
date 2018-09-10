@@ -71,11 +71,11 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
     {
         // Check if there are any open editors with uncommitted changes and if so check that the
         // user confirms ignoring the changes
-        if (ccddMain.ignoreUncommittedChanges("Script Manager",
+        if (ccddMain.ignoreUncommittedChanges("Script Executive",
                                               "Ignore changes?",
                                               false,
                                               null,
-                                              CcddScriptExecutiveDialog.this))
+                                              ccddMain.getMainFrame()))
         {
             // Build the script executive dialog in the background
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
@@ -183,7 +183,7 @@ public class CcddScriptExecutiveDialog extends CcddFrameHandler
                                 dialogPnl,
                                 buttonPnl,
                                 btnExecute,
-                                "Execute Script(s)",
+                                "Execute Script Association(s)",
                                 null);
                 }
             });

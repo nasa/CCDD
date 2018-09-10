@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -161,7 +160,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                                                                 0,
                                                                 0);
 
-                Border emptyBorder = BorderFactory.createEmptyBorder();
+                dialogPnl.setBorder(BorderFactory.createEmptyBorder());
 
                 // Set the flag to indicate the project data field manager dialog is being
                 // initialized
@@ -231,8 +230,6 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 // Set the modal undo manager in the keyboard handler while the project data
                 // field manager is active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
-
-                dialogPnl.setBorder(emptyBorder);
 
                 // Create the project data field manager dialog labels and fields
                 JLabel dlgLabel = new JLabel("Project: " + dbControl.getProjectName());

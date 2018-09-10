@@ -177,7 +177,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                               "Ignore changes?",
                                               false,
                                               null,
-                                              CcddScriptManagerDialog.this))
+                                              ccddMain.getMainFrame()))
         {
             // Build the script association manager dialog in the background
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()

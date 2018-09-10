@@ -6436,6 +6436,7 @@ public class CcddDbTableCommandHandler
         {
             boolean errorFlag = false;
             String tableName;
+            String[] tableNames = null;
 
             /**************************************************************************************
              * Rename table type command
@@ -6449,7 +6450,7 @@ public class CcddDbTableCommandHandler
                     StringBuilder command = new StringBuilder(storeTableTypesInfoTableCommand());
 
                     // Get an array containing tables of the specified type
-                    String[] tableNames = queryTablesOfTypeList(typeName, typeDialog);
+                    tableNames = queryTablesOfTypeList(typeName, typeDialog);
 
                     // For each table of the specified type
                     for (String table : tableNames)
@@ -6510,7 +6511,8 @@ public class CcddDbTableCommandHandler
             @Override
             protected void complete()
             {
-                typeDialog.doTypeOperationComplete(errorFlag, null, null);
+                // Perform the type modification clean-up steps
+                typeDialog.doTypeOperationComplete(errorFlag, null, tableNames);
             }
         });
     }
@@ -6550,12 +6552,11 @@ public class CcddDbTableCommandHandler
             {
                 try
                 {
-                    // Get the data field definitions that were loaded from the database
+                    // Copy the target table type's data fields, set the owner of the copies fields
+                    // to the new owner, and get the complete list of field definitions
+                    fieldHandler.copyFields(CcddFieldHandler.getFieldTypeName(typeName),
+                                            CcddFieldHandler.getFieldTypeName(copyName));
                     fieldDefinitions = fieldHandler.getFieldDefinitions();
-
-                    // Add the fields under the new type name to the list of existing field
-                    // definitions
-                    fieldDefinitions.addAll(fieldHandler.renameFieldTable(CcddFieldHandler.getFieldTypeName(copyName)));
 
                     // Create the command to rebuild the table types and fields tables
                     String command = storeTableTypesInfoTableCommand()

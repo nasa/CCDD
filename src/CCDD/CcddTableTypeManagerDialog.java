@@ -45,6 +45,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
     private final ManagerDialogType dialogType;
     private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeHandler tableTypeHandler;
+    private final CcddFieldHandler fieldHandler;
 
     // Type name text input field
     private JTextField typeNameFld;
@@ -77,6 +78,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
+        fieldHandler = ccddMain.getFieldHandler();
 
         // Check if a table type exists
         if (editorDialog.getTypeEditor() != null)
@@ -114,10 +116,17 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
+            // Rebuild the data field information, accounting for the renamed, copied, or deleted
+            // data fields
+            fieldHandler.buildFieldInformation(fieldDefinitions);
+
             // Perform the steps based on the dialog type
             switch (dialogType)
             {
                 case RENAME:
+                    // TODO
+                    editorDialog.doTypeModificationComplete(commandError, null, tableNames);
+
                     // Update the type editor tab text
                     editorDialog.setActiveTypeName(typeNameFld.getText());
                     break;

@@ -362,9 +362,9 @@ public abstract class CcddInputFieldPanelHandler
      * @param fieldPnlHndlrOwner
      *            reference to the owner of this description and data field handler
      *
-     * @param tableScrollPane
-     *            scroll pane containing the table; null if this field panel handler does not
-     *            contain a table
+     * @param upperPane
+     *            component to display above the description and data fields scroll pane; null if
+     *            this field panel handler does not contain a table
      *
      * @param ownerName
      *            name of the owner of this field panel handler; null if no owner name is
@@ -379,7 +379,7 @@ public abstract class CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void createDescAndDataFieldPanel(CcddMain ccddMain,
                                                final Component fieldPnlHndlrOwner,
-                                               final JScrollPane tableScrollPane,
+                                               final JComponent upperPane,
                                                String ownerName,
                                                String description,
                                                List<FieldInformation> ownerFieldInfo)
@@ -422,18 +422,18 @@ public abstract class CcddInputFieldPanelHandler
         // Create an outer panel to put the editor panel in (the border doesn't appear without
         // this) and add the table description text field
         descAndFldPnl = new JPanel(new GridBagLayout());
-
+        descAndFldPnl.setBorder(emptyBorder);
         inputPnl = new JPanel(new GridBagLayout());
         inputPnl.setBorder(emptyBorder);
 
-        // Check if this editor contains a table
-        if (tableScrollPane != null)
+        // Check if this editor contains an upper pane
+        if (upperPane != null)
         {
-            // Define the editor panel to contain the table
+            // Define the editor panel to contain the upper pane
             JPanel innerPanel = new JPanel();
             innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
             innerPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            innerPanel.add(tableScrollPane);
+            innerPanel.add(upperPane);
             tablePnl = new JPanel(new GridBagLayout());
             tablePnl.add(innerPanel, gbc);
         }
@@ -447,8 +447,8 @@ public abstract class CcddInputFieldPanelHandler
         descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         descriptionLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
 
-        // Check if this editor doesn't contain a table
-        if (tableScrollPane == null)
+        // Check if this editor doesn't contain an upper pane
+        if (upperPane == null)
         {
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
             gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -495,21 +495,19 @@ public abstract class CcddInputFieldPanelHandler
             descriptionFld.setText(description);
         }
 
-        // Check if this editor doesn't contain a table
-        if (tableScrollPane == null)
+        // Check if this editor doesn't contain an upper pane
+        if (upperPane == null)
         {
             // Place the description field within a scroll pane and add the field to the editor
-            descAndFldPnl.setBorder(BorderFactory.createEtchedBorder());
             descScrollPane.setBorder(border);
             descScrollPane.setMinimumSize(descScrollPane.getPreferredSize());
             gbc.gridy++;
             descriptionPnl.add(descScrollPane, gbc);
         }
-        // The editor contains a table
+        // The editor contains an upper pane
         else
         {
             // Place the description field within a scroll pane and add the field to the editor
-            descAndFldPnl.setBorder(emptyBorder);
             descriptionFld.setToolTipText(CcddUtilities.wrapText("Table description",
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             descScrollPane.setBorder(emptyBorder);
@@ -533,8 +531,8 @@ public abstract class CcddInputFieldPanelHandler
         createDataFieldPanel(false, CcddFieldHandler.getFieldInformationCopy(ownerFieldInfo));
         gbc.weighty = 1.0;
 
-        // Check if this editor doesn't contain a table
-        if (tableScrollPane == null)
+        // Check if this editor doesn't contain an upper pane
+        if (upperPane == null)
         {
             // Add an invisible component in order to force the description panel and data fields
             // to the top of the panel
@@ -547,15 +545,15 @@ public abstract class CcddInputFieldPanelHandler
         inputScrollPane = new JScrollPane(descAndFldPnl);
         inputScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         inputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        inputScrollPane.setBorder(emptyBorder);
+        inputScrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
-        // Check if this editor doesn't contain a table
-        if (tableScrollPane == null)
+        // Check if this editor doesn't contain an upper pane
+        if (upperPane == null)
         {
             // Add the input panel to the editor panel
             inputPnl.add(inputScrollPane, gbc);
         }
-        // The editor contains a table
+        // The editor contains an upper pane
         else
         {
             // Place the table and input panels into a split pane

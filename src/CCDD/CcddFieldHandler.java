@@ -575,16 +575,16 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the data field definitions from the field information
+     * Get the list of all data field definitions from the field information
      *
-     * @return String list containing the data field definitions
+     * @return String list containing all of the data field definitions
      *********************************************************************************************/
     protected List<String[]> getFieldDefinitions()
     {
         // Create storage for the field definitions
         List<String[]> definitions = new ArrayList<String[]>();
 
-        // Step through each row
+        // Step through each field's information
         for (FieldInformation fieldInfo : fieldInformation)
         {
             // Add the field definition to the list
@@ -698,23 +698,30 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Change the owner name for the data fields
+     * Copy the data fields belonging to the specified owner to another table, group, etc.
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name) from which to copy the
+     *            data fields
      *
      * @param newName
-     *            new owner name
-     *
-     * @return List of field definitions with the updated owner name
+     *            name of the table, group, etc. to which to copy the data fields
      *********************************************************************************************/
-    protected List<String[]> renameFieldTable(String newName)
+    protected void copyFields(String ownerName, String newName)
     {
-        // Step through each field
-        for (int index = 0; index < fieldInformation.size(); index++)
+        // Get a copy of the owner's data field information
+        List<FieldInformation> fieldInfo = getFieldInformationByOwnerCopy(ownerName);
+
+        // Step through each of the copied fields
+        for (FieldInformation fldInfo : fieldInfo)
         {
-            // Set the owner name to the new name
-            fieldInformation.get(index).setOwnerName(newName);
+            // Set the copy's owner to the new owner name
+            fldInfo.setOwnerName(newName);
         }
 
-        return getFieldDefinitions();
+        // Add the copied fields to the list of all owner's field information
+        fieldInformation.addAll(fieldInfo);
     }
 
     /**********************************************************************************************

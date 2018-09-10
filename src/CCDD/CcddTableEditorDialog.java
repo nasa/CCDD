@@ -641,7 +641,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmExportXTCE = ccddMain.createMenuItem(mnExport, "XTCE", KeyEvent.VK_X, 1, "Export the current editor table in XTCE XML format");
         mnFile.addSeparator();
         mntmPrint = ccddMain.createMenuItem(mnFile, "Print current", KeyEvent.VK_P, 1, "Print the current editor table information");
-        mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/Replace", KeyEvent.VK_F, 1, "Find/replace text in the active data table");
+        mntmFindReplace = ccddMain.createMenuItem(mnFile, "Find/replace", KeyEvent.VK_F, 1, "Find/replace text in the active data table");
         mnFile.addSeparator();
         mntmCloseActive = ccddMain.createMenuItem(mnFile, "Close current", KeyEvent.VK_C, 2, "Close the current editor table");
         mntmCloseAll = ccddMain.createMenuItem(mnFile, "Close all", KeyEvent.VK_A, 1, "Close all tables in this editor");

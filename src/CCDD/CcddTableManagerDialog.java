@@ -12,7 +12,6 @@ import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
-import static CCDD.CcddConstants.XTCE_EXPORT_SCRIPT;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -1385,7 +1384,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 3;
                 gbc.gridx++;
                 scriptPnl.add(scriptNameLbl, gbc);
-                scriptNameFld = new JTextField(ccddMain.getProgPrefs().get(XTCE_EXPORT_SCRIPT, ""),
+                scriptNameFld = new JTextField(ccddMain.getProgPrefs().get(ModifiablePathInfo.XTCE_EXPORT_SCRIPT.getPreferenceKey(),
+                                                                           ""),
                                                10);
                 scriptNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 scriptNameFld.setEditable(true);
@@ -1434,7 +1434,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             scriptNameFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
 
                             // Store the XTCE export script file name
-                            ccddMain.getProgPrefs().put(XTCE_EXPORT_SCRIPT,
+                            ccddMain.getProgPrefs().put(ModifiablePathInfo.XTCE_EXPORT_SCRIPT.getPreferenceKey(),
                                                         scriptNameFld.getText());
                         }
                     }
@@ -1448,9 +1448,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 // Add a listener for the variable paths check box selection changes
                 useExternalCBox.addActionListener(new ActionListener()
                 {
-                    /**********************************************************************************
+                    /******************************************************************************
                      * Respond to changes in selection of the include variable paths check box
-                     *********************************************************************************/
+                     *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {

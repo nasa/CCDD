@@ -75,7 +75,6 @@ public class CcddConstants
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
     protected static final String HIDE_SCRIPT_PATH = "HideScriptPath";
-    protected static final String XTCE_EXPORT_SCRIPT = "XTCEExportScript";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
@@ -869,7 +868,7 @@ public class CcddConstants
         FOCUS_BACK("Focused table cell background", "Background color for the table cell that has the input focus", "FocusBackgroundColor", 60, 100, 180),
         TABLE_GRID("Table grid lines", "Color for table grid lines. The log table grid lines use the table background color", "TableGridColor", 230, 240, 240),
         TEXT_HIGHLIGHT("Highlighted macro and sizeof() text", "Highlight color for macros and sizeof() text", "TextHighlightColor", 200, 235, 245),
-        SEARCH_HIGHLIGHT("Highlighted search text", "Highlight color search text", "SearchHighlightColor", 250, 250, 0),
+        SEARCH_HIGHLIGHT("Highlighted search text", "Highlight color for matching search text", "SearchHighlightColor", 250, 250, 0),
         REQUIRED_BACK("Required cell and data field background", "Background color for input fields that are required", "RequiredBackgroundColor", 255, 255, 0),
         PROTECTED_TEXT("Protected cell text", "Text color for a protected (non-editable) cell", "ProtectedTextColor", 0, 0, 255),
         PROTECTED_BACK("Protected cell background", "Background color for a protected (non-editable) cell", "ProtectedBackgroundColor", 192, 192, 192),
@@ -881,7 +880,7 @@ public class CcddConstants
         DATA_TYPE("Data type", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
         TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180),
-        TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tab move location indicator", "TabMoveLoccationIndicatorColor", 0, 100, 255);
+        TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tabbed pane tab move location indicator", "TabMoveLocationIndicatorColor", 0, 100, 255);
 
         private final String name;
         private final String description;
@@ -1183,7 +1182,7 @@ public class CcddConstants
         NUM_REMEMBERED_SERVERS("Maximum remembered server names", "Maximum number of remembered server names", "NumberOfRememberedServers", 30, 1, 100),
         NUM_REMEMBERED_PROJECTS("Maximum remembered project names", "Maximum number of remembered project names", "NumberOfRememberedProjects", 4, 1, 10),
         NUM_REMEMBERED_TABLES("Maximum remembered table names", "Maximum number of remembered table names", "NumberOfRememberedTables", 4, 1, 10),
-        MAX_IMPORTED_TAB_ROWS("Maximum editor tab rows during import", "Maximum number of tab rows a single editor dialog when importing tables", "MaxImportedTabRows", 15, 1, 1000),
+        MAX_IMPORTED_TAB_ROWS("Maximum editor tab rows during import", "Maximum number of tab rows a single editor dialog when importing tables", "MaximumImportedTabRows", 15, 1, 1000),
         MIN_DIALOG_WIDTH("Minimum dialog width", "Minimum dialog window width in pixels", "MinimumDialogWidth", 300, 100, 1000),
         MIN_WINDOW_WIDTH("Minimum frame width", "Minimum frame window width in pixels", "MinimumWindowWidth", 750, 100, 1000),
         MIN_WINDOW_HEIGHT("Minimum frame height", "Minimum frame window height in pixels", "MinimumWindowHeight", 400, 100, 1000),
@@ -1196,9 +1195,9 @@ public class CcddConstants
         INIT_VIEWABLE_COMPONENT_ROWS("Initial component rows", "Number of rows of radio buttons or check boxes to display initially", "InitialViewableComponentRows", 12, 1, 50),
         MAX_VIEWABLE_LIST_ROWS("Initial list rows", "Maximum number of items to display at one time in a combo box list", "MaximumViewableListRows", 15, 1, 50),
         MAX_INIT_CELL_WIDTH("Maximum initial table cell width", "Maximum initial table cell width in pixels", "MaximumInitialTableCellWidth", 250, 25, 1000),
-        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaxGridWidth", 5, 1, 20),
+        MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaximumGridWidth", 5, 1, 20),
         MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100),
-        TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tab move location indicator width in pixels", "TabMoveLocationIndcatorWidth", 3, 1, 15),
+        TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tabbed pane tab move location indicator width in pixels", "TabMoveLocationIndicatorWidth", 3, 1, 15),
         POSTGRESQL_CONNECTION_TIMEOUT("PostgreSQL Server Timeout", "Number of seconds allowed to validate the PostgreSQL server connection", "MaximumServerTimeout", 5, 1, 60);
 
         private final String name;
@@ -1581,7 +1580,8 @@ public class CcddConstants
         DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
         TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
         SCRIPT_PATH("Script location", "File path for scripts", "ScriptPath"),
-        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
+        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath"),
+        XTCE_EXPORT_SCRIPT("XTCE export script location", "File path for XTCE export external methods", "XTCEExportScript");
 
         private final String name;
         private final String description;

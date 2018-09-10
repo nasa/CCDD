@@ -21,7 +21,6 @@ import static CCDD.CcddConstants.UNDO_ICON;
 import static CCDD.CcddConstants.UP_ICON;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -809,17 +808,6 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
 
         // Rebuild the data field panel in the table editor using the current text field contents
         fieldPnlHndlr.createDataFieldPanel(true, fieldInformation);
-
-        // Update the size of the data field owner to accommodate a field wider than the owner's
-        // minimum width. Adding a field can require an increase in the owner's height. This
-        // increase doesn't occur automatically, so a manual adjustment (of -1 pixel) is made in
-        // order to force the owner to resize
-        fieldPnlHndlr.getOwner().setMinimumSize(new Dimension(fieldPnlHndlr.getOwner().getWidth(),
-                                                              fieldPnlHndlr.getOwner().getHeight() - 1));
-        fieldPnlHndlr.getOwner().setSize(fieldPnlHndlr.getOwner().getMinimumSize());
-        fieldPnlHndlr.getOwner().setMinimumSize(new Dimension(Math.max(minDialogWidth,
-                                                                       fieldPnlHndlr.getMaxFieldWidth()),
-                                                              fieldPnlHndlr.getOwner().getHeight() + 1));
 
         // Update the dialog title to remove the change indicator
         setTitle(DIALOG_TITLE + ": " + ownerName);

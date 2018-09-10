@@ -25,7 +25,6 @@ import static CCDD.CcddConstants.UNDO_ICON;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -245,7 +244,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
         {
             // Create panels to hold the components of the dialog
-            JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
             JButton btnClose;
 
@@ -256,6 +254,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             protected void execute()
             {
                 isNodeSelectionChanging = false;
+                selectedGroup = null;
+                deletedGroups = new ArrayList<String>();
 
                 // Set the flag to indicate the group manager dialog is being initialized
                 isInitializing = true;
@@ -285,9 +285,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                                            0),
                                                                 0,
                                                                 0);
-
-                selectedGroup = null;
-                deletedGroups = new ArrayList<String>();
 
                 // Add an undo edit manager
                 undoManager = new CcddUndoManager()
@@ -385,11 +382,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 copyGroupInformation();
 
                 // Create panels to hold the components of the dialog
+                JPanel upperPnl = new JPanel(new GridBagLayout());
                 JPanel titlePnl = new JPanel(new GridBagLayout());
-                JPanel treePnl = new JPanel(new GridBagLayout());
-                dialogPnl.setBorder(emptyBorder);
+                JPanel tableTreePnl = new JPanel(new GridBagLayout());
+                upperPnl.setBorder(emptyBorder);
                 titlePnl.setBorder(emptyBorder);
-                treePnl.setBorder(emptyBorder);
+                tableTreePnl.setBorder(emptyBorder);
 
                 // Create the group manager dialog labels and fields
                 JLabel dlgLabel = new JLabel("Assign tables to groups");
@@ -397,7 +395,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 titlePnl.add(dlgLabel, gbc);
 
                 // Add the upper panel components to the dialog panel
-                dialogPnl.add(titlePnl, gbc);
+                upperPnl.add(titlePnl, gbc);
 
                 // Build the table tree showing both table prototypes and table instances; i.e.,
                 // parent tables with their child tables (i.e., parents with children)
@@ -426,10 +424,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.top = 0;
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.weighty = 1.0;
-                treePnl.add(tableTree.createTreePanel("Tables",
-                                                      TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                      ccddMain.getMainFrame()),
-                            gbc);
+                tableTreePnl.add(tableTree.createTreePanel("Tables",
+                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                           ccddMain.getMainFrame()),
+                                 gbc);
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.bottom = 0;
 
@@ -439,14 +437,14 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.gridy++;
-                dialogPnl.add(new CustomSplitPane(treePnl,
-                                                  groupTree.createTreePanel("Groups",
-                                                                            TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                                            false,
-                                                                            ccddMain.getMainFrame()),
-                                                  createArrowButtonPanel(),
-                                                  JSplitPane.HORIZONTAL_SPLIT),
-                              gbc);
+                upperPnl.add(new CustomSplitPane(tableTreePnl,
+                                                 groupTree.createTreePanel("Groups",
+                                                                           TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                                           false,
+                                                                           ccddMain.getMainFrame()),
+                                                 createArrowButtonPanel(),
+                                                 JSplitPane.HORIZONTAL_SPLIT),
+                             gbc);
 
                 // Create the field panel for the description and data fields
                 fieldPnlHndlr = new CcddInputFieldPanelHandler()
@@ -464,30 +462,12 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // Set the undo/redo manager and handler for the description and data field values
                 fieldPnlHndlr.setEditPanelUndo(undoManager, undoHandler);
 
-                // Create the description and data field panel. Since no group is initially
-                // selected the owner, description, and data fields are null
-                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,
-                                                          groupMgr,
-                                                          null,
-                                                          null,
-                                                          null,
-                                                          null);
-
                 // Set the modal undo manager in the keyboard handler while the group manager is
                 // active
                 ccddMain.getKeyboardHandler().setModalDialogReference(undoManager, null);
 
                 // Re-enable storage of edit actions
                 undoHandler.setAllowUndo(true);
-
-                // Add the field panel to the dialog
-                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
-                gbc.insets.left = 0;
-                gbc.insets.bottom = 0;
-                gbc.insets.right = 0;
-                gbc.weighty = 0.0;
-                gbc.gridy++;
-                dialogPnl.add(fieldPnlHndlr.getFieldPanel(), gbc);
 
                 // Create a check box for showing/changing the group CFS application status
                 applicationCb = undoHandler.new UndoableCheckBox("Group represents a CFS application",
@@ -496,9 +476,22 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 applicationCb.setBorder(emptyBorder);
                 applicationCb.setEnabled(false);
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+                gbc.insets.bottom = 0;
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-                gbc.gridy = 0;
-                fieldPnlHndlr.getFieldPanel().add(applicationCb, gbc, 0);
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                gbc.insets.right = 0;
+                gbc.weighty = 0.0;
+                gbc.gridy++;
+                upperPnl.add(applicationCb, gbc);
+
+                // Create the description and data field panel. Since no group is initially
+                // selected the owner, description, and data fields are null
+                fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,
+                                                          groupMgr,
+                                                          upperPnl,
+                                                          null,
+                                                          null,
+                                                          null);
 
                 // Add a listener for the application check box
                 applicationCb.addActionListener(new ActionListener()
@@ -863,7 +856,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             {
                 // Display the group manager dialog
                 showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
+                                  fieldPnlHndlr.getFieldPanel(),
                                   buttonPnl,
                                   btnClose,
                                   DIALOG_TITLE,
@@ -938,19 +931,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                            (selectedGroup != null
                                                                   ? selectedGroup.getFieldInformation()
                                                                   : null));
-
-        // Validate the dialog to redraw the description and field area correctly Update the
-        // dialog's minimum size to accommodate the change in the size or number of data fields,
-        // then revalidate the dialog so that the components are sized correctly
-        setMinimumSize(new Dimension(Math.max(getMinimumWidth(),
-                                              fieldPnlHndlr.getMaxFieldWidth()),
-                                     getPreferredSize().height));
-        setPreferredSize(getPreferredSize());
-        validate();
-
-        // Needed so that any dialogs spawned from this one are positioned relative to the group
-        // manager dialog
-        setPreferredSize(groupMgr.getPreferredSize());
     }
 
     /**********************************************************************************************

@@ -48,6 +48,7 @@ import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -273,8 +274,12 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                                               CcddTableTypeEditorHandler updatedEditor,
                                               String[] tableNames)
     {
-        // Update the table type editor in which the change(s) occurred
-        updatedEditor.doTypeUpdatesComplete(commandError);
+        // Check if a table type editor initiated the update
+        if (updatedEditor != null)
+        {
+            // Update the table type editor in which the change(s) occurred
+            updatedEditor.doTypeUpdatesComplete(commandError);
+        }
 
         // Check if no error occurred and that a table was modified
         if (!commandError && tableNames != null)
@@ -303,6 +308,11 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         {
                             // Update the table editor for the table type change
                             editor.updateForTableTypeChange(tableInfo);
+
+                            // Update the editor tab's tool tip text in case the type name changed
+                            editorDialog.getTabbedPane().setToolTipTextAt(editorDialog.getTabbedPane().indexOfTab(editor.getOwnerName()),
+                                                                          CcddUtilities.wrapText(editor.getTableToolTip(),
+                                                                                                 ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
                         // An error occurred loading the table's data
                         else

@@ -875,6 +875,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void updateForTableTypeChange(TableInformation tblInfo)
     {
+        // Update the table type name (in case it changed) in the current table information
+        currentTableInfo.setType(tblInfo.getType());
+
         // Update the editor's type definition reference
         setTypeDefinition();
 
