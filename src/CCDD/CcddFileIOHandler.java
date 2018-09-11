@@ -1967,6 +1967,20 @@ public class CcddFileIOHandler
                                      scriptFileName,
                                      parent);
             }
+
+            /**************************************************************************************
+             * Perform export selected table(s) complete steps
+             *************************************************************************************/
+            @Override
+            protected void complete()
+            {
+                // Check if the export was executed from the command line
+                if (!(parent instanceof CcddDialogHandler))
+                {
+                    // Restore the table export path to what it was at program start-up
+                    ccddMain.restoreTableExportPath();
+                }
+            }
         });
     }
 

@@ -80,6 +80,7 @@ import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
+import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
@@ -1203,11 +1204,17 @@ public class CcddScriptHandler
                 logScriptCompletionStatus(associations, isBad);
 
                 // Check if the script was executed via the script manager or executive dialogs
-                // (and not from the command line)
                 if (dialog instanceof CcddFrameHandler)
                 {
                     // Enable the script manager or executive dialog's controls
                     ((CcddFrameHandler) dialog).setControlsEnabled(true);
+                }
+                // The script was executed via the command line
+                else
+                {
+                    // Restore the script output path to what it was at program start-up (in case
+                    // it was altered by a command line command)
+                    ccddMain.restoreScriptOutputPath();
                 }
             }
         });
@@ -1576,8 +1583,13 @@ public class CcddScriptHandler
                 }
                 catch (Exception e)
                 {
-                    // Display a dialog providing details on the unanticipated error
-                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                    // Check if script execution wasn't canceled by the user (halting a running
+                    // script can generate errors; these 'explained' errors are ignored)
+                    if (haltDlg == null || !haltDlg.isHalted())
+                    {
+                        // Display a dialog providing details on the unanticipated error
+                        CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                    }
                 }
             }
 
@@ -1889,6 +1901,8 @@ public class CcddScriptHandler
 
         try
         {
+            System.out.println("executeScript: script out path = " + ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()); // TODOq
+
             // Execute the script
             scriptEngine.eval(new FileReader(scriptFileName));
         }

@@ -68,6 +68,7 @@ public class CcddUndoManager extends UndoManager
 
         // Add the edit action to the sequence
         compoundEdits.get(pointer).addEdit(editAction);
+        // System.out.println("addEditSequence: " + editAction.getPresentationName()); // TODO
 
         // Send event indicating the owner has changed
         ownerHasChanged();
@@ -134,6 +135,8 @@ public class CcddUndoManager extends UndoManager
         // Check if an undo is allowed
         if (canUndo())
         {
+            // System.out.println("undo: " + compoundEdits.get(pointer).getPresentationName()); //
+            // TODO
             // Undo all actions within this compound edit sequence and adjust the stack pointer
             compoundEdits.get(pointer).undo();
             pointer--;
@@ -159,6 +162,8 @@ public class CcddUndoManager extends UndoManager
             // Adjust the stack pointer and redo all actions within this compound edit sequence
             pointer++;
             compoundEdits.get(pointer).redo();
+            // System.out.println("redo: " + compoundEdits.get(pointer).getPresentationName()); //
+            // TODO
 
             // Send event indicating the owner has changed
             ownerHasChanged();

@@ -100,6 +100,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     // Flag that indicates if an addition to the associations table is in progress
     private boolean isAddingAssn = false;
 
+    // Node selection change in progress flag
+    private boolean isNodeSelectionChanging;
+
     // Dialog title
     private static final String DIALOG_TITLE = "Manage Script Associations";
 
@@ -844,7 +847,28 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                              TableTreeType.TABLES,
                                              true,
                                              false,
-                                             ccddMain.getMainFrame());
+                                             ccddMain.getMainFrame())
+        {
+            /**************************************************************************************
+             * Respond to changes in selection of a node in the table tree
+             *************************************************************************************/
+            @Override
+            protected void updateTableSelection()
+            {
+                // Check that a node selection change is not in progress
+                if (!isNodeSelectionChanging)
+                {
+                    // Set the flag to prevent link tree updates
+                    isNodeSelectionChanging = true;
+
+                    // Deselect any nodes that are disabled
+                    clearDisabledNodes();
+
+                    // Reset the flag to allow link tree updates
+                    isNodeSelectionChanging = false;
+                }
+            }
+        };
 
         // Check if the database contains any tables
         if (tableTree.getRowCount() != (tableTree.isRootVisible()

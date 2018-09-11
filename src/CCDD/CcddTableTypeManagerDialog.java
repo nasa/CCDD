@@ -124,7 +124,8 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
             switch (dialogType)
             {
                 case RENAME:
-                    // TODO
+                    // Update the table type editor and any open table editors afftecd by the type
+                    // name change
                     editorDialog.doTypeModificationComplete(commandError, null, tableNames);
 
                     // Update the type editor tab text

@@ -1312,15 +1312,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 deletedGroups.add(selected[0]);
 
                 // Step through each data field in the renamed group
-                for (FieldInformation fieldInfo : renamedGroup.getFieldInformation())
+                for (FieldInformation fieldInfo : fieldPnlHndlr.getPanelFieldInformation())
                 {
-                    // Update the field's owner in the field handler's
-                    fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
-                                                           fieldInfo.getFieldName())
-                                .setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
-
-                    // Set the data field owner to the renamed group's name so that the group's
-                    // data fields will be created in the internal data fields table
+                    // Update the field's owner
                     fieldInfo.setOwnerName(CcddFieldHandler.getFieldGroupName(groupNameFld.getText()));
                 }
 

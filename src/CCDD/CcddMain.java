@@ -220,6 +220,12 @@ public class CcddMain
     private final List<String> recentProjectNames;
     private final List<String> recentTableNames;
 
+    // Storage for the table export and script output paths prior to these possibly changing via
+    // the command line commands. Used to restore the paths following completion of the
+    // project-specific command line commands
+    private String orgTableExportPath;
+    private String orgScriptOutPath;
+
     /**********************************************************************************************
      * Create the application
      *
@@ -830,6 +836,12 @@ public class CcddMain
         // Check if the command line handler exists
         if (cmdLnHandler != null)
         {
+            // Store the table export and script output paths, in case these are modified by
+            // command line execution. The program start-up paths are restored following completion
+            // of the command line commands
+            orgTableExportPath = getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), "");
+            orgScriptOutPath = getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
+
             // Execute the command line arguments that are database-dependent
             cmdLnHandler.parseCommand(10, -1);
 
@@ -837,6 +849,28 @@ public class CcddMain
             // again (i.e., if another database is opened during the same session)
             cmdLnHandler = null;
         }
+    }
+
+    /**********************************************************************************************
+     * Restore the table export path program preference to the value at program start-up
+     *********************************************************************************************/
+    protected void restoreTableExportPath()
+    {
+        CcddFileIOHandler.storePath(CcddMain.this,
+                                    orgTableExportPath,
+                                    false,
+                                    ModifiablePathInfo.TABLE_EXPORT_PATH);
+    }
+
+    /**********************************************************************************************
+     * Restore the script output path program preference to the value at program start-up
+     *********************************************************************************************/
+    protected void restoreScriptOutputPath()
+    {
+        CcddFileIOHandler.storePath(CcddMain.this,
+                                    orgScriptOutPath,
+                                    false,
+                                    ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
     }
 
     /**********************************************************************************************

@@ -802,8 +802,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
                 node = (ToolTipTreeNode) root.getChildAt(row);
 
                 // Rename the node and update the tree, then stop searching
-                node.setUserObject(newName);
-                infoTreeModel.nodeChanged(node);
+                getModel().valueForPathChanged(getPathForRow(row), newName);
                 break;
             }
         }

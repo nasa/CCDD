@@ -84,12 +84,9 @@ public class CcddCommandLineHandler
     private String classification3;
     private String scriptFileName;
 
-    // Storage for the session event log, table export, and script output paths prior to changing
-    // these via the command line options. Used to restore the paths following completion of the
-    // project-specific command line commands
-    private final String orgLogPath;
-    private final String orgTableExportPath;
-    private final String orgScriptOutPath;
+    // Storage for the session event log and script output paths
+    private final String sessionLogPath;
+    private String scriptOutPath;
 
     /**********************************************************************************************
      * Individual command line argument handler class
@@ -422,11 +419,10 @@ public class CcddCommandLineHandler
         shutdownWhenComplete = false;
         exitStatus = 0;
 
-        // Store the session event log, table export, and script output paths, in case these are
-        // modified
-        orgLogPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey(), "");
-        orgTableExportPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), "");
-        orgScriptOutPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
+        // Store the session event log and script output paths, in case these are modified by a
+        // command line command
+        sessionLogPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SESSION_LOG_FILE_PATH.getPreferenceKey(), "");
+        scriptOutPath = ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
         // Display application version information command
         argument.add(new CommandHandler("version",
@@ -791,15 +787,12 @@ public class CcddCommandLineHandler
                                         10)
         {
             /**************************************************************************************
-             * Set the script output file path
+             * Store the script output file path
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                CcddFileIOHandler.storePath(ccddMain,
-                                            (String) parmVal,
-                                            false,
-                                            ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+                scriptOutPath = (String) parmVal;
             }
         });
 
@@ -948,6 +941,15 @@ public class CcddCommandLineHandler
                         }
                     }
                 }
+
+                // Set the script output path, in case it's been changed by a command line command.
+                // If the script is executed in the background then when it completes execution the
+                // script output path is restored to the program start-up value. Therefore it's set
+                // to the value as updated via command line command prior to each execution command
+                CcddFileIOHandler.storePath(ccddMain,
+                                            scriptOutPath,
+                                            false,
+                                            ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
 
                 // Check if the GUI isn't displayed
                 if (ccddMain.isGUIHidden())
@@ -1595,7 +1597,7 @@ public class CcddCommandLineHandler
      *            command priority boundary - ignore commands with a priority greater than this
      *            value; -1 to end with the highest priority command
      *********************************************************************************************/
-    protected void parseCommand(int startPriority, int endPriority)
+    protected void parseCommand(final int startPriority, final int endPriority)
     {
         // Execute the commands that fall within the priority range
         parseCommand(startPriority, endPriority, args, argument);
@@ -1603,24 +1605,26 @@ public class CcddCommandLineHandler
         // Check if the project-specific commands have been completed
         if (endPriority == -1)
         {
-            // Restore the original session event log, table export, and script output paths
+            // Restore the original session event log path, in case it was changed via a command
+            // line command
             CcddFileIOHandler.storePath(ccddMain,
-                                        orgLogPath,
+                                        sessionLogPath,
                                         false,
                                         ModifiablePathInfo.SESSION_LOG_FILE_PATH);
-            CcddFileIOHandler.storePath(ccddMain,
-                                        orgTableExportPath,
-                                        false,
-                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
-            CcddFileIOHandler.storePath(ccddMain,
-                                        orgScriptOutPath,
-                                        false,
-                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
 
             // Check if the application should be terminated following execution of the
-            // project-specific commands (script execution, export, or import)
+            // project-specific commands (script execution, export, or import). Note that the GUI
+            // is hidden if this flag is set
             if (shutdownWhenComplete)
             {
+                // Restore the original table export and script output paths (in case either of
+                // these were changed via a command line command). If the GUI is visible then the
+                // script execute and table export commands are performed as background operations.
+                // The background operation is responsible for resetting the affected path once the
+                // operation completes
+                ccddMain.restoreTableExportPath();
+                ccddMain.restoreScriptOutputPath();
+
                 // Exit the application, supplying the execution status (= 1 if a failure occurred,
                 // otherwise returns 0)
                 ccddMain.exitApplication(false, exitStatus);

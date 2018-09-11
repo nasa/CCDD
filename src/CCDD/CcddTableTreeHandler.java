@@ -879,6 +879,23 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Set the node enable states based on the presence of child nodes
         setNodeEnableByChildState(root);
 
+        // Check if groups are to be used to filter the table tree
+        if (isByGroup)
+        {
+            // Step through the groups
+            for (GroupInformation groupInfo : groupHandler.getGroupInformation())
+            {
+                // Check if the group has no tables,but does have at least one data field
+                if (groupInfo.getTableMembers().size() == 0
+                    && ccddMain.getFieldHandler().getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName())).size() != 0)
+                {
+                    // The node is disabled due to having no children. Re-enable the node since it
+                    // does have data fields
+                    getNodeByNodeName(groupInfo.getName()).setUserObject(groupInfo.getName());
+                }
+            }
+        }
+
         // Clear the flag that indicates the table tree is being built
         isBuilding = false;
 
