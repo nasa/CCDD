@@ -367,6 +367,23 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             isNodeSelectionChanging = false;
                         }
                     }
+
+                    /******************************************************************************
+                     * Update the group name following a node name change undo or redo operation
+                     *
+                     * @param wasValue
+                     *            group name prior to the undo/redo operation
+                     *
+                     * @param isValue
+                     *            group name after the undo/redo operation
+                     *****************************************************************************/
+                    @Override
+                    protected void nodeRenameCleanup(Object wasValue, Object isValue)
+                    {
+                        // Get the reference to the group and update the group name
+                        GroupInformation renamedGroup = groupHandler.getGroupInformationByName(wasValue.toString());
+                        renamedGroup.setName(isValue.toString());
+                    }
                 };
 
                 // Get the references to the group and data field handlers created by the group
@@ -1095,7 +1112,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         }
 
         // Remove the selected tables from the groups in the group tree
-        groupTree.removeSelectedChildNodes(false);
+        groupTree.removeSelectedNodes();
 
         // Check if a single group was selected prior to removing the selected table(s)
         if (node != null)
@@ -1300,10 +1317,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 // are restored together
                 undoHandler.setAutoEndEditSequence(false);
 
-                // Get a reference to the renamed group
+                // Get a reference to the renamed group, then rename the group
                 GroupInformation renamedGroup = groupHandler.getGroupInformationByName(selected[0]);
-
-                // Rename the group
                 renamedGroup.setName(groupNameFld.getText());
                 groupTree.renameRootChildNode(selected[0], groupNameFld.getText());
 

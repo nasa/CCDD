@@ -553,6 +553,20 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
+     * Remove the currently selected node(s) from the tree
+     *********************************************************************************************/
+    protected void removeSelectedNodes()
+    {
+        // Step through each selected node
+        for (TreePath path : getSelectionPaths())
+        {
+            // Remove the node (and any descendant nodes of the node) from the tree
+            ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+            ((DefaultTreeModel) getModel()).removeNodeFromParent(node);
+        }
+    }
+
+    /**********************************************************************************************
      * Create a group tree panel. The table tree is placed in a scroll pane. A check box is added
      * that allows tree expansion/collapse
      *

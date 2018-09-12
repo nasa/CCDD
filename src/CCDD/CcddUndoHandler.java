@@ -3345,6 +3345,20 @@ public class CcddUndoHandler
         }
 
         /******************************************************************************************
+         * Placeholder for performing any actions needed following an undo or redo operation that
+         * affects a node's user object (name)
+         *
+         * @param wasValue
+         *            node user object value prior to the undo/redo operation
+         *
+         * @param isValue
+         *            node user object value after the undo/redo operation
+         *****************************************************************************************/
+        protected void nodeRenameCleanup(Object wasValue, Object isValue)
+        {
+        }
+
+        /******************************************************************************************
          * Tree node add edit event handler class
          *****************************************************************************************/
         private class UndoableNodeAddEdit extends AbstractUndoableEdit
@@ -3517,14 +3531,14 @@ public class CcddUndoHandler
                 super.undo();
 
                 // Set the node's user object to the previous value
-                MutableTreeNode node = (MutableTreeNode) path.getLastPathComponent();
-                node.setUserObject(oldValue);
-
-                // Notify any listeners that the tree has changed
-                nodeChanged(node);
+                valueForPathChanged(path, oldValue);
 
                 // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
+
+                // Perform any clean-up actions required due to changing the node's user object
+                // (name)
+                nodeRenameCleanup(newValue, oldValue);
             }
 
             /**************************************************************************************
@@ -3540,14 +3554,14 @@ public class CcddUndoHandler
                 super.redo();
 
                 // Set the node's user object to the the new value
-                MutableTreeNode node = (MutableTreeNode) path.getLastPathComponent();
-                node.setUserObject(newValue);
-
-                // Notify any listeners that the tree has changed
-                nodeChanged(node);
+                valueForPathChanged(path, newValue);
 
                 // Reset the flag so that changes to the tree are handled by the undo/redo manager
                 isAllowUndo = true;
+
+                // Perform any clean-up actions required due to changing the node's user object
+                // (name)
+                nodeRenameCleanup(oldValue, newValue);
             }
 
             /**************************************************************************************

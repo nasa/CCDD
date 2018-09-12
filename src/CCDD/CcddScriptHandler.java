@@ -80,7 +80,6 @@ import CCDD.CcddConstants.InternalTable.AssociationsColumn;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
-import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
@@ -1901,8 +1900,6 @@ public class CcddScriptHandler
 
         try
         {
-            System.out.println("executeScript: script out path = " + ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPath()); // TODOq
-
             // Execute the script
             scriptEngine.eval(new FileReader(scriptFileName));
         }

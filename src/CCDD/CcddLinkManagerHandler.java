@@ -320,7 +320,7 @@ public class CcddLinkManagerHandler
                     // selected link, disable and clear the description, rate, and size in bytes
                     // fields
                     setLinkAndFields(selected.length == 1
-                                                          ? selected[0]
+                                                          ? removeExtraText(selected[0])
                                                           : null,
                                      selected.length != 0);
 
@@ -336,6 +336,34 @@ public class CcddLinkManagerHandler
                     // Reset the flag to allow link tree updates
                     isNodeSelectionChanging = false;
                 }
+            }
+
+            /******************************************************************************
+             * Update the link name following a node name change undo or redo operation
+             *
+             * @param wasValue
+             *            link name prior to the undo/redo operation
+             *
+             * @param isValue
+             *            link name after the undo/redo operation
+             *****************************************************************************/
+            @Override
+            protected void nodeRenameCleanup(Object wasValue, Object isValue)
+            {
+                // Get the link names by removing any extra text (rate) from the node names
+                String wasValueS = removeExtraText(wasValue.toString());
+                String isValueS = removeExtraText(isValue.toString());
+
+                // Step through the link's definitions
+                for (String[] linkDefn : getLinkHandler().getLinkDefinitionsByName(wasValueS,
+                                                                                   getRateName()))
+                {
+                    // Update the link definition's link name
+                    linkDefn[LinksColumn.LINK_NAME.ordinal()] = isValueS;
+                }
+
+                // Update the link's name in the link information
+                getLinkInformation(wasValueS).setName(isValueS);
             }
         };
 
@@ -929,7 +957,7 @@ public class CcddLinkManagerHandler
         }
 
         // Remove the selected variable(s) from the links in the link tree
-        linkTree.removeSelectedChildNodes(true);
+        linkTree.removeSelectedNodes();
 
         // Step through each on the links
         for (String linkName : linkNames)

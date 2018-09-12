@@ -118,6 +118,28 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // an undo handler is provided; otherwise use the default (non-undoable) tree model
             infoTreeModel = undoHandler != null
                                                 ? undoHandler.new UndoableTreeModel(root)
+                                                {
+                                                    /**********************************************
+                                                     * Perform any actions needed following an undo
+                                                     * or redo operation that affects a node's user
+                                                     * object (name) filter nodes
+                                                     *
+                                                     * @param wasValue
+                                                     *            node user object value prior to
+                                                     *            the undo/redo operation
+                                                     *
+                                                     * @param isValue
+                                                     *            node user object value after the
+                                                     *            undo/redo operation
+                                                     *********************************************/
+                                                    @Override
+                                                    protected void nodeRenameCleanup(Object wasValue,
+                                                                                     Object isValue)
+                                                    {
+                                                        CcddInformationTreeHandler.this.nodeRenameCleanup(wasValue,
+                                                                                                          isValue);
+                                                    }
+                                                }
                                                 : new DefaultTreeModel(root);
             setModel(infoTreeModel);
             setRootVisible(false);
@@ -129,6 +151,20 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
             // Build the information tree
             buildTree(false, false, filterValue, filterFlag, parent);
         }
+    }
+
+    /**********************************************************************************************
+     * Placeholder for performing any actions needed following an undo or redo operation that
+     * affects a node's user object (name) filter nodes
+     *
+     * @param wasValue
+     *            node user object value prior to the undo/redo operation
+     *
+     * @param isValue
+     *            node user object value after the undo/redo operation
+     *********************************************************************************************/
+    protected void nodeRenameCleanup(Object wasValue, Object isValue)
+    {
     }
 
     /**********************************************************************************************
@@ -624,62 +660,16 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
         // Step through each selected path
         for (TreePath path : getSelectionPaths())
         {
-            // Get the node for this path
+            // Get the top-level node for this path
             ToolTipTreeNode node = (ToolTipTreeNode) path.getPathComponent(1);
 
-            // Check if this node has already been removed
+            // Check if this node hasn't already been removed
             if (!removedNodes.contains(node))
             {
                 // Add the node to the list of those removed
                 removedNodes.add(node);
 
                 // Remove the node from the tree
-                infoTreeModel.removeNodeFromParent(node);
-            }
-        }
-    }
-
-    /**********************************************************************************************
-     * Remove the currently selected child node(s) from the selected top level node(s)
-     *
-     * @param isVariable
-     *            true if the this tree contains variables
-     *********************************************************************************************/
-    protected void removeSelectedChildNodes(boolean isVariable)
-    {
-        List<Object[]> selectedVariablePaths = new ArrayList<Object[]>();
-
-        // Check if at least one node is selected
-        if (getSelectionCount() != 0)
-        {
-            // Step through each selected node
-            for (TreePath path : getSelectionPaths())
-            {
-                // Check if the selected variable node has children
-                addChildNodes((ToolTipTreeNode) path.getLastPathComponent(),
-                              selectedVariablePaths,
-                              new ArrayList<String>(),
-                              isVariable);
-            }
-
-            // Step through the selected paths
-            for (Object[] varPath : selectedVariablePaths)
-            {
-                // Get the node referenced by the path
-                TreePath path = new TreePath(varPath);
-                ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
-
-                // In order to remove all of a child's path that isn't shared with another child,
-                // step back through the child's path to find the ancestor node with only a single
-                // child node
-                while (node.getParent().getChildCount() == 1
-                       && node.getLevel() > 2 + getHeaderNodeLevel())
-                {
-                    // Get the parent node for the child(ren) to be removed
-                    node = (ToolTipTreeNode) node.getParent();
-                }
-
-                // Remove the node from the information tree
                 infoTreeModel.removeNodeFromParent(node);
             }
         }
@@ -786,7 +776,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      * @param newName
      *            new name for the node
      *
-     * @return Reference to the renamed node
+     * @return Reference to the renamed node; null if no node with the name oldName exists
      *********************************************************************************************/
     protected ToolTipTreeNode renameRootChildNode(Object oldName, Object newName)
     {

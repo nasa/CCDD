@@ -676,6 +676,51 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
+     * Remove the currently selected node(s) from the tree. If the parent node of a removed node no
+     * longer has any descendants after the removal then remove the parent node as well. Continue
+     * this process of removing nodes without descendants all the way up the tree, but not
+     * including the top level node
+     *********************************************************************************************/
+    protected void removeSelectedNodes()
+    {
+        List<Object[]> selectedPaths = new ArrayList<Object[]>();
+
+        // Check if at least one node is selected
+        if (getSelectionCount() != 0)
+        {
+            // Step through each selected node path
+            for (TreePath selPath : getSelectionPaths())
+            {
+                // Add the selected node's descendant nodes to the selected path list
+                addChildNodes((ToolTipTreeNode) selPath.getLastPathComponent(),
+                              selectedPaths,
+                              new ArrayList<String>(),
+                              true);
+            }
+
+            // Step through the selected paths (which now includes all descendants)
+            for (Object[] path : selectedPaths)
+            {
+                // Get the node referenced by the path
+                ToolTipTreeNode node = (ToolTipTreeNode) new TreePath(path).getLastPathComponent();
+
+                // In order to remove all of a child's path that isn't shared with another child,
+                // step back through the child's path to find the ancestor node with only a single
+                // child node
+                while (node.getParent().getChildCount() == 1
+                       && node.getLevel() > 2 + getHeaderNodeLevel())
+                {
+                    // Get the parent node for the child(ren) to be removed
+                    node = (ToolTipTreeNode) node.getParent();
+                }
+
+                // Remove the node from the information tree
+                ((UndoableTreeModel) getModel()).removeNodeFromParent(node);
+            }
+        }
+    }
+
+    /**********************************************************************************************
      * Create a subtree with only the links that contain variables with sample rates matching the
      * selected rate
      *

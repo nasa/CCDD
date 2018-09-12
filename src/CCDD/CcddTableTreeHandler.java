@@ -1958,6 +1958,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Step through each selected table in the tree
             for (TreePath path : getSelectionPaths())
             {
+                // Check if the table isn't already in the list
+                if (!tables.contains(path.getLastPathComponent().toString()))
+                {
+                    // Add the selected table to the list
+                    tables.add(path.getLastPathComponent().toString());
+                }
+
                 // Step through all of the tables that are descendants of this node (excluding any
                 // duplicates and any children of a table already added to the list)
                 for (String table : getTablesWithoutChildren((ToolTipTreeNode) path.getLastPathComponent()))
