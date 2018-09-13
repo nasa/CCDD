@@ -143,9 +143,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     private List<Integer> selectionIndex;
 
     // Variable path separators and flag to show/hide the data type
-    private String varPathSep;
-    private String typeNameSep;
-    private boolean hideDataType;
+    private String varPathSeparator;
+    private String typeNameSeparator;
+    private boolean excludeDataTypes;
 
     // Flag indicating if array members are to be displayed in the table
     private boolean isShowArrayMembers;
@@ -670,9 +670,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         // Get the variable path separators and the show/hide data type flag from the program
         // preferences
-        varPathSep = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
-        typeNameSep = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
-        hideDataType = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
 
         // Check if the variable path, variable name, and data type columns are present, the table
         // represents a structure, the table has been created, and the table is open in a table
@@ -730,28 +730,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private String getVariablePath(String variableName, String dataType, boolean includeCustom)
     {
-        // Get the variable path in program format
-        String path = currentTableInfo.getTablePath() + "," + dataType + "." + variableName;
-
-        // Get the path, applying the separators
-        String convertedPath = variableHandler.getFullVariableName(path,
-                                                                   varPathSep,
-                                                                   hideDataType,
-                                                                   typeNameSep,
-                                                                   includeCustom);
-
-        // Check if the variable isn't found in the variable list. This occurs if the user changes
-        // the variable name, data type, or array size
-        if (convertedPath.isEmpty())
-        {
-            // Build the converted variable path
-            convertedPath = variableHandler.convertVariableName(path,
-                                                                varPathSep,
-                                                                hideDataType,
-                                                                typeNameSep);
-        }
-
-        return convertedPath;
+        return variableHandler.getVariablePath(currentTableInfo.getTablePath(),
+                                               variableName,
+                                               dataType,
+                                               varPathSeparator,
+                                               excludeDataTypes,
+                                               typeNameSeparator,
+                                               includeCustom);
     }
 
     /**********************************************************************************************

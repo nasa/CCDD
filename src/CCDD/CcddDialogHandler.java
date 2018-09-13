@@ -1639,6 +1639,8 @@ public class CcddDialogHandler extends JDialog
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
             scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
+            // TODO HEIGHT DOESN'T ACCOUNT FOR WRAPPING OF THE DESCRIPTION TEXT
+
             // Calculate the maximum desirable height of the panel containing the radio buttons (=
             // # of rows * row height)
             int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()

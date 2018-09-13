@@ -11,13 +11,16 @@ import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR_CMD_LN;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
+import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 import static CCDD.CcddConstants.EventLogMessageType.FAIL_MSG;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
@@ -123,6 +126,11 @@ public class CcddScriptHandler
 
     // Environment variable map
     private Map<String, String> envVarMap;
+
+    // Variable path separators and flag to show/hide the data type
+    private String varPathSeparator;
+    private String typeNameSeparator;
+    private boolean excludeDataTypes;
 
     /**********************************************************************************************
      * Script handler class constructor
@@ -1251,6 +1259,12 @@ public class CcddScriptHandler
         // Create an array to indicate if an association has a problem that prevents its execution
         boolean[] isBad = new boolean[associations.size()];
 
+        // Get the variable path separators and the show/hide data type flag from the program
+        // preferences
+        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
+        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+
         // Check if the script execution was initiated via command line command (and not from the
         // script manager or executive dialog)
         if (!(parent instanceof CcddFrameHandler))
@@ -1954,9 +1968,11 @@ public class CcddScriptHandler
                 int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
                 int pathColumn = data[0].length - PATH_COLUMN_DELTA;
 
-                // Get the index of the column containing the data type for this table if it has
-                // one
+                // Get the variable name, data type, and path column indices (if these columns
+                // exist in the table)
+                int variableNameColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
                 int dataTypeColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT);
+                int variablePathColumn = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE_PATH);
 
                 // Step through each row
                 for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
@@ -1965,6 +1981,28 @@ public class CcddScriptHandler
                     // script execution
                     data[row][typeColumn] = tableInfo.getType();
                     data[row][pathColumn] = tablePath;
+
+                    // Check if the table contains variable path, variable name, and data type
+                    // columns, and that the variable name and data type aren't blank
+                    if (variablePathColumn != -1
+                        && variableNameColumn != -1
+                        && !data[row][variableNameColumn].isEmpty()
+                        && dataTypeColumn != -1
+                        && !data[row][dataTypeColumn].isEmpty())
+                    {
+                        // Get the variable path and store it in the table data. The variable path
+                        // isn't stored in the database, but instead is constructed on-the-fly. The
+                        // path separators used are those currently stored in the program
+                        // preferences
+                        data[row][variablePathColumn] = variableHandler.getVariablePath(tableInfo.getTablePath(),
+                                                                                        data[row][variableNameColumn],
+                                                                                        data[row][dataTypeColumn],
+                                                                                        varPathSeparator,
+                                                                                        excludeDataTypes,
+                                                                                        typeNameSeparator,
+                                                                                        true);
+
+                    }
 
                     // Store the data from the table in the combined storage array
                     combinedData = CcddUtilities.concatenateArrays(combinedData,

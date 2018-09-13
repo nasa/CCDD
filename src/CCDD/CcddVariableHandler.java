@@ -696,6 +696,66 @@ public class CcddVariableHandler
     }
 
     /**********************************************************************************************
+     * Get the variable path for the specified table path, variable name, and data type
+     *
+     * @param tablePath
+     *            path for the table contai9ning the variable
+     *
+     * @param variableName
+     *            variable name
+     *
+     * @param dataType
+     *            data type
+     *
+     * @param varPathSeparator
+     *            character(s) to place between variables path members
+     *
+     * @param excludeDataTypes
+     *            true to remove the data types from the variable path + name
+     *
+     * @param typeNameSeparator
+     *            character(s) to place between data types and variable names
+     *
+     * @param includeCustom
+     *            true to substitute the user-defined variable path (if present); false to ignore
+     *            the user-defined path and use the auto-generated one based on the conversion
+     *            flags
+     *
+     * @return Variable path for the specified table path, variable name, and data type
+     *********************************************************************************************/
+    protected String getVariablePath(String tablePath,
+                                     String variableName,
+                                     String dataType,
+                                     String varPathSeparator,
+                                     boolean excludeDataTypes,
+                                     String typeNameSeparator,
+                                     boolean includeCustom)
+    {
+        // Get the variable path in the program format
+        String path = tablePath + "," + dataType + "." + variableName;
+
+        // Get the path, applying the separators
+        String convertedPath = getFullVariableName(path,
+                                                   varPathSeparator,
+                                                   excludeDataTypes,
+                                                   typeNameSeparator,
+                                                   includeCustom);
+
+        // Check if the variable isn't found in the variable list. This occurs if the user changes
+        // the variable name, data type, or array size
+        if (convertedPath.isEmpty())
+        {
+            // Build the converted variable path
+            convertedPath = convertVariableName(path,
+                                                varPathSeparator,
+                                                excludeDataTypes,
+                                                typeNameSeparator);
+        }
+
+        return convertedPath;
+    }
+
+    /**********************************************************************************************
      * Get a variable's full name which includes the variables in the structure path separated by
      * the specified separator character(s). In case there are any array member variable names in
      * the full name, replace left square brackets with # underscores and remove right square

@@ -2646,7 +2646,10 @@ public class CcddScriptDataAccessHandler
      * @param row
      *            table data row index
      *
-     * @return Type name referenced in the specified row of the specified table type data
+     * @return Type name referenced in the specified row of the specified table type data. This the
+     *         table's actual type name and not the generic 'Structure' or 'Command' used to access
+     *         combined structure or command table data. Returns a blank if the table type name or
+     *         row is invalid
      *********************************************************************************************/
     public String getTypeNameByRow(String tableType, int row)
     {
@@ -2655,8 +2658,8 @@ public class CcddScriptDataAccessHandler
         // Get the reference to the table information
         TableInformation tableInfo = getTableInformation(tableType);
 
-        // Check if the row exists
-        if (row < tableInfo.getData().length)
+        // Check if the table type and the row exist
+        if (tableInfo != null && row < tableInfo.getData().length)
         {
             // Get the table type for the specified row
             typeName = tableInfo.getData()[row][tableInfo.getData()[row].length
@@ -2672,7 +2675,9 @@ public class CcddScriptDataAccessHandler
      * @param tableName
      *            name of the table. For a child structure this includes the path
      *
-     * @return Type name for the specified table
+     * @return Type name for the specified table. This the table's actual type name and not the
+     *         generic 'Structure' or 'Command' used to access combined structure or command table
+     *         data
      *********************************************************************************************/
     public String getTypeNameByTable(String tableName)
     {
@@ -2754,7 +2759,7 @@ public class CcddScriptDataAccessHandler
         // Check if the table type exists
         if (typeDefn != null)
         {
-            // STore the names of the columns for this table type definition
+            // Store the names of the columns for this table type definition
             columnNames = typeDefn.getColumnNamesVisible();
         }
 
@@ -2765,7 +2770,8 @@ public class CcddScriptDataAccessHandler
      * Get the table column names for the table type specified
      *
      * @param typeName
-     *            table type name
+     *            table type name. This is the table's actual type name and not the generic
+     *            'Structure' or 'Command' used to access combined structure or command table data
      *
      * @return Array containing the names of the columns of the table type specified
      *********************************************************************************************/

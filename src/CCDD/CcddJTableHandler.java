@@ -4204,8 +4204,24 @@ public abstract class CcddJTableHandler extends JTable
                                               editColumn,
                                               false);
 
-                        // // Reload the value in case any clean-up steps were performed
-                        newValue = tableModel.getValueAt(editRow, editColumn);
+                        // Reload the value with any clean-up performed on it
+                        Object newValueCleaned = tableModel.getValueAt(editRow, editColumn);
+
+                        // Check if the clean-up resulted in a change to the value that restored it
+                        // to the old value
+                        if (!newValue.equals(newValueCleaned) && newValueCleaned.equals(oldValue))
+                        {
+                            // Perform any steps to be done if the cell value changed. The
+                            // pre-clean-up value can result in a change being detected in the
+                            // table value, but with the clean-up the cell is restored to the
+                            // original value (for example, a space is entered which is trimmed
+                            // when the cell is exited). For this case the owner change steps
+                            // aren't automatically performed so it's called explicitly here
+                            undoManager.ownerHasChanged();
+                        }
+
+                        // Store the cleaned-up value
+                        newValue = newValueCleaned;
                     }
 
                     // Check if the data has changed

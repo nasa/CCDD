@@ -188,7 +188,7 @@ public class CcddConstants
 
     // Variable name pattern and data type for padding variables
     protected static final String PAD_VARIABLE = "pad[0-9]+__";
-    protected static final String PAD_VARIABLE_MATCH = PAD_VARIABLE + "(?:\\\\[[0-9]+\\\\])?$";
+    protected static final String PAD_VARIABLE_MATCH = PAD_VARIABLE + "(?:\\[[0-9]+\\])?$";
     protected static final String PAD_DATA_TYPE = "char";
 
     // Main window initial and minimum window size

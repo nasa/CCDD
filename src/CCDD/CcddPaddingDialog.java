@@ -92,7 +92,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
                                                                             ccddMain.getMainFrame());
 
         // Add the tree to the dialog
-        dialogPnl.add(prototypeTree.createTreePanel("Tables",
+        dialogPnl.add(prototypeTree.createTreePanel("Structure Tables",
                                                     TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                     ccddMain.getMainFrame()),
                       gbc);
