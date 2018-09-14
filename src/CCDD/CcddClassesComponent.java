@@ -19,6 +19,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -2255,6 +2256,36 @@ public class CcddClassesComponent
             setFocusable(false);
             setWrapStyleWord(true);
             setLineWrap(true);
+        }
+
+        /******************************************************************************************
+         * Get the number of rows required to display the label text based on the specified maximum
+         * label width
+         *
+         * @param maxWidth
+         *            maximum label width in pixels
+         *
+         * @return Number of rows required to display the label text
+         *****************************************************************************************/
+        protected int getNumDisplayRows(int maxWidth)
+        {
+            // TODO
+            int numRows = 0;
+
+            // Get the label's font metrics s that the text length in pixels can be determined
+            BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            FontMetrics fm = image.getGraphics().getFontMetrics(getFont());
+
+            // Step through each portion of the text, separating on line-feeds if any are present
+            for (String part : getText().split("\n"))
+            {
+                // Calculate the number of rows required to display this portion of the text and
+                // update the row counter accordingly
+                numRows += Math.ceil(fm.stringWidth(part) / maxWidth);
+            }
+
+            // Return a minimum row count of 1
+            return Math.max(numRows, 1);
         }
     }
 

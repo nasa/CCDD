@@ -1471,6 +1471,16 @@ public class CcddDialogHandler extends JDialog
         // Check if any items exist
         if (itemInformation.length != 0)
         {
+            int maxRBtnWidth = 0;
+            int maxDescWidth = 0;
+            int numWrappedRows = 0;
+            MultilineLabel[] descriptionFld = null;
+            boolean isDescriptions = false;
+
+            // Set up storage for the radio buttons
+            JRadioButton[] radioButton = new JRadioButton[itemInformation.length];
+            ButtonGroup rbtnGroup = new ButtonGroup();
+
             // Create a copy of the layout constraints and update them
             GridBagConstraints dlgGbc = (GridBagConstraints) dialogGbc.clone();
             dlgGbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
@@ -1533,19 +1543,15 @@ public class CcddDialogHandler extends JDialog
                 }
             };
 
-            // Set up storage for the radio buttons
-            JRadioButton[] radioButton = new JRadioButton[itemInformation.length];
-            ButtonGroup rbtnGroup = new ButtonGroup();
-
-            boolean isDescriptions = false;
-
             // Step through each item
             for (int index = 0; index < itemInformation.length; index++)
             {
                 // Check if a description is provided
                 if (itemInformation[index][1] != null)
                 {
-                    // Set the flag indicating descriptions are provided and stop searching
+                    // Create storage for the description labels, set the flag indicating
+                    // descriptions are provided, and stop searching
+                    descriptionFld = new MultilineLabel[itemInformation.length];
                     isDescriptions = true;
                     break;
                 }
@@ -1593,19 +1599,20 @@ public class CcddDialogHandler extends JDialog
                 rbtnGridPnl.add(innerPnl, gbc);
 
                 // Check if a description is provided
-                if (itemInformation[index].length != 1 && itemInformation[index][1] != null)
+                if (itemInformation[index][1] != null)
                 {
-                    // Add the item description
+                    // Add the item description. The initial preferred size is updated to account
+                    // for wrapping of the label text
                     gbc.weightx = 1.0;
                     gbc.weighty = 1.0;
                     gbc.gridx++;
-                    MultilineLabel descriptionFld = new MultilineLabel(itemInformation[index][1]);
-                    descriptionFld.setBackground(UIManager.getColor("Label.background"));
-                    descriptionFld.setFont(isDescItalic
-                                                        ? ModifiableFontInfo.LABEL_ITALIC.getFont()
-                                                        : ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    descriptionFld.setBorder(emptyBorder);
-                    rbtnGridPnl.add(descriptionFld, gbc);
+                    descriptionFld[index] = new MultilineLabel(itemInformation[index][1]);
+                    descriptionFld[index].setBackground(UIManager.getColor("Label.background"));
+                    descriptionFld[index].setFont(isDescItalic
+                                                               ? ModifiableFontInfo.LABEL_ITALIC.getFont()
+                                                               : ModifiableFontInfo.LABEL_PLAIN.getFont());
+                    descriptionFld[index].setBorder(emptyBorder);
+                    rbtnGridPnl.add(descriptionFld[index], gbc);
                     gbc.weightx = 0.0;
                     gbc.weighty = 0.0;
                 }
@@ -1623,6 +1630,34 @@ public class CcddDialogHandler extends JDialog
                     // Select the radio button
                     radioButton[index].setSelected(true);
                 }
+
+                // Store the widest radio button
+                maxRBtnWidth = Math.max(maxRBtnWidth, radioButton[index].getPreferredSize().width);
+            }
+
+            // Check if descriptions are provided
+            if (isDescriptions)
+            {
+                // Calculate the maximum pixel width allowed for the description text by
+                // subtracting the maximum radio button width from the radio button grid panel
+                // width
+                maxDescWidth = rbtnGridPnl.getPreferredSize().width
+                               - maxRBtnWidth
+                               - (ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 3);
+
+                // Step through each item
+                for (int index = 0; index < itemInformation.length; index++)
+                {
+                    // Check if a description exists for this item
+                    if (descriptionFld[index] != null)
+                    {
+                        // Get the number of rows required to displayed the description text (in
+                        // case it wraps or has line-feeds) and add it to the total row count.
+                        // Subtract 1 since the initial row counter is set to the total number of
+                        // items
+                        numWrappedRows += descriptionFld[index].getNumDisplayRows(maxDescWidth) - 1;
+                    }
+                }
             }
 
             // Create an outer panel to contain the radio button panel, then add this outer panel
@@ -1639,14 +1674,20 @@ public class CcddDialogHandler extends JDialog
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
             scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-            // TODO HEIGHT DOESN'T ACCOUNT FOR WRAPPING OF THE DESCRIPTION TEXT
+            // Calculate the height of the panel required to display all of the radio button items
+            int calcRowHeight = (itemInformation.length + gridWidth - 1) / gridWidth
+                                * (radioButton[0].getPreferredSize().height
+                                   + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                     * 2)
+                                + radioButton[0].getPreferredSize().height
+                                  * numWrappedRows;
 
-            // Calculate the maximum desirable height of the panel containing the radio buttons (=
-            // # of rows * row height)
+            // Calculate the maximum desired height of the panel containing the radio buttons (= #
+            // of rows * row height)
             int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()
-                               * rbtnGridPnl.getPreferredSize().height
-                               / radioButton.length
-                               * gridWidth;
+                               * (radioButton[0].getPreferredSize().height
+                                  + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                    * 2);
 
             // Set the size of the scrollable list based of if the scrollable list height exceeds
             // the maximum desirable height (the vertical scroll bar is displayed)
@@ -1654,11 +1695,10 @@ public class CcddDialogHandler extends JDialog
                                                       + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
                                                         * 2
                                                       + (isDescriptions
-                                                                        ? rbtnGridPnl.getPreferredSize().width / 2
+                                                                        ? maxDescWidth
+                                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
                                                                         : 0),
-                                                      (rbtnGridPnl.getPreferredSize().getHeight() > maxRowHeight
-                                                                                                                 ? maxRowHeight
-                                                                                                                 : rbtnGridPnl.getPreferredSize().height)));
+                                                      Math.min(calcRowHeight, maxRowHeight)));
 
             // Add a listener for changes in the scroll pane's size
             scrollPane.addComponentListener(new ComponentAdapter()
@@ -1740,6 +1780,12 @@ public class CcddDialogHandler extends JDialog
         // Check if any items exist
         if (itemInformation.length != 0)
         {
+            int maxCBoxWidth = 0;
+            int maxDescWidth = 0;
+            int numWrappedRows = 0;
+            MultilineLabel[] descriptionFld = null;
+            boolean isDescriptions = false;
+
             // Create a copy of the layout constraints and update them
             GridBagConstraints dlgGbc = new GridBagConstraints(0,
                                                                0,
@@ -1806,16 +1852,15 @@ public class CcddDialogHandler extends JDialog
             // Set up storage for the check boxes
             checkBox = new JCheckBox[itemInformation.length];
 
-            boolean isDescriptions = false;
-
             // Step through each item
             for (int index = 0; index < itemInformation.length; index++)
             {
                 // Check if a description is provided
                 if (itemInformation[index][1] != null)
                 {
-                    // Set the flag indicating descriptions are provided and stop searching
-                    isDescriptions = true;
+                    // Create storage for the description labels, set the flag indicating
+                    // descriptions are provided, and stop searching
+                    descriptionFld = new MultilineLabel[itemInformation.length];
                     break;
                 }
             }
@@ -1861,17 +1906,18 @@ public class CcddDialogHandler extends JDialog
                 // Check if a description is provided
                 if (itemInformation[index].length != 1 && itemInformation[index][1] != null)
                 {
-                    // Add the item description
+                    // Add the item description. The initial preferred size is updated to account
+                    // for wrapping of the label text
                     gbc.weightx = 1.0;
                     gbc.weighty = 1.0;
                     gbc.gridx++;
-                    MultilineLabel descriptionFld = new MultilineLabel(itemInformation[index][1]);
-                    descriptionFld.setBackground(UIManager.getColor("Label.background"));
-                    descriptionFld.setFont(isDescItalic
-                                                        ? ModifiableFontInfo.LABEL_ITALIC.getFont()
-                                                        : ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    descriptionFld.setBorder(emptyBorder);
-                    cboxGridPnl.add(descriptionFld, gbc);
+                    descriptionFld[index] = new MultilineLabel(itemInformation[index][1]);
+                    descriptionFld[index].setBackground(UIManager.getColor("Label.background"));
+                    descriptionFld[index].setFont(isDescItalic
+                                                               ? ModifiableFontInfo.LABEL_ITALIC.getFont()
+                                                               : ModifiableFontInfo.LABEL_PLAIN.getFont());
+                    descriptionFld[index].setBorder(emptyBorder);
+                    cboxGridPnl.add(descriptionFld[index], gbc);
                     gbc.weightx = 0.0;
                     gbc.weighty = 0.0;
                 }
@@ -1881,6 +1927,34 @@ public class CcddDialogHandler extends JDialog
                 {
                     // Select the check box
                     checkBox[index].setSelected(true);
+                }
+
+                // Store the widest radio button
+                maxCBoxWidth = Math.max(maxCBoxWidth, checkBox[index].getPreferredSize().width);
+            }
+
+            // Check if descriptions are provided
+            if (isDescriptions)
+            {
+                // Calculate the maximum pixel width allowed for the description text by
+                // subtracting the maximum radio button width from the radio button grid panel
+                // width
+                maxDescWidth = cboxGridPnl.getPreferredSize().width
+                               - maxCBoxWidth
+                               - (ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 3);
+
+                // Step through each item
+                for (int index = 0; index < itemInformation.length; index++)
+                {
+                    // Check if a description exists for this item
+                    if (descriptionFld[index] != null)
+                    {
+                        // Get the number of rows required to displayed the description text (in
+                        // case it wraps or has line-feeds) and add it to the total row count.
+                        // Subtract 1 since the initial row counter is set to the total number of
+                        // items
+                        numWrappedRows += descriptionFld[index].getNumDisplayRows(maxDescWidth) - 1;
+                    }
                 }
             }
 
@@ -1898,12 +1972,20 @@ public class CcddDialogHandler extends JDialog
                                                                + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
             scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-            // Calculate the maximum desirable height of the panel containing the check boxes (= #
-            // of rows * row height)
-            int maxRowHeight = (int) (ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()
-                                      * cboxGridPnl.getPreferredSize().getHeight()
-                                      / checkBox.length
-                                      * gridWidth);
+            // Calculate the height of the panel required to display all of the check box items
+            int calcRowHeight = (itemInformation.length + gridWidth - 1) / gridWidth
+                                * (checkBox[0].getPreferredSize().height
+                                   + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                     * 2)
+                                + checkBox[0].getPreferredSize().height
+                                  * numWrappedRows;
+
+            // Calculate the maximum desired height of the panel containing the check boxes (= # of
+            // rows * row height)
+            int maxRowHeight = ModifiableSizeInfo.INIT_VIEWABLE_COMPONENT_ROWS.getSize()
+                               * (checkBox[0].getPreferredSize().height
+                                  + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                    * 2);
 
             // Set the size of the scrollable list based of if the scrollable list height exceeds
             // the maximum desirable height (the vertical scroll bar is displayed)
@@ -1911,11 +1993,10 @@ public class CcddDialogHandler extends JDialog
                                                       + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
                                                         * 2
                                                       + (isDescriptions
-                                                                        ? cboxGridPnl.getPreferredSize().width / 2
+                                                                        ? maxDescWidth
+                                                                          + ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()
                                                                         : 0),
-                                                      (cboxGridPnl.getPreferredSize().getHeight() > maxRowHeight
-                                                                                                                 ? maxRowHeight
-                                                                                                                 : cboxGridPnl.getPreferredSize().height)));
+                                                      Math.min(calcRowHeight, maxRowHeight)));
 
             // Add a listener for changes in the scroll pane's size
             scrollPane.addComponentListener(new ComponentAdapter()
