@@ -2269,7 +2269,6 @@ public class CcddClassesComponent
          *****************************************************************************************/
         protected int getNumDisplayRows(int maxWidth)
         {
-            // TODO
             int numRows = 0;
 
             // Get the label's font metrics s that the text length in pixels can be determined

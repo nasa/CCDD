@@ -233,7 +233,6 @@ public class CcddTableTypeHandler
             return columnNamesDatabase.toArray(new String[0]);
         }
 
-        // TODO
         /******************************************************************************************
          * Get the array of column names as used in the database, surrounded by double quotes if
          * the name matches a PostgreSQL key word
@@ -260,7 +259,6 @@ public class CcddTableTypeHandler
             // Step through each visible column name
             for (int row = NUM_HIDDEN_COLUMNS; row < columnNamesDatabase.size(); row++)
             {
-                // TODO
                 // Convert the column name to the database equivalent. This bounds the name in
                 // double quotes if it matches a PostgreSQL reserved word
                 String dbColName = convertVisibleToDatabase(columnNamesDatabase.get(row),

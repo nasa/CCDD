@@ -283,8 +283,12 @@ public abstract class CcddInputFieldPanelHandler
             // Get a reference to the data field's input field to shorten subsequent calls
             Component inputFld = fieldInfo.getInputFld();
 
-            // Check if the data field isn't a page format field (line break or separator)
-            if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT)
+            // Check if the data field isn't a page format field (line break or separator) and the
+            // field is applicable
+            if (fieldInfo.getInputType().getInputFormat() != InputTypeFormat.PAGE_FORMAT
+                && (fieldHandler.isFieldApplicable(fieldInfo.getOwnerName(),
+                                                   fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                   null)))
             {
                 // Check if this is a boolean input (check box) data field
                 if (fieldInfo.getInputType().getInputFormat() == InputTypeFormat.BOOLEAN)

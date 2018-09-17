@@ -197,7 +197,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             @Override
                             public void actionPerformed(ActionEvent ae)
                             {
-                                // Step through each data field name check box
+                                // Step through each script name check box
                                 for (JCheckBox scriptCb : getCheckBoxes())
                                 {
                                     // Set the check box selection status to match the Select All
@@ -212,6 +212,40 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                         gbc.gridy++;
                         gbc.insets.bottom = 0;
                         dialogPnl.add(selectAllCb, gbc);
+
+                        // Step through each script name check box
+                        for (JCheckBox columnCb : getCheckBoxes())
+                        {
+                            // Create a listener for changes to the script name check box selection
+                            // status
+                            columnCb.addActionListener(new ActionListener()
+                            {
+                                /******************************************************************
+                                 * Handle a change to the column name check box selection status
+                                 *****************************************************************/
+                                @Override
+                                public void actionPerformed(ActionEvent ae)
+                                {
+                                    int columnCount = 0;
+
+                                    // Step through each script name check box
+                                    for (int index = 0; index < getCheckBoxes().length; index++)
+                                    {
+                                        // Check if the check box is selected
+                                        if (getCheckBoxes()[index].isSelected())
+                                        {
+                                            // Increment the counter to track the number of
+                                            // selected script name check boxes
+                                            columnCount++;
+                                        }
+                                    }
+
+                                    // Set the Select All check box status based on if all the
+                                    // script name check boxes are selected
+                                    selectAllCb.setSelected(columnCount == getCheckBoxes().length);
+                                }
+                            });
+                        }
                     }
 
                     // Check if one or more scripts is to be retrieved

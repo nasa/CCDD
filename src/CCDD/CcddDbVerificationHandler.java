@@ -117,6 +117,9 @@ public class CcddDbVerificationHandler
     // Flag indicating if changes are to be made to the tables
     private boolean isChanges;
 
+    // Counter used for tracking the total number of selectable issues
+    private int allCount;
+
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
      * information and current cell values
@@ -2750,6 +2753,61 @@ public class CcddDbVerificationHandler
             gbc.weighty = 0.0;
             gbc.gridy++;
             dialogPnl.add(selectAllCb, gbc);
+
+            // Initialize the counter that tracks the total number of selectable issues
+            allCount = 0;
+
+            // Step through each row in the updates table
+            for (int row = 0; row < updateTable.getRowCount(); row++)
+            {
+                // Check if the check box column's cell is editable; i.e., the application can fix
+                // the issue described on this row
+                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal()))
+                {
+                    // Increment the counter that tracks the total number of selectable issues
+                    allCount++;
+                }
+
+                // Get the reference to the check box used in the table cell for this row
+                JCheckBox tableCb = ((JCheckBox) updateTable.getCellEditor(row,
+                                                                           VerificationColumnInfo.FIX.ordinal())
+                                                            .getTableCellEditorComponent(updateTable,
+                                                                                         false,
+                                                                                         false,
+                                                                                         row,
+                                                                                         VerificationColumnInfo.FIX.ordinal()));
+
+                // Create a listener for changes to the fix issue check box selection status
+                tableCb.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Handle a change to the fix issue check box selection status
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        int columnCount = 0;
+
+                        // Step through each row in the updates table
+                        for (int row = 0; row < updateTable.getRowCount(); row++)
+                        {
+                            // Check if the check box column's cell is editable; i.e., the
+                            // application can fix the issue described on this row
+                            if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())
+                                && ((JCheckBox) ae.getSource()).isSelected() == true)
+                            {
+                                // Increment the counter to track the number of selected fix issue
+                                // check boxes
+                                columnCount++;
+                            }
+                        }
+
+                        // Set the Select All check box status based on if all the fix issue check
+                        // boxes are selected
+                        selectAllCb.setSelected(columnCount == allCount);
+                    }
+                });
+            }
 
             // Update the selected inconsistencies button
             JButton btnOk = CcddButtonPanelHandler.createButton("Okay",

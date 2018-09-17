@@ -971,7 +971,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             }
 
             // Add the selected table names, skipping child tables if an ancestor of the table is
-            // selected
+            // selected (when the association is executed and a table's data is read it
+            // automatically reads all of its descendant's data, so there's no need to include the
+            // descendants in the association))
             members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
             // Get a file descriptor for the script file name
@@ -1099,7 +1101,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Step through the committed script associations
         for (Object[] assn : assnsTable.getTableDataList(true))
         {
-            String members = assn[AssociationsColumn.MEMBERS.ordinal()].toString();
+            String members = CcddUtilities.removeHTMLTags(assn[AssociationsColumn.MEMBERS.ordinal()].toString());
 
             // Check if the script and tables match between the two script associations
             if (scriptName.equals(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())

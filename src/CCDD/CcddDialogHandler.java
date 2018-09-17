@@ -1599,7 +1599,7 @@ public class CcddDialogHandler extends JDialog
                 rbtnGridPnl.add(innerPnl, gbc);
 
                 // Check if a description is provided
-                if (itemInformation[index][1] != null)
+                if (itemInformation[index][1] != null && itemInformation[index][1] != null)
                 {
                     // Add the item description. The initial preferred size is updated to account
                     // for wrapping of the label text
@@ -1861,6 +1861,7 @@ public class CcddDialogHandler extends JDialog
                     // Create storage for the description labels, set the flag indicating
                     // descriptions are provided, and stop searching
                     descriptionFld = new MultilineLabel[itemInformation.length];
+                    isDescriptions = true;
                     break;
                 }
             }

@@ -1844,7 +1844,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
 
                 // Check that this node represents a header node
-                if (path.getPathCount() <= getHeaderNodeLevel())
+                if (node.getLevel() < getHeaderNodeLevel())
                 {
                     // Check if the node has any children
                     if (node.getChildCount() != 0)
@@ -1962,11 +1962,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
 
                 // Check if the table isn't already in the list
-                if (node.getLevel() > getHeaderNodeLevel()
+                if (node.getLevel() >= getHeaderNodeLevel()
                     && !tables.contains(node.getUserObject().toString()))
                 {
                     // Add the selected table to the list
-                    tables.add(path.getLastPathComponent().toString());
+                    tables.add(getFullVariablePath(node.getPath()));
                 }
 
                 // Step through all of the tables that are descendants of this node (excluding any
@@ -2002,7 +2002,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
         // Check if the node has no children or if this node represents a table (i.e., isn't a
         // header node with no child nodes)
-        if (node.getChildCount() == 0 || node.getLevel() > getHeaderNodeLevel())
+        if (node.getChildCount() == 0 || node.getLevel() >= getHeaderNodeLevel())
         {
             boolean isParentSelected = false;
 

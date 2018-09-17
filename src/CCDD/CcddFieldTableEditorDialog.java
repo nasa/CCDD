@@ -384,7 +384,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                             fieldPnl))
                 {
                     // Check if more than one data field name check box exists
-                    if (selectDlg.getCheckBoxes().length > 2)
+                    if (selectDlg.getCheckBoxes().length > 1)
                     {
                         // Create a Select All check box
                         final JCheckBox selectAllCb = new JCheckBox("Select all data fields",
@@ -415,6 +415,41 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         // Add the Select All checkbox to the field name panel
                         gbc.gridy++;
                         fieldPnl.add(selectAllCb, gbc);
+
+                        // Step through each data field name check box
+                        for (JCheckBox columnCb : selectDlg.getCheckBoxes())
+                        {
+                            // Create a listener for changes to the data field name check box
+                            // selection status
+                            columnCb.addActionListener(new ActionListener()
+                            {
+                                /******************************************************************
+                                 * Handle a change to the data field name check box selection
+                                 * status
+                                 *****************************************************************/
+                                @Override
+                                public void actionPerformed(ActionEvent ae)
+                                {
+                                    int columnCount = 0;
+
+                                    // Step through each data field name check box
+                                    for (int index = 0; index < selectDlg.getCheckBoxes().length; index++)
+                                    {
+                                        // Check if the check box is selected
+                                        if (selectDlg.getCheckBoxes()[index].isSelected())
+                                        {
+                                            // Increment the counter to track the number of
+                                            // selected data field name check boxes
+                                            columnCount++;
+                                        }
+                                    }
+
+                                    // Set the Select All check box status based on if all the data
+                                    // field name check boxes are selected
+                                    selectAllCb.setSelected(columnCount == selectDlg.getCheckBoxes().length);
+                                }
+                            });
+                        }
                     }
 
                     // Check if data fields are selected already (i.e., this method is called via

@@ -357,7 +357,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             // Check if any columns are defined
             if (columns.size() != 0)
             {
-                ArrayListMultiple columnNames = new ArrayListMultiple();
+                final ArrayListMultiple columnNames = new ArrayListMultiple();
 
                 // Sort the column names alphabetically
                 columns.sort(ArrayListMultipleSortType.STRING);
@@ -421,7 +421,75 @@ public class CcddSearchDialog extends CcddFrameHandler
                                         false,
                                         columnPnl);
 
-                // Add a listener for check box selection changes
+                // Check if more than one column name check box exists
+                if (columnNames.size() > 1)
+                {
+                    // Create a Select All check box
+                    final JCheckBox selectAllCb = new JCheckBox("Select all columns",
+                                                                false);
+                    selectAllCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                    selectAllCb.setBorder(emptyBorder);
+
+                    // Create a listener for changes to the Select All check box selection status
+                    selectAllCb.addActionListener(new ActionListener()
+                    {
+                        /**************************************************************************
+                         * Handle a change to the Select All check box selection status
+                         *************************************************************************/
+                        @Override
+                        public void actionPerformed(ActionEvent ae)
+                        {
+                            // Step through each column name check box
+                            for (JCheckBox columnCb : columnDlg.getCheckBoxes())
+                            {
+                                // Set the check box selection status to match the Select All check
+                                // box selection status
+                                columnCb.setSelected(selectAllCb.isSelected());
+                            }
+                        }
+                    });
+
+                    // Add the Select All checkbox to the column name panel
+                    gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                    gbc.gridy++;
+                    columnPnl.add(selectAllCb, gbc);
+
+                    // Step through each column name check box
+                    for (JCheckBox columnCb : columnDlg.getCheckBoxes())
+                    {
+                        // Create a listener for changes to the column name check box selection
+                        // status
+                        columnCb.addActionListener(new ActionListener()
+                        {
+                            /**********************************************************************
+                             * Handle a change to the column name check box selection status
+                             *********************************************************************/
+                            @Override
+                            public void actionPerformed(ActionEvent ae)
+                            {
+                                int columnCount = 0;
+
+                                // Step through each column name check box
+                                for (int index = 0; index < columnDlg.getCheckBoxes().length; index++)
+                                {
+                                    // Check if the check box is selected
+                                    if (columnDlg.getCheckBoxes()[index].isSelected())
+                                    {
+                                        // Increment the counter to track the number of selected
+                                        // column name check boxes
+                                        columnCount++;
+                                    }
+                                }
+
+                                // Set the Select All check box status based on if all the column
+                                // name check boxes are selected
+                                selectAllCb.setSelected(columnCount == columnDlg.getCheckBoxes().length);
+                            }
+                        });
+                    }
+                }
+
+                // Add a listener for column choice check box selection changes
                 selectedColumnsCb.addActionListener(new ActionListener()
                 {
                     /******************************************************************************
@@ -441,6 +509,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                                                             true) == OK_BUTTON)
                             {
                                 searchColumns = "";
+                                String searchColVisible = "";
 
                                 // Step through each column name check box
                                 for (int index = 0; index < columnDlg.getCheckBoxes().length; index++)
@@ -450,14 +519,16 @@ public class CcddSearchDialog extends CcddFrameHandler
                                     {
                                         // Add the name of the column to the constraint string
                                         searchColumns += columns.get(index)[1] + ",";
+                                        searchColVisible += columns.get(index)[0] + ",";
                                     }
                                 }
 
                                 searchColumns = CcddUtilities.removeTrailer(searchColumns, ",");
+                                searchColVisible = CcddUtilities.removeTrailer(searchColVisible, ",");
 
                                 // Set the selected column(s) label to display the selected
                                 // column(s)
-                                selectedColumnsLbl.setText(searchColumns.replaceAll(",", ", "));
+                                selectedColumnsLbl.setText(searchColVisible.replaceAll(",", ", "));
                             }
 
                             // Check if no column is selected
