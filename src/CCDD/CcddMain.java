@@ -184,6 +184,7 @@ public class CcddMain
     private JMenuItem mntmShowVariables;
     private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
+    private JMenuItem mntmSearchVariables;
     private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
@@ -1072,6 +1073,7 @@ public class CcddMain
         mntmShowVariables.setEnabled(activateIfDatabase);
         mntmShowCommands.setEnabled(activateIfDatabase);
         mntmSearchTable.setEnabled(activateIfDatabase);
+        mntmSearchVariables.setEnabled(activateIfDatabase);
         mntmManageLinks.setEnabled(activateIfRate);
         mntmManageTlm.setEnabled(activateIfRate);
         mntmManageApps.setEnabled(activateIfDatabase);
@@ -1867,6 +1869,7 @@ public class CcddMain
         mntmShowCommands = createMenuItem(mnData, "Show commands", KeyEvent.VK_O, 1, "Display information for all of the commands");
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1, "Search the project database data and internal tables");
+        mntmSearchVariables = createMenuItem(mnData, "Search variables", KeyEvent.VK_B, 1, "Search the project variables");
 
         // Update the recently opened tables command menu items in the main window and table editor
         // dialogs
@@ -2623,6 +2626,19 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 showSearchDialog(SearchDialogType.TABLES, getMainFrame());
+            }
+        });
+
+        // Add a listener for the Search variables menu item
+        mntmSearchVariables.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Display the search variables dialog
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddSearchVariablesDialog(CcddMain.this);
             }
         });
 

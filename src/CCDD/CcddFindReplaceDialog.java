@@ -87,6 +87,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     // dialog
     private WindowFocusListener editorListener = null;
 
+    // Temporary marker for special characters in a search string
+    private static String MARKER = "@~wildcard~@";
+
+    // Wild card search character explanation label
+    private static String WILD_CARD_LABEL = "? = character, * = string, \\ for literal ? or *";
+
     /**********************************************************************************************
      * Find/replace text in a data or table type table dialog class constructor
      *
@@ -107,7 +113,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         this.editorDialog = editorDialog;
         this.table = table;
 
-        // Create the database table find/replace dialog
+        // Create the table/table type editor find/replace dialog
         initialize();
     }
 
@@ -227,8 +233,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                     // Get the list of remembered searches from the program preferences. This is
                     // done as a key press occurs so that the list is updated to the latest one. If
                     // multiple find/replace dialogs are open this allows them to 'share' the list
-                    // rather
-                    // than overwriting each other
+                    // rather than overwriting each other
                     List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
                     searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS,
                                                                               "")
@@ -239,9 +244,17 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
-        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = 0;
         gbc.gridy++;
         inputPnl.add(searchFld, gbc);
+
+        // Add the wild card character explanation label
+        final JLabel wildCardLbl = new JLabel(WILD_CARD_LABEL);
+        wildCardLbl.setFont(ModifiableFontInfo.LABEL_ITALIC.getFont());
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 3;
+        gbc.insets.top = 0;
+        gbc.gridy++;
+        inputPnl.add(wildCardLbl, gbc);
 
         // Create a check box for ignoring the text case
         ignoreCaseCb = new JCheckBox("Ignore text case");
@@ -250,7 +263,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         ignoreCaseCb.setToolTipText(CcddUtilities.wrapText("Ignore case when matching the search string",
                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
-        // Add a listener for check box selection changes
+        // Add a listener for ignore case check box selection changes
         ignoreCaseCb.addActionListener(new ActionListener()
         {
             /**************************************************************************************
@@ -266,6 +279,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         });
 
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.gridy++;
         inputPnl.add(ignoreCaseCb, gbc);
@@ -276,6 +290,23 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
         allowRegexCb.setBorder(emptyBorder);
         allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the search string to contain a regular expression",
                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+        // Add a listener for allow regular expression check box selection changes
+        allowRegexCb.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Handle a change in the allow regular expression check box state
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Hide the wild card label if the allow regular expression check box is enabled
+                wildCardLbl.setText(allowRegexCb.isSelected()
+                                                              ? " "
+                                                              : WILD_CARD_LABEL);
+            }
+        });
+
         gbc.gridy++;
         inputPnl.add(allowRegexCb, gbc);
 
@@ -569,10 +600,6 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
             try
             {
-                // TODO NEED TO BE ABLE TO ESCAPE THE WILD CARD CHARACTERS USING A BACKSLASH. ADD
-                // THE LABEL '? = single character, * = multiple characters, \ to escape ? or *' as
-                // a label underneath the search text field
-
                 // Create the match pattern from the search criteria. If the allow regular
                 // expression check box is selected then the search string is used as is. If the
                 // allow regular expression check box isn't selected then a wild card match is
@@ -580,7 +607,9 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                 // character and an asterisk matches one or more characters. This is turned into a
                 // regular expression to perform the actual match. First the reserved regular
                 // expression characters are escaped, other than the asterisk and question mark;
-                // these are then replaced with their corresponding regular expression
+                // these are then replaced with their corresponding regular expression (while
+                // protecting any escaped instances of the asterisks and question marks by
+                // temporarily replacing these with a marker)
                 searchPattern = searchFld.getText().isEmpty()
                                                               ? null
                                                               : Pattern.compile("(?"
@@ -592,8 +621,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                                                                                                              ? searchFld.getText()
                                                                                                              : searchFld.getText().replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
                                                                                                                                               "\\\\$1")
+                                                                                                                        .replaceAll("\\\\\\?", MARKER)
                                                                                                                         .replaceAll("\\?", ".")
-                                                                                                                        .replaceAll("\\*", ".*?"))
+                                                                                                                        .replaceAll(MARKER, "\\\\?")
+                                                                                                                        .replaceAll("\\\\\\*", MARKER)
+                                                                                                                        .replaceAll("\\*", ".*?")
+                                                                                                                        .replaceAll(MARKER, "\\\\*"))
                                                                                 + ")");
 
                 // Highlight the matching text in the table cells
@@ -604,6 +637,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
                 // Enable/disable the previous and next buttons based on if search text is present
                 setReplaceEnable(matchCount != 0);
+
+                // Update the search string list
+                searchFld.updateList(searchFld.getText());
+
+                // Store the search list in the program preferences
+                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
             }
             catch (PatternSyntaxException pse)
             {
@@ -937,7 +976,12 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
 
         // Update the number of matches found label
         numMatchesLbl.setText(matchCount != 0
-                                              ? "  (" + matchCount + " matches)"
+                                              ? "  ("
+                                                + matchCount
+                                                + (matchCount == 1
+                                                                   ? " match"
+                                                                   : " matches")
+                                                + ")"
                                               : "");
 
         return matchCount;

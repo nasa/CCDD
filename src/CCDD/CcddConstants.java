@@ -6695,6 +6695,7 @@ public class CcddConstants
         TABLE_TYPE("Table type"),
         GROUP("Group"),
         TABLE_FIELD("Table data field"),
+        PROJECT_FIELD("Project data field"),
         DEFAULT_FIELD("Default data field"),
         GROUP_FIELD("Group data field"),
         SCRIPT_ASSN("Script association"),

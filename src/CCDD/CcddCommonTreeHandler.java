@@ -25,7 +25,9 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -163,19 +165,30 @@ public class CcddCommonTreeHandler extends JTree
      * @return Total number of nodes that descend from the specified node. The node itself is
      *         counted, so the minimum return value is 1
      *********************************************************************************************/
-    protected int getNodeCount(Object node)
+    protected int getNodeCount(DefaultMutableTreeNode node)
     {
         // Initialize the count to include the node itself
         int count = 1;
 
-        // Step through each child of this node
-        for (int index = 0; index < getModel().getChildCount(node); index++)
+        // Step through each element and child of the specified node
+        for (Enumeration<?> element = node.preorderEnumeration(); element.hasMoreElements();)
         {
-            // Add the number of the child node's children to the overall count
-            count += getNodeCount(getModel().getChild(node, index));
+            // Get the next element and update the counter
+            element.nextElement();
+            count++;
         }
 
         return count;
+    }
+
+    /**********************************************************************************************
+     * Remove all nodes from the tree
+     *********************************************************************************************/
+    protected void removeAllNodes()
+    {
+        // Remove all of the root node's children and force the tree model to reflect the change
+        ((DefaultMutableTreeNode) getModel().getRoot()).removeAllChildren();
+        ((DefaultTreeModel) getModel()).reload();
     }
 
     /**********************************************************************************************

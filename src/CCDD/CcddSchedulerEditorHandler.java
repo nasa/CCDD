@@ -44,7 +44,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClassesComponent.CustomSplitPane;
@@ -864,9 +863,8 @@ public class CcddSchedulerEditorHandler
                 // Reenable tab selection changes
                 isTabUpdate = false;
 
-                // Remove any nodes and display the 'empty message' text
-                assignmentTree.getRootNode().removeAllChildren();
-                ((DefaultTreeModel) assignmentTree.getModel()).reload();
+                // Remove any nodes
+                assignmentTree.removeAllNodes();
             }
             // Check if this is the application scheduler
             else if (schedulerHndlr.getSchedulerOption() == APPLICATION_SCHEDULER)
@@ -912,8 +910,7 @@ public class CcddSchedulerEditorHandler
                 else
                 {
                     // Remove any nodes and display the 'empty message' text
-                    assignmentTree.getRootNode().removeAllChildren();
-                    ((DefaultTreeModel) assignmentTree.getModel()).reload();
+                    assignmentTree.removeAllNodes();
                     assignmentTree.addNodeToInfoNode(assignmentTree.getRootNode(),
                                                      new Object[] {MESSAGE_EMPTY},
                                                      0);

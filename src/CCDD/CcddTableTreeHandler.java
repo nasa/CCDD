@@ -676,14 +676,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Create the tree's root node using the database name. Since the root node isn't visible
-        // there is no need for a description
+        // Create the tree's root node using the database name and hide the root node (project
+        // database name). Since the root node isn't visible there is no need for a description
         root = new ToolTipTreeNode(dbControl.getDatabaseName(), null);
-
-        // Set the root node
         setModel(new DefaultTreeModel(root));
-
-        // Hide the root node (project database name)
         setRootVisible(false);
 
         // Set the flag to indicate if all nodes, only the prototype node, or only the instance
@@ -1610,6 +1606,101 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         return tablePathList;
+    }
+
+    /**********************************************************************************************
+     * Beginning with the root node, remove tree nodes that do not match the specified search text
+     * and are not an ancestor of a node that does contain a match.
+     *
+     * @param searchText
+     *            text for which to search (regular expression is allowed)
+     *
+     * @return List of paths for the nodes matching the search text; an empty list if there are no
+     *         matches
+     *********************************************************************************************/
+    protected List<String> pruneTreeToSearchCriteria(String searchText)
+    {
+        int nodeCount = 0;
+        List<String> variableList = new ArrayList<String>();
+        List<String> matchList = new ArrayList<String>();
+
+        // Step through each element and child of the root node
+        for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
+        {
+            // Increment the node counter
+            nodeCount++;
+
+            // Get the node reference
+            ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+            // Check if the node matches the search criteria
+            if (getPathFromNode(node).getLastPathComponent().toString().matches(searchText))
+            {
+                // Add the full path for this node to the list of matching nodes
+                variableList.add(getFullVariablePath(node.getUserObjectPath()));
+
+                do
+                {
+                    // Get the node's full path
+                    String fullPath = getFullVariablePath(node.getUserObjectPath());
+
+                    // Check if the node path isn't already in the list
+                    if (!matchList.contains(fullPath))
+                    {
+                        // Add the variable path to the list of those containing a match (and so
+                        // retain in the tree)
+                        matchList.add(fullPath);
+                    }
+                    // The node is already in the list of those with a match
+                    else
+                    {
+                        // Stop searching this branch since it's already been covered
+                        break;
+                    }
+
+                    // Get the parent node for this node
+                    node = (ToolTipTreeNode) node.getParent();
+                } while (node != root);
+                // Continue to add the ancestor nodes to the list of those containing a match until
+                // the root node is reached. This ensures the node containing the match retains its
+                // tree hierarchy
+            }
+        }
+
+        // Fully expanded the pruned tree
+        setTreeExpansion(true);
+
+        // Step through each row in the tree. Do this in reverse since nodes may be removed and
+        // could alter the index for nodes further down the tree
+        for (int row = nodeCount; row > 0; row--)
+        {
+            // Get the tree path at this row in the tree
+            TreePath path = getPathForRow(row);
+
+            // Check if the path is visible
+            if (path != null)
+            {
+                // Get the full path for the node at this row
+                String fullPath = getFullVariablePath(path.getPath());
+
+                // Check if the path isn't in the list of those containing a match of the search
+                // criteria
+                if (!matchList.contains(fullPath))
+                {
+                    // Get the node at this row and remove it from its parent node
+                    ToolTipTreeNode node = getNodeByNodePath(fullPath);
+                    ((ToolTipTreeNode) node.getParent()).remove(node);
+                }
+            }
+        }
+
+        // Force the root node to acknowledge with the node removals
+        ((DefaultTreeModel) getModel()).nodeStructureChanged(root);
+
+        // Fully expanded the pruned tree
+        setTreeExpansion(true);
+
+        return variableList;
     }
 
     /**********************************************************************************************

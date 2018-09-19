@@ -1,8 +1,8 @@
 /**
- * CFS Command and Data Dictionary search database tables and scripts handler. Copyright 2017 United
- * States Government as represented by the Administrator of the National Aeronautics and Space
- * Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All
- * Other Rights Reserved.
+ * CFS Command and Data Dictionary search database tables and scripts handler. Copyright 2017
+ * United States Government as represented by the Administrator of the National Aeronautics and
+ * Space Administration. No copyright is claimed in the United States under Title 17, U.S. Code.
+ * All Other Rights Reserved.
  */
 package CCDD;
 
@@ -374,30 +374,36 @@ public class CcddSearchHandler extends CcddDialogHandler
                             else
                             {
                                 location = "Member table";
-                                context = columnValue[GroupsColumn.MEMBERS.ordinal()];
+                                context = CcddUtilities.highlightDataType(columnValue[GroupsColumn.MEMBERS.ordinal()]);
                             }
                         }
                     }
                     // Check if the match is in the fields internal table
                     else if (hitTableName.equals(InternalTable.FIELDS.getTableName()))
                     {
+                        // Check if this is a project data field
+                        if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldProjectName()))
+                        {
+                            target = SearchTarget.PROJECT_FIELD.getTargetName(true)
+                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
+                        }
                         // Check if this is a default data field
-                        if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
+                        else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
                         {
                             target = SearchTarget.DEFAULT_FIELD.getTargetName(true)
-                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
+                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a group data field
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
                             target = SearchTarget.GROUP_FIELD.getTargetName(true)
-                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
+                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // This is a table data field
                         else
                         {
                             target = CcddUtilities.highlightDataType(SearchTarget.TABLE_FIELD.getTargetName(true)
-                                                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()]);
+                                                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()]);
                         }
 
                         location = "Field name '"
@@ -409,6 +415,14 @@ public class CcddSearchHandler extends CcddDialogHandler
                         {
                             location += "owner";
                             context = columnValue[FieldsColumn.OWNER_NAME.ordinal()];
+
+                            // Check if this is a table data field
+                            if (!context.startsWith(CcddFieldHandler.getFieldProjectName())
+                                && !context.startsWith(CcddFieldHandler.getFieldTypeName(""))
+                                && !context.startsWith(CcddFieldHandler.getFieldGroupName("")))
+                            {
+                                context = CcddUtilities.highlightDataType(context);
+                            }
                         }
                         // Check if the match is with the field name
                         else if (hitColumnName.equals(FieldsColumn.FIELD_NAME.getColumnName()))
@@ -470,6 +484,14 @@ public class CcddSearchHandler extends CcddDialogHandler
                         {
                             location = "Member table";
                             context = columnValue[AssociationsColumn.MEMBERS.ordinal()];
+
+                            // Check if this is a table data field
+                            if (!context.startsWith(CcddFieldHandler.getFieldProjectName())
+                                && !context.startsWith(CcddFieldHandler.getFieldTypeName(""))
+                                && !context.startsWith(CcddFieldHandler.getFieldGroupName("")))
+                            {
+                                context = CcddUtilities.highlightDataType(context);
+                            }
                         }
                     }
                     // Check if the match is in the telemetry scheduler internal table
@@ -499,18 +521,18 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // The match is with a message definition or member
                         else
                         {
-                            context = columnValue[TlmSchedulerColumn.MEMBER.ordinal()];
-
                             // Check if the column begins with a number; this is the message
                             // definition
                             if (columnValue[TlmSchedulerColumn.MEMBER.ordinal()].matches("^\\d+"))
                             {
                                 location = "Rate and description";
+                                context = columnValue[TlmSchedulerColumn.MEMBER.ordinal()];
                             }
                             // This is a message member
                             else
                             {
                                 location = "Member rate, table, and variable";
+                                context = CcddUtilities.highlightDataType(columnValue[TlmSchedulerColumn.MEMBER.ordinal()]);
                             }
                         }
                     }
@@ -535,18 +557,18 @@ public class CcddSearchHandler extends CcddDialogHandler
                         // The match is with a link definition or member
                         else
                         {
-                            context = columnValue[LinksColumn.MEMBER.ordinal()];
-
                             // Check if the column begins with a number; this is the link
                             // definition
                             if (columnValue[1].matches("^\\d+"))
                             {
                                 location = "Rate and description";
+                                context = columnValue[LinksColumn.MEMBER.ordinal()];
                             }
                             // This is a link member
                             else
                             {
                                 location = "Member table and variable";
+                                context = CcddUtilities.highlightDataType(columnValue[LinksColumn.MEMBER.ordinal()]);
                             }
                         }
                     }

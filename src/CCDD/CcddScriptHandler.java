@@ -1315,7 +1315,9 @@ public class CcddScriptHandler
                 // Check if at least one table is assigned to this script association
                 if (!tablePaths.isEmpty())
                 {
-                    // Sort the table paths
+                    // Sort the table paths. Sorting the tables based on their position in the
+                    // table tree ensures that a child table's data is read as part of a parent (if
+                    // the parent is in the association), and not separate;y from the parent
                     Collections.sort(tablePaths, new Comparator<String>()
                     {
                         /**************************************************************************
@@ -1354,13 +1356,14 @@ public class CcddScriptHandler
                         combinedData = new Object[0][0];
 
                         // Read the table and child table data from the database and store the
-                        // results from the last table loaded
+                        // results from the last table loaded. This builds the combined data with
+                        // the data from the table and all of its child tables
                         TableInformation tableInfo = readTable(tablePath, parent);
 
                         // Check if the table hasn't already been loaded
                         if (tableInfo != null)
                         {
-                            // Read the table and child table data from the database
+                            // Store the table and child table information
                             tableInformation.add(tableInfo);
 
                             // Check if an error occurred loading the table data
@@ -1507,26 +1510,36 @@ public class CcddScriptHandler
                         String tableName = "";
                         Object[][] allTableData = new Object[0][0];
 
-                        // Step through each table information instance
-                        for (TableInformation tableInfo : tableInformation)
+                        // Step through each associated table. This combines the table data for a
+                        // given table type in the order that the table appears in the association
+                        for (String tablePath : tablePaths)
                         {
-                            // Check if this table is a member of the association
-                            if (tablePaths.contains(tableInfo.getTablePath()))
+                            // Step through each table information instance
+                            for (TableInformation tableInfo : tableInformation)
                             {
-                                // Check if the table types match
-                                if (tableTypes.get(typeIndex).equals(tableInfo.getType()))
+                                // Check if the path for the table described by the table
+                                // information matches the path of the associated table
+                                if (tablePath.equals(tableInfo.getTablePath()))
                                 {
-                                    // Check if the name hasn't been stored
-                                    if (tableName.isEmpty())
+                                    // Check if the table types match
+                                    if (tableTypes.get(typeIndex).equals(tableInfo.getType()))
                                     {
-                                        // Assign the name of the first table of this type as this
-                                        // type's table name
-                                        tableName += tableInfo.getTablePath();
+                                        // Check if the name hasn't been stored
+                                        if (tableName.isEmpty())
+                                        {
+                                            // Assign the name of the first table of this type as
+                                            // this type's table name
+                                            tableName = tableInfo.getTablePath();
+                                        }
+
+                                        // Append the table data to the combined data array
+                                        allTableData = CcddUtilities.concatenateArrays(allTableData,
+                                                                                       tableInfo.getData());
                                     }
 
-                                    // Append the table data to the combined data array
-                                    allTableData = CcddUtilities.concatenateArrays(allTableData,
-                                                                                   tableInfo.getData());
+                                    // Stop searching the table information list since since the
+                                    // matching table's information was found
+                                    break;
                                 }
                             }
                         }

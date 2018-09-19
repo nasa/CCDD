@@ -3574,7 +3574,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         JScrollPane scrollPane = new JScrollPane(table);
 
         // Set common table parameters and characteristics
-        table.setFixedCharacteristics(scrollPane, currentTableInfo.isPrototype(),
+        table.setFixedCharacteristics(scrollPane,
+                                      currentTableInfo.isPrototype(),
                                       ListSelectionModel.MULTIPLE_INTERVAL_SELECTION,
                                       TableSelectionMode.SELECT_BY_CELL,
                                       true,

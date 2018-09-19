@@ -634,7 +634,8 @@ public class CcddSearchDialog extends CcddFrameHandler
             protected boolean isColumnHTML(int column)
             {
                 return searchDlgType == SearchDialogType.TABLES
-                       && column == SearchResultsColumnInfo.OWNER.ordinal();
+                       && (column == SearchResultsColumnInfo.OWNER.ordinal()
+                           || column == SearchResultsColumnInfo.CONTEXT.ordinal());
             }
 
             /**************************************************************************************
@@ -731,15 +732,27 @@ public class CcddSearchDialog extends CcddFrameHandler
                                               int row,
                                               int column)
             {
-                // Check if highlighting is enabled and if the column allows text highlighting
+                // Check if the column allows highlighting
                 if (isColumnHighlight(column))
                 {
+                    int adjust = 0;
                     Pattern pattern;
+
+                    // Remove any existing highlighting from the text
+                    ((JTextComponent) component).getHighlighter().removeAllHighlights();
 
                     // Create a highlighter painter
                     DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
                                                                                                                 ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                                                                 : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
+
+                    // Check if the text is HTML tagged
+                    if (text.startsWith("<html>"))
+                    {
+                        // Remove the HTML tags and set the match index adjust TODO
+                        text = CcddUtilities.removeHTMLTags(text);
+                        adjust = 1;
+                    }
 
                     // Check if case is to be ignored
                     if (ignoreCaseCb.isSelected())
@@ -770,8 +783,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                             // Highlight the matching text. Adjust the highlight color to account
                             // for the cell selection highlighting so that the search text is
                             // easily readable
-                            ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
-                                                                                       matcher.end(),
+                            ((JTextComponent) component).getHighlighter().addHighlight(matcher.start() + adjust,
+                                                                                       matcher.end() + adjust,
                                                                                        painter);
                         }
                         catch (BadLocationException ble)

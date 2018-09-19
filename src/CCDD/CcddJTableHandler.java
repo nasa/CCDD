@@ -197,6 +197,10 @@ public abstract class CcddJTableHandler extends JTable
     // Pattern to use when searching cells for matching text
     private Pattern pattern;
 
+    // Place holder text used when pasting data from the clipboard
+    private static String EMBEDDED_QUOTE = "@~quote~@";
+    private static String EMBEDDED_NEW_LINE = "@~newline~@";
+
     /**********************************************************************************************
      * Custom Swing table handler constructor
      *
@@ -1961,18 +1965,6 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     private void setCellRenderers(boolean centerText)
     {
-        // Create a cell renderer to display the text in the specified columns on a single line
-        SingleLineCellRenderer singleLineRenderer = new SingleLineCellRenderer(centerText);
-
-        // Create a renderer for columns that can display text on multiple lines
-        MultiLineCellRenderer multiLineRenderer = new MultiLineCellRenderer();
-
-        // Create a renderer for columns that can display HTML formatted text
-        HTMLCellRenderer htmlRenderer = new HTMLCellRenderer();
-
-        // Create a cell renderer to display cells containing boolean values as check boxes
-        BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
-
         // Set the table's column size
         for (int column = 0; column < getColumnCount(); column++)
         {
@@ -1989,16 +1981,16 @@ public abstract class CcddJTableHandler extends JTable
                 // displayed in multiple lines, or is displayed in a single line. HTML supports
                 // multiple lines, so takes precedence over the multiple line setting
                 tableColumn.setCellRenderer(isColumnHTML(columnModel)
-                                                                      ? htmlRenderer
+                                                                      ? new HTMLCellRenderer()
                                                                       : (isColumnMultiLine(columnModel)
-                                                                                                        ? multiLineRenderer
-                                                                                                        : singleLineRenderer));
+                                                                                                        ? new MultiLineCellRenderer()
+                                                                                                        : new SingleLineCellRenderer(centerText)));
             }
             // This column displays check boxes
             else
             {
                 // Set the cell renderer to display a check box
-                tableColumn.setCellRenderer(booleanCellRenderer);
+                tableColumn.setCellRenderer(new BooleanCellRenderer());
             }
         }
     }
@@ -3125,13 +3117,11 @@ public abstract class CcddJTableHandler extends JTable
                     }
 
                     // Replace all pairs of consecutive double quotes with a place holder string
-                    String embeddedQuote = "@~quote~@";
-                    data = data.replaceAll("\"\"", embeddedQuote);
+                    data = data.replaceAll("\"\"", EMBEDDED_QUOTE);
 
                     // Embedded new lines are indicated by being in a cell bounded by double
                     // quotes. Replace all embedded new line characters with a place holder string
-                    String embeddedNewline = "@~newline~@";
-                    data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)", embeddedNewline);
+                    data = data.replaceAll("\n(?!(([^\"]*\"){2})*[^\"]*$)", EMBEDDED_NEW_LINE);
 
                     // Replace the tabs with a tab+space so that empty cells at the end of a line
                     // aren't discarded by the split commands. The extra space is removed later
@@ -3153,7 +3143,7 @@ public abstract class CcddJTableHandler extends JTable
 
                     // Restore the double quotes that are part of the cell contents by replacing
                     // each place holder with a double quote
-                    data = data.replaceAll(embeddedQuote, "\"");
+                    data = data.replaceAll(EMBEDDED_QUOTE, "\"");
 
                     // Break the data string into the individual cells. The size of the array is
                     // specified to prevent the split command from discarding any empty trailing
@@ -3164,11 +3154,11 @@ public abstract class CcddJTableHandler extends JTable
                     for (int index = 0; index < cellData.length; index++)
                     {
                         // Check if the cell contains an embedded new line character place holder
-                        if (cellData[index].contains(embeddedNewline))
+                        if (cellData[index].contains(EMBEDDED_NEW_LINE))
                         {
                             // Replace the place holder with a new line character, then remove the
                             // leading and trailing double quote characters
-                            cellData[index] = cellData[index].replaceAll(embeddedNewline, " ");
+                            cellData[index] = cellData[index].replaceAll(EMBEDDED_NEW_LINE, " ");
                             cellData[index] = cellData[index].substring(1,
                                                                         cellData[index].length()
                                                                            - 1);
@@ -3812,12 +3802,16 @@ public abstract class CcddJTableHandler extends JTable
                                       int row,
                                       int column)
     {
-        // Highlight the search text instances
-        highlightSearchText(component,
-                            text,
-                            isSelected
-                                       ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                       : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
+        // Check if the column allows highlighting
+        if (isColumnHighlight(column))
+        {
+            // Highlight the search text instances
+            highlightSearchText(component,
+                                text,
+                                isSelected
+                                           ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                           : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
+        }
     }
 
     /**********************************************************************************************
@@ -3850,8 +3844,21 @@ public abstract class CcddJTableHandler extends JTable
         // Check if the search pattern exists
         if (pattern != null)
         {
+            int adjust = 0;
+
+            // Remove any existing highlighting from the text
+            ((JTextComponent) component).getHighlighter().removeAllHighlights();
+
             // Highlight matching search text instances. Create a highlighter painter
             DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(hightlightColor);
+
+            // Check if the text is HTML tagged
+            if (text.startsWith("<html>"))
+            {
+                // Remove the HTML tags and set the match index adjust TODO
+                text = CcddUtilities.removeHTMLTags(text);
+                adjust = 1;
+            }
 
             // Create the pattern matcher from the pattern
             Matcher matcher = pattern.matcher(text);
@@ -3864,10 +3871,9 @@ public abstract class CcddJTableHandler extends JTable
                     // Highlight the matching text. Adjust the highlight color to account for the
                     // cell selection highlighting so that the matching search text is easily
                     // readable
-                    ((JTextComponent) component).getHighlighter().addHighlight(matcher.start(),
-                                                                               matcher.end(),
+                    ((JTextComponent) component).getHighlighter().addHighlight(matcher.start() + adjust,
+                                                                               matcher.end() + adjust,
                                                                                painter);
-
                 }
                 catch (BadLocationException ble)
                 {
