@@ -189,46 +189,6 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
         // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Set the renderer for the tree so that custom icons can be used for the various node
-        // types
-        setCellRenderer(new TableTreeCellRenderer()
-        {
-            /**************************************************************************************
-             * Display the variable nodes using a special icon in the tree
-             *************************************************************************************/
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree,
-                                                          Object value,
-                                                          boolean sel,
-                                                          boolean expanded,
-                                                          boolean leaf,
-                                                          int row,
-                                                          boolean hasFocus)
-            {
-                // Display the node name
-                super.getTreeCellRendererComponent(tree,
-                                                   value,
-                                                   sel,
-                                                   expanded,
-                                                   leaf,
-                                                   row,
-                                                   hasFocus);
-
-                // Check if this node represents a variable
-                if (leaf)
-                {
-                    // Set the icon for the variable node
-                    setVariableNodeIcon(this,
-                                        (ToolTipTreeNode) value,
-                                        row,
-                                        linkHandler.getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
-                                                                    rateName) != null);
-                }
-
-                return this;
-            }
-        });
-
         // Check if a filter value is provided
         if (filterValue != null)
         {
@@ -423,6 +383,46 @@ public class CcddAssignmentTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected JPanel createTreePanel(int selectionMode)
     {
+        // Set the renderer for the tree so that custom icons can be used for the various node
+        // types
+        setCellRenderer(new VariableTreeCellRenderer()
+        {
+            /**************************************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *************************************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Check if this node represents a variable
+                if (leaf)
+                {
+                    // Set the icon for the variable node
+                    setVariableNodeIcon(this,
+                                        (ToolTipTreeNode) value,
+                                        row,
+                                        linkHandler.getVariableLink(getFullVariablePath(((ToolTipTreeNode) value).getPath()),
+                                                                    rateName) != null);
+                }
+
+                return this;
+            }
+        });
+
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 

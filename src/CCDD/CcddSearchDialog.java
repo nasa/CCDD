@@ -581,6 +581,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             gbc.gridx++;
             upperPnl.add(tableTree.createTreePanel("Tables",
                                                    TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                   false,
                                                    parent),
                          gbc);
             gbc.gridwidth = 1;

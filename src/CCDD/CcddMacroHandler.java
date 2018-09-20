@@ -346,8 +346,12 @@ public class CcddMacroHandler
         // Step through each defined macro
         for (int index = 0; index < macros.size(); index++)
         {
-            // Check if the supplied name matches this macro's name
-            if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()]))
+            // Check if the supplied name matches this macro's name and this is not a new macro.
+            // When a macro is added the expanded macro value array size isn't updated immediately
+            // so as not to erase the existing expanded macro values. Therefore the macro name may
+            // be in the list but not in the array
+            if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()])
+                && index < expandedMacroValues.length)
             {
                 // Check if the macro's expanded value hasn't already been determined
                 if (expandedMacroValues[index] == null)

@@ -490,6 +490,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     gbc.gridx++;
                     selectPnl.add(tableTree.createTreePanel("Tables",
                                                             TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                            false,
                                                             ccddMain.getMainFrame()),
                                   gbc);
                 }

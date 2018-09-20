@@ -13,6 +13,7 @@ import static CCDD.CcddConstants.SEARCH_STRINGS;
 import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -258,19 +259,6 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         gbc.gridy++;
         inputPnl.add(allowRegexCb, gbc);
 
-        // Create a variable tree to display the matching variables
-        variableTree = new CcddTableTreeHandler(ccddMain,
-                                                new CcddGroupHandler(ccddMain,
-                                                                     null,
-                                                                     ccddMain.getMainFrame()),
-                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES,
-                                                true,
-                                                false,
-                                                ccddMain.getMainFrame());
-
-        // Clear the variable tree initially
-        variableTree.removeAllNodes();
-
         // Create a table to display the matching variables
         variableTable = new CcddJTableHandler(5)
         {
@@ -336,6 +324,88 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                                               ModifiableFontInfo.OTHER_TABLE_CELL.getFont(),
                                               true);
 
+        // Create a variable tree to display the matching variables
+        variableTree = new CcddTableTreeHandler(ccddMain,
+                                                new CcddGroupHandler(ccddMain,
+                                                                     null,
+                                                                     ccddMain.getMainFrame()),
+                                                TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES,
+                                                true,
+                                                false,
+                                                ccddMain.getMainFrame())
+        {
+            /**************************************************************************************
+             * Rebuild the variable tree, retaining only those nodes that contain a match with the
+             * search criteria or are ancestors to a matching node
+             *************************************************************************************/
+            @Override
+            protected void buildTableTree(Boolean isExpanded,
+                                          String rateName,
+                                          String rateFilter,
+                                          Component parent)
+            {
+                int matchCount = 0;
+
+                super.buildTableTree(isExpanded, rateName, rateFilter, parent);
+
+                // Check if the user provided search criteria
+                if (searchPattern != null)
+                {
+                    // Expand the nodes in the variable tree containing a match
+                    List<String> variables = variableTree.pruneTreeToSearchCriteria(".*"
+                                                                                    + searchPattern.toString()
+                                                                                    + ".*");
+
+                    // Create storage for the variable table data array
+                    variablePaths = new ArrayList<String[]>(variables.size());
+
+                    // Store the number of matches detected
+                    matchCount = variables.size();
+
+                    // Step through each matching variable
+                    for (String variable : variables)
+                    {
+                        // Highlight the variable's data types and place it in an array (for use in
+                        // the variable table)
+                        variablePaths.add(new String[] {CcddUtilities.highlightDataType(variable)});
+                    }
+
+                    // Load the variable table with the matching variables
+                    variableTable.loadAndFormatData();
+
+                    // Highlight the matching text in the variable paths
+                    variableTable.highlightSearchText(searchPattern);
+
+                    // Update the search string list
+                    searchFld.updateList(searchFld.getText());
+
+                    // Store the search list in the program preferences
+                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
+                }
+                // No search criteria are provided; reset the search dialog
+                else
+                {
+                    // Clear the variable tree and variable path table
+                    removeAllNodes();
+                    variablePaths = new ArrayList<String[]>();
+                    variableTable.loadAndFormatData();
+                }
+
+                // Update the number of matches found label
+                numMatchesLbl.setText(matchCount != 0
+                                                      ? "  ("
+                                                        + matchCount
+                                                        + (matchCount == 1
+                                                                           ? " match"
+                                                                           : " matches")
+                                                        + ")"
+                                                      : "");
+            }
+        };
+
+        // Clear the variable tree initially
+        variableTree.removeAllNodes();
+
         // Create a split pane containing the variable tree in the top pane and the variable table
         // in the lower pane, and add it to the panel
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -347,6 +417,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         gbc.gridy++;
         inputPnl.add(new CustomSplitPane(variableTree.createTreePanel("Matching Variables",
                                                                       TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                                      true,
                                                                       ccddMain.getMainFrame()),
                                          scrollPane,
                                          null,
@@ -424,10 +495,12 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             prevIgnoreCase = ignoreCaseCb.isSelected();
             prevAllowRegex = allowRegexCb.isSelected();
 
+            // TODO PUTTING THIS IN A BACKGROUND THREAD CAUSES THE VARIABLE TREE TO UPDATE
+            // CONTANTLY DURING THE SEARCH OPERATION. NEED TO CAPTURE WHATEVER EVENT IS BEING
+            // GENERATED AND IGNORE IT UNTIL THE SEARCH IS COMPLETE
+
             try
             {
-                int matchCount = 0;
-
                 // Create the match pattern from the search criteria. If the allow regular
                 // expression check box is selected then the search string is used as is. If the
                 // allow regular expression check box isn't selected then a wild card match is
@@ -457,63 +530,13 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                                                                                                                         .replaceAll(MARKER, "\\\\*"))
                                                                                 + ")");
 
-                // Rebuild the table tree in case a previous search was performed: a search removes
-                // nodes from the tree, so it must be rebuilt for subsequent searches to have the
-                // full set of nodes to check
+                // Set the search pattern in the variable tree so that the matching text in the
+                // nodes is highlighted
+                variableTree.setHighlightPattern(searchPattern);;
+
+                // Rebuild the table tree, retaining only those nodes that contain a match with the
+                // search pattern or are ancestors to a matching node
                 variableTree.buildTableTree(false, null, null, CcddSearchVariablesDialog.this);
-
-                // Check if the user provided search criteria
-                if (searchPattern != null)
-                {
-                    // Expand the nodes in the variable tree containing a match
-                    List<String> variables = variableTree.pruneTreeToSearchCriteria(".*"
-                                                                                    + searchPattern.toString()
-                                                                                    + ".*");
-
-                    // Create storage for the variable table data array
-                    variablePaths = new ArrayList<String[]>(variables.size());
-
-                    // Store the number of matches detected
-                    matchCount = variables.size();
-
-                    // Step through each matching variable
-                    for (String variable : variables)
-                    {
-                        // Highlight the variable's data types and place it in an array (for use in
-                        // the variable table)
-                        variablePaths.add(new String[] {CcddUtilities.highlightDataType(variable)});
-                    }
-
-                    // Load the variable table with the matching variables
-                    variableTable.loadAndFormatData();
-
-                    // Highlight the matching text in the variable paths
-                    variableTable.highlightSearchText(searchPattern);
-
-                    // Update the search string list
-                    searchFld.updateList(searchFld.getText());
-
-                    // Store the search list in the program preferences
-                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
-                }
-                // No search criteria are provided; reset the search dialog
-                else
-                {
-                    // Clear the variable tree and variable path table
-                    variableTree.removeAllNodes();
-                    variablePaths = new ArrayList<String[]>();
-                    variableTable.loadAndFormatData();
-                }
-
-                // Update the number of matches found label
-                numMatchesLbl.setText(matchCount != 0
-                                                      ? "  ("
-                                                        + matchCount
-                                                        + (matchCount == 1
-                                                                           ? " match"
-                                                                           : " matches")
-                                                        + ")"
-                                                      : "");
             }
             catch (PatternSyntaxException pse)
             {

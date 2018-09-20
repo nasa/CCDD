@@ -1291,13 +1291,15 @@ public class CcddCommandLineHandler
 
                 // Parse the converted table path list. The paths are handled the same as those for
                 // script associations (hence the need for the conversion above); this includes
-                // expanding group references
+                // expanding group references. For the 'All tables' pseudo-group set the flag so
+                // that all of the child table paths are included
                 tablePaths = ccddMain.getScriptHandler().getAssociationTablePaths(internalFormat,
                                                                                   new CcddGroupHandler(ccddMain,
                                                                                                        null,
                                                                                                        (ccddMain.isGUIHidden()
                                                                                                                                ? null
                                                                                                                                : ccddMain.getMainFrame())),
+                                                                                  true,
                                                                                   (ccddMain.isGUIHidden()
                                                                                                           ? null
                                                                                                           : ccddMain.getMainFrame()))

@@ -20,9 +20,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
 
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
@@ -1512,6 +1518,71 @@ public class CcddUtilities
         }
 
         return path;
+    }
+
+    /**********************************************************************************************
+     * Highlight any text matching the search text in the the specified text component
+     *
+     * @param component
+     *            reference to the table cell renderer component
+     *
+     * @param text
+     *            cell value
+     *
+     * @param hightlightColor
+     *            color used for highlighting the matching text
+     *
+     * @param searchPattern
+     *            search pattern; can be a regular expression (Pattern)
+     *********************************************************************************************/
+    protected static void highlightSearchText(Component component,
+                                              String text,
+                                              Color hightlightColor,
+                                              Pattern searchPattern)
+    {
+        // Check if the search pattern exists
+        if (searchPattern != null)
+        {
+            int adjust = 0;
+
+            // Get the reference to the component's highlighter
+            Highlighter highlighter = ((JTextComponent) component).getHighlighter();
+
+            // Remove any existing highlighting from the text
+            highlighter.removeAllHighlights();
+
+            // Highlight matching search text instances. Create a highlighter painter
+            DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(hightlightColor);
+
+            // Check if the text is HTML tagged
+            if (text.startsWith("<html>"))
+            {
+                // Remove the HTML tags and set the match index adjust
+                text = CcddUtilities.removeHTMLTags(text);
+                adjust = 1;
+            }
+
+            // Create the pattern matcher from the pattern
+            Matcher matcher = searchPattern.matcher(text);
+
+            // Check if there is a match in the cell value
+            while (matcher.find())
+            {
+                try
+                {
+                    // Highlight the matching text. Adjust the highlight color to account for the
+                    // cell selection highlighting so that the matching search text is easily
+                    // readable
+                    highlighter.addHighlight(matcher.start() + adjust,
+                                             matcher.end() + adjust,
+                                             painter);
+                }
+                catch (BadLocationException ble)
+                {
+                    // Ignore highlighting failure
+                }
+            }
+        }
     }
 
     /**********************************************************************************************

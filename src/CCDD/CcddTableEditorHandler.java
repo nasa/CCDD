@@ -5079,7 +5079,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
             // Set to true if the updated row is the array's definition. Set to false to indicate
             // that only the members of the string indicated by the specified row are to be updated
-            boolean isArrayDefn = !variableName.endsWith("]");
+            boolean isArrayDefn = !ArrayVariable.isArrayMember(variableName);
 
             // Check if this is an initial string member or if the flag is set that prevents
             // overwriting array members (and the table is open in an editor)

@@ -250,6 +250,7 @@ public class CcddScriptHandler
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                                                    groupHandler,
+                                                                   false,
                                                                    parent);
 
                 // Step through each table referenced in this association
@@ -782,6 +783,9 @@ public class CcddScriptHandler
      * @param groupHandler
      *            group handler reference
      *
+     * @param includeAllTablesGroupChildren
+     *            true to include the child table paths for the 'All tables' group
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -789,6 +793,7 @@ public class CcddScriptHandler
      *********************************************************************************************/
     protected List<String> getAssociationTablePaths(String associationMembers,
                                                     CcddGroupHandler groupHandler,
+                                                    boolean includeAllTablesGroupChildren,
                                                     Component parent)
     {
         List<String> tablePaths = new ArrayList<String>();
@@ -810,6 +815,18 @@ public class CcddScriptHandler
                 {
                     // Add the names of all root tables to the list
                     tablePaths.addAll(dbTable.getRootTables(false, parent));
+
+                    // Check if the child table names should be included
+                    if (includeAllTablesGroupChildren)
+                    {
+                        // Build a table tree with all instance tables
+                        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                                  TableTreeType.INSTANCE_TABLES,
+                                                                                  parent);
+
+                        // Add the child tables of the root tables to the list
+                        tablePaths = tableTree.getTablesWithChildren(tablePaths);
+                    }
                 }
                 // This is a user-defined group
                 else
@@ -1310,6 +1327,7 @@ public class CcddScriptHandler
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                                                    groupHandler,
+                                                                   false,
                                                                    parent);
 
                 // Check if at least one table is assigned to this script association
@@ -1462,6 +1480,7 @@ public class CcddScriptHandler
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                                                    groupHandler,
+                                                                   false,
                                                                    parent);
 
                 String[] members = assn[AssociationsColumn.MEMBERS.ordinal()].toString().split(Pattern.quote(ASSN_TABLE_SEPARATOR));
@@ -1529,7 +1548,7 @@ public class CcddScriptHandler
                                         {
                                             // Assign the name of the first table of this type as
                                             // this type's table name
-                                            tableName = tableInfo.getTablePath();
+                                            tableName = tablePath;
                                         }
 
                                         // Append the table data to the combined data array

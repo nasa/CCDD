@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.print.DocFlavor;
@@ -82,9 +81,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.JTextComponent;
 
 import CCDD.CcddClassesComponent.CellSelectionHandler;
@@ -3806,11 +3802,12 @@ public abstract class CcddJTableHandler extends JTable
         if (isColumnHighlight(column))
         {
             // Highlight the search text instances
-            highlightSearchText(component,
-                                text,
-                                isSelected
-                                           ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                           : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
+            CcddUtilities.highlightSearchText(component,
+                                              text,
+                                              isSelected
+                                                         ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                         : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor(),
+                                              pattern);
         }
     }
 
@@ -3825,62 +3822,6 @@ public abstract class CcddJTableHandler extends JTable
     {
         this.pattern = pattern;
         repaint();
-    }
-
-    /**********************************************************************************************
-     * Highlight any text matching the search text in the the specified text component
-     *
-     * @param component
-     *            reference to the table cell renderer component
-     *
-     * @param text
-     *            cell value
-     *
-     * @param hightlightColor
-     *            color used for highlighting the matching text
-     *********************************************************************************************/
-    protected void highlightSearchText(Component component, String text, Color hightlightColor)
-    {
-        // Check if the search pattern exists
-        if (pattern != null)
-        {
-            int adjust = 0;
-
-            // Remove any existing highlighting from the text
-            ((JTextComponent) component).getHighlighter().removeAllHighlights();
-
-            // Highlight matching search text instances. Create a highlighter painter
-            DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(hightlightColor);
-
-            // Check if the text is HTML tagged
-            if (text.startsWith("<html>"))
-            {
-                // Remove the HTML tags and set the match index adjust TODO
-                text = CcddUtilities.removeHTMLTags(text);
-                adjust = 1;
-            }
-
-            // Create the pattern matcher from the pattern
-            Matcher matcher = pattern.matcher(text);
-
-            // Check if there is a match in the cell value
-            while (matcher.find())
-            {
-                try
-                {
-                    // Highlight the matching text. Adjust the highlight color to account for the
-                    // cell selection highlighting so that the matching search text is easily
-                    // readable
-                    ((JTextComponent) component).getHighlighter().addHighlight(matcher.start() + adjust,
-                                                                               matcher.end() + adjust,
-                                                                               painter);
-                }
-                catch (BadLocationException ble)
-                {
-                    // Ignore highlighting failure
-                }
-            }
-        }
     }
 
     /**********************************************************************************************

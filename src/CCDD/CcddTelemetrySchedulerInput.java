@@ -253,6 +253,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // panel
         treePnl.add(variableTree.createTreePanel("Variables",
                                                  TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                 false,
                                                  ccddMain.getMainFrame()),
                     new GridBagConstraints(0,
                                            0,

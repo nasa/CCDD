@@ -880,6 +880,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             lowerPnl.add(tableTree.createTreePanel("Tables",
                                                    tableSelect,
+                                                   false,
                                                    ccddMain.getMainFrame()),
                          gbc);
             gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();

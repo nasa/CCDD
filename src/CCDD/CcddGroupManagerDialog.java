@@ -443,6 +443,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 gbc.weighty = 1.0;
                 tableTreePnl.add(tableTree.createTreePanel("Tables",
                                                            TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                           false,
                                                            ccddMain.getMainFrame()),
                                  gbc);
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;

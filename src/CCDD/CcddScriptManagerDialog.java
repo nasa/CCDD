@@ -888,7 +888,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
             gbc.weighty = 1.0;
             gbc.gridy++;
-            tablePnl.add(tableTree.createTreePanel(null, tableSelect, ccddMain.getMainFrame()),
+            tablePnl.add(tableTree.createTreePanel(null,
+                                                   tableSelect,
+                                                   false,
+                                                   ccddMain.getMainFrame()),
                          gbc);
         }
         // No tables are stored in the database

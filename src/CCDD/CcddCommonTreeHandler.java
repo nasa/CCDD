@@ -16,14 +16,20 @@ import static CCDD.CcddConstants.PACKED_VARIABLE_ICON;
 import static CCDD.CcddConstants.VARIABLE_ICON;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -35,6 +41,7 @@ import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.BitPackNodeIndex;
 import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 
 /**************************************************************************************************
@@ -62,22 +69,75 @@ public class CcddCommonTreeHandler extends JTree
     // dataType.variableName) should be hidden or displayed
     private boolean isHideDataType;
 
+    // Search pattern used for highlighting text in the node names; can be a regular expression
+    private Pattern searchPattern;
+
     /**********************************************************************************************
      * Tree cell renderer class for highlighting variable names in nodes
      *********************************************************************************************/
-    protected class TableTreeCellRenderer extends DefaultTreeCellRenderer
+    protected class VariableTreeCellRenderer extends DefaultTreeCellRenderer
     {
+        private final boolean isAllowHighlight;
+        private JPanel nodePnl;
+        private JLabel nodeLbl;
+        private JTextPane nodeFld;
+
         /******************************************************************************************
-         * Tree cell renderer constructor
+         * Variable tree cell renderer constructor
+         *
+         * @param isAllowHighlight
+         *            true to allow highlighting of text in the node names
          *****************************************************************************************/
-        TableTreeCellRenderer()
+        VariableTreeCellRenderer(boolean isAllowHighlight)
         {
+            this.isAllowHighlight = isAllowHighlight;
+
             // Set the node font
             super.setFont(ModifiableFontInfo.TREE_NODE.getFont());
+
+            // Check if text highlighting is enabled
+            if (isAllowHighlight)
+            {
+                // Create the components to display highlighting in the node name. The text pane is
+                // required for the actual highlight capability
+                nodeFld = new JTextPane();
+                nodeFld.setFont(ModifiableFontInfo.TREE_NODE.getFont());
+                nodeFld.setBorder(BorderFactory.createEmptyBorder());
+                nodeFld.setContentType("text/html");
+                nodeFld.setEditable(false);
+
+                // Set the property so that the font selection applies to HTML text
+                nodeFld.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+
+                // Set to paint every pixel within the text pane. This is needed to prevent a
+                // border appearing around the cell for some look & feels
+                nodeFld.setOpaque(true);
+
+                // Create the label. The label is required so that an icon can be displayed
+                nodeLbl = new JLabel();
+                nodeLbl.setBorder(BorderFactory.createEmptyBorder());
+
+                // Create a panel so that the label and text pane can be combined
+                nodePnl = new JPanel();
+                nodePnl.setBorder(BorderFactory.createEmptyBorder());
+                ((FlowLayout) nodePnl.getLayout()).setVgap(1);
+                nodePnl.setBackground(getBackground());
+                nodePnl.add(nodeLbl);
+                nodePnl.add(nodeFld);
+            }
         }
 
         /******************************************************************************************
-         * Display variable nodes with the variable name italicized
+         * Variable tree cell renderer constructor with highlighting disabled
+         *****************************************************************************************/
+        VariableTreeCellRenderer()
+        {
+            this(false);
+        }
+
+        /******************************************************************************************
+         * Display variable nodes with the data type emphasized by color and search text
+         * highlighted
          *****************************************************************************************/
         @Override
         public Component getTreeCellRendererComponent(JTree tree,
@@ -88,39 +148,70 @@ public class CcddCommonTreeHandler extends JTree
                                                       int row,
                                                       boolean hasFocus)
         {
+            Component comp;
+
             // Get the node's name
             String name = ((ToolTipTreeNode) value).getUserObject().toString();
+            String adjustedName = name;
 
             // Check if the name contains a period, indicating it is in the form
             // dataType.variableName
-            if (name.contains("."))
+            if (leaf && name.contains("."))
             {
-                String newName = name;
-
                 // Check if the data type portion of the name should be hidden
                 if (isHideDataType)
                 {
                     // Remove the data type portion of the name
-                    newName = newName.replaceFirst("(.*>)?.*\\.", "$1");
+                    adjustedName = name.replaceFirst("(.*>)?.*\\.", "$1");
                 }
                 // Check if the node isn't flagged as disabled
                 else if (!name.startsWith(DISABLED_TEXT_COLOR))
                 {
                     // Highlight the data type portion of the name, if present
-                    newName = CcddUtilities.highlightDataType(newName);
+                    adjustedName = CcddUtilities.highlightDataType(name);
                 }
-
-                // Update the displayed node's name
-                ((ToolTipTreeNode) value).setUserObject(newName);
             }
 
-            // Display the node name
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            // Check if highlighting is enabled and the node represents a variable
+            if (leaf && isAllowHighlight)
+            {
+                // Set the node's text and icon
+                nodeFld.setText(adjustedName);
+                nodeLbl.setIcon(getLeafIcon());
 
-            // Restore the node's name (if changed)
-            ((ToolTipTreeNode) value).setUserObject(name);
+                // Check if a search pattern is active
+                if (searchPattern != null)
+                {
+                    // Highlight the node text matching the search pattern
+                    CcddUtilities.highlightSearchText(nodeFld,
+                                                      adjustedName,
+                                                      ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor(),
+                                                      searchPattern);
+                }
 
-            return this;
+                // Set the panel as the component to display
+                comp = nodePnl;
+            }
+            // Highlighting is disabled or the node doesn't represent a variable
+            else
+            {
+                // Set the node name to display
+                ((ToolTipTreeNode) value).setUserObject(adjustedName);
+
+                // Get the node component to display
+                comp = super.getTreeCellRendererComponent(tree,
+                                                          value,
+                                                          sel,
+                                                          expanded,
+                                                          leaf,
+                                                          row,
+                                                          hasFocus);
+
+                // Restore the node's name (if changed)
+                ((ToolTipTreeNode) value).setUserObject(name);
+            }
+
+            return comp;
         }
     }
 
@@ -147,6 +238,7 @@ public class CcddCommonTreeHandler extends JTree
 
         lastPackRow = -1;
         isHideDataType = false;
+        searchPattern = null;
     }
 
     /**********************************************************************************************
@@ -154,6 +246,17 @@ public class CcddCommonTreeHandler extends JTree
      *********************************************************************************************/
     protected void updateTableSelection()
     {
+    }
+
+    /**********************************************************************************************
+     * Set the pattern used for text matching in the node names
+     *
+     * @param searchPattern
+     *            search pattern; can be a regular expression (Pattern)
+     *********************************************************************************************/
+    protected void setHighlightPattern(Pattern searchPattern)
+    {
+        this.searchPattern = searchPattern;
     }
 
     /**********************************************************************************************
@@ -1222,7 +1325,7 @@ public class CcddCommonTreeHandler extends JTree
             lastPackRow = -1;
         }
 
-        // Display the icon for the variable
-        renderer.setIcon(icon);
+        // Set the icon for the variable node
+        renderer.setLeafIcon(icon);
     }
 }

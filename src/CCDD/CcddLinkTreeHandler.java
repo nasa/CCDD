@@ -360,76 +360,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
         // actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Set the renderer for the tree so that the link information can be displayed, and so that
-        // custom icons can be used for the various node types
-        setCellRenderer(new TableTreeCellRenderer()
-        {
-            /**************************************************************************************
-             * Display the variable nodes using a special icon in the tree
-             *************************************************************************************/
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree,
-                                                          Object value,
-                                                          boolean sel,
-                                                          boolean expanded,
-                                                          boolean leaf,
-                                                          int row,
-                                                          boolean hasFocus)
-            {
-                // Display the node name
-                super.getTreeCellRendererComponent(tree,
-                                                   value,
-                                                   sel,
-                                                   expanded,
-                                                   leaf,
-                                                   row,
-                                                   hasFocus);
-
-                // Get the tree level for this node
-                int level = ((ToolTipTreeNode) value).getLevel();
-
-                // Check that the tree has any levels. When the tree is first created this method
-                // is called when no nodes exist
-                if (level != 0)
-                {
-                    // Get the reference to the link's information. The link name is the second
-                    // node in the path for this node
-                    LinkInformation linkInfo = getLinkInformation(((ToolTipTreeNode) value).getPath()[1].toString());
-
-                    // Check that the link information exists
-                    if (linkInfo != null)
-                    {
-                        // Check if this node represents a link name
-                        if (level == 1)
-                        {
-                            // Get the rate for this link
-                            String linkRate = linkInfo.getSampleRate();
-
-                            // Check if the link rate matches the currently selected rate or if it
-                            // has no assigned rate
-                            if (linkRate.equals("0") || selectedRate.equals(linkRate))
-                            {
-                                setIcon(validLinkIcon);
-                            }
-                            // The link rate doesn't match the selected rate
-                            else
-                            {
-                                setIcon(invalidLinkIcon);
-                            }
-                        }
-                        // Check if this node represents a variable
-                        else if (leaf)
-                        {
-                            // Set the icon for the variable node
-                            setVariableNodeIcon(this, (ToolTipTreeNode) value, row, true);
-                        }
-                    }
-                }
-
-                return this;
-            }
-        });
-
         // Step through each link
         for (String[] linkDefn : linkDefinitions)
         {
@@ -775,6 +705,76 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
      *********************************************************************************************/
     protected JPanel createTreePanel(String label, int selectionMode)
     {
+        // Set the renderer for the tree so that the link information can be displayed, and so that
+        // custom icons can be used for the various node types
+        setCellRenderer(new VariableTreeCellRenderer()
+        {
+            /**************************************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *************************************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Get the tree level for this node
+                int level = ((ToolTipTreeNode) value).getLevel();
+
+                // Check that the tree has any levels. When the tree is first created this method
+                // is called when no nodes exist
+                if (level != 0)
+                {
+                    // Get the reference to the link's information. The link name is the second
+                    // node in the path for this node
+                    LinkInformation linkInfo = getLinkInformation(((ToolTipTreeNode) value).getPath()[1].toString());
+
+                    // Check that the link information exists
+                    if (linkInfo != null)
+                    {
+                        // Check if this node represents a link name
+                        if (level == 1)
+                        {
+                            // Get the rate for this link
+                            String linkRate = linkInfo.getSampleRate();
+
+                            // Check if the link rate matches the currently selected rate or if it
+                            // has no assigned rate
+                            if (linkRate.equals("0") || selectedRate.equals(linkRate))
+                            {
+                                setIcon(validLinkIcon);
+                            }
+                            // The link rate doesn't match the selected rate
+                            else
+                            {
+                                setIcon(invalidLinkIcon);
+                            }
+                        }
+                        // Check if this node represents a variable
+                        else if (leaf)
+                        {
+                            // Set the icon for the variable node
+                            setVariableNodeIcon(this, (ToolTipTreeNode) value, row, true);
+                        }
+                    }
+                }
+
+                return this;
+            }
+        });
+
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 

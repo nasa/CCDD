@@ -487,6 +487,7 @@ public class CcddLinkManagerHandler
         gbc.weighty = 1.0;
         treePnl.add(variableTree.createTreePanel("Structures & Variables",
                                                  TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                 false,
                                                  ccddMain.getMainFrame()),
                     gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;

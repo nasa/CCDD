@@ -752,6 +752,9 @@ public class CcddMain
         // hard-coded types
         inputTypeHandler = new CcddInputTypeHandler(CcddMain.this);
 
+        // read the data field definitions from the database
+        fieldHandler = new CcddFieldHandler(CcddMain.this);
+
         // Read the table type definitions from the database
         tableTypeHandler = new CcddTableTypeHandler(CcddMain.this);
 
@@ -760,9 +763,6 @@ public class CcddMain
 
         // Read the data types definitions from the database
         dataTypeHandler = new CcddDataTypeHandler(CcddMain.this);
-
-        // read the data field definitions from the database
-        fieldHandler = new CcddFieldHandler(CcddMain.this);
 
         // Read the rate parameters from the project database and sort the list by data stream name
         rateHandler = new CcddRateParameterHandler(CcddMain.this);

@@ -269,45 +269,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // inhibit actions involving tree selection value changes during the build process
         isBuilding = true;
 
-        // Set the renderer for the tree so that custom icons can be used for the various node
-        // types
-        setCellRenderer(new TableTreeCellRenderer()
-        {
-            /**************************************************************************************
-             * Display the variable nodes using a special icon in the tree
-             *************************************************************************************/
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree,
-                                                          Object value,
-                                                          boolean sel,
-                                                          boolean expanded,
-                                                          boolean leaf,
-                                                          int row,
-                                                          boolean hasFocus)
-            {
-                // Display the node name
-                super.getTreeCellRendererComponent(tree,
-                                                   value,
-                                                   sel,
-                                                   expanded,
-                                                   leaf,
-                                                   row,
-                                                   hasFocus);
-
-                // Get the tree level for this node
-                int level = ((ToolTipTreeNode) value).getLevel();
-
-                // Check if this node represents a group name
-                if (level == 1)
-                {
-                    // Display an icon indicating a variable
-                    setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
-                }
-
-                return this;
-            }
-        });
-
         // Check if the table types are to be used to filter the table tree
         if (isFilterByType)
         {
@@ -589,6 +550,45 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                      boolean noFilters,
                                      final Component parent)
     {
+        // Set the renderer for the tree so that custom icons can be used for the various node
+        // types
+        setCellRenderer(new VariableTreeCellRenderer()
+        {
+            /**************************************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *************************************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Display the node name
+                super.getTreeCellRendererComponent(tree,
+                                                   value,
+                                                   sel,
+                                                   expanded,
+                                                   leaf,
+                                                   row,
+                                                   hasFocus);
+
+                // Get the tree level for this node
+                int level = ((ToolTipTreeNode) value).getLevel();
+
+                // Check if this node represents a group name
+                if (level == 1)
+                {
+                    // Display an icon indicating a variable
+                    setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
+                }
+
+                return this;
+            }
+        });
+
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 

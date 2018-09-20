@@ -237,6 +237,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.gridx++;
                 upperPnl.add(tableTree.createTreePanel("Tables",
                                                        TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
+                                                       false,
                                                        ccddMain.getMainFrame()),
                              gbc);
                 gbc.gridwidth = 1;

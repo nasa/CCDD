@@ -894,49 +894,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
         // Clear the flag that indicates the table tree is being built
         isBuilding = false;
-
-        // Set the renderer for the tree so that the custom icons can be used for the various node
-        // types
-        setCellRenderer(new TableTreeCellRenderer()
-        {
-            /**************************************************************************************
-             * Display the variable nodes using a special icon in the tree
-             *************************************************************************************/
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree,
-                                                          Object value,
-                                                          boolean sel,
-                                                          boolean expanded,
-                                                          boolean leaf,
-                                                          int row,
-                                                          boolean hasFocus)
-            {
-                // Display the node name
-                super.getTreeCellRendererComponent(tree,
-                                                   value,
-                                                   sel,
-                                                   expanded,
-                                                   leaf,
-                                                   row,
-                                                   hasFocus);
-
-                // Check if this node represents a variable
-                if (leaf
-                    && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
-                    && (treeType == STRUCTURES_WITH_PRIMITIVES
-                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
-                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
-                {
-                    // Set the icon for the variable node
-                    setVariableNodeIcon(this,
-                                        (ToolTipTreeNode) value,
-                                        row,
-                                        linkedVariables.contains(removeExtraText(getFullVariablePath(((ToolTipTreeNode) value).getPath()))));
-                }
-
-                return this;
-            }
-        });
     }
 
     /**********************************************************************************************
@@ -1624,6 +1581,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         List<String> variableList = new ArrayList<String>();
         List<String> matchList = new ArrayList<String>();
 
+        // Add the root node name as the first match item so that the root isn't removed. If the
+        // root node isn't visible then use a blank as the name
+        matchList.add(isRootVisible()
+                                      ? root.getUserObject().toString()
+                                      : "");
+
         // Step through each element and child of the root node
         for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
         {
@@ -1660,7 +1623,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                     // Get the parent node for this node
                     node = (ToolTipTreeNode) node.getParent();
-                } while (node != root);
+                } while (node.getLevel() >= getHeaderNodeLevel());
                 // Continue to add the ancestor nodes to the list of those containing a match until
                 // the root node is reached. This ensures the node containing the match retains its
                 // tree hierarchy
@@ -1832,7 +1795,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     protected String getVariableRootFromNodePath(Object[] nodePath)
     {
-        String root = "";
+        String rootTable = "";
 
         // Step backwards through the node path
         for (int index = nodePath.length - 1; index > 0; index--)
@@ -1842,12 +1805,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             if (!nodePath[index].toString().contains("."))
             {
                 // Store the root table and stop searching
-                root = nodePath[index].toString();
+                rootTable = nodePath[index].toString();
                 break;
             }
         }
 
-        return root;
+        return rootTable;
     }
 
     /**********************************************************************************************
@@ -2392,13 +2355,60 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param selectionMode
      *            tree item selection mode (single versus multiple)
      *
+     * @param isAllowHighlight
+     *            true to allow highlighting of text in the node names
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
      * @return JPanel containing the table tree components
      *********************************************************************************************/
-    protected JPanel createTreePanel(String label, int selectionMode, final Component parent)
+    protected JPanel createTreePanel(String label,
+                                     int selectionMode,
+                                     boolean isAllowHighlight,
+                                     final Component parent)
     {
+        // Set the renderer for the tree so that the custom icons can be used for the various node
+        // types
+        setCellRenderer(new VariableTreeCellRenderer(isAllowHighlight)
+        {
+            /**************************************************************************************
+             * Display the variable nodes using a special icon in the tree
+             *************************************************************************************/
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                                                          Object value,
+                                                          boolean sel,
+                                                          boolean expanded,
+                                                          boolean leaf,
+                                                          int row,
+                                                          boolean hasFocus)
+            {
+                // Check if this node represents a variable
+                if (leaf
+                    && ((ToolTipTreeNode) value).getLevel() > ((CcddTableTreeHandler) tree).getHeaderNodeLevel()
+                    && (treeType == STRUCTURES_WITH_PRIMITIVES
+                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES
+                        || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
+                {
+                    // Set the icon for the variable node
+                    setVariableNodeIcon(this,
+                                        (ToolTipTreeNode) value,
+                                        row,
+                                        linkedVariables.contains(removeExtraText(getFullVariablePath(((ToolTipTreeNode) value).getPath()))));
+                }
+
+                // Get the component to display
+                return super.getTreeCellRendererComponent(tree,
+                                                          value,
+                                                          sel,
+                                                          expanded,
+                                                          leaf,
+                                                          row,
+                                                          hasFocus);
+            }
+        });
+
         // Create an empty border
         Border emptyBorder = BorderFactory.createEmptyBorder();
 

@@ -1501,7 +1501,7 @@ public class CcddDbVerificationHandler
                         cleanName.add(variablePath.replaceFirst("\\:\\d+$", ""));
 
                         // Check if the variable is an array member
-                        if (variablePath.endsWith("]"))
+                        if (ArrayVariable.isArrayMember(variablePath))
                         {
                             // Strip the array index form the end to create a reference to the
                             // variable's array definition
