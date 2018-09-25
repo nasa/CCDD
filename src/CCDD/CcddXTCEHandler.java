@@ -628,7 +628,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // Set the header table names and variables from the project database data fields or
             // default values, if not present in the import file. If importing all tables then add
             // these as project-level data fields to the database
-            setProjectHeaderTablesAndVariables(ccddMain,
+            setProjectHeaderTablesAndVariables(fieldHandler,
                                                importType == ImportType.IMPORT_ALL,
                                                tlmHeaderTable,
                                                cmdHeaderTable,
@@ -2808,6 +2808,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *            * Not used for XTCE export * true to include the project-level data field
      *            definitions in the export file
      *
+     * @param includeGroups
+     *            * Not used for XTCE export * true to include the groups and group data field
+     *            definitions in the export file
+     *
      * @param includeVariablePaths
      *            * Not used for XTCE export * true to include the variable path for each variable
      *            in a structure table, both in application format and using the user-defined
@@ -2846,6 +2850,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                              boolean replaceMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
+                             boolean includeGroups,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,

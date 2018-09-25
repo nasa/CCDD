@@ -148,10 +148,12 @@ public class CcddCommonTreeHandler extends JTree
                                                       int row,
                                                       boolean hasFocus)
         {
-            Component comp;
+            boolean hasHighlight = false;
+            Component comp = null;
 
             // Get the node's name
-            String name = ((ToolTipTreeNode) value).getUserObject().toString();
+            ToolTipTreeNode node = (ToolTipTreeNode) value;
+            String name = node.getUserObject().toString();
             String adjustedName = name;
 
             // Check if the name contains a period, indicating it is in the form
@@ -172,28 +174,31 @@ public class CcddCommonTreeHandler extends JTree
                 }
             }
 
-            // Check if highlighting is enabled and the node represents a variable
-            if (leaf && isAllowHighlight)
+            // Check if highlighting is enabled, a search pattern is active, and the node isn't a
+            // header (i.e., it represents a table or variable)
+            if (isAllowHighlight
+                && searchPattern != null
+                && node.getLevel() >= getHeaderNodeLevel())
             {
                 // Set the node's text and icon
                 nodeFld.setText(adjustedName);
-                nodeLbl.setIcon(getLeafIcon());
 
-                // Check if a search pattern is active
-                if (searchPattern != null)
-                {
-                    // Highlight the node text matching the search pattern
-                    CcddUtilities.highlightSearchText(nodeFld,
+                // Highlight the node text matching the search pattern
+                if (CcddUtilities.highlightSearchText(nodeFld,
                                                       adjustedName,
                                                       ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor(),
-                                                      searchPattern);
+                                                      searchPattern))
+                {
+                    // Set the node's icon and set the panel as the component to display; set the
+                    // flag to indicate the node contains a highlight
+                    nodeLbl.setIcon(getLeafIcon());
+                    comp = nodePnl;
+                    hasHighlight = true;
                 }
-
-                // Set the panel as the component to display
-                comp = nodePnl;
             }
-            // Highlighting is disabled or the node doesn't represent a variable
-            else
+
+            // Check if the node doesn't contain a highlight
+            if (!hasHighlight)
             {
                 // Set the node name to display
                 ((ToolTipTreeNode) value).setUserObject(adjustedName);

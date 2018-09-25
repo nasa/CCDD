@@ -1031,7 +1031,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 {
                     // Store the updated data fields table
                     dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
-                                                              fieldHandler.getFieldDefinitions(),
+                                                              fieldHandler.getFieldDefnsFromInfo(),
                                                               null,
                                                               CcddAssignMessageIDDialog.this);
                 }

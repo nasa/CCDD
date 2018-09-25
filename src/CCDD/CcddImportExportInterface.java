@@ -90,6 +90,9 @@ public interface CcddImportExportInterface
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
      *
+     * @param includeGroups
+     *            true to include the groups and group data field definitions in the export file
+     *
      * @param variableHandler
      *            variable handler class reference; null if includeVariablePaths is false
      *
@@ -116,6 +119,7 @@ public interface CcddImportExportInterface
                                boolean includeReservedMsgIDs,
                                boolean includeProjectFields,
                                boolean includeVariablePaths,
+                               boolean includeGroups,
                                CcddVariableHandler variableHandler,
                                String[] separators,
                                Object... extraInfo) throws JAXBException, CCDDException, Exception;

@@ -723,7 +723,10 @@ public class CcddFileIOHandler
         String[][] originalInputTypes = inputTypeHandler.getCustomInputTypeData();
         List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
         List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
-        List<String[]> originalDataFields = new ArrayList<String[]>(fieldHandler.getFieldDefinitions());
+        List<String[]> originalDataFields = fieldHandler.getFieldDefnsFromInfo();
+
+        // Load the group information from the database
+        CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
 
         // Create a reference to a table editor dialog list
         tableEditorDlgs = new ArrayList<CcddTableEditorDialog>();
@@ -774,7 +777,7 @@ public class CcddFileIOHandler
                 if (filePath.endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
-                    ioHandler = new CcddCSVHandler(ccddMain, parent);
+                    ioHandler = new CcddCSVHandler(ccddMain, groupHandler, parent);
                 }
                 // Check if the file to import is in EDS format based on the extension
                 else if (filePath.endsWith(FileExtension.EDS.getExtension()))
@@ -786,7 +789,7 @@ public class CcddFileIOHandler
                 else if (filePath.endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
-                    ioHandler = new CcddJSONHandler(ccddMain, parent);
+                    ioHandler = new CcddJSONHandler(ccddMain, groupHandler, parent);
                 }
                 // Check if the file to import is in XTCE format based on the extension
                 else if (filePath.endsWith(FileExtension.XTCE.getExtension()))
@@ -868,6 +871,7 @@ public class CcddFileIOHandler
             createTablesFromDefinitions(allTableDefinitions,
                                         replaceExisting,
                                         openEditor,
+                                        groupHandler,
                                         parent);
 
             // Release the save point. This must be done within a transaction block, so it must be
@@ -1017,6 +1021,9 @@ public class CcddFileIOHandler
      * @param openEditor
      *            true to open a table editor for each imported table
      *
+     * @param groupHandler
+     *            group handler reference
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -1027,6 +1034,7 @@ public class CcddFileIOHandler
     private void createTablesFromDefinitions(List<TableDefinition> tableDefinitions,
                                              boolean replaceExisting,
                                              boolean openEditor,
+                                             CcddGroupHandler groupHandler,
                                              final Component parent) throws CCDDException
     {
         boolean prototypesOnly = true;
@@ -1081,7 +1089,7 @@ public class CcddFileIOHandler
 
                     // Add the table's data field definitions, if any, to the existing field
                     // definitions
-                    List<String[]> fieldDefns = fieldHandler.getFieldDefinitions();
+                    List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
                     fieldDefns.addAll(tableDefn.getDataFields());
                     fieldHandler.buildFieldInformation(fieldDefns);
 
@@ -1144,7 +1152,7 @@ public class CcddFileIOHandler
                             {
                                 // Add the table's data field definitions, if any, to the existing
                                 // field definitions
-                                fieldDefns = fieldHandler.getFieldDefinitions();
+                                fieldDefns = fieldHandler.getFieldDefnsFromInfo();
                                 fieldDefns.addAll(tableDefn.getDataFields());
                                 fieldHandler.buildFieldInformation(fieldDefns);
 
@@ -1287,8 +1295,12 @@ public class CcddFileIOHandler
             prototypesOnly = false;
         }
 
-        // Update the progress bar
-        haltDlg.updateProgressBar("Updating internal tables...", -1);
+        // Check if the cancel import dialog is present
+        if (haltDlg != null)
+        {
+            // Update the progress bar
+            haltDlg.updateProgressBar("Updating internal tables...", -1);
+        }
 
         // Check if any tables were skipped
         if (!skippedTables.isEmpty())
@@ -1322,9 +1334,15 @@ public class CcddFileIOHandler
 
         // Store the data fields
         dbTable.storeInformationTable(InternalTable.FIELDS,
-                                      fieldHandler.getFieldDefinitions(),
+                                      fieldHandler.getFieldDefnsFromInfo(),
                                       null,
                                       parent);
+
+        // Store the groups
+        ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
+                                                                  groupHandler.getGroupDefnsFromInfo(),
+                                                                  null,
+                                                                  parent);
 
         // Check if any macros are defined
         if (!macroHandler.getMacroData().isEmpty())
@@ -1473,12 +1491,8 @@ public class CcddFileIOHandler
                     tableEditorDlg.setControlsEnabled(false);
                     tableEditorDlgs.add(tableEditorDlg);
 
-                    // Check if the cancel import dialog is present
-                    if (haltDlg != null)
-                    {
-                        // Force the dialog to the front
-                        haltDlg.toFront();
-                    }
+                    // Force the dialog to the front
+                    haltDlg.toFront();
                 }
                 // A table editor dialog is already created and hasn't reached the maximum number
                 // of tabs
@@ -1639,7 +1653,7 @@ public class CcddFileIOHandler
                 if (dataFile[0].getAbsolutePath().endsWith(FileExtension.CSV.getExtension()))
                 {
                     // Create a CSV handler
-                    ioHandler = new CcddCSVHandler(ccddMain, tableHandler.getOwner());
+                    ioHandler = new CcddCSVHandler(ccddMain, null, tableHandler.getOwner());
                 }
                 // Check if the file to import is in EDS XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.EDS.getExtension()))
@@ -1651,7 +1665,7 @@ public class CcddFileIOHandler
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.JSON.getExtension()))
                 {
                     // Create a JSON handler
-                    ioHandler = new CcddJSONHandler(ccddMain, tableHandler.getOwner());
+                    ioHandler = new CcddJSONHandler(ccddMain, null, tableHandler.getOwner());
                 }
                 // Check if the file to import is in XTCE XML format based on the extension
                 else if (dataFile[0].getAbsolutePath().endsWith(FileExtension.XTCE.getExtension()))
@@ -1829,7 +1843,7 @@ public class CcddFileIOHandler
         }
 
         // Combine the existing and imported data fields
-        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefinitions());
+        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefnsFromInfo());
     }
 
     /**********************************************************************************************
@@ -1865,6 +1879,9 @@ public class CcddFileIOHandler
      *
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
+     *
+     * @param includeGroups
+     *            true to include the groups and group data field definitions in the export file
      *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
@@ -1920,6 +1937,7 @@ public class CcddFileIOHandler
                                                     final boolean replaceMacros,
                                                     final boolean includeReservedMsgIDs,
                                                     final boolean includeProjectFields,
+                                                    final boolean includeGroups,
                                                     final boolean includeVariablePaths,
                                                     final CcddVariableHandler variableHandler,
                                                     final String[] separators,
@@ -1952,6 +1970,7 @@ public class CcddFileIOHandler
                                      replaceMacros,
                                      includeReservedMsgIDs,
                                      includeProjectFields,
+                                     includeGroups,
                                      includeVariablePaths,
                                      variableHandler,
                                      separators,
@@ -2015,6 +2034,9 @@ public class CcddFileIOHandler
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
      *
+     * @param includeGroups
+     *            true to include the groups and group data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -2071,6 +2093,7 @@ public class CcddFileIOHandler
                                            final boolean replaceMacros,
                                            final boolean includeReservedMsgIDs,
                                            final boolean includeProjectFields,
+                                           final boolean includeGroups,
                                            final boolean includeVariablePaths,
                                            final CcddVariableHandler variableHandler,
                                            final String[] separators,
@@ -2161,7 +2184,9 @@ public class CcddFileIOHandler
             if (fileExtn == FileExtension.CSV)
             {
                 // Create a CSV handler
-                ioHandler = new CcddCSVHandler(ccddMain, parent);
+                ioHandler = new CcddCSVHandler(ccddMain,
+                                               new CcddGroupHandler(ccddMain, null, parent),
+                                               parent);
             }
             // Check if the output format is EDS XML
             else if (fileExtn == FileExtension.EDS)
@@ -2173,7 +2198,9 @@ public class CcddFileIOHandler
             else if (fileExtn == FileExtension.JSON)
             {
                 // Create an JSON handler
-                ioHandler = new CcddJSONHandler(ccddMain, parent);
+                ioHandler = new CcddJSONHandler(ccddMain,
+                                                new CcddGroupHandler(ccddMain, null, parent),
+                                                parent);
             }
             // Check if the output format is XTCE XML
             else if (fileExtn == FileExtension.XTCE)
@@ -2195,6 +2222,7 @@ public class CcddFileIOHandler
                                            replaceMacros,
                                            includeReservedMsgIDs,
                                            includeProjectFields,
+                                           includeGroups,
                                            includeVariablePaths,
                                            variableHandler,
                                            separators,
@@ -2242,6 +2270,7 @@ public class CcddFileIOHandler
                                                replaceMacros,
                                                includeReservedMsgIDs,
                                                includeProjectFields,
+                                               includeGroups,
                                                includeVariablePaths,
                                                variableHandler,
                                                separators,

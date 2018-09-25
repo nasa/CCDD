@@ -50,23 +50,6 @@ public class CcddGroupHandler
 
     /**********************************************************************************************
      * Group handler class constructor. Load and build the group information class from the group
-     * definitions provided
-     *
-     * @param undoHandler
-     *            reference to the undo handler
-     *
-     * @param groupDefinitions
-     *            group definitions list
-     *********************************************************************************************/
-    CcddGroupHandler(CcddUndoHandler undoHandler, List<String[]> groupDefinitions)
-    {
-        this(undoHandler);
-
-        buildGroupInformation(groupDefinitions);
-    }
-
-    /**********************************************************************************************
-     * Group handler class constructor. Load and build the group information class from the group
      * definitions stored in the project database
      *
      * @param ccddMain
@@ -80,9 +63,42 @@ public class CcddGroupHandler
      *********************************************************************************************/
     CcddGroupHandler(CcddMain ccddMain, CcddUndoHandler undoHandler, Component component)
     {
-        this(undoHandler,
-             ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,
-                                                                          component));
+        this(undoHandler);
+
+        buildGroupInformation(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,
+                                                                                           component));
+    }
+
+    // TODO
+    /**********************************************************************************************
+     * Get the group definitions from the group information
+     *
+     * @return Group definition list from the group information
+     *********************************************************************************************/
+    protected List<String[]> getGroupDefnsFromInfo()
+    {
+        List<String[]> groupDefinitions = new ArrayList<String[]>();
+
+        // Step through each group's information
+        for (GroupInformation groupInfo : groupInformation)
+        {
+            // Add the group application status and description to the definition list
+            groupDefinitions.add(new String[] {groupInfo.getName(),
+                                               (groupInfo.isApplication()
+                                                                          ? "1"
+                                                                          : "0")
+                                                                    + ","
+                                                                    + groupInfo.getDescription()});
+
+            // Step through each group table member
+            for (String member : groupInfo.getTableMembers())
+            {
+                // Add the member to the definition list
+                groupDefinitions.add(new String[] {groupInfo.getName(), member});
+            }
+        }
+
+        return groupDefinitions;
     }
 
     /**********************************************************************************************
@@ -96,13 +112,21 @@ public class CcddGroupHandler
      *
      * @param isApplication
      *            true if the group represents a CFS application
+     *
+     * @return Reference to the new group's information
      *********************************************************************************************/
-    protected void addGroupInformation(String name, String description, boolean isApplication)
+    protected GroupInformation addGroupInformation(String name,
+                                                   String description,
+                                                   boolean isApplication)
     {
-        groupInformation.add(new GroupInformation(name, description, isApplication, null));
+        // Create the group information and add it to the list
+        GroupInformation groupInfo = new GroupInformation(name, description, isApplication, null);
+        groupInformation.add(groupInfo);
 
         // Sort the group information by group name
         sortGroupInformation();
+
+        return groupInfo;
     }
 
     /**********************************************************************************************

@@ -579,7 +579,7 @@ public class CcddFieldHandler
      *
      * @return String list containing all of the data field definitions
      *********************************************************************************************/
-    protected List<String[]> getFieldDefinitions()
+    protected List<String[]> getFieldDefnsFromInfo()
     {
         // Create storage for the field definitions
         List<String[]> definitions = new ArrayList<String[]>();

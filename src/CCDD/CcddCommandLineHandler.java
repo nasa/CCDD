@@ -73,6 +73,7 @@ public class CcddCommandLineHandler
     private boolean includeReservedMsgIDs;
     private boolean includeProjectFields;
     private boolean includeVariablePaths;
+    private boolean includeGroups;
     private final String[] separators;
     private FileExtension fileExtn;
     private EndianType endianess;
@@ -1038,13 +1039,13 @@ public class CcddCommandLineHandler
                     else
                     {
                         // Import the table(s) from the specified file in a background thread
-                        ccddMain.getFileIOHandler().importFile(dataFile,
-                                                               false,
-                                                               replaceExisting,
-                                                               appendExistingFields,
-                                                               useExistingFields,
-                                                               openEditor,
-                                                               ccddMain.getMainFrame());
+                        ccddMain.getFileIOHandler().importFileInBackground(dataFile,
+                                                                           false,
+                                                                           replaceExisting,
+                                                                           appendExistingFields,
+                                                                           useExistingFields,
+                                                                           openEditor,
+                                                                           ccddMain.getMainFrame());
                     }
                 }
                 // The user doesn't have write access
@@ -1103,6 +1104,7 @@ public class CcddCommandLineHandler
                                                                          includeReservedMsgIDs,
                                                                          includeProjectFields,
                                                                          includeVariablePaths,
+                                                                         includeGroups,
                                                                          ccddMain.getVariableHandler(),
                                                                          separators,
                                                                          fileExtn,
@@ -1133,6 +1135,7 @@ public class CcddCommandLineHandler
                                                                                  includeReservedMsgIDs,
                                                                                  includeProjectFields,
                                                                                  includeVariablePaths,
+                                                                                 includeGroups,
                                                                                  ccddMain.getVariableHandler(),
                                                                                  separators,
                                                                                  fileExtn,
@@ -1402,6 +1405,25 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 includeProjectFields = (Boolean) parmVal;
+            }
+        });
+
+        // Export command - include groups
+        exportArgument.add(new CommandHandler("includeGroups",
+                                              "Include group definitions and data fields (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to output the group definitions and data fields
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                includeGroups = (Boolean) parmVal;
             }
         });
 

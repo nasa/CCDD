@@ -96,6 +96,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
     private JCheckBox includeProjectFieldsCb;
+    private JCheckBox includeGroupsCb;
     private JCheckBox includeVariablePaths;
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
@@ -702,6 +703,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                (includeProjectFieldsCb != null
                                                                                                                ? includeProjectFieldsCb.isSelected()
                                                                                                                : false),
+                                                                               (includeGroupsCb != null
+                                                                                                        ? includeGroupsCb.isSelected()
+                                                                                                        : false),
                                                                                (includeVariablePaths != null
                                                                                                              ? includeVariablePaths.isSelected()
                                                                                                              : false),
@@ -1184,6 +1188,16 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.gridy++;
                 separatorPnl.add(includeProjectFieldsCb, gbc);
+
+                // Create the group definitions and data field inclusion check box
+                includeGroupsCb = new JCheckBox("Include group definitions and data fields");
+                includeGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeGroupsCb.setBorder(emptyBorder);
+                includeGroupsCb.setToolTipText(CcddUtilities.wrapText("If checked, the group and group data field "
+                                                                      + "definitions are included in each export file",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridy++;
+                separatorPnl.add(includeGroupsCb, gbc);
 
                 // Create the check box for inclusion of variable paths
                 includeVariablePaths = new JCheckBox("Include variable paths");

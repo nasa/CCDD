@@ -3129,9 +3129,7 @@ public class CcddDbTableCommandHandler
 
                     // Check if the new variable's data type is a structure table
                     if (!dataTypeHandler.isPrimitive(dataType))
-                    // TODO SEPARATED THE CLAUSES: rootStructures.contains(dataType)
                     {
-                        // TODO
                         // Copy all data fields with 'all' or 'child only' applicability from the
                         // new child table's prototype to the child table
                         fieldsAddCmd.append("INSERT INTO "
@@ -3204,7 +3202,6 @@ public class CcddDbTableCommandHandler
                                                     + "(,|$)', E'"
                                                     + newVariablePath
                                                     + "\\\\1'); ");
-                                // TODO ORIGINAL
                                 fieldsAddCmd.append("UPDATE "
                                                     + InternalTable.FIELDS.getTableName()
                                                     + " SET "
@@ -6005,20 +6002,28 @@ public class CcddDbTableCommandHandler
             switch (intTable)
             {
                 case GROUPS:
-                    // Step through each deleted group
-                    for (String groupName : deletedGroups)
+                    // Check if a list of deleted groups is provided
+                    if (deletedGroups != null)
                     {
-                        // Build the command to delete the group's data fields
-                        command += modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
-                                                       null);
+                        // Step through each deleted group
+                        for (String groupName : deletedGroups)
+                        {
+                            // Build the command to delete the group's data fields
+                            command += modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
+                                                           null);
+                        }
                     }
 
-                    // Step through each group's data field information list
-                    for (List<FieldInformation> fieldInformation : fieldInformationList)
+                    // Check if a list of group data fields is provided
+                    if (fieldInformationList != null)
                     {
-                        // Build the command to modify the data fields for the group
-                        command += modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
-                                                       fieldInformation);
+                        // Step through each group's data field information list
+                        for (List<FieldInformation> fieldInformation : fieldInformationList)
+                        {
+                            // Build the command to modify the data fields for the group
+                            command += modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
+                                                           fieldInformation);
+                        }
                     }
 
                 case APP_SCHEDULER:
@@ -6599,7 +6604,7 @@ public class CcddDbTableCommandHandler
                     // to the new owner, and get the complete list of field definitions
                     fieldHandler.copyFields(CcddFieldHandler.getFieldTypeName(typeName),
                                             CcddFieldHandler.getFieldTypeName(copyName));
-                    fieldDefinitions = fieldHandler.getFieldDefinitions();
+                    fieldDefinitions = fieldHandler.getFieldDefnsFromInfo();
 
                     // Create the command to rebuild the table types and fields tables
                     String command = storeTableTypesInfoTableCommand()

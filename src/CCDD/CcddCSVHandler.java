@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
@@ -33,6 +34,7 @@ import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.InternalTable.InputTypesColumn;
@@ -47,7 +49,6 @@ import CCDD.CcddTableTypeHandler.TypeDefinition;
 public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImportExportInterface
 {
     // Class references
-    private final CcddMain ccddMain;
     private final CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddDbTableCommandHandler dbTable;
@@ -56,6 +57,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
     private final CcddInputTypeHandler inputTypeHandler;
     private final CcddFieldHandler fieldHandler;
+    private final CcddGroupHandler groupHandler;
 
     // GUI component over which to center any error dialog
     private final Component parent;
@@ -80,7 +82,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         INPUT_TYPE("_input_type_"),
         RESERVED_MSG_IDS("_reserved_msg_ids_"),
         PROJECT_DATA_FIELDS("_project_data_fields_"),
-        VARIABLE_PATHS("_variable_paths_");
+        VARIABLE_PATHS("_variable_paths_"),
+        GROUP("_group_"),
+        GROUP_DATA_FIELDS("_group_data_fields_");
 
         private final String tag;
 
@@ -112,12 +116,14 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param ccddMain
      *            main class reference
      *
+     * @param groupHandler
+     *            group handler reference
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddCSVHandler(CcddMain ccddMain, Component parent)
+    CcddCSVHandler(CcddMain ccddMain, CcddGroupHandler groupHandler, Component parent)
     {
-        this.ccddMain = ccddMain;
         this.parent = parent;
 
         // Create references to shorten subsequent calls
@@ -129,6 +135,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         macroHandler = ccddMain.getMacroHandler();
         rsvMsgIDHandler = ccddMain.getReservedMsgIDHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
+        this.groupHandler = groupHandler;
     }
 
     /**********************************************************************************************
@@ -177,6 +184,19 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
         try
         {
+            // Flags indicating if importing should continue after an input error is detected
+            boolean continueOnTableTypeError = false;
+            boolean continueOnTableTypeFieldError = false;
+            boolean continueOnDataTypeError = false;
+            boolean continueOnInputTypeError = false;
+            boolean continueOnMacroError = false;
+            boolean continueOnColumnError = false;
+            boolean continueOnDataFieldError = false;
+            boolean continueOnReservedMsgIDError = false;
+            boolean continueOnProjectFieldError = false;
+            boolean continueOnGroupError = false;
+            boolean continueOnGroupFieldError = false;
+
             ProjectDefinition projectDefn = new ProjectDefinition();
             List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();
             List<String[]> dataTypeDefns = new ArrayList<String[]>();
@@ -191,20 +211,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             for (int loop = 1; loop <= 3; loop++)
             {
                 int columnNumber = 0;
+                String groupDefnName = null;
 
                 // Create a buffered reader to read the file
                 br = new BufferedReader(new FileReader(importFile));
-
-                // Flags indicating if importing should continue after an input error is detected
-                boolean continueOnTableTypeError = false;
-                boolean continueOnDataTypeError = false;
-                boolean continueOnInputTypeError = false;
-                boolean continueOnMacroError = false;
-                boolean continueOnColumnError = false;
-                boolean continueOnDataFieldError = false;
-                boolean continueOnReservedMsgIDError = false;
-                boolean continueOnProjectFieldError = false;
-                boolean continueOnTableTypeFieldError = false;
 
                 // Initialize the import tag
                 CSVTags importTag = null;
@@ -374,6 +384,20 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 // Set the import tag to look for the project-level data fields
                                 importTag = CSVTags.PROJECT_DATA_FIELDS;
                             }
+                            // Check if this is the group definitions tag
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.GROUP.getTag()))
+                            {
+                                // Set the import tag to look for the group definitions
+                                importTag = CSVTags.GROUP;
+                            }
+                            // Check if this is the group data fields tag and that a group is
+                            // defined
+                            else if (firstColumn.equalsIgnoreCase(CSVTags.GROUP_DATA_FIELDS.getTag())
+                                     && groupDefnName != null)
+                            {
+                                // Set the import tag to look for the group data fields
+                                importTag = CSVTags.GROUP_DATA_FIELDS;
+                            }
                             // Not a tag (or no table name and type are defined); read in the
                             // information based on the last tag read
                             else
@@ -431,6 +455,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         case RESERVED_MSG_IDS:
                                         case TABLE_TYPE:
                                         case TABLE_TYPE_DATA_FIELD:
+                                        case GROUP:
+                                        case GROUP_DATA_FIELDS:
                                         case VARIABLE_PATHS:
                                             break;
                                     }
@@ -562,6 +588,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                  columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                                    importFile.getAbsolutePath(),
                                                                                                                    inputTypeHandler,
+                                                                                                                   fieldHandler,
                                                                                                                    parent);
                                                 }
                                                 // The number of inputs is incorrect
@@ -729,6 +756,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                                columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                                  importFile.getAbsolutePath(),
                                                                                                                  inputTypeHandler,
+                                                                                                                 fieldHandler,
                                                                                                                  parent);
                                                 }
                                                 // The number of inputs is incorrect
@@ -751,6 +779,106 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                             break;
 
+                                        case GROUP:
+                                            // Check if all definitions are to be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number of inputs is
+                                                // present
+                                                if (columnValues.length == GroupDefinitionColumn.values().length
+                                                    || columnValues.length == GroupDefinitionColumn.values().length - 1)
+                                                {
+                                                    // Append empty columns as needed to fill out
+                                                    // the expected number of inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    GroupDefinitionColumn.values().length
+                                                                                                                  - columnValues.length);
+
+                                                    // Store the group name
+                                                    groupDefnName = columnValues[GroupDefinitionColumn.NAME.ordinal()];
+
+                                                    // Add the group definition, checking for (and
+                                                    // if possible, correcting) errors
+                                                    addImportedGroupDefinition(new String[] {CcddFieldHandler.getFieldGroupName(groupDefnName),
+                                                                                             columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
+                                                                                             columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
+                                                                                             columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},
+                                                                               importFile.getAbsolutePath(),
+                                                                               groupHandler);
+                                                }
+                                                // The number of inputs is incorrect
+                                                else
+                                                {
+                                                    // Check if the error should be ignored or the
+                                                    // import canceled
+                                                    continueOnGroupError = getErrorResponse(continueOnGroupError,
+                                                                                            "<html><b>Group definition has missing "
+                                                                                                                  + "or extra input(s) in import file '</b>"
+                                                                                                                  + importFile.getAbsolutePath()
+                                                                                                                  + "<b>'; continue?",
+                                                                                            "Group Error",
+                                                                                            "Ignore this invalid group",
+                                                                                            "Ignore this and any remaining invalid group definitions",
+                                                                                            "Stop importing",
+                                                                                            parent);
+                                                }
+                                            }
+
+                                            break;
+
+                                        case GROUP_DATA_FIELDS:
+                                            // Check if all definitions are to be loaded
+                                            if (importType == ImportType.IMPORT_ALL)
+                                            {
+                                                // Check if the expected number of inputs is
+                                                // present
+                                                if (columnValues.length == FieldsColumn.values().length - 1
+                                                    || columnValues.length == FieldsColumn.values().length - 2)
+                                                {
+                                                    // Append empty columns as needed to fill out
+                                                    // the expected number of inputs
+                                                    columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                                                    FieldsColumn.values().length
+                                                                                                                  - 1
+                                                                                                                  - columnValues.length);
+
+                                                    // Add the data field definition, checking for
+                                                    // (and if possible, correcting) errors
+                                                    continueOnGroupFieldError = addImportedDataFieldDefinition(continueOnGroupFieldError,
+                                                                                                               projectDefn,
+                                                                                                               new String[] {CcddFieldHandler.getFieldGroupName(groupDefnName),
+                                                                                                                             columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                               importFile.getAbsolutePath(),
+                                                                                                               inputTypeHandler,
+                                                                                                               fieldHandler,
+                                                                                                               parent);
+                                                }
+                                                // The number of inputs is incorrect
+                                                else
+                                                {
+                                                    // Check if the error should be ignored or the
+                                                    // import canceled
+                                                    continueOnGroupFieldError = getErrorResponse(continueOnGroupFieldError,
+                                                                                                 "<html><b>Group data field has missing "
+                                                                                                                            + "or extra input(s) in import file '</b>"
+                                                                                                                            + importFile.getAbsolutePath()
+                                                                                                                            + "<b>'; continue?",
+                                                                                                 "Data Field Error",
+                                                                                                 "Ignore this invalid data field",
+                                                                                                 "Ignore this and any remaining invalid data fields",
+                                                                                                 "Stop importing",
+                                                                                                 parent);
+                                                }
+                                            }
+
+                                            break;
+
                                         case INPUT_TYPE:
                                         case CELL_DATA:
                                         case COLUMN_NAMES:
@@ -765,7 +893,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             throw new CCDDException("Tag information missing");
                                     }
                                 }
-                                // This is the second pass
+                                // This is the third pass
                                 else
                                 {
                                     switch (importTag)
@@ -933,6 +1061,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
                                                                                                           importFile.getAbsolutePath(),
                                                                                                           inputTypeHandler,
+                                                                                                          fieldHandler,
                                                                                                           parent);
                                             }
                                             // The number of inputs is incorrect
@@ -963,6 +1092,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         case TABLE_TYPE_DATA_FIELD:
                                         case RESERVED_MSG_IDS:
                                         case PROJECT_DATA_FIELDS:
+                                        case GROUP:
+                                        case GROUP_DATA_FIELDS:
                                             break;
 
                                         default:
@@ -1030,8 +1161,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // Add the reserved message ID if it's new
                         rsvMsgIDHandler.updateReservedMsgIDs(reservedMsgIDDefns);
 
-                        // Build the imported project-level data fields, if any
-                        buildProjectdataFields(ccddMain, projectDefn.getDataFields());
+                        // Build the imported project-level and group data fields, if any
+                        buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
                     }
                 }
             }
@@ -1079,6 +1210,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      * @param includeProjectFields
      *            true to include the project-level data field definitions in the export file
      *
+     * @param includeGroups
+     *            true to include the groups and group data field definitions in the export file
+     *
      * @param includeVariablePaths
      *            true to include the variable path for each variable in a structure table, both in
      *            application format and using the user-defined separator characters
@@ -1106,6 +1240,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean replaceMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
+                             boolean includeGroups,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
@@ -1448,8 +1583,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 }
             }
 
-            // Check if the user elected to store the project-level data fields and if there are
-            // any project-level data fields defined
+            // Check if the user elected to store the project-level data fields
             if (includeProjectFields)
             {
                 // Build the data field information for the project
@@ -1473,6 +1607,67 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                            Boolean.toString(fieldInfo.isRequired()),
                                                                            fieldInfo.getApplicabilityType().getApplicabilityName(),
                                                                            fieldInfo.getValue()));
+                    }
+                }
+            }
+
+            // Check if the user elected to store the groups and if there are any groups defined
+            if (includeGroups)
+            {
+                // Get the group's information for the project
+                List<GroupInformation> groupInformation = groupHandler.getGroupInformation();
+
+                // Check if the project contains any groups
+                if (!groupInformation.isEmpty())
+                {
+                    // Step through each group's information
+                    for (GroupInformation groupInfo : groupInformation)
+                    {
+                        boolean isFirst = true;
+
+                        // Output the group marker and the group information
+                        pw.printf("\n" + CSVTags.GROUP.getTag() + "\n%s,\"",
+                                  CcddUtilities.addEmbeddedQuotesAndCommas(groupInfo.getName(),
+                                                                           groupInfo.getDescription(),
+                                                                           Boolean.toString(groupInfo.isApplication())));
+
+                        // Step through each group table member
+                        for (String member : groupInfo.getTableMembers())
+                        {
+                            // Output the table member
+                            pw.printf((isFirst
+                                               ? ""
+                                               : ";")
+                                      + member);
+
+                            isFirst = false;
+                        }
+
+                        pw.printf("\"\n");
+
+                        // Build the data field information for the group
+                        List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupInfo.getName()));
+
+                        // Check if the group contains any data fields
+                        if (!fieldInformation.isEmpty())
+                        {
+                            // Output the group data field marker
+                            pw.printf(CSVTags.GROUP_DATA_FIELDS.getTag() + "\n");
+
+                            // Step through each data field
+                            for (FieldInformation fieldInfo : fieldInformation)
+                            {
+                                // Output the field information
+                                pw.printf("%s\n",
+                                          CcddUtilities.addEmbeddedQuotesAndCommas(fieldInfo.getFieldName(),
+                                                                                   fieldInfo.getDescription(),
+                                                                                   Integer.toString(fieldInfo.getSize()),
+                                                                                   fieldInfo.getInputType().getInputName(),
+                                                                                   Boolean.toString(fieldInfo.isRequired()),
+                                                                                   fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                                   fieldInfo.getValue()));
+                            }
+                        }
                     }
                 }
             }

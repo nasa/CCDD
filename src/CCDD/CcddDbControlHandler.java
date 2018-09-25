@@ -2165,6 +2165,17 @@ public class CcddDbControlHandler
             // Save the name of the newly connected database
             setDatabaseName(databaseName);
 
+            // Check if the reserved word list hasn't been retrieved or if a connection to the
+            // server is made (the new server may be a different PostgreSQL version and have
+            // different key words)
+            if (keyWords == null || databaseName.equals(DEFAULT_DATABASE))
+            {
+                // Get the array of reserved words
+                keyWords = dbCommand.getList(DatabaseListCommand.KEYWORDS,
+                                             null,
+                                             ccddMain.getMainFrame());
+            }
+
             // Check if the default database is selected
             if (databaseName.equals(DEFAULT_DATABASE))
             {
@@ -2421,15 +2432,6 @@ public class CcddDbControlHandler
                     // (default database)
                     if (isDatabaseConnected())
                     {
-                        // Check if the reserved word list hasn't been retrieved
-                        if (keyWords == null)
-                        {
-                            // Get the array of reserved words
-                            keyWords = dbCommand.getList(DatabaseListCommand.KEYWORDS,
-                                                         null,
-                                                         ccddMain.getMainFrame());
-                        }
-
                         // Check if the database functions should be created; if so create the
                         // internal tables and database functions, and check if an error occurs
                         // creating them

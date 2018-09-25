@@ -1661,7 +1661,7 @@ public class CcddTableTypeHandler
             {
                 // Store the data field table with the additional fields
                 dbTable.storeInformationTable(InternalTable.FIELDS,
-                                              fieldHandler.getFieldDefinitions(),
+                                              fieldHandler.getFieldDefnsFromInfo(),
                                               null,
                                               ccddMain.getMainFrame());
             }
@@ -1705,7 +1705,7 @@ public class CcddTableTypeHandler
             {
                 // Add the table type's data field definitions, if any, to the existing field
                 // definitions
-                List<String[]> fieldDefns = fieldHandler.getFieldDefinitions();
+                List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
                 fieldDefns.addAll(tableTypeDefn.getDataFields());
                 fieldHandler.buildFieldInformation(fieldDefns);
                 isNewField = true;
@@ -1756,7 +1756,7 @@ public class CcddTableTypeHandler
                 if (fieldInfo == null)
                 {
                     // Add the field
-                    fieldHandler.getFieldDefinitions().add(dataField);
+                    fieldHandler.getFieldDefnsFromInfo().add(dataField);
                     isNewField = true;
                 }
                 // Check if the existing field's input type, required state, applicability, or

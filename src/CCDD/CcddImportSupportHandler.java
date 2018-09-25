@@ -15,12 +15,13 @@ import java.util.List;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
 import CCDD.CcddClassesDataTable.TableDefinition;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.DefaultInputType;
-import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.GroupDefinitionColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 
@@ -185,6 +186,9 @@ public class CcddImportSupportHandler
      * @param inputTypeHandler
      *            input type handler reference
      *
+     * @param fieldHandler
+     *            data field handler reference
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -199,8 +203,11 @@ public class CcddImportSupportHandler
                                                      String[] fieldDefn,
                                                      String fileName,
                                                      CcddInputTypeHandler inputTypeHandler,
+                                                     CcddFieldHandler fieldHandler,
                                                      Component parent) throws CCDDException
     {
+        boolean isError = false;
+
         // Check if the field name is empty
         if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].isEmpty())
         {
@@ -226,6 +233,8 @@ public class CcddImportSupportHandler
         // Check if the input type name is invalid
         else if (!inputTypeHandler.isInputTypeValid(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
         {
+            isError = true;
+
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
                                                "<html><b>Data field '</b>"
@@ -257,6 +266,8 @@ public class CcddImportSupportHandler
         // Check if the applicability is invalid
         else if (ApplicabilityType.getApplicabilityByName(fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]) == null)
         {
+            isError = true;
+
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
                                                "<html><b>Data field '</b>"
@@ -278,86 +289,186 @@ public class CcddImportSupportHandler
             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = ApplicabilityType.ALL.getApplicabilityName();
         }
 
-        // Check if the field belongs to the project
-        if (defnContainer instanceof ProjectDefinition)
+        // Check if no error was detected or if the user elected to ignore an error
+        if (!isError || continueOnError)
         {
-            // Add the data field to the project
-            ((ProjectDefinition) defnContainer).addDataField(fieldDefn);
-        }
-        // Check if the field belongs to a table
-        else if (defnContainer instanceof TableDefinition)
-        {
-            // Add the data field to the table
-            ((TableDefinition) defnContainer).addDataField(fieldDefn);
-        }
-        // Check if the field belongs to a table type
-        else if (defnContainer instanceof TableTypeDefinition)
-        {
-            // Add the data field to the table type
-            ((TableTypeDefinition) defnContainer).addDataField(fieldDefn);
+            // Get the reference to the data field from the existing field information
+            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
+                                                                                fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
+
+            // Check if this is a new field
+            if (fieldInfo == null)
+            {
+                // Check if the field belongs to the project
+                if (defnContainer instanceof ProjectDefinition)
+                {
+                    // Add the data field to the project
+                    ((ProjectDefinition) defnContainer).addDataField(fieldDefn);
+                }
+                // Check if the field belongs to a table
+                else if (defnContainer instanceof TableDefinition)
+                {
+                    // Add the data field to the table
+                    ((TableDefinition) defnContainer).addDataField(fieldDefn);
+                }
+                // Check if the field belongs to a table type
+                else if (defnContainer instanceof TableTypeDefinition)
+                {
+                    // Add the data field to the table type
+                    ((TableTypeDefinition) defnContainer).addDataField(fieldDefn);
+                }
+            }
+            // Check if the existing field's input type, required state, applicability, or value
+            // don't match (the description and size are allowed to differ)
+            else if (!fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                     || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                     || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                     || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
+            {
+                // Check if the error should be ignored or the import canceled
+                continueOnError = getErrorResponse(continueOnError,
+                                                   "Data field '</b>"
+                                                                    + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
+                                                                    + "<b>' for owner '</b>"
+                                                                    + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                                                    + "<b>' doesn't match the existing definition in import file '</b>"
+                                                                    + fileName
+                                                                    + "<b>'; continue?",
+                                                   "Data Field Error",
+                                                   "Ignore this data field (keep existing field)",
+                                                   "Ignore this and any remaining invalid data fields (use default values or keep existing)",
+                                                   "Stop importing",
+                                                   parent);
+            }
         }
 
         return continueOnError;
     }
 
     /**********************************************************************************************
-     * Build the project-level data fields
+     * Build the project-level and group data fields
      *
-     * @param ccddMain
-     *            main class reference
-     *
+     * @param fieldHandler
+     *            data field handler reference
      *
      * @param dataFields
      *            list containing the data field definitions from the import file
-     *
-     * @throws CCDDException
-     *             If the data field with the same input type already exists and the imported field
-     *             doesn't match
      *********************************************************************************************/
-    protected void buildProjectdataFields(CcddMain ccddMain,
-                                          List<String[]> dataFields) throws CCDDException
+    protected void buildProjectAndGroupDataFields(CcddFieldHandler fieldHandler,
+                                                  List<String[]> dataFields)
     {
-        // Check if any project-level data fields exist in the import file
+        // Check if any project-level or group data fields exist in the import file
         if (!dataFields.isEmpty())
         {
             boolean isNewField = false;
-            CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
+
+            // Get the current data field definitions
+            List<String[]> fieldDefinitions = fieldHandler.getFieldDefnsFromInfo();
 
             // Step through each project data field
             for (String[] dataField : dataFields)
             {
-                // Get the reference to the data field from the existing field information
-                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(CcddFieldHandler.getFieldProjectName(),
-                                                                                    dataField[FieldsColumn.FIELD_NAME.ordinal()]);
-
-                // Check if this is a new field
-                if (fieldInfo == null)
-                {
-                    // Add the field
-                    fieldHandler.getFieldDefinitions().add(dataField);
-                    isNewField = true;
-                }
-                // Check if the existing field's input type, required state, applicability, or
-                // value don't match (the description and size are allowed to differ)
-                else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                         || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
-                         || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
-                {
-                    throw new CCDDException("Imported project data field '<b>"
-                                            + dataField[FieldsColumn.FIELD_NAME.ordinal()]
-                                            + "</b>' doesn't match the existing definition");
-                }
+                // Add the field definition to the list and set the flag to indicate a new field is
+                // added
+                fieldDefinitions.add(dataField);
+                isNewField = true;
             }
 
             // Check if a new data field was added
             if (isNewField)
             {
-                // Store the data field table with the additional fields
-                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.FIELDS,
-                                                                          fieldHandler.getFieldDefinitions(),
-                                                                          null,
-                                                                          ccddMain.getMainFrame());
+                // Rebuild the field information with the new field(s)
+                fieldHandler.buildFieldInformation(fieldDefinitions);
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Add a group's information from the supplied group definition after verifying the input
+     * parameters
+     *
+     * @param groupDefn
+     *            array containing the group definition
+     *
+     * @param fileName
+     *            import file name
+     *
+     * @param groupHandler
+     *            group handler reference
+     *
+     * @throws CCDDException
+     *             If the group name or member table list is missing
+     *********************************************************************************************/
+    protected void addImportedGroupDefinition(String[] groupDefn,
+                                              String fileName,
+                                              CcddGroupHandler groupHandler) throws CCDDException
+    {
+        // Check if the group name is empty
+        if (groupDefn[GroupDefinitionColumn.NAME.ordinal()].isEmpty())
+        {
+            // Inform the user that the group name is missing
+            throw new CCDDException("Group name missing in import file '</b>"
+                                    + fileName
+                                    + "<b>'");
+        }
+
+        // Get the reference to the data field from the existing field information
+        GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupDefn[GroupDefinitionColumn.NAME.ordinal()]);
+
+        // Check if this is a new group
+        if (groupInfo == null)
+        {
+            // Add the group information
+            groupInfo = groupHandler.addGroupInformation(groupDefn[GroupDefinitionColumn.NAME.ordinal()],
+                                                         groupDefn[GroupDefinitionColumn.DESCRIPTION.ordinal()],
+                                                         Boolean.parseBoolean(groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]));
+
+            // Check if the group has any table members
+            if (!groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].isEmpty())
+            {
+                // Step through each table member
+                for (String member : groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].split(";"))
+                {
+                    // Add the member to the group
+                    groupInfo.addTable(member);
+                }
+            }
+        }
+        // A group by this name already exists
+        else
+        {
+            // Get the array of table members, if any
+            String[] members = groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].isEmpty()
+                                                                                            ? new String[] {}
+                                                                                            : groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].split(";");
+
+            // Set the flag if the number of members differs
+            boolean isMismatch = members.length != groupInfo.getTableMembers().size();
+
+            // Check if the number of members is the same
+            if (!isMismatch)
+            {
+                // Step through each member
+                for (int index = 0; index < members.length; index++)
+                {
+                    // Check if the member isn't present in the existing group definition
+                    if (!groupInfo.getTableMembers().contains(members[index]))
+                    {
+                        // Set the flag to indicate the group definitions differ and stop searching
+                        isMismatch = true;
+                        break;
+                    }
+                }
+            }
+
+            // Check if the existing group's table members or application status don't match (the
+            // description is allowed to differ)
+            if (isMismatch
+                || !groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()].equals(Boolean.toString(groupInfo.isApplication())))
+            {
+                throw new CCDDException("Imported group '<b>"
+                                        + groupDefn[0]
+                                        + "</b>' doesn't match the existing definition");
             }
         }
     }
@@ -368,8 +479,8 @@ public class CcddImportSupportHandler
      * values, if not present in the import file. Based on the input flag build the project-level
      * data fields for these names
      *
-     * @param ccddMain
-     *            main class reference
+     * @param fieldHandler
+     *            data field handler reference
      *
      * @param isCreateField
      *            true is the project-level data fields are to be created
@@ -394,14 +505,13 @@ public class CcddImportSupportHandler
      *             If the data field with the same input type already exists and the imported field
      *             doesn't match
      *********************************************************************************************/
-    protected void setProjectHeaderTablesAndVariables(CcddMain ccddMain,
+    protected void setProjectHeaderTablesAndVariables(CcddFieldHandler fieldHandler,
                                                       boolean isCreateField,
                                                       String tlmHdrTable,
                                                       String cmdHdrTable,
                                                       String appIDName,
                                                       String funcCodeName) throws CCDDException
     {
-        CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
         ProjectDefinition projectDefn = new ProjectDefinition();
         tlmHeaderTable = tlmHdrTable;
         cmdHeaderTable = cmdHdrTable;
@@ -524,7 +634,7 @@ public class CcddImportSupportHandler
         if (isCreateField)
         {
             // Build the imported project-level data fields, if any
-            buildProjectdataFields(ccddMain, projectDefn.getDataFields());
+            buildProjectAndGroupDataFields(fieldHandler, projectDefn.getDataFields());
         }
     }
 

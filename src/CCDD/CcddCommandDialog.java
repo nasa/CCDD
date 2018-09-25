@@ -153,7 +153,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                 gbc.weightx = 1.0;
                 gbc.weighty = 1.0;
                 gbc.gridx++;
-                upperPnl.add(tableTree.createTreePanel("Tables",
+                upperPnl.add(tableTree.createTreePanel("Command Tables",
                                                        TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
                                                        false,
                                                        ccddMain.getMainFrame()),

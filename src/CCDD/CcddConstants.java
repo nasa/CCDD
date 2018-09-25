@@ -517,6 +517,15 @@ public class CcddConstants
         CONTEXT
     }
 
+    // Group definition columns
+    protected static enum GroupDefinitionColumn
+    {
+        NAME,
+        DESCRIPTION,
+        IS_APPLICATION,
+        MEMBERS
+    }
+
     // Application parameters
     protected static enum ApplicationParameter
     {
@@ -5428,7 +5437,7 @@ public class CcddConstants
     {
         COMMAND_NAME("Command Name", "Command name"),
         COMMAND_CODE("Command Code", "Command code"),
-        COMMAND_TABLE("Comamnd Table", "Table containing the command"),
+        COMMAND_TABLE("Command Table", "Table containing the command"),
         ARGUMENTS("Arguments", "Command argument names");
 
         private final String columnName;
@@ -6279,6 +6288,7 @@ public class CcddConstants
         GROUP_DESCRIPTION("Group Description"),
         GROUP_FIELD("Group Data Field"),
         GROUP_TABLE("Group Table"),
+        GROUP_IS_APPLICATION("Group Is Application"),
         APPLICATION_NAMES("Application Names"),
         APPLICATION_NAME("Application Name"),
         APPLICATION_DESCRIPTION("Application Description"),
@@ -6291,7 +6301,8 @@ public class CcddConstants
         COPY_TABLE_OPTIMIZE("Optimized"),
         COPY_TABLE_DATA("Copy Table"),
         PROJECT_FIELD("Project Data Field"),
-        INPUT_TYPE_DEFN("Input Type Definition");
+        INPUT_TYPE_DEFN("Input Type Definition"),
+        GROUP("Group");
 
         private final String tag;
 

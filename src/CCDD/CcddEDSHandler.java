@@ -338,7 +338,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Set the header table names and variables from the project database data fields or
             // default values, if not present in the import file. If importing all tables then add
             // these as project-level data fields to the database
-            setProjectHeaderTablesAndVariables(ccddMain,
+            setProjectHeaderTablesAndVariables(fieldHandler,
                                                importType == ImportType.IMPORT_ALL,
                                                tlmHeaderTable,
                                                cmdHeaderTable,
@@ -2058,25 +2058,33 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            array of table names to convert
      *
      * @param replaceMacros
-     *            true to replace any embedded macros with their corresponding values
+     *            * Not used for EDS export (all macros are expanded) * true to replace any
+     *            embedded macros with their corresponding values
      *
      * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table in the export file
+     *            * Not used for EDS export * true to include the contents of the reserved message
+     *            ID table in the export file
      *
      * @param includeProjectFields
-     *            true to include the project-level data field definitions in the export file
+     *            * Not used for EDS export * true to include the project-level data field
+     *            definitions in the export file
+     *
+     * @param includeGroups
+     *            * Not used for EDS export * true to include the groups and group data field
+     *            definitions in the export file
      *
      * @param includeVariablePaths
-     *            true to include the variable path for each variable in a structure table, both in
-     *            application format and using the user-defined separator characters
+     *            * Not used for EDS export * true to include the variable path for each variable
+     *            in a structure table, both in application format and using the user-defined
+     *            separator characters
      *
      * @param variableHandler
      *            variable handler class reference; null if includeVariablePaths is false
      *
      * @param separators
-     *            string array containing the variable path separator character(s), show/hide data
-     *            types flag ('true' or 'false'), and data type/variable name separator
-     *            character(s); null if includeVariablePaths is false
+     *            * Not used for EDS export * string array containing the variable path separator
+     *            character(s), show/hide data types flag ('true' or 'false'), and data
+     *            type/variable name separator character(s); null if includeVariablePaths is false
      *
      * @param extraInfo
      *            [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
@@ -2094,6 +2102,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean replaceMacros,
                              boolean includeReservedMsgIDs,
                              boolean includeProjectFields,
+                             boolean includeGroups,
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
@@ -2101,11 +2110,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
     {
         // Convert the table data into EDS format
         convertTablesToEDS(tableNames,
-                           replaceMacros,
-                           includeReservedMsgIDs,
-                           includeVariablePaths,
-                           variableHandler,
-                           separators,
                            (EndianType) extraInfo[0],
                            (boolean) extraInfo[1]);
 
@@ -2126,24 +2130,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      * @param tableNames
      *            array of table names to convert to EDS format
      *
-     * @param replaceMacros
-     *            true to replace any embedded macros with their corresponding values
-     *
-     * @param includeReservedMsgIDs
-     *            true to include the contents of the reserved message ID table in the export file
-     *
-     * @param includeVariablePaths
-     *            true to include the variable path for each variable in a structure table, both in
-     *            application format and using the user-defined separator characters
-     *
-     * @param variableHandler
-     *            variable handler class reference; null if includeVariablePaths is false
-     *
-     * @param separators
-     *            string array containing the variable path separator character(s), show/hide data
-     *            types flag ('true' or 'false'), and data type/variable name separator
-     *            character(s); null if includeVariablePaths is false
-     *
      * @param endianess
      *            EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian
      *
@@ -2152,11 +2138,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *            CCSDS)
      *********************************************************************************************/
     private void convertTablesToEDS(String[] tableNames,
-                                    boolean replaceMacros,
-                                    boolean includeReservedMsgIDs,
-                                    boolean includeVariablePaths,
-                                    CcddVariableHandler variableHandler,
-                                    String[] separators,
                                     EndianType endianess,
                                     boolean isHeaderBigEndian)
     {
@@ -2195,7 +2176,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
         dataSheet.setDevice(device);
 
         // Add the project's name spaces, parameters, and commands
-        buildNamespaces(tableNames, includeVariablePaths, variableHandler, separators);
+        buildNamespaces(tableNames);
     }
 
     /**********************************************************************************************
@@ -2203,23 +2184,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param tableNames
      *            array of table names
-     *
-     * @param includeVariablePaths
-     *            true to include the variable path for each variable in a structure table, both in
-     *            application format and using the user-defined separator characters
-     *
-     * @param variableHandler
-     *            variable handler class reference; null if includeVariablePaths is false
-     *
-     * @param separators
-     *            string array containing the variable path separator character(s), show/hide data
-     *            types flag ('true' or 'false'), and data type/variable name separator
-     *            character(s); null if includeVariablePaths is false
      *********************************************************************************************/
-    private void buildNamespaces(String[] tableNames,
-                                 boolean includeVariablePaths,
-                                 CcddVariableHandler variableHandler,
-                                 String[] separators)
+    private void buildNamespaces(String[] tableNames)
     {
         // Get the names of the tables representing the telemetry and command headers
         tlmHeaderTable = fieldHandler.getFieldValue(CcddFieldHandler.getFieldProjectName(),

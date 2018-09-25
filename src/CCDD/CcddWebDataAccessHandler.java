@@ -63,6 +63,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     private TableTreeType tableTreeType;
     private CcddJSONHandler jsonHandler;
     private CcddFieldHandler fieldHandler;
+    private CcddGroupHandler groupHandler;
 
     // Flag that indicates if the macro name(s) in the table cells is to be replaced by the
     // corresponding macro values
@@ -98,7 +99,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
         fieldHandler = ccddMain.getFieldHandler();
-        jsonHandler = new CcddJSONHandler(ccddMain, ccddMain.getMainFrame());
+        groupHandler = new CcddGroupHandler(ccddMain, null, ccddMain.getMainFrame());
+        jsonHandler = new CcddJSONHandler(ccddMain, groupHandler, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************
@@ -421,52 +423,37 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     case "":
                         // Get the name, application status, description, and data fields for the
                         // specified group (or all groups if no group name is specified)
-                        response = getGroupInformation(attributeAndName[1],
-                                                       applicationOnly,
-                                                       new CcddGroupHandler(ccddMain,
-                                                                            null,
-                                                                            ccddMain.getMainFrame()));
+                        response = jsonHandler.getGroupInformation(attributeAndName[1],
+                                                                   applicationOnly);
                         break;
 
                     case "tables":
                         // Get the tables for the specified group (or all groups if no group name
                         // is specified)
-                        response = getGroupTables(attributeAndName[1],
-                                                  applicationOnly,
-                                                  true,
-                                                  new CcddGroupHandler(ccddMain,
-                                                                       null,
-                                                                       ccddMain.getMainFrame()));
+                        response = jsonHandler.getGroupTables(attributeAndName[1],
+                                                              applicationOnly,
+                                                              true);
                         break;
 
                     case "description":
                         // Get the description for the specified group (or all groups if no group
                         // name is specified)
-                        response = getGroupDescription(attributeAndName[1],
-                                                       applicationOnly,
-                                                       true,
-                                                       new CcddGroupHandler(ccddMain,
-                                                                            null,
-                                                                            ccddMain.getMainFrame()));
+                        response = jsonHandler.getGroupDescription(attributeAndName[1],
+                                                                   applicationOnly,
+                                                                   true);
                         break;
 
                     case "fields":
                         // Get a data field information for the specified group (or all groups if
                         // no group name is specified)
-                        response = getGroupFields(attributeAndName[1],
-                                                  applicationOnly,
-                                                  true,
-                                                  new CcddGroupHandler(ccddMain,
-                                                                       null,
-                                                                       ccddMain.getMainFrame()));
+                        response = jsonHandler.getGroupFields(attributeAndName[1],
+                                                              applicationOnly,
+                                                              true);
                         break;
 
                     case "names":
                         // Get all group names
-                        response = getGroupNames(applicationOnly,
-                                                 new CcddGroupHandler(ccddMain,
-                                                                      null,
-                                                                      ccddMain.getMainFrame()));
+                        response = getGroupNames(applicationOnly);
                         break;
 
                     default:
@@ -1326,380 +1313,16 @@ public class CcddWebDataAccessHandler extends AbstractHandler
     }
 
     /**********************************************************************************************
-     * Get the tables associated with the specified group or application, or for all
-     * groups/applications if no group name is provided
-     *
-     * @param groupName
-     *            group name. If blank then every group's (application's) descriptions are returned
-     *
-     * @param applicationOnly
-     *            true if only groups that represent applications should be processed
-     *
-     * @param includeNameTag
-     *            true to include the group name item
-     *
-     * @param groupHandler
-     *            group handler
-     *
-     * @return JSON encoded string containing the specified group's (application's) table members;
-     *         null if the specified group/application doesn't exist or the project has no
-     *         groups/applications, or blank if the specified group/application has no table member
-     *         or if all groups/applications are requested but none have a table member
-     *
-     * @throws CCDDException
-     *             If an error occurs while parsing the group tables
-     *********************************************************************************************/
-    @SuppressWarnings("unchecked")
-    private String getGroupTables(String groupName,
-                                  boolean applicationOnly,
-                                  boolean includeNameTag,
-                                  CcddGroupHandler groupHandler) throws CCDDException
-    {
-        String response = null;
-
-        // Check if no group name is provided (i.e., get the fields for all groups/applications)
-        if (groupName.isEmpty())
-        {
-            JSONArray responseJA = new JSONArray();
-            JSONParser parser = new JSONParser();
-
-            // Get an array containing all group/application names
-            String[] groupNames = groupHandler.getGroupNames(applicationOnly);
-
-            // Check if any groups/applications exist
-            if (groupNames.length != 0)
-            {
-                // Step through each group/application name
-                for (String name : groupNames)
-                {
-                    try
-                    {
-                        // Get the data for this group as a JSON string, then format it as a JSON
-                        // object so that is can be added to the response array. This is needed to
-                        // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getGroupTables(name,
-                                                                   applicationOnly,
-                                                                   true,
-                                                                   groupHandler)));
-                    }
-                    catch (ParseException pe)
-                    {
-                        throw new CCDDException("Error parsing "
-                                                + (applicationOnly
-                                                                   ? "application"
-                                                                   : "group")
-                                                + " tables");
-                    }
-                }
-
-                // Convert the response array to a JSON string
-                response = responseJA.toString();
-            }
-        }
-        // A group name is provided
-        else
-        {
-            // Get the group information for the specified group
-            GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
-
-            // Check if the group exists and that either all groups are requested or else an
-            // application is requested and this group represents an application
-            if (groupInfo != null
-                && (!applicationOnly
-                    || groupInfo.isApplication()))
-            {
-                JSONArray dataJA = new JSONArray();
-
-                // Get the list of the group's tables
-                List<String> tables = groupInfo.getTablesAndAncestors();
-
-                // Step through each table
-                for (String table : tables)
-                {
-                    // Add the table to the array
-                    dataJA.add(table);
-                }
-
-                // Add the group name and description to the list. An array is used to preserve the
-                // order of the items
-                JSONObject groupNameAndTable;
-
-                // Add the group tables. If the group has no tables then the table data is blank
-                groupNameAndTable = new JSONObject();
-
-                // Check if the group name is to be included
-                if (includeNameTag)
-                {
-                    // Add the group name and tables to the output
-                    groupNameAndTable.put((applicationOnly
-                                                           ? JSONTags.APPLICATION_NAME.getTag()
-                                                           : JSONTags.GROUP_NAME.getTag()),
-                                          groupName);
-                    groupNameAndTable.put((applicationOnly
-                                                           ? JSONTags.APPLICATION_TABLE.getTag()
-                                                           : JSONTags.GROUP_TABLE.getTag()),
-                                          dataJA);
-                    response = groupNameAndTable.toString();
-                }
-                // Don't include the name and table tags
-                else
-                {
-                    // Add the tables to the output
-                    response = dataJA.toString();
-                }
-            }
-        }
-
-        return response;
-    };
-
-    /**********************************************************************************************
-     * Get the description for the specified group or application, or all groups/applications with
-     * a description if no group name is provided
-     *
-     * @param groupName
-     *            group name. If blank then every group's (application's) descriptions are returned
-     *
-     * @param applicationOnly
-     *            true if only groups that represent applications should be processed
-     *
-     * @param groupHandler
-     *            group handler
-     *
-     * @param includeNameTag
-     *            true to include the group name and description tags
-     *
-     * @return JSON encoded string containing the specified group's (application's) description;
-     *         null if the specified group/application doesn't exist or the project has no
-     *         groups/applications, or blank if the specified group/application has no description
-     *         or if all groups/applications are requested but none have a description
-     *
-     * @throws CCDDException
-     *             If an error occurs while parsing the group description
-     *********************************************************************************************/
-    @SuppressWarnings("unchecked")
-    private String getGroupDescription(String groupName,
-                                       boolean applicationOnly,
-                                       boolean includeNameTag,
-                                       CcddGroupHandler groupHandler) throws CCDDException
-    {
-        String response = null;
-
-        // Check if no group name is provided (i.e., get the fields for all groups/applications)
-        if (groupName.isEmpty())
-        {
-            // Get an array containing all group/application names
-            String[] groupNames = groupHandler.getGroupNames(applicationOnly);
-
-            // Check if any groups/applications exist
-            if (groupNames.length != 0)
-            {
-                JSONArray responseJA = new JSONArray();
-                JSONParser parser = new JSONParser();
-                response = "";
-
-                // Step through each group/application name
-                for (String name : groupNames)
-                {
-                    try
-                    {
-                        // Get the description for this group as a JSON string, then format it as a
-                        // JSON object so that is can be added to the response array. This is
-                        // needed to get the brackets and commas in the JSON formatted string
-                        // correct
-                        responseJA.add(parser.parse(getGroupDescription(name,
-                                                                        applicationOnly,
-                                                                        true,
-                                                                        groupHandler)));
-                    }
-                    catch (ParseException pe)
-                    {
-                        throw new CCDDException("Error parsing "
-                                                + (applicationOnly
-                                                                   ? "application"
-                                                                   : "group")
-                                                + " description");
-                    }
-                }
-
-                // Convert the response array to a JSON string
-                response = responseJA.toString();
-            }
-        }
-        // A group name is provided
-        else
-        {
-            // Get the group information for the specified group
-            GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
-
-            // Check if the group exists and that either all groups are requested or else an
-            // application is requested and this group represents an application
-            if (groupInfo != null && (!applicationOnly || groupInfo.isApplication()))
-            {
-                JSONObject groupNameAndDesc = new JSONObject();
-
-                // Check if the group name is to be included
-                if (includeNameTag)
-                {
-                    // Add the group name and description to the output
-                    groupNameAndDesc.put((applicationOnly
-                                                          ? JSONTags.APPLICATION_NAME.getTag()
-                                                          : JSONTags.GROUP_NAME.getTag()),
-                                         groupName);
-                    groupNameAndDesc.put((applicationOnly
-                                                          ? JSONTags.APPLICATION_DESCRIPTION.getTag()
-                                                          : JSONTags.GROUP_DESCRIPTION.getTag()),
-                                         response);
-                    response = groupNameAndDesc.toString();
-                }
-                // Don't include the name and description tags
-                else
-                {
-                    // Get the description. If no description exists then use a blank
-                    response = groupInfo.getDescription() != null
-                                                                  ? groupInfo.getDescription()
-                                                                  : "";
-                }
-            }
-        }
-
-        return response;
-    };
-
-    /**********************************************************************************************
-     * Get the data field information for the specified group or application, or for all
-     * groups/applications if no group name is provided
-     *
-     * @param groupName
-     *            group name. If blank then every data table's data fields are returned
-     *
-     * @param applicationOnly
-     *            true if only groups that represent applications should be processed
-     *
-     * @param includeNameTag
-     *            true to include the group name item and data field tag
-     *
-     * @param groupHandler
-     *            group handler
-     *
-     * @return JSON encoded string containing the specified group's data fields; null if the group
-     *         doesn't exist or if the project database contains no groups, or blank if the group
-     *         contains no data fields
-     *
-     * @throws CCDDException
-     *             If an error occurs while parsing the group data fields
-     *********************************************************************************************/
-    @SuppressWarnings("unchecked")
-    private String getGroupFields(String groupName,
-                                  boolean applicationOnly,
-                                  boolean includeNameTag,
-                                  CcddGroupHandler groupHandler) throws CCDDException
-    {
-        String response = null;
-
-        // Check if no group name is provided (i.e., get the fields for all groups/applications)
-        if (groupName.isEmpty())
-        {
-            // Get an array containing all group/application names
-            String[] groupNames = groupHandler.getGroupNames(applicationOnly);
-
-            // Check if any groups/applications exist
-            if (groupNames.length != 0)
-            {
-                JSONArray responseJA = new JSONArray();
-                JSONParser parser = new JSONParser();
-
-                // Step through each group/application name
-                for (String name : groupNames)
-                {
-                    try
-                    {
-                        // Get the fields for this group as a JSON string, then format it as a JSON
-                        // object so that is can be added to the response array. This is needed to
-                        // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getGroupFields(name,
-                                                                   applicationOnly,
-                                                                   true,
-                                                                   groupHandler)));
-                    }
-                    catch (ParseException pe)
-                    {
-                        throw new CCDDException("Error parsing "
-                                                + (applicationOnly
-                                                                   ? "application"
-                                                                   : "group")
-                                                + " data fields");
-                    }
-                }
-
-                // Add the table fields to the response
-                response = responseJA.toString();
-            }
-        }
-        // A group name is provided
-        else
-        {
-            // Get the group information for the specified group
-            GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
-
-            // Check if the group exists and that either all groups are requested or else an
-            // application is requested and this group represents an application
-            if (groupInfo != null && (!applicationOnly || groupInfo.isApplication()))
-            {
-                JSONArray groupFieldsJA = new JSONArray();
-
-                // Check if the group has any fields
-                if (!fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupName)).isEmpty())
-                {
-                    // Get the group data fields (extract the data field array from the table field
-                    // tag)
-                    JSONObject fieldsJO = jsonHandler.getDataFields(CcddFieldHandler.getFieldGroupName(groupName),
-                                                                    JSONTags.GROUP_FIELD.getTag(),
-                                                                    new JSONObject());
-                    groupFieldsJA = (JSONArray) fieldsJO.get(JSONTags.GROUP_FIELD.getTag());
-                }
-
-                // Check if the name tag is to be included
-                if (includeNameTag)
-                {
-                    // Add the group name and group data fields to the output
-                    JSONObject groupNameAndFields = new JSONObject();
-                    groupNameAndFields.put((applicationOnly
-                                                            ? JSONTags.APPLICATION_NAME.getTag()
-                                                            : JSONTags.GROUP_NAME.getTag()),
-                                           groupName);
-                    groupNameAndFields.put((applicationOnly
-                                                            ? JSONTags.APPLICATION_FIELD.getTag()
-                                                            : JSONTags.GROUP_FIELD.getTag()),
-                                           groupFieldsJA);
-                    response = groupNameAndFields.toString();
-                }
-                // Don't include the name and field tags
-                else
-                {
-                    // Add the data fields to the output
-                    response = groupFieldsJA.toString();
-                }
-            }
-        }
-
-        return response;
-    };
-
-    /**********************************************************************************************
      * Get the names of all groups or applications
      *
      * @param applicationOnly
      *            true if only groups that represent applications should be processed
      *
-     * @param groupHandler
-     *            group handler
-     *
      * @return JSON encoded string containing the all group/application names; null if no
      *         groups/applications exist in the project database
      *********************************************************************************************/
     @SuppressWarnings("unchecked")
-    private String getGroupNames(boolean applicationOnly, CcddGroupHandler groupHandler)
+    private String getGroupNames(boolean applicationOnly)
     {
         String response = null;
 
@@ -1726,139 +1349,6 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                                             : JSONTags.GROUP_NAMES.getTag()),
                            namesJA);
             response = responseJO.toString();
-        }
-
-        return response;
-    };
-
-    /**********************************************************************************************
-     * Get the description, associated table(s), and data fields for the specified group or
-     * application
-     *
-     * @param groupName
-     *            group name. If blank then every data table's data fields are returned
-     *
-     * @param applicationOnly
-     *            true if only groups that represent applications should be processed
-     *
-     * @param groupHandler
-     *            group handler
-     *
-     * @return JSON encoded string containing the specified group/application information; null if
-     *         a group name is specified and the group/application doesn't exist or if no
-     *         groups/applications exist in the project database
-     *
-     * @throws CCDDException
-     *             If an error occurs while parsing the group information
-     *********************************************************************************************/
-    @SuppressWarnings("unchecked")
-    private String getGroupInformation(String groupName,
-                                       boolean applicationOnly,
-                                       CcddGroupHandler groupHandler) throws CCDDException
-    {
-        JSONArray responseJA = new JSONArray();
-        JSONParser parser = new JSONParser();
-        String response = null;
-        String groupType;
-        String nameTag;
-        String descriptionTag;
-        String dataFieldTag;
-        String tableTag;
-
-        // Check if only groups that represent applications are to be processed
-        if (applicationOnly)
-        {
-            groupType = "application";
-            nameTag = JSONTags.APPLICATION_NAME.getTag();
-            descriptionTag = JSONTags.APPLICATION_DESCRIPTION.getTag();
-            dataFieldTag = JSONTags.APPLICATION_FIELD.getTag();
-            tableTag = JSONTags.APPLICATION_TABLE.getTag();
-        }
-        // Process groups of any type
-        else
-        {
-            groupType = "group";
-            nameTag = JSONTags.GROUP_NAME.getTag();
-            descriptionTag = JSONTags.GROUP_DESCRIPTION.getTag();
-            dataFieldTag = JSONTags.GROUP_FIELD.getTag();
-            tableTag = JSONTags.GROUP_TABLE.getTag();
-        }
-
-        // Check if no group name is provided (i.e., get the fields for all groups/applications)
-        if (groupName.isEmpty())
-        {
-            // Get an array containing all group/application names
-            String[] groupNames = groupHandler.getGroupNames(applicationOnly);
-
-            // Check if any groups/applications exist
-            if (groupNames.length != 0)
-            {
-                response = "";
-
-                // Step though each group/application
-                for (String name : groupNames)
-                {
-                    try
-                    {
-                        // Get the fields for this group as a JSON string, then format it as a JSON
-                        // object so that is can be added to the response array. This is needed to
-                        // get the brackets and commas in the JSON formatted string correct
-                        responseJA.add(parser.parse(getGroupInformation(name,
-                                                                        applicationOnly,
-                                                                        groupHandler)));
-                    }
-                    catch (ParseException pe)
-                    {
-                        throw new CCDDException("Error parsing " + groupType + " information");
-                    }
-                }
-
-                // Convert the response array to a JSON string
-                response = responseJA.toString();
-            }
-        }
-        // A group name is provided
-        else
-        {
-            // Get the group information for the specified group
-            GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
-
-            // Check if the group exists and that either all groups are requested or else an
-            // application is requested and this group represents an application
-            if (groupInfo != null
-                && (!applicationOnly
-                    || groupInfo.isApplication()))
-            {
-                try
-                {
-                    // Store the group's name, description, tables, and data fields
-                    JSONObject groupInfoJO = new JSONObject();
-                    groupInfoJO.put(nameTag, groupName);
-                    groupInfoJO.put(descriptionTag,
-                                    getGroupDescription(groupName,
-                                                        applicationOnly,
-                                                        false,
-                                                        groupHandler));
-                    groupInfoJO.put(tableTag,
-                                    parser.parse(getGroupTables(groupName,
-                                                                applicationOnly,
-                                                                false,
-                                                                groupHandler)));
-                    groupInfoJO.put(dataFieldTag,
-                                    parser.parse(getGroupFields(groupName,
-                                                                applicationOnly,
-                                                                false,
-                                                                groupHandler)));
-
-                    // Convert the response object to a JSON string
-                    response = groupInfoJO.toString();
-                }
-                catch (ParseException pe)
-                {
-                    pe.printStackTrace();
-                    throw new CCDDException("Error parsing " + groupType + " information");
-                }
-            }
         }
 
         return response;
@@ -2209,10 +1699,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                 // Check if a group name filter is specified
                 if (!groupFilter.isEmpty())
                 {
-                    // Create a group handler and extract the table names belonging to the group
-                    CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                                         null,
-                                                                         ccddMain.getMainFrame());
+                    // Extract the table names belonging to the group
                     GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupFilter);
 
                     // Check if the group doesn't exist
@@ -2464,10 +1951,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         // Check if a group name filter is specified
         if (!groupFilter.isEmpty())
         {
-            // Create a group handler and extract the table names belonging to the group
-            CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain,
-                                                                 null,
-                                                                 ccddMain.getMainFrame());
+            // Extract the table names belonging to the group
             GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupFilter);
 
             // Check if the group doesn't exist

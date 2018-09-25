@@ -1499,7 +1499,8 @@ public class CcddClassesDataTable
 
     /**********************************************************************************************
      * Project definition class. Contains the information necessary to construct the project-level
-     * data fields derived from a CSV, EDS, JSON, or XTCE import file
+     * data fields derived from a CSV, EDS, JSON, or XTCE import file, or group data fields derived
+     * from a CSV or JSON import file
      *********************************************************************************************/
     protected static class ProjectDefinition
     {

@@ -346,7 +346,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             {
                 int matchCount = 0;
 
-                super.buildTableTree(isExpanded, rateName, rateFilter, parent);
+                super.buildTableTree(isExpanded, null, null, parent);
 
                 // Check if the user provided search criteria
                 if (searchPattern != null)
@@ -494,10 +494,6 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             prevSearchText = searchFld.getText();
             prevIgnoreCase = ignoreCaseCb.isSelected();
             prevAllowRegex = allowRegexCb.isSelected();
-
-            // TODO PUTTING THIS IN A BACKGROUND THREAD CAUSES THE VARIABLE TREE TO UPDATE
-            // CONTANTLY DURING THE SEARCH OPERATION. NEED TO CAPTURE WHATEVER EVENT IS BEING
-            // GENERATED AND IGNORE IT UNTIL THE SEARCH IS COMPLETE
 
             try
             {

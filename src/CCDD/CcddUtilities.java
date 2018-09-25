@@ -1534,12 +1534,16 @@ public class CcddUtilities
      *
      * @param searchPattern
      *            search pattern; can be a regular expression (Pattern)
+     *
+     * @return true if the supplied text contains a match to the specified search pattern
      *********************************************************************************************/
-    protected static void highlightSearchText(Component component,
-                                              String text,
-                                              Color hightlightColor,
-                                              Pattern searchPattern)
+    protected static boolean highlightSearchText(Component component,
+                                                 String text,
+                                                 Color hightlightColor,
+                                                 Pattern searchPattern)
     {
+        boolean hasHighlight = false;
+
         // Check if the search pattern exists
         if (searchPattern != null)
         {
@@ -1576,6 +1580,9 @@ public class CcddUtilities
                     highlighter.addHighlight(matcher.start() + adjust,
                                              matcher.end() + adjust,
                                              painter);
+
+                    // Set the flag to indicate the text contains a match
+                    hasHighlight = true;
                 }
                 catch (BadLocationException ble)
                 {
@@ -1583,6 +1590,8 @@ public class CcddUtilities
                 }
             }
         }
+
+        return hasHighlight;
     }
 
     /**********************************************************************************************

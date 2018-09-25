@@ -162,8 +162,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             assnsTable.getUndoManager().discardAllEdits();
         }
 
-        // Reenable the dialog buttons
+        // Reenable the dialog buttons and redraw the associations table
         setControlsEnabled(true);
+        assnsTable.repaint();
     }
 
     /**********************************************************************************************
@@ -416,7 +417,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                             // Check that a script is specified
                             if (!scriptNameFld.getText().trim().isEmpty())
                             {
-                                addAssociation(TableInsertionPoint.START, false);
+                                addAssociation(TableInsertionPoint.START, -1);
                             }
                             // The script file field is blank
                             else
@@ -919,14 +920,14 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *            TableInsertionPoint.SELECTION to insert below the currently selected row, or
      *            TableInsertionPoint.END to insert as the last row in the table
      *
-     * @param ignoreDuplicate
-     *            true to ignore an identical, existing association (as is possible when replacing
-     *            an association, if no changes are made); false to prevent a duplicate association
-     *            (as when adding an association)
+     * @param ignoreRow
+     *            row to ignore when checking for an identical, existing association (as is
+     *            possible when replacing an association, if no changes are made); -1 to prevent a
+     *            duplicate association (as when adding an association)
      *
      * @return true if the association inputs are valid and the association is successfully added
      *********************************************************************************************/
-    private boolean addAssociation(TableInsertionPoint insertPoint, boolean ignoreDuplicate)
+    private boolean addAssociation(TableInsertionPoint insertPoint, int ignoreRow)
     {
         boolean isAdded = false;
 
@@ -962,11 +963,13 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 // creating a duplicate
                 for (int row = 0; row < assnsTable.getRowCount(); row++)
                 {
+
                     // Check if this row isn't the one being edited, and if the association name
                     // matches the one being added (case insensitive)
-                    if (nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row,
-                                                                                 AssociationsTableColumnInfo.NAME.ordinal())
-                                                                     .toString()))
+                    if (row != ignoreRow
+                        && nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row,
+                                                                                    AssociationsTableColumnInfo.NAME.ordinal())
+                                                                        .toString()))
                     {
                         throw new CCDDException("Association name already in use");
                     }
@@ -983,8 +986,9 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             FileEnvVar scriptFile = new FileEnvVar(scriptNameFld.getText());
 
             // Check if the script association already exists in the list
-            if (!ignoreDuplicate && isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
-                                                        members.toArray(new String[0])))
+            if (isAssociationExists(scriptFile.getAbsolutePathWithEnvVars(),
+                                    members.toArray(new String[0]),
+                                    ignoreRow))
             {
                 throw new CCDDException("An association with this script and table(s) "
                                         + "already exists in the script associations table");
@@ -1054,7 +1058,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             int selectedRow = assnsTable.getSelectedRow();
 
             // Check if adding the new row below the selected row succeeded
-            if (addAssociation(TableInsertionPoint.SELECTION, true))
+            if (addAssociation(TableInsertionPoint.SELECTION, selectedRow))
             {
                 // Remove the selected association and set the selection to the newly added
                 // association
@@ -1095,19 +1099,30 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      * @param tables
      *            array of tables referenced by the script association
      *
+     * @param ignoreRow
+     *            row to ignore when checking for an identical, existing association (as is
+     *            possible when replacing an association, if no changes are made); -1 to prevent a
+     *            duplicate association (as when adding an association)
+     *
      * @return true if the script association already exists in the table
      *********************************************************************************************/
-    private boolean isAssociationExists(String scriptName, String[] tables)
+    private boolean isAssociationExists(String scriptName, String[] tables, int ignoreRow)
     {
         boolean isExists = false;
 
-        // Step through the committed script associations
-        for (Object[] assn : assnsTable.getTableDataList(true))
-        {
-            String members = CcddUtilities.removeHTMLTags(assn[AssociationsColumn.MEMBERS.ordinal()].toString());
+        // Get the current associations from the table
+        List<Object[]> assn = assnsTable.getTableDataList(false);
 
-            // Check if the script and tables match between the two script associations
-            if (scriptName.equals(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
+        // Step through the committed script associations
+        for (int row = 0; row < assn.size(); row++)
+        {
+            // Get the association members (single string format)with any HTML tags removed
+            String members = CcddUtilities.removeHTMLTags(assn.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
+
+            // Check if this isn't the current association being added (if applicable), and the
+            // script and tables match between the two script associations
+            if (row != ignoreRow
+                && scriptName.equals(assn.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString())
                 && CcddUtilities.isArraySetsEqual(tables,
                                                   members.isEmpty()
                                                                     ? new String[] {}
