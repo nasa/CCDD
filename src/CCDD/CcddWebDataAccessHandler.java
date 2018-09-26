@@ -18,6 +18,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -648,7 +649,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         String[] parameter = getParts(searchCriteria, ",", 5, true);
         String searchText = parameter[0];
         String ignoreCase = parameter[1];
-        String allowRegex = parameter[2];
+        String allowRegEx = parameter[2];
         String dataTablesOnly = parameter[3];
         String searchColumns = parameter[4];
 
@@ -713,25 +714,35 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             CcddSearchHandler searchHandler = new CcddSearchHandler(ccddMain,
                                                                     SearchDialogType.TABLES);
 
-            // Perform the search and step through the results, if any
-            for (Object[] searchResult : searchHandler.searchTablesOrScripts(searchText,
-                                                                             Boolean.valueOf(ignoreCase),
-                                                                             Boolean.valueOf(allowRegex),
-                                                                             Boolean.valueOf(dataTablesOnly),
-                                                                             dbColumns))
-            {
-                // Store each search result in a JSON object and add it to the search results array
-                JSONObject searchJO = new JSONObject();
-                searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
-                             searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
-                searchJO.put(SearchResultsColumnInfo.LOCATION.getColumnName(SearchDialogType.TABLES),
-                             searchResult[SearchResultsColumnInfo.LOCATION.ordinal()]);
-                searchJO.put(SearchResultsColumnInfo.CONTEXT.getColumnName(SearchDialogType.TABLES),
-                             searchResult[SearchResultsColumnInfo.CONTEXT.ordinal()]);
-                searchJA.add(searchJO);
-            }
+            // Create the match pattern from the search criteria
+            Pattern searchPattern = CcddSearchHandler.createSearchPattern(searchText,
+                                                                          Boolean.valueOf(ignoreCase),
+                                                                          Boolean.valueOf(allowRegEx),
+                                                                          null);
 
-            response = searchJA.toString();
+            // Check if the search pattern is valid
+            if (searchPattern != null)
+            {
+                // Perform the search and step through the results, if any
+                for (Object[] searchResult : searchHandler.searchTablesOrScripts(searchPattern.pattern(),
+                                                                                 Boolean.valueOf(ignoreCase),
+                                                                                 Boolean.valueOf(dataTablesOnly),
+                                                                                 dbColumns))
+                {
+                    // Store each search result in a JSON object and add it to the search results
+                    // array
+                    JSONObject searchJO = new JSONObject();
+                    searchJO.put(SearchResultsColumnInfo.OWNER.getColumnName(SearchDialogType.TABLES),
+                                 searchResult[SearchResultsColumnInfo.OWNER.ordinal()]);
+                    searchJO.put(SearchResultsColumnInfo.LOCATION.getColumnName(SearchDialogType.TABLES),
+                                 searchResult[SearchResultsColumnInfo.LOCATION.ordinal()]);
+                    searchJO.put(SearchResultsColumnInfo.CONTEXT.getColumnName(SearchDialogType.TABLES),
+                                 searchResult[SearchResultsColumnInfo.CONTEXT.ordinal()]);
+                    searchJA.add(searchJO);
+                }
+
+                response = searchJA.toString();
+            }
         }
 
         return response;

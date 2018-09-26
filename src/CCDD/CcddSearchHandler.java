@@ -9,6 +9,7 @@ package CCDD;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 
+import java.awt.Component;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.CharBuffer;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JOptionPane;
 
@@ -61,6 +63,9 @@ public class CcddSearchHandler extends CcddDialogHandler
 
     // Search dialog type
     private final SearchDialogType searchDlgType;
+
+    // Temporary marker for special characters in a search string
+    protected static final String WILD_CARD_MARKER = "@~wildcard~@";
 
     /**********************************************************************************************
      * Search database tables, scripts, and event log handler class constructor
@@ -125,9 +130,6 @@ public class CcddSearchHandler extends CcddDialogHandler
      * @param ignoreCase
      *            true to ignore case when looking for matching text
      *
-     * @param allowRegex
-     *            true to allow a regular expression search string
-     *
      * @param dataTablesOnly
      *            true if only the data tables, and not references in the internal tables, are to
      *            be searched
@@ -142,7 +144,6 @@ public class CcddSearchHandler extends CcddDialogHandler
      *********************************************************************************************/
     protected List<Object[]> searchTablesOrScripts(String searchText,
                                                    boolean ignoreCase,
-                                                   boolean allowRegex,
                                                    boolean dataTablesOnly,
                                                    String searchColumns)
     {
@@ -164,7 +165,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                           {"_case_insensitive_",
                                                            String.valueOf(ignoreCase)},
                                                           {"_allow_regex_",
-                                                           String.valueOf(allowRegex)},
+                                                           "true"},
                                                           {"_selected_tables_",
                                                            searchType},
                                                           {"_columns_",
@@ -662,11 +663,8 @@ public class CcddSearchHandler extends CcddDialogHandler
     /**********************************************************************************************
      * Search for occurrences of a string in the event log file (session log or other log file)
      *
-     * @param searchText
-     *            text string to search for in the log file
-     *
-     * @param ignoreCase
-     *            true to ignore case when looking for matching text
+     * @param searchPattern
+     *            regular expression search pattern
      *
      * @param targetRow
      *            row index to match if this is an event log entry search on a table that displays
@@ -676,27 +674,10 @@ public class CcddSearchHandler extends CcddDialogHandler
      *         database tables or event log, the column within the location, and an extract for the
      *         located match showing its context
      *********************************************************************************************/
-    protected List<Object[]> searchEventLogFile(String searchText,
-                                                boolean ignoreCase,
-                                                Long targetRow)
+    protected List<Object[]> searchEventLogFile(Pattern searchPattern, Long targetRow)
     {
-        Pattern pattern;
-
         // Initialize the list to contain the search results
-        List<Object[]> resultsDataList = new ArrayList<Object[]>();
-
-        // Check if case is to be ignored
-        if (ignoreCase)
-        {
-            // Create the match pattern with case ignored
-            pattern = Pattern.compile(Pattern.quote(searchText), Pattern.CASE_INSENSITIVE);
-        }
-        // Only match if the same case
-        else
-        {
-            // Create the match pattern, preserving case
-            pattern = Pattern.compile(Pattern.quote(searchText));
-        }
+        List<Object[]> matchDataList = new ArrayList<Object[]>();
 
         // Set up Charset and CharsetDecoder for ISO-8859-15
         Charset charset = Charset.forName("ISO-8859-15");
@@ -740,15 +721,15 @@ public class CcddSearchHandler extends CcddDialogHandler
                     {
                         // Create the pattern matcher from the pattern. Ignore any HTML tags in the
                         // log entry column text
-                        Matcher matcher = pattern.matcher(CcddUtilities.removeHTMLTags(parts[column].toString()));
+                        Matcher matcher = searchPattern.matcher(CcddUtilities.removeHTMLTags(parts[column].toString()));
 
                         // Check if a match exists in the text string
                         if (matcher.find())
                         {
                             // Add the search result to the list
-                            resultsDataList.add(new Object[] {row,
-                                                              eventLog.getEventTable().getColumnName(column + 1),
-                                                              parts[column]});
+                            matchDataList.add(new Object[] {row,
+                                                            eventLog.getEventTable().getColumnName(column + 1),
+                                                            parts[column]});
                         }
                     }
 
@@ -780,7 +761,7 @@ public class CcddSearchHandler extends CcddDialogHandler
         }
 
         // Display the search results
-        return sortSearchResults(resultsDataList);
+        return sortSearchResults(matchDataList);
     }
 
     /**********************************************************************************************
@@ -915,5 +896,81 @@ public class CcddSearchHandler extends CcddDialogHandler
                 }
             }
         }
+    }
+
+    /**********************************************************************************************
+     * Create the match pattern from the search criteria. If the allow regular flag is set then the
+     * search string is used as is. If the allow regular expression flag isn't set then a wild card
+     * match is enabled. A custom matching system is used: a question mark matches a single
+     * character and an asterisk matches one or more characters. This is turned into a regular
+     * expression to perform the actual match
+     *
+     * Get the regular expression search pattern based on the input criteria
+     *
+     * @param searchText
+     *            reference to the table cell renderer component
+     *
+     * @param ignoreCase
+     *            true if the search is case insensitive
+     *
+     * @param allowRegEx
+     *            true if the search text can contain a regular expression
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog; null to not display an error
+     *            dialog if the search pattern is invalid
+     *
+     * @return Compiled regular expression search pattern; null if the regular expression is
+     *         invalid
+     *********************************************************************************************/
+    protected static Pattern createSearchPattern(String searchText,
+                                                 boolean ignoreCase,
+                                                 boolean allowRegEx,
+                                                 Component parent)
+    {
+        Pattern searchPattern = null;
+
+        try
+        {
+            // Create the match pattern from the search criteria. First the reserved regular
+            // expression characters are escaped, other than the asterisk and question mark; these
+            // are then replaced with their corresponding regular expression (while protecting any
+            // escaped instances of the asterisks and question marks by temporarily replacing these
+            // with a marker)
+            searchPattern = Pattern.compile("(?"
+                                            + (ignoreCase
+                                                          ? "i"
+                                                          : "")
+                                            + ":"
+                                            + (allowRegEx
+                                                          ? searchText
+                                                          : searchText.replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
+                                                                                  "\\\\$1")
+                                                                      .replaceAll("\\\\\\?", WILD_CARD_MARKER)
+                                                                      .replaceAll("\\?", ".")
+                                                                      .replaceAll(WILD_CARD_MARKER, "\\\\?")
+                                                                      .replaceAll("\\\\\\*", WILD_CARD_MARKER)
+                                                                      .replaceAll("\\*", ".*?")
+                                                                      .replaceAll(WILD_CARD_MARKER, "\\\\*"))
+                                            + ")");
+
+        }
+        catch (PatternSyntaxException pse)
+        {
+            // Check if an error dialog should be displayed
+            if (parent != null)
+            {
+                // Inform the user that the regular expression is invalid
+                new CcddDialogHandler().showMessageDialog(parent,
+                                                          "<html><b>Invalid regular expression; cause '</b>"
+                                                                  + pse.getMessage()
+                                                                  + "'<b>",
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+        }
+
+        return searchPattern;
     }
 }

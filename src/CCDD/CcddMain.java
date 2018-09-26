@@ -78,6 +78,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
 
 import CCDD.CcddClassesDataTable.TableInformation;
+import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -264,7 +265,7 @@ public class CcddMain
 
         // Check if the command that sets the session event log file path is present, and if so set
         // the path
-        cmdLnHandler.parseCommand(-1, 1);
+        cmdLnHandler.parseCommand(CommandLinePriority.PRE_START);
 
         // Create the database command and control handler classes
         dbCommand = new CcddDbCommandHandler(CcddMain.this);
@@ -333,7 +334,7 @@ public class CcddMain
 
         // Execute the command line arguments that are not database-dependent and make adjustments
         // as needed
-        cmdLnHandler.parseCommand(2, 9);
+        cmdLnHandler.parseCommand(CommandLinePriority.SET_UP);
 
         // Make the main application window visible if the GUI set to be active
         frameCCDD.setVisible(!isGUIHidden());
@@ -844,7 +845,7 @@ public class CcddMain
             orgScriptOutPath = getProgPrefs().get(ModifiablePathInfo.SCRIPT_OUTPUT_PATH.getPreferenceKey(), "");
 
             // Execute the command line arguments that are database-dependent
-            cmdLnHandler.parseCommand(10, -1);
+            cmdLnHandler.parseCommand(CommandLinePriority.DB_DEPENDENT);
 
             // Set the handler reference to null so that the command line commands are not executed
             // again (i.e., if another database is opened during the same session)

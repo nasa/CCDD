@@ -29,9 +29,7 @@ import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,10 +45,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
-import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
@@ -91,18 +85,33 @@ public class CcddSearchDialog extends CcddFrameHandler
     private JCheckBox allowRegexCb;
     private JCheckBox dataTablesOnlyCb;
     private JCheckBox selectedColumnsCb;
-    private JLabel numResultsLbl;
+    private JLabel numMatchesLbl;
     private MultilineLabel selectedColumnsLbl;
+
+    // Pattern for matching search text in the table cells
+    private Pattern searchPattern;
+
+    // Comparison search criteria used to determine if the criteria changed
+    private String prevSearchText;
+    private boolean prevIgnoreCase;
+    private boolean prevAllowRegex;
 
     // String containing the names of columns, separated by commas, to which to constrain a table
     // search
     private String searchColumns;
 
+    // Row index to match if this is an event log entry search on a table that displays only a
+    // single log entry; null otherwise
+    private final Long targetRow;
+
     // Search dialog type
     private final SearchDialogType searchDlgType;
 
     // Array to contain the search results
-    private Object[][] resultsData;
+    private Object[][] matchData;
+
+    // Wild card search character explanation label
+    private static String WILD_CARD_LABEL = "? = character, * = string, \\ for literal ? or *";
 
     /**********************************************************************************************
      * Search database tables, scripts, and event log dialog class constructor
@@ -131,16 +140,17 @@ public class CcddSearchDialog extends CcddFrameHandler
     {
         this.ccddMain = ccddMain;
         this.searchDlgType = searchDlgType;
+        this.targetRow = targetRow;
         this.eventLog = eventLog;
 
         // Create reference to shorten subsequent calls
         tableTypeHandler = ccddMain.getTableTypeHandler();
 
         // Initialize the search results table contents
-        resultsData = new Object[0][0];
+        matchData = new Object[0][0];
 
         // Create the database table search dialog
-        initialize(targetRow, parent);
+        initialize(parent);
     }
 
     /**********************************************************************************************
@@ -186,15 +196,14 @@ public class CcddSearchDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Create the database table or scripts search dialog
      *
-     * @param targetRow
-     *            row index to match if this is an event log entry search on a table that displays
-     *            only a single log entry; null otherwise
-     *
      * @param parent
      *            GUI component over which to center the dialog
      *********************************************************************************************/
-    private void initialize(final Long targetRow, Component parent)
+    private void initialize(Component parent)
     {
+        prevSearchText = null;
+
+        // Create a search handler
         searchHandler = new CcddSearchHandler(ccddMain, searchDlgType, targetRow, eventLog);
 
         searchColumns = "";
@@ -283,9 +292,17 @@ public class CcddSearchDialog extends CcddFrameHandler
         });
 
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
+        gbc.insets.bottom = 0;
         gbc.gridy++;
         inputPnl.add(searchFld, gbc);
+
+        // Add the wild card character explanation label
+        final JLabel wildCardLbl = new JLabel(WILD_CARD_LABEL);
+        wildCardLbl.setFont(ModifiableFontInfo.LABEL_ITALIC.getFont());
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+        gbc.insets.top = 0;
+        gbc.gridy++;
+        inputPnl.add(wildCardLbl, gbc);
 
         // Create a check box for ignoring the text case
         ignoreCaseCb = new JCheckBox("Ignore text case");
@@ -309,8 +326,9 @@ public class CcddSearchDialog extends CcddFrameHandler
             }
         });
 
-        gbc.insets.left = 0;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+        gbc.insets.left = 0;
         gbc.gridy++;
         inputPnl.add(ignoreCaseCb, gbc);
 
@@ -320,6 +338,23 @@ public class CcddSearchDialog extends CcddFrameHandler
         allowRegexCb.setBorder(emptyBorder);
         allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the search string to contain a regular expression",
                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+        // Add a listener for allow regular expression check box selection changes
+        allowRegexCb.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Handle a change in the allow regular expression check box state
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Hide the wild card label if the allow regular expression check box is enabled
+                wildCardLbl.setText(allowRegexCb.isSelected()
+                                                              ? " "
+                                                              : WILD_CARD_LABEL);
+            }
+        });
+
         gbc.gridy++;
         inputPnl.add(allowRegexCb, gbc);
 
@@ -597,8 +632,8 @@ public class CcddSearchDialog extends CcddFrameHandler
         JLabel resultsLbl = new JLabel("Search results");
         resultsLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         resultsLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-        numResultsLbl = new JLabel();
-        numResultsLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+        numMatchesLbl = new JLabel();
+        numMatchesLbl.setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.insets.bottom = 0;
@@ -608,7 +643,7 @@ public class CcddSearchDialog extends CcddFrameHandler
         // Add the results labels to the dialog
         JPanel resultsPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         resultsPnl.add(resultsLbl);
-        resultsPnl.add(numResultsLbl);
+        resultsPnl.add(numMatchesLbl);
         dialogPnl.add(resultsPnl, gbc);
 
         // Create the table to display the search results
@@ -657,7 +692,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 // Place the data into the table model along with the column names, set up the
                 // editors and renderers for the table cells, set up the table grid lines, and
                 // calculate the minimum width required to display the table information
-                setUpdatableCharacteristics(resultsData,
+                setUpdatableCharacteristics(matchData,
                                             SearchResultsColumnInfo.getColumnNames(searchDlgType),
                                             null,
                                             SearchResultsColumnInfo.getToolTips(searchDlgType),
@@ -736,63 +771,13 @@ public class CcddSearchDialog extends CcddFrameHandler
                 // Check if the column allows highlighting
                 if (isColumnHighlight(column))
                 {
-                    int adjust = 0;
-                    Pattern pattern;
-
-                    // Remove any existing highlighting from the text
-                    ((JTextComponent) component).getHighlighter().removeAllHighlights();
-
-                    // Create a highlighter painter
-                    DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(isSelected
-                                                                                                                ? ModifiableColorInfo.INPUT_TEXT.getColor()
-                                                                                                                : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor());
-
-                    // Check if the text is HTML tagged
-                    if (text.startsWith("<html>"))
-                    {
-                        // Remove the HTML tags and set the match index adjust TODO
-                        text = CcddUtilities.removeHTMLTags(text);
-                        adjust = 1;
-                    }
-
-                    // Check if case is to be ignored
-                    if (ignoreCaseCb.isSelected())
-                    {
-                        // Create the match pattern with case ignored
-                        pattern = Pattern.compile(allowRegexCb.isSelected()
-                                                                            ? searchFld.getText()
-                                                                            : Pattern.quote(searchFld.getText()),
-                                                  Pattern.CASE_INSENSITIVE);
-                    }
-                    // Only highlight matches with the same case
-                    else
-                    {
-                        // Create the match pattern, preserving case
-                        pattern = Pattern.compile(allowRegexCb.isSelected()
-                                                                            ? searchFld.getText()
-                                                                            : Pattern.quote(searchFld.getText()));
-                    }
-
-                    // Create the pattern matcher from the pattern
-                    Matcher matcher = pattern.matcher(text);
-
-                    // Find each match in the text string
-                    while (matcher.find())
-                    {
-                        try
-                        {
-                            // Highlight the matching text. Adjust the highlight color to account
-                            // for the cell selection highlighting so that the search text is
-                            // easily readable
-                            ((JTextComponent) component).getHighlighter().addHighlight(matcher.start() + adjust,
-                                                                                       matcher.end() + adjust,
-                                                                                       painter);
-                        }
-                        catch (BadLocationException ble)
-                        {
-                            // Ignore highlighting failure
-                        }
-                    }
+                    // Highlight the matching text in the column
+                    CcddUtilities.highlightSearchText(component,
+                                                      text,
+                                                      (isSelected
+                                                                  ? ModifiableColorInfo.INPUT_TEXT.getColor()
+                                                                  : ModifiableColorInfo.SEARCH_HIGHLIGHT.getColor()),
+                                                      searchPattern);
                 }
             }
         };
@@ -841,122 +826,7 @@ public class CcddSearchDialog extends CcddFrameHandler
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                // Check if the search field is blank
-                if (searchFld.getText().isEmpty())
-                {
-                    // Inform the user that the input value is invalid
-                    new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
-                                                              "<html><b>Search text cannot be blank",
-                                                              "Invalid Input",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-                // The search field contains text
-                else
-                {
-                    List<Object[]> resultsDataList = null;
-
-                    try
-                    {
-                        // Check if the search string allows a regular expression
-                        if (allowRegexCb.isSelected())
-                        {
-                            // Validate the regular expression by compiling it
-                            Pattern.compile(searchFld.getText());
-                        }
-
-                        // Update the search string list
-                        searchFld.updateList(searchFld.getText());
-
-                        // Store the search list in the program preferences
-                        ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
-
-                        switch (searchDlgType)
-                        {
-                            case TABLES:
-                            case SCRIPTS:
-                                // Search the database tables or scripts and display the results
-                                resultsDataList = searchHandler.searchTablesOrScripts(searchFld.getText(),
-                                                                                      ignoreCaseCb.isSelected(),
-                                                                                      allowRegexCb.isSelected(),
-                                                                                      (searchDlgType == SearchDialogType.TABLES
-                                                                                                                                ? dataTablesOnlyCb.isSelected()
-                                                                                                                                : false),
-                                                                                      searchColumns);
-                                break;
-
-                            case LOG:
-                                // Search the event log and display the results
-                                resultsDataList = searchHandler.searchEventLogFile(searchFld.getText(),
-                                                                                   ignoreCaseCb.isSelected(),
-                                                                                   targetRow);
-                                break;
-                        }
-
-                        // Check if this is a table search
-                        if (searchDlgType == SearchDialogType.TABLES)
-                        {
-                            List<Object[]> removeResults = new ArrayList<Object[]>();
-
-                            // Get the list of selected tables
-                            List<String> filterTables = tableTree.getSelectedTablesWithChildren();
-
-                            // Add the ancestors (instances and prototype) of the selected tables
-                            // to the list of filter tables
-                            tableTree.addTableAncestors(filterTables, true);
-
-                            // Check if tables were selected to filter the search results
-                            if (!filterTables.isEmpty())
-                            {
-                                // Step through the search results
-                                for (Object[] result : resultsDataList)
-                                {
-                                    // Separate the target into the target type and owner
-                                    String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
-
-                                    // Check if the target type isn't a table or table data field,
-                                    // and if owner isn't one of the selected tables or its
-                                    // prototype
-                                    if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
-                                           || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
-                                          && filterTables.contains(typeAndOwner[1])))
-                                    {
-                                        // Add the search result to the list of those to remove
-                                        removeResults.add(result);
-                                    }
-
-                                    // Note: Since prototype tables are automatically added (needed
-                                    // since a child only returns matches in the values table), a
-                                    // false match can occur if the filter table is a child, the
-                                    // hit is in the child's prototype, and the child has
-                                    // overridden the prototype's value where the match occurs
-                                }
-
-                                // Remove the search results that aren't in the selected table(s)
-                                resultsDataList.removeAll(removeResults);
-                            }
-                        }
-
-                        // Convert the results list to an array and display the results in the
-                        // dialog's search results table
-                        resultsData = resultsDataList.toArray(new Object[0][0]);
-                        resultsTable.loadAndFormatData();
-                    }
-                    catch (PatternSyntaxException pse)
-                    {
-                        // Inform the user that the regular expression is invalid
-                        new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
-                                                                  "<html><b>Invalid regular expression; cause '</b>"
-                                                                                         + pse.getMessage()
-                                                                                         + "'<b>",
-                                                                  "Invalid Input",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
-                    }
-                }
-
-                // Update the number of results found label
-                numResultsLbl.setText("  (" + resultsData.length + " matches)");
+                performSearch();
             }
         });
 
@@ -1086,6 +956,134 @@ public class CcddSearchDialog extends CcddFrameHandler
 
         // Display the search dialog
         createFrame(parent, dialogPnl, buttonPnl, btnSearch, title, null);
+    }
+
+    /**********************************************************************************************
+     * Search the tables/log/scripts for text matching the search criteria
+     *********************************************************************************************/
+    private void performSearch()
+    {
+        // Check if the search criteria changed
+        if (!searchFld.getText().equals(prevSearchText)
+            || ignoreCaseCb.isSelected() != prevIgnoreCase
+            || allowRegexCb.isSelected() != prevAllowRegex)
+        {
+            // Store the search criteria
+            prevSearchText = searchFld.getText();
+            prevIgnoreCase = ignoreCaseCb.isSelected();
+            prevAllowRegex = allowRegexCb.isSelected();
+
+            // Check if the search field is blank
+            if (searchFld.getText().isEmpty())
+            {
+                // Inform the user that the input value is invalid
+                new CcddDialogHandler().showMessageDialog(CcddSearchDialog.this,
+                                                          "<html><b>Search text cannot be blank",
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+            // The search field contains text
+            else
+            {
+                List<Object[]> resultsDataList = null;
+
+                // Create the match pattern from the search criteria
+                searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                      ignoreCaseCb.isSelected(),
+                                                                      allowRegexCb.isSelected(),
+                                                                      CcddSearchDialog.this);
+
+                // Check if the search pattern is valid
+                if (searchPattern != null)
+                {
+                    // Update the search string list
+                    searchFld.updateList(searchFld.getText());
+
+                    // Store the search list in the program preferences
+                    ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
+
+                    switch (searchDlgType)
+                    {
+                        case TABLES:
+                        case SCRIPTS:
+                            // Search the database tables or scripts and display the results
+                            resultsDataList = searchHandler.searchTablesOrScripts(searchPattern.pattern(),
+                                                                                  ignoreCaseCb.isSelected(),
+                                                                                  (searchDlgType == SearchDialogType.TABLES
+                                                                                                                            ? dataTablesOnlyCb.isSelected()
+                                                                                                                            : false),
+                                                                                  searchColumns);
+                            break;
+
+                        case LOG:
+                            // Search the event log and display the results
+                            resultsDataList = searchHandler.searchEventLogFile(searchPattern,
+                                                                               targetRow);
+                            break;
+                    }
+
+                    // Check if this is a table search
+                    if (searchDlgType == SearchDialogType.TABLES)
+                    {
+                        List<Object[]> removeResults = new ArrayList<Object[]>();
+
+                        // Get the list of selected tables
+                        List<String> filterTables = tableTree.getSelectedTablesWithChildren();
+
+                        // Add the ancestors (instances and prototype) of the selected tables to
+                        // the list of filter tables
+                        tableTree.addTableAncestors(filterTables, true);
+
+                        // Check if tables were selected to filter the search results
+                        if (!filterTables.isEmpty())
+                        {
+                            // Step through the search results
+                            for (Object[] result : resultsDataList)
+                            {
+                                // Separate the target into the target type and owner
+                                String[] typeAndOwner = CcddUtilities.removeHTMLTags(result[SearchResultsColumnInfo.OWNER.ordinal()].toString()).split(": ");
+
+                                // Check if the target type isn't a table or table data field, and
+                                // if owner isn't one of the selected tables or its prototype
+                                if (!((typeAndOwner[0].equals(SearchTarget.TABLE.getTargetName(false))
+                                       || typeAndOwner[0].equals(SearchTarget.TABLE_FIELD.getTargetName(false)))
+                                      && filterTables.contains(typeAndOwner[1])))
+                                {
+                                    // Add the search result to the list of those to remove
+                                    removeResults.add(result);
+                                }
+
+                                // Note: Since prototype tables are automatically added (needed
+                                // since a child only returns matches in the values table), a false
+                                // match can occur if the filter table is a child, the hit is in
+                                // the child's prototype, and the child has overridden the
+                                // prototype's value where the match occurs
+                            }
+
+                            // Remove the search results that aren't in the selected
+                            // table(s)
+                            resultsDataList.removeAll(removeResults);
+                        }
+                    }
+
+                    // Convert the results list to an array and display the results in the dialog's
+                    // search results table
+                    matchData = resultsDataList.toArray(new Object[0][0]);
+                    resultsTable.loadAndFormatData();
+                }
+            }
+
+            // Update the number of matches found label
+            numMatchesLbl.setText(matchData.length != 0
+                                                        ? "  ("
+                                                          + matchData.length
+                                                          + (matchData.length == 1
+                                                                                   ? " match"
+                                                                                   : " matches")
+                                                          + ")"
+                                                        : "");
+        }
     }
 
     /**********************************************************************************************

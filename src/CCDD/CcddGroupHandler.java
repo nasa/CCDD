@@ -69,7 +69,6 @@ public class CcddGroupHandler
                                                                                            component));
     }
 
-    // TODO
     /**********************************************************************************************
      * Get the group definitions from the group information
      *

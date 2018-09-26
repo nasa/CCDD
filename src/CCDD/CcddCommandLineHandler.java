@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.SCRIPT_MEMBER_SEPARATOR;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
@@ -48,6 +50,7 @@ public class CcddCommandLineHandler
     private final List<CommandHandler> argument;
     private final List<CommandHandler> importArgument;
     private final List<CommandHandler> exportArgument;
+    private final List<CommandHandler> createArgument;
 
     // Flag that indicates the application should exit once the command is complete. Used by the
     // script execution command
@@ -84,6 +87,11 @@ public class CcddCommandLineHandler
     private String classification2;
     private String classification3;
     private String scriptFileName;
+
+    // Create project parameters
+    private String projectName;
+    private String projectOwner;
+    private String projectDescription;
 
     // Storage for the session event log and script output paths
     private final String sessionLogPath;
@@ -395,6 +403,7 @@ public class CcddCommandLineHandler
         argument = new ArrayList<CommandHandler>();
         importArgument = new ArrayList<CommandHandler>();
         exportArgument = new ArrayList<CommandHandler>();
+        createArgument = new ArrayList<CommandHandler>();
         dataFile = null;
         replaceExisting = false;
         appendExistingFields = false;
@@ -417,6 +426,9 @@ public class CcddCommandLineHandler
         classification2 = null;
         classification3 = null;
         scriptFileName = null;
+        projectName = null;
+        projectOwner = null;
+        projectDescription = "";
         shutdownWhenComplete = false;
         exitStatus = 0;
 
@@ -427,10 +439,10 @@ public class CcddCommandLineHandler
 
         // Display application version information command
         argument.add(new CommandHandler("version",
-                                        "Display CCDD version",
+                                        "Display CCDD version and exit",
                                         "",
                                         CommandLineType.NONE,
-                                        0)
+                                        CommandLinePriority.PRE_START.getStartPriority())
         {
             /**************************************************************************************
              * Display the application version and build date, then exit the program
@@ -444,14 +456,14 @@ public class CcddCommandLineHandler
         });
 
         // Event log file path command. This command, if present, is executed prior to all other
-        // commands, regardless of relative priorities
+        // commands (except the version command), regardless of relative priorities
         argument.add(new CommandHandler("logPath",
                                         "Set event log file path. This\n"
                                                    + "  path is in effect for the\n"
                                                    + "  current session only",
                                         "file path",
                                         CommandLineType.NAME,
-                                        1)
+                                        CommandLinePriority.PRE_START.getStartPriority() + 1)
         {
             /**************************************************************************************
              * Set the event log file path
@@ -466,12 +478,12 @@ public class CcddCommandLineHandler
             }
         });
 
-        // CCDD project command
+        // Open project command
         argument.add(new CommandHandler("project",
-                                        "Select CCDD project",
+                                        "Set the CCDD project to open",
                                         "project name",
                                         CommandLineType.NAME,
-                                        2)
+                                        CommandLinePriority.SET_UP.getEndPriority())
         {
             /**************************************************************************************
              * Set the project database
@@ -488,7 +500,7 @@ public class CcddCommandLineHandler
                                         "Backup project on connecting",
                                         "backup file name",
                                         CommandLineType.NAME,
-                                        3)
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Backup the project database when first connected
@@ -505,7 +517,7 @@ public class CcddCommandLineHandler
                                         "Set user name",
                                         "user name",
                                         CommandLineType.NAME,
-                                        2)
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Set the user name
@@ -522,7 +534,7 @@ public class CcddCommandLineHandler
                                         "Set user password",
                                         "user password",
                                         CommandLineType.NAME,
-                                        2)
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Set the user password
@@ -539,7 +551,7 @@ public class CcddCommandLineHandler
                                         "Set PostgreSQL server host",
                                         "host name",
                                         CommandLineType.NAME,
-                                        2)
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Set the PostgreSQL server host
@@ -556,7 +568,7 @@ public class CcddCommandLineHandler
                                         "Set PostgreSQL server port",
                                         "port number",
                                         CommandLineType.NAME,
-                                        2)
+                                        CommandLinePriority.SET_UP.getStartPriority())
         {
             /**************************************************************************************
              * Set the PostgreSQL server port
@@ -573,7 +585,7 @@ public class CcddCommandLineHandler
                                         "Enable/disable SSL",
                                         "on or off",
                                         CommandLineType.OPTION,
-                                        2,
+                                        CommandLinePriority.SET_UP.getStartPriority(),
                                         new Object[] {true, false},
                                         new String[] {"on", "off"})
         {
@@ -592,7 +604,7 @@ public class CcddCommandLineHandler
                                         "Show events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -612,7 +624,7 @@ public class CcddCommandLineHandler
                                         "Show command events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -632,7 +644,7 @@ public class CcddCommandLineHandler
                                         "Show success events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -652,7 +664,7 @@ public class CcddCommandLineHandler
                                         "Show fail events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -672,7 +684,7 @@ public class CcddCommandLineHandler
                                         "Show status events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -692,7 +704,7 @@ public class CcddCommandLineHandler
                                         "Show web server events",
                                         "true or false",
                                         CommandLineType.OPTION,
-                                        4,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 1,
                                         new Object[] {true, false},
                                         new String[] {"true", "false"})
         {
@@ -712,7 +724,7 @@ public class CcddCommandLineHandler
                                         "Load look & feel",
                                         "look & feel",
                                         CommandLineType.NAME,
-                                        6)
+                                        CommandLinePriority.SET_UP.getStartPriority() + 3)
         {
             /**************************************************************************************
              * Set the look and feel
@@ -729,7 +741,7 @@ public class CcddCommandLineHandler
                                         "Set main window size",
                                         "widthxheight",
                                         CommandLineType.SIZE,
-                                        6,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 3,
                                         new Object[] {MIN_WINDOW_WIDTH,
                                                       MIN_WINDOW_HEIGHT})
         {
@@ -748,7 +760,7 @@ public class CcddCommandLineHandler
                                         "Enable web server",
                                         "nogui or gui",
                                         CommandLineType.NAME,
-                                        5)
+                                        CommandLinePriority.SET_UP.getStartPriority() + 2)
         {
             /**************************************************************************************
              * Enable the web server
@@ -765,7 +777,7 @@ public class CcddCommandLineHandler
                                         "Set web server port",
                                         "port number",
                                         CommandLineType.NAME,
-                                        5)
+                                        CommandLinePriority.SET_UP.getStartPriority() + 2)
         {
             /**************************************************************************************
              * Set the web server port
@@ -785,7 +797,7 @@ public class CcddCommandLineHandler
                                                          + "  current session only",
                                         "file path",
                                         CommandLineType.NAME,
-                                        10)
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority())
         {
             /**************************************************************************************
              * Store the script output file path
@@ -807,7 +819,7 @@ public class CcddCommandLineHandler
                                                     + "  displayed",
                                         "",
                                         CommandLineType.NONE,
-                                        0)
+                                        CommandLinePriority.PRE_START.getStartPriority())
         {
             /**************************************************************************************
              * Set the flags to hide the user interface and shutdown the application following
@@ -836,7 +848,7 @@ public class CcddCommandLineHandler
                                                              + "  or Group:group1[+...[+tableN or\n"
                                                              + "  Group:groupN]]][;...][\" or ']",
                                         CommandLineType.NAME,
-                                        10)
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 2)
         {
             /**************************************************************************************
              * Execute a script. The application exits following completion of this command
@@ -990,7 +1002,7 @@ public class CcddCommandLineHandler
                                                   + "  JSON, or XTCE file",
                                         "'<import sub-commands>'",
                                         CommandLineType.NAME,
-                                        10,
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1,
                                         importArgument)
         {
             /**************************************************************************************
@@ -1049,106 +1061,12 @@ public class CcddCommandLineHandler
                     }
                 }
                 // The user doesn't have write access
-                {
-                    // Display the error message
-                    System.err.println("Error: Import disabled; user lacks write access\n");
-                }
-            }
-        });
-
-        // Export one or more tables
-        argument.add(new CommandHandler("export",
-                                        "Export tables, etc. in CSV, EDS, JSON,\n"
-                                                  + "  or XTCE format",
-                                        "'<export sub-commands>'",
-                                        CommandLineType.NAME,
-                                        10,
-                                        exportArgument)
-        {
-            /**************************************************************************************
-             * Export one or more tables to a file (or files) in CSV, EDS, JSON, or XTCE format
-             *************************************************************************************/
-            @Override
-            protected void doCommand(Object parmVal)
-            {
-                // Separate the export sub-commands
-                // Parse the export sub-commands
-                parseCommand(-1,
-                             -1,
-                             CcddUtilities.parseCommandLine(parmVal.toString()),
-                             getSubArgument());
-
-                // Check if a required export sub-command is missing
-                if ((filePath.isEmpty()
-                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE
-                         || (singleFile
-                             && (fileExtn == FileExtension.CSV || fileExtn == FileExtension.JSON))))
-                    || tablePaths == null)
-                {
-                    // Display the error message
-                    System.err.println("Error: Missing export file name and/or table path(s)\n");
-
-                    // Display the command usage information and exit the application
-                    displayUsageInformation();
-                }
-
-                // Check if the GUI isn't displayed
-                if (ccddMain.isGUIHidden())
-                {
-                    // Export the specified table(s); check if the export operation fails
-                    if (ccddMain.getFileIOHandler().exportSelectedTables(filePath,
-                                                                         tablePaths,
-                                                                         true,
-                                                                         singleFile,
-                                                                         replaceMacros,
-                                                                         includeReservedMsgIDs,
-                                                                         includeProjectFields,
-                                                                         includeVariablePaths,
-                                                                         includeGroups,
-                                                                         ccddMain.getVariableHandler(),
-                                                                         separators,
-                                                                         fileExtn,
-                                                                         endianess,
-                                                                         isHeaderBigEndian,
-                                                                         version,
-                                                                         validationStatus,
-                                                                         classification1,
-                                                                         classification2,
-                                                                         classification3,
-                                                                         scriptFileName != null,
-                                                                         scriptFileName,
-                                                                         null))
-                    {
-                        // Set the application return value to indicate a failure
-                        exitStatus = 1;
-                    }
-                }
-                // The GUI is displayed
                 else
                 {
-                    // Export the specified table(s) in a background thread
-                    ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath,
-                                                                                 tablePaths,
-                                                                                 overwriteFile,
-                                                                                 singleFile,
-                                                                                 replaceMacros,
-                                                                                 includeReservedMsgIDs,
-                                                                                 includeProjectFields,
-                                                                                 includeVariablePaths,
-                                                                                 includeGroups,
-                                                                                 ccddMain.getVariableHandler(),
-                                                                                 separators,
-                                                                                 fileExtn,
-                                                                                 endianess,
-                                                                                 isHeaderBigEndian,
-                                                                                 version,
-                                                                                 validationStatus,
-                                                                                 classification1,
-                                                                                 classification2,
-                                                                                 classification3,
-                                                                                 scriptFileName != null,
-                                                                                 scriptFileName,
-                                                                                 ccddMain.getMainFrame());
+                    // Display the error message
+                    System.err.println("Error: Import disabled; user lacks write access for project '"
+                                       + ccddMain.getDbControlHandler().getProjectName()
+                                       + "'\n");
                 }
             }
         });
@@ -1249,6 +1167,102 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 openEditor = (Boolean) parmVal;
+            }
+        });
+
+        // Export one or more tables
+        argument.add(new CommandHandler("export",
+                                        "Export tables, etc. in CSV, EDS, JSON,\n"
+                                                  + "  or XTCE format",
+                                        "'<export sub-commands>'",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.DB_DEPENDENT.getStartPriority() + 1,
+                                        exportArgument)
+        {
+            /**************************************************************************************
+             * Export one or more tables to a file (or files) in CSV, EDS, JSON, or XTCE format
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                // Parse the export sub-commands
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
+                             getSubArgument());
+
+                // Check if a required export sub-command is missing
+                if ((filePath.isEmpty()
+                     && (fileExtn == FileExtension.EDS || fileExtn == FileExtension.XTCE
+                         || (singleFile
+                             && (fileExtn == FileExtension.CSV || fileExtn == FileExtension.JSON))))
+                    || tablePaths == null)
+                {
+                    // Display the error message
+                    System.err.println("Error: Missing export file name and/or table path(s)\n");
+
+                    // Display the command usage information and exit the application
+                    displayUsageInformation();
+                }
+
+                // Check if the GUI isn't displayed
+                if (ccddMain.isGUIHidden())
+                {
+                    // Export the specified table(s); check if the export operation fails
+                    if (ccddMain.getFileIOHandler().exportSelectedTables(filePath,
+                                                                         tablePaths,
+                                                                         true,
+                                                                         singleFile,
+                                                                         replaceMacros,
+                                                                         includeReservedMsgIDs,
+                                                                         includeProjectFields,
+                                                                         includeVariablePaths,
+                                                                         includeGroups,
+                                                                         ccddMain.getVariableHandler(),
+                                                                         separators,
+                                                                         fileExtn,
+                                                                         endianess,
+                                                                         isHeaderBigEndian,
+                                                                         version,
+                                                                         validationStatus,
+                                                                         classification1,
+                                                                         classification2,
+                                                                         classification3,
+                                                                         scriptFileName != null,
+                                                                         scriptFileName,
+                                                                         null))
+                    {
+                        // Set the application return value to indicate a failure
+                        exitStatus = 1;
+                    }
+                }
+                // The GUI is displayed
+                else
+                {
+                    // Export the specified table(s) in a background thread
+                    ccddMain.getFileIOHandler().exportSelectedTablesInBackground(filePath,
+                                                                                 tablePaths,
+                                                                                 overwriteFile,
+                                                                                 singleFile,
+                                                                                 replaceMacros,
+                                                                                 includeReservedMsgIDs,
+                                                                                 includeProjectFields,
+                                                                                 includeVariablePaths,
+                                                                                 includeGroups,
+                                                                                 ccddMain.getVariableHandler(),
+                                                                                 separators,
+                                                                                 fileExtn,
+                                                                                 endianess,
+                                                                                 isHeaderBigEndian,
+                                                                                 version,
+                                                                                 validationStatus,
+                                                                                 classification1,
+                                                                                 classification2,
+                                                                                 classification3,
+                                                                                 scriptFileName != null,
+                                                                                 scriptFileName,
+                                                                                 ccddMain.getMainFrame());
+                }
             }
         });
 
@@ -1607,27 +1621,181 @@ public class CcddCommandLineHandler
                 scriptFileName = (String) parmVal;
             }
         });
+
+        // Create a new project database
+        argument.add(new CommandHandler("create",
+                                        "Create a new project database",
+                                        "'<create sub-commands>'",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.SET_UP.getEndPriority() - 2,
+                                        createArgument)
+        {
+            /**************************************************************************************
+             * Create a new project database
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                // Parse the create project database sub-commands
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
+                             getSubArgument());
+
+                // Check if a required create sub-command is missing or blank
+                if (projectName == null
+                    || projectName.isEmpty()
+                    || projectOwner == null
+                    || projectOwner.isEmpty())
+                {
+                    // Display the error message
+                    System.err.println("Error: Missing project name and/or project owner\n");
+
+                    // Display the command usage information and exit the application
+                    displayUsageInformation();
+                }
+
+                // Check if a connection is made to the PostgreSQL server
+                if (!ccddMain.getDbControlHandler().connectToDatabase(DEFAULT_DATABASE, false))
+                {
+                    // Create the project database; check if creating the database fails. The
+                    // project can't be created in a background thread since the operation may not
+                    // be complete before subsequent database operations are commanded
+                    if (!ccddMain.getDbControlHandler().createDatabase(projectName,
+                                                                       projectOwner,
+                                                                       projectDescription))
+                    {
+                        // Set the application return value to indicate a failure
+                        exitStatus = 1;
+                    }
+                }
+                // The attempt to connect to the PostgreSQL server failed
+                else
+                {
+                    // Set the application return value to indicate a failure
+                    exitStatus = 1;
+                }
+            }
+        });
+
+        // Create project command - project name
+        createArgument.add(new CommandHandler("name",
+                                              "Project name",
+                                              "project name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the project name
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                projectName = (String) parmVal;
+            }
+        });
+
+        // Create project command - project owner
+        createArgument.add(new CommandHandler("owner",
+                                              "Project owner",
+                                              "project owner",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the project owner
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                projectOwner = (String) parmVal;
+            }
+        });
+
+        // Create project command - project description
+        createArgument.add(new CommandHandler("description",
+                                              "Project description",
+                                              "project description",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the project description
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                projectDescription = (String) parmVal;
+            }
+        });
+
+        // Delete an existing project database
+        argument.add(new CommandHandler("delete",
+                                        "Delete an existing project database",
+                                        "project name",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.SET_UP.getEndPriority() - 1)
+        {
+            /**************************************************************************************
+             * Delete an existing project database
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                String projName = (String) parmVal;
+
+                // Check if a connection is made to the PostgreSQL server
+                if (!ccddMain.getDbControlHandler().connectToDatabase(DEFAULT_DATABASE,
+                                                                      false))
+                {
+                    // Check if the user has administrative level access for the project
+                    if (ccddMain.getDbControlHandler()
+                                .getUserAdminAccess()
+                                .contains(ccddMain.getDbControlHandler()
+                                                  .convertProjectNameToDatabase(projName)))
+                    {
+                        // Delete the specified project database. The user must be an administrator
+                        // for the project to perform this operation
+                        ccddMain.getDbControlHandler().deleteDatabase(projName);
+                    }
+                    // The user doesn't have administrative access
+                    else
+                    {
+                        // Display the error message
+                        System.err.println("Error: Delete project '"
+                                           + projName
+                                           + "' disabled; user lacks administrative access\n");
+
+                        // Set the application return value to indicate a failure
+                        exitStatus = 1;
+                    }
+                }
+                // The attempt to connect to the PostgreSQL server failed
+                else
+                {
+                    // Set the application return value to indicate a failure
+                    exitStatus = 1;
+                }
+            }
+        });
     }
 
     /**********************************************************************************************
      * Parse and execute the main command line argument(s). The application exits if the shutdown
      * command is present and all command line commands have completed execution
      *
-     * @param startPriority
-     *            command priority boundary - ignore commands with a priority less than this value;
-     *            -1 to start with the lowest priority command
-     *
-     * @param endPriority
-     *            command priority boundary - ignore commands with a priority greater than this
-     *            value; -1 to end with the highest priority command
+     * @param priority
+     *            command priority range - execute only those commands with a priority &gt;= to the
+     *            start value (-1 to start with the lowest priority command) and &lt;= to the end
+     *            value (-1 to end with the highest priority command)
      *********************************************************************************************/
-    protected void parseCommand(final int startPriority, final int endPriority)
+    protected void parseCommand(CommandLinePriority priority)
     {
         // Execute the commands that fall within the priority range
-        parseCommand(startPriority, endPriority, args, argument);
+        parseCommand(priority.getStartPriority(), priority.getEndPriority(), args, argument);
 
         // Check if the project-specific commands have been completed
-        if (endPriority == -1)
+        if (priority.getEndPriority() == -1)
         {
             // Restore the original session event log path, in case it was changed via a command
             // line command
@@ -1661,11 +1829,11 @@ public class CcddCommandLineHandler
      *
      * @param startPriority
      *            command priority boundary - ignore commands with a priority less than this value;
-     *            -1 to start with the lowest priority command
+     *            -1 starts with the lowest priority command
      *
      * @param endPriority
      *            command priority boundary - ignore commands with a priority greater than this
-     *            value; -1 to end with the highest priority command
+     *            value; -1 ends with the highest priority command
      *
      * @param cmdLnArgs
      *            array of command line arguments to parse

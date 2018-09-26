@@ -564,6 +564,54 @@ public class CcddConstants
         REMOVE;
     }
 
+    // Command line priority range
+    protected static enum CommandLinePriority
+    {
+        PRE_START(0, 1),
+        SET_UP(2, 9),
+        DB_DEPENDENT(10, -1);
+
+        private final int startPriority;
+        private final int endPriority;
+
+        /******************************************************************************************
+         * Command line priority range constructor
+         *
+         * @param startPriority
+         *            starting priority range value; execute only those commands with a priority
+         *            &gt;= to the start value (-1 starts with the lowest priority command)
+         *
+         * @param endPriority
+         *            ending priority range value; execute only those commands with a priority
+         *            &lt;= to the end value (-1 ends with the highest priority command)
+         *****************************************************************************************/
+        CommandLinePriority(int startPriority, int endPriority)
+        {
+            this.startPriority = startPriority;
+            this.endPriority = endPriority;
+        }
+
+        /******************************************************************************************
+         * Get the starting priority range value
+         *
+         * @return Starting priority range value
+         *****************************************************************************************/
+        protected int getStartPriority()
+        {
+            return startPriority;
+        }
+
+        /******************************************************************************************
+         * Get the ending priority range value
+         *
+         * @return Ending priority range value
+         *****************************************************************************************/
+        protected int getEndPriority()
+        {
+            return endPriority;
+        }
+    }
+
     // Modifiable font information
     protected static enum ModifiableFontInfo
     {

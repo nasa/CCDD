@@ -1689,8 +1689,9 @@ public class CcddTableTypeHandler
         // Get the type definition based on the type name
         TypeDefinition typeDefn = getTypeDefinition(tableTypeDefn.getTypeName());
 
-        // Check if the table type doesn't already exist
-        if (typeDefn == null)
+        // Check if the table type doesn't already exist, or if no tables exist in the database for
+        // this type (the existing type will be replaced)
+        if (typeDefn == null || dbTable.getPrototypeTablesOfType(typeDefn.getName()).length == 0)
         {
             // Set the flag indicating the table type is new
             typeUpdate = TableTypeUpdate.NEW;

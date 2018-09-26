@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -79,9 +78,6 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
 
     // List of variable paths matching the search criteria
     private List<String[]> variablePaths;
-
-    // Temporary marker for special characters in a search string
-    private static String MARKER = "@~wildcard~@";
 
     // Wild card search character explanation label
     private static String WILD_CARD_LABEL = "? = character, * = string, \\ for literal ? or *";
@@ -481,7 +477,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
-     * Search the table for text matching the search criteria
+     * Search the variables for text matching the search criteria
      *********************************************************************************************/
     private void searchVariableTree()
     {
@@ -495,56 +491,36 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
             prevIgnoreCase = ignoreCaseCb.isSelected();
             prevAllowRegex = allowRegexCb.isSelected();
 
-            try
-            {
-                // Create the match pattern from the search criteria. If the allow regular
-                // expression check box is selected then the search string is used as is. If the
-                // allow regular expression check box isn't selected then a wild card match is
-                // enabled. A custom matching system is used: a question mark matches a single
-                // character and an asterisk matches one or more characters. This is turned into a
-                // regular expression to perform the actual match. First the reserved regular
-                // expression characters are escaped, other than the asterisk and question mark;
-                // these are then replaced with their corresponding regular expression (while
-                // protecting any escaped instances of the asterisks and question marks by
-                // temporarily replacing these with a marker)
-                searchPattern = searchFld.getText().isEmpty()
-                                                              ? null
-                                                              : Pattern.compile("(?"
-                                                                                + (ignoreCaseCb.isSelected()
-                                                                                                             ? "i"
-                                                                                                             : "")
-                                                                                + ":"
-                                                                                + (allowRegexCb.isSelected()
-                                                                                                             ? searchFld.getText()
-                                                                                                             : searchFld.getText().replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
-                                                                                                                                              "\\\\$1")
-                                                                                                                        .replaceAll("\\\\\\?", MARKER)
-                                                                                                                        .replaceAll("\\?", ".")
-                                                                                                                        .replaceAll(MARKER, "\\\\?")
-                                                                                                                        .replaceAll("\\\\\\*", MARKER)
-                                                                                                                        .replaceAll("\\*", ".*?")
-                                                                                                                        .replaceAll(MARKER, "\\\\*"))
-                                                                                + ")");
-
-                // Set the search pattern in the variable tree so that the matching text in the
-                // nodes is highlighted
-                variableTree.setHighlightPattern(searchPattern);;
-
-                // Rebuild the table tree, retaining only those nodes that contain a match with the
-                // search pattern or are ancestors to a matching node
-                variableTree.buildTableTree(false, null, null, CcddSearchVariablesDialog.this);
-            }
-            catch (PatternSyntaxException pse)
+            // Check if the search field is blank
+            if (searchFld.getText().isEmpty())
             {
                 // Inform the user that the input value is invalid
                 new CcddDialogHandler().showMessageDialog(CcddSearchVariablesDialog.this,
-                                                          "<html><b>Invalid regular expression; cause '</b>"
-                                                                                          + pse.getMessage()
-                                                                                          + "<b>'",
+                                                          "<html><b>Search text cannot be blank",
                                                           "Invalid Input",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
-                searchPattern = null;
+            }
+            // The search field contains text
+            else
+            {
+                // Create the match pattern from the search criteria
+                searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                      ignoreCaseCb.isSelected(),
+                                                                      allowRegexCb.isSelected(),
+                                                                      CcddSearchVariablesDialog.this);
+
+                // Check if the search pattern is valid
+                if (searchPattern != null)
+                {
+                    // Set the search pattern in the variable tree so that the matching text in the
+                    // nodes is highlighted
+                    variableTree.setHighlightPattern(searchPattern);;
+
+                    // Rebuild the table tree, retaining only those nodes that contain a match with
+                    // the search pattern or are ancestors to a matching node
+                    variableTree.buildTableTree(false, null, null, CcddSearchVariablesDialog.this);
+                }
             }
         }
     }

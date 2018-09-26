@@ -1325,15 +1325,21 @@ public class CcddDbControlHandler
      *
      * @return true if the command completes successfully; false otherwise
      *********************************************************************************************/
-    private boolean createDatabase(final String projectName, String ownerName, String description)
+    protected boolean createDatabase(final String projectName,
+                                     String ownerName,
+                                     String description)
     {
         boolean successFlag = true;
 
         // Convert the project name into its database form
-        String databaseName = convertProjectNameToDatabase(projectName);
+        String databaseName = null;// TODO FOR T/S PURPOSES =
+                                   // convertProjectNameToDatabase(projectName);
 
         try
         {
+            // TODO FOR T/S PURPOSES
+            databaseName = convertProjectNameToDatabase(projectName);
+
             // Enable auto-commit for database changes
             connection.setAutoCommit(true);
 
@@ -1364,6 +1370,12 @@ public class CcddDbControlHandler
                                                            + "'",
                                   "<html><b>Cannot create project '</b>" + projectName + "<b>'");
             successFlag = false;
+        }
+        // TODO ADDED FOR TROUBLESHOOTING
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
         finally
         {
@@ -2133,7 +2145,7 @@ public class CcddDbControlHandler
      *
      * @return true if the connection attempt failed
      *********************************************************************************************/
-    private boolean connectToDatabase(String databaseName, boolean isReconnect)
+    protected boolean connectToDatabase(String databaseName, boolean isReconnect)
     {
         boolean errorFlag = false;
 
@@ -2860,7 +2872,7 @@ public class CcddDbControlHandler
      * @param projectName
      *            name of the project to delete
      *********************************************************************************************/
-    private void deleteDatabase(final String projectName)
+    protected void deleteDatabase(final String projectName)
     {
         // Convert the project name to its database equivalent
         String databaseName = convertProjectNameToDatabase(projectName);
