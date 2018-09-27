@@ -7,10 +7,15 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DEFAULT_DATABASE;
+import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
+import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
+import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
+import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.MIN_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.MIN_WINDOW_WIDTH;
 import static CCDD.CcddConstants.SCRIPT_MEMBER_SEPARATOR;
+import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
+import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,7 +28,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
-import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.CommandLineType;
 import CCDD.CcddConstants.EndianType;
@@ -41,7 +45,7 @@ public class CcddCommandLineHandler
     private final CcddMain ccddMain;
 
     // Text describing the command line error
-    private String errorMessage;
+    private final String errorMessage;
 
     // Array containing the command line arguments provided by the user
     private final String[] args;
@@ -77,7 +81,6 @@ public class CcddCommandLineHandler
     private boolean includeProjectFields;
     private boolean includeVariablePaths;
     private boolean includeGroups;
-    private final String[] separators;
     private FileExtension fileExtn;
     private EndianType endianess;
     private boolean isHeaderBigEndian;
@@ -87,6 +90,9 @@ public class CcddCommandLineHandler
     private String classification2;
     private String classification3;
     private String scriptFileName;
+    private String varPathSeparator;
+    private String typeNameSeparator;
+    private boolean excludeDataTypes;
 
     // Create project parameters
     private String projectName;
@@ -331,9 +337,10 @@ public class CcddCommandLineHandler
          * @param parm
          *            command parameter
          *
-         * @return true if the command does not succeed
+         * @throws Exception
+         *             If a command parameter is invalid
          *****************************************************************************************/
-        protected boolean handler(String parm)
+        protected void handler(String parm) throws Exception
         {
             Object parmVal = null;
 
@@ -371,8 +378,6 @@ public class CcddCommandLineHandler
                 // Implement the command
                 doCommand(parmVal);
             }
-
-            return parmVal == null;
         }
 
         /******************************************************************************************
@@ -416,7 +421,6 @@ public class CcddCommandLineHandler
         includeReservedMsgIDs = false;
         includeProjectFields = false;
         includeVariablePaths = false;
-        separators = new String[3];
         fileExtn = FileExtension.CSV;
         endianess = EndianType.BIG_ENDIAN;
         isHeaderBigEndian = true;
@@ -431,6 +435,15 @@ public class CcddCommandLineHandler
         projectDescription = "";
         shutdownWhenComplete = false;
         exitStatus = 0;
+
+        // Get the variable path separators and the show/hide data type flag from the program
+        // preferences
+        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                       DEFAULT_VARIABLE_PATH_SEP);
+        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                        DEFAULT_TYPE_NAME_SEP);
+        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                            DEFAULT_HIDE_DATA_TYPE));
 
         // Store the session event log and script output paths, in case these are modified by a
         // command line command
@@ -1205,19 +1218,24 @@ public class CcddCommandLineHandler
                     displayUsageInformation();
                 }
 
+                // Create the variable path separator array
+                String[] separators = new String[] {varPathSeparator,
+                                                    typeNameSeparator,
+                                                    String.valueOf(excludeDataTypes)};
+
                 // Check if the GUI isn't displayed
                 if (ccddMain.isGUIHidden())
                 {
                     // Export the specified table(s); check if the export operation fails
                     if (ccddMain.getFileIOHandler().exportSelectedTables(filePath,
                                                                          tablePaths,
-                                                                         true,
+                                                                         overwriteFile,
                                                                          singleFile,
                                                                          replaceMacros,
                                                                          includeReservedMsgIDs,
                                                                          includeProjectFields,
-                                                                         includeVariablePaths,
                                                                          includeGroups,
+                                                                         includeVariablePaths,
                                                                          ccddMain.getVariableHandler(),
                                                                          separators,
                                                                          fileExtn,
@@ -1247,8 +1265,8 @@ public class CcddCommandLineHandler
                                                                                  replaceMacros,
                                                                                  includeReservedMsgIDs,
                                                                                  includeProjectFields,
-                                                                                 includeVariablePaths,
                                                                                  includeGroups,
+                                                                                 includeVariablePaths,
                                                                                  ccddMain.getVariableHandler(),
                                                                                  separators,
                                                                                  fileExtn,
@@ -1460,6 +1478,59 @@ public class CcddCommandLineHandler
             }
         });
 
+        // Export command - variable path separator
+        exportArgument.add(new CommandHandler("variableSep",
+                                              "variable path separator character(s)",
+                                              "default: ,",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             *
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                varPathSeparator = (String) parmVal;
+            }
+        });
+
+        // Export command - data type/variable name separator
+        exportArgument.add(new CommandHandler("typeNameSep",
+                                              "Data type/variable name separator character(s)",
+                                              "default: .",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             *
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                typeNameSeparator = (String) parmVal;
+            }
+        });
+
+        // Export command - hide data type
+        exportArgument.add(new CommandHandler("hideDataType",
+                                              "Hide the data type in the variable paths",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             *
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                excludeDataTypes = Boolean.parseBoolean((String) parmVal);
+            }
+        });
+
         // Export command - file extension
         exportArgument.add(new CommandHandler("format",
                                               "Export file format",
@@ -1467,7 +1538,10 @@ public class CcddCommandLineHandler
                                                                     + "  (default: csv)",
                                               CommandLineType.OPTION,
                                               0,
-                                              new Object[] {FileExtension.CSV, FileExtension.EDS, FileExtension.JSON, FileExtension.XTCE},
+                                              new Object[] {FileExtension.CSV,
+                                                            FileExtension.EDS,
+                                                            FileExtension.JSON,
+                                                            FileExtension.XTCE},
                                               new String[] {"csv", "eds", "json", "xtce"})
         {
             /**************************************************************************************
@@ -1656,7 +1730,7 @@ public class CcddCommandLineHandler
                 }
 
                 // Check if a connection is made to the PostgreSQL server
-                if (!ccddMain.getDbControlHandler().connectToDatabase(DEFAULT_DATABASE, false))
+                if (!ccddMain.getDbControlHandler().connectToServer())
                 {
                     // Create the project database; check if creating the database fails. The
                     // project can't be created in a background thread since the operation may not
@@ -1745,8 +1819,7 @@ public class CcddCommandLineHandler
                 String projName = (String) parmVal;
 
                 // Check if a connection is made to the PostgreSQL server
-                if (!ccddMain.getDbControlHandler().connectToDatabase(DEFAULT_DATABASE,
-                                                                      false))
+                if (!ccddMain.getDbControlHandler().connectToServer())
                 {
                     // Check if the user has administrative level access for the project
                     if (ccddMain.getDbControlHandler()
@@ -1876,9 +1949,9 @@ public class CcddCommandLineHandler
                     // Check if the command doesn't start with a recognized delimiter
                     if (!(arg.startsWith("-") || arg.startsWith("/")))
                     {
-                        throw new CCDDException("Unrecognized delimiter for command '"
-                                                + arg
-                                                + "'");
+                        throw new Exception("Unrecognized delimiter for command '"
+                                            + arg
+                                            + "'");
                     }
 
                     // Remove the delimiter
@@ -1913,9 +1986,9 @@ public class CcddCommandLineHandler
                                 // The end of the command line arguments is reached
                                 else
                                 {
-                                    throw new CCDDException("Missing argument for command '"
-                                                            + arg
-                                                            + "'");
+                                    throw new Exception("Missing argument for command '"
+                                                        + arg
+                                                        + "'");
                                 }
                             }
 
@@ -1925,11 +1998,8 @@ public class CcddCommandLineHandler
                                 && (startPriority == -1 || cmd.priority >= startPriority)
                                 && (endPriority == -1 || cmd.priority <= endPriority))
                             {
-                                // Handle the command and check if it results in an error condition
-                                if (cmd.handler(parm))
-                                {
-                                    throw new CCDDException();
-                                }
+                                // Handle the command
+                                cmd.handler(parm);
 
                                 // Stop searching since a matching command was found
                                 break;
@@ -1940,12 +2010,12 @@ public class CcddCommandLineHandler
                     // Check if the command wasn't recognized
                     if (!isValidCmd)
                     {
-                        throw new CCDDException("Unrecognized command '" + arg + "'");
+                        throw new Exception("Unrecognized command '" + arg + "'");
                     }
                 }
             }
         }
-        catch (CCDDException ce)
+        catch (Exception ce)
         {
             // Check if a bad parameter was detected
             if (errorMessage != null)
@@ -2165,8 +2235,11 @@ public class CcddCommandLineHandler
      *            array containing the minimum main window width and minimum main window height
      *
      * @return Main window dimension value (null if an error is found)
+     *
+     * @throws Exception
+     *             If the width or height value is not a number or a value is missing
      *********************************************************************************************/
-    private Dimension handleSize(String arg, String parm, Object[] min)
+    private Dimension handleSize(String arg, String parm, Object[] min) throws Exception
     {
         Dimension val = null;
 
@@ -2196,7 +2269,7 @@ public class CcddCommandLineHandler
         // Width or height string contains a non-numeral or the wrong number of values
         else
         {
-            errorMessage = arg + " width or height not a number, or too many/few values";
+            throw new Exception(arg + " width or height not a number, or too many/few values");
         }
 
         return val;
@@ -2216,8 +2289,11 @@ public class CcddCommandLineHandler
      *            (inclusive)
      *
      * @return Integer value (null if an error is found)
+     *
+     * @throws Exception
+     *             If the minimum or maximum value is not a number
      *********************************************************************************************/
-    private Integer handleMinMax(String arg, String parm, Object[] limit)
+    private Integer handleMinMax(String arg, String parm, Object[] limit) throws Exception
     {
         Integer val = null;
 
@@ -2230,14 +2306,13 @@ public class CcddCommandLineHandler
             // Check if the value falls outside the limits
             if (val < (int) limit[0] || val > (int) limit[1])
             {
-                errorMessage = arg + " must be >= " + limit[0] + " and <= " + limit[1];
-                val = null;
+                throw new Exception(arg + " must be >= " + limit[0] + " and <= " + limit[1]);
             }
         }
         // String contains a non-numeral
         else
         {
-            errorMessage = arg + " not a number";
+            throw new Exception(arg + " not a number");
         }
 
         return val;
@@ -2253,39 +2328,43 @@ public class CcddCommandLineHandler
      *            color in hexadecimal format or a color name
      *
      * @return Selected color in hexadecimal format (null if an error is found)
+     *
+     * @throws Exception
+     *             If the color value is not in the expected hexadecimal format or is not a
+     *             recognized color name
      *********************************************************************************************/
-    private Integer handleColor(String arg, String parm)
+    private Integer handleColor(String arg, String parm) throws Exception
     {
         Integer val = null;
 
-        // Remove the leading '0x' if present (not required)
-        if (parm.startsWith("0x"))
+        try
         {
-            parm = parm.substring(2);
-        }
+            // Remove the leading '0x' if present (not required)
+            if (parm.startsWith("0x"))
+            {
+                parm = parm.substring(2);
+            }
 
-        // Check if the parameter has the allowed number of hexadecimal digits
-        if (parm.length() == 6 && parm.matches("[0-9A-Fa-f]+"))
-        {
-            // Convert the string to an integer
-            val = Integer.parseInt(parm, 16);
-        }
-        // Not a hexadecimal value
-        else
-        {
-            try
+            // Check if the parameter has the allowed number of hexadecimal digits
+            if (parm.length() == 6 && parm.matches("[0-9A-Fa-f]+"))
+            {
+                // Convert the string to an integer
+                val = Integer.parseInt(parm, 16);
+            }
+            // Not a hexadecimal value
+            else
             {
                 // Check if the parameter is a valid color name; if so, get the RGB value (mask out
                 // the alpha portion)
                 val = ((Color) Color.class.getField(parm).get(null)).getRGB() & 0xffffff;
             }
-            catch (Exception e)
-            {
-                // Parameter is not a hexadecimal color or color name
-                errorMessage = arg
-                               + " must be a color name or in the format "
-                               + "'0x######' where '#' is a hexadecimal digit";
-            }
+        }
+        catch (Exception e)
+        {
+            // Parameter is not a hexadecimal color or color name
+            throw new Exception(arg
+                                + " must be a color name or in the format "
+                                + "'0x######' where '#' is a hexadecimal digit");
         }
 
         return val;
@@ -2308,11 +2387,14 @@ public class CcddCommandLineHandler
      *            array of output values associated with each input option
      *
      * @return Output value for the option selected
+     *
+     * @throws Exception
+     *             If the supplied value is not one of those in the predefined list
      *********************************************************************************************/
     private Object handleOption(String arg,
                                 String parm,
                                 String[] inputOptions,
-                                Object[] outputValues)
+                                Object[] outputValues) throws Exception
     {
         Object val = null;
         int index = 0;
@@ -2342,7 +2424,7 @@ public class CcddCommandLineHandler
         if (index == inputOptions.length)
         {
             // Build the error message
-            errorMessage = arg + " must be one of the following:" + valid;
+            throw new Exception(arg + " must be one of the following:" + valid);
         }
 
         return val;

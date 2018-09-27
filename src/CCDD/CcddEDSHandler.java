@@ -399,6 +399,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
+        }
     }
 
     /**********************************************************************************************

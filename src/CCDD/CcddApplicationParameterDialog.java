@@ -22,9 +22,8 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
-import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -206,7 +205,7 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
                 || numTimeSlotsFld.getText().isEmpty())
             {
                 // Inform the user that a parameter is missing
-                throw new CCDDException("All application parameters must be entered");
+                throw new Exception("All application parameters must be entered");
             }
 
             // Check if the any parameter is not a positive integer value
@@ -216,7 +215,7 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
                 || !numTimeSlotsFld.getText().matches(DefaultInputType.INT_POSITIVE.getInputMatch()))
             {
                 // Inform the user that a parameter is invalid
-                throw new CCDDException("Application parameter values must be positive integer values");
+                throw new Exception("Application parameter values must be positive integer values");
             }
 
             // Format the application parameter fields
@@ -225,11 +224,11 @@ public class CcddApplicationParameterDialog extends CcddDialogHandler
             maxMsgsPerCycleFld.setText(Integer.valueOf(maxMsgsPerCycleFld.getText()).toString());
             numTimeSlotsFld.setText(Integer.valueOf(numTimeSlotsFld.getText()).toString());
         }
-        catch (CCDDException ce)
+        catch (Exception e)
         {
             // Inform the user that the input value is invalid
             new CcddDialogHandler().showMessageDialog(CcddApplicationParameterDialog.this,
-                                                      "<html><b>" + ce.getMessage(),
+                                                      "<html><b>" + e.getMessage(),
                                                       "Missing/Invalid Input",
                                                       JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);

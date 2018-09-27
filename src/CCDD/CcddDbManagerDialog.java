@@ -1092,6 +1092,12 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             // Set the flag to indicate the dialog input is invalid
             isValid = false;
         }
+        catch (Exception e)
+        {
+            // Inform the user than an unexpected error occurred
+            CcddUtilities.displayException(e, CcddDbManagerDialog.this);
+            isValid = false;
+        }
 
         return isValid;
     }

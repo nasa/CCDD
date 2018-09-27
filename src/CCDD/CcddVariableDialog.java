@@ -9,8 +9,11 @@ package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CLOSE_ICON;
+import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
+import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.RENAME_ICON;
@@ -153,7 +156,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 JLabel varPathSepLbl = new JLabel("<html>Enter variable path<br>&#160separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 inputPnl.add(varPathSepLbl, gbc);
-                varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_"), 5);
+                varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                                           DEFAULT_VARIABLE_PATH_SEP),
+                                               5);
                 varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 varPathSepFld.setEditable(true);
                 varPathSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -172,7 +177,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.gridy++;
                 inputPnl.add(typeNameSepLbl, gbc);
-                typeNameSepFld = new JTextField(ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_"), 5);
+                typeNameSepFld = new JTextField(ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                                            DEFAULT_TYPE_NAME_SEP),
+                                                5);
                 typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                 typeNameSepFld.setEditable(true);
                 typeNameSepFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
@@ -186,7 +193,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 // Create a check box for hiding data types
                 hideDataTypeCb = new JCheckBox("Hide data types",
                                                Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
-                                                                                                "false")));
+                                                                                                DEFAULT_HIDE_DATA_TYPE)));
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(emptyBorder);
                 gbc.insets.left = 0;

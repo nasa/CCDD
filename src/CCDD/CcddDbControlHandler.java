@@ -1330,14 +1330,11 @@ public class CcddDbControlHandler
                                      String description)
     {
         boolean successFlag = true;
-
-        // Convert the project name into its database form
-        String databaseName = null;// TODO FOR T/S PURPOSES =
-                                   // convertProjectNameToDatabase(projectName);
+        String databaseName = null;
 
         try
         {
-            // TODO FOR T/S PURPOSES
+            // Convert the project name into its database form
             databaseName = convertProjectNameToDatabase(projectName);
 
             // Enable auto-commit for database changes
@@ -1371,11 +1368,10 @@ public class CcddDbControlHandler
                                   "<html><b>Cannot create project '</b>" + projectName + "<b>'");
             successFlag = false;
         }
-        // TODO ADDED FOR TROUBLESHOOTING
         catch (Exception e)
         {
-            e.printStackTrace();
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
+            successFlag = false;
         }
         finally
         {
@@ -2134,7 +2130,20 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
+     * Connect to the server (default database)
+     *
+     * @return true if the connection attempt failed
+     *********************************************************************************************/
+    protected boolean connectToServer()
+    {
+        return connectToDatabase(DEFAULT_DATABASE, DEFAULT_DATABASE, false);
+    }
+
+    /**********************************************************************************************
      * Connect to a database
+     *
+     * @param projectName
+     *            name of the project to open
      *
      * @param databaseName
      *            name of the database to open
@@ -2145,7 +2154,9 @@ public class CcddDbControlHandler
      *
      * @return true if the connection attempt failed
      *********************************************************************************************/
-    protected boolean connectToDatabase(String databaseName, boolean isReconnect)
+    protected boolean connectToDatabase(String projectName,
+                                        String databaseName,
+                                        boolean isReconnect)
     {
         boolean errorFlag = false;
 
@@ -2314,7 +2325,7 @@ public class CcddDbControlHandler
                                                                       + (activeDatabase.equals(DEFAULT_DATABASE)
                                                                                                                  ? "server"
                                                                                                                  : "project '</b>"
-                                                                                                                   + databaseName
+                                                                                                                   + projectName
                                                                                                                    + "<b>'"));
             }
 
@@ -2346,7 +2357,7 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected boolean reconnectToDatabase()
     {
-        return connectToDatabase(activeDatabase, true);
+        return connectToDatabase(activeProject, activeDatabase, true);
     }
 
     /**********************************************************************************************
@@ -2435,7 +2446,7 @@ public class CcddDbControlHandler
                     Class.forName(DATABASE_DRIVER);
 
                     // Check if the attempt to connect to the database fails
-                    if (connectToDatabase(databaseName, false))
+                    if (connectToDatabase(projectName, databaseName, false))
                     {
                         throw new CCDDException();
                     }
@@ -2503,7 +2514,7 @@ public class CcddDbControlHandler
                     if (!databaseName.equals(DEFAULT_DATABASE))
                     {
                         // Attempt to connect to the default database
-                        errorFlag = connectToDatabase(DEFAULT_DATABASE, false);
+                        errorFlag = connectToServer();
                     }
                 }
                 catch (LinkageError | ClassNotFoundException le)

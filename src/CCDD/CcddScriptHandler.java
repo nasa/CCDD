@@ -10,6 +10,9 @@ package CCDD;
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR_CMD_LN;
+import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
+import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
+import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.HIDE_SCRIPT_PATH;
@@ -1278,9 +1281,12 @@ public class CcddScriptHandler
 
         // Get the variable path separators and the show/hide data type flag from the program
         // preferences
-        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
-        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
-        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                       DEFAULT_VARIABLE_PATH_SEP);
+        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                        DEFAULT_TYPE_NAME_SEP);
+        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                            DEFAULT_HIDE_DATA_TYPE));
 
         // Check if the script execution was initiated via command line command (and not from the
         // script manager or executive dialog)

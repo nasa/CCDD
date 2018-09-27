@@ -40,13 +40,6 @@ public class CcddConstants
     protected static final String CCDD_AUTHOR = "NASA JSC: ER6/Kevin McCluney";
     protected static final String CCDD_CONTRIBUTORS = "Daniel A. Silver, Nolan Walsh";
 
-    // Default server information
-    protected static final String DEFAULT_POSTGRESQL_HOST = "localhost";
-    protected static final String DEFAULT_POSTGRESQL_PORT = "5432";
-    protected static final String DEFAULT_DATABASE = "postgres";
-    protected static final String DEFAULT_SERVER = "PostgreSQL";
-    protected static final String DEFAULT_WEB_SERVER_PORT = "7070";
-
     // Create the database driver class name
     protected static final String DATABASE_DRIVER = "org.postgresql.Driver";
 
@@ -75,6 +68,18 @@ public class CcddConstants
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
     protected static final String HIDE_SCRIPT_PATH = "HideScriptPath";
+
+    // Default server information
+    protected static final String DEFAULT_POSTGRESQL_HOST = "localhost";
+    protected static final String DEFAULT_POSTGRESQL_PORT = "5432";
+    protected static final String DEFAULT_DATABASE = "postgres";
+    protected static final String DEFAULT_SERVER = "PostgreSQL";
+    protected static final String DEFAULT_WEB_SERVER_PORT = "7070";
+
+    // Default variable path separator information
+    protected static final String DEFAULT_VARIABLE_PATH_SEP = "_";
+    protected static final String DEFAULT_TYPE_NAME_SEP = "_";
+    protected static final String DEFAULT_HIDE_DATA_TYPE = "false";
 
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";

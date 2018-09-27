@@ -448,20 +448,22 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
                 // Update the table's root structure status in case it changed
-                editor.getTableInformation().setRootStructure(dbTblCmdHndlr.getRootStructures()
-                                                                           .contains(editor.getTableInformation()
-                                                                                           .getTablePath()));
+                editor.getTableInformation()
+                      .setRootStructure(dbTblCmdHndlr.getRootStructures()
+                                                     .contains(editor.getTableInformation()
+                                                                     .getTablePath()));
 
                 // Flag that indicates if the updated table is a prototype and the editor is for an
                 // instance of the updated table
                 boolean applyToInstance = tableInfo.isPrototype()
                                           && !editor.getTableInformation().isPrototype()
-                                          && tableInfo.getPrototypeName().equals((editor.getTableInformation()
-                                                                                        .getPrototypeName()));
+                                          && tableInfo.getPrototypeName()
+                                                      .equals((editor.getTableInformation()
+                                                                     .getPrototypeName()));
 
                 // Check if a data field exists that uses the variable (command) reference input
                 // type and if table wasn't already updated above
-                if (isRefFieldChange && !applyToInstance) // TODO TEST CMD AND MSGID PORTIONS
+                if (isRefFieldChange && !applyToInstance)
                 {
                     // Update the current and committed field definitions and information so that
                     // the update isn't considered a change
@@ -473,11 +475,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Check if this is the table that was updated or an instance of it (if the updated
                 // table is a prototype)
                 if (applyToInstance
-                    || editor.getTableInformation().getProtoVariableName().equals(tableInfo.getProtoVariableName())
-                    // TODO IF A MESSAGE NAME OR ID CHANGED AND THE TABLE HAS A 'MSG NAME & ID'
-                    // INPUT TYPE COLUMN THEN THE TABLE NEEDS TO BE UPDATED
+                    || editor.getTableInformation().getProtoVariableName()
+                             .equals(tableInfo.getProtoVariableName())
                     || (isMsgNameIDChange
-                        && editor.getTableTypeDefinition().getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1))
+                        && editor.getTableTypeDefinition()
+                                 .getColumnIndexByInputType(DefaultInputType.MESSAGE_REFERENCE) != -1))
                 {
                     // Load the table from the database
                     TableInformation updateInfo = main.getDbTableCommandHandler()

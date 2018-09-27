@@ -965,6 +965,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                     tableData.get(row)[column] = oldValue;
                     dataTypeTable.getUndoManager().undoRemoveEdit();
                 }
+                catch (Exception e)
+                {
+                    CcddUtilities.displayException(e, CcddDataTypeEditorDialog.this);
+                }
 
                 return false;
             }

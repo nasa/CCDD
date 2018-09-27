@@ -1692,10 +1692,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         {
             throw new CCDDException(ioe.getMessage());
         }
-        catch (Exception e)
-        {
-            throw new Exception(e);
-        }
         finally
         {
             // Check if the PrintWriter was opened

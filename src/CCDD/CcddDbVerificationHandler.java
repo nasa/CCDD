@@ -1135,9 +1135,7 @@ public class CcddDbVerificationHandler
                 haltDlg.updateProgressBar(null, -1);
             }
         }
-        catch (
-
-        SQLException se)
+        catch (SQLException se)
         {
             // Inform the user that obtaining the internal table metadata failed
             eventLog.logFailEvent(ccddMain.getMainFrame(),
@@ -1503,7 +1501,7 @@ public class CcddDbVerificationHandler
                         // Check if the variable is an array member
                         if (ArrayVariable.isArrayMember(variablePath))
                         {
-                            // Strip the array index form the end to create a reference to the
+                            // Strip the array index from the end to create a reference to the
                             // variable's array definition
                             String name = variablePath.substring(0, variablePath.lastIndexOf("["));
 
@@ -1574,6 +1572,11 @@ public class CcddDbVerificationHandler
                                   "<html><b>Error obtaining metadata for internal table '</b>"
                                                                   + dbTableName
                                                                   + "<b>'");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 
@@ -1842,6 +1845,11 @@ public class CcddDbVerificationHandler
                                   "<html><b>Error obtaining metadata for table '</b>"
                                                                   + dbTableName
                                                                   + "<b>'");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
     }
 
@@ -3080,6 +3088,11 @@ public class CcddDbVerificationHandler
                     // Log that the table update(s) did not succeed
                     message = "One or more project database inconsistencies were "
                               + "detected, but an error occurred while updating";
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
                 }
             }
 

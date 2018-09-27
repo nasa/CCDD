@@ -8,6 +8,9 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
+import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
+import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.IGNORE_BUTTON;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
@@ -566,12 +569,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         String pathTag = "<b>Full path:</b> ";
 
-        // Build the tool tip text, showing the table type and its full path
-        String toolTip = "<html><b>Table type:</b> "
-                         + currentTableInfo.getType()
-                         + "<br>"
-                         + pathTag
-                         + currentTableInfo.getTablePath();
+        // Build the tool tip text, showing the table type and its full path with the data types
+        // highlighted
+        String toolTip = CcddUtilities.highlightDataType("<html><b>Table type:</b> "
+                                                         + currentTableInfo.getType()
+                                                         + "<br>"
+                                                         + pathTag
+                                                         + currentTableInfo.getTablePath());
 
         // Create the indentation text; hide this text by coloring it the same as the background
         String indent = "<br>"
@@ -670,9 +674,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         // Get the variable path separators and the show/hide data type flag from the program
         // preferences
-        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
-        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
-        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
+        varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                       DEFAULT_VARIABLE_PATH_SEP);
+        typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                        DEFAULT_TYPE_NAME_SEP);
+        excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                            DEFAULT_HIDE_DATA_TYPE));
 
         // Check if the variable path, variable name, and data type columns are present, the table
         // represents a structure, the table has been created, and the table is open in a table
@@ -2226,6 +2233,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // stack
                     tableData.get(row)[column] = oldValue;
                     table.getUndoManager().undoRemoveEdit();
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, parent);
                 }
 
                 return showMessage;

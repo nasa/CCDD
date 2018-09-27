@@ -494,7 +494,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 applicationCb.setBorder(emptyBorder);
                 applicationCb.setEnabled(false);
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-                gbc.insets.bottom = 0;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.right = 0;

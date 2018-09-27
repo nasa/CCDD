@@ -931,6 +931,11 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                     tableData.get(row)[column] = oldValue;
                     macroTable.getUndoManager().undoRemoveEdit();
                 }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, CcddMacroEditorDialog.this);
+                }
 
                 return false;
             }

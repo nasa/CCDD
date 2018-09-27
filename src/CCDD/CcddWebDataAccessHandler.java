@@ -1048,8 +1048,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
         }
         // A table name is provided. Check if the table existence should be ignored, or else if the
         // table exists in the database
-        else if (!checkExists
-                 || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
+        else if (!checkExists || dbTable.isTableExists(tableName, ccddMain.getMainFrame()))
         {
             // Add the table name and data field information to the output
             JSONObject tableNameAndFields = new JSONObject();

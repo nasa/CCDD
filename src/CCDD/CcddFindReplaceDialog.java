@@ -31,13 +31,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -45,7 +43,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
-import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
@@ -86,9 +83,6 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
     // Listener for table editor dialog focus events; used in conjunction with the find/replace
     // dialog
     private WindowFocusListener editorListener = null;
-
-    // Temporary marker for special characters in a search string
-    private static String MARKER = "@~wildcard~@";
 
     // Wild card search character explanation label
     private static String WILD_CARD_LABEL = "? = character, * = string, \\ for literal ? or *";
@@ -598,64 +592,26 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             prevIgnoreCase = ignoreCaseCb.isSelected();
             prevAllowRegex = allowRegexCb.isSelected();
 
-            try
-            {
-                // Create the match pattern from the search criteria. If the allow regular
-                // expression check box is selected then the search string is used as is. If the
-                // allow regular expression check box isn't selected then a wild card match is
-                // enabled. A custom matching system is used: a question mark matches a single
-                // character and an asterisk matches one or more characters. This is turned into a
-                // regular expression to perform the actual match. First the reserved regular
-                // expression characters are escaped, other than the asterisk and question mark;
-                // these are then replaced with their corresponding regular expression (while
-                // protecting any escaped instances of the asterisks and question marks by
-                // temporarily replacing these with a marker)
-                searchPattern = searchFld.getText().isEmpty()
-                                                              ? null
-                                                              : Pattern.compile("(?"
-                                                                                + (ignoreCaseCb.isSelected()
-                                                                                                             ? "i"
-                                                                                                             : "")
-                                                                                + ":"
-                                                                                + (allowRegexCb.isSelected()
-                                                                                                             ? searchFld.getText()
-                                                                                                             : searchFld.getText().replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-])",
-                                                                                                                                              "\\\\$1")
-                                                                                                                        .replaceAll("\\\\\\?", MARKER)
-                                                                                                                        .replaceAll("\\?", ".")
-                                                                                                                        .replaceAll(MARKER, "\\\\?")
-                                                                                                                        .replaceAll("\\\\\\*", MARKER)
-                                                                                                                        .replaceAll("\\*", ".*?")
-                                                                                                                        .replaceAll(MARKER, "\\\\*"))
-                                                                                + ")");
+            // Create the match pattern from the search criteria
+            searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
+                                                                  ignoreCaseCb.isSelected(),
+                                                                  allowRegexCb.isSelected(),
+                                                                  CcddFindReplaceDialog.this);
 
-                // Highlight the matching text in the table cells
-                table.highlightSearchText(searchPattern);
+            // Highlight the matching text in the table cells
+            table.highlightSearchText(searchPattern);
 
-                // Update the number of results found label
-                int matchCount = updateMatchCount();
+            // Update the number of results found label
+            int matchCount = updateMatchCount();
 
-                // Enable/disable the previous and next buttons based on if search text is present
-                setReplaceEnable(matchCount != 0);
+            // Enable/disable the previous and next buttons based on if search text is present
+            setReplaceEnable(matchCount != 0);
 
-                // Update the search string list
-                searchFld.updateList(searchFld.getText());
+            // Update the search string list
+            searchFld.updateList(searchFld.getText());
 
-                // Store the search list in the program preferences
-                ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
-            }
-            catch (PatternSyntaxException pse)
-            {
-                // Inform the user that the input value is invalid
-                new CcddDialogHandler().showMessageDialog(CcddFindReplaceDialog.this,
-                                                          "<html><b>Invalid regular expression; cause '</b>"
-                                                                                      + pse.getMessage()
-                                                                                      + "<b>'",
-                                                          "Invalid Input",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-                searchPattern = null;
-            }
+            // Store the search list in the program preferences
+            ccddMain.getProgPrefs().put(SEARCH_STRINGS, searchFld.getListAsString());
         }
     }
 

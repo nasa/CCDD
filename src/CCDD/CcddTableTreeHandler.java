@@ -743,7 +743,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                                                                      ? "Prototype tables"
                                                                                      : (treeType == COMMAND_TABLES
                                                                                                                    ? "Command tables"
-                                                                                                                   : "Prototype dtructure tables"));
+                                                                                                                   : "Prototype structure tables"));
                         groupNode.add(prototype);
                     }
                     // No prototype node name is provided
@@ -777,7 +777,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 }
 
                 // Build the top-level nodes filtered by group
-                buildTopLevelNodes(groupInfo.getTableMembers(), instance, prototype, parent);
+                buildTopLevelNodes(groupInfo.getTableMembers(), instance, prototype, false, parent);
             }
 
             // Add the pseudo-group containing all tables to the prototype and instance nodes
@@ -840,7 +840,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
 
             // Build the root's top-level nodes
-            buildTopLevelNodes(null, instance, prototype, parent);
+            buildTopLevelNodes(null, instance, prototype, false, parent);
         }
 
         // Check if the expansion check box exists
@@ -910,42 +910,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Add the all tables node to the root node
         ToolTipTreeNode allTablesNode = new ToolTipTreeNode("<html><i>"
                                                             + ALL_TABLES_GROUP_NODE_NAME,
-                                                            "Group containing every prototype table");
+                                                            "Group containing all tables");
         root.add(allTablesNode);
-
-        // Check if the prototype node should be displayed
-        if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY)
-        {
-            // Add the prototype node to the all tables node
-            protoAllNode = new ToolTipTreeNode(prototypeNodeName,
-                                               treeType == PROTOTYPE_TABLES
-                                                                            ? "Prototype tables"
-                                                                            : (treeType == COMMAND_TABLES
-                                                                                                          ? "Command tables"
-                                                                                                          : "Prototype structure tables"));
-            allTablesNode.add(protoAllNode);
-        }
-
-        // Check if the instance node should be displayed
-        if (nodeFilter != TableTreeNodeFilter.PROTOTYPE_ONLY)
-        {
-            // Check if the instance node name is provided
-            if (instanceNodeName != null)
-            {
-                // Add the instance node to the all tables node
-                instAllNode = new ToolTipTreeNode(instanceNodeName,
-                                                  treeType == INSTANCE_TABLES
-                                                                              ? "Parent and children tables"
-                                                                              : "Parent and children tables, with variables");
-                allTablesNode.add(instAllNode);
-            }
-            // No instance node name is provided
-            else
-            {
-                // Assign the nodes that normally go in the instance node to the all tables node
-                instAllNode = allTablesNode;
-            }
-        }
 
         // Check if the tree is filtered by table type
         if (isByType)
@@ -956,8 +922,43 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // The tree is only filtered by group
         else
         {
+            // Check if the prototype node should be displayed
+            if (nodeFilter != TableTreeNodeFilter.INSTANCE_ONLY)
+            {
+                // Add the prototype node to the all tables node
+                protoAllNode = new ToolTipTreeNode(prototypeNodeName,
+                                                   treeType == PROTOTYPE_TABLES
+                                                                                ? "Prototype tables"
+                                                                                : (treeType == COMMAND_TABLES
+                                                                                                              ? "Command tables"
+                                                                                                              : "Prototype structure tables"));
+                allTablesNode.add(protoAllNode);
+            }
+
+            // Check if the instance node should be displayed
+            if (nodeFilter != TableTreeNodeFilter.PROTOTYPE_ONLY)
+            {
+                // Check if the instance node name is provided
+                if (instanceNodeName != null)
+                {
+                    // Add the instance node to the all tables node
+                    instAllNode = new ToolTipTreeNode(instanceNodeName,
+                                                      treeType == INSTANCE_TABLES
+                                                                                  ? "Parent and children tables"
+                                                                                  : "Parent and children tables, with variables");
+                    allTablesNode.add(instAllNode);
+                }
+                // No instance node name is provided
+                else
+                {
+                    // Assign the nodes that normally go in the instance node to the all tables
+                    // node
+                    instAllNode = allTablesNode;
+                }
+            }
+
             // Build the all tables node
-            buildTopLevelNodes(null, instAllNode, protoAllNode, parent);
+            buildTopLevelNodes(null, instAllNode, protoAllNode, true, parent);
         }
     }
 
@@ -986,14 +987,32 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Step through each table
             for (TableMembers member : tableMembers)
             {
-                // Check if the table is of the current type and, if group filtering is in effect,
-                // it belongs to the current group
-                if (type.equals(member.getTableType())
-                    && (groupInfo == null
-                        || groupInfo.getTableMembers().contains(member.getTableName())))
+                // Check if the table is of the current type
+                if (type.equals(member.getTableType()))
                 {
-                    // Add the table name to the list for this type
-                    tables.add(member.getTableName());
+                    // Check if group filtering isn't in effect
+                    if (groupInfo == null)
+                    {
+                        // Add the table name to the list for this type
+                        tables.add(member.getTableName());
+                    }
+                    // Group filtering is in effect
+                    else
+                    {
+                        // Step through each table belonging to the group
+                        for (String grpTbl : groupInfo.getTableMembers())
+                        {
+                            // Check if the prototype name of the table matching the current type
+                            // matches the group table's prototype table name; that is, the group
+                            // table is of the matching table type
+                            if (member.getTableName().equals(TableInformation.getPrototypeName(grpTbl))
+                                && !tables.contains(grpTbl))
+                            {
+                                // Add the group table name to the list for this type
+                                tables.add(grpTbl);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1063,8 +1082,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 root.add(typeNode);
             }
 
-            // Build the prototype and instance nodes filtered by type (and group, if applicable)
-            buildTopLevelNodes(tables, instance, prototype, parent);
+            // Build the prototype and instance nodes filtered by type (and group, if applicable).
+            // For the 'All tables' pseudo-group a group node exists, but no group information
+            buildTopLevelNodes(tables,
+                               instance,
+                               prototype,
+                               (groupNode != null && groupInfo == null),
+                               parent);
         }
     }
 
@@ -1080,12 +1104,17 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param protoNode
      *            parent node for the prototype nodes
      *
+     * @param isAllTablesNode
+     *            true if the specified instance and prototype nodes are children of the 'All
+     *            tables' pseudo-group node
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
     private void buildTopLevelNodes(List<String> nameList,
                                     ToolTipTreeNode instNode,
                                     ToolTipTreeNode protoNode,
+                                    boolean isAllTablesNode,
                                     Component parent)
     {
         // Check if the descriptions are needed (i.e., if building a visible table tree) and
@@ -1153,9 +1182,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         // isn't referencing itself, and, if the tree is filtered by group, that
                         // this table is a member of the group
                         if (otherMember.getDataTypes().contains(member.getTableName())
-                            && !member.equals(otherMember)
-                            && (!isByGroup ||
-                                (nameList != null && nameList.contains(otherMember.getTableName()))))
+                            && !member.equals(otherMember))
                         {
                             // Clear the flag indicating this is a root table and stop searching
                             isRoot = false;
@@ -1171,13 +1198,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         recursionTable = null;
 
                         // Build the nodes in the tree for this table and its member tables
-                        buildNodes(member,
+                        buildNodes(nameList,
+                                   member,
                                    (!isRoot && treeType == STRUCTURES_WITH_PRIMITIVES
                                                                                       ? protoNode
                                                                                       : instNode),
                                    new ToolTipTreeNode(member.getTableName(),
                                                        getTableDescription(member.getTableName(),
-                                                                           "")));
+                                                                           "")),
+                                   isAllTablesNode);
+
                         // Check if a recursive reference was detected and that warning dialogs
                         // aren't suppressed
                         if (recursionTable != null && !isSilent)
@@ -1204,6 +1234,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * loop, a check is made for a child node that exists in its own path; if found the recursion
      * is terminated for that node
      *
+     * @param nameList
+     *            list of table names belonging to the filtered selection; null if no filtering
+     *
      * @param thisMember
      *            TableMember class
      *
@@ -1212,10 +1245,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param childNode
      *            new child node to add to the working node
+     *
+     * @param isAllTablesNode
+     *            true if the specified instance and prototype nodes are children of the 'All
+     *            tables' pseudo-group node
      *********************************************************************************************/
-    private void buildNodes(TableMembers thisMember,
+    private void buildNodes(List<String> nameList,
+                            TableMembers thisMember,
                             ToolTipTreeNode parentNode,
-                            ToolTipTreeNode childNode)
+                            ToolTipTreeNode childNode,
+                            boolean isAllTablesNode)
     {
         // Step through each node in the parent's path
         for (TreeNode node : parentNode.getPath())
@@ -1233,8 +1272,16 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
         }
 
-        // Check that a recursion error wasn't found; this prevents an infinite loop from occurring
-        if (recursionTable == null)
+        // Check if a recursion error wasn't found (this prevents an infinite loop from occurring),
+        // and (1) filtering by group is not in effect, (2) this node isn't a descendant of the
+        // 'All tables' pseudo-group node, (3) no constraint list is in effect, or (4) the node
+        // name is in the list of those to include
+        if (recursionTable == null
+            // TODO HOW DOES THE TYPES NAME LIST COME INTO PLAY?
+            && (!isByGroup
+                || isAllTablesNode
+                || nameList == null
+                || nameList.contains(childNode.getUserObject().toString())))
         {
             // Add the child node to its parent
             parentNode.add(childNode);
@@ -1322,11 +1369,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             // format 'dataType.variableName<[arrayIndex]>'. If a specific
                             // description exists for the table then use it for the tool tip text;
                             // otherwise use the prototype's description
-                            buildNodes(member,
+                            buildNodes(nameList,
+                                       member,
                                        childNode,
                                        new ToolTipTreeNode(nodeName,
                                                            getTableDescription(tablePath,
-                                                                               thisMember.getDataTypes().get(memIndex))));
+                                                                               thisMember.getDataTypes().get(memIndex))),
+                                       isAllTablesNode);
                         }
                     }
                 }

@@ -1185,6 +1185,12 @@ public class CcddDbTableCommandHandler
                                   "<html><b>Cannot create table(s) '</b>" + allNames + "<b>'");
             errorFlag = true;
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
 
         return errorFlag;
     }
@@ -1381,6 +1387,12 @@ public class CcddDbTableCommandHandler
                                           "<html><b>Cannot rename table '</b>" + tableName + "<b>'");
                     errorFlag = true;
                 }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, tableDialog);
+                    errorFlag = true;
+                }
             }
 
             /**************************************************************************************
@@ -1568,6 +1580,12 @@ public class CcddDbTableCommandHandler
                                           "<html><b>Cannot copy table '</b>" + tableName + "<b>'");
                     errorFlag = true;
                 }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, tableDialog);
+                    errorFlag = true;
+                }
             }
 
             /**************************************************************************************
@@ -1705,6 +1723,12 @@ public class CcddDbTableCommandHandler
                                           + se.getMessage()
                                           + "'",
                                   "<html><b>Cannot delete table(s) '</b>" + names + "<b>'");
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
             errorFlag = true;
         }
 
@@ -6085,6 +6109,12 @@ public class CcddDbTableCommandHandler
                                                  + "<b>'");
             errorFlag = true;
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
 
         switch (intTable)
         {
@@ -6391,6 +6421,12 @@ public class CcddDbTableCommandHandler
                                   "<html><b>Cannot modify project data field(s)");
             errorFlag = true;
         }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, editorDialog);
+            errorFlag = true;
+        }
 
         // Check that no error occurred
         if (!errorFlag)
@@ -6551,6 +6587,12 @@ public class CcddDbTableCommandHandler
                                                              + "<b>'");
                     errorFlag = true;
                 }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, typeDialog);
+                    errorFlag = true;
+                }
             }
 
             /**************************************************************************************
@@ -6636,6 +6678,12 @@ public class CcddDbTableCommandHandler
                                           "<html><b>Cannot copy table type '</b>"
                                                              + typeName
                                                              + "<b>'");
+                    errorFlag = true;
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, typeDialog);
                     errorFlag = true;
                 }
             }
@@ -6812,6 +6860,12 @@ public class CcddDbTableCommandHandler
                                                          + "<b>'</b>"
                                                          + names
                                                          + "<b>'");
+                    errorFlag = true;
+                }
+                catch (Exception e)
+                {
+                    // Display a dialog providing details on the unanticipated error
+                    CcddUtilities.displayException(e, parent);
                     errorFlag = true;
                 }
             }
@@ -7567,6 +7621,12 @@ public class CcddDbTableCommandHandler
                                                            + typeName
                                                            + "<b>'"
                                                            + names);
+                errorFlag = true;
+            }
+            catch (Exception e)
+            {
+                // Display a dialog providing details on the unanticipated error
+                CcddUtilities.displayException(e, editorDialog);
                 errorFlag = true;
             }
 

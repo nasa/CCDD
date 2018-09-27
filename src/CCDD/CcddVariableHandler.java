@@ -7,7 +7,10 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
+import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.SIZEOF_DATATYPE;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
@@ -1147,9 +1150,12 @@ public class CcddVariableHandler
     protected void removeUnusedLists()
     {
         // Get the separators stored in the program preferences
-        String varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR, "_");
-        boolean excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, "false"));
-        String typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR, "_");
+        String varPathSeparator = ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
+                                                              DEFAULT_VARIABLE_PATH_SEP);
+        String typeNameSeparator = ccddMain.getProgPrefs().get(TYPE_NAME_SEPARATOR,
+                                                               DEFAULT_TYPE_NAME_SEP);
+        boolean excludeDataTypes = Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                                    DEFAULT_HIDE_DATA_TYPE));
 
         // Check if any converted variable name list exists
         if (conversionLists != null)

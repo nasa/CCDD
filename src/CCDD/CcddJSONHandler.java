@@ -1237,13 +1237,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
             pw.println((String) scriptEngine.get("result"));
         }
-        catch (IOException | ScriptException e)
+        catch (IOException | ScriptException iose)
         {
-            throw new CCDDException(e.getMessage());
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e);
+            throw new CCDDException(iose.getMessage());
         }
         finally
         {
@@ -2443,7 +2439,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
                 catch (ParseException pe)
                 {
-                    pe.printStackTrace();
                     throw new CCDDException("Error parsing " + groupType + " information");
                 }
             }
