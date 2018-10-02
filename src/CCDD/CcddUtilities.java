@@ -7,7 +7,7 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
+import static CCDD.CcddConstants.FLAGGED;
 import static CCDD.CcddConstants.POSTGRESQL_RESERVED_CHARS;
 import static CCDD.CcddConstants.SPLIT_IGNORE_QUOTES;
 import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
@@ -1488,8 +1488,8 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String highlightDataType(String path)
     {
-        // Check if the path contains a child structure reference and isn't disabled
-        if (path.contains(".") && !path.startsWith(DISABLED_TEXT_COLOR))
+        // Check if the path contains a child structure reference and isn't disabled or invalid
+        if (path.contains(".") && !path.startsWith(FLAGGED))
         {
             // Create the tag using the data type highlight color
             String highlightOn = "<font color="

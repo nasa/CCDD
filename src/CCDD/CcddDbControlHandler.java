@@ -846,7 +846,8 @@ public class CcddDbControlHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *
-     * @return Array containing the database names and descriptions
+     * @return Array containing the database names and descriptions; empty list if no CCDD
+     *         databases exist in the server
      *********************************************************************************************/
     protected String[] queryDatabaseList(Component parent)
     {
@@ -864,7 +865,8 @@ public class CcddDbControlHandler
      *            user name
      *
      * @return Array containing the database names and descriptions for which the current user has
-     *         access
+     *         access; empty list if there are no CCDD databases in the server accessible by the
+     *         user
      *********************************************************************************************/
     protected String[] queryDatabaseByUserList(Component parent, String userName)
     {

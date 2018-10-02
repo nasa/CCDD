@@ -483,31 +483,6 @@ public class CcddLinkTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Remove the HTML tags and rate/size text from the node names. The object array is converted
-     * to a string array
-     *
-     * @param nodePath
-     *            path array
-     *
-     * @return Node path array with any HTML tags and rate/size text removed
-     *********************************************************************************************/
-    @Override
-    protected String[] cleanNodePath(Object[] nodePath)
-    {
-        // Convert the object array to a string array
-        String[] path = CcddUtilities.convertObjectToString(nodePath);
-
-        // Step through each node path
-        for (int index = 0; index < nodePath.length; index++)
-        {
-            // Remove the HTML tags and rate/size text
-            path[index] = removeExtraText(path[index]);
-        }
-
-        return path;
-    }
-
-    /**********************************************************************************************
      * Override so that HTML tag(s) and text within parentheses (inclusive) preceded by a space
      * (the rate and size) is removed
      *

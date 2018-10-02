@@ -418,6 +418,7 @@ public class CcddImportSupportHandler
         // Check if this is a new group
         if (groupInfo == null)
         {
+            // TODO
             // Add the group information
             groupInfo = groupHandler.addGroupInformation(groupDefn[GroupDefinitionColumn.NAME.ordinal()],
                                                          groupDefn[GroupDefinitionColumn.DESCRIPTION.ordinal()],

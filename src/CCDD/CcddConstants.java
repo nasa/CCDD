@@ -208,8 +208,11 @@ public class CcddConstants
                                                                      ModifiableSizeInfo.MIN_WINDOW_HEIGHT.getSize()),
                                                             INIT_WINDOW_HEIGHT * 2);
 
-    // Disabled item highlight color
-    protected static final String DISABLED_TEXT_COLOR = "<html><!-- Disabled --><font color=#b0b0b0>";
+    // Disabled and invalid item highlight colors. These are primarily for indicating that an item
+    // in a tree or a list can't be selected or doesn't apply
+    protected static final String FLAGGED = "<html><!-- Flag:";
+    protected static final String DISABLED_TEXT_COLOR = FLAGGED + "Disabled --><font color=#b0b0b0>";
+    protected static final String INVALID_TEXT_COLOR = FLAGGED + "Invalid --><font color=#b0b0b0>";
 
     // Button and table icon file names
     protected static final String OK_ICON = "/images/ok.png";
@@ -5116,7 +5119,7 @@ public class CcddConstants
     {
         NAME("Field Name", "Data field name", "", true),
         DESCRIPTION("Description", "Data field description", "", false),
-        SIZE("Size", "Data field size (characters)", "", true),
+        CHAR_SIZE("Width", "Data field display width (characters)", "", true),
         INPUT_TYPE("Input Type", "Data field input type", "Text", true),
         REQUIRED("Required",
                  "Select if a value is required in the column",
@@ -6415,8 +6418,8 @@ public class CcddConstants
         // Check if a specific table exists in the database (case insensitive)
         SPECIFIC_TABLE("SELECT 1 FROM pg_tables WHERE tablename ~* E'^_table_name_$';"),
 
-        // Get the list of CCDD databases (in the form 'database name,lock status,visible
-        // name,description'), sorted alphabetically
+        // Get the list of CCDD databases (in the form 'database name,lock status,visible (project)
+        // name,admin(s),description'), sorted alphabetically
         DATABASES("SELECT datname || E'"
                   + DATABASE_COMMENT_SEPARATOR
                   + "' || split_part(description, '"

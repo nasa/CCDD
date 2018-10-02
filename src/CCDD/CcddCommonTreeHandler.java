@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.BIT_VARIABLE_ICON;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
+import static CCDD.CcddConstants.FLAGGED;
 import static CCDD.CcddConstants.LINKED_BIT_VARIABLE_ICON;
 import static CCDD.CcddConstants.LINKED_PACKED_VARIABLE_ICON;
 import static CCDD.CcddConstants.LINKED_VARIABLE_ICON;
@@ -158,7 +159,7 @@ public class CcddCommonTreeHandler extends JTree
 
             // Check if the name contains a period, indicating it is in the form
             // dataType.variableName
-            if (leaf && name.contains("."))
+            if (name.contains("."))
             {
                 // Check if the data type portion of the name should be hidden
                 if (isHideDataType)
@@ -166,8 +167,8 @@ public class CcddCommonTreeHandler extends JTree
                     // Remove the data type portion of the name
                     adjustedName = name.replaceFirst("(.*>)?.*\\.", "$1");
                 }
-                // Check if the node isn't flagged as disabled
-                else if (!name.startsWith(DISABLED_TEXT_COLOR))
+                // Check if the node isn't flagged as disabled or invalid
+                else if (!name.startsWith(FLAGGED))
                 {
                     // Highlight the data type portion of the name, if present
                     adjustedName = CcddUtilities.highlightDataType(name);
@@ -870,8 +871,8 @@ public class CcddCommonTreeHandler extends JTree
             String nodeName = node.getUserObject().toString();
 
             // Check that no exclusion list is in effect or, if one is, that the node is not marked
-            // as excluded (i.e., starts with an HTML tag)
-            if (excludedPaths == null || !nodeName.startsWith("<html>"))
+            // as excluded
+            if (excludedPaths == null || !nodeName.startsWith(DISABLED_TEXT_COLOR))
             {
                 // If this node is a bit-wise variable then all other variables that are packed
                 // with it must be selected as well. Likewise, if this is a string then all array

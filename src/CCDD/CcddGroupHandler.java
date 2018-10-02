@@ -185,7 +185,7 @@ public class CcddGroupHandler
                                                               !appAndDesc[0].equals("0"),
                                                               null));
                 }
-                // This is a group's variable path
+                // This is a group's table path
                 else
                 {
                     // Get the reference to this group's information

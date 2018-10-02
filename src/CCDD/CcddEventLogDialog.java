@@ -1100,7 +1100,9 @@ public class CcddEventLogDialog extends CcddFrameHandler
 
         // Display an error dialog
         new CcddDialogHandler().showMessageDialog(parent,
-                                                  dialogMessage,
+                                                  (ccddMain.isGUIHidden()
+                                                                          ? CcddUtilities.removeHTMLTags(logMessage)
+                                                                          : dialogMessage),
                                                   dialogTitle,
                                                   JOptionPane.ERROR_MESSAGE,
                                                   DialogOption.OK_OPTION);

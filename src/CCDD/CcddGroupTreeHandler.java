@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.GROUP_ICON;
+import static CCDD.CcddConstants.INVALID_TEXT_COLOR;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -18,6 +19,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -36,14 +38,17 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DefaultApplicationField;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddUndoHandler.UndoableTreeModel;
 
 /**************************************************************************************************
@@ -73,7 +78,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private boolean isBuilding;
 
     // Array containing the comment parameters for each table
-    private String[][] tableComments;
+    private ArrayListMultiple tableComments;
 
     // Tree nodes for the table types if filtering by type and for application status if filtering
     // by application
@@ -84,7 +89,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     private String scheduleRate;
 
     // Flag indication only application groups should be displayed
-    private final boolean isApplicationOnly;
+    private boolean isApplicationOnly;
 
     // Node names for use when filtering the tree by application
     private static String APP_NODE = "Application";
@@ -168,12 +173,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         // Set the selected schedule rate to a blank
         scheduleRate = "";
 
-        // Get the array of table comments
-        tableComments = ccddMain.getDbTableCommandHandler().queryDataTableComments(ccddMain.getMainFrame());
-
-        // Set the table type and data type handlers, and table comments in the information tree
-        // handler
-        setHandlersAndComments(tableTypeHandler, tableComments);
+        // Get the list of table comments
+        tableComments = new ArrayListMultiple(TableCommentIndex.NAME.ordinal());
+        tableComments.addAll(Arrays.asList(ccddMain.getDbTableCommandHandler()
+                                                   .queryDataTableComments(ccddMain.getMainFrame())));
     }
 
     /**********************************************************************************************
@@ -250,6 +253,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         this.isFilterByType = filterByType;
         this.isFilterByApp = filterByApp;
         this.scheduleRate = scheduleRate;
+        this.isApplicationOnly = isApplicationOnly;
 
         super.buildTree(isFilterByType, isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
@@ -349,6 +353,45 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 }
                             }
                         }
+                        // Check if the groups are filtered by table type
+                        else if (isFilterByType)
+                        {
+                            // Get the table type for the current group table member
+                            String tableType = tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(table)))[TableCommentIndex.TYPE.ordinal()];
+
+                            // Step through each table type node
+                            for (int nodeIndex = 0; nodeIndex < typeNodes.length; nodeIndex++)
+                            {
+                                // Check if the group table's type matches the type node name
+                                if (tableType.equals(typeNodes[nodeIndex].toString()))
+                                {
+                                    // Separate the table path into each table reference
+                                    // (dataType<.variableName>)
+                                    String[] sourcePath = table.split(",");
+
+                                    // Step through each table reference in the path
+                                    for (int index = 0; index < sourcePath.length; index++)
+                                    {
+                                        // Check if the table type for this reference doesn't match
+                                        // the current table type node
+                                        if (!tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index])))[TableCommentIndex.TYPE.ordinal()]))
+                                        {
+                                            // Flag the table reference as not belonging to this
+                                            // table type (the node may still appear if it's in the
+                                            // path of a table reference that does belong to the
+                                            // table type)
+                                            sourcePath[index] = INVALID_TEXT_COLOR + sourcePath[index];
+                                        }
+                                    }
+
+                                    // Add the table reference to the table type node
+                                    addNodeToInfoNode(typeNodes[nodeIndex],
+                                                      sourcePath,
+                                                      0);
+                                    break;
+                                }
+                            }
+                        }
                         // Groups are not filtered by application status
                         else
                         {
@@ -376,6 +419,82 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Clear the flag that indicates the group tree is being built
         isBuilding = false;
+    }
+
+    /**********************************************************************************************
+     * Add the specified table(s) to the specified group node(s)
+     *
+     * @param node
+     *            parent information node for this table
+     *
+     * @param sourcePath
+     *            array containing the source node path
+     *
+     * @param startIndex
+     *            tree level at which the table names first appear in the array
+     *********************************************************************************************/
+    @Override
+    protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
+    {
+        // Check if the tree is filtered by table type and the target node is not a table type
+        // node. This occurs when transferring a node from the table tree to the group tree in the
+        // group manager, but is not needed when building the group tree
+        if (isFilterByType && node.getLevel() <= getHeaderNodeLevel())
+        {
+            // Remove any HTML tags and convert the path to a string array
+            String[] tablePath = cleanNodePath(sourcePath);
+
+            // Step through each table type node
+            for (int typeIndex = 0; typeIndex < node.getChildCount(); typeIndex++)
+            {
+                // Get the table type represented by this node
+                String tableType = ((ToolTipTreeNode) node.getChildAt(typeIndex)).getUserObject().toString();
+
+                // Step through each table reference in the table path
+                for (int index = startIndex; index < tablePath.length; index++)
+                {
+                    // Check if the type for the table in the reference matches the table type
+                    // represented by this node
+                    if (tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(tablePath[index])))[TableCommentIndex.TYPE.ordinal()]))
+                    {
+                        int firstValidIndex = -1;
+
+                        // Copy the table path array so that HTML formatting can be applied without
+                        // affected the original array
+                        String[] tempPath = Arrays.copyOf(tablePath, tablePath.length);
+
+                        // Step through each table reference in the table path
+                        for (int pathIndex = startIndex; pathIndex < tempPath.length; pathIndex++)
+                        {
+                            // Check if the table type for this table reference doesn't match the
+                            // node's table type
+                            if (!tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(tempPath[pathIndex])))[TableCommentIndex.TYPE.ordinal()]))
+                            {
+                                // Flag the table reference as not matching the node table type
+                                tempPath[pathIndex] = INVALID_TEXT_COLOR + tempPath[pathIndex];
+                            }
+                            // The type for the table reference matches the node table type
+                            else
+                            {
+                                // Store the (last) valid. This is used to prune the branch of all
+                                // non-matching table references up to the first one that mat
+                                firstValidIndex = pathIndex;
+                            }
+                        }
+
+                        // Add the table path to the table type node
+                        super.addNodeToInfoNode((ToolTipTreeNode) node.getChildAt(typeIndex),
+                                                Arrays.copyOf(tempPath, firstValidIndex + 1),
+                                                startIndex);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Add the table path to the specified node
+            super.addNodeToInfoNode(node, sourcePath, startIndex);
+        }
     }
 
     /**********************************************************************************************

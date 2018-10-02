@@ -799,7 +799,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                                                     // Add the group definition, checking for (and
                                                     // if possible, correcting) errors
-                                                    addImportedGroupDefinition(new String[] {CcddFieldHandler.getFieldGroupName(groupDefnName),
+                                                    addImportedGroupDefinition(new String[] {groupDefnName,
                                                                                              columnValues[GroupDefinitionColumn.DESCRIPTION.ordinal()],
                                                                                              columnValues[GroupDefinitionColumn.IS_APPLICATION.ordinal()],
                                                                                              columnValues[GroupDefinitionColumn.MEMBERS.ordinal()]},

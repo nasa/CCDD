@@ -522,7 +522,7 @@ public class CcddFieldHandler
                                                    data[FieldEditorColumnInfo.NAME.ordinal()].toString(),
                                                    data[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
                                                    inputTypeHandler.getInputTypeByName(data[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
-                                                   Integer.valueOf(data[FieldEditorColumnInfo.SIZE.ordinal()].toString()),
+                                                   Integer.valueOf(data[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
                                                    Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
                                                    ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
                                                    data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
@@ -562,7 +562,7 @@ public class CcddFieldHandler
             row[FieldEditorColumnInfo.NAME.ordinal()] = fldInfo.getFieldName();
             row[FieldEditorColumnInfo.DESCRIPTION.ordinal()] = fldInfo.getDescription();
             row[FieldEditorColumnInfo.INPUT_TYPE.ordinal()] = fldInfo.getInputType().getInputName();
-            row[FieldEditorColumnInfo.SIZE.ordinal()] = fldInfo.getSize();
+            row[FieldEditorColumnInfo.CHAR_SIZE.ordinal()] = fldInfo.getSize();
             row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fldInfo.isRequired();
             row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fldInfo.getApplicabilityType().getApplicabilityName();
             row[FieldEditorColumnInfo.VALUE.ordinal()] = fldInfo.getValue();

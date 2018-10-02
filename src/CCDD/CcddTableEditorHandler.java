@@ -1614,9 +1614,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         {
                             // Check if the cell is non-alterable based on the following criteria:
                             if ((
-                            // This is an enumeration column, and that the associated data type
-                            // isn't an integer type (signed or unsigned)
-                            column == colGrp.getEnumeration()
+                            // This is an enumeration or bit length column, and that the associated
+                            // data type isn't an integer type (signed or unsigned)
+                            (column == colGrp.getEnumeration() || column == colGrp.getBitLength())
                                  && !dataTypeHandler.isInteger(rowCopy[colGrp.getDataType()].toString()))
 
                                 // This is a minimum or maximum value column and no data type is

@@ -471,7 +471,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                              getString(typeJO,
                                                                                                                        FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                                                                              getString(typeJO,
-                                                                                                                       FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                                       FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
                                                                                                              getString(typeJO,
                                                                                                                        FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                                                                              getString(typeJO,
@@ -658,7 +658,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                    getString(typeJO,
                                                                                                              FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                                                                    getString(typeJO,
-                                                                                                             FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                             FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
                                                                                                    getString(typeJO,
                                                                                                              FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                                                                    getString(typeJO,
@@ -716,7 +716,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         if (!name.isEmpty()
                             && groupJO.keySet().size() <= GroupDefinitionColumn.values().length + 1)
                         {
-                            addImportedGroupDefinition(new String[] {CcddFieldHandler.getFieldGroupName(name),
+                            // Add the group data field definition, checking for (and if possible,
+                            // correcting) errors
+                            addImportedGroupDefinition(new String[] {name,
                                                                      description,
                                                                      isApplication,
                                                                      members},
@@ -758,7 +760,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                              getString(grpFldJO,
                                                                                                                        FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                                                                              getString(grpFldJO,
-                                                                                                                       FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                                       FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
                                                                                                              getString(grpFldJO,
                                                                                                                        FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                                                                              getString(grpFldJO,
@@ -900,7 +902,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                         getString(dataFieldJO,
                                                                                                                   FieldEditorColumnInfo.DESCRIPTION.getColumnName()),
                                                                                                         getString(dataFieldJO,
-                                                                                                                  FieldEditorColumnInfo.SIZE.getColumnName()),
+                                                                                                                  FieldEditorColumnInfo.CHAR_SIZE.getColumnName()),
                                                                                                         getString(dataFieldJO,
                                                                                                                   FieldEditorColumnInfo.INPUT_TYPE.getColumnName()),
                                                                                                         getString(dataFieldJO,
@@ -1457,7 +1459,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 fieldJO.put(FieldEditorColumnInfo.NAME.getColumnName(), fieldInfo.getFieldName());
                 fieldJO.put(FieldEditorColumnInfo.DESCRIPTION.getColumnName(),
                             fieldInfo.getDescription());
-                fieldJO.put(FieldEditorColumnInfo.SIZE.getColumnName(), fieldInfo.getSize());
+                fieldJO.put(FieldEditorColumnInfo.CHAR_SIZE.getColumnName(), fieldInfo.getSize());
                 fieldJO.put(FieldEditorColumnInfo.INPUT_TYPE.getColumnName(),
                             fieldInfo.getInputType().getInputName());
                 fieldJO.put(FieldEditorColumnInfo.REQUIRED.getColumnName(),

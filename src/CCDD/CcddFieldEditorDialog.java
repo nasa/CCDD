@@ -168,7 +168,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             protected boolean isColumnResizable(int column)
             {
                 return column != FieldEditorColumnInfo.REQUIRED.ordinal()
-                       && column != FieldEditorColumnInfo.SIZE.ordinal()
+                       && column != FieldEditorColumnInfo.CHAR_SIZE.ordinal()
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
             }
 
@@ -179,7 +179,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             protected boolean isColumnMultiLine(int column)
             {
                 return column != FieldEditorColumnInfo.REQUIRED.ordinal()
-                       && column != FieldEditorColumnInfo.SIZE.ordinal()
+                       && column != FieldEditorColumnInfo.CHAR_SIZE.ordinal()
                        && column != FieldEditorColumnInfo.APPLICABILITY.ordinal();
             }
 
@@ -326,7 +326,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                         }
                     }
                     // Check if this is the field size column
-                    else if (column == FieldEditorColumnInfo.SIZE.ordinal())
+                    else if (column == FieldEditorColumnInfo.CHAR_SIZE.ordinal())
                     {
                         // Check if the field size is not a positive integer
                         if (!newValueS.matches(DefaultInputType.INT_POSITIVE.getInputMatch()))

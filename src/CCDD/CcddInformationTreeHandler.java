@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -20,7 +19,6 @@ import javax.swing.tree.TreePath;
 
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddConstants.InternalTable;
-import CCDD.CcddConstants.TableCommentIndex;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary generic information tree handler class
@@ -29,7 +27,6 @@ import CCDD.CcddConstants.TableCommentIndex;
 public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 {
     // Class references
-    private CcddTableTypeHandler tableTypeHandler;
     private final CcddDataTypeHandler dataTypeHandler;
 
     // Components referenced by multiple methods
@@ -42,9 +39,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     // Flags to indicate if the tree should be filtered by table type or by application
     private boolean isFilterByType;
     private boolean isFilterByApp;
-
-    // Array containing the comments parameters for each table
-    private String[][] tableComments;
 
     // String value that may be used to modify the tree building method; null or blank if not
     // filtering
@@ -286,23 +280,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Set the table type handler, and table comments array. This is only required if the table can
-     * be filtered by table type
-     *
-     * @param tableTypeHandler
-     *            table type handler reference
-     *
-     * @param tableComments
-     *            array containing the comment parameters for each table
-     *********************************************************************************************/
-    protected void setHandlersAndComments(CcddTableTypeHandler tableTypeHandler,
-                                          String[][] tableComments)
-    {
-        this.tableTypeHandler = tableTypeHandler;
-        this.tableComments = tableComments;
-    }
-
-    /**********************************************************************************************
      * Set the list of all tree paths in the table tree in the order to be used when placing a path
      * in the information tree
      *
@@ -541,7 +518,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add the specified variable(s) to the specified information node(s)
+     * Add the specified table(s)/variable(s) to the specified information node(s)
      *
      * @param node
      *            parent information node for this variable
@@ -554,40 +531,6 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     protected void addNodeToInfoNode(ToolTipTreeNode node, Object[] sourcePath, int startIndex)
     {
-        // Check if the tree is filtered by table type
-        if (isFilterByType)
-        {
-            // Get the source node's prototype table name
-            String protoName = sourcePath[startIndex].toString().split(Pattern.quote("."))[0];
-
-            // Step through each data table comment
-            for (String[] tableComment : tableComments)
-            {
-                // Check if the table name matches the source node's prototype name
-                if (tableComment[TableCommentIndex.NAME.ordinal()].equals(protoName))
-                {
-                    int typeIndex = 0;
-
-                    // Step through each table type
-                    for (String type : tableTypeHandler.getTypes())
-                    {
-                        // Check if the table type matches the type represented by this prototype
-                        // table
-                        if (type.equals(tableComment[TableCommentIndex.TYPE.ordinal()]))
-                        {
-                            // Set the node to the table type node and stop searching
-                            node = (ToolTipTreeNode) node.getChildAt(typeIndex);
-                            break;
-                        }
-
-                        typeIndex++;
-                    }
-
-                    break;
-                }
-            }
-        }
-
         // Step through the source path
         for (int index = startIndex; index < sourcePath.length; index++)
         {
@@ -901,8 +844,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     protected abstract List<String[]> createDefinitionsFromInformation();
 
     /**********************************************************************************************
-     * Placeholder to remove any unwanted text from the node names. The object array is converted
-     * to a string array
+     * Remove any unwanted text from the node names. The object array is converted to a string
+     * array
      *
      * @param nodePath
      *            path array
@@ -911,7 +854,17 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
      *********************************************************************************************/
     protected String[] cleanNodePath(Object[] nodePath)
     {
-        return CcddUtilities.convertObjectToString(nodePath);
+        // Convert the object array to a string array
+        String path[] = CcddUtilities.convertObjectToString(nodePath);
+
+        // Step through each node path
+        for (int index = 0; index < nodePath.length; index++)
+        {
+            // Remove the HTML tags and rate/size text
+            path[index] = removeExtraText(path[index]);
+        }
+
+        return path;
     }
 
     /**********************************************************************************************
@@ -925,8 +878,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     {
         // Check if this is the last node in this path (i.e., the 'leaf', which is a table or
         // primitive variable depending on the internal table type)
-        if (node.getChildCount() == 0
-            && node.getLevel() > 1 + getHeaderNodeLevel())
+        if (node.getChildCount() == 0 && node.getLevel() > 1 + getHeaderNodeLevel())
         {
             // Create storage for the leaf definition and path
             List<String> leafDefinition = new ArrayList<String>();

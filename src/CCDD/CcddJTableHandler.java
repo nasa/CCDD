@@ -1493,7 +1493,9 @@ public abstract class CcddJTableHandler extends JTable
             @Override
             public void run()
             {
-                // Send a structure change event so that the table row heights are sized properly
+                // Issue data and structural change events to ensure the table is redrawn
+                // correctly
+                tableModel.fireTableDataChanged();
                 tableModel.fireTableStructureChanged();
             }
         });
@@ -3392,9 +3394,7 @@ public abstract class CcddJTableHandler extends JTable
                         && ((pass == 1 && newValue.toString().isEmpty())
                             || (pass == 2 && !newValue.toString().isEmpty()))
                         && modelColumn < tableModel.getColumnCount()
-                        && isDataAlterable(tableData.get(modelRow),
-                                           modelRow,
-                                           modelColumn))
+                        && isDataAlterable(tableData.get(modelRow), modelRow, modelColumn))
                     {
                         // Check if the value has changed and, if this values are being inserted,
                         // that the value isn't blank
@@ -4232,7 +4232,8 @@ public abstract class CcddJTableHandler extends JTable
                         }
                         // Check if the model (displayed) value matches the one as altered
                         // (potentially) by the cell content validation
-                        else if (!tableData.get(editRow)[editColumn].equals(tableModel.getValueAt(editRow, editColumn)))
+                        else if (!tableData.get(editRow)[editColumn].equals(tableModel.getValueAt(editRow,
+                                                                                                  editColumn)))
                         {
                             // Load the altered value into the model so that the display matches
                             // the altered value

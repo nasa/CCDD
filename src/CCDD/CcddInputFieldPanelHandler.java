@@ -849,6 +849,13 @@ public abstract class CcddInputFieldPanelHandler
                                                                                                     1,
                                                                                                     fieldInfo.getSize());
 
+                                // Set the text area characteristics
+                                undoableTxtArea.setEditable(true);
+                                undoableTxtArea.setLineWrap(true);
+                                undoableTxtArea.setWrapStyleWord(true);
+                                undoableTxtArea.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+                                undoableTxtArea.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+
                                 // Get the reference to the data field in the field handler
                                 fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),
                                                                                  fieldInfo.getFieldName());

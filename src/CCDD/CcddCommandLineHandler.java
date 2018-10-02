@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
 import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
 import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
@@ -30,6 +31,7 @@ import java.util.regex.Pattern;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.CommandLineType;
+import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
@@ -55,6 +57,7 @@ public class CcddCommandLineHandler
     private final List<CommandHandler> importArgument;
     private final List<CommandHandler> exportArgument;
     private final List<CommandHandler> createArgument;
+    private final List<CommandHandler> deleteArgument;
 
     // Flag that indicates the application should exit once the command is complete. Used by the
     // script execution command
@@ -95,9 +98,13 @@ public class CcddCommandLineHandler
     private boolean excludeDataTypes;
 
     // Create project parameters
-    private String projectName;
-    private String projectOwner;
-    private String projectDescription;
+    private String createName;
+    private String createOwner;
+    private String createDescription;
+
+    // Delete project parameters
+    private String deleteName;
+    private boolean deleteNoMessage;
 
     // Storage for the session event log and script output paths
     private final String sessionLogPath;
@@ -409,6 +416,7 @@ public class CcddCommandLineHandler
         importArgument = new ArrayList<CommandHandler>();
         exportArgument = new ArrayList<CommandHandler>();
         createArgument = new ArrayList<CommandHandler>();
+        deleteArgument = new ArrayList<CommandHandler>();
         dataFile = null;
         replaceExisting = false;
         appendExistingFields = false;
@@ -430,9 +438,11 @@ public class CcddCommandLineHandler
         classification2 = null;
         classification3 = null;
         scriptFileName = null;
-        projectName = null;
-        projectOwner = null;
-        projectDescription = "";
+        createName = null;
+        createOwner = null;
+        createDescription = "";
+        deleteName = null;
+        deleteNoMessage = false;
         shutdownWhenComplete = false;
         exitStatus = 0;
 
@@ -496,7 +506,7 @@ public class CcddCommandLineHandler
                                         "Set the CCDD project to open",
                                         "project name",
                                         CommandLineType.NAME,
-                                        CommandLinePriority.SET_UP.getEndPriority())
+                                        CommandLinePriority.SET_UP.getStartPriority() + 6)
         {
             /**************************************************************************************
              * Set the project database
@@ -1442,7 +1452,8 @@ public class CcddCommandLineHandler
 
         // Export command - include groups
         exportArgument.add(new CommandHandler("includeGroups",
-                                              "Include group definitions and data fields (CSV, JSON)",
+                                              "Include group definitions and data\n"
+                                                               + "  fields (CSV, JSON)",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1497,7 +1508,8 @@ public class CcddCommandLineHandler
 
         // Export command - data type/variable name separator
         exportArgument.add(new CommandHandler("typeNameSep",
-                                              "Data type/variable name separator character(s)",
+                                              "Data type/variable name separator\n"
+                                                             + "  character(s)",
                                               "default: .",
                                               CommandLineType.NAME,
                                               0)
@@ -1514,7 +1526,8 @@ public class CcddCommandLineHandler
 
         // Export command - hide data type
         exportArgument.add(new CommandHandler("hideDataType",
-                                              "Hide the data type in the variable paths",
+                                              "Hide the data type in the variable\n"
+                                                              + "  paths",
                                               "true or false (default: false)",
                                               CommandLineType.OPTION,
                                               0,
@@ -1701,7 +1714,7 @@ public class CcddCommandLineHandler
                                         "Create a new project database",
                                         "'<create sub-commands>'",
                                         CommandLineType.NAME,
-                                        CommandLinePriority.SET_UP.getEndPriority() - 2,
+                                        CommandLinePriority.SET_UP.getStartPriority() + 5,
                                         createArgument)
         {
             /**************************************************************************************
@@ -1717,10 +1730,10 @@ public class CcddCommandLineHandler
                              getSubArgument());
 
                 // Check if a required create sub-command is missing or blank
-                if (projectName == null
-                    || projectName.isEmpty()
-                    || projectOwner == null
-                    || projectOwner.isEmpty())
+                if (createName == null
+                    || createName.isEmpty()
+                    || createOwner == null
+                    || createOwner.isEmpty())
                 {
                     // Display the error message
                     System.err.println("Error: Missing project name and/or project owner\n");
@@ -1735,9 +1748,9 @@ public class CcddCommandLineHandler
                     // Create the project database; check if creating the database fails. The
                     // project can't be created in a background thread since the operation may not
                     // be complete before subsequent database operations are commanded
-                    if (!ccddMain.getDbControlHandler().createDatabase(projectName,
-                                                                       projectOwner,
-                                                                       projectDescription))
+                    if (!ccddMain.getDbControlHandler().createDatabase(createName,
+                                                                       createOwner,
+                                                                       createDescription))
                     {
                         // Set the application return value to indicate a failure
                         exitStatus = 1;
@@ -1754,7 +1767,7 @@ public class CcddCommandLineHandler
 
         // Create project command - project name
         createArgument.add(new CommandHandler("name",
-                                              "Project name",
+                                              "Name of project to create",
                                               "project name",
                                               CommandLineType.NAME,
                                               0)
@@ -1765,13 +1778,13 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                projectName = (String) parmVal;
+                createName = (String) parmVal;
             }
         });
 
         // Create project command - project owner
         createArgument.add(new CommandHandler("owner",
-                                              "Project owner",
+                                              "Owner of the new project",
                                               "project owner",
                                               CommandLineType.NAME,
                                               0)
@@ -1782,13 +1795,13 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                projectOwner = (String) parmVal;
+                createOwner = (String) parmVal;
             }
         });
 
         // Create project command - project description
         createArgument.add(new CommandHandler("description",
-                                              "Project description",
+                                              "Description of the new project",
                                               "project description",
                                               CommandLineType.NAME,
                                               0)
@@ -1799,7 +1812,7 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                projectDescription = (String) parmVal;
+                createDescription = (String) parmVal;
             }
         });
 
@@ -1808,7 +1821,8 @@ public class CcddCommandLineHandler
                                         "Delete an existing project database",
                                         "project name",
                                         CommandLineType.NAME,
-                                        CommandLinePriority.SET_UP.getEndPriority() - 1)
+                                        CommandLinePriority.SET_UP.getStartPriority() + 4,
+                                        deleteArgument)
         {
             /**************************************************************************************
              * Delete an existing project database
@@ -1816,28 +1830,74 @@ public class CcddCommandLineHandler
             @Override
             protected void doCommand(Object parmVal)
             {
-                String projName = (String) parmVal;
+                // Parse the delete project database sub-commands
+                parseCommand(-1,
+                             -1,
+                             CcddUtilities.parseCommandLine(parmVal.toString()),
+                             getSubArgument());
+
+                // Check if a required create sub-command is missing or blank
+                if (deleteName == null || deleteName.isEmpty())
+                {
+                    // Display the error message
+                    System.err.println("Error: Missing project name\n");
+
+                    // Display the command usage information and exit the application
+                    displayUsageInformation();
+                }
+
+                CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
 
                 // Check if a connection is made to the PostgreSQL server
                 if (!ccddMain.getDbControlHandler().connectToServer())
                 {
-                    // Check if the user has administrative level access for the project
-                    if (ccddMain.getDbControlHandler()
-                                .getUserAdminAccess()
-                                .contains(ccddMain.getDbControlHandler()
-                                                  .convertProjectNameToDatabase(projName)))
+                    boolean isFound = false;
+
+                    // Step through the information for each CCDD database in the server
+                    for (String userDbInfo : dbControl.queryDatabaseList(ccddMain.getMainFrame()))
                     {
-                        // Delete the specified project database. The user must be an administrator
-                        // for the project to perform this operation
-                        ccddMain.getDbControlHandler().deleteDatabase(projName);
+                        // Separate the information retrieved into the database name and its
+                        // comment, then parse the comment into its separate fields
+                        String[] nameAndComment = userDbInfo.split(DATABASE_COMMENT_SEPARATOR, 2);
+                        String comment[] = dbControl.parseDatabaseComment(nameAndComment[0],
+                                                                          nameAndComment[1]);
+
+                        // Check if the project names match (i.e., the project exists)
+                        if (comment[DatabaseComment.PROJECT_NAME.ordinal()].equals(deleteName))
+                        {
+                            // Check if the user has administrative level access for the project
+                            if (dbControl.getUserAdminAccess().contains(dbControl.convertProjectNameToDatabase(deleteName)))
+                            {
+                                // Delete the specified project database. The user must be an
+                                // administrator for the project to perform this operation
+                                dbControl.deleteDatabase(deleteName);
+                            }
+                            // The user doesn't have administrative access
+                            else
+                            {
+                                // Display the error message
+                                System.err.println("Error: Delete disabled; user lacks write access for project '"
+                                                   + deleteName
+                                                   + "'\n");
+
+                                // Set the application return value to indicate a failure
+                                exitStatus = 1;
+                            }
+
+                            // Set the flag to indicate a match was found and stop searching
+                            isFound = true;
+                            break;
+                        }
                     }
-                    // The user doesn't have administrative access
-                    else
+
+                    // Check if no project with the supplied name exists in the server and the
+                    // message is not suppressed
+                    if (!isFound && !deleteNoMessage)
                     {
                         // Display the error message
-                        System.err.println("Error: Delete project '"
-                                           + projName
-                                           + "' disabled; user lacks administrative access\n");
+                        System.err.println("Error: Delete project failed; project '"
+                                           + deleteName
+                                           + "' does not exist\n");
 
                         // Set the application return value to indicate a failure
                         exitStatus = 1;
@@ -1849,6 +1909,41 @@ public class CcddCommandLineHandler
                     // Set the application return value to indicate a failure
                     exitStatus = 1;
                 }
+            }
+        });
+
+        // Delete project command - project name
+        deleteArgument.add(new CommandHandler("name",
+                                              "Name of the project to delete",
+                                              "project name",
+                                              CommandLineType.NAME,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the project name
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                deleteName = (String) parmVal;
+            }
+        });
+
+        // Delete project command - hide 'project doesn't exist' message
+        deleteArgument.add(new CommandHandler("noMessage",
+                                              "Do not display a message if the\n"
+                                                           + "  project doesn't exist",
+                                              "",
+                                              CommandLineType.NONE,
+                                              0)
+        {
+            /**************************************************************************************
+             * Set the project owner
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                deleteNoMessage = true;
             }
         });
     }
