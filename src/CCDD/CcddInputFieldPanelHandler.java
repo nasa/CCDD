@@ -551,6 +551,22 @@ public abstract class CcddInputFieldPanelHandler
         inputScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         inputScrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
+        // Check if the data field panel exists (if there are no fields defined then the panel
+        // isn't created)
+        if (fieldPnl != null)
+        {
+            // Set the data field panel size so that the input scroll pane is sized such that
+            // the fields are displayed
+            fieldPnl.setSize(fieldPnl.getPreferredSize());
+        }
+
+        // Set the input scroll pane's minimum height to that of the description field
+        inputScrollPane.setPreferredSize(inputScrollPane.getPreferredSize());
+        inputScrollPane.setMinimumSize(new Dimension(inputScrollPane.getMinimumSize().width,
+                                                     descriptionPnl.getPreferredSize().height
+                                                                                             + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing()
+                                                                                               * 2));
+
         // Check if this editor doesn't contain an upper pane
         if (upperPane == null)
         {
@@ -569,21 +585,6 @@ public abstract class CcddInputFieldPanelHandler
             // Set so that when resizing the editor's vertical size the table gets all the
             // additional height
             splitPane.setResizeWeight(1.0);
-
-            // Check if the data field panel exists (if there are no fields defined then the panel
-            // isn't created)
-            if (fieldPnl != null)
-            {
-                // Set the data field panel size so that the input scroll pane is sized such that
-                // the fields are displayed
-                fieldPnl.setSize(fieldPnl.getPreferredSize());
-            }
-
-            // Set the input scroll pane's minimum height to that of the description field
-            inputScrollPane.setPreferredSize(inputScrollPane.getPreferredSize());
-            inputScrollPane.setMinimumSize(new Dimension(inputScrollPane.getMinimumSize().width,
-                                                         descriptionPnl.getPreferredSize().height
-                                                                                                 + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2));
 
             // Add the split pane to the editor panel
             inputPnl.add(splitPane, gbc);
@@ -842,11 +843,12 @@ public abstract class CcddInputFieldPanelHandler
                             singleFldPnl.add(fieldLbl);
 
                             // Check if the input type is for multi-line text
-                            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI)))
+                            if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI))
+                                || fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
                             {
                                 // Create an undoable text area
                                 UndoableTextArea undoableTxtArea = undoHandler.new UndoableTextArea(fieldInfo.getValue(),
-                                                                                                    1,
+                                                                                                    ModifiableSizeInfo.MAX_DATA_FIELD_ROWS.getSize(),
                                                                                                     fieldInfo.getSize());
 
                                 // Set the text area characteristics
@@ -959,8 +961,24 @@ public abstract class CcddInputFieldPanelHandler
                                                                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                             }
 
-                            // Add the data field to the single field panel
-                            singleFldPnl.add(inputFld);
+                            // Check if this is a multi-line text area field
+                            if (inputFld instanceof UndoableTextArea)
+                            {
+                                // Create a scroll pane to display the text area
+                                JScrollPane scrollPane = new JScrollPane(inputFld);
+                                inputFld.setBorder(BorderFactory.createEmptyBorder());
+                                scrollPane.setBorder(BorderFactory.createEmptyBorder());
+                                scrollPane.setViewportBorder(border);
+
+                                // Add the data field to the single field panel
+                                singleFldPnl.add(scrollPane);
+                            }
+                            // This is a single line field
+                            else
+                            {
+                                // Add the data field to the single field panel
+                                singleFldPnl.add(inputFld);
+                            }
 
                             // And the single field to the field panel
                             fieldPnl.add(singleFldPnl);
@@ -974,7 +992,12 @@ public abstract class CcddInputFieldPanelHandler
                             {
                                 inputFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
                                 ((JTextComponent) inputFld).setEditable(true);
-                                inputFld.setBorder(border);
+
+                                // Check if this is a single line field
+                                if (!(inputFld instanceof UndoableTextArea))
+                                {
+                                    inputFld.setBorder(border);
+                                }
 
                                 // Create an input field verifier for the data field
                                 inputFld.setInputVerifier(new InputVerifier()
@@ -1001,8 +1024,7 @@ public abstract class CcddInputFieldPanelHandler
                                         // Check if the field's input type doesn't allow leading
                                         // and trailing white space characters
                                         if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_WHT_SPC))
-                                            &&
-                                            !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
+                                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.TEXT_MULTI_WHT_SPC)))
                                         {
                                             // Remove leading and trailing white space characters
                                             inputTxt = inputTxt.trim();

@@ -73,6 +73,7 @@ public class CcddCommandLineHandler
     private boolean appendExistingFields;
     private boolean useExistingFields;
     private boolean openEditor;
+    private boolean ignoreErrors;
 
     // Export command parameters
     private String filePath;
@@ -1064,6 +1065,7 @@ public class CcddCommandLineHandler
                                                                    appendExistingFields,
                                                                    useExistingFields,
                                                                    false,
+                                                                   ignoreErrors,
                                                                    null))
                         {
                             // Set the application return value to indicate a failure
@@ -1080,6 +1082,7 @@ public class CcddCommandLineHandler
                                                                            appendExistingFields,
                                                                            useExistingFields,
                                                                            openEditor,
+                                                                           ignoreErrors,
                                                                            ccddMain.getMainFrame());
                     }
                 }
@@ -1190,6 +1193,27 @@ public class CcddCommandLineHandler
             protected void doCommand(Object parmVal)
             {
                 openEditor = (Boolean) parmVal;
+            }
+        });
+
+        // Import command - ignore errors
+        importArgument.add(new CommandHandler("ignoreErrors",
+                                              "Ignore all import file errors and\n"
+                                                              + "  continue processing the file\n"
+                                                              + "  (CSV, JSON)",
+                                              "true or false (default: false)",
+                                              CommandLineType.OPTION,
+                                              0,
+                                              new Object[] {true, false},
+                                              new String[] {"true", "false"})
+        {
+            /**************************************************************************************
+             * Set the flag to ignore all errors in the import file
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                ignoreErrors = (Boolean) parmVal;
             }
         });
 

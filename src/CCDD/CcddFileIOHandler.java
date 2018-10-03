@@ -609,6 +609,9 @@ public class CcddFileIOHandler
      * @param openEditor
      *            true to open a table editor for each imported table
      *
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *********************************************************************************************/
@@ -618,6 +621,7 @@ public class CcddFileIOHandler
                                           final boolean appendExistingFields,
                                           final boolean useExistingFields,
                                           final boolean openEditor,
+                                          final boolean ignoreErrors,
                                           final Component parent)
     {
         // Execute the import operation in the background
@@ -644,6 +648,7 @@ public class CcddFileIOHandler
                            appendExistingFields,
                            useExistingFields,
                            openEditor,
+                           ignoreErrors,
                            parent);
             }
 
@@ -697,6 +702,9 @@ public class CcddFileIOHandler
      * @param openEditor
      *            true to open a table editor for each imported table
      *
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
      * @param parent
      *            GUI component over which to center any error dialog
      *
@@ -708,6 +716,7 @@ public class CcddFileIOHandler
                                  boolean appendExistingFields,
                                  boolean useExistingFields,
                                  boolean openEditor,
+                                 boolean ignoreErrors,
                                  Component parent)
     {
         boolean errorFlag = false;
@@ -804,7 +813,7 @@ public class CcddFileIOHandler
                 }
 
                 // Import the table definition(s) from the file
-                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null);
+                ioHandler.importFromFile(file, ImportType.IMPORT_ALL, null, ignoreErrors);
 
                 // Check if the halt dialog is active (import operation is executed in the
                 // background)
@@ -1061,7 +1070,7 @@ public class CcddFileIOHandler
             for (TableDefinition tableDefn : tableDefinitions)
             {
                 // Check if the table import was canceled by the user
-                if (haltDlg.isHalted())
+                if (haltDlg != null && haltDlg.isHalted())
                 {
                     throw new CCDDException();
                 }
@@ -1613,13 +1622,22 @@ public class CcddFileIOHandler
                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         useExistingFieldsCb.setSelected(true);
 
-        // Create a panel to contain the overwrite check box
+        // Create a check box for indicating that all errors in the import file should be ignored
+        JCheckBox ignoreErrorsCb = new JCheckBox("Ignore all import file errors");
+        ignoreErrorsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        ignoreErrorsCb.setBorder(emptyBorder);
+        ignoreErrorsCb.setToolTipText(CcddUtilities.wrapText("Ignore all import file errors",
+                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+        // Create a panel to contain the check boxes
         JPanel checkBoxPnl = new JPanel(new GridBagLayout());
         checkBoxPnl.setBorder(emptyBorder);
         checkBoxPnl.add(overwriteChkBx, gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.gridy++;
         checkBoxPnl.add(useExistingFieldsCb, gbc);
+        gbc.gridy++;
+        checkBoxPnl.add(ignoreErrorsCb, gbc);
 
         // Allow the user to select the data file path + name to import from
         FileEnvVar[] dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
@@ -1687,7 +1705,8 @@ public class CcddFileIOHandler
                 // Import the data file into a table definition
                 ioHandler.importFromFile(dataFile[0],
                                          ImportType.FIRST_DATA_ONLY,
-                                         tableHandler.getTableTypeDefinition());
+                                         tableHandler.getTableTypeDefinition(),
+                                         ignoreErrorsCb.isSelected());
                 tableDefinitions = ioHandler.getTableDefinitions();
 
                 // Check if a table definition was successfully created

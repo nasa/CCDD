@@ -276,6 +276,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *            table type definition of the table in which to import the data; ignored if
      *            importing all tables
      *
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -288,9 +291,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     @Override
     public void importFromFile(FileEnvVar importFile,
                                ImportType importType,
-                               TypeDefinition targetTypeDefn) throws CCDDException,
-                                                              IOException,
-                                                              Exception
+                               TypeDefinition targetTypeDefn,
+                               boolean ignoreErrors) throws CCDDException,
+                                                     IOException,
+                                                     Exception
     {
         BufferedReader br = null;
 
@@ -302,16 +306,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             List<String[]> inputTypeDefns = new ArrayList<String[]>();
 
             // Flags indicating if importing should continue after an input error is detected
-            boolean continueOnTableTypeError = false;
-            boolean continueOnDataTypeError = false;
-            boolean continueOnInputTypeError = false;
-            boolean continueOnMacroError = false;
-            boolean continueOnReservedMsgIDError = false;
-            boolean continueOnProjectFieldError = false;
-            boolean continueOnColumnError = false;
-            boolean continueOnDataFieldError = false;
-            boolean continueOnTableTypeFieldError = false;
-            boolean continueOnGroupError = false;
+            boolean continueOnTableTypeError = ignoreErrors;
+            boolean continueOnDataTypeError = ignoreErrors;
+            boolean continueOnInputTypeError = ignoreErrors;
+            boolean continueOnMacroError = ignoreErrors;
+            boolean continueOnReservedMsgIDError = ignoreErrors;
+            boolean continueOnProjectFieldError = ignoreErrors;
+            boolean continueOnColumnError = ignoreErrors;
+            boolean continueOnDataFieldError = ignoreErrors;
+            boolean continueOnTableTypeFieldError = ignoreErrors;
+            boolean continueOnGroupError = ignoreErrors;
 
             // Create a JSON parser and use it to parse the import file contents
             JSONParser jsonParser = new JSONParser();

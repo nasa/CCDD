@@ -2300,7 +2300,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
             // Check if disabled nodes should be included, or if not, that the node isn't disabled
             if (!ignoreDisabled
-                || !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR))
+                || !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR))
             {
                 // Get the data type for this node
                 String dataType = getTableFromNodeName(ignoreDisabled
@@ -2345,7 +2345,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
                 // Set to true if the variable in this path is not excluded (as evidenced by having
                 // a HTML tag)
-                boolean wasExcluded = nodeName.contains(DISABLED_TEXT_COLOR);
+                boolean wasExcluded = nodeName.startsWith(DISABLED_TEXT_COLOR);
 
                 // Get the path for this node as a string array
                 String[] nodes = CcddUtilities.convertObjectToString(node.getPath());
@@ -2427,12 +2427,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             {
                 // Initialize the enabled flag based on the node containing an HTML tag (hence it's
                 // disabled)
-                isEnabled = !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR);
+                isEnabled = !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR);
             }
         }
 
         // Check if the enable state changed and that this isn't the root node
-        if (isEnabled != !node.getUserObject().toString().contains(DISABLED_TEXT_COLOR)
+        if (isEnabled != !node.getUserObject().toString().startsWith(DISABLED_TEXT_COLOR)
             && node.getLevel() != 0)
         {
             // Reset the node name to indicate its enabled/disabled state. If disabled, prepend the

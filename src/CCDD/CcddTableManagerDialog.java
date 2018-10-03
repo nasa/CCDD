@@ -92,6 +92,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox useExistingFieldsCb;
     private JRadioButton singleFileRBtn;
     private JCheckBox openEditorCb;
+    private JCheckBox ignoreErrorsCb;
     private JCheckBox backupFirstCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeReservedMsgIDsCb;
@@ -645,6 +646,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                      appendExistingFieldsCb.isSelected(),
                                                                      useExistingFieldsCb.isSelected(),
                                                                      openEditorCb.isSelected(),
+                                                                     ignoreErrorsCb.isSelected(),
                                                                      CcddTableManagerDialog.this);
                             }
 
@@ -943,6 +945,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         });
 
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = 0;
         dialogPnl.add(replaceExistingTablesCb, gbc);
 
         // Create a check box for indicating existing data fields are retained
@@ -968,7 +971,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(appendExistingFieldsCb, gbc);
@@ -995,6 +998,17 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);
+
+        // Create a check box for indicating that all errors in the import file should be
+        // ignored
+        ignoreErrorsCb = new JCheckBox("Ignore all import file errors");
+        ignoreErrorsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        ignoreErrorsCb.setBorder(emptyBorder);
+        ignoreErrorsCb.setToolTipText(CcddUtilities.wrapText("Ignore all import file errors and continue importing"
+                                                             + " (applies to CSV and JSON imports only",
+                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        gbc.gridy++;
+        dialogPnl.add(ignoreErrorsCb, gbc);
 
         // Create a check box for indicating that the project should be backed up prior to
         // importing tables

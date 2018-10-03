@@ -1255,6 +1255,7 @@ public class CcddConstants
         MAX_DIALOG_MESSAGE_LENGTH("Maximum dialog message length", "Maximum number of characters to display in a dialog", "MaximumDialogMessageLength", 400, 10, 1000),
         MAX_TOOL_TIP_LENGTH("Maximum tool tip line length", "Maximum number of characters per line in a tool tip", "MaximumToolTipLineLength", 40, 10, 200),
         MAX_DATA_FIELD_CHAR_WIDTH("Maximum data field length", "Maximum number of characters in a data field", "MaximumDataFieldLength", 100, 5, 200),
+        MAX_DATA_FIELD_ROWS("Maximum multi-line data field rows", "Maximum number of rows to display for a multi-line data field", "MaximumDataFieldRows", 3, 1, 25),
         INIT_VIEWABLE_TABLE_ROWS("Initial table rows (non-data)", "Number of non-data table rows to display initially", "InitialViewableTableRows", 10, 1, 50),
         INIT_VIEWABLE_DATA_TABLE_ROWS("Initial table rows (data)", "Number of data table rows to display initially", "InitialViewableDataTableRows", 16, 1, 50),
         INIT_VIEWABLE_COMPONENT_ROWS("Initial component rows", "Number of rows of radio buttons or check boxes to display initially", "InitialViewableComponentRows", 12, 1, 50),

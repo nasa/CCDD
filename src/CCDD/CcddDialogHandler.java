@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -2114,13 +2115,12 @@ public class CcddDialogHandler extends JDialog
                                boolean resizable,
                                boolean modal)
     {
-        // Check if the parent component doesn't exist
+        // Check if the parent component doesn't exist. This is the case when the GUI is hidden
         if (parent == null)
         {
-            // Check if the component is a string and that the dialog is not a question type; i.e.,
-            // this is a plain, information, warning, or error message dialog
-            if (upperObject instanceof String
-                && !icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
+            // Check if the component is a string; i.e., this is a plain, information, question,
+            // warning, or error message dialog. Non-message dialogs are ignored
+            if (upperObject instanceof String)
             {
                 // Build the message to display
                 String message = "CCDD : "
@@ -2135,23 +2135,74 @@ public class CcddDialogHandler extends JDialog
                     // Output the message the standard error stream
                     System.err.println(message);
                 }
-                // Not a warning or error message
+                // Not an error or warning message
                 else
                 {
                     // Output the message to the standard output stream
                     System.out.println(message);
+
+                    // Check if this is a question message
+                    if (icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
+                    {
+                        message = "";
+
+                        // Step through each button in the panel
+                        for (int index = 0; index < buttonPnl.getComponentCount(); index++)
+                        {
+                            // Add the button index and text to the output string
+                            message += " ("
+                                       + (index + 1)
+                                       + ") "
+                                       + ((JButton) buttonPnl.getComponent(index)).getText()
+                                       + "\n";
+                        }
+
+                        // Create a scanner to obtain user input from the command line
+                        Scanner scanner = new Scanner(System.in);
+
+                        do
+                        {
+                            try
+                            {
+                                // Get the user's input
+                                System.out.print(message + "  Enter selection: ");
+                                buttonSelected = scanner.nextInt();
+
+                                // Check if the value falls within the selection range
+                                if (buttonSelected < 1
+                                    || buttonSelected > buttonPnl.getComponentCount())
+                                {
+                                    // Set the input value to indicate an invalid input
+                                    buttonSelected = 0;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                // A non-integer value was entered; set the input value to indicate
+                                // an invalid input
+                                buttonSelected = 0;
+                            }
+
+                            // Check if the input is invalid (non-integer or out of range)
+                            if (buttonSelected == 0)
+                            {
+                                // Inform the user that the input is invalid
+                                System.err.println("Invalid selection, re-enter\n");
+                                scanner.nextLine();
+                            }
+
+                        } while (buttonSelected == 0);
+                        // Repeat the input process until a valid value is entered
+
+                        // Close the input scanner and adjust the button selection index
+                        scanner.close();
+                        buttonSelected--;
+                    }
                 }
             }
-            // Not a message dialog, or else is a question dialog requiring user input
-            else
-            {
-                // Use the root pane for the parent
-                parent = getRootPane();
-            }
         }
-
-        // Check if a parent component exists
-        if (parent != null)
+        // A parent component exists
+        else
         {
             // Create a component to point to the upper contents of the dialog
             JComponent upperComponent;

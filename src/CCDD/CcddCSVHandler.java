@@ -164,6 +164,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *            table type definition of the table in which to import the data; ignored if
      *            importing all tables
      *
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
      * @throws CCDDException
      *             If a data is missing, extraneous, or in error in the import file
      *
@@ -176,26 +179,27 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
     @Override
     public void importFromFile(FileEnvVar importFile,
                                ImportType importType,
-                               TypeDefinition targetTypeDefn) throws CCDDException,
-                                                              IOException,
-                                                              Exception
+                               TypeDefinition targetTypeDefn,
+                               boolean ignoreErrors) throws CCDDException,
+                                                     IOException,
+                                                     Exception
     {
         BufferedReader br = null;
 
         try
         {
             // Flags indicating if importing should continue after an input error is detected
-            boolean continueOnTableTypeError = false;
-            boolean continueOnTableTypeFieldError = false;
-            boolean continueOnDataTypeError = false;
-            boolean continueOnInputTypeError = false;
-            boolean continueOnMacroError = false;
-            boolean continueOnColumnError = false;
-            boolean continueOnDataFieldError = false;
-            boolean continueOnReservedMsgIDError = false;
-            boolean continueOnProjectFieldError = false;
-            boolean continueOnGroupError = false;
-            boolean continueOnGroupFieldError = false;
+            boolean continueOnTableTypeError = ignoreErrors;
+            boolean continueOnTableTypeFieldError = ignoreErrors;
+            boolean continueOnDataTypeError = ignoreErrors;
+            boolean continueOnInputTypeError = ignoreErrors;
+            boolean continueOnMacroError = ignoreErrors;
+            boolean continueOnColumnError = ignoreErrors;
+            boolean continueOnDataFieldError = ignoreErrors;
+            boolean continueOnReservedMsgIDError = ignoreErrors;
+            boolean continueOnProjectFieldError = ignoreErrors;
+            boolean continueOnGroupError = ignoreErrors;
+            boolean continueOnGroupFieldError = ignoreErrors;
 
             ProjectDefinition projectDefn = new ProjectDefinition();
             List<TableTypeDefinition> tableTypeDefns = new ArrayList<TableTypeDefinition>();

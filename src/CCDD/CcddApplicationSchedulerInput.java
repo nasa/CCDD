@@ -61,7 +61,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
      *
      * @param ccddMain
      *            main class
-     * 
+     *
      * @param schedulerDlg
      *            reference to the application scheduler dialog
      *********************************************************************************************/
@@ -543,7 +543,7 @@ public class CcddApplicationSchedulerInput implements CcddSchedulerInputInterfac
 
             // Check if the application contains the HTML flags indicating it is in use; i.e.,
             // belongs to a time slot
-            if (application.contains(DISABLED_TEXT_COLOR))
+            if (application.startsWith(DISABLED_TEXT_COLOR))
             {
                 // Remove the HTML flags from the application name
                 application = applicationTree.removeExtraText(application);

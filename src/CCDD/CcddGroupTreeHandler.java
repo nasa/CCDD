@@ -356,39 +356,48 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         // Check if the groups are filtered by table type
                         else if (isFilterByType)
                         {
-                            // Get the table type for the current group table member
-                            String tableType = tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(table)))[TableCommentIndex.TYPE.ordinal()];
+                            // Locate the index of this table's comment in the comment list
+                            int commentIndex = tableComments.indexOf(TableInformation.getPrototypeName(table));
 
-                            // Step through each table type node
-                            for (int nodeIndex = 0; nodeIndex < typeNodes.length; nodeIndex++)
+                            // Check if the table was located in the list. It's possible to import
+                            // groups containing references to tables that don't exist in the
+                            // database
+                            if (commentIndex != -1)
                             {
-                                // Check if the group table's type matches the type node name
-                                if (tableType.equals(typeNodes[nodeIndex].toString()))
+                                // Get the table type for the current group table member
+                                String tableType = tableComments.get(commentIndex)[TableCommentIndex.TYPE.ordinal()];
+
+                                // Step through each table type node
+                                for (int nodeIndex = 0; nodeIndex < typeNodes.length; nodeIndex++)
                                 {
-                                    // Separate the table path into each table reference
-                                    // (dataType<.variableName>)
-                                    String[] sourcePath = table.split(",");
-
-                                    // Step through each table reference in the path
-                                    for (int index = 0; index < sourcePath.length; index++)
+                                    // Check if the group table's type matches the type node name
+                                    if (tableType.equals(typeNodes[nodeIndex].toString()))
                                     {
-                                        // Check if the table type for this reference doesn't match
-                                        // the current table type node
-                                        if (!tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index])))[TableCommentIndex.TYPE.ordinal()]))
-                                        {
-                                            // Flag the table reference as not belonging to this
-                                            // table type (the node may still appear if it's in the
-                                            // path of a table reference that does belong to the
-                                            // table type)
-                                            sourcePath[index] = INVALID_TEXT_COLOR + sourcePath[index];
-                                        }
-                                    }
+                                        // Separate the table path into each table reference
+                                        // (dataType<.variableName>)
+                                        String[] sourcePath = table.split(",");
 
-                                    // Add the table reference to the table type node
-                                    addNodeToInfoNode(typeNodes[nodeIndex],
-                                                      sourcePath,
-                                                      0);
-                                    break;
+                                        // Step through each table reference in the path
+                                        for (int index = 0; index < sourcePath.length; index++)
+                                        {
+                                            // Check if the table type for this reference doesn't
+                                            // match the current table type node
+                                            if (!tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index])))[TableCommentIndex.TYPE.ordinal()]))
+                                            {
+                                                // Flag the table reference as not belonging to
+                                                // this table type (the node may still appear if
+                                                // it's in the path of a table reference that does
+                                                // belong to the table type)
+                                                sourcePath[index] = INVALID_TEXT_COLOR + sourcePath[index];
+                                            }
+                                        }
+
+                                        // Add the table reference to the table type node
+                                        addNodeToInfoNode(typeNodes[nodeIndex],
+                                                          sourcePath,
+                                                          0);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -598,9 +607,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                     // Get the node name
                     String nodeName = node.getUserObject().toString();
 
-                    // Set to true if the group in this path is not excluded (as evidenced by
-                    // having a HTML tag)
-                    boolean wasExcluded = nodeName.contains(DISABLED_TEXT_COLOR);
+                    // Set to true if the group in this path was excluded (as evidenced by having a
+                    // HTML tag)
+                    boolean wasExcluded = nodeName.startsWith(DISABLED_TEXT_COLOR);
 
                     // Remove any HTML tags or other extra text from the node name
                     nodeName = removeExtraText(nodeName);
@@ -633,17 +642,63 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Remove the currently selected node(s) from the tree
+     * Remove the currently selected item node(s) from the tree. If a header node is selected then
+     * remove all of its item nodes
      *********************************************************************************************/
-    protected void removeSelectedNodes()
+    protected void removeSelectedItemNodes()
     {
+        List<ToolTipTreeNode> removeNodes = new ArrayList<ToolTipTreeNode>();
+
         // Step through each selected node
         for (TreePath path : getSelectionPaths())
         {
+            // Get the selected node's item nodes (including the selected node if it's an item
+            // node)
+            getItemNodes((ToolTipTreeNode) path.getLastPathComponent(), removeNodes);
+        }
+
+        // Step through the list of item nodes to remove
+        for (ToolTipTreeNode node : removeNodes)
+        {
             // Remove the node (and any descendant nodes of the node) from the tree
-            ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
             ((DefaultTreeModel) getModel()).removeNodeFromParent(node);
         }
+    }
+
+    /**********************************************************************************************
+     * Add the specified node to the list of item nodes if it represents an item. If this is a
+     * header node then get the item nodes from the header's child nodes. This is a recursive
+     * method
+     *
+     * @param node
+     *            node to add to the list if the node represents an item, or a header node
+     *
+     * @param itemNodes
+     *            list containing the item nodes
+     *
+     * @return List containing the item nodes
+     *********************************************************************************************/
+    private List<ToolTipTreeNode> getItemNodes(ToolTipTreeNode node,
+                                               List<ToolTipTreeNode> itemNodes)
+    {
+        // Check if the node represents a table
+        if (node.getLevel() >= getItemNodeLevel())
+        {
+            // Add the node to the list of item nodes
+            itemNodes.add(node);
+        }
+        // A header node is selected
+        else
+        {
+            // Step through the node's child nodes
+            for (int index = 0; index < node.getChildCount(); index++)
+            {
+                // Get the item nodes from the child node
+                getItemNodes((ToolTipTreeNode) node.getChildAt(index), itemNodes);
+            }
+        }
+
+        return itemNodes;
     }
 
     /**********************************************************************************************
@@ -698,9 +753,9 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                 int level = ((ToolTipTreeNode) value).getLevel();
 
                 // Check if this node represents a group name
-                if (level == 1)
+                if (level == getGroupNodeLevel())
                 {
-                    // Display an icon indicating a variable
+                    // Display an icon indicating a group
                     setIcon(new ImageIcon(getClass().getResource(GROUP_ICON)));
                 }
 

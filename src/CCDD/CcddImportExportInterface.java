@@ -53,6 +53,9 @@ public interface CcddImportExportInterface
      *            table type definition of the table in which to import the data; ignored if
      *            importing all tables
      *
+     * @param ignoreErrors
+     *            true to ignore all errors in the import file
+     *
      * @throws CCDDException
      *             If data is missing, extraneous, or an error in the import file
      *
@@ -64,9 +67,10 @@ public interface CcddImportExportInterface
      *********************************************************************************************/
     abstract void importFromFile(FileEnvVar importFile,
                                  ImportType importType,
-                                 TypeDefinition targetTypeDefn) throws CCDDException,
-                                                                IOException,
-                                                                Exception;
+                                 TypeDefinition targetTypeDefn,
+                                 boolean ignoreErrors) throws CCDDException,
+                                                       IOException,
+                                                       Exception;
 
     /**********************************************************************************************
      * Export the project to the specified file

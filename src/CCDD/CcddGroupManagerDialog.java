@@ -24,6 +24,7 @@ import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -122,7 +123,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     // List containing the names of any groups that are deleted
     private List<String> deletedGroups;
 
-    // Flag that indicates if the group manager dialog is undergoing initialization
+    // Flag that indicates if the group manager dialog is undergoing initialization or the group
+    // tree is rebuilding
     private boolean isInitializing;
 
     // Dialog title
@@ -316,6 +318,27 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                      ccddMain.getMainFrame())
                 {
                     /******************************************************************************
+                     * Override building the group tree so that change updates can be inhibited
+                     *****************************************************************************/
+                    @Override
+                    protected void buildTree(boolean filterByType,
+                                             boolean filterByApp,
+                                             String scheduleRate,
+                                             boolean isApplicationOnly,
+                                             Component parent)
+                    {
+                        // Set the flag to inhibit registering a group change due to the tree is
+                        // being built
+                        isInitializing = true;
+                        super.buildTree(filterByType,
+                                        filterByApp,
+                                        scheduleRate,
+                                        isApplicationOnly,
+                                        parent);
+                        isInitializing = false;
+                    }
+
+                    /******************************************************************************
                      * Respond to changes in selection of a node in the group tree
                      *****************************************************************************/
                     @Override
@@ -324,6 +347,10 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Check that a node selection change is not in progress
                         if (!isNodeSelectionChanging)
                         {
+                            // Set the flag to inhibit registering the node selection as a group
+                            // change
+                            isInitializing = true;
+
                             // Set the flag to prevent link tree updates
                             isNodeSelectionChanging = true;
 
@@ -363,7 +390,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                 nodeSelect.selectTreePath(getSelectedPaths());
                             }
 
-                            // Reset the flag to allow link tree updates
+                            // Reset the flag to allow group and group tree updates
+                            isInitializing = false;
                             isNodeSelectionChanging = false;
                         }
                     }
@@ -383,6 +411,82 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         // Get the reference to the group and update the group name
                         GroupInformation renamedGroup = groupHandler.getGroupInformationByName(wasValue.toString());
                         renamedGroup.setName(isValue.toString());
+                    }
+
+                    // TODO
+                    /******************************************************************************
+                     * Override adding a group definition entry in order to look for and prune
+                     * duplicates. Duplicates can occur if the tree is filtered by table type
+                     *****************************************************************************/
+                    @Override
+                    protected void addLeafDefinition(List<String[]> treeDefns,
+                                                     List<String> leafDefn,
+                                                     String filterValue)
+                    {
+                        // TODO IF FILTERED BY TYPE A PATH CAN APPEAR MORE THAN ONCE UNDER
+                        // DIFFERENT TABLE TYPE NODES. THIS CREATES DUPLICATES, OR NEAR-DULICATES
+                        // IF THE BRANCH HAD INVALID TABLES PRUNED. THIS ONLY AFFECTS THE GROUP
+                        // TREE
+
+                        // TODO NOTE THAT IF A TABLE'S TYPE WASN'T LOCATED THEN IT WON'T APPEAR IN
+                        // THE TREE AND IS EFFECTIVELY REMOVED, WHICH CAUSES THE CHANGE INDICATOR
+                        // TO APPEAR. NOT SURE THAT NON-EXISTENT TABLE REFERENCES SHOULD BE A
+                        // CONCERN
+
+                        // TODO FILTERING CAN CHANGE THE ORDER IN WHICH THE TABLES ARE LISTED IN
+                        // THE GROUP (WHICH REGISTERS AS A CHANGE OF COURSE). REMOVING THE FILTER
+                        // WILL NOT RESTORE THE ORIGINAL ORDER!
+
+                        boolean isFound = false;
+
+                        // System.out.println("LEAFDEFN: " + Arrays.toString(leafDefn.toArray(new
+                        // String[0]))); // TODO
+                        int index = 0;
+
+                        // Step through the existing group definitions
+                        for (String[] treeDefn : treeDefns)
+                        {
+                            // Check if the group names are the same
+                            if (leafDefn.get(0).equals(treeDefn[0]))
+                            {
+                                // Check if the table path length differs and the path to add
+                                // contains the existing path (that is, the added path is a
+                                // superset of the existing one)
+                                if (treeDefn[1].length() != leafDefn.get(1).length()
+                                    && leafDefn.get(1).startsWith(treeDefn[1]))
+                                {
+                                    // System.out.println(" replace " + treeDefn[1] + " with " +
+                                    // leafDefn.get(1)); // TODO
+
+                                    // Replace the existing definition with the added one, set the
+                                    // flag to indicate the added one has been handled, and stop
+                                    // searching
+                                    treeDefns.set(index, treeDefn);
+                                    isFound = true;
+                                    break;
+                                }
+                                // Check if this is an identical table path or a subset (due to a
+                                // table reference being pruned)
+                                else if (treeDefn[1].startsWith(leafDefn.get(1)))
+                                {
+                                    // System.out.println(" ignore " + leafDefn.get(1)); // TODO
+
+                                    // Ignore the added definition, set the flag to indicate the
+                                    // added one has been handled, and stop searching
+                                    isFound = true;
+                                    break;
+                                }
+                            }
+
+                            index++;
+                        }
+
+                        // The added group entry doesn't match an existing one
+                        if (!isFound)
+                        {
+                            // Add the group entry to the definition list
+                            super.addLeafDefinition(treeDefns, leafDefn, filterValue);
+                        }
                     }
                 };
 
@@ -1112,8 +1216,8 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             node = (ToolTipTreeNode) groupTree.getSelectionPath().getPathComponent(1);
         }
 
-        // Remove the selected tables from the groups in the group tree
-        groupTree.removeSelectedNodes();
+        // Remove the selected tables from the group tree
+        groupTree.removeSelectedItemNodes();
 
         // Check if a single group was selected prior to removing the selected table(s)
         if (node != null)
@@ -1580,27 +1684,13 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Check if the number of groups is the same
         if (!hasChanges)
         {
-            // Step through the current group list
-            for (String[] curGrp : currentGroupDefns)
+            // Step through each group definition
+            for (int index = 0; index < currentGroupDefns.size(); index++)
             {
-                boolean isFound = false;
-
-                // Step through the committed group list
-                for (String[] comGrp : committedGroupDefns)
+                // Check if the current and committed definition differ
+                if (!Arrays.equals(currentGroupDefns.get(index), committedGroupDefns.get(index)))
                 {
-                    // Check if the current group entry matches the committed group entry
-                    if (Arrays.equals(curGrp, comGrp))
-                    {
-                        // Set the flag indicating a match and stop searching
-                        isFound = true;
-                        break;
-                    }
-                }
-
-                // Check if no matching entry was found
-                if (!isFound)
-                {
-                    // Set the flag indicating a group has changed and stop searching
+                    // Set the flag indicating a match and stop searching
                     hasChanges = true;
                     break;
                 }
