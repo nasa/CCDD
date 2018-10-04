@@ -413,7 +413,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                         renamedGroup.setName(isValue.toString());
                     }
 
-                    // TODO
                     /******************************************************************************
                      * Override adding a group definition entry in order to look for and prune
                      * duplicates. Duplicates can occur if the tree is filtered by table type
@@ -423,24 +422,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                                      List<String> leafDefn,
                                                      String filterValue)
                     {
-                        // TODO IF FILTERED BY TYPE A PATH CAN APPEAR MORE THAN ONCE UNDER
-                        // DIFFERENT TABLE TYPE NODES. THIS CREATES DUPLICATES, OR NEAR-DULICATES
-                        // IF THE BRANCH HAD INVALID TABLES PRUNED. THIS ONLY AFFECTS THE GROUP
-                        // TREE
-
-                        // TODO NOTE THAT IF A TABLE'S TYPE WASN'T LOCATED THEN IT WON'T APPEAR IN
-                        // THE TREE AND IS EFFECTIVELY REMOVED, WHICH CAUSES THE CHANGE INDICATOR
-                        // TO APPEAR. NOT SURE THAT NON-EXISTENT TABLE REFERENCES SHOULD BE A
-                        // CONCERN
-
-                        // TODO FILTERING CAN CHANGE THE ORDER IN WHICH THE TABLES ARE LISTED IN
-                        // THE GROUP (WHICH REGISTERS AS A CHANGE OF COURSE). REMOVING THE FILTER
-                        // WILL NOT RESTORE THE ORIGINAL ORDER!
-
                         boolean isFound = false;
-
-                        // System.out.println("LEAFDEFN: " + Arrays.toString(leafDefn.toArray(new
-                        // String[0]))); // TODO
                         int index = 0;
 
                         // Step through the existing group definitions
@@ -455,9 +437,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                 if (treeDefn[1].length() != leafDefn.get(1).length()
                                     && leafDefn.get(1).startsWith(treeDefn[1]))
                                 {
-                                    // System.out.println(" replace " + treeDefn[1] + " with " +
-                                    // leafDefn.get(1)); // TODO
-
                                     // Replace the existing definition with the added one, set the
                                     // flag to indicate the added one has been handled, and stop
                                     // searching
@@ -469,8 +448,6 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                 // table reference being pruned)
                                 else if (treeDefn[1].startsWith(leafDefn.get(1)))
                                 {
-                                    // System.out.println(" ignore " + leafDefn.get(1)); // TODO
-
                                     // Ignore the added definition, set the flag to indicate the
                                     // added one has been handled, and stop searching
                                     isFound = true;
@@ -597,6 +574,23 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 applicationCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 applicationCb.setBorder(emptyBorder);
                 applicationCb.setEnabled(false);
+
+                // Create a listener for changes in selection of the application check box
+                applicationCb.addActionListener(new ActionListener()
+                {
+                    /******************************************************************************
+                     * Handle a change to the application check box selection
+                     *****************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Rebuild the tree based on the application and filter selection
+                        groupTree.buildTree(selectedGroup.getName(),
+                                            applicationCb.isSelected(),
+                                            CcddGroupManagerDialog.this);
+                    }
+                });
+
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();

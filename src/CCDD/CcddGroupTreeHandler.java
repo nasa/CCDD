@@ -80,11 +80,6 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     // Array containing the comment parameters for each table
     private ArrayListMultiple tableComments;
 
-    // Tree nodes for the table types if filtering by type and for application status if filtering
-    // by application
-    private ToolTipTreeNode[] typeNodes;
-    private ToolTipTreeNode[] appNodes;
-
     // Currently selected group's schedule rate
     private String scheduleRate;
 
@@ -225,7 +220,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Build the group tree from the database
+     * Build the group tree
      *
      * @param filterByType
      *            true if the tree is filtered by table type
@@ -257,11 +252,17 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         super.buildTree(isFilterByType, isFilterByApp, scheduleRate, isApplicationOnly, parent);
 
+        // Tree nodes for the table types if filtering by type and for application status if
+        // filtering
+        // by application
+        ToolTipTreeNode[] typeNodes = null;
+        ToolTipTreeNode[] appNodes = null;
+
         // Get the tree's root node
         root = getRootNode();
 
-        // Build the group information using the group definitions and group data fields from the
-        // database
+        // Build the group information using the group definitions and the group data fields from
+        // the database
         groupHandler.buildGroupInformation(groupDefinitions);
         buildFieldInformation(parent);
 
@@ -284,10 +285,10 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
         if (isFilterByApp)
         {
             // Create the node storage for the application statuses
-            appNodes = new ToolTipTreeNode[2];
-            appNodes[0] = addInformationNode(APP_NODE, "Groups representing a CFS application");
-            appNodes[1] = addInformationNode(OTHER_NODE,
-                                             "Groups not representing a CFS application");
+            appNodes = new ToolTipTreeNode[] {addInformationNode(APP_NODE,
+                                                                 "Groups representing a CFS application"),
+                                              addInformationNode(OTHER_NODE,
+                                                                 "Groups not representing a CFS application")};
         }
 
         // Step through each group
@@ -319,8 +320,11 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                         {
                             // Create the node for this table type and add it to the tree model
                             typeNodes[index] = new ToolTipTreeNode(type,
-                                                                   tableTypeHandler.getTypeDefinition(type).getDescription());
-                            ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index], groupNode, index);
+                                                                   tableTypeHandler.getTypeDefinition(type)
+                                                                                   .getDescription());
+                            ((UndoableTreeModel) getModel()).insertNodeInto(typeNodes[index],
+                                                                            groupNode,
+                                                                            index);
                             index++;
                         }
                     }
@@ -341,7 +345,8 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 for (int index = 0; index < appNodes[nodeIndex].getChildCount(); index++)
                                 {
                                     // Check if the group name matches the node name
-                                    if (groupName.equals(appNodes[nodeIndex].getChildAt(index).toString()))
+                                    if (groupName.equals(((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index)).getUserObject()
+                                                                                                                  .toString()))
                                     {
                                         // Add the indicating a match is found, and stop searching
                                         addNodeToInfoNode((ToolTipTreeNode) appNodes[nodeIndex].getChildAt(index),
@@ -371,7 +376,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 for (int nodeIndex = 0; nodeIndex < typeNodes.length; nodeIndex++)
                                 {
                                     // Check if the group table's type matches the type node name
-                                    if (tableType.equals(typeNodes[nodeIndex].toString()))
+                                    if (tableType.equals(typeNodes[nodeIndex].getUserObject().toString()))
                                     {
                                         // Separate the table path into each table reference
                                         // (dataType<.variableName>)
@@ -380,15 +385,21 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                         // Step through each table reference in the path
                                         for (int index = 0; index < sourcePath.length; index++)
                                         {
+                                            // Get the comment for this table reference
+                                            commentIndex = tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index]));
+
                                             // Check if the table type for this reference doesn't
-                                            // match the current table type node
-                                            if (!tableType.equals(tableComments.get(tableComments.indexOf(TableInformation.getPrototypeName(sourcePath[index])))[TableCommentIndex.TYPE.ordinal()]))
+                                            // match the current table type node or if the table
+                                            // type couldn't be determined
+                                            if (commentIndex == -1
+                                                || !tableType.equals(tableComments.get(commentIndex)[TableCommentIndex.TYPE.ordinal()]))
                                             {
                                                 // Flag the table reference as not belonging to
                                                 // this table type (the node may still appear if
                                                 // it's in the path of a table reference that does
                                                 // belong to the table type)
-                                                sourcePath[index] = INVALID_TEXT_COLOR + sourcePath[index];
+                                                sourcePath[index] = INVALID_TEXT_COLOR
+                                                                    + sourcePath[index];
                                             }
                                         }
 
@@ -401,7 +412,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                                 }
                             }
                         }
-                        // Groups are not filtered by application status
+                        // Groups are not filtered by type or application status
                         else
                         {
                             // Step through each current group node
@@ -419,8 +430,22 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             }
                         }
                     }
+
+                    // Check if the groups are filtered by table type
+                    if (isFilterByType)
+                    {
+                        // Disable the table type nodes that have no tables assigned
+                        disableEmptyHeaderNodes(appNodes);
+                    }
                 }
             }
+        }
+
+        // Check if the application statuses are to be used to filter the group tree
+        if (isFilterByApp)
+        {
+            // Disable the application or other node if there are no groups assigned
+            disableEmptyHeaderNodes(appNodes);
         }
 
         // Expand or collapse the tree based on the expansion flag
@@ -428,6 +453,99 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
 
         // Clear the flag that indicates the group tree is being built
         isBuilding = false;
+    }
+
+    /**********************************************************************************************
+     * Build the group tree following a change in the group's application status
+     *
+     * @param groupName
+     *            name of the group with the application status change
+     *
+     * @param isApplication
+     *            true if the group represents a CFS application
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void buildTree(String groupName, boolean isApplication, Component parent)
+    {
+        // Check if the tree is filtered by application
+        if (isFilterByApp)
+        {
+            // Get a reference to the group's information
+            GroupInformation groupInfo = groupHandler.getGroupInformationByName(groupName);
+
+            // Check if the group's information exists
+            if (groupInfo != null)
+            {
+                // Get the tree's expansion state
+                String expState = getExpansionState();
+
+                // Change any references to the group from (to) the application node to (from) the
+                // other node, and ensure the application and other nodes are expanded
+                expState = expState.replaceAll((isApplication
+                                                              ? OTHER_NODE
+                                                              : APP_NODE)
+                                               + ", "
+                                               + groupName,
+                                               (isApplication
+                                                              ? APP_NODE
+                                                              : OTHER_NODE)
+                                                            + ", "
+                                                            + groupName)
+                           + (isApplication
+                                            ? "[, " + APP_NODE + "],"
+                                            : "[, " + OTHER_NODE + "],");
+
+                // Step through each group definition
+                for (int index = 0; index < groupDefinitions.size(); index++)
+                {
+                    // Get the group definition
+                    String[] groupDefn = groupDefinitions.get(index);
+
+                    // Check if this is the application status and description for the specified
+                    // group
+                    if (groupDefn[1].matches("\\d,.*") && groupName.equals(groupDefn[0]))
+                    {
+                        // Change the group's application status to the one supplied (but preserve
+                        // the description, if any) and stop searching
+                        groupDefinitions.set(index,
+                                             new String[] {groupName,
+                                                           (isApplication
+                                                                          ? "1"
+                                                                          : "0")
+                                                                      + groupDefn[1].substring(1)});
+                        break;
+                    }
+                }
+
+                // Build the group tree with the specified group moved from/to the Application node
+                buildTree(isFilterByType, isFilterByApp, null, false, parent);
+
+                // Restore the expansion state
+                setExpansionState(expState);
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Flag the nodes in the supplied array as disabled that have no child nodes
+     *
+     * @param nodes
+     *            array of nodes
+     *********************************************************************************************/
+    private void disableEmptyHeaderNodes(ToolTipTreeNode[] nodes)
+    {
+        // Step through each node
+        for (ToolTipTreeNode node : nodes)
+        {
+            // Check if the node has no child nodes
+            if (node.getChildCount() == 0)
+            {
+                // Flag the node as disabled
+                node.setUserObject(DISABLED_TEXT_COLOR + node.getUserObject().toString());
+            }
+        }
     }
 
     /**********************************************************************************************

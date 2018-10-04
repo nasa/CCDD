@@ -412,7 +412,8 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Add a new node to the tree's root node
+     * Add a new node to the tree's root node, or the application node is filtering by application
+     * is active
      *
      * @param nodeName
      *            name of the node to add
