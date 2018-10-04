@@ -1196,7 +1196,6 @@ public class CcddScriptDataAccessHandlerStatic
                                                               int stringSize,
                                                               String uniqueID) throws CCDDException
     {
-
         return accessHandler.xtceSetArgumentDataType(spaceSystem,
                                                      argumentName,
                                                      dataType,
@@ -1227,7 +1226,6 @@ public class CcddScriptDataAccessHandlerStatic
     public static EnumerationList xtceCreateEnumerationList(SpaceSystemType spaceSystem,
                                                             String enumeration)
     {
-
         return accessHandler.xtceCreateEnumerationList(spaceSystem, enumeration);
     }
 

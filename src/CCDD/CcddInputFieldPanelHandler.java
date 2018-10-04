@@ -1097,7 +1097,6 @@ public abstract class CcddInputFieldPanelHandler
 
                                         return isValid;
                                     }
-
                                 });
                             }
 

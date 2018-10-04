@@ -307,7 +307,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                              int numArrayMembers,
                              int seqIndex)
         {
-
             this(parameterName,
                  dataType,
                  arraySize,
@@ -397,7 +396,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
          *
          * @return Parameter maximum
          *****************************************************************************************/
-
         protected String getMaximum()
         {
             return maximum;
@@ -5683,11 +5681,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                             break;
                         }
                     }
-
                 } while (currentIndices[0] < totalDims[0]);
                 // Check if the highest dimension hasn't reached its maximum value. The loop
-                // continues
-                // until a container reference for every array member is added to the entry list
+                // continues until a container reference for every array member is added to the
+                // entry list
             }
             // Not an array parameter
             else

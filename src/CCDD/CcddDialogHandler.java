@@ -2190,7 +2190,6 @@ public class CcddDialogHandler extends JDialog
                                 System.err.println("Invalid selection, re-enter\n");
                                 scanner.nextLine();
                             }
-
                         } while (buttonSelected == 0);
                         // Repeat the input process until a valid value is entered
 

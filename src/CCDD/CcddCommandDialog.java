@@ -318,7 +318,6 @@ public class CcddCommandDialog extends CcddDialogHandler
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-
                         // Display the commands, matching the filtering tables, if applicable
                         commandTable.loadAndFormatData();
                     }

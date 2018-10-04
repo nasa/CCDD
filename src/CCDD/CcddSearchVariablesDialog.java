@@ -448,7 +448,6 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         // Add a listener for the Close button
         btnClose.addActionListener(new ActionListener()
         {
-
             /**************************************************************************************
              * Close the variable search dialog
              *************************************************************************************/
@@ -515,7 +514,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
                 {
                     // Set the search pattern in the variable tree so that the matching text in the
                     // nodes is highlighted
-                    variableTree.setHighlightPattern(searchPattern);;
+                    variableTree.setHighlightPattern(searchPattern);
 
                     // Rebuild the table tree, retaining only those nodes that contain a match with
                     // the search pattern or are ancestors to a matching node

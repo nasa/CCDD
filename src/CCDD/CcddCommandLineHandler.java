@@ -138,7 +138,6 @@ public class CcddCommandLineHandler
          * @param value
          *            permissible values for this command
          *
-         *
          * @param type
          *            command type: CommandLineType.NAME, CommandLineType.MINMAX,
          *            CommandLineType.SIZE, CommandLineType.COLOR, or CommandLineType.OPTION
@@ -189,7 +188,6 @@ public class CcddCommandLineHandler
          *
          * @param value
          *            permissible values for this command
-         *
          *
          * @param type
          *            command type: CommandLineType.NAME, CommandLineType.MINMAX,
@@ -1521,7 +1519,7 @@ public class CcddCommandLineHandler
                                               0)
         {
             /**************************************************************************************
-             *
+             * Set the variable path separator
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
@@ -1539,7 +1537,7 @@ public class CcddCommandLineHandler
                                               0)
         {
             /**************************************************************************************
-             *
+             * Set the data type/variable name separator
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
@@ -1559,7 +1557,7 @@ public class CcddCommandLineHandler
                                               new String[] {"true", "false"})
         {
             /**************************************************************************************
-             *
+             * Set the exclude data types flag
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)

@@ -1577,7 +1577,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      * Set the message ID. If the message already has an ID only update it if the overwrite check
      * box is selected
      *
-     *
      * @param tlmID
      *            telemetry message ID tab information reference
      *
@@ -1625,7 +1624,6 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Get the next unused message ID value
-     *
      *
      * @param idValue
      *            ID value from which to start checking

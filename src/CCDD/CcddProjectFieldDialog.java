@@ -46,7 +46,7 @@ import CCDD.CcddConstants.ModifiableSpacingInfo;
 @SuppressWarnings("serial")
 public class CcddProjectFieldDialog extends CcddDialogHandler
 {
-    // CLass references
+    // Class references
     private final CcddMain ccddMain;
     private final CcddDbControlHandler dbControl;
     private CcddUndoManager undoManager;

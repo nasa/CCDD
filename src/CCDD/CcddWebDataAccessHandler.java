@@ -1534,7 +1534,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             // Get the message definition table entries
             String[] msgEntries = appSchTable.getMessageDefinitionTable();
 
-            // CHeck if there are any entries
+            // Check if there are any entries
             if (msgEntries.length != 0)
             {
                 // Step through each message definition table entry

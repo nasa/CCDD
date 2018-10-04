@@ -963,7 +963,6 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 // creating a duplicate
                 for (int row = 0; row < assnsTable.getRowCount(); row++)
                 {
-
                     // Check if this row isn't the one being edited, and if the association name
                     // matches the one being added (case insensitive)
                     if (row != ignoreRow

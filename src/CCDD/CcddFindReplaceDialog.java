@@ -119,7 +119,6 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
      *********************************************************************************************/
     protected void setActiveEditor(CcddJTableHandler table)
     {
-
         // Check if the find/replace dialog is open already
         if (this.table != null)
         {

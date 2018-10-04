@@ -263,7 +263,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *            false if the database commands successfully completed; true if an error occurred
      *            and the changes were not made
      *
-     *
      * @param updatedEditor
      *            reference to the table type editor where the change(s) occurred
      *

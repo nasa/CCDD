@@ -1972,7 +1972,6 @@ public class CcddDbControlHandler
 
                 // Database function to search for all tables containing a data type column, and
                 // replace a target value with a new value
-
                 dbCommand.executeDbCommand(deleteFunction("update_data_type_names")
                                            + "CREATE FUNCTION update_data_type_names(oldType text, "
                                            + "newType text) RETURNS VOID AS $$ BEGIN DECLARE row "

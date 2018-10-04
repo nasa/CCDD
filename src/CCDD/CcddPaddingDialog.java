@@ -142,8 +142,8 @@ public class CcddPaddingDialog extends CcddDialogHandler
             {
                 // Check if a table is selected
                 if (isStructureSelected(prototypeTree))
-                { // Close the dialog
-
+                {
+                    // Close the dialog
                     CcddPaddingDialog.this.closeDialog();
 
                     // Remove the padding from the selected table(s)

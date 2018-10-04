@@ -1056,7 +1056,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     // Assign the nodes that normally go in the prototype node to the type node
                     prototype = typeNode;
                 }
-
             }
 
             // Check if the instance node should be displayed

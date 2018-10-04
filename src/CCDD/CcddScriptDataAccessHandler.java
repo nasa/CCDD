@@ -560,7 +560,7 @@ public class CcddScriptDataAccessHandler
      * Get the number of bits for the specified data type
      *
      * @param dataType
-     *            name of teh structure or primitive data type
+     *            name of the structure or primitive data type
      *
      * @return Number of bits required to store the data type; returns 0 if the data type doesn't
      *         exist
@@ -3559,7 +3559,6 @@ public class CcddScriptDataAccessHandler
      *
      * @param groupName
      *            name of the group to which the field is a member
-     *
      *
      * @return Array of the data field names associated with the specified group; returns an empty
      *         array if the group name is invalid or the group has no data fields

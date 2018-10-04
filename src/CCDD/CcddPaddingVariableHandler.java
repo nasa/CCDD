@@ -781,7 +781,6 @@ public class CcddPaddingVariableHandler
                     // Check if the user didn't cancel padding adjustment
                     if (!haltDlg.isHalted())
                     {
-
                         // Add a log entry indication the padding adjustment completed
                         eventLog.logEvent(STATUS_MSG,
                                           (padOperation == PadOperationType.ADD_UPDATE
