@@ -90,7 +90,7 @@ public class CcddGroupHandler
                                                                     + groupInfo.getDescription()});
 
             // Step through each group table member
-            for (String member : groupInfo.getTableMembers())
+            for (String member : groupInfo.getTablesAndAncestors())
             {
                 // Add the member to the definition list
                 groupDefinitions.add(new String[] {groupInfo.getName(), member});

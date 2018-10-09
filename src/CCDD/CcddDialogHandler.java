@@ -1221,11 +1221,15 @@ public class CcddDialogHandler extends JDialog
                 // Step through the file names/paths
                 for (int i = 0; i < fileNames.length; i++)
                 {
-                    // Check if a file type was specified and the file name has no extension
-                    if (fileExtensions != null && !fileNames[i].contains("."))
+                    // Check if a file type was specified, only one extension is being sought, and
+                    // the file name has no extension. If multiple extension types are available
+                    // then no extension is added to the file name
+                    if (fileExtensions != null
+                        && fileExtensions.length == 1
+                        && !fileNames[i].contains("."))
                     {
                         // Add the extension to the file name. If more than one extension is
-                        // provided then use the first one
+                        // available for the extension type then use the first one
                         fileNames[i] = fileNames[i]
                                        + "."
                                        + ((ExtensionFilter) chooser.getFileFilter()).getExtension();

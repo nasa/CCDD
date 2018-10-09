@@ -327,7 +327,7 @@ public class CcddImportSupportHandler
             {
                 // Check if the error should be ignored or the import canceled
                 continueOnError = getErrorResponse(continueOnError,
-                                                   "Data field '</b>"
+                                                   "<html><b>Data field '</b>"
                                                                     + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
                                                                     + "<b>' for owner '</b>"
                                                                     + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
@@ -443,7 +443,7 @@ public class CcddImportSupportHandler
                                                                                             : groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].split(";");
 
             // Set the flag if the number of members differs
-            boolean isMismatch = members.length != groupInfo.getTableMembers().size();
+            boolean isMismatch = members.length != groupInfo.getTablesAndAncestors().size();
 
             // Check if the number of members is the same
             if (!isMismatch)
@@ -452,7 +452,7 @@ public class CcddImportSupportHandler
                 for (int index = 0; index < members.length; index++)
                 {
                     // Check if the member isn't present in the existing group definition
-                    if (!groupInfo.getTableMembers().contains(members[index]))
+                    if (!groupInfo.getTablesAndAncestors().contains(members[index]))
                     {
                         // Set the flag to indicate the group definitions differ and stop searching
                         isMismatch = true;

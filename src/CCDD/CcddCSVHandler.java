@@ -256,19 +256,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // inner while loop reads the information for a single table in the file
                     while (line != null)
                     {
-                        // Remove any trailing commas, empty quotes, and leading/trailing white
-                        // space characters from the row. If the CSV file is generated from a
-                        // spreadsheet application then extra commas are appended to a row if
-                        // needed for the number of columns to be equal with the other rows. These
-                        // empty trailing columns are ignored
-                        line = line.trim().replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
+                        // Remove any leading/trailing white space characters from the row
+                        String trimmedLine = line.trim();
 
                         // Check that the row isn't empty and isn't a comment line (starts with a #
                         // character)
-                        if (!line.isEmpty() && !line.startsWith("#"))
+                        if (!trimmedLine.isEmpty() && !trimmedLine.startsWith("#"))
                         {
                             // Check if the line contains an odd number of double quotes
-                            if (line.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
+                            if (trimmedLine.replaceAll("[^\"]*(\")?", "$1").length() % 2 != 0)
                             {
                                 String nextLine = null;
 
@@ -277,7 +273,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                 while ((nextLine = br.readLine()) != null)
                                 {
                                     // Append the line to the preceding one, inserting the line
-                                    // feed
+                                    // feed. The non-trimmed variable is used so that trailing
+                                    // spaces within a quoted, multiple-line field aren't lost
                                     line += "\n" + nextLine;
 
                                     // Check if this is the line that ends the multi-line value
@@ -289,7 +286,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                         break;
                                     }
                                 }
+
+                                // Remove any leading/trailing white space characters from the
+                                // combined multiple line row. This only removed white space
+                                // outside the quotes that bound the text
+                                trimmedLine = line.trim();
                             }
+
+                            // Remove any trailing commas and empty quotes from the row. If the CSV
+                            // file is generated from a spreadsheet application then extra commas
+                            // are appended to a row if needed for the number of columns to be
+                            // equal with the other rows. These empty trailing columns are ignored
+                            line = trimmedLine.replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
 
                             // Parse the import data. The values are comma- separated; however,
                             // commas within quotes are ignored - this allows commas to be included
