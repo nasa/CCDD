@@ -227,7 +227,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         this.newDataTypeHandler = newDataTypeHandler;
         this.newMacroHandler = newMacroHandler;
         this.editorDialog = editorDialog;
-        this.parent = parent;
+        this.parent = parent == null
+                                     ? (ccddMain.isGUIHidden()
+                                                               ? null
+                                                               : ccddMain.getMainFrame())
+                                     : parent;
 
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();

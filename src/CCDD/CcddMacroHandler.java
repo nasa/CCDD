@@ -47,7 +47,7 @@ public class CcddMacroHandler
     // Array containing the expanded macro values. Unless the macro's value definition changes the
     // expanded value remains the same. Using the stored data saves the time needed to reevaluate
     // the macro value
-    private String[] expandedMacroValues;
+    private List<String> expandedMacroValues;
 
     // Macro name pattern
     private final Pattern macroPattern;
@@ -191,12 +191,18 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
-     * Clear the array of expanded macro values. This should be done following any change to a
+     * Clear the list of expanded macro values. This should be done following any change to a
      * macro's unexpanded value so that the unexpanded value is reevaluated when next requested
      *********************************************************************************************/
     protected void clearStoredValues()
     {
-        expandedMacroValues = new String[macros.size()];
+        expandedMacroValues = new ArrayList<String>(macros.size());
+
+        // Initialize the expanded macro values to null
+        for (int index = 0; index < macros.size(); index++)
+        {
+            expandedMacroValues.add(null);
+        }
     }
 
     /**********************************************************************************************
@@ -350,11 +356,10 @@ public class CcddMacroHandler
             // When a macro is added the expanded macro value array size isn't updated immediately
             // so as not to erase the existing expanded macro values. Therefore the macro name may
             // be in the list but not in the array
-            if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()])
-                && index < expandedMacroValues.length)
+            if (macroName.equalsIgnoreCase(macros.get(index)[MacrosColumn.MACRO_NAME.ordinal()]))
             {
                 // Check if the macro's expanded value hasn't already been determined
-                if (expandedMacroValues[index] == null)
+                if (expandedMacroValues.get(index) == null)
                 {
                     // Get the macro's value, replacing any embedded macros with their respective
                     // values and evaluating any sizeof() calls
@@ -371,14 +376,16 @@ public class CcddMacroHandler
                     }
 
                     // Store the expanded macro value
-                    expandedMacroValues[index] = macroValue;
+                    expandedMacroValues.set(index, macroValue);
                 }
                 // The macro's expanded value is already determined
                 else
                 {
                     // Get the expanded macro value
-                    macroValue = expandedMacroValues[index];
+                    macroValue = expandedMacroValues.get(index);
                 }
+
+                break;
             }
         }
 
@@ -408,8 +415,7 @@ public class CcddMacroHandler
         if (!isMacroRecursive)
         {
             // Check if the macro is referenced in the value path above it
-            if (referencedMacros != null
-                && referencedMacros.contains(macroName.toUpperCase()))
+            if (referencedMacros != null && referencedMacros.contains(macroName.toUpperCase()))
             {
                 // Set the flag to indicate a recursive reference exists
                 isMacroRecursive = true;
@@ -927,8 +933,6 @@ public class CcddMacroHandler
      *********************************************************************************************/
     protected void updateMacros(List<String[]> macroDefinitions) throws CCDDException
     {
-        boolean isNewMacro = false;
-
         // Step through each imported macro definition
         for (String[] macroDefn : macroDefinitions)
         {
@@ -938,9 +942,9 @@ public class CcddMacroHandler
             // Check if the macro doesn't already exist
             if (macroValue == null)
             {
-                // Add the new macro to the existing ones
+                // Add the new macro to the existing ones and initialize its expanded value
                 macros.add(macroDefn);
-                isNewMacro = true;
+                expandedMacroValues.add(null);
             }
             // The macro exists; check if the expanded macro value provided doesn't match the
             // existing macro's expanded value
@@ -950,13 +954,6 @@ public class CcddMacroHandler
                                         + macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
                                         + "<b>' doesn't match the existing definition");
             }
-        }
-
-        // Check if a new macro was added
-        if (isNewMacro)
-        {
-            // Reset the macro expansion array so that the any new macro is expanded
-            clearStoredValues();
         }
     }
 
