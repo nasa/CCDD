@@ -345,7 +345,7 @@ def makeSharedHeaders(baseFileName):
     headerIncludeFlag = "_" + baseFileName.toUpperCase() + "_H_"
 
     # Open the shared type definitions header output file
-    sharedFile = ccdd.openOutputFile(sharedFileName + ".h")
+    sharedFile = ccdd.openOutputFile(sharedFileName)
 
     # Check if the shared type definitions header file successfully opened
     if sharedFile is not None:

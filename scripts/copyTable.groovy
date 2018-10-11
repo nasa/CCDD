@@ -48,7 +48,7 @@ def outputFileCreationInfo(file)
         ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort().join(",\n             "))
     }
 
-    // Check if any groups is associated with the script
+    // Check if any group is associated with the script
     if (ccdd.getAssociatedGroupNames().length != 0)
     {
         ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort().join(",\n             "))
