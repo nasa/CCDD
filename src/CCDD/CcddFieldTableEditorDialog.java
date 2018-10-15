@@ -181,50 +181,24 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Build the data field information from the database. Update the list of non-structure table
-     * names based on the input flag
-     *
-     * @param updateNonStructList
-     *            true to rebuild the list of non-structure table names
+     * Build the list of non-structure table names
      *********************************************************************************************/
-    private void buildDataFieldInformation(boolean updateNonStructList)
+    protected void buildNonStructureTableList()
     {
-        // Update the field information from the field definitions in the database
-        fieldHandler.buildFieldInformation(CcddFieldTableEditorDialog.this);
+        // Create a list to contain all non-structure table names
+        nonStructureTableNames = new ArrayList<String>();
 
-        // Check if the list of non-structure table names should be updated
-        if (updateNonStructList)
+        // Step through each data table comment. The table comment contains the table's visible
+        // name and type
+        for (String[] tableComment : dbTable.queryDataTableComments(CcddFieldTableEditorDialog.this))
         {
-            // Create a list to contain all non-structure table names
-            nonStructureTableNames = new ArrayList<String>();
-
-            // Step through each data table comment. The table comment contains the table's visible
-            // name and type
-            for (String[] tableComment : dbTable.queryDataTableComments(CcddFieldTableEditorDialog.this))
+            // Check if the table doesn't represent a structure
+            if (!tableTypeHandler.getTypeDefinition(tableComment[TableCommentIndex.TYPE.ordinal()]).isStructure())
             {
-                // Check if the table doesn't represent a structure
-                if (!tableTypeHandler.getTypeDefinition(tableComment[TableCommentIndex.TYPE.ordinal()]).isStructure())
-                {
-                    // Add all table name to the list of non-structure tables
-                    nonStructureTableNames.add(tableComment[TableCommentIndex.NAME.ordinal()]);
-                }
+                // Add all table name to the list of non-structure tables
+                nonStructureTableNames.add(tableComment[TableCommentIndex.NAME.ordinal()]);
             }
         }
-    }
-
-    /**********************************************************************************************
-     * Get the latest data field information and update the data field editor table
-     *
-     * @param updateNonStructList
-     *            true to rebuild the list of non-structure table names
-     *********************************************************************************************/
-    protected void reloadDataFieldTable(boolean updateNonStructList)
-    {
-        // Load the data field information from the database
-        buildDataFieldInformation(updateNonStructList);
-
-        // Load the data field information into the data field editor table
-        dataFieldTable.loadAndFormatData();
     }
 
     /**********************************************************************************************
@@ -241,8 +215,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Clear the cells selected for deletion
             selectedCells.clear();
 
+            // Update the field handler information from the field definitions in the database
+            fieldHandler.buildFieldInformation(CcddFieldTableEditorDialog.this);
+
             // Load the data field information into the data field editor table
-            reloadDataFieldTable(false);
+            dataFieldTable.loadAndFormatData();
 
             // Step through the open editor dialogs
             for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
@@ -336,8 +313,8 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                                                 0,
                                                                 0);
 
-                // Load the data field information from the database
-                buildDataFieldInformation(true);
+                // Build the list of non-structure tables
+                buildNonStructureTableList();
 
                 // Create a selection dialog, a panel for the table selection tree, and a panel to
                 // contain a check box for each unique data field name
@@ -1334,7 +1311,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     // Check if this is the structure path column
                     if (columnModel == FieldTableEditorColumnInfo.PATH.ordinal())
                     {
-                        // Check if the cell is blank and that the owner is a structure table
+                        // Check if the cell is blank and that the owner isn't a structure table
                         if (pathValue.isEmpty()
                             && (nonStructureTableNames.contains(ownerPath)
                                 || ownerIsNotTable(ownerName)))

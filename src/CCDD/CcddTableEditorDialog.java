@@ -518,7 +518,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         if (main.getFieldTableEditor() != null && main.getFieldTableEditor().isShowing())
         {
             // Update the data field editor table
-            main.getFieldTableEditor().reloadDataFieldTable(false);
+            main.getFieldTableEditor().getTable().loadAndFormatData();
         }
     }
 

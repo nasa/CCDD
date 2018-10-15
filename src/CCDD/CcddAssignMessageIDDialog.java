@@ -956,8 +956,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                false,
                                                                CcddAssignMessageIDDialog.this);
 
-                // Create a field handler and populate it with the field definitions for all of the
-                // tables in the database
+                // Get a copy of the data field definitions for all of the fields in the database
                 List<FieldInformation> fieldInformation = CcddFieldHandler.getFieldInformationCopy(fieldHandler.getFieldInformation());
 
                 // Sort the field information by table name so that sequence order of the message
@@ -975,10 +974,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     }
                 });
 
-                boolean structMsgChanged = false;
-                boolean cmdMsgChanged = false;
-                boolean otherMsgChanged = false;
-                boolean groupMsgChanged = false;
+                boolean fieldChanged = false;
 
                 // Check if the structure table message IDs should be assigned
                 if (msgTabs[0].getAssignCbx().isSelected())
@@ -986,9 +982,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Update the progress bar text
                     haltDlg.updateProgressBar("Structure tables", -1);
 
-                    structMsgChanged = assignTableMessageIDs(msgTabs[0],
-                                                             messageIDHandler.getStructureTables(),
-                                                             fieldInformation);
+                    // Assign the structure table and data field IDS, and update the flag that
+                    // indicates if a data field changed
+                    fieldChanged |= assignTableMessageIDs(msgTabs[0],
+                                                          messageIDHandler.getStructureTables(),
+                                                          fieldInformation);
                 }
 
                 // Check if the command table message IDs should be assigned
@@ -997,9 +995,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Update the progress bar text
                     haltDlg.updateProgressBar("Command tables", -1);
 
-                    structMsgChanged = assignTableMessageIDs(msgTabs[1],
-                                                             messageIDHandler.getCommandTables(),
-                                                             fieldInformation);
+                    // Assign the command table and data field IDS, and update the flag that
+                    // indicates if a data field changed
+                    fieldChanged |= assignTableMessageIDs(msgTabs[1],
+                                                          messageIDHandler.getCommandTables(),
+                                                          fieldInformation);
                 }
 
                 // Check if the other table message IDs should be assigned
@@ -1008,9 +1008,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Update the progress bar text
                     haltDlg.updateProgressBar("Other tables", -1);
 
-                    structMsgChanged = assignTableMessageIDs(msgTabs[2],
-                                                             messageIDHandler.getOtherTables(),
-                                                             fieldInformation);
+                    // Assign the other (not structure or command) table and data field IDS, and
+                    // update the flag that indicates if a data field changed
+                    fieldChanged |= assignTableMessageIDs(msgTabs[2],
+                                                          messageIDHandler.getOtherTables(),
+                                                          fieldInformation);
                 }
 
                 // Check if the group message IDs should be assigned
@@ -1019,21 +1021,29 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                     // Update the progress bar text
                     haltDlg.updateProgressBar("Groups", -1);
 
-                    structMsgChanged = assignGroupMessageIDs(msgTabs[3], fieldInformation);
+                    // Assign the group data field IDS, and update the flag that indicates if a
+                    // data field changed
+                    fieldChanged |= assignGroupMessageIDs(msgTabs[3], fieldInformation);
                 }
 
-                // Check if a structure, command, or other table type telemetry message ID column
-                // or data field value, or a group message ID data field value changed
-                if (structMsgChanged
-                    || cmdMsgChanged
-                    || otherMsgChanged
-                    || groupMsgChanged)
+                // Check if a structure, command, or other table type data field value, or a group
+                // message ID data field value changed
+                if (fieldChanged)
                 {
-                    // Store the updated data fields table
+                    // Store the updated field information in the field handler and in the database
+                    fieldHandler.setFieldInformation(fieldInformation);
                     dbTable.storeInformationTableInBackground(InternalTable.FIELDS,
                                                               fieldHandler.getFieldDefnsFromInfo(),
                                                               null,
                                                               CcddAssignMessageIDDialog.this);
+
+                    // Check if the data field editor table dialog is open
+                    if (ccddMain.getFieldTableEditor() != null
+                        && ccddMain.getFieldTableEditor().isShowing())
+                    {
+                        // Update the data field editor table
+                        ccddMain.getFieldTableEditor().getTable().loadAndFormatData();
+                    }
                 }
             }
 

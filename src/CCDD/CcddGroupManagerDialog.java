@@ -194,7 +194,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             if (fldTblEditor != null && fldTblEditor.isShowing())
             {
                 // Update the data field editor
-                fldTblEditor.reloadDataFieldTable(false);
+                fldTblEditor.getTable().loadAndFormatData();
             }
 
             // Update the script associations manager and executive dialogs

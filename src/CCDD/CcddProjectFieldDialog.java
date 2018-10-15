@@ -106,7 +106,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 && ccddMain.getFieldTableEditor().isShowing())
             {
                 // Update the data field editor table
-                ccddMain.getFieldTableEditor().reloadDataFieldTable(false);
+                ccddMain.getFieldTableEditor().getTable().loadAndFormatData();
             }
 
             // Store the updated description and fields for comparison with a subsequent store
