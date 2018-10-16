@@ -674,7 +674,7 @@ public class CcddDbVerificationHandler
                     haltDlg.closeDialog();
 
                     // Perform any corrections to the database authorized by the user
-                    updateDatabase();
+                    updateDatabase(); // TODO
                 }
                 // Verification was canceled
                 else
@@ -2977,7 +2977,7 @@ public class CcddDbVerificationHandler
                                 // Insert the row into the existing table data
                                 List<Object[]> tableData = new ArrayList<Object[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
-                                issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
+                                issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
                                 rowAdjust++;
                             }
                             // An entire row is deleted
@@ -2986,7 +2986,7 @@ public class CcddDbVerificationHandler
                                 // Remove the row from the existing table data
                                 List<Object[]> tableData = new ArrayList<Object[]>(Arrays.asList(issue.getTableInformation().getData()));
                                 tableData.remove(issue.getRow() + rowAdjust);
-                                issue.getTableInformation().setData(tableData.toArray(new String[0][0]));
+                                issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
                                 rowAdjust--;
                             }
                         }
