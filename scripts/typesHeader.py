@@ -208,8 +208,6 @@ def outputStructure(file, structIndex):
                     # Set the variable byte offset to zero
                     headerOffset = 0
 
-                    garbled
-            
             # Check if this is not an array member (only array definitions are
             # output), and if the variable name hasn't already been processed
             # (the first instance of the structure is used to obtain the
