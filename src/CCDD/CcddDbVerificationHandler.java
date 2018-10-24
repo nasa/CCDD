@@ -674,7 +674,7 @@ public class CcddDbVerificationHandler
                     haltDlg.closeDialog();
 
                     // Perform any corrections to the database authorized by the user
-                    updateDatabase(); // TODO
+                    updateDatabase();
                 }
                 // Verification was canceled
                 else

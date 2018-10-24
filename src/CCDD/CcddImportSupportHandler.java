@@ -378,7 +378,7 @@ public class CcddImportSupportHandler
             if (isNewField)
             {
                 // Rebuild the field information with the new field(s)
-                fieldHandler.buildFieldInformation(fieldDefinitions);
+                fieldHandler.setFieldInformationFromDefinitions(fieldDefinitions);
             }
         }
     }

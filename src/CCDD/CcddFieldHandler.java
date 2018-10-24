@@ -142,21 +142,43 @@ public class CcddFieldHandler
     protected void buildFieldInformation(Component parent)
     {
         // Use the field definitions to create the data field information
-        buildFieldInformation(dbTable.retrieveInformationTable(InternalTable.FIELDS, parent));
+        setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS, parent));
     }
 
     /**********************************************************************************************
-     * Build the data field information from the supplied field definitions
+     * Set the data field information built from the supplied field definitions
      *
      * @param fieldDefinitions
      *            list of data field definitions
      *********************************************************************************************/
-    protected void buildFieldInformation(List<String[]> fieldDefinitions)
+    protected void setFieldInformationFromDefinitions(List<String[]> fieldDefinitions)
     {
         // Clear the fields from the list. Note that this eliminates the input fields (text and
         // check box) that are stored in the field information; these must be rebuilt (if needed)
         // after calling this method
         fieldInformation.clear();
+
+        // Check if the field definitions exist
+        if (fieldDefinitions != null)
+        {
+            // Get the list containing the field information based on the supplied field
+            // definitions
+            fieldInformation = getFieldInformationFromDefinitions(fieldDefinitions);
+        }
+    }
+
+    /**********************************************************************************************
+     * Get the data field information built from the supplied field definitions
+     *
+     * @param fieldDefinitions
+     *            list of data field definitions
+     *
+     * @return List containing the field information based on the supplied field definitions; an
+     *         empty list if the field definitions list is null
+     *********************************************************************************************/
+    protected List<FieldInformation> getFieldInformationFromDefinitions(List<String[]> fieldDefinitions)
+    {
+        List<FieldInformation> fieldInfo = new ArrayList<FieldInformation>();
 
         // Check if the field definitions exist
         if (fieldDefinitions != null)
@@ -185,17 +207,19 @@ public class CcddFieldHandler
                 }
 
                 // Add the field information
-                fieldInformation.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
-                                                          fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
-                                                          fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
-                                                          inputType,
-                                                          Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
-                                                          Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
-                                                          applicability,
-                                                          fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
-                                                          null));
+                fieldInfo.add(new FieldInformation(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].toString(),
+                                                   fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].toString(),
+                                                   fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].toString(),
+                                                   inputType,
+                                                   Integer.valueOf(fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].toString()),
+                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
+                                                   applicability,
+                                                   fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
+                                                   null));
             }
         }
+
+        return fieldInfo;
     }
 
     /**********************************************************************************************

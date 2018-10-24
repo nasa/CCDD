@@ -1708,7 +1708,7 @@ public class CcddTableTypeHandler
                 // definitions
                 List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
                 fieldDefns.addAll(tableTypeDefn.getDataFields());
-                fieldHandler.buildFieldInformation(fieldDefns);
+                fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
                 isNewField = true;
             }
 

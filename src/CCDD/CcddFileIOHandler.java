@@ -1001,7 +1001,7 @@ public class CcddFileIOHandler
             tableTypeHandler.setTypeDefinitions(originalTableTypes);
             dataTypeHandler.setDataTypeData(originalDataTypes);
             inputTypeHandler.setInputTypeData(originalInputTypes);
-            fieldHandler.buildFieldInformation(originalDataFields);
+            fieldHandler.setFieldInformationFromDefinitions(originalDataFields);
             dbTable.updateListsAndReferences(parent);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
@@ -1096,12 +1096,6 @@ public class CcddFileIOHandler
                     // Get the number of table columns
                     int numColumns = typeDefn.getColumnCountVisible();
 
-                    // Add the table's data field definitions, if any, to the existing field
-                    // definitions
-                    List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
-                    fieldDefns.addAll(tableDefn.getDataFields());
-                    fieldHandler.buildFieldInformation(fieldDefns);
-
                     // Create the table information for the new table
                     TableInformation tableInfo = new TableInformation(tableDefn.getTypeName(),
                                                                       tableDefn.getName(),
@@ -1109,16 +1103,57 @@ public class CcddFileIOHandler
                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                       tableDefn.getDescription(),
                                                                       !tableDefn.getName().contains("."),
-                                                                      fieldHandler.getFieldInformationByOwnerCopy(tableDefn.getName()));
+                                                                      fieldHandler.getFieldInformationFromDefinitions(tableDefn.getDataFields()));
 
                     // Check if the new table is not a prototype. The prototype for the table and
                     // each of its ancestors need to be created if these don't exist
                     if (!tableInfo.isPrototype())
                     {
-                        // Set the flag to indicate if this is a child of a non-root structure;
-                        // i.e., it only defines the prototype for other instances of the child's
-                        // prototype, and isn't a legitimate instance itself
-                        isChildOfNonRoot = !dbTable.getRootStructures().contains(tableInfo.getRootTable());
+                        // Get the table's root table name
+                        String rootTable = tableInfo.getRootTable();
+
+                        // Set the flag to indicate if this is a child of an existing (in the
+                        // database) prototype structure that isn't also a root structure; i.e., it
+                        // only defines the prototype for other instances of the child's prototype,
+                        // and isn't a legitimate instance itself
+                        isChildOfNonRoot = !dbTable.getRootStructures().contains(rootTable);
+
+                        // Check if the table wasn't recognized as a root table because it doesn't
+                        // exist in the database. It's root status must be determined by it being
+                        // referenced in the imported table definitions
+                        if (isChildOfNonRoot
+                            && !dbTable.isTableExists(rootTable, ccddMain.getMainFrame()))
+                        {
+                            boolean isFound = false;
+
+                            // Step through each table definition
+                            for (TableDefinition tblDefn : tableDefinitions)
+                            {
+                                // Check if this definition isn't the one currently being processed
+                                // (so as not to it compare to itself) and if this table's path
+                                // contains a reference to the current table's root
+                                if (!tblDefn.equals(tableDefn)
+                                    && rootTable.matches(".+," + tableDefn.getName() + "\\..+"))
+                                {
+                                    // Set the flag to indicate that the table is referenced within
+                                    // another table definitions's path, making the current table a
+                                    // child of a prototype (but not a root) table, and stop
+                                    // searching
+                                    isFound = true;
+                                    break;
+                                }
+                            }
+
+                            // Check if no reference to the table's root exists in the table
+                            // definitions
+                            if (!isFound)
+                            {
+                                // Since no reference to the table's root was found in the other
+                                // table definitions then the root is a true root table, and not
+                                // just a prototype
+                                isChildOfNonRoot = false;
+                            }
+                        }
 
                         // Break the path into the individual structure variable references
                         String[] ancestors = tableInfo.getTablePath().split(",");
@@ -1159,12 +1194,6 @@ public class CcddFileIOHandler
                             if (isReplace
                                 || !dbTable.isTableExists(typeAndVar[0], ccddMain.getMainFrame()))
                             {
-                                // Add the table's data field definitions, if any, to the existing
-                                // field definitions
-                                fieldDefns = fieldHandler.getFieldDefnsFromInfo();
-                                fieldDefns.addAll(tableDefn.getDataFields());
-                                fieldHandler.buildFieldInformation(fieldDefns);
-
                                 // Create the table information for the new prototype table
                                 TableInformation ancestorInfo = new TableInformation(tableDefn.getTypeName(),
                                                                                      typeAndVar[0],
@@ -1172,7 +1201,7 @@ public class CcddFileIOHandler
                                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                                      "",
                                                                                      true,
-                                                                                     fieldHandler.getFieldInformationByOwnerCopy(typeAndVar[0]));
+                                                                                     new ArrayList<FieldInformation>());
 
                                 // Check if this is the child table and not one of its ancestors
                                 if (index == ancestors.length - 1)
@@ -1416,7 +1445,6 @@ public class CcddFileIOHandler
                                         Component parent) throws CCDDException
     {
         boolean isImported = true;
-
         List<String[]> tableName = new ArrayList<String[]>();
 
         // Set the flag if the table already is present in the database
@@ -1473,6 +1501,21 @@ public class CcddFileIOHandler
         if (isImported)
         {
             CcddTableEditorHandler tableEditor;
+
+            // Get the field information list for the default fields (those belonging to the
+            // table's type definition)
+            List<FieldInformation> defaultFieldInfo = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableInfo.getType()));
+
+            // Step through each default field
+            for (FieldInformation fieldInfo : defaultFieldInfo)
+            {
+                // Change the owner to the table being created
+                fieldInfo.setOwnerName(tableInfo.getTablePath());
+            }
+
+            // Insert the default fields ahead of any fields defined for the table in the import
+            // file
+            tableInfo.getFieldInformation().addAll(0, defaultFieldInfo);
 
             // Close any editors associated with this prototype table
             dbTable.closeDeletedTableEditors(tableName, ccddMain.getMainFrame());
@@ -1575,6 +1618,7 @@ public class CcddFileIOHandler
         }
 
         return isImported;
+
     }
 
     /**********************************************************************************************

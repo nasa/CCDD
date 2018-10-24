@@ -118,7 +118,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
         {
             // Rebuild the data field information, accounting for the renamed, copied, or deleted
             // data fields
-            fieldHandler.buildFieldInformation(fieldDefinitions);
+            fieldHandler.setFieldInformationFromDefinitions(fieldDefinitions);
 
             // Perform the steps based on the dialog type
             switch (dialogType)
