@@ -430,23 +430,12 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
                             }
                         }
                     }
-
-                    // Check if the groups are filtered by table type
-                    if (isFilterByType)
-                    {
-                        // Disable the table type nodes that have no tables assigned
-                        disableEmptyHeaderNodes(appNodes);
-                    }
                 }
             }
         }
 
-        // Check if the application statuses are to be used to filter the group tree
-        if (isFilterByApp)
-        {
-            // Disable the application or other node if there are no groups assigned
-            disableEmptyHeaderNodes(appNodes);
-        }
+        // Set the table type and application node enable status
+        setHeaderNodeEnable();
 
         // Expand or collapse the tree based on the expansion flag
         setTreeExpansion(isExpanded);
@@ -529,21 +518,32 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
     }
 
     /**********************************************************************************************
-     * Flag the nodes in the supplied array as disabled that have no child nodes
-     *
-     * @param nodes
-     *            array of nodes
+     * Flag the table type or application header nodes as disabled if the node has no child nodes
      *********************************************************************************************/
-    private void disableEmptyHeaderNodes(ToolTipTreeNode[] nodes)
+    protected void setHeaderNodeEnable()
     {
-        // Step through each node
-        for (ToolTipTreeNode node : nodes)
+        // Check if the groups are filtered by table type or by application statues
+        if (isFilterByType || isFilterByApp)
         {
-            // Check if the node has no child nodes
-            if (node.getChildCount() == 0)
+            // Step through the root node's children, if any
+            for (Enumeration<?> element = root.preorderEnumeration(); element.hasMoreElements();)
             {
-                // Flag the node as disabled
-                node.setUserObject(DISABLED_TEXT_COLOR + node.getUserObject().toString());
+                // Get the node referenced
+                ToolTipTreeNode node = (ToolTipTreeNode) element.nextElement();
+
+                // Check if the node is a table type or application header
+                if (node.getLevel() < getItemNodeLevel()
+                    && node.getLevel() != getGroupNodeLevel()
+                    && node != root)
+                {
+                    // Get the node name with any HTML tags removed
+                    String nodeName = CcddUtilities.removeHTMLTags(node.getUserObject().toString());
+
+                    // Flag the node as disabled if it has no children
+                    node.setUserObject(node.getChildCount() == 0
+                                                                 ? DISABLED_TEXT_COLOR + nodeName
+                                                                 : nodeName);
+                }
             }
         }
     }
@@ -575,7 +575,7 @@ public class CcddGroupTreeHandler extends CcddInformationTreeHandler
             for (int typeIndex = 0; typeIndex < node.getChildCount(); typeIndex++)
             {
                 // Get the table type represented by this node
-                String tableType = ((ToolTipTreeNode) node.getChildAt(typeIndex)).getUserObject().toString();
+                String tableType = CcddUtilities.removeHTMLTags(((ToolTipTreeNode) node.getChildAt(typeIndex)).getUserObject().toString());
 
                 // Step through each table reference in the table path
                 for (int index = startIndex; index < tablePath.length; index++)

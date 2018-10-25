@@ -435,7 +435,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                 // contains the existing path (that is, the added path is a
                                 // superset of the existing one)
                                 if (treeDefn[1].length() != leafDefn.get(1).length()
-                                    && leafDefn.get(1).startsWith(treeDefn[1]))
+                                    && leafDefn.get(1).matches(treeDefn[1] + ",.+"))
                                 {
                                     // Replace the existing definition with the added one, set the
                                     // flag to indicate the added one has been handled, and stop
@@ -446,7 +446,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                 }
                                 // Check if this is an identical table path or a subset (due to a
                                 // table reference being pruned)
-                                else if (treeDefn[1].startsWith(leafDefn.get(1)))
+                                else if (treeDefn[1].matches(leafDefn.get(1) + "(,.*)?"))
                                 {
                                     // Ignore the added definition, set the flag to indicate the
                                     // added one has been handled, and stop searching
@@ -829,6 +829,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     {
                         undoManager.undo();
 
+                        // Set the table type and application node enable status
+                        groupTree.setHeaderNodeEnable();
+
                         // Check if a single group is selected
                         if (selectedGroup != null)
                         {
@@ -861,6 +864,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                     public void actionPerformed(ActionEvent ae)
                     {
                         undoManager.redo();
+
+                        // Set the table type and application node enable status
+                        groupTree.setHeaderNodeEnable();
 
                         // Update the data field background colors
                         fieldPnlHndlr.setFieldBackgound();
@@ -1182,6 +1188,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                                              tableTree.getHeaderNodeLevel(),
                                              false);
 
+        // Set the table type and application node enable status
+        groupTree.setHeaderNodeEnable();
+
         // Update the group dialog's change indicator
         updateChangeIndicator();
 
@@ -1212,6 +1221,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
 
         // Remove the selected tables from the group tree
         groupTree.removeSelectedItemNodes();
+
+        // Set the table type and application node enable status
+        groupTree.setHeaderNodeEnable();
 
         // Check if a single group was selected prior to removing the selected table(s)
         if (node != null)

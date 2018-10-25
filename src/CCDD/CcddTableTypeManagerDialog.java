@@ -245,6 +245,18 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                           DefaultColumn.getDefaultColumnDefinitions(getRadioButtonSelected()),
                                                           "");
 
+                    // Add the new table type to the project database
+                    dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
+                                                        null,
+                                                        false,
+                                                        new ArrayList<String[]>(),
+                                                        new ArrayList<String[]>(),
+                                                        new ArrayList<String[]>(),
+                                                        false,
+                                                        null,
+                                                        editorDialog,
+                                                        null);
+
                     // Display an new, empty type editor
                     editorDialog.addTypePanes(new String[] {typeNameFld.getText()});
                 }
