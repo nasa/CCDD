@@ -156,7 +156,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     private void initialize(final int minimumWidth)
     {
         // Convert the owner's current field information into the format for the editor table
-        currentData = fieldHandler.getFieldEditorDefinition(ownerName, fieldInformation);
+        currentData = CcddFieldHandler.getFieldEditorDefinition(fieldInformation);
 
         // Define the table data field editor JTable
         fieldTable = new CcddJTableHandler()

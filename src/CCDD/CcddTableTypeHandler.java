@@ -1621,7 +1621,7 @@ public class CcddTableTypeHandler
             if (typeUpdate == TableTypeUpdate.MISMATCH)
             {
                 // Store the type name that mismatched and stop processing the table type
-                // definitions
+                // definitions and stop checking table types
                 badType = tableTypeDefn.getTypeName();
                 break;
             }
@@ -1684,6 +1684,7 @@ public class CcddTableTypeHandler
      *********************************************************************************************/
     private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn)
     {
+        boolean isAddField = false;
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
         // Get the type definition based on the type name
@@ -1704,12 +1705,8 @@ public class CcddTableTypeHandler
             // Check if a data field is associated with the new table type
             if (tableTypeDefn.getDataFields().size() != 0)
             {
-                // Add the table type's data field definitions, if any, to the existing field
-                // definitions
-                List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
-                fieldDefns.addAll(tableTypeDefn.getDataFields());
-                fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
-                isNewField = true;
+                // Set the flag to indicate a new data field is added
+                isAddField = true;
             }
 
             // Check if the table type editor is open
@@ -1756,9 +1753,8 @@ public class CcddTableTypeHandler
                 // Check if this is a new field
                 if (fieldInfo == null)
                 {
-                    // Add the field
-                    fieldHandler.getFieldDefnsFromInfo().add(dataField);
-                    isNewField = true;
+                    // Set the flag to indicate a new data field is added
+                    isAddField = true;
                 }
                 // Check if the existing field's input type, required state, applicability, or
                 // value don't match (the description and size are allowed to differ)
@@ -1767,7 +1763,7 @@ public class CcddTableTypeHandler
                          || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
                          || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
                 {
-                    // Set the flag indicating a mismatch exists
+                    // Set the flag indicating a mismatch exists and stop searching
                     typeUpdate = TableTypeUpdate.MISMATCH;
                     break;
                 }
@@ -1775,6 +1771,19 @@ public class CcddTableTypeHandler
 
             // Delete the added type definition
             getTypeDefinitions().remove(altTypeDefn);
+        }
+
+        // Check if a data field was created for a table type
+        if (isAddField)
+        {
+            // Add the table type's data field definitions, if any, to the existing field
+            // definitions
+            List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
+            fieldDefns.addAll(tableTypeDefn.getDataFields());
+            fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
+
+            // Set the flag to indicate a new data field is added
+            isNewField = true;
         }
 
         return typeUpdate;

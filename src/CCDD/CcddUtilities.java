@@ -598,6 +598,12 @@ public class CcddUtilities
      *********************************************************************************************/
     protected static String[] appendArrayColumns(Object[] array, int numColumns)
     {
+        // Force the number of added columns to be non-negative
+        if (numColumns < 0)
+        {
+            numColumns = 0;
+        }
+
         // Create the new array with the number of specified extra columns
         String[] newArray = new String[array.length + numColumns];
 

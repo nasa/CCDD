@@ -273,7 +273,8 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the data field information for a specified owner and field
+     * Get the data field information for a specified owner and field from the project's field
+     * information list
      *
      * @param ownerName
      *            name of the data field owner (table name, including the path if this table
@@ -287,10 +288,34 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected FieldInformation getFieldInformationByName(String ownerName, String fieldName)
     {
+        return getFieldInformationByName(fieldInformation, ownerName, fieldName);
+    }
+
+    /**********************************************************************************************
+     * Get the data field information for a specified owner and field from the supplied field
+     * information list
+     *
+     * @param fieldInformationList
+     *            list of data field information to search
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name)
+     *
+     * @param fieldName
+     *            name of the field for which to get the field information (case insensitive)
+     *
+     * @return Reference to the data field information for the specified field; null if the field
+     *         doesn't exist
+     *********************************************************************************************/
+    protected static FieldInformation getFieldInformationByName(List<FieldInformation> fieldInformationList,
+                                                                String ownerName,
+                                                                String fieldName)
+    {
         FieldInformation fieldInfo = null;
 
         // Step through each field
-        for (FieldInformation info : fieldInformation)
+        for (FieldInformation info : fieldInformationList)
         {
             // Check if the owner and field names match the ones supplied (case insensitive)
             if (info.getOwnerName().equalsIgnoreCase(ownerName)
@@ -558,21 +583,16 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
-     * Get the array of data field definitions for the specified owner for use in the data field
-     * editor
-     *
-     * @param ownerName
-     *            name of the data field owner (table name, including the path if this table
-     *            references a structure, group name, or table type name)
+     * Get the array of data field definitions from the supplied field information list for use in
+     * the data field editor
      *
      * @param fieldInfo
-     *            list of field information
+     *            list of field information to convert
      *
      * @return Object array containing the data field definitions for the specified owner used by
      *         the data field editor
      *********************************************************************************************/
-    protected Object[][] getFieldEditorDefinition(String ownerName,
-                                                  List<FieldInformation> fieldInfo)
+    protected static Object[][] getFieldEditorDefinition(List<FieldInformation> fieldInfo)
     {
         List<Object[]> definitions = new ArrayList<Object[]>();
 

@@ -5962,7 +5962,8 @@ public class CcddDbTableCommandHandler
      *            type of internal table to store
      *
      * @param tableData
-     *            array containing the table data to store
+     *            array containing the table data to store; unused for the table types internal
+     *            table
      *
      * @param tableComment
      *            table comment; null if unchanged

@@ -1502,20 +1502,22 @@ public class CcddFileIOHandler
         {
             CcddTableEditorHandler tableEditor;
 
-            // Get the field information list for the default fields (those belonging to the
-            // table's type definition)
-            List<FieldInformation> defaultFieldInfo = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableInfo.getType()));
-
-            // Step through each default field
-            for (FieldInformation fieldInfo : defaultFieldInfo)
+            // Step through the data fields assigned to this table's type definition (i.e., the
+            // table's default data fields)
+            for (FieldInformation defaultFld : fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableInfo.getType())))
             {
-                // Change the owner to the table being created
-                fieldInfo.setOwnerName(tableInfo.getTablePath());
-            }
+                // Check if the field isn't already part of the table definition
+                if (CcddFieldHandler.getFieldInformationByName(tableInfo.getFieldInformation(),
+                                                               tableInfo.getTablePath(),
+                                                               defaultFld.getFieldName()) == null)
+                {
+                    // Set the default field's owner to the current table
+                    defaultFld.setOwnerName(tableInfo.getTablePath());
 
-            // Insert the default fields ahead of any fields defined for the table in the import
-            // file
-            tableInfo.getFieldInformation().addAll(0, defaultFieldInfo);
+                    // Insert the default field definition at the head of the table's data fields
+                    tableInfo.getFieldInformation().add(0, defaultFld);
+                }
+            }
 
             // Close any editors associated with this prototype table
             dbTable.closeDeletedTableEditors(tableName, ccddMain.getMainFrame());
@@ -1884,29 +1886,26 @@ public class CcddFileIOHandler
             fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;
 
             // Get the reference to the data field based on the table name and field name
-            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
+            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
                                                                                 fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
-            // Check if the data field already exists
-            if (fieldInfo != null)
+            // Check if the data field already exists and the user has elected to use existing
+            // fields over ones in the import file
+            if (fieldInfo != null && useExistingFields)
             {
-                // Check if the original data field information supersedes the imported one
-                if (useExistingFields)
-                {
-                    // Remove the new data field definition
-                    tableDefn.getDataFields().remove(index);
-                }
-                // The imported data field information replaces the original
-                else
-                {
-                    // Remove the original data field definition
-                    fieldHandler.getFieldInformation().remove(fieldInfo);
-                }
+                // Remove the new data field definition and replace it with the existing definition
+                tableDefn.getDataFields().remove(index);
+                tableDefn.getDataFields().add(index,
+                                              new String[] {ownerName,
+                                                            fieldInfo.getFieldName(),
+                                                            fieldInfo.getDescription(),
+                                                            String.valueOf(fieldInfo.getSize()),
+                                                            fieldInfo.getInputType().getInputName(),
+                                                            String.valueOf(fieldInfo.isRequired()),
+                                                            fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                            fieldInfo.getValue()});
             }
         }
-
-        // Combine the existing and imported data fields
-        tableDefn.getDataFields().addAll(0, fieldHandler.getFieldDefnsFromInfo());
     }
 
     /**********************************************************************************************
