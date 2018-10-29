@@ -386,25 +386,25 @@ public class CcddSearchHandler extends CcddDialogHandler
                         if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldProjectName()))
                         {
                             target = SearchTarget.PROJECT_FIELD.getTargetName(true)
-                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a default data field
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldTypeName("")))
                         {
                             target = SearchTarget.DEFAULT_FIELD.getTargetName(true)
-                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // Check if this is a group data field
                         else if ((columnValue[FieldsColumn.OWNER_NAME.ordinal()] + ":").startsWith(CcddFieldHandler.getFieldGroupName("")))
                         {
                             target = SearchTarget.GROUP_FIELD.getTargetName(true)
-                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()].replaceFirst("^.*:", "");
+                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()].replaceFirst("^.*:", "");
                         }
                         // This is a table data field
                         else
                         {
                             target = CcddUtilities.highlightDataType(SearchTarget.TABLE_FIELD.getTargetName(true)
-                                                                     + columnValue[FieldsColumn.FIELD_NAME.ordinal()]);
+                                                                     + columnValue[FieldsColumn.OWNER_NAME.ordinal()]);
                         }
 
                         location = "Field name '"
