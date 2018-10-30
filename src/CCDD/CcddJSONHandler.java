@@ -1153,9 +1153,21 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                         }
                                     }
 
-                                    // Get the names of the macros referenced in the cell and add
-                                    // them to the list
-                                    referencedMacros.addAll(macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()));
+                                    // Step through each macro referenced in the cell
+                                    for (String refMacro : macroHandler.getReferencedMacros(tableInfo.getData()[row][column].toString()))
+                                    {
+                                        // Get the name of the macro as stored in the internal
+                                        // macros table
+                                        String storedMacroName = macroHandler.getStoredMacroName(refMacro);
+
+                                        // Check if the macro name isn't already in the list of
+                                        // referenced macros
+                                        if (!referencedMacros.contains(storedMacroName))
+                                        {
+                                            // Add the macro name to the list of referenced macros
+                                            referencedMacros.add(storedMacroName);
+                                        }
+                                    }
                                 }
                             }
 

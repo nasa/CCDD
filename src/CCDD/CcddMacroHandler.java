@@ -206,6 +206,34 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
+     * Get the the stored version of the supplied macro name. Macro names are case insensitive;
+     * however the name as used in the internal table can be needed
+     *
+     * @param inputName
+     *            name of the macro for which to get the stored name
+     *
+     * @return Macro name as stored in the internal macros table; null if the macro doesn't exist
+     *********************************************************************************************/
+    protected String getStoredMacroName(String inputName)
+    {
+        String storedName = null;
+
+        // Step through each macro
+        for (String[] macro : macros)
+        {
+            // Check if the supplied name matches the macro name, ignoring case
+            if (macro[MacrosColumn.MACRO_NAME.ordinal()].equalsIgnoreCase(inputName))
+            {
+                // Set the name to the stored macros name and stop searching
+                storedName = macro[MacrosColumn.MACRO_NAME.ordinal()];
+                break;
+            }
+        }
+
+        return storedName;
+    }
+
+    /**********************************************************************************************
      * Get the macro name encased in the macro identifier character(s)
      *
      * @param macroName
