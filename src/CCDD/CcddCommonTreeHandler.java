@@ -1033,10 +1033,7 @@ public class CcddCommonTreeHandler extends JTree
             }
         }
 
-        // Remove the trailing comma
-        variablePath = CcddUtilities.removeTrailer(variablePath, ",");
-
-        return variablePath;
+        return CcddUtilities.removeTrailer(variablePath, ",");
     }
 
     /**********************************************************************************************

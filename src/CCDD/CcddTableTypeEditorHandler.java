@@ -33,9 +33,12 @@ import CCDD.CcddClassesComponent.PaddedComboBox;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
+import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.TableSelectionMode;
@@ -79,6 +82,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     private final List<String[]> typeAdditions;
     private final List<String[]> typeModifications;
     private final List<String[]> typeDeletions;
+
+    // Lists of field content changes to process
+    private final List<TableModification> fieldAdditions;
+    private final List<TableModification> fieldModifications;
+    private final List<TableModification> fieldDeletions;
 
     // Flag indicating if a change in column order occurred
     private boolean columnOrderChange;
@@ -157,6 +165,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         typeAdditions = new ArrayList<String[]>();
         typeModifications = new ArrayList<String[]>();
         typeDeletions = new ArrayList<String[]>();
+
+        // Initialize the lists of field content changes
+        fieldAdditions = new ArrayList<TableModification>();
+        fieldModifications = new ArrayList<TableModification>();
+        fieldDeletions = new ArrayList<TableModification>();
 
         // Create the table type editor
         initialize(ccddMain);
@@ -269,6 +282,36 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     protected List<String[]> getTypeDeletions()
     {
         return typeDeletions;
+    }
+
+    /**********************************************************************************************
+     * Get the data field additions
+     *
+     * @return List of data field additions
+     *********************************************************************************************/
+    protected List<TableModification> getFieldAdditions()
+    {
+        return fieldAdditions;
+    }
+
+    /**********************************************************************************************
+     * Get the data field changes
+     *
+     * @return List of data field changes
+     *********************************************************************************************/
+    protected List<TableModification> getFieldModifications()
+    {
+        return fieldModifications;
+    }
+
+    /**********************************************************************************************
+     * Get the data field deletions
+     *
+     * @return List of data field deletions
+     *********************************************************************************************/
+    protected List<TableModification> getFieldDeletions()
+    {
+        return fieldDeletions;
     }
 
     /**********************************************************************************************
@@ -1185,6 +1228,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     protected void buildUpdates()
     {
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Build the changes to the table type's column definitions
+        // ////////////////////////////////////////////////////////////////////////////////////////
         // Get the table type data array
         Object[][] typeData = table.getTableData(true);
 
@@ -1257,8 +1303,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                  || oldInputType.equals(DefaultInputType.RATE.getInputName()))
                                 && !newInputType.equals(oldInputType)))
                         {
-                            // The column name is changed. Add the new and old column names to the
-                            // list
+                            // The column name is changed. Add the old and new column names and
+                            // input types to the list
                             typeModifications.add(new String[] {prevColumnName,
                                                                 currColumnName,
                                                                 oldInputType,
@@ -1274,7 +1320,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             // Check if no match was made with the committed data for the current table row
             if (!matchFound)
             {
-                // The column definition is being added; add the column name to the list
+                // The column definition is being added; add the column name and input type to the
+                // list
                 typeAdditions.add(new String[] {currColumnName,
                                                 typeData[tblRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
             }
@@ -1290,6 +1337,97 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // the list
                 typeDeletions.add(new String[] {committedData[comRow][TableTypeEditorColumnInfo.NAME.ordinal()].toString(),
                                                 committedData[comRow][TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString()});
+            }
+        }
+
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Build the changes to the table type's data field definitions
+        // ////////////////////////////////////////////////////////////////////////////////////////
+        // Get the field table data arrays prior to and after all changes
+        Object[][] committedFieldData = CcddFieldHandler.getFieldEditorDefinition(committedFieldInfo);
+        Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(getPanelFieldInformation());
+
+        // Remove existing changes, if any
+        fieldAdditions.clear();
+        fieldModifications.clear();
+        fieldDeletions.clear();
+
+        // Create an empty row of data for comparison purposes
+        emptyRow = FieldEditorColumnInfo.getEmptyRow();
+
+        // Create storage for flags that indicate if a row has been modified
+        rowModified = new boolean[committedFieldData.length];
+
+        // Step through each row of the current data
+        for (int tblRow = 0; tblRow < fieldData.length; tblRow++)
+        {
+            boolean matchFound = false;
+
+            // Check if the field's input type isn't a format type (separator or break)
+            if (!inputTypeHandler.getInputTypeByName(fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())
+                                 .getInputFormat()
+                                 .equals(InputTypeFormat.PAGE_FORMAT))
+            {
+                // Step through each row of the committed data
+                for (int comRow = 0; comRow < committedFieldData.length && !matchFound; comRow++)
+                {
+                    // Check if the committed row hasn't already been matched and if the current
+                    // and committed field IDs are the same
+                    if (!rowModified[comRow]
+                        && fieldData[tblRow][FieldEditorColumnInfo.ID.ordinal()].equals(committedFieldData[comRow][FieldEditorColumnInfo.ID.ordinal()]))
+                    {
+                        // Set the flag indicating this row has a match
+                        matchFound = true;
+
+                        // Copy the current row's ID into the empty comparison row so that the
+                        // otherwise blank ID doesn't register as a difference when comparing the
+                        // rows below
+                        emptyRow[FieldEditorColumnInfo.ID.ordinal()] = fieldData[tblRow][FieldEditorColumnInfo.ID.ordinal()];
+
+                        // Check if the row is not now empty (if empty then the change is processed
+                        // as a row deletion instead of a modification)
+                        if (!Arrays.equals(fieldData[tblRow], emptyRow))
+                        {
+                            // Set the flag indicating this row has a modification
+                            rowModified[comRow] = true;
+
+                            // Step through each column in the row
+                            for (int column = 0; column < fieldData[tblRow].length; column++)
+                            {
+                                // Check if the current and committed values don't match
+                                if (!fieldData[tblRow][column].equals(committedFieldData[comRow][column]))
+                                {
+                                    // Store the row modification information and stop searching
+                                    fieldModifications.add(new TableModification(fieldData[tblRow],
+                                                                                 committedFieldData[comRow]));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check if no match was made with the committed data for the current table row
+                if (!matchFound)
+                {
+                    // The field definition is being added; add the field definition to the list
+                    fieldAdditions.add(new TableModification(fieldData[tblRow], null));
+                }
+            }
+        }
+
+        // Step through each row of the committed data
+        for (int comRow = 0; comRow < committedFieldData.length; comRow++)
+        {
+            // Check if no matching row was found with the current data and the field's input type
+            // isn't a format type (separator or break)
+            if (!rowModified[comRow]
+                && !inputTypeHandler.getInputTypeByName(committedFieldData[comRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString())
+                                    .getInputFormat()
+                                    .equals(InputTypeFormat.PAGE_FORMAT))
+            {
+                // The field definition has been deleted; add the field definition to the list
+                fieldDeletions.add(new TableModification(null, committedFieldData[comRow]));
             }
         }
     }

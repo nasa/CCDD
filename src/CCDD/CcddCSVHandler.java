@@ -592,7 +592,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                              columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
                                                                                                                              columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
                                                                                                                              columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                             columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                                                             columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
                                                                                                                importFile.getAbsolutePath(),
                                                                                                                inputTypeHandler,
                                                                                                                fieldHandler,
@@ -736,7 +737,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                            columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
                                                                                                                            columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
                                                                                                                            columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                           columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                           columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                                                           columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
                                                                                                              importFile.getAbsolutePath(),
                                                                                                              inputTypeHandler,
                                                                                                              fieldHandler,
@@ -814,7 +816,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                          columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
                                                                                                                          columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
                                                                                                                          columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                         columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                                                         columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
                                                                                                            importFile.getAbsolutePath(),
                                                                                                            inputTypeHandler,
                                                                                                            fieldHandler,
@@ -998,7 +1001,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                                                     columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
                                                                                                                     columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
                                                                                                                     columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1]},
+                                                                                                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                                                    columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
                                                                                                       importFile.getAbsolutePath(),
                                                                                                       inputTypeHandler,
                                                                                                       fieldHandler,
@@ -1410,7 +1414,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Build the data field information for this table type
-                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(tableType);
+                    List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType));
 
                     // Check if the table type contains any data fields
                     if (!fieldInformation.isEmpty())

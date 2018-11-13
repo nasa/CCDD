@@ -7,11 +7,9 @@
  */
 package CCDD;
 
-import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.TRUE_OR_FALSE;
 import static CCDD.CcddConstants.TYPE_COMMAND;
-import static CCDD.CcddConstants.TYPE_DATA_FIELD_IDENT;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -1014,8 +1012,8 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     // Check if the table name isn't already in the list and that this is not a
                     // table type or group data field
                     if (!tableNames.contains(fieldInfo.getOwnerName())
-                        && !fieldInfo.getOwnerName().startsWith(TYPE_DATA_FIELD_IDENT)
-                        && !fieldInfo.getOwnerName().startsWith(GROUP_DATA_FIELD_IDENT))
+                        && !CcddFieldHandler.isTableTypeField(fieldInfo.getOwnerName())
+                        && !CcddFieldHandler.isGroupField(fieldInfo.getOwnerName()))
                     {
                         // Store the table name in the list
                         tableNames.add(fieldInfo.getOwnerName());

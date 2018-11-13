@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
+import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -21,6 +22,8 @@ import javax.swing.JOptionPane;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.FieldInformation;
+import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultInputType;
@@ -46,8 +49,15 @@ public class CcddPatchHandler
 {
     private final CcddMain ccddMain;
 
+    // Patch 11052018 specific variables:
+    // Flag that indicates that part 1 completed successfully, and part 2 should be performed
+    private boolean patch11052018Continue;
+
+    // Number of data fields that were renamed to prevent a duplicate with an inherited field
+    private int patch11052018RenamedFields;
+
     /**********************************************************************************************
-     * CFS Command and Data Dictionary project database patch handler class constructor. THe patch
+     * CFS Command and Data Dictionary project database patch handler class constructor. The patch
      * handler is used to integrate application changes that require alteration of the project
      * database schema. The alterations are meant to be transparent to the user; however, once
      * patched older versions of the application are no longer guaranteed to function properly and
@@ -55,15 +65,25 @@ public class CcddPatchHandler
      *
      * @param ccddMain
      *            main class
+     *********************************************************************************************/
+    CcddPatchHandler(CcddMain ccddMain)
+    {
+        this.ccddMain = ccddMain;
+    }
+
+    /**********************************************************************************************
+     * Apply patches based on the input flag
+     *
+     * @param isBeforeHandlerInit
+     *            true if the patch must be implemented prior to initializing the handler classes;
+     *            false if the patch must be implemented after initializing the handler classes
      *
      * @throws CCDDException
      *             If the user elects to not install the patch or an error occurs while applying
      *             the patch
      *********************************************************************************************/
-    CcddPatchHandler(CcddMain ccddMain) throws CCDDException
+    protected void applyPatches(boolean isBeforeHandlerInit) throws CCDDException
     {
-        this.ccddMain = ccddMain;
-
         ///////////////////////////////////////////////////////////////////////////////////////////
         // *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
         // Patches are removed after an appropriate amount of time has been given for the patch to
@@ -71,36 +91,52 @@ public class CcddPatchHandler
         // patch is required for an older database
         ///////////////////////////////////////////////////////////////////////////////////////////
 
-        // Patch #01262017: Rename the table types table and alter its content to include the
-        // database name with capitalization intact
-        // updateTableTypesTable();
+        // Check if only patches that must be performed prior to handler initialization should be
+        // implemented
+        if (isBeforeHandlerInit)
+        {
+            // Patch #11052018: PartA - Add a column, field_default, to the fields table that
+            // indicates if the field is owned by a table and is inherited from the table's type
+            updateFieldsPart1();
 
-        // Patch #07112017: Update the database comment to include the project name with
-        // capitalization intact
-        // NOTE: This patch is no longer valid due to changes in the database opening sequence
-        // where the lock status is set
-        // updateDataBaseComment();
+            // Patch #07112017: Update the database comment to include the project name with
+            // capitalization intact
+            // NOTE: This patch is no longer valid due to changes in the database opening sequence
+            // where the lock status is set
+            // updateDataBaseComment();
 
-        // Patch #07212017: Update the associations table to include a description column and to
-        // change the table separator characters in the member_table column
-        // updateAssociationsTable();
+            // Patch #01262017: Rename the table types table and alter its content to include the
+            // database name with capitalization intact
+            // updateTableTypesTable();
+        }
+        // Only patches that must be performed after handler initialization should be implemented
+        else
+        {
+            // Patch #11052018: Part B - Add inherited fields to tables that don't already have the
+            // field
+            updateFieldsPart2();
 
-        // Patch #09272017: Update the data fields table applicability column to change "Parents
-        // only" to "Roots only"
-        // updateFieldApplicability();
+            // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
+            updatePaddingVariables();
 
-        // Patch #11132017: Update the associations table to include a name column
-        // updateAssociationsTable2();
+            // Patch #07242018: Update the database to support user access levels
+            updateUserAccess();
 
-        // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
-        updatePaddingVariables();
+            // Patch #08292018: Change the message ID name input type to 'Text' and the message ID
+            // input type to 'Message name & ID' in the table type and data field tables
+            updateMessageNamesAndIDs();
 
-        // Patch #07242018: Update the database to support user access levels
-        updateUserAccess();
+            // Patch #09272017: Update the data fields table applicability column to change
+            // "Parents only" to "Roots only"
+            // updateFieldApplicability();
 
-        // Patch #08292018: Change the message ID name input type to 'Text' and the message ID
-        // input type to 'Message name & ID' in the table type and data field tables
-        updateMessageNamesAndIDs();
+            // Patch #07212017: Update the associations table to include a description column and
+            // to change the table separator characters in the member_table column
+            // updateAssociationsTable();
+
+            // Patch #11132017: Update the associations table to include a name column
+            // updateAssociationsTable2();
+        }
     }
 
     /**********************************************************************************************
@@ -144,6 +180,358 @@ public class CcddPatchHandler
                                                     + "_"
                                                     + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())
                                                     + FileExtension.DBU.getExtension()));
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the fields table to include a default_field column and set each field's default
+     * status. Older versions of CCDD are not compatible with the project database after applying
+     * this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error occurs while applying
+     *             the patch
+     *********************************************************************************************/
+    private void updateFieldsPart1() throws CCDDException
+    {
+        patch11052018Continue = false;
+        patch11052018RenamedFields = 0;
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+
+        try
+        {
+            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+            // Create lists to contain the old and new fields table items
+            List<String[]> tableData = new ArrayList<String[]>();
+
+            // Read the contents of the fields table
+            ResultSet fieldsData = dbCommand.executeDbQuery("SELECT * FROM "
+                                                            + InternalTable.FIELDS.getTableName()
+                                                            + " ORDER BY OID;",
+                                                            ccddMain.getMainFrame());
+
+            // Check if the patch hasn't already been applied
+            if (fieldsData.getMetaData().getColumnCount() == 8)
+            {
+                // Check if the user elects to not apply the patch
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Apply patch to update the data "
+                                                                                       + "fields table?<br><br></b>"
+                                                                                       + "Adds a column in the data fields "
+                                                                                       + "table to store field inheritance "
+                                                                                       + "status. A field is inherited if "
+                                                                                       + "defined in the table's type "
+                                                                                       + "definition. Fields are renamed to "
+                                                                                       + "prevent an instance of a fields "
+                                                                                       + "matching an inherited field when the "
+                                                                                       + "input types differ. Missing an "
+                                                                                       + "inherited fields are added to "
+                                                                                       + "tables<br><b><i>Older versions of "
+                                                                                       + "CCDD will be incompatible with this "
+                                                                                       + "project database after applying the patch",
+                                                              "Apply Patch #11052018",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
+                {
+                    fieldsData.close();
+                    throw new CCDDException("User elected to not install patch (#11052018)");
+                }
+
+                // Step through each of the query results
+                while (fieldsData.next())
+                {
+                    // Create an array to contain the column values
+                    String[] columnValues = new String[9];
+
+                    // Step through each column in the row
+                    for (int column = 0; column < 8; column++)
+                    {
+                        // Add the column value to the array. Note that the first column's index in
+                        // the database is 1, not 0
+                        columnValues[column] = fieldsData.getString(column + 1);
+
+                        // Check if the value is null
+                        if (columnValues[column] == null)
+                        {
+                            // Replace the null with a blank
+                            columnValues[column] = "";
+                        }
+                    }
+
+                    // Set the field default flag to indicate it isn't inherited from a table type
+                    columnValues[8] = "false";
+
+                    // Add the row data to the list
+                    tableData.add(columnValues);
+                }
+
+                fieldsData.close();
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Check if there are any fields in the table
+                if (tableData.size() != 0)
+                {
+                    int currentIndex = 0;
+
+                    // Indicate in the log that the old data successfully loaded
+                    eventLog.logEvent(SUCCESS_MSG,
+                                      InternalTable.FIELDS.getTableName()
+                                                   + " retrieved");
+
+                    // Get the array containing the comments for all data tables
+                    String[][] comments = dbTable.queryDataTableComments(ccddMain.getMainFrame());
+
+                    // Step through the data field definitions
+                    for (String[] fieldDefn : tableData)
+                    {
+                        // Check if the field is owned by a table
+                        if (CcddFieldHandler.isTableField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]))
+                        {
+                            // Get the table's type name from the table comment
+                            String tableType = dbTable.getTableComment(TableInformation.getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
+                                                                       comments)[TableCommentIndex.TYPE.ordinal()];
+
+                            // Step through the data field definitions
+                            for (String[] otherFldDefn : tableData)
+                            {
+                                // Check if this is a data field belonging to the table's type
+                                // definition and the field names match
+                                if (CcddFieldHandler.getFieldTypeName(tableType).equals(otherFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
+                                    && fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_NAME.ordinal()]))
+                                {
+                                    // Check if the input types match
+                                    if (fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
+                                    {
+                                        // Set the flag that indicates this field is inherited
+                                        fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = "true";
+
+                                        // Step through the original field definition parts except
+                                        // for field owner, name, and value (so as not to overwrite
+                                        // the field value with that from the inherited field)
+                                        for (int index = 2; index < 7; index++)
+                                        {
+                                            // Overwrite the instance of the field with the
+                                            // inherited field
+                                            fieldDefn[index] = otherFldDefn[index];
+                                        }
+                                    }
+                                    // The names match but the input types don't match. These are
+                                    // considered different fields
+                                    else
+                                    {
+                                        boolean isNoMatch = true;
+                                        patch11052018RenamedFields++;
+
+                                        // Continue to update the field's name until there's no
+                                        // match with one of its other fields
+                                        while (isNoMatch)
+                                        {
+                                            int dupIndex = 0;
+                                            isNoMatch = false;
+
+                                            // Modify the field's name
+                                            fieldDefn[FieldsColumn.FIELD_NAME.ordinal()] += "_";
+
+                                            // Step through the data field definitions
+                                            for (String[] dupFldDefn : tableData)
+                                            {
+                                                // Check if this isn't the field being changed
+                                                if (currentIndex != dupIndex)
+                                                {
+                                                    // Check if the field name matches another of
+                                                    // the table's fields or its default fields
+                                                    if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.FIELD_NAME.ordinal()])
+                                                        && (fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
+                                                            || dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(CcddFieldHandler.getFieldTypeName(tableType))))
+                                                    {
+                                                        // Set the flag to indicate this name is in
+                                                        // use and stop searching
+                                                        isNoMatch = true;
+                                                        break;
+                                                    }
+                                                }
+
+                                                dupIndex++;
+                                            }
+                                        }
+                                    }
+
+                                    // Stop searching since a matching field name was found
+                                    break;
+                                }
+                            }
+
+                            // Update the data field definition to set the default status and
+                            // update the field name (if needed)
+                            tableData.set(currentIndex, fieldDefn);
+                        }
+
+                        currentIndex++;
+                    }
+                }
+
+                // Store the updated fields table
+                dbTable.storeInformationTable(InternalTable.FIELDS,
+                                              tableData,
+                                              null,
+                                              ccddMain.getMainFrame());
+
+                // Set the flag to indicate that part 2 of this patch should be performed
+                patch11052018Continue = true;
+
+                // Inform the user that updating the database fields table completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' data fields table conversion (part 1) complete");
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the fields table failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot convert project '"
+                                                           + dbControl.getProjectName()
+                                                           + "' data fields table to new format; cause '"
+                                                           + e.getMessage()
+                                                           + "'",
+                                  "<html><b>Cannot convert project '</b>"
+                                                                  + dbControl.getProjectName()
+                                                                  + "<b>' data fields table to new format "
+                                                                  + "(project database will be closed)");
+
+            throw new CCDDException();
+        }
+    }
+
+    /**********************************************************************************************
+     * After updating the fields table to include a default_field column add inherited fields to
+     * those tables that don't already have the field. Older versions of CCDD are not compatible
+     * with the project database after applying this patch
+     *
+     * @throws CCDDException
+     *             If the user elects to not install the patch or an error occurs while applying
+     *             the patch
+     *********************************************************************************************/
+    private void updateFieldsPart2() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+        CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
+
+        // Check if part 1 of this patch successfully completed
+        if (patch11052018Continue)
+        {
+            try
+            {
+                int addedFields = 0;
+                CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
+                CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+                // Step through each table type
+                for (String typeName : ccddMain.getTableTypeHandler().getTypes())
+                {
+                    // Get the list of names of all tables of the specified type
+                    List<String> tableNamesList = dbTable.getAllTablesOfType(typeName,
+                                                                             null,
+                                                                             ccddMain.getMainFrame());
+
+                    // Step through each of this table type's data fields
+                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(typeName)))
+                    {
+                        // Check if this isn't a separator or break
+                        if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
+                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
+                        {
+                            // Step through each table of this type
+                            for (String tableName : tableNamesList)
+                            {
+                                // Check if the data field meets the criteria of a new field for
+                                // this table ...
+                                if (
+                                // ... the table doesn't have this data field
+                                (fieldHandler.getFieldInformationByName(tableName,
+                                                                        fieldInfo.getFieldName()) == null)
+
+                                    // ... and the table isn't a child structure (all fields are
+                                    // stored for prototypes, even if not displayed) or the field
+                                    // is applicable to this table
+                                    && (!tableName.contains(".")
+                                        || fieldHandler.isFieldApplicable(tableName,
+                                                                          fieldInfo.getApplicabilityType().getApplicabilityName(),
+                                                                          null)))
+                                {
+                                    // Add the data field to the table and set the flag indicating
+                                    // a change has been made
+                                    fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
+                                                                                                fieldInfo.getFieldName(),
+                                                                                                fieldInfo.getDescription(),
+                                                                                                fieldInfo.getInputType(),
+                                                                                                fieldInfo.getSize(),
+                                                                                                fieldInfo.isRequired(),
+                                                                                                fieldInfo.getApplicabilityType(),
+                                                                                                fieldInfo.getValue(),
+                                                                                                true,
+                                                                                                null,
+                                                                                                -1));
+                                    addedFields++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check if any fields were added
+                if (addedFields != 0)
+                {
+                    // Store the data fields
+                    dbTable.storeInformationTable(InternalTable.FIELDS,
+                                                  fieldHandler.getFieldDefnsFromInfo(),
+                                                  null,
+                                                  ccddMain.getMainFrame());
+                }
+
+                // Check if any fields were added or renamed
+                if (addedFields != 0 || patch11052018RenamedFields != 0)
+                {
+                    // Inform the user how many inherited fields were added and renamed
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Number of inherited data fields added: </b>"
+                                                                                       + addedFields
+                                                                                       + "<br><b>Number of existing fields renamed: </b>"
+                                                                                       + patch11052018RenamedFields,
+                                                              "Patch #11052018 Data Field Updates",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                }
+
+                // Inform the user that updating the database fields table completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  "Project '"
+                                                                   + dbControl.getProjectName()
+                                                                   + "' data fields table conversion (part 2) complete");
+            }
+            catch (Exception e)
+            {
+                // Inform the user that adding the inherited tables failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot convert project '"
+                                                               + dbControl.getProjectName()
+                                                               + "' data fields table to new format; cause '"
+                                                               + e.getMessage()
+                                                               + "'",
+                                      "<html><b>Cannot convert project '</b>"
+                                                                      + dbControl.getProjectName()
+                                                                      + "<b>' data fields table to new format "
+                                                                      + "(project database will be closed)");
+
+                throw new CCDDException();
+            }
         }
     }
 

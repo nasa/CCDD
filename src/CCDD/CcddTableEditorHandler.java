@@ -5357,8 +5357,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Step through each column in the row
                         for (int column = 0; column < tableData[tblRow].length; column++)
                         {
-                            // Check if the current and committed values don't match and this isn't
-                            // the variable path column
+                            // Check if the current and committed values don't match
                             if (!tableData[tblRow][column].equals(committedTableInfo.getData()[comRow][column]))
                             {
                                 // Store the row modification information and stop searching

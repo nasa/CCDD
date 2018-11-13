@@ -893,9 +893,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                             buildUpdates();
 
                             // Store the changes to the data fields in the database
-                            dbTable.modifyDataFields(fieldModifications,
-                                                     fieldDeletions,
-                                                     CcddFieldTableEditorDialog.this);
+                            dbTable.modifyDataFieldValues(fieldModifications,
+                                                          fieldDeletions,
+                                                          CcddFieldTableEditorDialog.this);
                         }
                     }
                 });
@@ -1094,6 +1094,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 row = convertRowIndexToModel(row);
                 column = convertColumnIndexToModel(column);
 
+                // TODO IF TABLE TYPE DATA FIELD VALUES AREN'T ALLOWED TO BE ALTERED THEN NEED TO
+                // INHIBIT IT HERE
+
                 // Return true if this is not the owner or path column, or if the table does not
                 // have the field specified by the column
                 return column != FieldTableEditorColumnInfo.OWNER.ordinal()
@@ -1280,6 +1283,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
+
+                // TODO TABLE TYPE FIELD INHERITANCE - IF NOT ALLOWED TO CHANGE VALUES FOR THESE
+                // FIELDS THEN SHOW AS DISABLED
 
                 // Check if the cell doesn't have the focus or is selected (the focus and selection
                 // highlight colors override the invalid highlight color) and if this is a column
@@ -1720,6 +1726,11 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private void buildUpdates()
     {
+        // TODO THIS MAY REQUIRE ALTERATIONS DUE TO THE INHERITANCE UPDATE SINCE TABLE TYPE FIELD
+        // VALUES CAN BE CHANGED. THERE'S NO WAY TO SET THE OVERWRITE TYPE FOR EXAMPLE. COULD (1)
+        // DECIDE THAT CHANGES MADE HERE ARE NEVER PROPAGATED TO THE FIELDS BELONGING TO TABLES OF
+        // THE CHANGED TYPE OR (2) NOT ALLOW CHANGES TO TABLE TYPE FIELD VALUES FROM THIS EDITOR
+
         // Get the table data array
         Object[][] tableData = dataFieldTable.getTableData(true);
 
@@ -1732,27 +1743,44 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
             // Step through each row of the current data
             for (int column = 0; column < tableData[row].length; column++)
             {
-                // Check that this isn't the table owner or path columns
+                // Check that this isn't the field owner or path columns
                 if (column != FieldTableEditorColumnInfo.OWNER.ordinal()
                     && column != FieldTableEditorColumnInfo.PATH.ordinal())
                 {
-                    // Get the table name, with path if applicable
-                    String tableAndPath = getOwnerWithPath(tableData[row][FieldTableEditorColumnInfo.OWNER.ordinal()].toString(),
-                                                           tableData[row][FieldTableEditorColumnInfo.PATH.ordinal()].toString());
+                    // Get the field owner, with path if applicable
+                    String ownerName = getOwnerWithPath(tableData[row][FieldTableEditorColumnInfo.OWNER.ordinal()].toString(),
+                                                        tableData[row][FieldTableEditorColumnInfo.PATH.ordinal()].toString());
 
                     // Check if this field is selected for removal
                     if (selectedCells.contains(dataFieldTable.convertRowIndexToView(row),
                                                dataFieldTable.convertColumnIndexToView(column)))
                     {
-                        // Add the field removal information to the list
-                        fieldDeletions.add(new String[] {tableAndPath,
+                        // Add the field's removal information to the list
+                        fieldDeletions.add(new String[] {ownerName,
                                                          dataFieldTable.getModel().getColumnName(column)});
+
+                        // TODO
+                        // Check if the field belongs to a table type. If so, then all of the
+                        // inherited versions of this field are removed as well
+                        if (CcddFieldHandler.isTableTypeField(ownerName))
+                        {
+                            // Step through each table of this type
+                            for (String tablePath : dbTable.getAllTablesOfType(ownerName.replace(TYPE_DATA_FIELD_IDENT,
+                                                                                                 ""),
+                                                                               null,
+                                                                               CcddFieldTableEditorDialog.this))
+                            {
+                                // Add the inherited field's removal information to the list
+                                fieldDeletions.add(new String[] {ownerName, tablePath});
+                            }
+                        }
+                        // end TODO
                     }
                     // Check if the current and committed column values differ
                     else if (!tableData[row][column].equals(committedData[row][column]))
                     {
                         // Add the data field modification information to the list
-                        fieldModifications.add(new String[] {tableAndPath,
+                        fieldModifications.add(new String[] {ownerName,
                                                              columnNames[column],
                                                              tableData[row][column].toString()});
                     }
@@ -1890,19 +1918,19 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         ownerName = CcddUtilities.removeHTMLTags(ownerName).trim();
 
         // Check if this field belongs to the project
-        if (ownerName.startsWith(PROJECT_DATA_FIELD_IDENT))
+        if (CcddFieldHandler.isProjectField(ownerName))
         {
             // Get the project field indicator
             prepend = PROJECT_DATA_FIELD_IDENT;
         }
         // Check if this field belongs to a group
-        else if (ownerName.startsWith(GROUP_DATA_FIELD_IDENT))
+        else if (CcddFieldHandler.isGroupField(ownerName))
         {
             // Get the group field indicator
             prepend = GROUP_DATA_FIELD_IDENT;
         }
         // Check if this field belongs to a table type
-        else if (ownerName.startsWith(TYPE_DATA_FIELD_IDENT))
+        else if (CcddFieldHandler.isTableTypeField(ownerName))
         {
             // Get the table type field indicator
             prepend = TYPE_DATA_FIELD_IDENT;

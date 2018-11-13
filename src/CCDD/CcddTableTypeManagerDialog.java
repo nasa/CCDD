@@ -26,12 +26,14 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import CCDD.CcddClassesDataTable.CCDDException;
+import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
+import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -248,12 +250,15 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                     // Add the new table type to the project database
                     dbTable.modifyTableTypeInBackground(typeNameFld.getText(),
                                                         null,
-                                                        false,
-                                                        new ArrayList<String[]>(),
-                                                        new ArrayList<String[]>(),
-                                                        new ArrayList<String[]>(),
+                                                        OverwriteFieldValueType.NONE,
+                                                        new ArrayList<String[]>(0),
+                                                        new ArrayList<String[]>(0),
+                                                        new ArrayList<String[]>(0),
                                                         false,
                                                         null,
+                                                        new ArrayList<TableModification>(0),
+                                                        new ArrayList<TableModification>(0),
+                                                        new ArrayList<TableModification>(0),
                                                         editorDialog,
                                                         null);
 

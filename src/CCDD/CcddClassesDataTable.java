@@ -1048,9 +1048,9 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the list containing the table data field information
+         * Get the list containing the table data field definition
          *
-         * @return List containing the table data field information
+         * @return List containing the table data field definition
          *****************************************************************************************/
         protected List<String[]> getDataFields()
         {
@@ -1058,14 +1058,14 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Add a data field information to the list of table data fields
+         * Add a data field definition to the list of table data fields
          *
-         * @param fieldInfo
-         *            data field information
+         * @param fieldDefn
+         *            data field definition
          *****************************************************************************************/
-        protected void addDataField(String[] fieldInfo)
+        protected void addDataField(String[] fieldDefn)
         {
-            dataFields.add(fieldInfo);
+            dataFields.add(fieldDefn);
         }
 
         /******************************************************************************************
@@ -1827,14 +1827,16 @@ public class CcddClassesDataTable
     protected static class FieldInformation
     {
         private String ownerName;
-        private final String fieldName;
-        private final String description;
-        private final int charSize;
+        private String fieldName;
+        private String description;
+        private int charSize;
         private InputType inputType;
-        private final boolean isRequired;
-        private final ApplicabilityType applicability;
+        private boolean isRequired;
+        private ApplicabilityType applicability;
         private String value;
+        private boolean isInherited;
         private Component inputFld;
+        private int id;
 
         /******************************************************************************************
          * Data field information class constructor
@@ -1865,9 +1867,16 @@ public class CcddClassesDataTable
          * @param value
          *            field value
          *
+         * @param isInherited
+         *            true if the field is inherited from its owner table's type definition
+         *            (ignored if the field does not belong to a table)
+         *
          * @param inputFld
          *            reference to the field's UndoableTextField or UndoableCheckBox; null if
          *            creating the data field without specifying the input field
+         *
+         * @param id
+         *            ID for the row defining the field; -1 for a new field
          *****************************************************************************************/
         FieldInformation(String ownerName,
                          String fieldName,
@@ -1877,7 +1886,9 @@ public class CcddClassesDataTable
                          boolean isRequired,
                          ApplicabilityType applicability,
                          String value,
-                         Component inputFld)
+                         boolean isInherited,
+                         Component inputFld,
+                         int id)
         {
             this.ownerName = ownerName;
             this.fieldName = fieldName;
@@ -1887,7 +1898,9 @@ public class CcddClassesDataTable
             this.isRequired = isRequired;
             this.applicability = applicability;
             this.value = value;
+            this.isInherited = isInherited;
             this.inputFld = inputFld;
+            this.id = id;
         }
 
         /******************************************************************************************
@@ -1922,6 +1935,17 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
+         * Set the field name
+         *
+         * @param fieldName
+         *            field name
+         *****************************************************************************************/
+        protected void setFieldName(String fieldName)
+        {
+            this.fieldName = fieldName;
+        }
+
+        /******************************************************************************************
          * Get the field comment
          *
          * @return Field comment
@@ -1929,6 +1953,17 @@ public class CcddClassesDataTable
         protected String getDescription()
         {
             return description;
+        }
+
+        /******************************************************************************************
+         * Set the field comment
+         *
+         * @param description
+         *            field comment
+         *****************************************************************************************/
+        protected void setDescription(String description)
+        {
+            this.description = description;
         }
 
         /******************************************************************************************
@@ -1942,13 +1977,35 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the field value required flag
+         * set the field display size in characters
+         *
+         * @param charSize
+         *            field display size in characters
+         *****************************************************************************************/
+        protected void setSize(int charSize)
+        {
+            this.charSize = charSize;
+        }
+
+        /******************************************************************************************
+         * Check if the field value is required
          *
          * @return true if a value is required for this field
          *****************************************************************************************/
         protected boolean isRequired()
         {
             return isRequired;
+        }
+
+        /******************************************************************************************
+         * Set the flag that indicates if the field value is required
+         *
+         * @param isRequired
+         *            true if a value is required for this field
+         *****************************************************************************************/
+        protected void setRequired(boolean isRequired)
+        {
+            this.isRequired = isRequired;
         }
 
         /******************************************************************************************
@@ -1959,6 +2016,17 @@ public class CcddClassesDataTable
         protected ApplicabilityType getApplicabilityType()
         {
             return applicability;
+        }
+
+        /******************************************************************************************
+         * Set the field applicability type
+         *
+         * @param applicability
+         *            field applicability type
+         *****************************************************************************************/
+        protected void setApplicabilityType(ApplicabilityType applicability)
+        {
+            this.applicability = applicability;
         }
 
         /******************************************************************************************
@@ -1980,6 +2048,30 @@ public class CcddClassesDataTable
         protected void setValue(String value)
         {
             this.value = value;
+        }
+
+        /******************************************************************************************
+         * Check if the field is inherited from the owner table's type definition
+         *
+         * @return true if the field is inherited from the owner table's type definition (ignored
+         *         if the field does not belong to a table)
+         *****************************************************************************************/
+        protected boolean isInherited()
+        {
+            return isInherited;
+        }
+
+        /******************************************************************************************
+         * Set the flag that indicates if the field is inherited from the owner table's type
+         * definition
+         *
+         * @param isInherited
+         *            true if the field is inherited from the owner table's type definition
+         *            (ignored if the field does not belong to a table)
+         *****************************************************************************************/
+        protected void setInherited(boolean isInherited)
+        {
+            this.isInherited = isInherited;
         }
 
         /******************************************************************************************
@@ -2022,6 +2114,27 @@ public class CcddClassesDataTable
         protected void setInputType(InputType inputType)
         {
             this.inputType = inputType;
+        }
+
+        /******************************************************************************************
+         * Get the field ID
+         *
+         * @return Field ID
+         *****************************************************************************************/
+        protected int getID()
+        {
+            return id;
+        }
+
+        /******************************************************************************************
+         * Set the field ID
+         *
+         * @param id
+         *            field ID
+         *****************************************************************************************/
+        protected void setID(int id)
+        {
+            this.id = id;
         }
     }
 

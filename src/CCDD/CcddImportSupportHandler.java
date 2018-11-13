@@ -301,6 +301,13 @@ public class CcddImportSupportHandler
             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = ApplicabilityType.ALL.getApplicabilityName();
         }
 
+        // Check if the inherited status is empty
+        if (fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()].isEmpty())
+        {
+            // Initialize the status to false (not inherited)
+            fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = "false";
+        }
+
         // Check if no error was detected or if the user elected to ignore an error
         if (!isError || continueOnError)
         {

@@ -82,10 +82,15 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param dialogType
      *            database dialog type: LOGIN, PASSWORD, DB_SERVER, or WEB_SERVER
+     *
+     * @param errorMessage
+     *            message to display following an unsuccessful login; null if no error has occurred
+     *            or this isn't the login dialog
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain,
                              boolean useActiveDatabase,
-                             ServerPropertyDialogType dialogType)
+                             ServerPropertyDialogType dialogType,
+                             String errorMessage)
     {
         this.ccddMain = ccddMain;
         this.useActiveDatabase = useActiveDatabase;
@@ -95,7 +100,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         dbControl = ccddMain.getDbControlHandler();
 
         // Create the server properties dialog
-        initialize();
+        initialize(errorMessage);
     }
 
     /**********************************************************************************************
@@ -109,7 +114,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *********************************************************************************************/
     CcddServerPropertyDialog(CcddMain ccddMain, ServerPropertyDialogType dialogType)
     {
-        this(ccddMain, true, dialogType);
+        this(ccddMain, true, dialogType, null);
     }
 
     /**********************************************************************************************
@@ -125,8 +130,12 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
 
     /**********************************************************************************************
      * Create the server properties dialog
+     *
+     * @param errorMessage
+     *            message to display following an unsuccessful login; null if no error has occurred
+     *            or this isn't the login dialog
      *********************************************************************************************/
-    private void initialize()
+    private void initialize(String errorMessage)
     {
         isPasswordSet = false;
 
@@ -167,6 +176,21 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
                 // registered in the server (if connected), or if a user name is entered
                 if (addLoginPanel(selectPnl, gbc, border))
                 {
+                    // Check if an error occurred on the previous login attempt
+                    if (errorMessage != null)
+                    {
+                        // Add the error message to the dialog
+                        JPanel errorPnl = new JPanel();
+                        JLabel errorLbl = new JLabel(errorMessage);
+                        errorLbl.setFont(ModifiableFontInfo.LABEL_ITALIC.getFont());
+                        errorLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
+                        gbc.gridwidth = GridBagConstraints.REMAINDER;
+                        gbc.gridx = 0;
+                        gbc.gridy++;
+                        errorPnl.add(errorLbl);
+                        selectPnl.add(errorPnl, gbc);
+                    }
+
                     // Display the user & password dialog
                     if (showOptionsDialog(ccddMain.getMainFrame(),
                                           selectPnl,

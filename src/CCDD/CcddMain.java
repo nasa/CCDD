@@ -2716,6 +2716,7 @@ public class CcddMain
                 {
                     // Get the list of script association definitions stored in the database
                     String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                                               false,
                                                                                frameCCDD)
                                                      .toArray(new String[0][0]);
 

@@ -29,13 +29,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -49,6 +50,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -90,7 +92,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     private JMenuItem mntmClear;
     private JMenuItem mntmManageFields;
     private JMenuItem mntmClearValues;
-    private JCheckBoxMenuItem mntmOverwrite;
+    private JRadioButtonMenuItem mntmOverwriteAll;
+    private JRadioButtonMenuItem mntmOverwriteSame;
+    private JRadioButtonMenuItem mntmOverwriteEmpty;
+    private JRadioButtonMenuItem mntmOverwriteNone;
     private JButton btnStore;
     private JButton btnClose;
     private DnDTabbedPane tabbedPane;
@@ -402,7 +407,16 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                 JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
                 mntmManageFields = ccddMain.createMenuItem(mnField, "Manage fields", KeyEvent.VK_M, 1, "Open the data field manager");
                 mntmClearValues = ccddMain.createMenuItem(mnField, "Clear values", KeyEvent.VK_C, 1, "Clear the data field values");
-                mntmOverwrite = ccddMain.createCheckBoxMenuItem(mnField, "Overwrite values", KeyEvent.VK_O, 1, "Overwrite/don't overwrite existing data field values", false);
+                JMenu mnOverwrite = ccddMain.createSubMenu(mnField, "Overwrite values", KeyEvent.VK_O, 1, null);
+                mntmOverwriteAll = ccddMain.createRadioButtonMenuItem(mnOverwrite, "All", KeyEvent.VK_A, 1, "Overwrite all table field values with the default value", true);
+                mntmOverwriteSame = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If same", KeyEvent.VK_S, 3, "Overwrite only matching table field values with the default value", false);
+                mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite, "If empty", KeyEvent.VK_E, 3, "Overwrite only empty table field values with the default value", false);
+                mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite, "None", KeyEvent.VK_N, 1, "Do not overwrite table field values", true);
+                ButtonGroup rbtnGroup = new ButtonGroup();
+                rbtnGroup.add(mntmOverwriteAll);
+                rbtnGroup.add(mntmOverwriteSame);
+                rbtnGroup.add(mntmOverwriteEmpty);
+                rbtnGroup.add(mntmOverwriteNone);
 
                 // Add a listener for the New Type command
                 mntmNewType.addActionListener(new ValidateCellActionListener()
@@ -1363,6 +1377,24 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
+     * Get the selected field value overwrite action
+     *
+     * @return OverwriteFieldValueType: ALL to overwrite all field values, SAME to overwrite only
+     *         those fields with a matching value, EMPTY to overwrite only fields with blank
+     *         values, or NONE to not overwrite any field values
+     *********************************************************************************************/
+    private OverwriteFieldValueType getOverwriteFieldType()
+    {
+        return mntmOverwriteAll.isSelected()
+                                             ? OverwriteFieldValueType.ALL
+                                             : mntmOverwriteSame.isSelected()
+                                                                              ? OverwriteFieldValueType.SAME
+                                                                              : mntmOverwriteEmpty.isSelected()
+                                                                                                                ? OverwriteFieldValueType.EMPTY
+                                                                                                                : OverwriteFieldValueType.NONE;
+    }
+
+    /**********************************************************************************************
      * Commit changes to the database for the specified table type editor
      *
      * @param editor
@@ -1377,12 +1409,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         // table(s)
         dbTable.modifyTableTypeInBackground(editor.getTypeName(),
                                             activeEditor.getPanelFieldInformation(),
-                                            mntmOverwrite.isSelected(),
+                                            getOverwriteFieldType(),
                                             editor.getTypeAdditions(),
                                             editor.getTypeModifications(),
                                             editor.getTypeDeletions(),
                                             editor.getColumnOrderChange(),
                                             editor.getTypeDefinition(),
+                                            editor.getFieldAdditions(),
+                                            editor.getFieldModifications(),
+                                            editor.getFieldDeletions(),
                                             CcddTableTypeEditorDialog.this,
                                             activeEditor);
     }
@@ -1416,12 +1451,15 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         // Perform the changes to the table in the database
                         dbTable.modifyTableType(editor.getTypeName(),
                                                 activeEditor.getPanelFieldInformation(),
-                                                mntmOverwrite.isSelected(),
+                                                getOverwriteFieldType(),
                                                 editor.getTypeAdditions(),
                                                 editor.getTypeModifications(),
                                                 editor.getTypeDeletions(),
                                                 editor.getColumnOrderChange(),
                                                 editor.getTypeDefinition(),
+                                                editor.getFieldAdditions(),
+                                                editor.getFieldModifications(),
+                                                editor.getFieldDeletions(),
                                                 CcddTableTypeEditorDialog.this,
                                                 editor);
                     }

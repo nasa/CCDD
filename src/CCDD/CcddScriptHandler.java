@@ -194,7 +194,9 @@ public class CcddScriptHandler
         String[] association = null;
 
         // Step through each association stored in the project database
-        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS, parent))
+        for (String[] assn : dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                              false,
+                                                              parent))
         {
             // Check if the association's name matches the one supplied
             if (assnName.equals(assn[AssociationsColumn.NAME.ordinal()]))
@@ -229,6 +231,7 @@ public class CcddScriptHandler
 
         // Read the stored script associations from the database
         List<String[]> committedAssociations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                                                false,
                                                                                 parent);
 
         // Get the list of table names and their associated table type
@@ -689,7 +692,8 @@ public class CcddScriptHandler
         // Create the check box for hiding/showing the file paths in the associations table script
         // file column
         hideScriptFilePath = new JCheckBox("Hide script file path",
-                                           ccddMain.getProgPrefs().getBoolean(HIDE_SCRIPT_PATH, false));
+                                           ccddMain.getProgPrefs().getBoolean(HIDE_SCRIPT_PATH,
+                                                                              false));
         hideScriptFilePath.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         hideScriptFilePath.setBorder(BorderFactory.createEmptyBorder());
         hideScriptFilePath.setToolTipText(CcddUtilities.wrapText("Remove the file paths from the script file column",

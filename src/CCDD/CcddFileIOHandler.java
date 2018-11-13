@@ -1262,6 +1262,12 @@ public class CcddFileIOHandler
                                         // Add the skipped table to the list
                                         skippedTables.add(ancestorInfo.getTablePath());
                                     }
+                                    // The table was created
+                                    else
+                                    {
+                                        // Add the table name to the list of existing tables
+                                        allTables.add(ancestorInfo.getTablePath());
+                                    }
                                 }
                                 // This is an ancestor of the child table
                                 else
@@ -1288,6 +1294,12 @@ public class CcddFileIOHandler
                                     {
                                         // Add the skipped table to the list
                                         skippedTables.add(ancestorInfo.getTablePath());
+                                    }
+                                    // The table was created
+                                    else
+                                    {
+                                        // Add the table name to the list of existing tables
+                                        allTables.add(ancestorInfo.getTablePath());
                                     }
                                 }
                             }
@@ -1325,6 +1337,12 @@ public class CcddFileIOHandler
                         {
                             // Add the skipped table to the list
                             skippedTables.add(tableInfo.getTablePath());
+                        }
+                        // The table was created
+                        else
+                        {
+                            // Add the table name to the list of existing tables
+                            allTables.add(tableInfo.getTablePath());
                         }
                     }
                 }
@@ -1429,7 +1447,7 @@ public class CcddFileIOHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *
-     * @return true if the table is successfully imported; false if the table is exists and the
+     * @return true if the table is successfully imported; false if the table exists and the
      *         replaceExisting flag is not true
      *
      * @throws CCDDException
@@ -1502,21 +1520,23 @@ public class CcddFileIOHandler
         {
             CcddTableEditorHandler tableEditor;
 
+            // TODO THIS ADDS THE INHERITED FIELDS TO THE NEW TABLE. HOWEVER, IT DOESN"T CHECK IF
+            // THE TABLE HAS A FIELD NAME THAT MATCHES THE INHERITED ONE (THE IMPORT FILE WOULD
+            // ALLOW THIS). CHECK FOR DUPLICATE NAMES: IF THE INPUT TYPE IS THE SAME THEN IT'S A
+            // REFERENCE TO THE INHERITABLE FIELD (SO MATCH UP EVERYTHING EXCEPT THE VALUE AND SET
+            // THE INHERITED FLAG), ELSE IT'S A DIFFERENT FIELD (SO ALTER THE FIELD NAME).
+
+            System.out.println("is imported: " + tableInfo.getTablePath()); // TODO
+
             // Step through the data fields assigned to this table's type definition (i.e., the
             // table's default data fields)
-            for (FieldInformation defaultFld : fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableInfo.getType())))
+            for (FieldInformation typeFldinfo : fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldTypeName(tableInfo.getType())))
             {
-                // Check if the field isn't already part of the table definition
-                if (CcddFieldHandler.getFieldInformationByName(tableInfo.getFieldInformation(),
-                                                               tableInfo.getTablePath(),
-                                                               defaultFld.getFieldName()) == null)
-                {
-                    // Set the default field's owner to the current table
-                    defaultFld.setOwnerName(tableInfo.getTablePath());
-
-                    // Insert the default field definition at the head of the table's data fields
-                    tableInfo.getFieldInformation().add(0, defaultFld);
-                }
+                // Add or update the table type field to the table, depending on whether or not the
+                // table already has the field
+                fieldHandler.addUpdateInheritedField(tableInfo.getFieldInformation(),
+                                                     tableInfo.getTablePath(),
+                                                     typeFldinfo);
             }
 
             // Close any editors associated with this prototype table
@@ -1889,9 +1909,11 @@ public class CcddFileIOHandler
             FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(ownerName,
                                                                                 fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
-            // Check if the data field already exists and the user has elected to use existing
-            // fields over ones in the import file
-            if (fieldInfo != null && useExistingFields)
+            // Check if the data field already exists (name and input type must match) and the user
+            // has elected to use existing fields over ones in the import file
+            if (fieldInfo != null
+                && useExistingFields
+                && fieldInfo.getInputType().getInputName().equals(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
             {
                 // Remove the new data field definition and replace it with the existing definition
                 tableDefn.getDataFields().remove(index);
@@ -1903,7 +1925,8 @@ public class CcddFileIOHandler
                                                             fieldInfo.getInputType().getInputName(),
                                                             String.valueOf(fieldInfo.isRequired()),
                                                             fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                            fieldInfo.getValue()});
+                                                            fieldInfo.getValue(),
+                                                            "false"});
             }
         }
     }

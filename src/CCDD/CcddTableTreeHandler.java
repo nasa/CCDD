@@ -1366,11 +1366,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Check if a recursion error wasn't found (this prevents an infinite loop from occurring)
         if (recursionTable == null)
         {
-            // Get the parent table and variable path for this variable
-            String fullTablePath = getFullVariablePath(childNode.getPath());
-
             // Add the child node to its parent
             parentNode.add(childNode);
+
+            // Get the parent table and variable path for this variable
+            String fullTablePath = getFullVariablePath(childNode.getPath());
 
             // Step through each table/variable referenced by the table member
             for (int memIndex = 0; memIndex < thisMember.getDataTypes().size(); memIndex++)

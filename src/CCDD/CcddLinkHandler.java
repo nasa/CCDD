@@ -71,6 +71,7 @@ public class CcddLinkHandler
     {
         this(ccddMain,
              ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.LINKS,
+                                                                          false,
                                                                           parent));
     }
 

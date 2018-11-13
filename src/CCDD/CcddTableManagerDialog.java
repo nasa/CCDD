@@ -318,7 +318,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             nameFld.setToolTipText(CcddUtilities.wrapText("Delimit multiple names using commas",
                                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
-                        // There are no table type available from which to choose
+                        // There are no table types available from which to choose
                         else
                         {
                             // Inform the user that no table type exists in the database

@@ -92,12 +92,12 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     // Index for the data field editor's input type column
     private int inputTypeIndex;
 
-    // Table instance model data. Current copy is the table information as it exists in the table
-    // editor and is used to determine what changes have been made to the table since the previous
-    // field editor update
+    // Table instance model data array. Current copy of the table information as it exists in the
+    // table editor. This is used to determine what changes have been made to the table since the
+    // previous field editor update
     private Object[][] currentData;
 
-    // List of the owner's current field information
+    // List of the owner's field information
     private final List<FieldInformation> fieldInformation;
 
     // Dialog title
@@ -155,6 +155,9 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
      *********************************************************************************************/
     private void initialize(final int minimumWidth)
     {
+        // Assign unique IDs to the data fields
+        CcddFieldHandler.assignFieldIDs(fieldInformation);
+
         // Convert the owner's current field information into the format for the editor table
         currentData = CcddFieldHandler.getFieldEditorDefinition(fieldInformation);
 
@@ -189,9 +192,11 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == FieldEditorColumnInfo.VALUE.ordinal()
+                return column == FieldEditorColumnInfo.INHERITED.ordinal()
+                       || column == FieldEditorColumnInfo.VALUE.ordinal()
                        || (!includeApplicability
-                           && column == FieldEditorColumnInfo.APPLICABILITY.ordinal());
+                           && column == FieldEditorColumnInfo.APPLICABILITY.ordinal())
+                       || column == FieldEditorColumnInfo.ID.ordinal();
             }
 
             /**************************************************************************************
@@ -215,13 +220,21 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 // Check that the table has rows
                 if (fieldTable.getRowCount() != 0)
                 {
-                    // Check if the row represents a separator or line break
-                    if (column != FieldEditorColumnInfo.APPLICABILITY.ordinal()
-                        && inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row,
-                                                                                     inputTypeIndex)
-                                                                         .toString())
-                                           .getInputFormat()
-                                           .equals(InputTypeFormat.PAGE_FORMAT))
+                    // Check if ...
+                    if (
+                    // ... the row represents a separator or line break
+                    (column != FieldEditorColumnInfo.APPLICABILITY.ordinal()
+                     && inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row,
+                                                                                  inputTypeIndex)
+                                                                      .toString())
+                                        .getInputFormat()
+                                        .equals(InputTypeFormat.PAGE_FORMAT))
+
+                        // ... the row represents a table's inherited field
+                        || (CcddFieldHandler.isTableField(ownerName)
+                            && Boolean.parseBoolean(fieldTable.getModel().getValueAt(convertRowIndexToModel(row),
+                                                                                     FieldEditorColumnInfo.INHERITED.ordinal())
+                                                              .toString())))
                     {
                         // Set the flag to indicate this cell is not editable
                         isEditable = false;
@@ -237,7 +250,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
             {
-                return isCellEditable(convertRowIndexToView(row), convertColumnIndexToView(column));
+                return isCellEditable(convertRowIndexToView(row),
+                                      convertColumnIndexToView(column));
             }
 
             /**************************************************************************************
@@ -406,9 +420,21 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 {
                     boolean found = true;
 
+                    // Check if the row is for an inherited field
+                    if (Boolean.parseBoolean(fieldTable.getModel().getValueAt(row,
+                                                                              FieldEditorColumnInfo.INHERITED.ordinal())
+                                                       .toString()))
+                    {
+                        // Indicate that the field can't be altered
+                        comp.setForeground(ModifiableColorInfo.PROTECTED_TEXT.getColor());
+                        comp.setBackground(ModifiableColorInfo.PROTECTED_BACK.getColor());
+
+                        // Set the flag indicating that the cell value is valid
+                        found = true;
+                    }
                     // Check if the cell is required and is empty
-                    if (FieldEditorColumnInfo.values()[fieldTable.convertColumnIndexToModel(column)].isRequired()
-                        && fieldTable.getValueAt(row, column).toString().isEmpty())
+                    else if (FieldEditorColumnInfo.values()[fieldTable.convertColumnIndexToModel(column)].isRequired()
+                             && fieldTable.getValueAt(row, column).toString().isEmpty())
                     {
                         // Set the flag indicating that the cell value is invalid
                         found = false;
@@ -632,7 +658,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    DefaultInputType.SEPARATOR.getInputName(),
                                                    false,
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   ""});
+                                                   "",
+                                                   false});
             }
         });
 
@@ -659,7 +686,8 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                                                    DefaultInputType.BREAK.getInputName(),
                                                    false,
                                                    ApplicabilityType.ALL.getApplicabilityName(),
-                                                   ""});
+                                                   "",
+                                                   false});
             }
         });
 

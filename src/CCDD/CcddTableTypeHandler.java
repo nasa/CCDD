@@ -1156,6 +1156,7 @@ public class CcddTableTypeHandler
 
         // Read the stored types from the database
         List<String[]> committedTypes = dbTable.retrieveInformationTable(InternalTable.TABLE_TYPES,
+                                                                         false,
                                                                          ccddMain.getMainFrame());
 
         // Step through each type entry
@@ -1685,6 +1686,7 @@ public class CcddTableTypeHandler
     private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn)
     {
         boolean isAddField = false;
+        boolean isExistingTypeFieldChanged = false;
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
         // Get the type definition based on the type name
@@ -1742,30 +1744,48 @@ public class CcddTableTypeHandler
                 // Set the flag indicating a mismatch exists
                 typeUpdate = TableTypeUpdate.MISMATCH;
             }
-
-            // Step through each table type data field
-            for (String[] dataField : tableTypeDefn.getDataFields())
+            // The contents of the types match
+            else
             {
-                // Get the reference to the data field from the existing field information
-                FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(dataField[FieldsColumn.OWNER_NAME.ordinal()],
-                                                                                    dataField[FieldsColumn.FIELD_NAME.ordinal()]);
+                // Step through each table type data field
+                for (String[] dataField : tableTypeDefn.getDataFields())
+                {
+                    // Get the reference to the data field from the existing field information
+                    FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(dataField[FieldsColumn.OWNER_NAME.ordinal()],
+                                                                                        dataField[FieldsColumn.FIELD_NAME.ordinal()]);
 
-                // Check if this is a new field
-                if (fieldInfo == null)
-                {
-                    // Set the flag to indicate a new data field is added
-                    isAddField = true;
-                }
-                // Check if the existing field's input type, required state, applicability, or
-                // value don't match (the description and size are allowed to differ)
-                else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                         || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                         || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
-                         || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
-                {
-                    // Set the flag indicating a mismatch exists and stop searching
-                    typeUpdate = TableTypeUpdate.MISMATCH;
-                    break;
+                    // Check if this is a new field
+                    if (fieldInfo == null)
+                    {
+                        // Set the flag to indicate a new data field is added, and to an existing
+                        // table type
+                        isAddField = true;
+                        isExistingTypeFieldChanged = true;
+                    }
+                    // Check if the existing field's input type, required state, applicability, or
+                    // value don't match (the description and size are allowed to differ)
+                    else if (!dataField[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                             || !dataField[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                             || !dataField[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                             || !dataField[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
+                    {
+                        // Set the flag indicating a mismatch exists and stop searching
+                        typeUpdate = TableTypeUpdate.MISMATCH;
+                        break;
+                    }
+                    // Check if the field's description or size is changed
+                    else if (!dataField[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
+                             || Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]) != fieldInfo.getSize())
+                    {
+                        // Update the field's description and size. This updates the field
+                        // information in the field handler (pass by reference)
+                        fieldInfo.setDescription(dataField[FieldsColumn.FIELD_DESC.ordinal()]);
+                        fieldInfo.setSize(Integer.parseInt(dataField[FieldsColumn.FIELD_SIZE.ordinal()]));
+
+                        // Set the flag to indicate a data field is changed for an existing table
+                        // type
+                        isExistingTypeFieldChanged = true;
+                    }
                 }
             }
 
@@ -1773,17 +1793,41 @@ public class CcddTableTypeHandler
             getTypeDefinitions().remove(altTypeDefn);
         }
 
-        // Check if a data field was created for a table type
-        if (isAddField)
+        // Check if no mismatch was detected
+        if (typeUpdate != TableTypeUpdate.MISMATCH)
         {
-            // Add the table type's data field definitions, if any, to the existing field
-            // definitions
-            List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
-            fieldDefns.addAll(tableTypeDefn.getDataFields());
-            fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
+            // Check if a data field was created
+            if (isAddField)
+            {
+                // Add the table type's data field definitions, if any, to the existing field
+                // definitions
+                List<String[]> fieldDefns = fieldHandler.getFieldDefnsFromInfo();
+                fieldDefns.addAll(tableTypeDefn.getDataFields());
+                fieldHandler.setFieldInformationFromDefinitions(fieldDefns);
 
-            // Set the flag to indicate a new data field is added
-            isNewField = true;
+                // Set the flag to indicate a new data field is added
+                isNewField = true;
+            }
+
+            // Check if a field was added to or changed for an existing table type
+            if (isExistingTypeFieldChanged)
+            {
+                // Step through each of the table type's data fields
+                for (FieldInformation typeFldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName())))
+                {
+                    // Step through each table of this type
+                    for (String tablePath : dbTable.getAllTablesOfType(tableTypeDefn.getTypeName(),
+                                                                       null,
+                                                                       ccddMain.getMainFrame()))
+                    {
+                        // Add or update the table type field to the table, depending on whether or
+                        // not the table already has the field
+                        fieldHandler.addUpdateInheritedField(fieldHandler.getFieldInformation(),
+                                                             tablePath,
+                                                             typeFldInfo);
+                    }
+                }
+            }
         }
 
         return typeUpdate;

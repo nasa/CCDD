@@ -1256,7 +1256,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                          40),
                                                                                                 false,
                                                                                                 ApplicabilityType.ROOT_ONLY,
-                                                                                                comparison.getValue()));
+                                                                                                comparison.getValue(),
+                                                                                                false));
                                 break;
                             }
                         }
@@ -1370,7 +1371,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                          40),
                                                                                 false,
                                                                                 ApplicabilityType.ALL,
-                                                                                systemPath));
+                                                                                systemPath,
+                                                                                false));
 
                 // Add the structure table definition to the list
                 tableDefinitions.add(tableDefn);
@@ -1511,7 +1513,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                                  40),
                                                                                                         false,
                                                                                                         ApplicabilityType.ALL,
-                                                                                                        argAssn.getArgumentValue()));
+                                                                                                        argAssn.getArgumentValue(),
+                                                                                                        false));
                                     }
                                 }
                                 // Check if the argument name matches the command function code
@@ -1756,7 +1759,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                                        40),
                                                                                               false,
                                                                                               ApplicabilityType.ALL,
-                                                                                              systemPath));
+                                                                                              systemPath,
+                                                                                              false));
 
                         // Add the command header structure table definition to the list
                         tableDefinitions.add(structTableDefn);
@@ -1779,7 +1783,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                                                          40),
                                                                                 false,
                                                                                 ApplicabilityType.ALL,
-                                                                                systemPath));
+                                                                                systemPath,
+                                                                                false));
 
                 // Add the command table definition to the list
                 tableDefinitions.add(tableDefn);

@@ -2141,7 +2141,7 @@ public class CcddCommandLineHandler
                 System.err.println("Error: " + errorMessage + "\n");
 
                 // Exit the application
-                System.exit(0);
+                System.exit(1);
             }
             // Invalid command
             else
@@ -2336,7 +2336,7 @@ public class CcddCommandLineHandler
         System.out.println(usage);
 
         // Exit the application
-        System.exit(0);
+        System.exit(1);
     }
 
     /**********************************************************************************************

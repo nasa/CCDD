@@ -101,7 +101,7 @@ public class CcddDbControlHandler
     private AccessLevel accessLevel;
 
     // Flag indicating if the database connection attempt failed due to a missing password
-    private boolean isMissingPassword;
+    private boolean isAuthenticationFail;
 
     // Array of reserved words
     private String[] keyWords;
@@ -121,6 +121,9 @@ public class CcddDbControlHandler
 
     // PostgreSQL function parameters
     private final String[][] functionParameters;
+
+    // Flag that indicates this is the first connection pass
+    private boolean isFirstConnectionAttempt;
 
     // Temporary data storage table
     private static final String TEMP_TABLE_NAME = INTERNAL_TABLE_PREFIX + "temp_table";
@@ -228,9 +231,11 @@ public class CcddDbControlHandler
         accessLevel = AccessLevel.READ_ONLY;
         backupFileName = "";
         isSSL = false;
+        isFirstConnectionAttempt = true;
 
-        // Reset the flag that indicates a connection failure occurred due to a missing password
-        isMissingPassword = false;
+        // Reset the flag that indicates a connection failure occurred due to a missing or invalid
+        // user name or password
+        isAuthenticationFail = false;
 
         // Create the parameters for the the 'by name' and 'by index' postgreSQL functions
         functionParameters = new String[][] {{"name",
@@ -487,6 +492,7 @@ public class CcddDbControlHandler
 
         // Step through the user authorization table
         for (String[] userAccess : ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.USERS,
+                                                                                                false,
                                                                                                 ccddMain.getMainFrame()))
         {
             // Check if the user is found in the table
@@ -2171,9 +2177,9 @@ public class CcddDbControlHandler
                                                      activePassword);
             dbCommand.setStatement(connection.createStatement());
 
-            // Reset the flag that indicates a connection failure occurred due to a missing
-            // password
-            isMissingPassword = false;
+            // Reset the flag that indicates a connection failure occurred due to a missing or
+            // invalid user name or password
+            isAuthenticationFail = false;
 
             // Set the transaction isolation mode to serializable to prevent transaction collisions
             // if there are concurrent users of the database
@@ -2301,9 +2307,9 @@ public class CcddDbControlHandler
                  || se.getMessage().contains("password"))
                 && !ccddMain.isGUIHidden())
             {
-                // Set the flag that indicates a connection failure occurred due to a missing
-                // password
-                isMissingPassword = true;
+                // Set the flag that indicates a connection failure occurred due to a missing or
+                // invalid user name or password
+                isAuthenticationFail = true;
             }
             // Connection failed for reason other than a missing password. Check if this isn't a
             // reconnection attempt (errors are suppressed here if a reconnection attempt fails)
@@ -2464,6 +2470,11 @@ public class CcddDbControlHandler
                             throw new CCDDException();
                         }
 
+                        // Perform any patches to update this project database to the latest schema
+                        // that must be implemented prior to initializing the handler classes
+                        CcddPatchHandler patchHandler = new CcddPatchHandler(ccddMain);
+                        patchHandler.applyPatches(true);
+
                         // Create and set the project-specific handlers that must be created prior
                         // to creating the project-specific PostgreSQL functions
                         ccddMain.setPreFunctionDbSpecificHandlers();
@@ -2482,7 +2493,8 @@ public class CcddDbControlHandler
                         ccddMain.setPostFunctionDbSpecificHandlers();
 
                         // Perform any patches to update this project database to the latest schema
-                        new CcddPatchHandler(ccddMain);
+                        // that must be implemented after initializing the handler classes
+                        patchHandler.applyPatches(false);
 
                         // Set the user's access level
                         setAccessLevel();
@@ -2590,6 +2602,9 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void openDatabaseInBackground(final String projectName)
     {
+        // Set the flag to indicate this in the first connection attempt for this server and
+        // attempt to open the database
+        isFirstConnectionAttempt = true;// TODO
         openDatabaseInBackground(projectName, serverHost, serverPort, isSSL);
     }
 
@@ -2640,13 +2655,21 @@ public class CcddDbControlHandler
                 // Check if an error occurred opening the database
                 if (errorFlag)
                 {
-                    // Check if an error occurred due to a missing password
-                    if (isMissingPassword)
+                    // Check if an authentication error occurred
+                    if (isAuthenticationFail)
                     {
-                        // Get the user and password
+                        // Get the user and password. Indicate that the user name and/or password
+                        // is invalid in the login dialog, unless this is the first connection
+                        // attempt for this server and no password is supplied (so as to prevent
+                        // the message before the user has a chance to enter a valid combination)
                         new CcddServerPropertyDialog(ccddMain,
                                                      !projectName.equals(DEFAULT_DATABASE),
-                                                     ServerPropertyDialogType.LOGIN);
+                                                     ServerPropertyDialogType.LOGIN,
+                                                     (!isFirstConnectionAttempt
+                                                      || !activePassword.isEmpty()
+                                                                                   ? "Invalid user name or password"
+                                                                                   : null));
+                        isFirstConnectionAttempt = false;
                     }
                 }
                 // Check that successful connection was made to a project database and not just the

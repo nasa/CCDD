@@ -337,7 +337,7 @@ public abstract class CcddInputFieldPanelHandler
                 {
                     // Update the data field check box selection state with the current field
                     // information value
-                    ((JCheckBox) fieldInfo.getInputFld()).setSelected(Boolean.getBoolean(fieldInfo.getValue()));
+                    ((JCheckBox) fieldInfo.getInputFld()).setSelected(Boolean.parseBoolean(fieldInfo.getValue()));
                 }
                 // Check if the the field is a text field/area
                 else if (fieldInfo.getInputFld() instanceof JTextComponent)
@@ -774,7 +774,7 @@ public abstract class CcddInputFieldPanelHandler
                                                                                                Boolean.valueOf(fieldInfo.getValue()));
 
                             // Set the field's value ('true' or 'false')
-                            fieldInfo.setValue(String.valueOf(Boolean.getBoolean(fieldInfo.getValue())));
+                            fieldInfo.setValue(String.valueOf(Boolean.parseBoolean(fieldInfo.getValue())));
 
                             // Get the reference to the data field in the field handler
                             fldInfo = fieldHandler.getFieldInformationByName(fieldInfo.getOwnerName(),

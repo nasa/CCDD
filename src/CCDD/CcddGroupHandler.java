@@ -66,6 +66,7 @@ public class CcddGroupHandler
         this(undoHandler);
 
         buildGroupInformation(ccddMain.getDbTableCommandHandler().retrieveInformationTable(InternalTable.GROUPS,
+                                                                                           false,
                                                                                            component));
     }
 

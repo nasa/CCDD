@@ -98,6 +98,7 @@ public abstract class CcddInformationTreeHandler extends CcddCommonTreeHandler
 
         // Get the internal table definitions from the database
         List<String[]> infoDefinitions = ccddMain.getDbTableCommandHandler().retrieveInformationTable(infoType,
+                                                                                                      false,
                                                                                                       parent);
 
         // Check that the information definitions loaded successfully

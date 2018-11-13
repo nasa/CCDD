@@ -257,6 +257,7 @@ public class CcddSchedulerDbIOHandler
     {
         // Load the data from the database
         List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.TLM_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         // Check if there is data stored
@@ -513,6 +514,7 @@ public class CcddSchedulerDbIOHandler
 
         // Load the application scheduler table
         List<String[]> storedData = dbTable.retrieveInformationTable(InternalTable.APP_SCHEDULER,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
         // Check if any stored data exists

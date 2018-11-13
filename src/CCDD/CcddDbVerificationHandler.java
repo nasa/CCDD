@@ -1638,6 +1638,7 @@ public class CcddDbVerificationHandler
         {
             // Get the column order information from the column order table
             List<String[]> orders = dbTable.retrieveInformationTable(InternalTable.ORDERS,
+                                                                     false,
                                                                      ccddMain.getMainFrame());
 
             // Initialize the progress bar within-step total to the total number of rows in the

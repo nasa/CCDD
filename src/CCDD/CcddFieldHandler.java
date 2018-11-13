@@ -103,7 +103,9 @@ public class CcddFieldHandler
                                                  info.isRequired(),
                                                  info.getApplicabilityType(),
                                                  info.getValue(),
-                                                 info.getInputFld()));
+                                                 info.isInherited(),
+                                                 info.getInputFld(),
+                                                 info.getID()));
             }
         }
 
@@ -142,7 +144,9 @@ public class CcddFieldHandler
     protected void buildFieldInformation(Component parent)
     {
         // Use the field definitions to create the data field information
-        setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS, parent));
+        setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS,
+                                                                            false,
+                                                                            parent));
     }
 
     /**********************************************************************************************
@@ -215,7 +219,9 @@ public class CcddFieldHandler
                                                    Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].toString()),
                                                    applicability,
                                                    fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].toString(),
-                                                   null));
+                                                   Boolean.valueOf(fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()].toString()),
+                                                   null,
+                                                   -1));
             }
         }
 
@@ -437,6 +443,25 @@ public class CcddFieldHandler
     }
 
     /**********************************************************************************************
+     * Assign unique ID values to the supplied fields
+     *
+     * @param fieldInfo
+     *            list of field information
+     *********************************************************************************************/
+    protected static void assignFieldIDs(List<FieldInformation> fieldInfo)
+    {
+        int id = 0;
+
+        // Step through each field's information
+        for (FieldInformation info : fieldInfo)
+        {
+            // Assign the field ID and increment the ID value
+            info.setID(id);
+            id++;
+        }
+    }
+
+    /**********************************************************************************************
      * Determine if a field is applicable to the specified owner. A field is always applicable if
      * the specified applicability is for all tables, or if the owner is a table type or group. If
      * the owner is a root table then 'child only' fields are inapplicable. If the table doesn't
@@ -575,7 +600,9 @@ public class CcddFieldHandler
                                                    Boolean.valueOf(data[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
                                                    ApplicabilityType.getApplicabilityByName(data[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
                                                    data[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
-                                                   null));
+                                                   Boolean.valueOf(data[FieldEditorColumnInfo.INHERITED.ordinal()].toString()),
+                                                   null,
+                                                   -1));
             }
         }
 
@@ -610,6 +637,8 @@ public class CcddFieldHandler
             row[FieldEditorColumnInfo.REQUIRED.ordinal()] = fldInfo.isRequired();
             row[FieldEditorColumnInfo.APPLICABILITY.ordinal()] = fldInfo.getApplicabilityType().getApplicabilityName();
             row[FieldEditorColumnInfo.VALUE.ordinal()] = fldInfo.getValue();
+            row[FieldEditorColumnInfo.INHERITED.ordinal()] = fldInfo.isInherited();
+            row[FieldEditorColumnInfo.ID.ordinal()] = fldInfo.getID();
 
             // Add the field definition to the list
             definitions.add(row);
@@ -639,7 +668,8 @@ public class CcddFieldHandler
                                                     fieldInfo.getSize(),
                                                     fieldInfo.isRequired(),
                                                     fieldInfo.getApplicabilityType(),
-                                                    fieldInfo.getValue()));
+                                                    fieldInfo.getValue(),
+                                                    fieldInfo.isInherited()));
         }
 
         return definitions;
@@ -673,6 +703,9 @@ public class CcddFieldHandler
      * @param value
      *            data field value
      *
+     * @param isInherited
+     *            true if the field is inherited from a table type definition
+     *
      * @return Field definition array created from the supplied inputs
      *********************************************************************************************/
     protected static String[] getFieldDefinitionArray(String ownerName,
@@ -682,7 +715,8 @@ public class CcddFieldHandler
                                                       int size,
                                                       boolean isRequired,
                                                       ApplicabilityType applicability,
-                                                      String value)
+                                                      String value,
+                                                      boolean isInherited)
     {
         String[] fieldDefn = new String[FieldsColumn.values().length];
 
@@ -695,6 +729,7 @@ public class CcddFieldHandler
         fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = String.valueOf(isRequired);
         fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = applicability.getApplicabilityName();
         fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = value;
+        fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = String.valueOf(isInherited);
 
         return fieldDefn;
     }
@@ -739,6 +774,143 @@ public class CcddFieldHandler
         }
 
         return isUpdate;
+    }
+
+    // TODO
+    /**********************************************************************************************
+     * Check the supplied field information list for the specified inheritable (table type) data
+     * field belonging to the specified table. If the table does not have the field then add it;
+     * otherwise update the table's field to ensure it matches the one inherited from its table
+     * type (and that no duplicate field name arises from an existing table field of the same name
+     * but different input type)
+     *
+     * @param fieldInformationList
+     *            list of data field information to search
+     *
+     * @param tablePath
+     *            name of the table (including the path if this table represents a structure) for
+     *            the table owning the field
+     *
+     * @param typeFldInfo
+     *            reference to the table type data field
+     *********************************************************************************************/
+    protected void addUpdateInheritedField(List<FieldInformation> fieldInformationList,
+                                           String tablePath,
+                                           FieldInformation typeFldInfo)
+    {
+        System.out.println("\naddUpdateInheritedField: tbl= " + tablePath + "  ttFld: " + typeFldInfo.getFieldName()); // TODO
+        // Get the table's field of the same name as the table type's field
+        FieldInformation tableFldInfo = getFieldInformationByName(fieldInformationList,
+                                                                  tablePath,
+                                                                  typeFldInfo.getFieldName());
+
+        // Check if the table doesn't have the inheritable field
+        if (tableFldInfo == null)
+        {
+            // Check if the table isn't a child structure (all fields are stored for prototypes,
+            // even if not displayed) or the field is applicable to this child table
+            if (!tablePath.contains(".")
+                || isFieldApplicable(tablePath,
+                                     typeFldInfo.getApplicabilityType().getApplicabilityName(),
+                                     null))
+            {
+                System.out.println("  add new"); // TODO
+                // Add the data field to the table
+                fieldInformationList.add(new FieldInformation(tablePath,
+                                                              typeFldInfo.getFieldName(),
+                                                              typeFldInfo.getDescription(),
+                                                              typeFldInfo.getInputType(),
+                                                              typeFldInfo.getSize(),
+                                                              typeFldInfo.isRequired(),
+                                                              typeFldInfo.getApplicabilityType(),
+                                                              typeFldInfo.getValue(),
+                                                              true,
+                                                              null,
+                                                              -1));
+            }
+            else
+                System.out.println("  not appl"); // TODO
+        }
+        // The table has a field with the same name as the inheritable field
+        else
+        {
+            // Check if the input types are the same (these are considered the same field)
+            if (typeFldInfo.getInputType().equals(tableFldInfo.getInputType()))
+            {
+                System.out.println("  upd current"); // TODO
+                // Update the description, size, required flag, and applicability type to match the
+                // table type's field definition
+                tableFldInfo.setDescription(typeFldInfo.getDescription());
+                tableFldInfo.setSize(typeFldInfo.getSize());
+                tableFldInfo.setRequired(typeFldInfo.isRequired());
+                tableFldInfo.setApplicabilityType(typeFldInfo.getApplicabilityType());
+                tableFldInfo.setInherited(true);
+            }
+            // The input types differ (these are considered different fields)
+            else
+            {
+                System.out.println("  chg name"); // TODO
+                // Check if the table already has a field by this name and, if so, alter the
+                // existing field's name in order to prevent a duplicate
+                alterFieldName(fieldInformationList, tablePath, typeFldInfo.getFieldName());
+
+                // Add the data field to the table
+                fieldInformationList.add(new FieldInformation(tablePath,
+                                                              typeFldInfo.getFieldName(),
+                                                              typeFldInfo.getDescription(),
+                                                              typeFldInfo.getInputType(),
+                                                              typeFldInfo.getSize(),
+                                                              typeFldInfo.isRequired(),
+                                                              typeFldInfo.getApplicabilityType(),
+                                                              typeFldInfo.getValue(),
+                                                              true,
+                                                              null,
+                                                              -1));
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Alter an owner's existing field's name so that it doesn't match the supplied name in the
+     * supplied field information list. This can be used when a table inherits a field from its
+     * table type definition to prevent a duplicate field name
+     *
+     * @param fieldInformationList
+     *            list of data field information to search
+     *
+     * @param ownerName
+     *            name of the data field owner (table name, including the path if this table
+     *            references a structure, group name, or table type name) from which to copy the
+     *            data fields
+     *
+     * @param matchName
+     *            field name to use when matching with an existing field for the specified owner
+     *********************************************************************************************/
+    protected void alterFieldName(List<FieldInformation> fieldInformationList,
+                                  String ownerName,
+                                  String matchName)
+    {
+        // Get the reference to the field
+        FieldInformation existingField = getFieldInformationByName(fieldInformationList,
+                                                                   ownerName,
+                                                                   matchName);
+
+        // Check if the field exists
+        if (existingField != null)
+        {
+            do
+            {
+                // Alter the field name
+                matchName += "_";
+            } while (getFieldInformationByName(fieldInformationList,
+                                               ownerName,
+                                               matchName) != null);
+            // Continue to update the field's name until there's no match with one of the owner's
+            // other fields
+
+            // Replace the field's name with the altered one
+            existingField.setFieldName(matchName);
+        }
     }
 
     /**********************************************************************************************
@@ -881,5 +1053,59 @@ public class CcddFieldHandler
     protected static String getFieldGroupName(String groupName)
     {
         return GROUP_DATA_FIELD_IDENT + groupName;
+    }
+
+    /**********************************************************************************************
+     * Check if a data field is owner by a table
+     *
+     * @param ownerName
+     *            data field owner name
+     *
+     * @return true if the data field owner is a table
+     *********************************************************************************************/
+    protected static boolean isTableField(String ownerName)
+    {
+        return !isProjectField(ownerName)
+               && !isTableTypeField(ownerName)
+               && !isGroupField(ownerName);
+    }
+
+    /**********************************************************************************************
+     * Check if a data field is owner by the project
+     *
+     * @param ownerName
+     *            data field owner name
+     *
+     * @return true if the data field owner is the project
+     *********************************************************************************************/
+    protected static boolean isProjectField(String ownerName)
+    {
+        return ownerName.startsWith(PROJECT_DATA_FIELD_IDENT);
+    }
+
+    /**********************************************************************************************
+     * Check if a data field is owner by a table type
+     *
+     * @param ownerName
+     *            data field owner name
+     *
+     * @return true if the data field owner is a table type
+     *********************************************************************************************/
+    protected static boolean isTableTypeField(String ownerName)
+    {
+        return ownerName.startsWith(TYPE_DATA_FIELD_IDENT);
+    }
+
+    /**********************************************************************************************
+     * Check if a data field is owner by a group
+     *
+     * @param ownerName
+     *            data field owner name
+     *
+     * @return true if the data field owner is a group
+     *********************************************************************************************/
+    protected static boolean isGroupField(String ownerName)
+    {
+        return ownerName.startsWith(GROUP_DATA_FIELD_IDENT);
     }
 }

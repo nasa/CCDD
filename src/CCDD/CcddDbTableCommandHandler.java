@@ -54,6 +54,7 @@ import CCDD.CcddConstants.DatabaseObject;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.FieldEditorColumnInfo;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.AssociationsColumn;
@@ -68,6 +69,7 @@ import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiableSizeInfo;
+import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.SearchResultsQueryColumn;
 import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddConstants.TableMemberType;
@@ -4195,9 +4197,9 @@ public class CcddDbTableCommandHandler
                                               + variablePath
                                               + "', '"
                                               + typeDefn.getColumnNamesUser()[column]
-                                              + "', '"
-                                              + mod.getRowData()[column]
-                                              + "'); ");
+                                              + "', "
+                                              + delimitText(mod.getRowData()[column])
+                                              + "); ");
                             }
                         }
                     }
@@ -5738,24 +5740,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Retrieve a list of internal table data from the database
-     *
-     * @param intTable
-     *            type of internal table to retrieve
-     *
-     * @param parent
-     *            GUI component over which to center any error dialog
-     *
-     * @return List of the items in the internal table. An empty list is returned if the specified
-     *         table is empty or doesn't exist
-     *********************************************************************************************/
-    protected List<String[]> retrieveInformationTable(InternalTable intTable, Component parent)
-    {
-        return retrieveInformationTable(intTable, false, null, parent);
-    }
-
-    /**********************************************************************************************
-     * Retrieve a list of internal table data from the database
+     * Retrieve a list of internal table data from the database, ignoring script file information
+     * tables
      *
      * @param intTable
      *            type of internal table to retrieve
@@ -6916,18 +6902,20 @@ public class CcddDbTableCommandHandler
      *            data field information list
      *
      * @param overwriteFields
-     *            true if the content of existing fields should be overwritten by the default
-     *            values; false to not overwrite existing values
+     *            OverwriteFieldValueType: ALL to overwrite all field values, SAME to overwrite
+     *            only those fields with a matching value, EMPTY to overwrite only fields with
+     *            blank values, or NONE to not overwrite any field values
      *
-     * @param additions
-     *            list of new columns to add to the tables. Each list item is a column name (user)
+     * @param typeAdditions
+     *            list of new columns to add to the tables. Each list item is an array containing:
+     *            [0] column name (user), [1] column input type
      *
-     * @param modifications
+     * @param typeModifications
      *            list of name changes of existing columns in the tables. Each list item is an
      *            array containing: [0] original column name (user), [1] new column name (user),
      *            [2] column input type
      *
-     * @param deletions
+     * @param typeDeletions
      *            list of columns to remove from the tables. Each list item is an array containing:
      *            [0] column name (user), [1] column input type
      *
@@ -6937,6 +6925,15 @@ public class CcddDbTableCommandHandler
      * @param originalDefn
      *            reference to the table type definition prior to making any changes
      *
+     * @param fieldAdditions
+     *            list of new fields to add to tables of this type
+     *
+     * @param fieldModifications
+     *            list of changes to existing fields in tables of this type
+     *
+     * @param fieldDeletions
+     *            list of fields to remove from tables of this type
+     *
      * @param editorDialog
      *            reference to the table type editor dialog
      *
@@ -6945,12 +6942,15 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     protected void modifyTableTypeInBackground(final String tableType,
                                                final List<FieldInformation> fieldInformation,
-                                               final boolean overwriteFields,
-                                               final List<String[]> additions,
-                                               final List<String[]> modifications,
-                                               final List<String[]> deletions,
+                                               final OverwriteFieldValueType overwriteFields,
+                                               final List<String[]> typeAdditions,
+                                               final List<String[]> typeModifications,
+                                               final List<String[]> typeDeletions,
                                                final boolean columnOrderChange,
                                                final TypeDefinition originalDefn,
+                                               final List<TableModification> fieldAdditions,
+                                               final List<TableModification> fieldModifications,
+                                               final List<TableModification> fieldDeletions,
                                                final CcddTableTypeEditorDialog editorDialog,
                                                final CcddTableTypeEditorHandler editor)
     {
@@ -6966,11 +6966,14 @@ public class CcddDbTableCommandHandler
                 modifyTableType(tableType,
                                 fieldInformation,
                                 overwriteFields,
-                                additions,
-                                modifications,
-                                deletions,
+                                typeAdditions,
+                                typeModifications,
+                                typeDeletions,
                                 columnOrderChange,
                                 originalDefn,
+                                fieldAdditions,
+                                fieldModifications,
+                                fieldDeletions,
                                 editorDialog,
                                 editor);
             }
@@ -6988,19 +6991,20 @@ public class CcddDbTableCommandHandler
      *            data field information list
      *
      * @param overwriteFields
-     *            true if the content of existing fields should be overwritten by the default
-     *            values; false to not overwrite existing values
+     *            OverwriteFieldValueType: ALL to overwrite all field values, SAME to overwrite
+     *            only those fields with a matching value, EMPTY to overwrite only fields with
+     *            blank values, or NONE to not overwrite any field values
      *
-     * @param additions
+     * @param typeAdditions
      *            list of new columns to add to the tables. Each list item is an array containing:
      *            [0] column name (user), [1] column input type
      *
-     * @param modifications
+     * @param typeModifications
      *            list of name changes of existing columns in the tables. Each list item is an
      *            array containing: [0] original column name (user), [1] new column name (user),
      *            [2] column input type
      *
-     * @param deletions
+     * @param typeDeletions
      *            list of columns to remove from the tables. Each list item is an array containing:
      *            [0] column name (user), [1] column input type
      *
@@ -7011,6 +7015,15 @@ public class CcddDbTableCommandHandler
      *            reference to the table type definition prior to making any changes; null if this
      *            is a new table type
      *
+     * @param fieldAdditions
+     *            list of new fields to add to tables of this type
+     *
+     * @param fieldModifications
+     *            list of changes to existing fields in tables of this type
+     *
+     * @param fieldDeletions
+     *            list of fields to remove from the tables of this type
+     *
      * @param editorDialog
      *            reference to the table type editor dialog
      *
@@ -7019,12 +7032,15 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     protected void modifyTableType(String typeName,
                                    List<FieldInformation> fieldInformation,
-                                   boolean overwriteFields,
-                                   List<String[]> additions,
-                                   List<String[]> modifications,
-                                   List<String[]> deletions,
+                                   OverwriteFieldValueType overwriteFields,
+                                   List<String[]> typeAdditions,
+                                   List<String[]> typeModifications,
+                                   List<String[]> typeDeletions,
                                    boolean columnOrderChange,
                                    TypeDefinition originalDefn,
+                                   List<TableModification> fieldAdditions,
+                                   List<TableModification> fieldModifications,
+                                   List<TableModification> fieldDeletions,
                                    CcddTableTypeEditorDialog editorDialog,
                                    CcddTableTypeEditorHandler editor)
     {
@@ -7057,13 +7073,14 @@ public class CcddDbTableCommandHandler
             // Check if this isn't a new table type
             if (originalDefn != null)
             {
+                String fieldValue = null;
+                String columnOrder = "";
+
                 // Get an array containing all of the prototype tables of the specified type
                 String[] protoTableNames = queryTablesOfTypeList(typeName, editorDialog);
 
-                String columnOrder = "";
-
                 // Check if the column order changed or if any columns were added or deleted
-                if (columnOrderChange || !additions.isEmpty() || !deletions.isEmpty())
+                if (columnOrderChange || !typeAdditions.isEmpty() || !typeDeletions.isEmpty())
                 {
                     // Step through each column in the table type
                     for (int index = 0; index < typeDefn.getColumnNamesDatabase().length; index++)
@@ -7076,14 +7093,6 @@ public class CcddDbTableCommandHandler
                     columnOrder = CcddUtilities.removeTrailer(columnOrder, ":");
                 }
 
-                // Create a list to store the names of all tables of the specified type
-                List<String> tableNamesList = new ArrayList<String>();
-
-                // Build a table tree with all prototype and instance tables
-                CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
-                                                                          TableTreeType.TABLES,
-                                                                          editorDialog);
-
                 // ////////////////////////////////////////////////////////////////////////////////
                 // All prototype tables of the affected table type have the columns
                 // added/renamed/deleted and the column order table updated
@@ -7091,15 +7100,11 @@ public class CcddDbTableCommandHandler
                 // Step through each prototype table of the specified type
                 for (String protoName : protoTableNames)
                 {
-                    // Create a list of table path arrays for instances of this prototype table
-                    // name
-                    tableNamesList.addAll(tableTree.getTableTreePathList(protoName));
-
                     // Get the database form of the table name
                     String dbTable = dbControl.getQuotedName(protoName);
 
                     // Step through each addition
-                    for (String add[] : additions)
+                    for (String add[] : typeAdditions)
                     {
                         // Get the column name in database form
                         String dbColumn = tableTypeHandler.convertVisibleToDatabase(add[0],
@@ -7115,7 +7120,7 @@ public class CcddDbTableCommandHandler
                     }
 
                     // Step through each modification
-                    for (String[] mod : modifications)
+                    for (String[] mod : typeModifications)
                     {
                         // Get the old and new column names in database form
                         String oldDbColumn = tableTypeHandler.convertVisibleToDatabase(mod[0],
@@ -7168,7 +7173,7 @@ public class CcddDbTableCommandHandler
                     }
 
                     // Step through each deletion
-                    for (String[] del : deletions)
+                    for (String[] del : typeDeletions)
                     {
                         // Get the column name in database form
                         String dbColumn = tableTypeHandler.convertVisibleToDatabase(del[0],
@@ -7208,7 +7213,7 @@ public class CcddDbTableCommandHandler
                 // ////////////////////////////////////////////////////////////////////////////////
                 // Check if there are modifications or deletions, and if any tables of this type
                 // exist
-                if ((!modifications.isEmpty() || !deletions.isEmpty())
+                if ((!typeModifications.isEmpty() || !typeDeletions.isEmpty())
                     && protoTableNames.length != 0)
                 {
                     // ////////////////////////////////////////////////////////////////////////////
@@ -7328,7 +7333,7 @@ public class CcddDbTableCommandHandler
                     // rows - depending on if the rate name was/is unique to this table type)
                     // ////////////////////////////////////////////////////////////////////////////
                     // Step through each modification
-                    for (String[] mod : modifications)
+                    for (String[] mod : typeModifications)
                     {
                         // Check if the column name changed
                         if (!mod[0].equals(mod[1]))
@@ -7428,7 +7433,7 @@ public class CcddDbTableCommandHandler
                     }
 
                     // Step through each deletion
-                    for (String[] del : deletions)
+                    for (String[] del : typeDeletions)
                     {
                         // Append the delete command for the custom values table
                         command.append("DELETE FROM "
@@ -7466,92 +7471,136 @@ public class CcddDbTableCommandHandler
                     }
                 }
 
+                // Get the list of names of all tables of the specified type
+                List<String> tableNamesList = getAllTablesOfType(typeName,
+                                                                 protoTableNames,
+                                                                 editorDialog);
+
                 // Step through each table of the specified type
                 for (String tableName : tableNamesList)
                 {
                     // Set the flag to indicate if the table is a root structure
                     boolean isRootStruct = isStructure && rootStructures.contains(tableName);
 
-                    // Get the number of separator and line break fields
-                    int numSep = fieldHandler.getFieldTypeCount(tableName,
-                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR));
-                    int numBrk = fieldHandler.getFieldTypeCount(tableName,
-                                                                inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK));
-
-                    int sepCount = 0;
-                    int brkCount = 0;
-                    boolean isChanges = false;
-
-                    // Step through the default data fields for this table type
-                    for (FieldInformation fieldInfo : fieldInformation)
+                    // Step through each field addition
+                    for (TableModification add : fieldAdditions)
                     {
-                        // Check if this is a separator
-                        if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR)))
+                        // Check if the table isn't a child structure (all fields are stored for
+                        // prototypes, even if not displayed) or the field is applicable to this
+                        // child table
+                        if (!tableName.contains(".")
+                            || fieldHandler.isFieldApplicable(tableName,
+                                                              add.getRowData()[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString(),
+                                                              isRootStruct))
                         {
-                            // Increment the separator counter
-                            sepCount++;
-                        }
-                        // Check if this is a line break
-                        else if (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
-                        {
-                            // Increment the line break counter
-                            brkCount++;
-                        }
+                            // Check if the table already has a field by this name and, if so,
+                            // alter the existing field's name in order to prevent a duplicate
+                            fieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
+                                                        tableName,
+                                                        add.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
 
-                        // Check if the data field meets the criteria of a new field for this table
-                        if (
-                        // The table doesn't have this data field
-                        (fieldHandler.getFieldInformationByName(tableName,
-                                                                fieldInfo.getFieldName()) == null)
-
-                            // ... and the table isn't a child structure (all fields are stored for
-                            // prototypes, even if not displayed) or the field is applicable to
-                            // this table
-                            && (!tableName.contains(".")
-                                || fieldHandler.isFieldApplicable(tableName,
-                                                                  fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                  isRootStruct))
-
-                            // ... or the field is a separator and the number of this type of
-                            // separator in the type editor exceeds the number already in the table
-                            || (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
-                                && sepCount > numSep)
-                            || (fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK))
-                                && brkCount > numBrk))
-                        {
                             // Add the data field to the table and set the flag indicating a change
                             // has been made
                             fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
-                                                                                        fieldInfo.getFieldName(),
-                                                                                        fieldInfo.getDescription(),
-                                                                                        fieldInfo.getInputType(),
-                                                                                        fieldInfo.getSize(),
-                                                                                        fieldInfo.isRequired(),
-                                                                                        fieldInfo.getApplicabilityType(),
-                                                                                        fieldInfo.getValue(),
-                                                                                        null));
-                            isChanges = true;
-                        }
-                        // The field exists; check if the existing field value(s) should be
-                        // overwritten, and if the field value(s) changed
-                        else if (overwriteFields
-                                 && fieldHandler.updateField(new FieldInformation(tableName,
-                                                                                  fieldInfo.getFieldName(),
-                                                                                  fieldInfo.getDescription(),
-                                                                                  fieldInfo.getInputType(),
-                                                                                  fieldInfo.getSize(),
-                                                                                  fieldInfo.isRequired(),
-                                                                                  fieldInfo.getApplicabilityType(),
-                                                                                  fieldInfo.getValue(),
-                                                                                  null)))
-                        {
-                            // Set the flag indicating a change has been made
-                            isChanges = true;
+                                                                                        add.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                                                        add.getRowData()[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                                                        inputTypeHandler.getInputTypeByName(add.getRowData()[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                                                        Integer.parseInt(add.getRowData()[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                                                        Boolean.parseBoolean(add.getRowData()[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                                                        ApplicabilityType.getApplicabilityByName(add.getRowData()[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                                                        add.getRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString(),
+                                                                                        true,
+                                                                                        null,
+                                                                                        -1));
                         }
                     }
 
-                    // Check if any fields were added
-                    if (isChanges)
+                    // Step through each field modification
+                    for (TableModification mod : fieldModifications)
+                    {
+                        // Get the reference to the modified field
+                        FieldInformation modifiedField = fieldHandler.getFieldInformationByName(tableName,
+                                                                                                mod.getOriginalRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
+
+                        // Check if the field exists
+                        if (modifiedField != null)
+                        {
+                            // Check if the field's name changed
+                            if (!mod.getOriginalRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString().equals(mod.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString()))
+                            {
+                                // Check if the table already has a field by the new name and, if
+                                // so, alter the existing field's name in order to prevent a
+                                // duplicate
+                                fieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
+                                                            tableName,
+                                                            mod.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
+                            }
+
+                            // Set the table field's value based on the overwrite type
+                            switch (overwriteFields)
+                            {
+                                case ALL:
+                                    // Overwrite the table field's value with the inheritable
+                                    // field's value
+                                    fieldValue = mod.getRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString();
+                                    break;
+
+                                case SAME:
+                                    // Only overwrite the table field's value if it matches the
+                                    // inheritable field's original value
+                                    fieldValue = modifiedField.getValue().equals(mod.getOriginalRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString())
+                                                                                                                                                             ? mod.getRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString()
+                                                                                                                                                             : modifiedField.getValue();
+                                    break;
+
+                                case EMPTY:
+                                    // Only overwrite the table field's value if it's blank
+                                    fieldValue = modifiedField.getValue().isEmpty()
+                                                                                    ? mod.getRowData()[FieldEditorColumnInfo.VALUE.ordinal()].toString()
+                                                                                    : modifiedField.getValue();
+                                    break;
+
+                                case NONE:
+                                    // Keep the table field's current value
+                                    fieldValue = modifiedField.getValue();
+                                    break;
+                            }
+
+                            // Replace the existing field with the modified one
+                            fieldHandler.getFieldInformation().set(fieldHandler.getFieldInformation().indexOf(modifiedField),
+                                                                   new FieldInformation(tableName,
+                                                                                        mod.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                                                        mod.getRowData()[FieldEditorColumnInfo.DESCRIPTION.ordinal()].toString(),
+                                                                                        inputTypeHandler.getInputTypeByName(mod.getRowData()[FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()),
+                                                                                        Integer.parseInt(mod.getRowData()[FieldEditorColumnInfo.CHAR_SIZE.ordinal()].toString()),
+                                                                                        Boolean.parseBoolean(mod.getRowData()[FieldEditorColumnInfo.REQUIRED.ordinal()].toString()),
+                                                                                        ApplicabilityType.getApplicabilityByName(mod.getRowData()[FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()),
+                                                                                        fieldValue,
+                                                                                        true,
+                                                                                        modifiedField.getInputFld(),
+                                                                                        -1));
+                        }
+                    }
+
+                    // Step through each field deletion
+                    for (TableModification del : fieldDeletions)
+                    {
+                        // Get the reference to the deleted field
+                        FieldInformation deletedField = fieldHandler.getFieldInformationByName(tableName,
+                                                                                               del.getOriginalRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
+
+                        // Check if the field exists
+                        if (deletedField != null)
+                        {
+                            // Delete the field
+                            fieldHandler.getFieldInformation().remove(deletedField);
+                        }
+                    }
+
+                    // Check if any fields were added, modified, or deleted
+                    if (!fieldAdditions.isEmpty()
+                        || !fieldModifications.isEmpty()
+                        || !fieldDeletions.isEmpty())
                     {
                         // Create the command to modify the table's data field entries
                         command.append(modifyFieldsCommand(tableName,
@@ -7636,7 +7685,7 @@ public class CcddDbTableCommandHandler
             if (!errorFlag && (isStructure || wasStructure))
             {
                 // Step through each column addition
-                for (String add[] : additions)
+                for (String add[] : typeAdditions)
                 {
                     // Check if the column is a rate column
                     if (add[1].equals(DefaultInputType.RATE.getInputName()))
@@ -7647,7 +7696,7 @@ public class CcddDbTableCommandHandler
                 }
 
                 // Step through each column modification
-                for (String[] mod : modifications)
+                for (String[] mod : typeModifications)
                 {
                     // Check if the column changed from a rate column to not being a rate column
                     if (mod[2].equals(DefaultInputType.RATE.getInputName())
@@ -7674,7 +7723,7 @@ public class CcddDbTableCommandHandler
                 }
 
                 // Step through each column deletion
-                for (String[] del : deletions)
+                for (String[] del : typeDeletions)
                 {
                     // Check if the column is a rate column
                     if (del[1].equals(DefaultInputType.RATE.getInputName()))
@@ -7888,9 +7937,9 @@ public class CcddDbTableCommandHandler
      * @param editorWindow
      *            reference to the data field editor
      *********************************************************************************************/
-    protected void modifyDataFields(final List<String[]> modifications,
-                                    final List<String[]> deletions,
-                                    final CcddFieldTableEditorDialog editorWindow)
+    protected void modifyDataFieldValues(final List<String[]> modifications,
+                                         final List<String[]> deletions,
+                                         final CcddFieldTableEditorDialog editorWindow)
     {
         // Execute the command in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, editorWindow, new BackgroundCommand()
@@ -9009,7 +9058,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Get an array containing all prototype tables that represent the specified type
+     * Get an array containing all prototype tables that are of the specified table type (combining
+     * all structure and all command tables)
      *
      * @param tableType
      *            TYPE_STRUCTURE to get all tables for any type that represents a structure,
@@ -9018,7 +9068,7 @@ public class CcddDbTableCommandHandler
      *            type name to get all tables for the specified type
      *
      * @return Array containing all prototype tables that represent the specified type. Returns an
-     *         empty array if no tables of the specified type exists in the project database
+     *         empty array if no table of the specified type exists in the project database
      *********************************************************************************************/
     protected String[] getPrototypeTablesOfType(String tableType)
     {
@@ -9062,5 +9112,53 @@ public class CcddDbTableCommandHandler
         }
 
         return tablesOfType;
+    }
+
+    /**********************************************************************************************
+     * Get a list containing all tables that are of the specified table type
+     *
+     * @param typeName
+     *            table type name
+     *
+     * @param protoTableNames
+     *            names of the prototype tables of the specified table type; null to load the list
+     *
+     * @param parent
+     *            GUI component over which to center any error dialog
+     *
+     * @return List containing all tables that are of the specified table type. Returns an empty
+     *         list if no table of the specified type exists in the project database
+     *********************************************************************************************/
+    protected List<String> getAllTablesOfType(String typeName,
+                                              String[] protoTableNames,
+                                              Component parent)
+    {
+        // Create a list to store the names of all tables of the specified type
+        List<String> tableNamesList = new ArrayList<String>();
+
+        // Check if the prototype name list isn't provided
+        if (protoTableNames == null)
+        {
+            // Get an array containing all of the prototype tables of the specified type
+            protoTableNames = queryTablesOfTypeList(typeName, parent);
+        }
+
+        // Check if a table of this type exists
+        if (protoTableNames.length != 0)
+        {
+            // Build a table tree with all prototype and instance tables
+            CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                      TableTreeType.TABLES,
+                                                                      parent);
+
+            // Step through each prototype table of the specified type
+            for (String protoName : protoTableNames)
+            {
+                // Create a list of table path arrays for instances of this prototype table name
+                tableNamesList.addAll(tableTree.getTableTreePathList(protoName));
+            }
+        }
+
+        return tableNamesList;
     }
 }

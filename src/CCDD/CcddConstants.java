@@ -572,6 +572,15 @@ public class CcddConstants
         REMOVE;
     }
 
+    // Overwrite data field value types
+    protected static enum OverwriteFieldValueType
+    {
+        ALL,
+        SAME,
+        EMPTY,
+        NONE
+    }
+
     // Command line priority range
     protected static enum CommandLinePriority
     {
@@ -3455,7 +3464,9 @@ public class CcddConstants
                                {FieldsColumn.FIELD_APPLICABILITY.columnName,
                                 FieldsColumn.FIELD_APPLICABILITY.dataType},
                                {FieldsColumn.FIELD_VALUE.columnName,
-                                FieldsColumn.FIELD_VALUE.dataType}},
+                                FieldsColumn.FIELD_VALUE.dataType},
+                               {FieldsColumn.FIELD_INHERITED.columnName,
+                                FieldsColumn.FIELD_INHERITED.dataType}},
                "WITH OIDS",
 
                // Create default data fields for the telemetry and command table types
@@ -3477,15 +3488,19 @@ public class CcddConstants
                             + FieldsColumn.FIELD_APPLICABILITY.columnName
                             + ", "
                             + FieldsColumn.FIELD_VALUE.columnName
-                            + ") VALUES ('Type:Structure', 'Telemetry message name & ID', 'Telemetry message name and ID', '15', '"
+                            + ", "
+                            + FieldsColumn.FIELD_INHERITED.columnName
+                            + ") VALUES ('Type:Structure', 'Telemetry message "
+                            + "name & ID', 'Telemetry message name and ID', '15', '"
                             + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                            + "', ''), ('Type:Command', 'Command name & ID', 'Command name and ID', '15', '"
+                            + "', '', 'false'), ('Type:Command', 'Command "
+                            + "name & ID', 'Command name and ID', '15', '"
                             + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                             + "', 'true', '"
                             + ApplicabilityType.ALL.getApplicabilityName()
-                            + "', '')"),
+                            + "', '', 'false')"),
 
         // Data table groupings
         GROUPS("groups",
@@ -3780,7 +3795,8 @@ public class CcddConstants
             FIELD_TYPE("field_type", "text"),
             FIELD_REQUIRED("field_required", "text"),
             FIELD_APPLICABILITY("field_applicability", "text"),
-            FIELD_VALUE("field_value", "text");
+            FIELD_VALUE("field_value", "text"),
+            FIELD_INHERITED("field_inherited", "text");
 
             private final String columnName;
             private final String dataType;
@@ -4732,7 +4748,9 @@ public class CcddConstants
                                         isRequired,
                                         applicability,
                                         initialValue,
-                                        null);
+                                        true,
+                                        null,
+                                        -1);
         }
     }
 
@@ -5130,7 +5148,9 @@ public class CcddConstants
                       "Add field to all tables, root tables only, or child tables only",
                       ApplicabilityType.ALL.getApplicabilityName(),
                       true),
-        VALUE("Value", "", "", false);
+        VALUE("Value", "", "", false),
+        INHERITED("Inherited", "", "", false),
+        ID("ID", "", "", false);
 
         private final String columnName;
         private final String toolTip;
