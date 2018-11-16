@@ -647,7 +647,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                   info.getData(),
                                                   info.getColumnOrder(),
                                                   info.getDescription(),
-                                                  info.isRootStructure(),
                                                   (editorDialog != null
                                                                         ? CcddFieldHandler.getFieldInformationCopy(info.getFieldInformation())
                                                                         : null));
@@ -2868,8 +2867,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Move the row(s)
                 super.performRowMove(startRow, endRow, toRow, selected, rowDelta);
 
-                // Check if this is a parent structure table
-                if (currentTableInfo.isRootStructure())
+                // Check if this is a root structure table
+                if (dbTable.isRootStructure(currentTableInfo.getTablePath()))
                 {
                     // Load the table data into a list
                     List<Object[]> tableData = getTableDataList(false);
@@ -3936,7 +3935,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     {
                         // Check if the table isn't a prototype (i.e., it's a child structure), or
                         // if it is a prototype that it's a top-level (root) structure
-                        if (!currentTableInfo.isPrototype() || currentTableInfo.isRootStructure())
+                        if (!currentTableInfo.isPrototype()
+                            || dbTable.isRootStructure(currentTableInfo.getTablePath()))
                         {
                             // Load the selected child table's data into a table editor
                             dbTable.loadTableDataInBackground(currentTableInfo.getTablePath()

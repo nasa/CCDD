@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreePath;
@@ -48,6 +49,7 @@ import javax.swing.tree.TreePath;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
 import CCDD.CcddClassesDataTable.ArrayVariable;
+import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
@@ -117,8 +119,9 @@ public class CcddDbVerificationHandler
     // Flag indicating if changes are to be made to the tables
     private boolean isChanges;
 
-    // Counter used for tracking the total number of selectable issues
-    private int allCount;
+    // Counters used for tracking the total number of selected and selectable issues
+    private int selectedColumnCount;
+    private int allColumnCount;
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -553,7 +556,7 @@ public class CcddDbVerificationHandler
                                              "Verification in progress",
                                              "verification",
                                              100,
-                                             7,
+                                             8,
                                              ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and the
@@ -610,7 +613,7 @@ public class CcddDbVerificationHandler
                                     haltDlg.updateProgressBar("Verify input types",
                                                               haltDlg.getNumDivisionPerStep() * 4);
 
-                                    // verify the input types in the table types and data fields
+                                    // Verify the input types in the table types and data fields
                                     // internal tables
                                     verifyInputTypes(tableResult);
 
@@ -618,22 +621,34 @@ public class CcddDbVerificationHandler
                                     if (!haltDlg.isHalted())
                                     {
                                         // Update the progress bar
-                                        haltDlg.updateProgressBar("Verify table types",
+                                        haltDlg.updateProgressBar("Verify data field inheritance",
                                                                   haltDlg.getNumDivisionPerStep() * 5);
 
-                                        // Check for inconsistencies between the table type
-                                        // definitions and the tables of that type
-                                        verifyTableTypes(tableResult);
+                                        // Verify that all default data fields are inherited by the
+                                        // affected tables
+                                        verifyDataFieldInheritance();
 
                                         // Check if verification isn't canceled
                                         if (!haltDlg.isHalted())
                                         {
                                             // Update the progress bar
-                                            haltDlg.updateProgressBar("Verify data tables",
+                                            haltDlg.updateProgressBar("Verify table types",
                                                                       haltDlg.getNumDivisionPerStep() * 6);
 
-                                            // Check for inconsistencies within the data tables
-                                            verifyDataTables();
+                                            // Check for inconsistencies between the table type
+                                            // definitions and the tables of that type
+                                            verifyTableTypes(tableResult);
+
+                                            // Check if verification isn't canceled
+                                            if (!haltDlg.isHalted())
+                                            {
+                                                // Update the progress bar
+                                                haltDlg.updateProgressBar("Verify data tables",
+                                                                          haltDlg.getNumDivisionPerStep() * 7);
+
+                                                // Check for inconsistencies within the data tables
+                                                verifyDataTables();
+                                            }
                                         }
                                     }
                                 }
@@ -1621,6 +1636,155 @@ public class CcddDbVerificationHandler
         }
 
         return members;
+    }
+
+    /**********************************************************************************************
+     * Check that the table type data fields are inherited by all tables of that type. If any
+     * inconsistencies are detected then get user approval to update the field(s)
+     *********************************************************************************************/
+    private void verifyDataFieldInheritance()
+    {
+        CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
+
+        // Step through each table type
+        for (String tableType : tableTypeHandler.getTypes())
+        {
+            // Get the list of all tables of this type
+            List<String> tableOfType = dbTable.getAllTablesOfType(tableType,
+                                                                  null,
+                                                                  ccddMain.getMainFrame());
+
+            // Step through each of this table type's data field
+            for (FieldInformation typeFld : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableType)))
+            {
+                // Step through all tables of this type
+                for (String tablePath : tableOfType)
+                {
+                    // Get the table's field of the same name as the table type's field
+                    FieldInformation inheritedFld = fieldHandler.getFieldInformationByName(tablePath,
+                                                                                           typeFld.getFieldName());
+
+                    // Check if the field belongs to the current table and the field name
+                    // matches the default field's name
+                    if (inheritedFld != null)
+                    {
+                        // Check if the input types match.
+                        if (inheritedFld.getInputType().equals(typeFld.getInputType()))
+                        {
+                            // Check if any of the other field parameters (except value) differ
+                            if (!inheritedFld.getDescription().equals(typeFld.getDescription())
+                                || !inheritedFld.getApplicabilityType().equals(typeFld.getApplicabilityType())
+                                || inheritedFld.isRequired() != typeFld.isRequired()
+                                || inheritedFld.getSize() != typeFld.getSize()
+                                || inheritedFld.isInherited() != true)
+                            {
+                                // Inherited field parameter(s) differ from the default
+                                issues.add(new TableIssue("Table '"
+                                                          + tablePath
+                                                          + "' inherited data field '"
+                                                          + inheritedFld.getFieldName()
+                                                          + "' parameters differ from the table type's default field",
+                                                          "Update table's field parameters to match table type's",
+                                                          "UPDATE "
+                                                                                                                   + InternalTable.FIELDS.getTableName()
+                                                                                                                   + " SET "
+                                                                                                                   + FieldsColumn.FIELD_DESC.getColumnName()
+                                                                                                                   + " = "
+                                                                                                                   + CcddDbTableCommandHandler.delimitText(typeFld.getDescription())
+                                                                                                                   + ", "
+                                                                                                                   + FieldsColumn.FIELD_APPLICABILITY.getColumnName()
+                                                                                                                   + " = '"
+                                                                                                                   + typeFld.getApplicabilityType().getApplicabilityName()
+                                                                                                                   + "', "
+                                                                                                                   + FieldsColumn.FIELD_REQUIRED.getColumnName()
+                                                                                                                   + " = '"
+                                                                                                                   + String.valueOf(typeFld.isRequired())
+                                                                                                                   + "', "
+                                                                                                                   + FieldsColumn.FIELD_SIZE.getColumnName()
+                                                                                                                   + " = '"
+                                                                                                                   + String.valueOf(typeFld.getSize())
+                                                                                                                   + "', "
+                                                                                                                   + FieldsColumn.FIELD_INHERITED.getColumnName()
+                                                                                                                   + " = 'true' WHERE "
+                                                                                                                   + FieldsColumn.OWNER_NAME.getColumnName()
+                                                                                                                   + " = '"
+                                                                                                                   + tablePath
+                                                                                                                   + "' AND "
+                                                                                                                   + FieldsColumn.FIELD_NAME.getColumnName()
+                                                                                                                   + " = '"
+                                                                                                                   + typeFld.getFieldName()
+                                                                                                                   + "'; "));
+                            }
+                        }
+                        // The input types don't match. The table's field is considered to be a
+                        // different field and must be renamed to prevent a conflict
+                        else
+                        {
+                            // Rename existing table field
+                            issues.add(new TableIssue("Table '"
+                                                      + tablePath
+                                                      + "' data field '"
+                                                      + inheritedFld.getFieldName()
+                                                      + "' name conflicts with a table type's default field",
+                                                      "Rename the table's data field",
+                                                      "UPDATE "
+                                                                                       + InternalTable.FIELDS.getTableName()
+                                                                                       + " SET "
+                                                                                       + FieldsColumn.FIELD_NAME.getColumnName()
+                                                                                       + " = '"
+                                                                                       + CcddFieldHandler.alterFieldName(fieldHandler.getFieldInformationCopy(),
+                                                                                                                         tablePath,
+                                                                                                                         inheritedFld.getFieldName())
+                                                                                       + "' WHERE "
+                                                                                       + FieldsColumn.OWNER_NAME.getColumnName()
+                                                                                       + " = '"
+                                                                                       + tablePath
+                                                                                       + "' AND "
+                                                                                       + FieldsColumn.FIELD_NAME.getColumnName()
+                                                                                       + " = '"
+                                                                                       + typeFld.getFieldName()
+                                                                                       + "'; "));
+                        }
+                    }
+                    // Check if the table isn't a child structure (all fields are stored for
+                    // prototypes, even if not displayed) or the field is applicable to this child
+                    // table
+                    else if (!tablePath.contains(".")
+                             || fieldHandler.isFieldApplicable(tablePath,
+                                                               typeFld.getApplicabilityType().getApplicabilityName(),
+                                                               null))
+                    {
+                        // Inherited field missing
+                        issues.add(new TableIssue("Table '"
+                                                  + tablePath
+                                                  + "' is missing inherited data field '"
+                                                  + typeFld.getFieldName()
+                                                  + "'",
+                                                  "Create missing inherited field",
+                                                  "INSERT INTO "
+                                                                                    + InternalTable.FIELDS.getTableName()
+                                                                                    + " VALUES "
+                                                                                    + "('"
+                                                                                    + tablePath
+                                                                                    + "', "
+                                                                                    + CcddDbTableCommandHandler.delimitText(typeFld.getFieldName())
+                                                                                    + ", "
+                                                                                    + CcddDbTableCommandHandler.delimitText(typeFld.getDescription())
+                                                                                    + ", "
+                                                                                    + typeFld.getSize()
+                                                                                    + ", "
+                                                                                    + CcddDbTableCommandHandler.delimitText(typeFld.getInputType().getInputName())
+                                                                                    + ", "
+                                                                                    + String.valueOf(typeFld.isRequired())
+                                                                                    + ", "
+                                                                                    + CcddDbTableCommandHandler.delimitText(typeFld.getApplicabilityType().getApplicabilityName())
+                                                                                    + ", "
+                                                                                    + CcddDbTableCommandHandler.delimitText(typeFld.getValue())
+                                                                                    + ", 'true'); "));
+                    }
+                }
+            }
+        }
     }
 
     /**********************************************************************************************
@@ -2764,7 +2928,7 @@ public class CcddDbVerificationHandler
             dialogPnl.add(selectAllCb, gbc);
 
             // Initialize the counter that tracks the total number of selectable issues
-            allCount = 0;
+            allColumnCount = 0;
 
             // Step through each row in the updates table
             for (int row = 0; row < updateTable.getRowCount(); row++)
@@ -2774,49 +2938,63 @@ public class CcddDbVerificationHandler
                 if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal()))
                 {
                     // Increment the counter that tracks the total number of selectable issues
-                    allCount++;
+                    allColumnCount++;
                 }
-
-                // Get the reference to the check box used in the table cell for this row
-                JCheckBox tableCb = ((JCheckBox) updateTable.getCellEditor(row,
-                                                                           VerificationColumnInfo.FIX.ordinal())
-                                                            .getTableCellEditorComponent(updateTable,
-                                                                                         false,
-                                                                                         false,
-                                                                                         row,
-                                                                                         VerificationColumnInfo.FIX.ordinal()));
-
-                // Create a listener for changes to the fix issue check box selection status
-                tableCb.addActionListener(new ActionListener()
-                {
-                    /******************************************************************************
-                     * Handle a change to the fix issue check box selection status
-                     *****************************************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        int columnCount = 0;
-
-                        // Step through each row in the updates table
-                        for (int row = 0; row < updateTable.getRowCount(); row++)
-                        {
-                            // Check if the check box column's cell is editable; i.e., the
-                            // application can fix the issue described on this row
-                            if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())
-                                && ((JCheckBox) ae.getSource()).isSelected() == true)
-                            {
-                                // Increment the counter to track the number of selected fix issue
-                                // check boxes
-                                columnCount++;
-                            }
-                        }
-
-                        // Set the Select All check box status based on if all the fix issue check
-                        // boxes are selected
-                        selectAllCb.setSelected(columnCount == allCount);
-                    }
-                });
             }
+
+            // Get the reference to the check box used in the table cells. Note that a single check
+            // box component is used for all cells, so only a single listener is required
+            JCheckBox tableCb = ((JCheckBox) updateTable.getCellEditor(0,
+                                                                       VerificationColumnInfo.FIX.ordinal())
+                                                        .getTableCellEditorComponent(updateTable,
+                                                                                     false,
+                                                                                     false,
+                                                                                     0,
+                                                                                     VerificationColumnInfo.FIX.ordinal()));
+
+            // Create a listener for changes to the fix issue check box selection status
+            tableCb.addActionListener(new ActionListener()
+            {
+                /**********************************************************************************
+                 * Handle a change to the fix issue check box selection status
+                 *********************************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    // Create a runnable object to be executed
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        /**********************************************************************************
+                         * Since the log addition involves a GUI update use invokeLater to execute
+                         * the call on the event dispatch thread
+                         *********************************************************************************/
+                        @Override
+                        public void run()
+                        {
+                            selectedColumnCount = 0;
+
+                            // Step through each row in the updates table
+                            for (int row = 0; row < updateTable.getRowCount(); row++)
+                            {
+                                // Check if the check box column's cell is editable (i.e., the
+                                // application can fix the issue described on this row) and the
+                                // check box is selected
+                                if (updateTable.isCellEditable(row, VerificationColumnInfo.FIX.ordinal())
+                                    && updateTable.getValueAt(row, VerificationColumnInfo.FIX.ordinal()).equals(true))
+                                {
+                                    // Increment the counter to track the number of selected fix
+                                    // issue check boxes
+                                    selectedColumnCount++;
+                                }
+                            }
+
+                            // Set the Select All check box status based on if all the fix issue
+                            // check boxes are selected
+                            selectAllCb.setSelected(selectedColumnCount == allColumnCount);
+                        }
+                    });
+                }
+            });
 
             // Update the selected inconsistencies button
             JButton btnOk = CcddButtonPanelHandler.createButton("Okay",
@@ -2828,6 +3006,7 @@ public class CcddDbVerificationHandler
             // Add a listener for the Okay button
             btnOk.addActionListener(new ActionListener()
             {
+
                 /**********************************************************************************
                  * Update the inconsistencies
                  *********************************************************************************/

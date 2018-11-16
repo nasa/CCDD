@@ -1102,7 +1102,6 @@ public class CcddFileIOHandler
                                                                       new String[0][0],
                                                                       tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                       tableDefn.getDescription(),
-                                                                      !tableDefn.getName().contains("."),
                                                                       fieldHandler.getFieldInformationFromDefinitions(tableDefn.getDataFields()));
 
                     // Check if the new table is not a prototype. The prototype for the table and
@@ -1116,7 +1115,7 @@ public class CcddFileIOHandler
                         // database) prototype structure that isn't also a root structure; i.e., it
                         // only defines the prototype for other instances of the child's prototype,
                         // and isn't a legitimate instance itself
-                        isChildOfNonRoot = !dbTable.getRootStructures().contains(rootTable);
+                        isChildOfNonRoot = !dbTable.isRootStructure(rootTable);
 
                         // Check if the table wasn't recognized as a root table because it doesn't
                         // exist in the database. It's root status must be determined by it being
@@ -1200,7 +1199,6 @@ public class CcddFileIOHandler
                                                                                      new String[0][0],
                                                                                      tableTypeHandler.getDefaultColumnOrder(tableDefn.getTypeName()),
                                                                                      "",
-                                                                                     true,
                                                                                      new ArrayList<FieldInformation>());
 
                                 // Check if this is the child table and not one of its ancestors
@@ -1519,14 +1517,6 @@ public class CcddFileIOHandler
         if (isImported)
         {
             CcddTableEditorHandler tableEditor;
-
-            // TODO THIS ADDS THE INHERITED FIELDS TO THE NEW TABLE. HOWEVER, IT DOESN"T CHECK IF
-            // THE TABLE HAS A FIELD NAME THAT MATCHES THE INHERITED ONE (THE IMPORT FILE WOULD
-            // ALLOW THIS). CHECK FOR DUPLICATE NAMES: IF THE INPUT TYPE IS THE SAME THEN IT'S A
-            // REFERENCE TO THE INHERITABLE FIELD (SO MATCH UP EVERYTHING EXCEPT THE VALUE AND SET
-            // THE INHERITED FLAG), ELSE IT'S A DIFFERENT FIELD (SO ALTER THE FIELD NAME).
-
-            System.out.println("is imported: " + tableInfo.getTablePath()); // TODO
 
             // Step through the data fields assigned to this table's type definition (i.e., the
             // table's default data fields)

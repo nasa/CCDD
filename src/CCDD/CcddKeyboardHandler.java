@@ -1052,6 +1052,14 @@ public class CcddKeyboardHandler
                 // This cell displays a check box; check if it's editable
                 else if (table.isCellEditable(row, column))
                 {
+                    // Initiate editing on the new cell, if valid
+                    if (table.editCellAt(row, column))
+                    {
+                        // Toggle the cell's check box in order to generate the action event for
+                        // any listeners
+                        ((JCheckBox) table.getEditorComponent()).doClick();
+                    }
+
                     // Invert the cell value (true <-> false)
                     table.setValueAt(!((Boolean) cellObject), row, column);
                     table.getUndoManager().endEditSequence();

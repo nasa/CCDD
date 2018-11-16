@@ -502,7 +502,7 @@ public class CcddFieldHandler
         else if (isRootStruct == null)
         {
             // Set the flag that indicates if the owner is a root structure
-            isRootStruct = dbTable.getRootStructures().contains(ownerName);
+            isRootStruct = dbTable.isRootStructure(ownerName);
         }
 
         return isTypeGroupProject
@@ -776,7 +776,6 @@ public class CcddFieldHandler
         return isUpdate;
     }
 
-    // TODO
     /**********************************************************************************************
      * Check the supplied field information list for the specified inheritable (table type) data
      * field belonging to the specified table. If the table does not have the field then add it;
@@ -798,7 +797,6 @@ public class CcddFieldHandler
                                            String tablePath,
                                            FieldInformation typeFldInfo)
     {
-        System.out.println("\naddUpdateInheritedField: tbl= " + tablePath + "  ttFld: " + typeFldInfo.getFieldName()); // TODO
         // Get the table's field of the same name as the table type's field
         FieldInformation tableFldInfo = getFieldInformationByName(fieldInformationList,
                                                                   tablePath,
@@ -814,7 +812,6 @@ public class CcddFieldHandler
                                      typeFldInfo.getApplicabilityType().getApplicabilityName(),
                                      null))
             {
-                System.out.println("  add new"); // TODO
                 // Add the data field to the table
                 fieldInformationList.add(new FieldInformation(tablePath,
                                                               typeFldInfo.getFieldName(),
@@ -828,8 +825,6 @@ public class CcddFieldHandler
                                                               null,
                                                               -1));
             }
-            else
-                System.out.println("  not appl"); // TODO
         }
         // The table has a field with the same name as the inheritable field
         else
@@ -837,7 +832,6 @@ public class CcddFieldHandler
             // Check if the input types are the same (these are considered the same field)
             if (typeFldInfo.getInputType().equals(tableFldInfo.getInputType()))
             {
-                System.out.println("  upd current"); // TODO
                 // Update the description, size, required flag, and applicability type to match the
                 // table type's field definition
                 tableFldInfo.setDescription(typeFldInfo.getDescription());
@@ -849,7 +843,6 @@ public class CcddFieldHandler
             // The input types differ (these are considered different fields)
             else
             {
-                System.out.println("  chg name"); // TODO
                 // Check if the table already has a field by this name and, if so, alter the
                 // existing field's name in order to prevent a duplicate
                 alterFieldName(fieldInformationList, tablePath, typeFldInfo.getFieldName());
@@ -885,10 +878,12 @@ public class CcddFieldHandler
      *
      * @param matchName
      *            field name to use when matching with an existing field for the specified owner
+     * 
+     * @return The field name, updated to be unique by adding one or more trailing underscores
      *********************************************************************************************/
-    protected void alterFieldName(List<FieldInformation> fieldInformationList,
-                                  String ownerName,
-                                  String matchName)
+    protected static String alterFieldName(List<FieldInformation> fieldInformationList,
+                                           String ownerName,
+                                           String matchName)
     {
         // Get the reference to the field
         FieldInformation existingField = getFieldInformationByName(fieldInformationList,
@@ -911,6 +906,49 @@ public class CcddFieldHandler
             // Replace the field's name with the altered one
             existingField.setFieldName(matchName);
         }
+
+        return matchName;
+    }
+
+    // TODO Check if a table already has a field by this default field name
+    /**********************************************************************************************
+     * Check if a table already has a field with the specified default field name, but a different
+     * input type
+     *
+     * @param tablesOfType
+     *            list of tables of the table type containing the default field
+     *
+     * @param typeFieldName
+     *            default data field name
+     *
+     * @param inputType
+     *            input type name for the default field
+     *
+     * @return true if a table in the list has a data field with the same name but a different
+     *         input type
+     *********************************************************************************************/
+    protected boolean checkForDuplicateField(List<String> tablesOfType,
+                                             String typeFieldName,
+                                             String inputType)
+    {
+        boolean isDuplicate = false;
+
+        // Step through all tables of this type
+        for (String tablePath : tablesOfType)
+        {
+            // Get the table field with the supplied name
+            FieldInformation tableFld = getFieldInformationByName(tablePath, typeFieldName);
+
+            // Check if the table has a field with this name but has a different input type
+            if (tableFld != null && !tableFld.getInputType().getInputName().equals(inputType))
+            {
+                // Set the flag to indicate a duplicate field name exists and stop searching
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        return isDuplicate;
     }
 
     /**********************************************************************************************

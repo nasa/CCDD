@@ -1729,7 +1729,9 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
         // TODO THIS MAY REQUIRE ALTERATIONS DUE TO THE INHERITANCE UPDATE SINCE TABLE TYPE FIELD
         // VALUES CAN BE CHANGED. THERE'S NO WAY TO SET THE OVERWRITE TYPE FOR EXAMPLE. COULD (1)
         // DECIDE THAT CHANGES MADE HERE ARE NEVER PROPAGATED TO THE FIELDS BELONGING TO TABLES OF
-        // THE CHANGED TYPE OR (2) NOT ALLOW CHANGES TO TABLE TYPE FIELD VALUES FROM THIS EDITOR
+        // THE CHANGED TYPE OR (2) NOT ALLOW CHANGES TO TABLE TYPE FIELD VALUES FROM THIS EDITOR.
+        //
+        // DID IMPLEMENT CHANGE SO THAT INHERITED FIELDS ARE DELETED IF THE DEFAULT IS DELETED.
 
         // Get the table data array
         Object[][] tableData = dataFieldTable.getTableData(true);
@@ -1759,7 +1761,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                         fieldDeletions.add(new String[] {ownerName,
                                                          dataFieldTable.getModel().getColumnName(column)});
 
-                        // TODO
                         // Check if the field belongs to a table type. If so, then all of the
                         // inherited versions of this field are removed as well
                         if (CcddFieldHandler.isTableTypeField(ownerName))
@@ -1774,7 +1775,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                                 fieldDeletions.add(new String[] {ownerName, tablePath});
                             }
                         }
-                        // end TODO
                     }
                     // Check if the current and committed column values differ
                     else if (!tableData[row][column].equals(committedData[row][column]))

@@ -1580,7 +1580,6 @@ public class CcddScriptHandler
                                                                             allTableData,
                                                                             null,
                                                                             null,
-                                                                            false,
                                                                             new ArrayList<FieldInformation>(0));
                     }
                 }
@@ -1595,7 +1594,6 @@ public class CcddScriptHandler
                                                                 new String[0][0],
                                                                 null,
                                                                 null,
-                                                                false,
                                                                 new ArrayList<FieldInformation>(0));
                 }
 

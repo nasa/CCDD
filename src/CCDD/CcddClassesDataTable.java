@@ -130,7 +130,6 @@ public class CcddClassesDataTable
         private String columnOrder;
         private String description;
         private boolean isPrototype;
-        private boolean isRootStructure;
         private boolean errorFlag;
         private List<FieldInformation> fieldInformation;
 
@@ -158,23 +157,18 @@ public class CcddClassesDataTable
          *
          * @param description
          *            table description
-         *
-         * @param isRootStructure
-         *            true if this table represents a root table of type 'structure'
          *****************************************************************************************/
         TableInformation(String tableType,
                          String tablePath,
                          Object[][] tableData,
                          String columnOrder,
-                         String description,
-                         boolean isRootStructure)
+                         String description)
         {
             this.tableType = tableType;
             this.tablePath = tablePath;
             this.tableData = tableData;
             this.columnOrder = columnOrder;
             this.description = description;
-            this.isRootStructure = isRootStructure;
             isPrototype = !tablePath.contains(".");
             errorFlag = false;
         }
@@ -206,9 +200,6 @@ public class CcddClassesDataTable
          * @param description
          *            table description
          *
-         * @param isRootStructure
-         *            true if this table represents a root table of type 'structure'
-         *
          * @param fieldInformation
          *            list of field information
          *****************************************************************************************/
@@ -217,10 +208,9 @@ public class CcddClassesDataTable
                          Object[][] tableData,
                          String columnOrder,
                          String description,
-                         boolean isRootStructure,
                          List<FieldInformation> fieldInformation)
         {
-            this(tableType, tablePath, tableData, columnOrder, description, isRootStructure);
+            this(tableType, tablePath, tableData, columnOrder, description);
 
             // Check if the data field information is provided
             if (fieldInformation != null)
@@ -527,27 +517,6 @@ public class CcddClassesDataTable
         protected boolean isPrototype()
         {
             return isPrototype;
-        }
-
-        /******************************************************************************************
-         * Get the flag indicating if this is a root structure table
-         *
-         * @return true if this is a top-level (root) table of type 'structure'
-         *****************************************************************************************/
-        protected boolean isRootStructure()
-        {
-            return isRootStructure;
-        }
-
-        /******************************************************************************************
-         * Set the flag indicating if this is a root structure table
-         *
-         * @param isRootStructure
-         *            true if this is a top-level (root) table of type 'structure'
-         *****************************************************************************************/
-        protected void setRootStructure(boolean isRootStructure)
-        {
-            this.isRootStructure = isRootStructure;
         }
 
         /******************************************************************************************

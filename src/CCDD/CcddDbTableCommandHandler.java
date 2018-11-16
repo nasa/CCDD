@@ -261,6 +261,19 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
+     * Check if the supplied table name is a root structure table
+     *
+     * @param tableName
+     *            name of the table to check
+     *
+     * @return true if the supplied table name is a root structure
+     *********************************************************************************************/
+    protected boolean isRootStructure(String tableName)
+    {
+        return rootStructures.contains(tableName);
+    }
+
+    /**********************************************************************************************
      * Get the list of root (top level) structure tables from the project database
      *
      * @param parent
@@ -268,19 +281,9 @@ public class CcddDbTableCommandHandler
      *
      * @return List of root structure tables; empty list if there are no root tables
      *********************************************************************************************/
-    protected List<String> getRootStructures(Component parent)
+    private List<String> getRootStructures(Component parent)
     {
         return getRootTables(true, parent);
-    }
-
-    /**********************************************************************************************
-     * Get the current list of root (top level) structure tables
-     *
-     * @return List of root structure tables; empty list if there are no root tables
-     *********************************************************************************************/
-    protected List<String> getRootStructures()
-    {
-        return rootStructures;
     }
 
     /**********************************************************************************************
@@ -2182,7 +2185,6 @@ public class CcddDbTableCommandHandler
                                                               ? queryTableDescription(tablePath,
                                                                                       parent)
                                                               : ""),
-                                             rootStructures.contains(tablePath),
                                              fieldHandler.getFieldInformationByOwnerCopy(tablePath));
 
             // Get the index of the variable name and data type columns
@@ -6474,6 +6476,8 @@ public class CcddDbTableCommandHandler
                                + delimitText(fieldInfo.getApplicabilityType().getApplicabilityName())
                                + ", "
                                + delimitText(fieldInfo.getValue())
+                               + ", "
+                               + String.valueOf(fieldInfo.isInherited())
                                + "), ");
             }
 
@@ -7495,9 +7499,9 @@ public class CcddDbTableCommandHandler
                         {
                             // Check if the table already has a field by this name and, if so,
                             // alter the existing field's name in order to prevent a duplicate
-                            fieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
-                                                        tableName,
-                                                        add.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
+                            CcddFieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
+                                                            tableName,
+                                                            add.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
 
                             // Add the data field to the table and set the flag indicating a change
                             // has been made
@@ -7531,9 +7535,9 @@ public class CcddDbTableCommandHandler
                                 // Check if the table already has a field by the new name and, if
                                 // so, alter the existing field's name in order to prevent a
                                 // duplicate
-                                fieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
-                                                            tableName,
-                                                            mod.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
+                                CcddFieldHandler.alterFieldName(fieldHandler.getFieldInformation(),
+                                                                tableName,
+                                                                mod.getRowData()[FieldEditorColumnInfo.NAME.ordinal()].toString());
                             }
 
                             // Set the table field's value based on the overwrite type

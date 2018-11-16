@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.COL_ARGUMENT;
 import static CCDD.CcddConstants.COL_ARRAY_SIZE;
 import static CCDD.CcddConstants.COL_BIT_LENGTH;
@@ -25,14 +26,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesDataTable.AssociatedColumns;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ArrayListMultipleSortType;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
+import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
@@ -1605,8 +1610,11 @@ public class CcddTableTypeHandler
      *
      * @return null if all of the table types are created or match existing ones; the name of the
      *         table type that matches an existing one but the type definitions differ
+     *
+     * @throws CCDDException
+     *             TODO
      *********************************************************************************************/
-    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions)
+    protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException
     {
         boolean isNewStruct = false;
         String badType = null;
@@ -1682,8 +1690,11 @@ public class CcddTableTypeHandler
      * @return TableTypeUpdate.NEW if the table type is new, TableTypeUpdate.MATCH if the table
      *         type matches an existing one, or TableTypeUpdate.MISMATCH if the table type name
      *         matches an existing one but the type definition differs
+     *
+     * @throws CCDDException
+     *             TODO
      *********************************************************************************************/
-    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn)
+    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException
     {
         boolean isAddField = false;
         boolean isExistingTypeFieldChanged = false;
@@ -1812,13 +1823,48 @@ public class CcddTableTypeHandler
             // Check if a field was added to or changed for an existing table type
             if (isExistingTypeFieldChanged)
             {
+                boolean continueOnDuplicate = false;
+
+                // Get the list of table of this table type
+                List<String> tablesOfType = dbTable.getAllTablesOfType(tableTypeDefn.getTypeName(),
+                                                                       null,
+                                                                       ccddMain.getMainFrame());
+
                 // Step through each of the table type's data fields
                 for (FieldInformation typeFldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName())))
                 {
+                    // TODO
+                    // Check if the modified default field's name causes a table's existing field
+                    // to be renamed, unless the user has elected to allow renaming
+                    if (!continueOnDuplicate
+                        && fieldHandler.checkForDuplicateField(tablesOfType,
+                                                               typeFldInfo.getFieldName(),
+                                                               typeFldInfo.getInputType().getInputName()))
+                    {
+                        // Inform the user that using the field name results in renaming a table's
+                        // field
+                        if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>Imported table type '</b>"
+                                                                                               + tableTypeDefn.getTypeName()
+                                                                                               + "<b>' data field name '</b>"
+                                                                                               + typeFldInfo.getFieldName()
+                                                                                               + "<b>' will cause an existing table's field to be renamed; continue?",
+                                                                      "Duplicate Field Name",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        {
+                            throw new CCDDException(); // TODO ADD MESSAGE? (IF A MESSAGE IS
+                                                       // PROVIDED IT GOES TO FILE I/O HANDLER
+                                                       // EVENTUALLY FOR DISPLAY ("Import
+                                                       // failed...") AND EVENT LOGGING)
+                        }
+
+                        // Set the flag to ignore further duplicates
+                        continueOnDuplicate = true;
+                    }
+
                     // Step through each table of this type
-                    for (String tablePath : dbTable.getAllTablesOfType(tableTypeDefn.getTypeName(),
-                                                                       null,
-                                                                       ccddMain.getMainFrame()))
+                    for (String tablePath : tablesOfType)
                     {
                         // Add or update the table type field to the table, depending on whether or
                         // not the table already has the field

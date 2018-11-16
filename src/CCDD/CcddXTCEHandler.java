@@ -1187,9 +1187,9 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             // found. Specific instance tables are a sub-space system of the parent tables' space
             // system, but If the table is a child of a non-root structure then the space system
             // for the child's prototype is used, which is located in the root space system
-            SpaceSystemType ownerSystem = dbTable.getRootStructures().contains(tableName)
-                                                                                          ? system
-                                                                                          : rootSystem;
+            SpaceSystemType ownerSystem = dbTable.isRootStructure(tableName)
+                                                                             ? system
+                                                                             : rootSystem;
 
             // Create a table definition for this structure table. If the name space also includes
             // a command metadata (which creates a command table) then ensure the two tables have
@@ -3440,7 +3440,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                                          maxColumn,
                                                          isTlmHdrTable,
                                                          tlmHdrSysPath,
-                                                         tableInfo.isRootStructure(),
+                                                         dbTable.isRootStructure(loadTableName),
                                                          applicationID);
                             }
                         }

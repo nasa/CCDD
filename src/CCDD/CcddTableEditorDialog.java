@@ -447,12 +447,6 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             // Step through each individual editor
             for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
             {
-                // Update the table's root structure status in case it changed
-                editor.getTableInformation()
-                      .setRootStructure(dbTblCmdHndlr.getRootStructures()
-                                                     .contains(editor.getTableInformation()
-                                                                     .getTablePath()));
-
                 // Flag that indicates if the updated table is a prototype and the editor is for an
                 // instance of the updated table
                 boolean applyToInstance = tableInfo.isPrototype()

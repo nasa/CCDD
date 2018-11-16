@@ -44,6 +44,7 @@ import javax.swing.event.ChangeListener;
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.ValidateCellActionListener;
+import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableInformation;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -1402,24 +1403,31 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      *********************************************************************************************/
     private void storeChanges(CcddTableTypeEditorHandler editor)
     {
-        // Build the table updates based on the type definition changes
-        editor.buildUpdates();
+        try
+        {
+            // Build the table updates based on the type definition changes
+            editor.buildUpdates();
 
-        // Recreate the table type definitions table in the database and update the affected
-        // table(s)
-        dbTable.modifyTableTypeInBackground(editor.getTypeName(),
-                                            activeEditor.getPanelFieldInformation(),
-                                            getOverwriteFieldType(),
-                                            editor.getTypeAdditions(),
-                                            editor.getTypeModifications(),
-                                            editor.getTypeDeletions(),
-                                            editor.getColumnOrderChange(),
-                                            editor.getTypeDefinition(),
-                                            editor.getFieldAdditions(),
-                                            editor.getFieldModifications(),
-                                            editor.getFieldDeletions(),
-                                            CcddTableTypeEditorDialog.this,
-                                            activeEditor);
+            // Recreate the table type definitions table in the database and update the affected
+            // table(s)
+            dbTable.modifyTableTypeInBackground(editor.getTypeName(),
+                                                activeEditor.getPanelFieldInformation(),
+                                                getOverwriteFieldType(),
+                                                editor.getTypeAdditions(),
+                                                editor.getTypeModifications(),
+                                                editor.getTypeDeletions(),
+                                                editor.getColumnOrderChange(),
+                                                editor.getTypeDefinition(),
+                                                editor.getFieldAdditions(),
+                                                editor.getFieldModifications(),
+                                                editor.getFieldDeletions(),
+                                                CcddTableTypeEditorDialog.this,
+                                                activeEditor);
+        }
+        catch (CCDDException ce)
+        {
+            // Update aborted by user
+        }
     }
 
     /**********************************************************************************************
@@ -1445,23 +1453,30 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                     // Check if the table has changes
                     if (editor.isTableChanged())
                     {
-                        // Build the addition, modification, and deletion command lists
-                        editor.buildUpdates();
+                        try
+                        {
+                            // Build the addition, modification, and deletion command lists
+                            editor.buildUpdates();
 
-                        // Perform the changes to the table in the database
-                        dbTable.modifyTableType(editor.getTypeName(),
-                                                activeEditor.getPanelFieldInformation(),
-                                                getOverwriteFieldType(),
-                                                editor.getTypeAdditions(),
-                                                editor.getTypeModifications(),
-                                                editor.getTypeDeletions(),
-                                                editor.getColumnOrderChange(),
-                                                editor.getTypeDefinition(),
-                                                editor.getFieldAdditions(),
-                                                editor.getFieldModifications(),
-                                                editor.getFieldDeletions(),
-                                                CcddTableTypeEditorDialog.this,
-                                                editor);
+                            // Perform the changes to the table in the database
+                            dbTable.modifyTableType(editor.getTypeName(),
+                                                    activeEditor.getPanelFieldInformation(),
+                                                    getOverwriteFieldType(),
+                                                    editor.getTypeAdditions(),
+                                                    editor.getTypeModifications(),
+                                                    editor.getTypeDeletions(),
+                                                    editor.getColumnOrderChange(),
+                                                    editor.getTypeDefinition(),
+                                                    editor.getFieldAdditions(),
+                                                    editor.getFieldModifications(),
+                                                    editor.getFieldDeletions(),
+                                                    CcddTableTypeEditorDialog.this,
+                                                    editor);
+                        }
+                        catch (CCDDException ce)
+                        {
+                            // Update aborted by user
+                        }
                     }
                 }
             }

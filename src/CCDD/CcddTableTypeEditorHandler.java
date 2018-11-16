@@ -53,7 +53,7 @@ import CCDD.CcddUndoHandler.UndoableTableModel;
 public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 {
     // Class references
-    private String tableTypeName;
+    private final CcddDbTableCommandHandler dbTable;
     private final CcddTableTypeEditorDialog editorDialog;
     private final CcddFieldHandler fieldHandler;
     private final CcddTableTypeHandler tableTypeHandler;
@@ -63,6 +63,9 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     // Components referenced by multiple methods
     private CcddJTableHandler table;
     private PaddedComboBox comboBox;
+
+    // Name of this editor's table type
+    private String tableTypeName;
 
     // Index for the table type editor's data type column
     private int inputTypeIndex;
@@ -123,6 +126,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     {
         this.tableTypeName = tableTypeName;
         this.editorDialog = editorDialog;
+        dbTable = ccddMain.getDbTableCommandHandler();
         tableTypeHandler = ccddMain.getTableTypeHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
         fieldHandler = ccddMain.getFieldHandler();
@@ -1225,8 +1229,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Compare the current table type data to the committed table type data and create lists of the
      * changed values necessary to update the table definitions table in the database to match the
      * current values
+     *
+     * @throws CCDDException
+     *             TODO
      *********************************************************************************************/
-    protected void buildUpdates()
+    protected void buildUpdates() throws CCDDException
     {
         // ////////////////////////////////////////////////////////////////////////////////////////
         // Build the changes to the table type's column definitions
@@ -1343,9 +1350,17 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         // ////////////////////////////////////////////////////////////////////////////////////////
         // Build the changes to the table type's data field definitions
         // ////////////////////////////////////////////////////////////////////////////////////////
+        boolean continueOnDuplicate = false;
+
         // Get the field table data arrays prior to and after all changes
         Object[][] committedFieldData = CcddFieldHandler.getFieldEditorDefinition(committedFieldInfo);
         Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(getPanelFieldInformation());
+
+        // TODO
+        // Get the list of names of all tables of the this table type
+        List<String> tablesOfType = dbTable.getAllTablesOfType(tableTypeName,
+                                                               null,
+                                                               editorDialog);
 
         // Remove existing changes, if any
         fieldAdditions.clear();
@@ -1397,6 +1412,32 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                 // Check if the current and committed values don't match
                                 if (!fieldData[tblRow][column].equals(committedFieldData[comRow][column]))
                                 {
+                                    // TODO
+                                    // Check if the modified default field's name causes a table's
+                                    // existing field to be renamed, unless the user has elected to
+                                    // allow renaming
+                                    if (!continueOnDuplicate
+                                        && fieldHandler.checkForDuplicateField(tablesOfType,
+                                                                               fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                                               fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()))
+                                    {
+                                        // Inform the user that using the field name results in
+                                        // renaming a table's field
+                                        if (new CcddDialogHandler().showMessageDialog(editorDialog,
+                                                                                      "<html><b>Use of data field name '</b>"
+                                                                                                    + fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString()
+                                                                                                    + "<b>' will cause an existing table's field to be renamed; continue?",
+                                                                                      "Duplicate Field Name",
+                                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                                        {
+                                            throw new CCDDException();
+                                        }
+
+                                        // Set the flag to ignore further duplicates
+                                        continueOnDuplicate = true;
+                                    }
+
                                     // Store the row modification information and stop searching
                                     fieldModifications.add(new TableModification(fieldData[tblRow],
                                                                                  committedFieldData[comRow]));
@@ -1410,6 +1451,31 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Check if no match was made with the committed data for the current table row
                 if (!matchFound)
                 {
+                    // TODO
+                    // Check if the added default field's name causes a table's existing field to
+                    // be renamed, unless the user has elected to allow renaming
+                    if (!continueOnDuplicate
+                        && fieldHandler.checkForDuplicateField(tablesOfType,
+                                                               fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString(),
+                                                               fieldData[tblRow][FieldEditorColumnInfo.INPUT_TYPE.ordinal()].toString()))
+                    {
+                        // Inform the user that using the field name results in renaming a table's
+                        // field
+                        if (new CcddDialogHandler().showMessageDialog(editorDialog,
+                                                                      "<html><b>Use of data field name '</b>"
+                                                                                    + fieldData[tblRow][FieldEditorColumnInfo.NAME.ordinal()].toString()
+                                                                                    + "<b>' will cause an existing table's field to be renamed; continue?",
+                                                                      "Duplicate Field Name",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
+                        {
+                            throw new CCDDException();
+                        }
+
+                        // Set the flag to ignore further duplicates
+                        continueOnDuplicate = true;
+                    }
+
                     // The field definition is being added; add the field definition to the list
                     fieldAdditions.add(new TableModification(fieldData[tblRow], null));
                 }

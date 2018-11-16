@@ -1359,9 +1359,9 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 && !fieldInfo.getValue().endsWith(PROTECTED_MSG_ID_IDENT)
                 && (fieldInfo.getApplicabilityType() == ApplicabilityType.ALL
                     || (fieldInfo.getApplicabilityType() == ApplicabilityType.ROOT_ONLY
-                        && dbTable.getRootStructures().contains(fieldInfo.getOwnerName()))
+                        && dbTable.isRootStructure(fieldInfo.getOwnerName()))
                     || (fieldInfo.getApplicabilityType() == ApplicabilityType.CHILD_ONLY
-                        && !dbTable.getRootStructures().contains(fieldInfo.getOwnerName())))
+                        && !dbTable.isRootStructure(fieldInfo.getOwnerName())))
                 && (tabInfo.getOverwriteCbx().isSelected() || fieldInfo.getValue().isEmpty()))
             {
                 // Set the message ID data field value to the next unused message ID
