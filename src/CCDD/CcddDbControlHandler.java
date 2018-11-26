@@ -1058,7 +1058,7 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Set the database lock status
+     * Set the database lock status. If the GUI is hidden the lock status is unchanged
      *
      * @param projectName
      *            project name
@@ -1068,45 +1068,52 @@ public class CcddDbControlHandler
      *********************************************************************************************/
     protected void setDatabaseLockStatus(String projectName, boolean lockStatus)
     {
-        // Convert the project name into its database form
-        String databaseName = convertProjectNameToDatabase(projectName);
-
-        // Get the database comment
-        String[] comment = getDatabaseComment(databaseName);
-
-        // Check if a comment was successfully retrieved
-        if (comment != null)
+        // Check if the GUI is visible. If the application is started with the GUI hidden (via
+        // command line command) then the project database lock status is not changed. This allows,
+        // for example, web server access or script execution when another instance of CCDD has
+        // opened the database
+        if (!ccddMain.isGUIHidden())
         {
-            try
-            {
-                // Set the database comment with the specified lock status
-                dbCommand.executeDbUpdate(buildDatabaseCommentCommand(projectName,
-                                                                      comment[DatabaseComment.ADMINS.ordinal()],
-                                                                      lockStatus,
-                                                                      comment[DatabaseComment.DESCRIPTION.ordinal()]),
-                                          ccddMain.getMainFrame());
+            // Convert the project name into its database form
+            String databaseName = convertProjectNameToDatabase(projectName);
 
-                // Inform the user that the lock status update succeeded
-                eventLog.logEvent(SUCCESS_MSG,
-                                  "Project '"
-                                               + projectName
-                                               + "' "
-                                               + (lockStatus
-                                                             ? "locked"
-                                                             : "unlocked"));
-            }
-            catch (SQLException se)
+            // Get the database comment
+            String[] comment = getDatabaseComment(databaseName);
+
+            // Check if a comment was successfully retrieved
+            if (comment != null)
             {
-                // Inform the user that setting the database comment failed
-                eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot set comment for project database '"
-                                                               + getServerAndDatabase(databaseName)
-                                                               + "'; cause '"
-                                                               + se.getMessage()
-                                                               + "'",
-                                      "<html><b>Cannot set comment for project '</b>"
-                                                                      + projectName
-                                                                      + "<b>'");
+                try
+                {
+                    // Set the database comment with the specified lock status
+                    dbCommand.executeDbUpdate(buildDatabaseCommentCommand(projectName,
+                                                                          comment[DatabaseComment.ADMINS.ordinal()],
+                                                                          lockStatus,
+                                                                          comment[DatabaseComment.DESCRIPTION.ordinal()]),
+                                              ccddMain.getMainFrame());
+
+                    // Inform the user that the lock status update succeeded
+                    eventLog.logEvent(SUCCESS_MSG,
+                                      "Project '"
+                                                   + projectName
+                                                   + "' "
+                                                   + (lockStatus
+                                                                 ? "locked"
+                                                                 : "unlocked"));
+                }
+                catch (SQLException se)
+                {
+                    // Inform the user that setting the database comment failed
+                    eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                          "Cannot set comment for project database '"
+                                                                   + getServerAndDatabase(databaseName)
+                                                                   + "'; cause '"
+                                                                   + se.getMessage()
+                                                                   + "'",
+                                          "<html><b>Cannot set comment for project '</b>"
+                                                                          + projectName
+                                                                          + "<b>'");
+                }
             }
         }
     }
@@ -2223,26 +2230,21 @@ public class CcddDbControlHandler
                 // connection is completed the flag is updated accordingly
                 connectionStatus = TO_SERVER_ONLY;
 
-                // Check if the GUI is visible. If the application is started with the GUI hidden
-                // (for command line script execution or as a web server) then the project database
-                // lock status is ignored
-                if (!ccddMain.isGUIHidden())
+                // Get the database lock status (note that the database isn't locked if the GUI is
+                // hidden)
+                Boolean isLocked = getDatabaseLockStatus(databaseName);
+
+                // Check if an error occurred obtaining the lock status
+                if (isLocked == null)
                 {
-                    // Get the database lock status
-                    Boolean isLocked = getDatabaseLockStatus(databaseName);
+                    // Set the error flag
+                    throw new CCDDException("");
+                }
 
-                    // Check if an error occurred obtaining the lock status
-                    if (isLocked == null)
-                    {
-                        // Set the error flag
-                        throw new CCDDException("");
-                    }
-
-                    // Check if the database is locked and this isn't a reconnection attempt
-                    if (!isReconnect && isLocked)
-                    {
-                        throw new SQLException("database is locked");
-                    }
+                // Check if the database is locked and this isn't a reconnection attempt
+                if (!isReconnect && isLocked)
+                {
+                    throw new SQLException("database is locked");
                 }
 
                 boolean isAllowed = false;
@@ -2573,6 +2575,15 @@ public class CcddDbControlHandler
                                                                   JOptionPane.WARNING_MESSAGE,
                                                                   DialogOption.OK_OPTION);
                     }
+
+                    // Check that successful connection was made to a project database and not just
+                    // the server (default database)
+                    if (isDatabaseConnected())
+                    {
+                        // Parse any command line commands that require a project database to be
+                        // open
+                        ccddMain.parseDbSpecificCommandLineCommands();
+                    }
                 }
             }
             // A required parameter is missing
@@ -2604,7 +2615,7 @@ public class CcddDbControlHandler
     {
         // Set the flag to indicate this in the first connection attempt for this server and
         // attempt to open the database
-        isFirstConnectionAttempt = true;// TODO
+        isFirstConnectionAttempt = true;
         openDatabaseInBackground(projectName, serverHost, serverPort, isSSL);
     }
 
@@ -2671,13 +2682,6 @@ public class CcddDbControlHandler
                                                                                    : null));
                         isFirstConnectionAttempt = false;
                     }
-                }
-                // Check that successful connection was made to a project database and not just the
-                // server (default database)
-                else if (isDatabaseConnected())
-                {
-                    // Parse any command line commands that require a project database to be open
-                    ccddMain.parseDbSpecificCommandLineCommands();
                 }
             }
         });
@@ -2906,9 +2910,13 @@ public class CcddDbControlHandler
      *
      * @param projectName
      *            name of the project to delete
+     *
+     * @return false if the specified database is successfully deleted
      *********************************************************************************************/
-    protected void deleteDatabase(final String projectName)
+    protected boolean deleteDatabase(final String projectName)
     {
+        boolean errorFlag = false;
+
         // Convert the project name to its database equivalent
         String databaseName = convertProjectNameToDatabase(projectName);
 
@@ -2934,12 +2942,15 @@ public class CcddDbControlHandler
                                                            + se.getMessage()
                                                            + "'",
                                   "<html><b>Cannot delete project '</b>" + projectName + "<b>'");
+            errorFlag = true;
         }
         finally
         {
             // Disable auto-commit for database changes
             resetAutoCommit();
         }
+
+        return errorFlag;
     }
 
     /**********************************************************************************************

@@ -343,17 +343,28 @@ public class CcddMain
         // from the object
         ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 
-        // Check if a database, user, and host are specified
+        // Check if a database, user, and host are specified either via the command line options
+        // and/or the program preferences
         if (!dbControl.getDatabaseName().isEmpty()
             && !dbControl.getUser().isEmpty()
             && !dbControl.getHost().isEmpty())
         {
-            // Attempt to connect to the database that was open at the termination of the previous
-            // session using the parameters from the command line and/or backing store. If a
-            // password is required, but not provided, then request the password and attempt to
-            // connect. If this connection attempt fails then attempt to connect to the default
-            // database
-            dbControl.openDatabaseInBackground(dbControl.getProjectName());
+            // Check if the GUI is visible
+            if (!isGUIHidden())
+            {
+                // Attempt to connect to the project database. If a password is required, but not
+                // provided, then request the password and attempt to connect. If this connection
+                // attempt fails then attempt to connect to the default database
+                dbControl.openDatabaseInBackground(dbControl.getProjectName());
+            }
+            // The GUI is hidden. Attempt to connect to the project database (note that connection
+            // to the default database, even if specified, results in exiting the application)
+            else if (dbControl.openDatabase(dbControl.getProjectName())
+                     && !dbControl.isDatabaseConnected())
+            {
+                // Perform any clean-up steps and exit the application
+                cmdLnHandler.postCommandCleanUp(1);
+            }
         }
     }
 
@@ -858,10 +869,14 @@ public class CcddMain
      *********************************************************************************************/
     protected void restoreTableExportPath()
     {
-        CcddFileIOHandler.storePath(CcddMain.this,
-                                    orgTableExportPath,
-                                    false,
-                                    ModifiablePathInfo.TABLE_EXPORT_PATH);
+        // Check if the table export path is set
+        if (orgTableExportPath != null)
+        {
+            CcddFileIOHandler.storePath(CcddMain.this,
+                                        orgTableExportPath,
+                                        false,
+                                        ModifiablePathInfo.TABLE_EXPORT_PATH);
+        }
     }
 
     /**********************************************************************************************
@@ -869,10 +884,14 @@ public class CcddMain
      *********************************************************************************************/
     protected void restoreScriptOutputPath()
     {
-        CcddFileIOHandler.storePath(CcddMain.this,
-                                    orgScriptOutPath,
-                                    false,
-                                    ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+        // Check if the script output path is set
+        if (orgScriptOutPath != null)
+        {
+            CcddFileIOHandler.storePath(CcddMain.this,
+                                        orgScriptOutPath,
+                                        false,
+                                        ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
+        }
     }
 
     /**********************************************************************************************

@@ -46,9 +46,6 @@ public class CcddCommandLineHandler
     // Class reference
     private final CcddMain ccddMain;
 
-    // Text describing the command line error
-    private final String errorMessage;
-
     // Array containing the command line arguments provided by the user
     private final String[] args;
 
@@ -59,13 +56,15 @@ public class CcddCommandLineHandler
     private final List<CommandHandler> createArgument;
     private final List<CommandHandler> deleteArgument;
 
+    // Flag that indicates if further command line argument processing should not occur
+    private boolean stopProcessingCommands;
+
     // Flag that indicates the application should exit once the command is complete. Used by the
     // script execution command
     private boolean shutdownWhenComplete;
 
-    // Application exit value following script execution: = 0 if the script(s) completed
-    // successfully; = 1 if a script fails to complete successfully
-    private int exitStatus;
+    // Flag that indicates if the command line usage information should be displayed
+    private boolean showUsage;
 
     // Import command parameters
     private FileEnvVar[] dataFile;
@@ -105,7 +104,7 @@ public class CcddCommandLineHandler
 
     // Delete project parameters
     private String deleteName;
-    private boolean deleteNoMessage;
+    private boolean deleteContinueIfMissing;
 
     // Storage for the session event log and script output paths
     private final String sessionLogPath;
@@ -391,8 +390,11 @@ public class CcddCommandLineHandler
          *
          * @param parmVal
          *            command parameter
+         *
+         * @throws Exception
+         *             If an error occurs executing a command
          *****************************************************************************************/
-        protected void doCommand(Object parmVal)
+        protected void doCommand(Object parmVal) throws Exception
         {
         }
     }
@@ -410,7 +412,6 @@ public class CcddCommandLineHandler
     {
         this.ccddMain = ccddMain;
         this.args = args;
-        errorMessage = null;
         argument = new ArrayList<CommandHandler>();
         importArgument = new ArrayList<CommandHandler>();
         exportArgument = new ArrayList<CommandHandler>();
@@ -441,9 +442,10 @@ public class CcddCommandLineHandler
         createOwner = null;
         createDescription = "";
         deleteName = null;
-        deleteNoMessage = false;
+        deleteContinueIfMissing = false;
+        stopProcessingCommands = false;
         shutdownWhenComplete = false;
-        exitStatus = 0;
+        showUsage = false;
 
         // Get the variable path separators and the show/hide data type flag from the program
         // preferences
@@ -470,7 +472,7 @@ public class CcddCommandLineHandler
              * Display the application version and build date, then exit the program
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
                 System.out.println("CCDD " + ccddMain.getCCDDVersionInformation());
                 System.exit(0);
@@ -876,7 +878,7 @@ public class CcddCommandLineHandler
              * Execute a script. The application exits following completion of this command
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
                 List<Object[]> associations = new ArrayList<Object[]>();
 
@@ -1001,10 +1003,7 @@ public class CcddCommandLineHandler
                         // Check if the script execution failed
                         if (flag)
                         {
-                            // Set the application return value to indicate a failure and stop
-                            // searching
-                            exitStatus = 1;
-                            break;
+                            throw new Exception();
                         }
                     }
                 }
@@ -1031,8 +1030,27 @@ public class CcddCommandLineHandler
              * Import one or more tables from a file in CSV, EDS, JSON, or XTCE format
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
+                // Check if the GUI is hidden
+                if (ccddMain.isGUIHidden())
+                {
+                    // Get the lock status of the project. The project isn't locked by this
+                    // instance of CCDD if the GUI is hidden, so if the lock status is set then
+                    // another instance of CCDD has the database open
+                    Boolean lockStatus = ccddMain.getDbControlHandler()
+                                                 .getDatabaseLockStatus(ccddMain.getDbControlHandler()
+                                                                                .getProjectName());
+
+                    // Check if the project database is locked (or the status can't be obtained)
+                    if (lockStatus == null || lockStatus)
+                    {
+                        throw new Exception("Cannot import; project '"
+                                            + ccddMain.getDbControlHandler().getProjectName()
+                                            + "' is open in another CCDD instance");
+                    }
+                }
+
                 // Check if the user has write access for the project
                 if (ccddMain.getDbControlHandler().isAccessReadWrite())
                 {
@@ -1045,11 +1063,10 @@ public class CcddCommandLineHandler
                     // Check if a required sub-command is missing
                     if (dataFile == null)
                     {
-                        // Display the error message
-                        System.err.println("Error: Missing import file name\n");
-
-                        // Display the command usage information and exit the application
-                        displayUsageInformation();
+                        // Set the flag to display the command line usage information and the error
+                        // message
+                        showUsage = true;
+                        throw new Exception("Missing import file name");
                     }
 
                     // Check if the GUI isn't displayed
@@ -1066,8 +1083,7 @@ public class CcddCommandLineHandler
                                                                    ignoreErrors,
                                                                    null))
                         {
-                            // Set the application return value to indicate a failure
-                            exitStatus = 1;
+                            throw new Exception();
                         }
                     }
                     // The GUI is displayed
@@ -1088,9 +1104,9 @@ public class CcddCommandLineHandler
                 else
                 {
                     // Display the error message
-                    System.err.println("Error: Import disabled; user lacks write access for project '"
-                                       + ccddMain.getDbControlHandler().getProjectName()
-                                       + "'\n");
+                    throw new Exception("Import disabled; user lacks write access for project '"
+                                        + ccddMain.getDbControlHandler().getProjectName()
+                                        + "'");
                 }
             }
         });
@@ -1228,7 +1244,7 @@ public class CcddCommandLineHandler
              * Export one or more tables to a file (or files) in CSV, EDS, JSON, or XTCE format
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
                 // Parse the export sub-commands
                 parseCommand(-1,
@@ -1243,11 +1259,10 @@ public class CcddCommandLineHandler
                              && (fileExtn == FileExtension.CSV || fileExtn == FileExtension.JSON))))
                     || tablePaths == null)
                 {
-                    // Display the error message
-                    System.err.println("Error: Missing export file name and/or table path(s)\n");
-
-                    // Display the command usage information and exit the application
-                    displayUsageInformation();
+                    // Set the flag to display the command line usage information and the error
+                    // message
+                    showUsage = true;
+                    throw new Exception("Missing export file name and/or table path(s)");
                 }
 
                 // Create the variable path separator array
@@ -1282,8 +1297,7 @@ public class CcddCommandLineHandler
                                                                          scriptFileName,
                                                                          null))
                     {
-                        // Set the application return value to indicate a failure
-                        exitStatus = 1;
+                        throw new Exception();
                     }
                 }
                 // The GUI is displayed
@@ -1743,7 +1757,7 @@ public class CcddCommandLineHandler
              * Create a new project database
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
                 // Parse the create project database sub-commands
                 parseCommand(-1,
@@ -1757,11 +1771,10 @@ public class CcddCommandLineHandler
                     || createOwner == null
                     || createOwner.isEmpty())
                 {
-                    // Display the error message
-                    System.err.println("Error: Missing project name and/or project owner\n");
-
-                    // Display the command usage information and exit the application
-                    displayUsageInformation();
+                    // Set the flag to display the command line usage information and the error
+                    // message
+                    showUsage = true;
+                    throw new Exception("Missing project name and/or project owner");
                 }
 
                 // Check if a connection is made to the PostgreSQL server
@@ -1774,15 +1787,13 @@ public class CcddCommandLineHandler
                                                                        createOwner,
                                                                        createDescription))
                     {
-                        // Set the application return value to indicate a failure
-                        exitStatus = 1;
+                        throw new Exception();
                     }
                 }
                 // The attempt to connect to the PostgreSQL server failed
                 else
                 {
-                    // Set the application return value to indicate a failure
-                    exitStatus = 1;
+                    throw new Exception();
                 }
             }
         });
@@ -1841,7 +1852,7 @@ public class CcddCommandLineHandler
         // Delete an existing project database
         argument.add(new CommandHandler("delete",
                                         "Delete an existing project database",
-                                        "project name",
+                                        "<delete sub-commands>",
                                         CommandLineType.NAME,
                                         CommandLinePriority.SET_UP.getStartPriority() + 4,
                                         deleteArgument)
@@ -1850,7 +1861,7 @@ public class CcddCommandLineHandler
              * Delete an existing project database
              *************************************************************************************/
             @Override
-            protected void doCommand(Object parmVal)
+            protected void doCommand(Object parmVal) throws Exception
             {
                 // Parse the delete project database sub-commands
                 parseCommand(-1,
@@ -1861,11 +1872,10 @@ public class CcddCommandLineHandler
                 // Check if a required create sub-command is missing or blank
                 if (deleteName == null || deleteName.isEmpty())
                 {
-                    // Display the error message
-                    System.err.println("Error: Missing project name\n");
-
-                    // Display the command usage information and exit the application
-                    displayUsageInformation();
+                    // Set the flag to display the command line usage information and the error
+                    // message
+                    showUsage = true;
+                    throw new Exception("Missing project name");
                 }
 
                 CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
@@ -1890,20 +1900,20 @@ public class CcddCommandLineHandler
                             // Check if the user has administrative level access for the project
                             if (dbControl.getUserAdminAccess().contains(dbControl.convertProjectNameToDatabase(deleteName)))
                             {
-                                // Delete the specified project database. The user must be an
-                                // administrator for the project to perform this operation
-                                dbControl.deleteDatabase(deleteName);
+                                // Attempt to delete the specified project database. The user must
+                                // be an administrator for the project to perform this operation
+                                if (dbControl.deleteDatabase(deleteName))
+                                {
+                                    // The database exists, but can't be deleted (e.g., another
+                                    // application has the database open)
+                                    throw new Exception();
+                                }
                             }
                             // The user doesn't have administrative access
                             else
                             {
-                                // Display the error message
-                                System.err.println("Error: Delete disabled; user lacks write access for project '"
-                                                   + deleteName
-                                                   + "'\n");
-
-                                // Set the application return value to indicate a failure
-                                exitStatus = 1;
+                                throw new Exception("Delete disabled; user lacks write access for project '"
+                                                    + deleteName);
                             }
 
                             // Set the flag to indicate a match was found and stop searching
@@ -1913,23 +1923,18 @@ public class CcddCommandLineHandler
                     }
 
                     // Check if no project with the supplied name exists in the server and the
-                    // message is not suppressed
-                    if (!isFound && !deleteNoMessage)
+                    // error is not suppressed
+                    if (!isFound && !deleteContinueIfMissing)
                     {
-                        // Display the error message
-                        System.err.println("Error: Delete project failed; project '"
-                                           + deleteName
-                                           + "' does not exist\n");
-
-                        // Set the application return value to indicate a failure
-                        exitStatus = 1;
+                        throw new Exception("Delete project failed; project '"
+                                            + deleteName
+                                            + "' does not exist");
                     }
                 }
                 // The attempt to connect to the PostgreSQL server failed
                 else
                 {
-                    // Set the application return value to indicate a failure
-                    exitStatus = 1;
+                    throw new Exception();
                 }
             }
         });
@@ -1951,21 +1956,22 @@ public class CcddCommandLineHandler
             }
         });
 
-        // Delete project command - hide 'project doesn't exist' message
-        deleteArgument.add(new CommandHandler("noMessage",
-                                              "Do not display a message if the\n"
-                                                           + "  project doesn't exist",
+        // Delete project command - continue executing commands if the project doesn't exist
+        deleteArgument.add(new CommandHandler("continueIfMissing",
+                                              "Continue to process commands if the\n"
+                                                                   + "  project doesn't exist",
                                               "",
                                               CommandLineType.NONE,
                                               0)
         {
             /**************************************************************************************
-             * Set the project owner
+             * Set the flag to indicate that command execution should continue if the project
+             * doesn't exist
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                deleteNoMessage = true;
+                deleteContinueIfMissing = true;
             }
         });
     }
@@ -1981,35 +1987,17 @@ public class CcddCommandLineHandler
      *********************************************************************************************/
     protected void parseCommand(CommandLinePriority priority)
     {
-        // Execute the commands that fall within the priority range
-        parseCommand(priority.getStartPriority(), priority.getEndPriority(), args, argument);
-
-        // Check if the project-specific commands have been completed
-        if (priority.getEndPriority() == -1)
+        // Check if no previous error has caused command line processing to cease
+        if (!stopProcessingCommands)
         {
-            // Restore the original session event log path, in case it was changed via a command
-            // line command
-            CcddFileIOHandler.storePath(ccddMain,
-                                        sessionLogPath,
-                                        false,
-                                        ModifiablePathInfo.SESSION_LOG_FILE_PATH);
+            // Execute the commands that fall within the priority range
+            parseCommand(priority.getStartPriority(), priority.getEndPriority(), args, argument);
 
-            // Check if the application should be terminated following execution of the
-            // project-specific commands (script execution, export, or import). Note that the GUI
-            // is hidden if this flag is set
-            if (shutdownWhenComplete)
+            // Check if the project-specific commands have been completed
+            if (priority.getEndPriority() == -1)
             {
-                // Restore the original table export and script output paths (in case either of
-                // these were changed via a command line command). If the GUI is visible then the
-                // script execute and table export commands are performed as background operations.
-                // The background operation is responsible for resetting the affected path once the
-                // operation completes
-                ccddMain.restoreTableExportPath();
-                ccddMain.restoreScriptOutputPath();
-
-                // Exit the application, supplying the execution status (= 1 if a failure occurred,
-                // otherwise returns 0)
-                ccddMain.exitApplication(false, exitStatus);
+                // Perform any clean-up steps required after processing the command line commands
+                postCommandCleanUp(0);
             }
         }
     }
@@ -2127,6 +2115,9 @@ public class CcddCommandLineHandler
                     // Check if the command wasn't recognized
                     if (!isValidCmd)
                     {
+                        // Set the flag to display the command line usage information, display the
+                        // error message, and exit
+                        showUsage = true;
                         throw new Exception("Unrecognized command '" + arg + "'");
                     }
                 }
@@ -2134,29 +2125,72 @@ public class CcddCommandLineHandler
         }
         catch (Exception ce)
         {
-            // Check if a bad parameter was detected
-            if (errorMessage != null)
-            {
-                // Display the error message
-                System.err.println("Error: " + errorMessage + "\n");
-
-                // Exit the application
-                System.exit(1);
-            }
-            // Invalid command
-            else
+            // Check if an error message is provided
+            if (ce.getMessage() != null && !ce.getMessage().isEmpty())
             {
                 // Display the error message
                 System.err.println("Error: " + ce.getMessage() + "\n");
+            }
 
+            // Check if the command line usage information should be displayed
+            if (showUsage)
+            {
                 // Display the command usage information and exit the application
                 displayUsageInformation();
             }
+
+            // Perform any clean-up steps and exit the program
+            postCommandCleanUp(1);
         }
     }
 
     /**********************************************************************************************
-     * Display the command usage information and exit the application
+     * Perform any clean-up steps following command line argument execution or failure
+     *
+     * @param exitStatus
+     *            0 if all commands executed successfully; 1 if an error occurred
+     *********************************************************************************************/
+    protected void postCommandCleanUp(int exitStatus)
+    {
+        // Restore the original session event log path, in case it was changed via a command line
+        // command
+        CcddFileIOHandler.storePath(ccddMain,
+                                    sessionLogPath,
+                                    false,
+                                    ModifiablePathInfo.SESSION_LOG_FILE_PATH);
+
+        // Check if the application should be terminated following execution of the
+        // project-specific commands (script execution, export, or import) (note that the GUI is
+        // hidden if this flag is set), or if an error occurred and the GUI is hidden (if the GUI
+        // is visible then the error is handled via error dialog and event log message)
+        if (shutdownWhenComplete
+            || (exitStatus == 1 && ccddMain.isGUIHidden()))
+        {
+            // Restore the original table export and script output paths (in case either of these
+            // were changed via a command line command). If the GUI is visible then the script
+            // execute and table export commands are performed as background operations. The
+            // background operation is responsible for resetting the affected path once the
+            // operation completes
+            ccddMain.restoreTableExportPath();
+            ccddMain.restoreScriptOutputPath();
+
+            // Exit the application, supplying the execution status (= 1 if a failure occurred,
+            // otherwise returns 0)
+            ccddMain.exitApplication(false, exitStatus);
+        }
+
+        // Check if an error occurred
+        if (exitStatus != 0)
+        {
+            // Set the flag to stop further command line argument processing. This is set here,
+            // versus when the exception is thrown, since the main class can call this method
+            // directly
+            stopProcessingCommands = true;
+        }
+    }
+
+    /**********************************************************************************************
+     * Display the command usage information
      *********************************************************************************************/
     private void displayUsageInformation()
     {
@@ -2334,9 +2368,6 @@ public class CcddCommandLineHandler
 
         // Display the usage information
         System.out.println(usage);
-
-        // Exit the application
-        System.exit(1);
     }
 
     /**********************************************************************************************

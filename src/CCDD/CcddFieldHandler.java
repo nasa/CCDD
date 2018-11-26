@@ -878,7 +878,7 @@ public class CcddFieldHandler
      *
      * @param matchName
      *            field name to use when matching with an existing field for the specified owner
-     * 
+     *
      * @return The field name, updated to be unique by adding one or more trailing underscores
      *********************************************************************************************/
     protected static String alterFieldName(List<FieldInformation> fieldInformationList,
@@ -910,7 +910,6 @@ public class CcddFieldHandler
         return matchName;
     }
 
-    // TODO Check if a table already has a field by this default field name
     /**********************************************************************************************
      * Check if a table already has a field with the specified default field name, but a different
      * input type

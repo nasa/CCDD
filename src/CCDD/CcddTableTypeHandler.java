@@ -1612,7 +1612,8 @@ public class CcddTableTypeHandler
      *         table type that matches an existing one but the type definitions differ
      *
      * @throws CCDDException
-     *             TODO
+     *             If an imported data field name will cause an existing table's field to be
+     *             renamed and the user elects to cancel the update
      *********************************************************************************************/
     protected String updateTableTypes(List<TableTypeDefinition> tableTypeDefinitions) throws CCDDException
     {
@@ -1692,7 +1693,8 @@ public class CcddTableTypeHandler
      *         matches an existing one but the type definition differs
      *
      * @throws CCDDException
-     *             TODO
+     *             If an imported data field name will cause an existing table's field to be
+     *             renamed and the user elects to cancel the update
      *********************************************************************************************/
     private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException
     {

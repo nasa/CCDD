@@ -1231,7 +1231,8 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * current values
      *
      * @throws CCDDException
-     *             TODO
+     *             If a data field name will cause an existing table's field to be renamed and the
+     *             user elects to cancel the update
      *********************************************************************************************/
     protected void buildUpdates() throws CCDDException
     {
