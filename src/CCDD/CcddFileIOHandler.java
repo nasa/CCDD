@@ -1002,9 +1002,9 @@ public class CcddFileIOHandler
             dataTypeHandler.setDataTypeData(originalDataTypes);
             inputTypeHandler.setInputTypeData(originalInputTypes);
             fieldHandler.setFieldInformationFromDefinitions(originalDataFields);
-            dbTable.updateListsAndReferences(parent);
             macroHandler.setMacroData(originalMacros);
             rsvMsgIDHandler.setReservedMsgIDData(originalReservedMsgIDs);
+            dbTable.updateListsAndReferences(parent);
 
             // Check if the table type editor is open
             if (ccddMain.getTableTypeEditor() != null && ccddMain.getTableTypeEditor().isShowing())

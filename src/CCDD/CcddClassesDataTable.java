@@ -3691,7 +3691,7 @@ public class CcddClassesDataTable
                 getSubMessage(0).id = messageID;
             }
             // Check if this is the default sub-message
-            else if (this == parentMessage.getSubMessage(0))
+            else if (this.equals(parentMessage.getSubMessage(0))) // TODO WAS ==
             {
                 // Set the parent message ID to match
                 parentMessage.id = messageID;

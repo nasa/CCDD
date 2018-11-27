@@ -1357,7 +1357,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
         Object[][] committedFieldData = CcddFieldHandler.getFieldEditorDefinition(committedFieldInfo);
         Object[][] fieldData = CcddFieldHandler.getFieldEditorDefinition(getPanelFieldInformation());
 
-        // TODO
         // Get the list of names of all tables of the this table type
         List<String> tablesOfType = dbTable.getAllTablesOfType(tableTypeName,
                                                                null,
@@ -1413,7 +1412,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                 // Check if the current and committed values don't match
                                 if (!fieldData[tblRow][column].equals(committedFieldData[comRow][column]))
                                 {
-                                    // TODO
                                     // Check if the modified default field's name causes a table's
                                     // existing field to be renamed, unless the user has elected to
                                     // allow renaming
@@ -1452,7 +1450,6 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Check if no match was made with the committed data for the current table row
                 if (!matchFound)
                 {
-                    // TODO
                     // Check if the added default field's name causes a table's existing field to
                     // be renamed, unless the user has elected to allow renaming
                     if (!continueOnDuplicate

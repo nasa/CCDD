@@ -407,7 +407,7 @@ public class CcddTableTypeHandler
             for (int column = 0; column < columnInputType.size(); column++)
             {
                 // Check if the input type matches the type for this column
-                if (columnInputType.get(column) == inputType)
+                if (columnInputType.get(column).getInputName().equals(inputType.getInputName()))
                 {
                     // Store the column index and stop searching
                     colIndex = column;
@@ -449,7 +449,7 @@ public class CcddTableTypeHandler
             for (int column = 0; column < columnInputType.size(); column++)
             {
                 // Check if the input type matches the type for this column
-                if (columnInputType.get(column) == inputType)
+                if (columnInputType.get(column).getInputName().equals(inputType.getInputName()))
                 {
                     // Store the column index
                     colIndex.add(column);
@@ -490,7 +490,7 @@ public class CcddTableTypeHandler
             for (int column = 0; column < columnInputType.size(); column++)
             {
                 // Check if the input type matches the type for this column
-                if (columnInputType.get(column) == inputType)
+                if (columnInputType.get(column).getInputName().equals(inputType.getInputName()))
                 {
                     // Store the column name and stop searching
                     colName = columnNamesUser.get(column);
@@ -532,7 +532,7 @@ public class CcddTableTypeHandler
             for (int column = 0; column < columnInputType.size(); column++)
             {
                 // Check if the input type matches the type for this column
-                if (columnInputType.get(column) == inputType)
+                if (columnInputType.get(column).getInputName().equals(inputType.getInputName()))
                 {
                     // Store the column name and stop searching
                     colName = columnNamesDatabase.get(column);
@@ -1707,7 +1707,9 @@ public class CcddTableTypeHandler
 
         // Check if the table type doesn't already exist, or if no tables exist in the database for
         // this type (the existing type will be replaced)
-        if (typeDefn == null || dbTable.getPrototypeTablesOfType(typeDefn.getName()).length == 0)
+        if (typeDefn == null
+            || dbTable.queryTablesOfTypeList(typeDefn.getName(),
+                                             ccddMain.getMainFrame()).length == 0)
         {
             // Set the flag indicating the table type is new
             typeUpdate = TableTypeUpdate.NEW;
@@ -1739,26 +1741,41 @@ public class CcddTableTypeHandler
                                                               tableTypeDefn.getColumns().toArray(new Object[0][0]),
                                                               tableTypeDefn.getDescription());
 
-            // Check if the contents of the type doesn't match the existing one with the same name.
-            // Ignore the column description (tool tip text) when comparing
-            if (!(CcddUtilities.isArraySetsEqual(typeDefn.getColumnNamesUser(),
-                                                 altTypeDefn.getColumnNamesUser())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.getInputTypes(),
-                                                    altTypeDefn.getInputTypes())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.isRowValueUnique(),
-                                                    altTypeDefn.isRowValueUnique())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.isRequired(),
-                                                    altTypeDefn.isRequired())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.isStructureAllowed(),
-                                                    altTypeDefn.isStructureAllowed())
-                  && CcddUtilities.isArraySetsEqual(typeDefn.isPointerAllowed(),
-                                                    altTypeDefn.isPointerAllowed())))
+            // Step through each column name
+            for (String columnName : typeDefn.getColumnNamesUser())
             {
-                // Set the flag indicating a mismatch exists
-                typeUpdate = TableTypeUpdate.MISMATCH;
+                // Get the index for the column name in the alternate type definition
+                int altIndex = altTypeDefn.getColumnIndexByUserName(columnName);
+
+                // Check if the alternate definition doesn't have a column with this name
+                if (altIndex == -1)
+                {
+                    // Set the flag indicating a mismatch exists and stop searching
+                    typeUpdate = TableTypeUpdate.MISMATCH;
+                    break;
+                }
+
+                // Get the index for the column name in the existing type definition
+                int index = typeDefn.getColumnIndexByUserName(columnName);
+
+                // Check if the column definitions differ
+                if (!typeDefn.getInputTypes()[index].getInputName().equals(altTypeDefn.getInputTypes()[altIndex].getInputName())
+                    || !typeDefn.isRowValueUnique()[index].equals(altTypeDefn.isRowValueUnique()[altIndex])
+                    || !typeDefn.isRequired()[index].equals(altTypeDefn.isRequired()[altIndex])
+                    || !typeDefn.isStructureAllowed()[index].equals(altTypeDefn.isStructureAllowed()[altIndex])
+                    || !typeDefn.isPointerAllowed()[index].equals(altTypeDefn.isPointerAllowed()[altIndex]))
+                {
+                    // Set the flag indicating a mismatch exists and stop searching
+                    typeUpdate = TableTypeUpdate.MISMATCH;
+                    break;
+                }
             }
-            // The contents of the types match
-            else
+
+            // Delete the added type definition
+            getTypeDefinitions().remove(altTypeDefn);
+
+            // Check if no mismatch was detected
+            if (typeUpdate != TableTypeUpdate.MISMATCH)
             {
                 // Step through each table type data field
                 for (String[] dataField : tableTypeDefn.getDataFields())
@@ -1801,9 +1818,6 @@ public class CcddTableTypeHandler
                     }
                 }
             }
-
-            // Delete the added type definition
-            getTypeDefinitions().remove(altTypeDefn);
         }
 
         // Check if no mismatch was detected
@@ -1835,7 +1849,6 @@ public class CcddTableTypeHandler
                 // Step through each of the table type's data fields
                 for (FieldInformation typeFldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(tableTypeDefn.getTypeName())))
                 {
-                    // TODO
                     // Check if the modified default field's name causes a table's existing field
                     // to be renamed, unless the user has elected to allow renaming
                     if (!continueOnDuplicate
@@ -1855,10 +1868,7 @@ public class CcddTableTypeHandler
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) == CANCEL_BUTTON)
                         {
-                            throw new CCDDException(); // TODO ADD MESSAGE? (IF A MESSAGE IS
-                                                       // PROVIDED IT GOES TO FILE I/O HANDLER
-                                                       // EVENTUALLY FOR DISPLAY ("Import
-                                                       // failed...") AND EVENT LOGGING)
+                            throw new CCDDException();
                         }
 
                         // Set the flag to ignore further duplicates

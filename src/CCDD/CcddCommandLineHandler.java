@@ -1040,10 +1040,16 @@ public class CcddCommandLineHandler
                     // another instance of CCDD has the database open
                     Boolean lockStatus = ccddMain.getDbControlHandler()
                                                  .getDatabaseLockStatus(ccddMain.getDbControlHandler()
-                                                                                .getProjectName());
+                                                                                .getDatabaseName());
 
-                    // Check if the project database is locked (or the status can't be obtained)
-                    if (lockStatus == null || lockStatus)
+                    // Check if the project database status can't be obtained
+                    if (lockStatus == null)
+                    {
+                        throw new Exception();
+                    }
+
+                    // Check if the project database is locked
+                    if (lockStatus)
                     {
                         throw new Exception("Cannot import; project '"
                                             + ccddMain.getDbControlHandler().getProjectName()

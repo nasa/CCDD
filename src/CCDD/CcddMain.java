@@ -357,13 +357,19 @@ public class CcddMain
                 // attempt fails then attempt to connect to the default database
                 dbControl.openDatabaseInBackground(dbControl.getProjectName());
             }
-            // The GUI is hidden. Attempt to connect to the project database (note that connection
-            // to the default database, even if specified, results in exiting the application)
-            else if (dbControl.openDatabase(dbControl.getProjectName())
-                     && !dbControl.isDatabaseConnected())
+            // The GUI is hidden
+            else
             {
-                // Perform any clean-up steps and exit the application
-                cmdLnHandler.postCommandCleanUp(1);
+                // Attempt to connect to the project database
+                dbControl.openDatabase(dbControl.getProjectName());
+
+                // Check if the database successfully opened (note that connection to the default
+                // database, even if specified, results in exiting the application)
+                if (!dbControl.isDatabaseConnected())
+                {
+                    // Perform any clean-up steps and exit the application
+                    cmdLnHandler.postCommandCleanUp(1);
+                }
             }
         }
     }
