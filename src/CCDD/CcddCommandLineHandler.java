@@ -412,6 +412,21 @@ public class CcddCommandLineHandler
     {
         this.ccddMain = ccddMain;
         this.args = args;
+
+        // Step through each command line argument
+        for (int index = 0; index < args.length; index++)
+        {
+            // Check if the argument is bounded by single or double quotes
+            if (args[index].matches("^'.*'$|^\".*\"$"))
+            {
+                // Remove the bounding quotes. This allows the use of single quotes around command
+                // line arguments in operating systems that don't recognize single (e.g., Windows)
+                // or double quotes as bounding characters
+                this.args[index] = args[index].replaceFirst("^['\"]", "")
+                                              .replaceFirst("['\"]$", "");
+            }
+        }
+
         argument = new ArrayList<CommandHandler>();
         importArgument = new ArrayList<CommandHandler>();
         exportArgument = new ArrayList<CommandHandler>();

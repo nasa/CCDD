@@ -682,7 +682,7 @@ public class CcddFileIOHandler
      * separate thread the GUI is allowed to continue to update. The GUI menu commands, however,
      * are disabled until the database method completes execution
      *
-     * @param dataFile
+     * @param dataFiles
      *            array of files to import
      *
      * @param backupFirst
@@ -710,7 +710,7 @@ public class CcddFileIOHandler
      *
      * @return true is the import operation completes successfully
      *********************************************************************************************/
-    protected boolean importFile(FileEnvVar[] dataFile,
+    protected boolean importFile(FileEnvVar[] dataFiles,
                                  boolean backupFirst,
                                  boolean replaceExisting,
                                  boolean appendExistingFields,
@@ -724,6 +724,7 @@ public class CcddFileIOHandler
         CcddImportExportInterface ioHandler = null;
         List<TableDefinition> allTableDefinitions = new ArrayList<TableDefinition>();
         List<String> duplicateDefinitions = new ArrayList<String>();
+        List<String> fileNames = new ArrayList<String>();
 
         // Store the current table type, data type, macro, reserved message ID, and data field
         // information in case it needs to be restored
@@ -733,6 +734,19 @@ public class CcddFileIOHandler
         List<String[]> originalMacros = new ArrayList<String[]>(macroHandler.getMacroData());
         List<String[]> originalReservedMsgIDs = new ArrayList<String[]>(rsvMsgIDHandler.getReservedMsgIDData());
         List<String[]> originalDataFields = fieldHandler.getFieldDefnsFromInfo();
+
+        // Step through each data file to import
+        for (FileEnvVar dataFile : dataFiles)
+        {
+            // Add the file name, with path, to the list
+            fileNames.add(dataFile.getAbsolutePath());
+        }
+
+        // Add event to log indicating that importing has begun
+        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                          "Importing table(s) from '"
+                                                          + CcddUtilities.convertArrayToString(fileNames.toArray(new String[0]))
+                                                          + "'");
 
         // Load the group information from the database
         CcddGroupHandler groupHandler = new CcddGroupHandler(ccddMain, null, parent);
@@ -750,12 +764,11 @@ public class CcddFileIOHandler
         try
         {
             int numFilesProcessed = 0;
-
             // Create a save point in case an error occurs while creating or modifying a table
             dbCommand.createSavePoint(parent);
 
             // Step through each selected file
-            for (FileEnvVar file : dataFile)
+            for (FileEnvVar file : dataFiles)
             {
                 // Store the file path
                 filePath = file.getAbsolutePath();
@@ -892,7 +905,7 @@ public class CcddFileIOHandler
 
             // Store the data file path in the program preferences backing store
             storePath(ccddMain,
-                      dataFile[0].getAbsolutePathWithEnvVars(),
+                      dataFiles[0].getAbsolutePathWithEnvVars(),
                       true,
                       ModifiablePathInfo.TABLE_EXPORT_PATH);
 
@@ -911,6 +924,7 @@ public class CcddFileIOHandler
             // the new input type(s), if applicable
             dbTable.updateInputTypeColumns(null, parent);
 
+            // Add event to log indicating that the import completed successfully
             eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                               "Table import completed successfully");
 
@@ -1013,6 +1027,9 @@ public class CcddFileIOHandler
                 // are now invalid
                 ccddMain.getTableTypeEditor().removeInvalidTabs();
             }
+
+            // Add event to log indicating that the import did not complete successfully
+            eventLog.logEvent(EventLogMessageType.FAIL_MSG, "Table import failed to complete");
         }
 
         return errorFlag;
