@@ -1171,6 +1171,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              String[] separators,
                              Object... extraInfo) throws CCDDException, Exception
     {
+        // TODO
+
         boolean addLineFeed = false;
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -1198,6 +1200,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                    true,
                                                                    false,
                                                                    parent);
+
+                System.out.println("\nexport: " + tblName); // TODO
+                for (Object[] o : tableInfo.getData())
+                    System.out.println(" " + Arrays.toString(o)); // TODO
 
                 // Check if the table's data successfully loaded
                 if (!tableInfo.isErrorFlag())
@@ -1282,9 +1288,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     pw.printf(CSVTags.COLUMN_NAMES.getTag() + "\n%s\n",
                               CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
+                    System.out.println("\nstore cell data:"); // TODO
                     // Step through each row in the table
                     for (int row = 0; row < tableInfo.getData().length; row++)
                     {
+                        System.out.println(" " +
+                                           CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableInfo.getData()[row]),
+                                                                                                       NUM_HIDDEN_COLUMNS,
+                                                                                                       tableInfo.getData()[row].length))); // TODO
+
                         // Output the table row data, skipping the hidden columns
                         pw.printf("%s\n",
                                   CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableInfo.getData()[row]),

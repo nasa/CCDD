@@ -1094,9 +1094,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                 row = convertRowIndexToModel(row);
                 column = convertColumnIndexToModel(column);
 
-                // TODO IF TABLE TYPE DATA FIELD VALUES AREN'T ALLOWED TO BE ALTERED THEN NEED TO
-                // INHIBIT IT HERE
-
                 // Return true if this is not the owner or path column, or if the table does not
                 // have the field specified by the column
                 return column != FieldTableEditorColumnInfo.OWNER.ordinal()
@@ -1283,9 +1280,6 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
 
                 // Get the column index in model coordinates
                 int columnModel = convertColumnIndexToModel(column);
-
-                // TODO TABLE TYPE FIELD INHERITANCE - IF NOT ALLOWED TO CHANGE VALUES FOR THESE
-                // FIELDS THEN SHOW AS DISABLED
 
                 // Check if the cell doesn't have the focus or is selected (the focus and selection
                 // highlight colors override the invalid highlight color) and if this is a column
