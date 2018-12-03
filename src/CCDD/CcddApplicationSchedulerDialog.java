@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_CREATE_ICON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.STORE_ICON;
@@ -316,7 +317,7 @@ public class CcddApplicationSchedulerDialog extends CcddDialogHandler implements
     {
         setTitle(DIALOG_TITLE
                  + (schedulerHndlr.getSchedulerEditor().isMessagesChanged()
-                                                                            ? "*"
+                                                                            ? CHANGE_INDICATOR
                                                                             : ""));
     }
 

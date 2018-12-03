@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLEAR_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.COPY_ICON;
@@ -1795,7 +1796,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
         // Replace the dialog title, appending the change indicator if changes exist
         setTitle(DIALOG_TITLE
                  + (isGroupsChanged()
-                                      ? "*"
+                                      ? CHANGE_INDICATOR
                                       : ""));
     }
 

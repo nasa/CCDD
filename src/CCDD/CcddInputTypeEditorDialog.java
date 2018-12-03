@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
@@ -933,7 +934,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 // Add or remove the change indicator based on whether any unstored changes exist
                 setTitle(DIALOG_TITLE
                          + (inputTypeTable.isTableChanged(committedData)
-                                                                         ? "*"
+                                                                         ? CHANGE_INDICATOR
                                                                          : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed

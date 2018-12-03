@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
@@ -1167,7 +1168,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
         // Add or remove the change indicator based on whether or not any unstored changes exist
         setTitle(DIALOG_TITLE
                  + (isAssociationsChanged()
-                                            ? "*"
+                                            ? CHANGE_INDICATOR
                                             : ""));
 
         // Force the table to redraw so that changes to the cells are displayed

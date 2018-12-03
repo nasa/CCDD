@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.COL_ARGUMENT;
 import static CCDD.CcddConstants.DELETE_ICON;
@@ -314,8 +315,24 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             // Update the table editor for the table type change
                             editor.updateForTableTypeChange(tableInfo);
 
+                            // Get the tab index for this table in the editor dialog
+                            int tabIndex = editorDialog.getTabbedPane()
+                                                       .indexOfTab(editor.getOwnerName());
+
+                            // Check if the tab index for this table wasn't found. This occurs if
+                            // the table editor has unstored changes (which will be reverted) since
+                            // the tab name includes the change indicator (asterisk)
+                            if (tabIndex == -1)
+                            {
+                                // Get the tab index using the table name with the change indicator
+                                // attached
+                                tabIndex = editorDialog.getTabbedPane()
+                                                       .indexOfTab(editor.getOwnerName()
+                                                                   + CHANGE_INDICATOR);
+                            }
+
                             // Update the editor tab's tool tip text in case the type name changed
-                            editorDialog.getTabbedPane().setToolTipTextAt(editorDialog.getTabbedPane().indexOfTab(editor.getOwnerName()),
+                            editorDialog.getTabbedPane().setToolTipTextAt(tabIndex,
                                                                           CcddUtilities.wrapText(editor.getTableToolTip(),
                                                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                         }
@@ -1544,9 +1561,10 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
         {
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
-                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,
+                                                                          "")
                                          + (typeEditor.isTableChanged()
-                                                                        ? "*"
+                                                                        ? CHANGE_INDICATOR
                                                                         : ""));
         }
     }

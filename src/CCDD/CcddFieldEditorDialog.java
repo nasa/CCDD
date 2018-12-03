@@ -9,6 +9,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.BREAK_ICON;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
@@ -502,7 +503,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 // exist
                 setTitle(DIALOG_TITLE + ": " + ownerName
                          + (fieldTable.isTableChanged(currentData)
-                                                                   ? "*"
+                                                                   ? CHANGE_INDICATOR
                                                                    : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed

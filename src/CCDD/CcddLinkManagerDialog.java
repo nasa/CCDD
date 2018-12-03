@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.COPY_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
@@ -139,7 +140,9 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             for (int index = 0; index < tabbedPane.getTabCount(); index++)
             {
                 // Remove the change indicator from the tab title
-                tabbedPane.setTitleAt(index, tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
+                tabbedPane.setTitleAt(index,
+                                      tabbedPane.getTitleAt(index)
+                                                .replaceAll("\\" + CHANGE_INDICATOR, ""));
             }
         }
     }
@@ -1346,9 +1349,10 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
         {
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
-                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,
+                                                                          "")
                                          + (linkMgrs.get(index).isLinksChanged()
-                                                                                 ? "*"
+                                                                                 ? CHANGE_INDICATOR
                                                                                  : ""));
         }
     }

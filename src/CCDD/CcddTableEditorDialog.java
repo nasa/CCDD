@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
@@ -2029,9 +2030,10 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         {
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
-                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,
+                                                                          "")
                                          + (tableEditor.isTableChanged()
-                                                                         ? "*"
+                                                                         ? CHANGE_INDICATOR
                                                                          : ""));
         }
     }

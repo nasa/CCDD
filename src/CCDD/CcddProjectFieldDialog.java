@@ -7,6 +7,7 @@
  */
 package CCDD;
 
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLEAR_ICON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.FIELD_ICON;
@@ -509,7 +510,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
         // Replace the dialog title, appending the change indicator if changes exist
         setTitle(DIALOG_TITLE
                  + (isFieldsChanged()
-                                      ? "*"
+                                      ? CHANGE_INDICATOR
                                       : ""));
     }
 }

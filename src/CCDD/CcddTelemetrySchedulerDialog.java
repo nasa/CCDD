@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.AUTO_CREATE_ICON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.INSERT_ICON;
@@ -638,10 +639,13 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
         {
             // Replace the tab name, appending the change indicator if changes exist
             tabbedPane.setTitleAt(index,
-                                  tabbedPane.getTitleAt(index).replaceAll("\\*", "")
-                                         + (schHandlers.get(index).getSchedulerEditor().isMessagesChanged()
-                                                                                                            ? "*"
-                                                                                                            : ""));
+                                  tabbedPane.getTitleAt(index).replaceAll("\\" + CHANGE_INDICATOR,
+                                                                          "")
+                                         + (schHandlers.get(index)
+                                                       .getSchedulerEditor()
+                                                       .isMessagesChanged()
+                                                                            ? CHANGE_INDICATOR
+                                                                            : ""));
         }
     }
 
@@ -664,7 +668,8 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
             {
                 // Remove the change indicator from the tab title
                 tabbedPane.setTitleAt(index,
-                                      tabbedPane.getTitleAt(index).replaceAll("\\*", ""));
+                                      tabbedPane.getTitleAt(index)
+                                                .replaceAll("\\" + CHANGE_INDICATOR, ""));
             }
         }
     }

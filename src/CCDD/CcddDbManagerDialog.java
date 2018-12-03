@@ -8,6 +8,7 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CANCEL_BUTTON;
+import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DATABASE_ADMIN_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
@@ -1389,7 +1390,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 setTitle(DIALOG_TITLE
                          + (accessTable.isTableChanged(committedData,
                                                        Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
-                                                                                                                                 ? "*"
+                                                                                                                                 ? CHANGE_INDICATOR
                                                                                                                                  : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed

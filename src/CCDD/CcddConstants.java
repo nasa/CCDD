@@ -134,6 +134,9 @@ public class CcddConstants
     // Separator for rate values and table names in the telemetry scheduler table
     protected static final String TLM_SCH_SEPARATOR = "\\";
 
+    // Changed data indicator character
+    protected static final String CHANGE_INDICATOR = "*";
+
     // Characters used to separate individual remembered strings that are stored as a single string
     // in the program preferences
     protected static final String STRING_LIST_TEXT_SEPARATOR = "%~%";

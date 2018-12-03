@@ -3157,7 +3157,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean combineAsSingleEdit,
                                         boolean highlightPastedData)
             {
-                // TODO
+                // TODO LOTS OF CHANGES WERE MADE ON 11/29/18 - CONTINUE TO VERIFY!
                 // System.out.print("\npasteData: " + currentTableInfo.getTablePath()); // TODO
                 // int r = 0;
                 // int c = 0;
@@ -3316,7 +3316,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // corresponding array definition in a previous row
                         if (ArrayVariable.isArrayMember(varName)
                             && (row == 0
-                                || !ArrayVariable.removeArrayIndex(tableData.get(row - 1)[variableNameIndex].toString()).equals(ArrayVariable.removeArrayIndex(varName))))
+                                || !ArrayVariable.removeArrayIndex(tableData.get(row - 1)[variableNameIndex].toString())
+                                                 .equals(ArrayVariable.removeArrayIndex(varName))))
                         {
                             // Check if the array size is also pasted and this is the first array
                             // member (the sum of its array index values equal zero)
@@ -3329,6 +3330,20 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 // array definition
                                 Object[] arrayDefn = Arrays.copyOfRange(cellData, index, index + numColumns);
                                 arrayDefn[index + variableNameView - startColumn] = ArrayVariable.removeArrayIndex(varName);
+
+                                // Step through each pasted column
+                                for (int column = startColumn; column <= endColumn; column++)
+                                {
+                                    // Check if the column's input type isn't one necessary to
+                                    // define a structure
+                                    if (!DefaultColumn.isTypeRequiredColumn(TYPE_STRUCTURE,
+                                                                            inputTypeHandler,
+                                                                            typeDefn.getInputTypesVisible()[column]))
+                                    {
+                                        // Initialize the cell to a blank (false if a boolean)
+                                        arrayDefn[column] = "";
+                                    }
+                                }
 
                                 // Insert the new array definition row within the pasted cell data
                                 // array. This is the row that gets processed next, which creates
