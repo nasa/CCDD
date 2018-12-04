@@ -3146,7 +3146,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
             /**************************************************************************************
              * Override the paste method so that hidden rows (array members) are displayed prior to
-             * pasting in new data
+             * pasting in new data. If an array member variable is pasted into a structure table
+             * then the array definition is automatically generated under certain conditions. TODO
+             * FILL IN THE CONDITIONS UNDER WHICH AN ARRAY DEFN IS CREATED
              *************************************************************************************/
             @Override
             protected boolean pasteData(Object[] cellData,
@@ -3259,9 +3261,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Clear the cell selection
                 clearSelection();
 
-                // Counter for the number of rows ignored if an array member is pasted but has no
-                // array definition
+                // Counters for the number of array member rows added (due to pasting in an array
+                // definition) and the number of rows ignored (due to the first pasted row(s) being
+                // an array member)
+                int arrayRowsAdded = 0;
+                int totalAddedRows = 0;
                 int skippedRows = 0;
+
+                boolean isIgnoreRow = false;
 
                 // Initialize the view column indices for the variable name and array size
                 int variableNameView = -1;
@@ -3297,76 +3304,129 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
                 }
 
-                // Step through each row of pasted data
+                // Step through each new row
                 for (int index = 0, row = startRow; row < endRow && showMessage != null; row++)
                 {
                     boolean skipRow = false;
+
+                    // Calculate the row in the table data where the values are to be pasted. This
+                    // must be adjusted to account for pasting in arrays
+                    int adjustedRow = row + totalAddedRows - skippedRows;
 
                     // Check if a variable name is within the data being pasted. If an array member
                     // is pasted then it requires an array definition in a row above. If there is
                     // no array definition, but this is the first array member, then the definition
                     // is created from the pasted member data if the pasted data also includes the
-                    // array size. If the definition isn't created the row of data is skipped
+                    // array size. If the definition isn't created then the row of data is skipped
                     if (variableNameView != -1)
                     {
-                        // Get the variable name for the current row of data
-                        String varName = cellData[index + variableNameView - startColumn].toString();
+                        // Get the index into the cell data for this row's variable name
+                        int varIndex = index + variableNameView - startColumn;
 
-                        // Check if the variable name is an array member and there is no
-                        // corresponding array definition in a previous row
-                        if (ArrayVariable.isArrayMember(varName)
-                            && (row == 0
-                                || !ArrayVariable.removeArrayIndex(tableData.get(row - 1)[variableNameIndex].toString())
-                                                 .equals(ArrayVariable.removeArrayIndex(varName))))
+                        // Check if rows were removed due to an array size reduction or removal
+                        if (arrayRowsAdded < 0)
                         {
-                            // Check if the array size is also pasted and this is the first array
-                            // member (the sum of its array index values equal zero)
-                            if (arraySizeView != -1
-                                && !cellData[index + arraySizeView - startColumn].toString().isEmpty()
-                                && ArrayVariable.getNumMembersFromArraySize(ArrayVariable.getVariableArrayIndex(varName)) == 0)
+                            // Set the flag indicating that this row of data is to be skipped and
+                            // increment the skipped row counter
+                            skipRow = true;
+                            skippedRows++;
+
+                            // Adjust the row counters so that all array member rows are skipped
+                            arrayRowsAdded++;
+                            totalAddedRows++;
+                        }
+                        // Check if a variable name value is present to paste and that the variable
+                        // is an array member
+                        else if (cellData[varIndex] != null
+                                 && ArrayVariable.isArrayMember(cellData[varIndex]))
+                        {
+                            // Check if rows were added for the previous pasted row to accommodate
+                            // the array members
+                            if (arrayRowsAdded > 0)
                             {
-                                // Copy the row of data for the first array member, then alter the
-                                // name by removing the array index (indices) to make this the
-                                // array definition
-                                Object[] arrayDefn = Arrays.copyOfRange(cellData, index, index + numColumns);
-                                arrayDefn[index + variableNameView - startColumn] = ArrayVariable.removeArrayIndex(varName);
-
-                                // Step through each pasted column
-                                for (int column = startColumn; column <= endColumn; column++)
-                                {
-                                    // Check if the column's input type isn't one necessary to
-                                    // define a structure
-                                    if (!DefaultColumn.isTypeRequiredColumn(TYPE_STRUCTURE,
-                                                                            inputTypeHandler,
-                                                                            typeDefn.getInputTypesVisible()[column]))
-                                    {
-                                        // Initialize the cell to a blank (false if a boolean)
-                                        arrayDefn[column] = "";
-                                    }
-                                }
-
-                                // Insert the new array definition row within the pasted cell data
-                                // array. This is the row that gets processed next, which creates
-                                // the array; then the array member(s) is pasted. If no array size
-                                // is included in the pasted data then just the variable name (sans
-                                // array index) is pasted
-                                cellData = CcddUtilities.concatenateArrays(CcddUtilities.concatenateArrays(Arrays.copyOfRange(cellData,
-                                                                                                                              0,
-                                                                                                                              index),
-                                                                                                           arrayDefn),
-                                                                           Arrays.copyOfRange(cellData,
-                                                                                              index,
-                                                                                              cellData.length));
+                                // Move the row index back so that the array member data is pasted
+                                // in the proper row
+                                adjustedRow -= arrayRowsAdded;
+                                arrayRowsAdded--;
+                                totalAddedRows--;
                             }
-                            // Not the first array member
+                            // No rows were added for this array member
                             else
                             {
-                                // Set the flag to indicate that this row of data is to be skipped,
-                                // increment the skipped row counter, and update the cell data
-                                // index so that this row of cell values is skipped
-                                skipRow = true;
-                                skippedRows++;
-                                index += numColumns;
+                                // Get the variable name for the current row of data
+                                String varName = cellData[index + variableNameView - startColumn].toString();
+
+                                // Check if the variable name is an array member and there is no
+                                // corresponding array definition in a previous row
+                                if (ArrayVariable.isArrayMember(varName)
+                                    && (adjustedRow == 0
+                                        || !ArrayVariable.removeArrayIndex(tableData.get(adjustedRow - 1)[variableNameIndex].toString())
+                                                         .equals(ArrayVariable.removeArrayIndex(varName))))
+                                {
+                                    // Check if the array size is also pasted and this is the first
+                                    // array member (the sum of its array index values equal zero)
+                                    if (arraySizeView != -1
+                                        && !cellData[index + arraySizeView - startColumn].toString().isEmpty()
+                                        && ArrayVariable.getNumMembersFromArraySize(ArrayVariable.getVariableArrayIndex(varName)) == 0)
+                                    {
+                                        // Copy the row of data for the first array member, then
+                                        // alter the name by removing the array index (indices) to
+                                        // make this the array definition
+                                        Object[] arrayDefn = Arrays.copyOfRange(cellData, index, index + numColumns);
+                                        arrayDefn[index + variableNameView - startColumn] = ArrayVariable.removeArrayIndex(varName);
+
+                                        // Step through each pasted column
+                                        for (int defnCol = startColumn; defnCol <= endColumn; defnCol++)
+                                        {
+                                            // Check if the column's input type isn't one necessary
+                                            // to define a structure
+                                            if (!DefaultColumn.isTypeRequiredColumn(TYPE_STRUCTURE,
+                                                                                    inputTypeHandler,
+                                                                                    typeDefn.getInputTypesVisible()[defnCol]))
+                                            {
+                                                // Initialize the cell to a blank (false if a
+                                                // boolean)
+                                                arrayDefn[defnCol] = "";
+                                            }
+                                        }
+
+                                        // Insert the new array definition row within the pasted
+                                        // cell data array. This is the row that gets processed
+                                        // next, which creates the array; then the array member(s)
+                                        // is pasted. If no array size is included in the pasted
+                                        // data then just the variable name (sans array index) is
+                                        // pasted
+                                        cellData = CcddUtilities.concatenateArrays(CcddUtilities.concatenateArrays(Arrays.copyOfRange(cellData,
+                                                                                                                                      0,
+                                                                                                                                      index),
+                                                                                                                   arrayDefn),
+                                                                                   Arrays.copyOfRange(cellData,
+                                                                                                      index,
+                                                                                                      cellData.length));
+
+                                        // Adjust the end row index to account for the added row
+                                        endRow++;
+                                    }
+                                    else
+                                    {
+                                        // Check if this is the first pasted row; if so then this
+                                        // array member has no definition
+                                        if (adjustedRow == startRow)
+                                        {
+                                            // Set the flag indicating that array member rows are
+                                            // ignored
+                                            isIgnoreRow = true;
+                                        }
+
+                                        // Set the flag indicating that this row of data is to be
+                                        // skipped and increment the skipped row counter
+                                        skipRow = true;
+                                        skippedRows++;
+
+                                        // Update the cell data index so that this row is skipped
+                                        index += numColumns;
+                                    }
+                                }
                             }
                         }
                     }
@@ -3383,11 +3443,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                         // Check if a row needs to be inserted to contain the cell data
                         if ((isInsert
-                             || (isAddIfNeeded && row == tableData.size()))
+                             || (isAddIfNeeded && adjustedRow == tableData.size()))
                             && isInsertRowRequired(index, cellData, startColumn, endColumn))
                         {
                             // Insert a row at the selection point
-                            tableData.add(row, getEmptyRow());
+                            tableData.add(adjustedRow, getEmptyRow());
                         }
 
                         // Store the index into the array of data to be pasted
@@ -3427,7 +3487,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     Object newValue = index < cellData.length
                                                                               ? (cellData[index] != null
                                                                                                          ? cleanUpCellValue(cellData[index],
-                                                                                                                            row,
+                                                                                                                            adjustedRow,
                                                                                                                             columnModel)
                                                                                                          : (isInsert
                                                                                                                      ? ""
@@ -3443,12 +3503,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     if (newValue != null
                                         && ((pass == 1 && newValue.toString().isEmpty())
                                             || (pass == 2 && !newValue.toString().isEmpty()))
-                                        && isDataAlterable(tableData.get(row),
-                                                           row,
+                                        && isDataAlterable(tableData.get(adjustedRow),
+                                                           adjustedRow,
                                                            columnModel))
                                     {
                                         // Get the original cell value
-                                        Object oldValue = tableData.get(row)[columnModel];
+                                        Object oldValue = tableData.get(adjustedRow)[columnModel];
 
                                         // Check if the value has changed and, if this values are
                                         // being inserted, that the value isn't blank
@@ -3456,11 +3516,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                             && !(isInsert && newValue.toString().isEmpty()))
                                         {
                                             // Insert the value into the cell
-                                            tableData.get(row)[columnModel] = newValue;
+                                            tableData.get(adjustedRow)[columnModel] = newValue;
+
+                                            // Get the number of rows in the table prior to
+                                            // inserting the new value
+                                            int previousRows = tableData.size();
 
                                             // Validate the new cell contents
                                             showMessage = validateCellContent(tableData,
-                                                                              row,
+                                                                              adjustedRow,
                                                                               columnModel,
                                                                               oldValue,
                                                                               newValue,
@@ -3473,6 +3537,21 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                             {
                                                 // Stop pasting data
                                                 continue;
+                                            }
+
+                                            // Get the number of rows added due to pasting in the
+                                            // new value. This is non-zero if an array definition
+                                            // is pasted in or if an existing array's size is
+                                            // altered
+                                            int deltaRows = tableData.size() - previousRows;
+
+                                            // Check if the row count changed
+                                            if (deltaRows > 0)
+                                            {
+                                                // Store the number of added/deleted rows and
+                                                // update the total number of added/deleted rows
+                                                arrayRowsAdded = deltaRows;
+                                                totalAddedRows += arrayRowsAdded;
                                             }
                                         }
                                     }
@@ -3518,7 +3597,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     }
 
                     // Check if any rows were ignored
-                    if (skippedRows != 0)
+                    if (isIgnoreRow)
                     {
                         // Inform the user how many rows were skipped
                         new CcddDialogHandler().showMessageDialog(parent,

@@ -836,8 +836,8 @@ public class CcddMacroHandler
     }
 
     /**********************************************************************************************
-     * Get a list containing the tables in the project database that reference the specified macro
-     * name. Include references in the custom values table
+     * Get a list containing the search results in the project database for tables that reference
+     * the specified macro name. Include references in the custom values table
      *
      * @param macroName
      *            macro name for which to search
@@ -845,7 +845,8 @@ public class CcddMacroHandler
      * @param parent
      *            GUI component over which to center any error dialog
      *
-     * @return List containing the tables in the database that reference the specified macro name
+     * @return List containing the search results in the project database for tables that reference
+     *         the specified macro name
      *********************************************************************************************/
     protected String[] getMacroReferences(String macroName, Component parent)
     {
@@ -949,6 +950,59 @@ public class CcddMacroHandler
         return text;
     }
 
+    // TODO
+    // /******************************************************************************************
+    // * Class for table information for those tables modified due to changes in a data type
+    // (macro)
+    // * definition
+    // *****************************************************************************************/
+    // class ModifiedTable
+    // {
+    // private final TableInformation tableInformation;
+    // private final CcddTableEditorHandler editor;
+    //
+    // /**************************************************************************************
+    // * Class constructor for table information for those tables modified due to changes in a
+    // * data type (macro) definition
+    // *
+    // * @param tablePath
+    // * table path (if applicable) and name
+    // *************************************************************************************/
+    // private ModifiedTable(String tablePath)
+    // {
+    // // Load the table's information from the project database
+    // tableInformation = loadTableData(tablePath, false, true, dialog);
+    //
+    // // Create a table editor handler using the updated data types and/or macros, but
+    // // without displaying the editor itself
+    // editor = new CcddTableEditorHandler(ccddMain,
+    // tableInformation,
+    // newDataTypeHandler,
+    // newMacroHandler,
+    // dialog);
+    // }
+    //
+    // /**************************************************************************************
+    // * Get the reference to the table information
+    // *
+    // * @return Reference to the table information
+    // *************************************************************************************/
+    // protected TableInformation getTableInformation()
+    // {
+    // return tableInformation;
+    // }
+    //
+    // /**************************************************************************************
+    // * Get the reference to the table editor
+    // *
+    // * @return Reference to the table editor
+    // *************************************************************************************/
+    // protected CcddTableEditorHandler getEditor()
+    // {
+    // return editor;
+    // }
+    // }
+
     /**********************************************************************************************
      * Add new macros and check for matches with existing ones
      *
@@ -978,6 +1032,110 @@ public class CcddMacroHandler
             // existing macro's expanded value
             else if (!macroValue.equals(getMacroExpansion(macroDefn[MacrosColumn.VALUE.ordinal()])))
             {
+                // // TODO CHECK IF THE VALUE OF THE IMPORTED MACRO MATCHES THE USAGE FOR ALL
+                // EXISTING
+                // // INSTANCES OF THE MACRO. IF NOT, THEN THROW THE EXCEPTION. IF THE USAGE IS
+                // VALID,
+                // // THEN CREATE THE MODIFICATIONS NEEDED AND CALL
+                // // modifyTablesPerDataTypeOrMacroChanges()
+                // // TODO IS IT POSSIBLE TO SIMPLY TRY TO MAKE THE CHANGE AND SEE IF IT BOMBS?
+                // List<ModifiedTable> modifiedTables = new ArrayList<ModifiedTable>();
+                //
+                // for (String reference :
+                // getMacroReferences(macroDefn[MacrosColumn.MACRO_NAME.ordinal()],
+                // ccddMain.getMainFrame()))
+                // {
+                // // TODO CODE BELOW IS COPIED FROM modifyTablesPerDataTypeOrMacroChanges()
+                // String tableName = null;
+                // String changeColumn = null;
+                // String matchColumn = null;
+                // ModifiedTable modifiedTable = null;
+                //
+                // // Split the reference into table name, column name, table type, and
+                // // context
+                // String[] tblColDescAndCntxt = reference.split(TABLE_DESCRIPTION_SEPARATOR, 4);
+                //
+                // // Create a reference to the search result's database table name and row
+                // // data to shorten comparisons below
+                // String refTableName =
+                // tblColDescAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()];
+                // String[] refContext =
+                // CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                //
+                // // Set to true if the referenced table is a prototype table and false if
+                // // the reference is to the internal custom values table
+                // boolean isPrototype = !refTableName.startsWith(INTERNAL_TABLE_PREFIX);
+                //
+                // // Check if the referenced table is a prototype table
+                // if (isPrototype)
+                // {
+                // // Set the viewable table name (with capitalization intact) and get the
+                // // column name containing the data type (macro) reference. Use the
+                // // primary key as the matching column criteria
+                // tableName =
+                // tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2)[0];
+                // changeColumn = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
+                // matchColumn = refContext[DefaultColumn.PRIMARY_KEY.ordinal()];
+                // }
+                // // The reference is in the custom values table
+                // else
+                // {
+                // // Get the table name from the variable path in the custom values table
+                // // and get the column name containing the macro reference. Use the
+                // // variable name as the matching column criteria
+                // tableName =
+                // refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(\"|\\s|,[^\\.]*\\.[^,]*$)",
+                // "");
+                // changeColumn = refContext[ValuesColumn.COLUMN_NAME.ordinal()];
+                // matchColumn =
+                // refContext[ValuesColumn.TABLE_PATH.ordinal()].replaceAll("(.*\\.|\")", "");
+                // }
+                //
+                // // Step through each table already loaded for modifications
+                // for (ModifiedTable modTbl : modifiedTables)
+                // {
+                // // Check if the table has already been loaded
+                // if (modTbl.getTableInformation().getProtoVariableName().equals(tableName))
+                // {
+                // // Store the reference to the modified table and stop searching
+                // modifiedTable = modTbl;
+                // break;
+                // }
+                // }
+                //
+                // // Check if the table isn't already loaded
+                // if (modifiedTable == null)
+                // {
+                // // Load the table and add it to the list
+                // modifiedTable = new ModifiedTable(tableName);
+                // modifiedTables.add(modifiedTable);
+                //
+                // // Check if the table arrays aren't expanded
+                // if (!modifiedTable.getEditor().isExpanded())
+                // {
+                // // Expand the table arrays
+                // modifiedTable.getEditor().showHideArrayMembers();
+                // }
+                // }
+                //
+                // // Get the reference to the table to shorten subsequent calls
+                // CcddJTableHandler table = modifiedTable.getEditor().getTable();
+                //
+                // // Use the table's type to get the index for the table column containing
+                // // the data type (macro) reference
+                // TypeDefinition typeDefn = modifiedTable.getEditor().getTableTypeDefinition();
+                // int changeColumnIndex = isPrototype
+                // ? typeDefn.getColumnIndexByDbName(changeColumn)
+                // : typeDefn.getColumnIndexByUserName(changeColumn);
+                //
+                // System.out.println("mismatched macro " +
+                // macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
+                // + " found in table " + tableName
+                // + "; column " + changeColumn); // TODO
+                //
+                // }
+                // // end TODO
+
                 throw new CCDDException("Imported macro '</b>"
                                         + macroDefn[MacrosColumn.MACRO_NAME.ordinal()]
                                         + "<b>' doesn't match the existing definition");
